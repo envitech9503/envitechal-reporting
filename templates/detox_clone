@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{%static "style.css" %}">
-    <title>Add drinking Water Form</title>
+    <title>Add Drinking Water Form</title>
     <script src="/static/vendor/jquery-3.6.4.min.js"></script>
     <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
     <link href="/static/vendor/select2/select2.min.css" rel="stylesheet" />

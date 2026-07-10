@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
   <link rel="stylesheet" href={%static "style.css"%}>
 
-    <title>Calibration LIst</title>
+    <title>Calibration List</title>
     <script src="/static/vendor/jquery-3.6.4.min.js"></script>
     <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
     <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
@@ -76,7 +76,7 @@
                         <td>{{data.sample_id}}</td>
                         <td>
                             {% if data.checkinp_chemical and data.checkinp_bacteria %}
-                            Chemical / Bacterial Analyis
+                            Chemical / Bacterial Analysis
                             
                             {% elif data.checkinp_chemical and data.inp1 %}
                                     Chemical Analysis / {{data.inp1}}
@@ -86,10 +86,10 @@
                                     Bacterial Analysis / {{data.inp1}}
                             
                             {% elif data.checkinp_bacteria %}
-                                    Bacterial Analyis
+                                    Bacterial Analysis
                                 
                                 {% elif data.checkinp_chemical %}
-                                    Chemical Analyis
+                                    Chemical Analysis
                                 
                                 {% elif data.inp1 %}
                                 {{data.inp1}}

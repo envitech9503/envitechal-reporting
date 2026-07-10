@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
   <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href= "/static/style.css">
-    <title>Envi Tech AL|</title>
+    <title>Envi Tech AL</title>
   
   <script src="/static/vendor/jquery-3.6.4.min.js"></script>
   
@@ -127,7 +127,7 @@
             </div>
             <nav class="p-4 overflow-y-auto flex-grow">
                 <ul class="w-48">
-                    <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms.<i class="fa-solid fa-chevron-right pl-20"></i></button>
+                    <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms<i class="fa-solid fa-chevron-right pl-20"></i></button>
                     <div class="formMainDiv hidden">
                         <hr class=" border-blue-200">
                         <button class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
@@ -271,7 +271,7 @@
            
                     <div class="">
                         
-                        <form method="get" action="{% url 'home' %}">
+                        <form method="get" action="{% url 'home' %}" class="flex flex-wrap gap-2">
                             {% csrf_token %}
                             <div class="w-10/12 flex justify-around" style="position: fixed; top: 100px; background: white; padding: 10px; z-index: 1000;">
                                 <input class="w-48 px-2 py-2 border border-gray-400 outline-none rounded" 
