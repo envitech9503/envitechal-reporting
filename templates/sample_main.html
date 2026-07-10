@@ -1,0 +1,216 @@
+
+
+<!doctype html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if user.is_authenticated %}
+  {% load static %}
+  
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href= {% static "style.css"%}>
+    <title>Envi Tech AL|</title>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+    
+    <style>
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+          }
+          
+          .navbar a {
+            float: left;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+          }
+          
+          .dropdown {
+            float: left;
+            overflow: hidden;
+          }
+          
+          .dropdown .dropbtn {
+            font-size: 16px;  
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit;
+            margin: 0;
+          }
+          
+          .navbar a:hover, .dropdown:hover .dropbtn {
+            background-color: red;
+          }
+          
+          .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+          }
+          
+          .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+          }
+          
+          .dropdown-content a:hover {
+            background-color: #ddd;
+          }
+          
+          .dropdown:hover .dropdown-content {
+            display: block;
+        .NEQS,.PEQS{
+	    display: none;
+        }
+        @media (max-width: 768px) {
+            .side-nav {
+                width: 100%; /* Make the navigation full-width */
+                top: 0; /* Place it at the top */
+                left: -100%; /* Hide it off-screen by default */
+                transition: left 0.3s ease-in-out;
+                font-size:12;
+            }
+        
+            /* Show the navigation when a button is clicked */
+            .nav-opened .side-nav {
+                left: 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .side-nav {
+                width: 100%; /* Make the navigation full-width */
+                top: 0; /* Place it at the top */
+                left: -100%; /* Hide it off-screen by default */
+                transition: left 0.3s ease-in-out;
+                font-size:12;
+            }
+        
+            /* Show the navigation when a button is clicked */
+            .nav-opened .side-nav {
+                left: 0;
+            }
+        }
+        
+        /* Add a button to open/close the navigation on smaller screens */
+        .nav-toggle {
+            display: none; /* Initially hide the toggle button on larger screens */
+        }
+        
+        /* Style the toggle button */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block; /* Show the toggle button on smaller screens */
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                cursor: pointer;
+            }
+        }
+    </style>
+
+</head>
+
+<body class="overflow-hidden">
+    <section id="header"  class="h-20 w-full flex flex-wrap items-center justify-between p-4 fixed top-0 bg-gray-900" >
+        <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+        <div id="profile" class="flex space-x-8">
+            <span class="text-gray-200 text-xl flex gap-2">User : <p class="text-green-400">{{user.username}}</p></span>
+            <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+        </div>
+        
+    </section>
+    <section class="main w-full flex flex-row justify-end ">
+        
+            
+            <div class="main-img h-screen w-full flex justify-center bg-gray-200  mt-20 " style="z-index: -1;">
+                <center>
+                    <img class="h-96 mt-44 opacity-20 select-none" src="/static/assets/0x0-removebg-preview.png"  alt="">
+                    <h1 class="text-6xl opacity-10 text-blue-800 font-serif pt-10 select-none">ENVITECHAL</h1>
+                </center>
+                
+                
+            </div>
+
+            <div class="" style="position: absolute; top: 150px; right: 0%; width: 100%;">
+                <div class="" style="
+                gap: 19px;
+                display: flex;
+                justify-content: space-around;">
+                        <div class="navbar">
+                            <div class="dropdown">
+                              <button class="dropbtn">Sample Registration 
+                                <i class="fa fa-caret-down"></i>
+                              </button>
+                              <div class="dropdown-content">
+                                <a href="{% url 'sample_reg' %}">Add Sample</a>
+                                <a href="{% url "sample_list" %}">List Sample</a>
+                              </div>
+                            </div> 
+                            <div class="dropdown">
+                                <button class="dropbtn">Logging Sheet 
+                                  <i class="fa fa-caret-down"></i>
+                                </button>
+                                <div class="dropdown-content">
+                                  <a href="{% url 'addLogging' %}">Add Logging</a>
+                                  <a href="{% url 'loggingSheet' %}">Logging Sheet</a>
+                                  <a href="{% url 'loggingList' %}">List Logging</a>
+                                </div>
+                              </div>
+                              
+                          </div>                                                          
+                   
+                </div>
+            </div>
+        
+
+        
+        
+    </section>
+
+
+
+
+
+    
+    
+    <script src={% static '/js/app.js'%} defer >
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.querySelector('.nav-toggle');
+            const body = document.querySelector('body');
+        
+            toggleButton.addEventListener('click', function () {
+                body.classList.toggle('nav-opened');
+            });
+        });
+
+    
+        
+    </script>
+    {% else %}
+    <script>window.location='/login/'</script>
+    {% endif %}
+   
+</body>
+
+</html>

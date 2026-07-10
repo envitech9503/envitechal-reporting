@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <!-- jQuery (only once, and FIRST) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    
+    <!-- DataTables (optional) -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <!-- Select2 -->
+    <!-- ✅ Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <!-- ✅ Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    
+    <!-- jQuery UI (optional) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>Document</title>
+</head>
+{% load static %}
+
+<body>
+    {% if messages %}
+    <div class="w-full flex justify-center items-center">
+        <ul class="messages w-full bg-green-100 text-center rounded-lg p-2"> 
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }} text-green-700"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    <script>
+        setTimeout(function() {
+          var successMessage = document.querySelector('.messages');
+          if (successMessage) {
+            successMessage.style.display = 'none';
+          }
+        }, 5000); // Hide after 5 seconds (5000 milliseconds)
+      </script>
+    
+    <form action="{% url 'sample_reg' %}" method="post" enctype="multipart/form-data" class="w-full flex flex-col justify-around">
+        {% csrf_token %}
+    <div class="w-full flex justify-around items-center">
+        <div class="">
+            <img class="w-20" src="/static/assets/0x0-removebg-preview.png" alt="">
+        </div>
+        <div class="">
+            <h4 class="text-center text-lg font-bold">Envi Tech AL</h4>
+            <h1 class="font-bold text-2xl text-center">Sample Registration Form</h1>
+        </div>
+        <div class="">
+            
+            <div class="border border-2 text-md flex flex-col border-black">
+                <input class="lab" type="text" name="lab_no" value="ETAL-LAB-704-FF-03">
+                <input class="issue_date" type="text" name="issue_date" value="Issue Date:28-09-2022">
+                <input class="issue_no" type="text" name="issue_no" value="Issue No:02 Rev.No 01">
+                
+            </div>
+        </div>
+    </div>
+    <hr class="w-full ">
+    
+    
+    <div class="w-full text-center mt-16 mb-16">
+        <h1 class="text-4xl font-bold">Sample Registration Form</h1>
+    </div>
+    <div  class="w-full flex flex-col justify-around ">
+        <div class="flex w-8/12 hidden">
+            <div class="alert w-52 flex flex-col justify-around my-6">
+            
+                <div class="">
+                    <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                </div>
+                <div class="">
+                    <input class="SEQS-value" type="checkbox" value="SEQS_">
+                    <label for="">SEQS</label>
+                </div>
+                <div class="">
+                    <input class="PEQS-value" type="checkbox" value="PEQS_">
+                    <label for="">PEQS</label>
+                </div>
+                <div class="">
+                    <input class="NEQS-value" type="checkbox" value="NEQS_">
+                    <label for="">NEQS</label>
+                </div>
+                <input id="checkinput" type="text" name="location" value="" style="display: none;">
+                <div class="flex justify-between flex-wrap">
+              
+                <div class="mt-4 flex flex-col">
+                    <label class="font-bold text-lg" for="">Location</label>
+                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                </div>
+               
+                
+            </div>
+            </div>
+
+           
+            
+            
+        </div>
+       <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 flex justify-between p-2 items-center ">
+            <h5 class="" style=""><b>Sample Information:</b></h5>
+            <div class="">
+                <label for="">Sample ID</label>
+                <input class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" type="text" name="sample_id" id="">
+            </div>
+        </div>
+    </div>
+        <div class="w-full flex justify-center">
+            <div class="w-8/12 flex flex-col  p-4 gap-2 border border-2 border-gray-200">
+                <div class="">
+                    <h4 class="font-bold">Analysis Requested:</h4><br>
+                    
+                </div>
+                
+                <div class="">
+                    <table width="100%">
+                        <tr>
+                            <td><input type="checkbox" name="checkinp_chemical"><span class="px-4">Chemical Analysis</span></td>
+                            <td><input type="checkbox" name="checkinp_bacteria"><span class="px-4">Bacterial Analysis</span></td>
+                            <td class="float-right"><span class="px-2">Other(Please Specify)</span><input
+                                    class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                                    name="inp1" type="text"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+    <div class=" w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 ">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sampling By</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp2" type="text"></td>
+                <td colspan="3" class="p-2 border border-gray-300 "><b>Registration Date & Time</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp3" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Location Of Sample</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp4" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Sample Method</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp5" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sample Collected By</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp6" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Sampling/ Receiving Date</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp7" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sampling / Receiving Time</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp8" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Estimated Reporting Date</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp9" type="text"></td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <div class="w-full flex justify-center">
+        <div class="p-4" style="width: 66%; display: flex; justify-content: space-between;border:1px solid ">
+            <div class="" style="width:50%;">
+                <div class="py-4 flex justify-between">
+                    <tr>
+                        <td class="p-2 border border-gray-300"><b>No. Of Samples</b></td>
+                        <td class="p-2 border border-gray-300"><input
+                                class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                                name="inp10" value=""  type="text"></td>
+                        
+                    </tr>
+                </div>
+                <div class="py-4 flex justify-between">
+                    <tr>
+                        <td class="p-2 border border-gray-300"><b>Sampling Methodology</b></td>
+                            <td class="p-2 space-x-4"><input id="grab"   class="" name="checkinp14" type="checkbox"><label
+                                for="grab"><b>Grab</b></label></td>
+                        
+                        
+                            <td class="p-2 space-x-4"><input id="comp" class=""   name="checkinp15" type="checkbox"><label
+                                for="comp"><b>Composite</b></label></td>
+                        
+                        
+                    </tr>
+                </div>
+            </div>
+            <div class=""style="width: 50%; display: flex;justify-content: space-around;">
+                
+                    <div class="space-y-4">
+                        
+                            <div class="">
+                                <input   name="checkinp11" class="" type="checkbox">
+                                <span><b>Drinking Water</b></span> 
+                            </div>
+                            <div class="">
+                                <input id="effluent"   class="" name="checkinp16" type="checkbox">
+                                <labelfor="effluent"><b>Effluent</b></labelfor=>
+                               </div>
+                            
+                            
+                            
+                        
+                    </div>
+                    <div class="space-y-4">
+                        <div class="">
+                            <input   name="checkinp12" class="" type="checkbox">
+                            <b>Sludge</b>
+                        </div>
+                        <div class="">
+                            <input id="bore_water"   class="" name="checkinp17" type="checkbox">
+                        <labelfor="bore_water"><b>Bore Water</b></labelfor=>
+                        </div>
+                    </div>
+                        <div class="space-y-4">
+                            <div class="">
+                                <input   name="checkinp13" class="" type="checkbox">
+                                <b>Influent</b>
+                            </div>
+                            <div class="">
+                                <input   id="r.o" class="" name="checkinp18" type="checkbox">
+                            <label for="r.o"><b>R.O Water</b></label>
+                            </div>
+                                
+                        </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+
+
+    {% comment %} <div class="w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 border-t-0">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>No. Of Samples</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp10" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Types Of Samples</b></td>
+                <td class="p-2 border border-gray-300"><input name="checkinp11" class="" type="checkbox"><b>Drinking Water</b></td>
+                <td class="p-2 border border-gray-300"><input name="checkinp12" class="" type="checkbox"><b>Sludge</b></td>
+                <td colspan="" class="p-2 border border-gray-300"><input name="checkinp13" class="" type="checkbox"><b>Influent</b></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sampling Methodology</b></td>
+                <td class="p-2 space-x-4"><input id="grab" class="" name="checkinp14" type="checkbox"><label
+                        for="grab"><b>Grab</b></label></td>
+                <td class="p-2 space-x-4"><input id="comp" class="" name="checkinp15" type="checkbox"><label
+                        for="comp"><b>Composite</b></label></td>
+                <td class="p-2 space-x-4"><input id="effluent" class="" name="checkinp16" type="checkbox"><label
+                        for="effluent"><b>Effluent</b></label></td>
+                <td class="p-2 space-x-4"><input id="bore_water" class="" name="checkinp17" type="checkbox"><label
+                        for="bore_water"><b>Bore Water</b></label></td>
+                <td class="p-2 space-x-4"><input id="r.o" class="" name="checkinp18" type="checkbox"><label for="r.o"><b>R.O
+                            Water</b></label></td>
+
+
+            </tr>
+
+        </table>
+    </div> {% endcomment %}
+    <div class="w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 border-t-0">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Environmental Conditions (when sample Received):</b></td>
+                <td class="p-2 space-x-4"><b>Temp</b><input
+                        class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                       name="inp19" type="text"></td>
+                <td class="p-2 space-x-4"><b>pH</b><input
+                        class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                       name="inp20" type="text"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Analysis Request for Wastewater:</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div id="wasterWaterContainer" class="border-2 border-gray-200 w-8/12 border-t-0 flex justify-around flex-wrap gap-3 ">
+            
+            
+        </div>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Analysis Request for Water (Drinking water, Bore water or R.O water
+                    etc.):</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div id="waterContainer" class="border-2 border-gray-200 w-8/12 border-t-0 flex justify-around flex-wrap gap-4 ">
+            
+        </div>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Additional Requirements of Customer:</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 border-t-0">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Customer Specification Limits</b></td>
+                <td class="p-2 space-x-4"><input id="req1" name="checkinp104" type="checkbox"><label for="req1">Required</label></td>
+                <td class="p-2 space-x-4"><input id="no_req1" name="checkinp105" type="checkbox"><label for="no_req1">Not Required</label>
+                </td>
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp106" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Measurement of Uncertainty</b></td>
+                <td class="p-2 space-x-4"><input id="req2" name="checkinp107" type="checkbox"><label for="req2">Required</label></td>
+                <td class="p-2 space-x-4"><input id="no_req2" name="checkinp108" type="checkbox"><label for="no_req2">Not Required</label>
+                </td>
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp109" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Statement of Conformity</b></td>
+                <td class="p-2 space-x-4"><input id="req3" name="checkinp110" type="checkbox"><label for="req3">Required</label></td>
+                <td class="p-2 space-x-4"><input id="no_req3" name="checkinp111" type="checkbox"><label for="no_req3">Not Required</label>
+                </td>
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp112" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Opinion & Interpretations</b></td>
+                <td class="p-2 space-x-4"><input id="req4" name="checkinp113" type="checkbox"><label for="req4">Required</label></td>
+                <td class="p-2 space-x-4"><input id="no_req4" name="checkinp114" type="checkbox"><label for="no_req4">Not Required</label>
+                </td>
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp115" type="text"></td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Assigned to (Analyst Name)</b></h5>
+            <input class="border border-gray-300 border-2 w-96 outline p-1" type="text" name="assign_to">
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="w-8/12 flex justify-between border border-2 border-gray-300">
+            <div class="flex flex-col justify-center w-1/2 border border-2 border-gray-500 h-auto space-y-4">
+                <div class="space-x-2 p-2">
+                    <input id="accep" name="checkinp116" type="checkbox">
+                    <label for="accep"><b>Accepted</b></label>
+                </div>
+                <div class="space-x-2 p-2">
+                    <input id="rej" name="checkinp117" type="checkbox">
+                    <label for="rej"><b>Rejected</b></label>
+                </div>
+            </div>
+            <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                <label class="font-bold text-lg" for=""> Authorized Signature</label>
+                <select id="analyst-sign" name="auth_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>select</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                    </select>
+                <hr class="border border-gray-700">
+                <p><b>Lab Manager / Deputy Manager Lab</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>For Sample Identification Label:</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="w-8/12 flex justify-between border border-2 border-gray-300">
+            
+            <div class="flex flex-col justify-center w-1/2 border border-2 border-gray-500 h-auto space-y-4">
+                <label for=""><b>control number for label </b>:</label>
+                <input class="border border-gray-300 border-2 w-96 outline p-1" value="ETAL-LAB-704-FF-01" type="text" name="conntrol_1">
+                <input class="con_date border border-gray-300 border-2 w-96 outline p-1" value="Issue Date: 30-04-2022" type="text" name="conntrol_date">
+                <input class="con_no border border-gray-300 border-2 w-96 outline p-1" value="Issue No.01" type="text" name="conntrol_no">
+            </div>
+            <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                <label class="font-bold text-lg" for=""> Sampling By</label>
+                <select id="" name="sample_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>sample By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                    </select>
+                <hr class="border border-gray-700">
+                <p><b>Lab Manager / Deputy Manager Lab</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="h-32  mt-8 flex justify-center items-center">
+        <div class=" space-x-8">
+            <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+            <input  type="submit" name="submit_and_new"
+                class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "
+                value='Save & Add New' />
+            <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input  type="submit"
+                name="submit_and_view" value="Save & View Report"
+                class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+        </div>
+    </div>
+</div>
+</form>
+</body>
+
+<script>
+    $(document).ready(function () {
+            $('select').select2();
+        });
+    $(document).ready(async () => {
+        $("#loc_err").show()
+        const req_pip = await fetch('https://api.ipify.org?format=json');
+        var public_ip = await req_pip.json();
+        public_ip = public_ip.ip ? public_ip.ip : null;
+        if (public_ip) {
+            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+            const req_loc_ip = await fetch(url);
+            var location = await req_loc_ip.json();
+            
+            
+            if (location) {
+                let region = location.region.toLowerCase();
+                if(region == 'punjab'){
+                    console.log('punjab')
+                    const wasterWaterContainer = $('#wasterWaterContainer')
+                    const waterContainer = $('#waterContainer')
+                    wasterWaterContainer.append(`
+                        <div class="flex flex-col">
+                            <div class="">
+                                <input id="ww_ana_ph" name="checkinp21" type="checkbox">
+                                <label for="ww_ana_ph"><b>pH*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_lead" name="checkinp30" type="checkbox">
+                                <label for="ww_lead"><b>Lead</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_boron" name="checkinp39" type="checkbox">
+                                <label for="ww_boron"><b>Boron</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_chlorine" name="checkinp48" type="checkbox">
+                                <label for="ww_chlorine"><b>Chlorine</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_totaln" name="checkinp56" type="checkbox">
+                            <label for="ww_totaln"><b>Total N</b></label>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <div class="">
+                                <input id="ww_flouride" name="checkinp22" type="checkbox">
+                                <label for="ww_flouride"><b>Fluoride*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_tds" name="checkinp31" type="checkbox">
+                                <label for="ww_tds"><b>TDS*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_nik" name="checkinp40" type="checkbox">
+                                <label for="ww_nik"><b>Nickel*</b></label>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <div class="">
+                                <input id="ww_chromium" name="checkinp23" type="checkbox">
+                                <label for="ww_chromium"><b>Chromium</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_sul" name="checkinp32" type="checkbox">
+                                <label for="ww_sul"><b>Sulphide</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_silver" name="checkinp41" type="checkbox">
+                                <label for="ww_silver"><b>Silver</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_sulphate" name="checkinp49" type="checkbox">
+                                <label for="ww_sulphate"><b>Sulphate*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_phos" name="checkinp57" type="checkbox">
+                                <label for="ww_phos"><b>Phosphorus</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_bod" name="checkinp24" type="checkbox">
+                                <label for="ww_bod"><b>BOD</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_mercury" name="checkinp33" type="checkbox">
+                                <label for="ww_mercury"><b>Mercury</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_zinc" name="checkinp42" type="checkbox">
+                                <label for="ww_zinc"><b>Zinc</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_cadmium" name="checkinp50" type="checkbox">
+                                <label for="ww_cadmium"><b>Cadmium</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_colif" name="checkinp58" type="checkbox">
+                                <label for="ww_colif"><b>Coliform</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_cynaid" name="checkinp25" type="checkbox">
+                                <label for="ww_cynaid"><b>Cyanide</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_og" name="checkinp34" type="checkbox">
+                                <label for="ww_og"><b>Oil & Grease</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_arsen" name="checkinp43" type="checkbox">
+                                <label for="ww_arsen"><b>Arsenic</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_chloride" name="checkinp51" type="checkbox">
+                                <label for="ww_chloride"><b>Chloride*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_others" name="checkinp59" type="checkbox">
+                                <label for="ww_others"><b>Others</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_others" class="border" name="other1" type="text" placeholder="Others">
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_copper" name="checkinp26" type="checkbox">
+                                <label for="ww_copper"><b>Copper</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_ammonia" name="checkinp35" type="checkbox">
+                                <label for="ww_ammonia"><b>Ammonia</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_bar" name="checkinp44" type="checkbox">
+                                <label for="ww_bar"><b>Barium</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_selenium" name="checkinp52" type="checkbox">
+                                <label for="ww_selenium"><b>Selenium</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_cod" name="checkinp27" type="checkbox">
+                                <label for="ww_cod"><b>COD*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="phenol" name="checkinp36" type="checkbox">
+                                <label for="phenol"><b>Phenol</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_mag" name="checkinp45" type="checkbox">
+                                <label for="ww_mag"><b>Manganese</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_DO" name="checkinp53" type="checkbox">
+                                <label for="ww_DO"><b>DO</b></label>
+                            </div>
+                            
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_ion" name="checkinp28" type="checkbox">
+                                <label for="ww_ion"><b>An-ionic detergent </b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_pest" name="checkinp37" type="checkbox">
+                                <label for="ww_pest"><b>Pesticides</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_tm" name="checkinp46" type="checkbox">
+                                <label for="ww_tm"><b>Toxic metal</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_MLSS" name="checkinp54" type="checkbox">
+                                <label for="ww_MLSS"><b>MLSS</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_ts" name="checkinp29" type="checkbox">
+                                <label for="ww_ts"><b>TSS</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_iron" name="checkinp38" type="checkbox">
+                                <label for="ww_iron"><b>Iron*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_toc" name="checkinp47" type="checkbox">
+                                <label for="ww_toc"><b>TOC</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_MLVSS" name="checkinp55" type="checkbox">
+                        <label for="ww_MLVSS"><b>MLVSS</b></label>
+                            </div>
+                        </div>
+
+                        <div class="">
+    <div class="">
+        <input id="ww_temperature" name="ww_other_param_1" type="checkbox">
+        <label for="ww_temperature"><b>Temperature</b></label>
+    </div>
+    <div class="">
+        <input id="ww_colour" name="ww_other_param_2" type="checkbox">
+        <label for="ww_colour"><b>Colour</b></label>
+    </div>
+    <div class="">
+        <input id="ww_odour" name="ww_other_param_3" type="checkbox">
+        <label for="ww_odour"><b>Odour</b></label>
+    </div>
+    <div class="">
+        <input id="ww_turbidity" name="ww_other_param_4" type="checkbox">
+        <label for="ww_turbidity"><b>Turbidity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_calcium" name="ww_other_param_5" type="checkbox">
+        <label for="ww_calcium"><b>Calcium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_sodium" name="ww_other_param_6" type="checkbox">
+        <label for="ww_sodium"><b>Sodium</b></label>
+    </div>
+    <div class="">
+        <input id="magnesium" name="ww_other_param_7" type="checkbox">
+        <label for="magnesium"><b>Magnesium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_potassium" name="ww_other_param_8" type="checkbox">
+        <label for="ww_potassium"><b>Potassium</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_silica" name="ww_other_param_9" type="checkbox">
+        <label for="ww_silica"><b>Silica</b></label>
+    </div>
+    <div class="">
+        <input id="ww_reactive_silica" name="ww_other_param_10" type="checkbox">
+        <label for="ww_reactive_silica"><b>Reactive Silica</b></label>
+    </div>
+    <div class="">
+        <input id="ww_alkalinity" name="ww_other_param_11" type="checkbox">
+        <label for="ww_alkalinity"><b>Alkalinity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_ammonium" name="ww_other_param_12" type="checkbox">
+        <label for="ww_ammonium"><b>Ammonium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_carbonates" name="ww_other_param_13" type="checkbox">
+        <label for="ww_carbonates"><b>Carbonates</b></label>
+    </div>
+    <div class="">
+        <input id="ww_bicarbonates" name="ww_other_param_14" type="checkbox">
+        <label for="ww_bicarbonates"><b>Bicarbonates</b></label>
+    </div>
+    <div class="">
+        <input id="ww_conductivity" name="ww_other_param_15" type="checkbox">
+        <label for="ww_conductivity"><b>Conductivity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_salinity" name="ww_other_param_16" type="checkbox">
+        <label for="ww_salinity"><b>Salinity</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_resistivity" name="ww_other_param_17" type="checkbox">
+        <label for="ww_resistivity"><b>Resistivity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_total_solid" name="ww_other_param_18" type="checkbox">
+        <label for="ww_total_solid"><b>Total Solid</b></label>
+    </div>
+    <div class="">
+        <input id="ww_acidity" name="ww_other_param_19" type="checkbox">
+        <label for="ww_acidity"><b>Acidity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_total_hardness" name="ww_other_param_20" type="checkbox">
+        <label for="ww_total_hardness"><b>Total Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_calcium_hardness" name="ww_other_param_21" type="checkbox">
+        <label for="ww_calcium_hardness"><b>Calcium Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_magnesium_hardness" name="ww_other_param_22" type="checkbox">
+        <label for="ww_magnesium_hardness"><b>Magnesium Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_carbonate_hardness" name="ww_other_param_23" type="checkbox">
+        <label for="ww_carbonate_hardness"><b>Carbonate Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_non_carbonate_hardness" name="ww_other_param_24" type="checkbox">
+        <label for="ww_non_carbonate_hardness"><b>Non-Carbonate Hardness</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_temporary_hardness" name="ww_other_param_25" type="checkbox">
+        <label for="ww_temporary_hardness"><b>Temporary Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_strontium" name="ww_other_param_26" type="checkbox">
+        <label for="ww_strontium"><b>Strontium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_cobalt" name="ww_other_param_27" type="checkbox">
+        <label for="ww_cobalt"><b>Cobalt</b></label>
+    </div>
+    <div class="">
+        <input id="ww_aluminium" name="ww_other_param_28" type="checkbox">
+        <label for="ww_aluminium"><b>Aluminium (Al)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_antimony" name="ww_other_param_29" type="checkbox">
+        <label for="ww_antimony"><b>Antimony</b></label>
+    </div>
+    <div class="">
+        <input id="ww_chromium_iii" name="ww_other_param_30" type="checkbox">
+        <label for="ww_chromium_iii"><b>Chromium III</b></label>
+    </div>
+    <div class="">
+        <input id="ww_chromium_vi" name="ww_other_param_31" type="checkbox">
+        <label for="ww_chromium_vi"><b>Chromium VI</b></label>
+    </div>
+    <div class="">
+        <input id="ww_ferrous" name="ww_other_param_32" type="checkbox">
+        <label for="ww_ferrous"><b>Ferrous (Fe +2)</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_ferric" name="ww_other_param_33" type="checkbox">
+        <label for="ww_ferric"><b>Ferric (Fe +3)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_tin" name="ww_other_param_34" type="checkbox">
+        <label for="ww_tin"><b>Tin (Sn)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_beryllium" name="ww_other_param_35" type="checkbox">
+        <label for="ww_beryllium"><b>Beryllium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_free_co2" name="ww_other_param_36" type="checkbox">
+        <label for="ww_free_co2"><b>Free CO2</b></label>
+    </div>
+    <div class="">
+        <input id="ww_hydroxide_alkalinity" name="ww_other_param_37" type="checkbox">
+        <label for="ww_hydroxide_alkalinity"><b>Hydroxide Alkalinity as CaCO3</b></label>
+    </div>
+    <div class="">
+        <input id="ww_methyl_orange_alkalinity" name="ww_other_param_38" type="checkbox">
+        <label for="ww_methyl_orange_alkalinity"><b>Methyl Orange Alkalinity as CaCO3</b></label>
+    </div>
+    <div class="">
+        <input id="ww_phenolphthalein_alkalinity" name="ww_other_param_39" type="checkbox">
+        <label for="ww_phenolphthalein_alkalinity"><b>Phenolphthalein Alkalinity as CaCO3</b></label>
+    </div>
+    <div class="">
+        <input id="ww_particulate_matter" name="ww_other_param_40" type="checkbox">
+        <label for="ww_particulate_matter"><b>Particulate Matter</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_sdi" name="ww_other_param_41" type="checkbox">
+        <label for="ww_sdi"><b>Silt Density Index (SDI)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_particle_size" name="ww_other_param_42" type="checkbox">
+        <label for="ww_particle_size"><b>Particles Size</b></label>
+    </div>
+    <div class="">
+        <input id="ww_ww_aox" name="ww_other_param_43" type="checkbox">
+        <label for="ww_ww_aox"><b>AOx</b></label>
+    </div>
+    <div class="">
+        <input id="ww_free_chlorine" name="ww_other_param_44" type="checkbox">
+        <label for="ww_free_chlorine"><b>Free Chlorine</b></label>
+    </div>
+    <div class="">
+        <input id="ww_residual_chlorine" name="ww_other_param_45" type="checkbox">
+        <label for="ww_residual_chlorine"><b>Residual Chlorine</b></label>
+    </div>
+    <div class="">
+        <input id="ww_persistent_foam" name="ww_other_param_46" type="checkbox">
+        <label for="ww_persistent_foam"><b>Persistent Foam</b></label>
+    </div>
+    <div class="">
+        <input id="ww_flow_rate" name="ww_other_param_47" type="checkbox">
+        <label for="ww_flow_rate"><b>Flow rate</b></label>
+    </div>
+    <div class="">
+        <input id="ww_phosphate" name="ww_other_param_48" type="checkbox">
+        <label for="ww_phosphate"><b>Phosphate</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_nitrate" name="ww_other_param_49" type="checkbox">
+        <label for="ww_nitrate"><b>Nitrate</b></label>
+    </div>
+    <div class="">
+        <input id="ww_nitrite" name="ww_other_param_50" type="checkbox">
+        <label for="ww_nitrite"><b>Nitrite</b></label>
+    </div>
+    <div class="">
+        <input id="ww_vss" name="ww_other_param_51" type="checkbox">
+        <label for="ww_vss"><b>Volatile Suspended Solids (VSS)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_settleable_solids" name="ww_other_param_52" type="checkbox">
+        <label for="ww_settleable_solids"><b>Settleable solids (Imhoff cone)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_orp" name="ww_other_param_53" type="checkbox">
+        <label for="ww_orp"><b>Oxidation–Reduction Potential (ORP)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_vox" name="ww_other_param_54" type="checkbox">
+        <label for="ww_vox"><b>Volatile Organic Halogens (VOX)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_sar" name="ww_other_param_55" type="checkbox">
+        <label for="ww_sar"><b>Sodium Adsorption Ratio (SAR)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_rsc" name="ww_other_param_56" type="checkbox">
+        <label for="ww_rsc"><b>Residual Sodium Carbonate (RSC)</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_total_plate_count" name="ww_other_param_57" type="checkbox">
+        <label for="ww_total_plate_count"><b>Total Plate Count</b></label>
+    </div>
+    <div class="">
+        <input id="ww_e_coli" name="ww_other_param_58" type="checkbox">
+        <label for="ww_e_coli"><b>E. Coli</b></label>
+    </div>
+    <div class="">
+        <input id="ww_faecal_coliform" name="ww_other_param_59" type="checkbox">
+        <label for="ww_faecal_coliform"><b>Faecal Coliform</b></label>
+    </div>
+    <div class="">
+        <input id="ww_faecal_enterococci" name="ww_other_param_60" type="checkbox">
+        <label for="ww_faecal_enterococci"><b>Faecal Enterococci</b></label>
+    </div>
+    <div class="">
+        <input id="ww_total_bacterial_count" name="ww_other_param_61" type="checkbox">
+        <label for="ww_total_bacterial_count"><b>Total Bacterial Count</b></label>
+    </div>
+    <div class="">
+        <input id="ww_legionella" name="ww_other_param_62" type="checkbox">
+        <label for="ww_legionella"><b>Legionella</b></label>
+    </div>
+    <div class="">
+        <input id="ww_pseudomonas" name="ww_other_param_63" type="checkbox">
+        <label for="ww_pseudomonas"><b>Pseudomonas aeruginosa</b></label>
+    </div>
+    <div class="">
+        <input id="ww_bioassay_test" name="ww_other_param_64" type="checkbox">
+        <label for="ww_bioassay_test"><b>Bioassay Test</b></label>
+    </div>
+</div>
+
+
+                        
+                    `)
+
+                    waterContainer.append(`
+                        <div class="">
+                <div class="">
+                    <input id="color" name="checkinp60" type="checkbox">
+                    <label for="color"><b>Color</b></label>
+                </div>
+                <div class="">
+                    <input id="chr" name="checkinp67" type="checkbox">
+                    <label for="chr"><b>Chromium</b></label>
+                </div>
+                <div class="">
+                    <input id="bor" name="checkinp74" type="checkbox">
+                    <label for="bor"><b>Boron</b></label>
+                </div>
+                <div class="">
+                    <input id="residual" name="checkinp81" type="checkbox">
+                    <label for="residual"><b>Residual Chlorine</b></label>
+                </div>
+                <div class="">
+                    <input id="sod" name="checkinp87" type="checkbox">
+                    <label for="sod"><b>Sodium*</b></label>
+                </div>
+                <div class="">
+                    <input id="magi" name="checkinp94" type="checkbox">
+                    <label for="magi"><b>Magnesium*</b></label>
+                </div>
+                <div class="">
+                    <input id="fc" name="checkinp100" type="checkbox">
+                    <label for="fc"><b>Faecal coliform</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="taste" name="checkinp61" type="checkbox">
+                    <label for="taste"><b>Taste</b></label>
+                </div>
+                <div class="">
+                    <input id="chl" name="checkinp68" type="checkbox">
+                    <label for="chl"><b>Chloride</b></label>
+                </div>
+                <div class="">
+                    <input id="ld" name="checkinp75" type="checkbox">
+                    <label for="ld"><b>Lead</b></label>
+                </div>
+                <div class="">
+                    <input id="acidity" name="checkinp88" type="checkbox">
+                    <label for="acidity"><b>Acidity</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="odor" name="checkinp62" type="checkbox">
+                    <label for="odor"><b>Odor</b></label>
+                </div>
+                <div class="">
+                    <input id="cyn" name="checkinp69" type="checkbox">
+                    <label for="cyn"><b>Cyanide</b></label>
+                </div>
+                <div class="">
+                    <input id="nick" name="checkinp76" type="checkbox">
+                    <label for="nick"><b>Nickel*</b></label>
+                </div>
+                <div class="">
+                    <input id="zn" name="checkinp82" type="checkbox">
+                    <label for="zn"><b>Zinc</b></label>
+                </div>
+                <div class="">
+                    <input id="pot" name="checkinp89" type="checkbox">
+                    <label for="pot"><b>Potassium</b></label>
+                </div>
+                <div class="">
+                    <input id="ph" name="checkinp95" type="checkbox">
+                    <label for="ph"><b>pH*</b></label>
+                </div>
+                <div class="">
+                    <input id="pa" name="checkinp101" type="checkbox">
+                    <label for="pa"><b>Pseudomonas aeruginosa</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="turbidity" name="checkinp63" type="checkbox">
+                    <label for="turbidity"><b>Turbidity</b></label>
+                </div>
+                <div class="">
+                    <input id="cop" name="checkinp70" type="checkbox">
+                    <label for="cop"><b>Copper</b></label>
+                </div>
+                <div class="">
+                    <input id="nitrate" name="checkinp77" type="checkbox">
+                    <label for="nitrate"><b>Nitrate*</b></label>
+                </div>
+                <div class="">
+                    <input id="do" name="checkinp83" type="checkbox">
+                    <label for="do"><b>DO</b></label>
+                </div>
+                <div class="">
+                    <input id="car" name="checkinp90" type="checkbox">
+                    <label for="car"><b>Carbonates</b></label>
+                </div>
+                <div class="">
+                    <input id="sulp" name="checkinp96" type="checkbox">
+                    <label for="sulp"><b>Sulphate*</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="total_hardness" name="checkinp64" type="checkbox">
+                    <label for="total_hardness"><b>Total Hardness*</b></label>
+                </div>   
+                <div class="">
+                    <input id="ant" name="checkinp71" type="checkbox">
+                    <label for="ant"><b>Antimony</b></label>
+                </div>
+                <div class="">
+                    <input id="mircury" name="checkinp78" type="checkbox">
+                    <label for="mircury"><b>Mercury</b></label>
+                </div>
+                <div class="">
+                    <input id="cond" name="checkinp84" type="checkbox">
+                    <label for="cond"><b>Conductivity</b></label>
+                </div>
+                <div class="">
+                    <input id="barc" name="checkinp91" type="checkbox">
+                    <label for="barc"><b>Bicarbonates</b></label>
+                </div>
+                <div class="">
+                    <input id="sil" name="checkinp97" type="checkbox">
+                    <label for="sil"><b>Silica </b></label>
+                </div>
+                <div class="">
+                    <input id="tbc" name="checkinp102" type="checkbox">
+                    <label for="tbc"><b>Total Bacterial count</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="tds1" name="checkinp65" type="checkbox">
+                    <label for="tds1"><b>TDS</b></label>
+                </div>
+                <div class="">
+                    <input id="alm" name="checkinp72" type="checkbox">
+                    <label for="alm"><b>Aluminium</b></label>
+                </div>
+                <div class="">
+                    <input id="nit" name="checkinp79" type="checkbox">
+                    <label for="nit"><b>Nitrite</b></label>
+                </div>
+                <div class="">
+                    <input id="tkn" name="checkinp85" type="checkbox">
+                    <label for="tkn"><b>TKN</b></label>
+                </div>
+                <div class="">
+                    <input id="alk" name="checkinp92" type="checkbox">
+                    <label for="alk"><b>Alkalinity*</b></label>
+                </div>
+                <div class="">
+                    <input id="cali" name="checkinp98" type="checkbox">
+                    <label for="cali"><b>Coliform</b></label>
+                </div>
+                <div class="">
+                    <input id="ot" name="checkinp103" type="checkbox">
+                    <label for="ot"><b>others</b></label>
+                </div>
+                 <div class="">
+                                <input id="others" class="border" name="other2" type="text" placeholder="Others">
+                            </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="flo" name="checkinp66" type="checkbox">
+                    <label for="flo"><b>Fluoride*</b></label>
+                </div>
+                <div class="">
+                    <input id="ars" name="checkinp73" type="checkbox">
+                    <label for="ars"><b>Arsenic</b></label>
+                </div>
+                <div class="">
+                    <input id="selen" name="checkinp80" type="checkbox">
+                    <label for="selen"><b>Selenium</b></label>
+                </div>
+                <div class="">
+                    <input id="phen" name="checkinp86" type="checkbox">
+                    <label for="phen"><b>Phenol</b></label>
+                </div>
+                <div class="">
+                    <input id="cal" name="checkinp93" type="checkbox">
+                    <label for="cal"><b>Calcium*</b></label>
+                </div>
+                <div class="">
+                    <input id="e." name="checkinp99" type="checkbox">
+                    <label for="e."><b>E.coli </b></label>
+                </div>
+            </div>
+<div class="">
+  <div><input id="other1" name="other_param_1" type="checkbox"><label for="other1"><b>Barium</b></label></div>
+  <div><input id="other2" name="other_param_2" type="checkbox"><label for="other2"><b>Manganese</b></label></div>
+  <div><input id="other3" name="other_param_3" type="checkbox"><label for="other3"><b>Cadmium</b></label></div>
+  <div><input id="other4" name="other_param_4" type="checkbox"><label for="other4"><b>Silver</b></label></div>
+  <div><input id="other5" name="other_param_5" type="checkbox"><label for="other5"><b>Reactive Silica</b></label></div>
+  <div><input id="other6" name="other_param_6" type="checkbox"><label for="other6"><b>Silicic Acid</b></label></div>
+  <div><input id="other7" name="other_param_7" type="checkbox"><label for="other7"><b>COD</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other8" name="other_param_8" type="checkbox"><label for="other8"><b>BOD</b></label></div>
+  <div><input id="other9" name="other_param_9" type="checkbox"><label for="other9"><b>Cobalt</b></label></div>
+  <div><input id="other10" name="other_param_10" type="checkbox"><label for="other10"><b>Polyaromatic Hydrocarbons (PAH)</b></label></div>
+  <div><input id="other11" name="other_param_11" type="checkbox"><label for="other11"><b>Pesticides</b></label></div>
+  <div><input id="other12" name="other_param_12" type="checkbox"><label for="other12"><b>Oil &amp; Grease</b></label></div>
+  <div><input id="other13" name="other_param_13" type="checkbox"><label for="other13"><b>Alpha Emitters</b></label></div>
+  <div><input id="other14" name="other_param_14" type="checkbox"><label for="other14"><b>Beta Emitters</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other15" name="other_param_15" type="checkbox"><label for="other15"><b>Salinity</b></label></div>
+  <div><input id="other16" name="other_param_16" type="checkbox"><label for="other16"><b>Resistivity</b></label></div>
+  <div><input id="other17" name="other_param_17" type="checkbox"><label for="other17"><b>TOC</b></label></div>
+  <div><input id="other18" name="other_param_18" type="checkbox"><label for="other18"><b>VOC</b></label></div>
+  <div><input id="other19" name="other_param_19" type="checkbox"><label for="other19"><b>Phosphorus</b></label></div>
+  <div><input id="other20" name="other_param_20" type="checkbox"><label for="other20"><b>Calcium Hardness</b></label></div>
+  <div><input id="other21" name="other_param_21" type="checkbox"><label for="other21"><b>Magnesium Hardness</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other22" name="other_param_22" type="checkbox"><label for="other22"><b>Carbonate Hardness</b></label></div>
+  <div><input id="other23" name="other_param_23" type="checkbox"><label for="other23"><b>Non-Carbonate Hardness</b></label></div>
+  <div><input id="other24" name="other_param_24" type="checkbox"><label for="other24"><b>Temporary Hardness</b></label></div>
+  <div><input id="other25" name="other_param_25" type="checkbox"><label for="other25"><b>Strontium</b></label></div>
+  <div><input id="other26" name="other_param_26" type="checkbox"><label for="other26"><b>Chromium III</b></label></div>
+  <div><input id="other27" name="other_param_27" type="checkbox"><label for="other27"><b>Chromium VI</b></label></div>
+  <div><input id="other28" name="other_param_28" type="checkbox"><label for="other28"><b>Iron</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other29" name="other_param_29" type="checkbox"><label for="other29"><b>Ferrous (Fe+2)</b></label></div>
+  <div><input id="other30" name="other_param_30" type="checkbox"><label for="other30"><b>Ferric (Fe+3)</b></label></div>
+  <div><input id="other31" name="other_param_31" type="checkbox"><label for="other31"><b>Ammonia</b></label></div>
+  <div><input id="other32" name="other_param_32" type="checkbox"><label for="other32"><b>Tin</b></label></div>
+  <div><input id="other33" name="other_param_33" type="checkbox"><label for="other33"><b>Ammonium</b></label></div>
+  <div><input id="other34" name="other_param_34" type="checkbox"><label for="other34"><b>Free CO2</b></label></div>
+  <div><input id="other35" name="other_param_35" type="checkbox"><label for="other35"><b>Hydroxide Alkalinity as CaCO3</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other36" name="other_param_36" type="checkbox"><label for="other36"><b>Methyl Orange Alkalinity as CaCO3</b></label></div>
+  <div><input id="other37" name="other_param_37" type="checkbox"><label for="other37"><b>Phenolphthalein Alkalinity as CaCO3</b></label></div>
+  <div><input id="other38" name="other_param_38" type="checkbox"><label for="other38"><b>Particulate Matter</b></label></div>
+  <div><input id="other39" name="other_param_39" type="checkbox"><label for="other39"><b>Silt Density Index</b></label></div>
+  <div><input id="other40" name="other_param_40" type="checkbox"><label for="other40"><b>Particles Size</b></label></div>
+  <div><input id="other41" name="other_param_41" type="checkbox"><label for="other41"><b>AOx</b></label></div>
+  <div><input id="other42" name="other_param_42" type="checkbox"><label for="other42"><b>Chlorine</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other43" name="other_param_43" type="checkbox"><label for="other43"><b>Free Chlorine</b></label></div>
+  <div><input id="other44" name="other_param_44" type="checkbox"><label for="other44"><b>Sulphide</b></label></div>
+  <div><input id="other45" name="other_param_45" type="checkbox"><label for="other45"><b>Total Solid</b></label></div>
+  <div><input id="other46" name="other_param_46" type="checkbox"><label for="other46"><b>Beryllium</b></label></div>
+
+  <div><input id="other49" name="other_param_47" type="checkbox"><label for="other47"><b>Phosphate</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other50" name="other_param_48" type="checkbox"><label for="other48"><b>Volatile Suspended Solids (VSS)</b></label></div>
+  <div><input id="other51" name="other_param_49" type="checkbox"><label for="other49"><b>Settleable solids (Imhoff cone)</b></label></div>
+  <div><input id="other52" name="other_param_50" type="checkbox"><label for="other50"><b>Oxidation–Reduction Potential (ORP)</b></label></div>
+  <div><input id="other53" name="other_param_51" type="checkbox"><label for="other51"><b>Volatile Organic Halogens (VOX)</b></label></div>
+  <div><input id="other54" name="other_param_52" type="checkbox"><label for="other52"><b>Sodium Adsorption Ratio (SAR)</b></label></div>
+  <div><input id="other55" name="other_param_53" type="checkbox"><label for="other53"><b>Residual Sodium Carbonate (RSC)</b></label></div>
+  <div><input id="other56" name="other_param_54" type="checkbox"><label for="other54"><b>Temperature</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other57" name="other_param_55" type="checkbox"><label for="other55"><b>TSS</b></label></div>
+  <div><input id="other58" name="other_param_56" type="checkbox"><label for="other56"><b>Anionic Surfactants as MBAS</b></label></div>
+  <div><input id="other59" name="other_param_57" type="checkbox"><label for="other57"><b>Total Plate Count</b></label></div>
+  <div><input id="other60" name="other_param_58" type="checkbox"><label for="other58"><b>Legionella</b></label></div>
+  <div><input id="other61" name="other_param_59" type="checkbox"><label for="other59"><b>Fecal Enterococci</b></label></div>
+  <div><input id="other62" name="other_param_60" type="checkbox"><label for="other60"><b>Heterotrophic Bacteria</b></label></div>
+  <div><input id="other63" name="other_param_61" type="checkbox"><label for="other61"><b>Enterobacteriaceae</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other64" name="other_param_62" type="checkbox"><label for="other62"><b>Listeria Spp.</b></label></div>
+  <div><input id="other65" name="other_param_63" type="checkbox"><label for="other63"><b>Salmonella</b></label></div>
+  <div><input id="other66" name="other_param_64" type="checkbox"><label for="other64"><b>Yeasts &amp; Molds</b></label></div>
+</div>
+
+                    `)
+                
+                    
+                }else{
+                    const wasterWaterContainer = $('#wasterWaterContainer')
+                    const waterContainer = $('#waterContainer')
+                    wasterWaterContainer.append(`
+                        <div class="flex flex-col">
+                            <div class="">
+                                <input id="ww_ana_ph" name="checkinp21" type="checkbox">
+                                <label for="ww_ana_ph"><b>pH*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_lead" name="checkinp30" type="checkbox">
+                                <label for="ww_lead"><b>Lead</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_boron" name="checkinp39" type="checkbox">
+                                <label for="ww_boron"><b>Boron</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_chlorine" name="checkinp48" type="checkbox">
+                                <label for="ww_chlorine"><b>Chlorine</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_totaln" name="checkinp56" type="checkbox">
+                            <label for="ww_totaln"><b>Total N</b></label>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <div class="">
+                                <input id="ww_flouride" name="checkinp22" type="checkbox">
+                                <label for="ww_flouride"><b>Fluoride</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_tds" name="checkinp31" type="checkbox">
+                                <label for="ww_tds"><b>TDS</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_nik" name="checkinp40" type="checkbox">
+                                <label for="ww_nik"><b>Nickel</b></label>
+                            </div>
+                        </div>
+
+                        <div class="">
+                            <div class="">
+                                <input id="ww_chromium" name="checkinp23" type="checkbox">
+                                <label for="ww_chromium"><b>Chromium</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_sul" name="checkinp32" type="checkbox">
+                                <label for="ww_sul"><b>Sulphide</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_silver" name="checkinp41" type="checkbox">
+                                <label for="ww_silver"><b>Silver</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_sulphate" name="checkinp49" type="checkbox">
+                                <label for="ww_sulphate"><b>Sulphate*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_phos" name="checkinp57" type="checkbox">
+                                <label for="ww_phos"><b>Phosphorus</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_bod" name="checkinp24" type="checkbox">
+                                <label for="ww_bod"><b>BOD</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_mercury" name="checkinp33" type="checkbox">
+                                <label for="ww_mercury"><b>Mercury</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_zinc" name="checkinp42" type="checkbox">
+                                <label for="ww_zinc"><b>Zinc</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_cadmium" name="checkinp50" type="checkbox">
+                                <label for="ww_cadmium"><b>Cadmium</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_colif" name="checkinp58" type="checkbox">
+                                <label for="ww_colif"><b>Coliform</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_cynaid" name="checkinp25" type="checkbox">
+                                <label for="ww_cynaid"><b>Cyanide</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_og" name="checkinp34" type="checkbox">
+                                <label for="ww_og"><b>Oil & Grease</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_arsen" name="checkinp43" type="checkbox">
+                                <label for="ww_arsen"><b>Arsenic</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_chloride" name="checkinp51" type="checkbox">
+                                <label for="ww_chloride"><b>Chloride</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_others" name="checkinp59" type="checkbox">
+                                <label for="ww_others"><b>Others</b></label>
+                            </div>
+                             <div class="">
+                                <input id="ww_others" class="border" name="other1" type="text" placeholder="Others">
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_copper" name="checkinp26" type="checkbox">
+                                <label for="ww_copper"><b>Copper</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_ammonia" name="checkinp35" type="checkbox">
+                                <label for="ww_ammonia"><b>Ammonia</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_bar" name="checkinp44" type="checkbox">
+                                <label for="ww_bar"><b>Barium</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_selenium" name="checkinp52" type="checkbox">
+                                <label for="ww_selenium"><b>Selenium</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_cod" name="checkinp27" type="checkbox">
+                                <label for="ww_cod"><b>COD*</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_phenol" name="checkinp36" type="checkbox">
+                                <label for="ww_phenol"><b>Phenol</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_mag" name="checkinp45" type="checkbox">
+                                <label for="ww_mag"><b>Manganese</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_DO" name="checkinp53" type="checkbox">
+                                <label for="ww_DO"><b>DO</b></label>
+                            </div>
+                            
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_ion" name="checkinp28" type="checkbox">
+                                <label for="ww_ion"><b>An-ionic detergent </b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_pest" name="checkinp37" type="checkbox">
+                                <label for="ww_pest"><b>Pesticides</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_tm" name="checkinp46" type="checkbox">
+                                <label for="ww_tm"><b>Toxic metal</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_MLSS" name="checkinp54" type="checkbox">
+                                <label for="ww_MLSS"><b>MLSS</b></label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="">
+                                <input id="ww_ts" name="checkinp29" type="checkbox">
+                                <label for="ww_ts"><b>TSS</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_iron" name="checkinp38" type="checkbox">
+                                <label for="ww_iron"><b>Iron</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_toc" name="checkinp47" type="checkbox">
+                                <label for="ww_toc"><b>TOC</b></label>
+                            </div>
+                            <div class="">
+                                <input id="ww_MLVSS" name="checkinp55" type="checkbox">
+                        <label for="ww_MLVSS"><b>MLVSS</b></label>
+                            </div>
+                        </div>
+
+                        <div class="">
+    <div class="">
+        <input id="ww_temperature" name="ww_other_param_1" type="checkbox">
+        <label for="ww_temperature"><b>Temperature</b></label>
+    </div>
+    <div class="">
+        <input id="ww_colour" name="ww_other_param_2" type="checkbox">
+        <label for="ww_colour"><b>Colour</b></label>
+    </div>
+    <div class="">
+        <input id="ww_odour" name="ww_other_param_3" type="checkbox">
+        <label for="ww_odour"><b>Odour</b></label>
+    </div>
+    <div class="">
+        <input id="ww_turbidity" name="ww_other_param_4" type="checkbox">
+        <label for="ww_turbidity"><b>Turbidity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_calcium" name="ww_other_param_5" type="checkbox">
+        <label for="ww_calcium"><b>Calcium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_sodium" name="ww_other_param_6" type="checkbox">
+        <label for="ww_sodium"><b>Sodium</b></label>
+    </div>
+    <div class="">
+        <input id="magnesium" name="ww_other_param_7" type="checkbox">
+        <label for="magnesium"><b>Magnesium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_potassium" name="ww_other_param_8" type="checkbox">
+        <label for="ww_potassium"><b>Potassium</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_silica" name="ww_other_param_9" type="checkbox">
+        <label for="ww_silica"><b>Silica</b></label>
+    </div>
+    <div class="">
+        <input id="ww_reactive_silica" name="ww_other_param_10" type="checkbox">
+        <label for="ww_reactive_silica"><b>Reactive Silica</b></label>
+    </div>
+    <div class="">
+        <input id="ww_alkalinity" name="ww_other_param_11" type="checkbox">
+        <label for="ww_alkalinity"><b>Alkalinity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_ammonium" name="ww_other_param_12" type="checkbox">
+        <label for="ww_ammonium"><b>Ammonium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_carbonates" name="ww_other_param_13" type="checkbox">
+        <label for="ww_carbonates"><b>Carbonates</b></label>
+    </div>
+    <div class="">
+        <input id="ww_bicarbonates" name="ww_other_param_14" type="checkbox">
+        <label for="ww_bicarbonates"><b>Bicarbonates</b></label>
+    </div>
+    <div class="">
+        <input id="ww_conductivity" name="ww_other_param_15" type="checkbox">
+        <label for="ww_conductivity"><b>Conductivity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_salinity" name="ww_other_param_16" type="checkbox">
+        <label for="ww_salinity"><b>Salinity</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_resistivity" name="ww_other_param_17" type="checkbox">
+        <label for="ww_resistivity"><b>Resistivity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_total_solid" name="ww_other_param_18" type="checkbox">
+        <label for="ww_total_solid"><b>Total Solid</b></label>
+    </div>
+    <div class="">
+        <input id="ww_acidity" name="ww_other_param_19" type="checkbox">
+        <label for="ww_acidity"><b>Acidity</b></label>
+    </div>
+    <div class="">
+        <input id="ww_total_hardness" name="ww_other_param_20" type="checkbox">
+        <label for="ww_total_hardness"><b>Total Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_calcium_hardness" name="ww_other_param_21" type="checkbox">
+        <label for="ww_calcium_hardness"><b>Calcium Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_magnesium_hardness" name="ww_other_param_22" type="checkbox">
+        <label for="ww_magnesium_hardness"><b>Magnesium Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_carbonate_hardness" name="ww_other_param_23" type="checkbox">
+        <label for="ww_carbonate_hardness"><b>Carbonate Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_non_carbonate_hardness" name="ww_other_param_24" type="checkbox">
+        <label for="ww_non_carbonate_hardness"><b>Non-Carbonate Hardness</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_temporary_hardness" name="ww_other_param_25" type="checkbox">
+        <label for="ww_temporary_hardness"><b>Temporary Hardness</b></label>
+    </div>
+    <div class="">
+        <input id="ww_strontium" name="ww_other_param_26" type="checkbox">
+        <label for="ww_strontium"><b>Strontium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_cobalt" name="ww_other_param_27" type="checkbox">
+        <label for="ww_cobalt"><b>Cobalt</b></label>
+    </div>
+    <div class="">
+        <input id="ww_aluminium" name="ww_other_param_28" type="checkbox">
+        <label for="ww_aluminium"><b>Aluminium (Al)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_antimony" name="ww_other_param_29" type="checkbox">
+        <label for="ww_antimony"><b>Antimony</b></label>
+    </div>
+    <div class="">
+        <input id="ww_chromium_iii" name="ww_other_param_30" type="checkbox">
+        <label for="ww_chromium_iii"><b>Chromium III</b></label>
+    </div>
+    <div class="">
+        <input id="ww_chromium_vi" name="ww_other_param_31" type="checkbox">
+        <label for="ww_chromium_vi"><b>Chromium VI</b></label>
+    </div>
+    <div class="">
+        <input id="ww_ferrous" name="ww_other_param_32" type="checkbox">
+        <label for="ww_ferrous"><b>Ferrous (Fe +2)</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_ferric" name="ww_other_param_33" type="checkbox">
+        <label for="ww_ferric"><b>Ferric (Fe +3)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_tin" name="ww_other_param_34" type="checkbox">
+        <label for="ww_tin"><b>Tin (Sn)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_beryllium" name="ww_other_param_35" type="checkbox">
+        <label for="ww_beryllium"><b>Beryllium</b></label>
+    </div>
+    <div class="">
+        <input id="ww_free_co2" name="ww_other_param_36" type="checkbox">
+        <label for="ww_free_co2"><b>Free CO2</b></label>
+    </div>
+    <div class="">
+        <input id="ww_hydroxide_alkalinity" name="ww_other_param_37" type="checkbox">
+        <label for="ww_hydroxide_alkalinity"><b>Hydroxide Alkalinity as CaCO3</b></label>
+    </div>
+    <div class="">
+        <input id="ww_methyl_orange_alkalinity" name="ww_other_param_38" type="checkbox">
+        <label for="ww_methyl_orange_alkalinity"><b>Methyl Orange Alkalinity as CaCO3</b></label>
+    </div>
+    <div class="">
+        <input id="ww_phenolphthalein_alkalinity" name="ww_other_param_39" type="checkbox">
+        <label for="ww_phenolphthalein_alkalinity"><b>Phenolphthalein Alkalinity as CaCO3</b></label>
+    </div>
+    <div class="">
+        <input id="ww_particulate_matter" name="ww_other_param_40" type="checkbox">
+        <label for="ww_particulate_matter"><b>Particulate Matter</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_sdi" name="ww_other_param_41" type="checkbox">
+        <label for="ww_sdi"><b>Silt Density Index (SDI)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_particle_size" name="ww_other_param_42" type="checkbox">
+        <label for="ww_particle_size"><b>Particles Size</b></label>
+    </div>
+    <div class="">
+        <input id="ww_ww_aox" name="ww_other_param_43" type="checkbox">
+        <label for="ww_ww_aox"><b>AOx</b></label>
+    </div>
+    <div class="">
+        <input id="ww_free_chlorine" name="ww_other_param_44" type="checkbox">
+        <label for="ww_free_chlorine"><b>Free Chlorine</b></label>
+    </div>
+    <div class="">
+        <input id="ww_residual_chlorine" name="ww_other_param_45" type="checkbox">
+        <label for="ww_residual_chlorine"><b>Residual Chlorine</b></label>
+    </div>
+    <div class="">
+        <input id="ww_persistent_foam" name="ww_other_param_46" type="checkbox">
+        <label for="ww_persistent_foam"><b>Persistent Foam</b></label>
+    </div>
+    <div class="">
+        <input id="ww_flow_rate" name="ww_other_param_47" type="checkbox">
+        <label for="ww_flow_rate"><b>Flow rate</b></label>
+    </div>
+    <div class="">
+        <input id="ww_phosphate" name="ww_other_param_48" type="checkbox">
+        <label for="ww_phosphate"><b>Phosphate</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_nitrate" name="ww_other_param_49" type="checkbox">
+        <label for="ww_nitrate"><b>Nitrate</b></label>
+    </div>
+    <div class="">
+        <input id="ww_nitrite" name="ww_other_param_50" type="checkbox">
+        <label for="ww_nitrite"><b>Nitrite</b></label>
+    </div>
+    <div class="">
+        <input id="ww_vss" name="ww_other_param_51" type="checkbox">
+        <label for="ww_vss"><b>Volatile Suspended Solids (VSS)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_settleable_solids" name="ww_other_param_52" type="checkbox">
+        <label for="ww_settleable_solids"><b>Settleable solids (Imhoff cone)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_orp" name="ww_other_param_53" type="checkbox">
+        <label for="ww_orp"><b>Oxidation–Reduction Potential (ORP)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_vox" name="ww_other_param_54" type="checkbox">
+        <label for="ww_vox"><b>Volatile Organic Halogens (VOX)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_sar" name="ww_other_param_55" type="checkbox">
+        <label for="ww_sar"><b>Sodium Adsorption Ratio (SAR)</b></label>
+    </div>
+    <div class="">
+        <input id="ww_rsc" name="ww_other_param_56" type="checkbox">
+        <label for="ww_rsc"><b>Residual Sodium Carbonate (RSC)</b></label>
+    </div>
+</div>
+
+<div class="">
+    <div class="">
+        <input id="ww_total_plate_count" name="ww_other_param_57" type="checkbox">
+        <label for="ww_total_plate_count"><b>Total Plate Count</b></label>
+    </div>
+    <div class="">
+        <input id="ww_e_coli" name="ww_other_param_58" type="checkbox">
+        <label for="ww_e_coli"><b>E. Coli</b></label>
+    </div>
+    <div class="">
+        <input id="ww_faecal_coliform" name="ww_other_param_59" type="checkbox">
+        <label for="ww_faecal_coliform"><b>Faecal Coliform</b></label>
+    </div>
+    <div class="">
+        <input id="ww_faecal_enterococci" name="ww_other_param_60" type="checkbox">
+        <label for="ww_faecal_enterococci"><b>Faecal Enterococci</b></label>
+    </div>
+    <div class="">
+        <input id="ww_total_bacterial_count" name="ww_other_param_61" type="checkbox">
+        <label for="ww_total_bacterial_count"><b>Total Bacterial Count</b></label>
+    </div>
+    <div class="">
+        <input id="ww_legionella" name="ww_other_param_62" type="checkbox">
+        <label for="ww_legionella"><b>Legionella</b></label>
+    </div>
+    <div class="">
+        <input id="ww_pseudomonas" name="ww_other_param_63" type="checkbox">
+        <label for="ww_pseudomonas"><b>Pseudomonas aeruginosa</b></label>
+    </div>
+    <div class="">
+        <input id="ww_bioassay_test" name="ww_other_param_64" type="checkbox">
+        <label for="ww_bioassay_test"><b>Bioassay Test</b></label>
+    </div>
+</div>
+
+                    `)
+                        
+
+                    waterContainer.append(`
+                        <div class="">
+                <div class="">
+                    <input id="color1" name="checkinp60" type="checkbox">
+                    <label for="color1"><b>Color</b></label>
+                </div>
+                <div class="">
+                    <input id="chr1" name="checkinp67" type="checkbox">
+                    <label for="chr1"><b>Chromium</b></label>
+                </div>
+                <div class="">
+                    <input id="bor1" name="checkinp74" type="checkbox">
+                    <label for="bor1"><b>Boron</b></label>
+                </div>
+                <div class="">
+                    <input id="residual1" name="checkinp81" type="checkbox">
+                    <label for="residual1"><b>Residual Chlorine</b></label>
+                </div>
+                <div class="">
+                    <input id="sod1" name="checkinp87" type="checkbox">
+                    <label for="sod1"><b>Sodium</b></label>
+                </div>
+                <div class="">
+                    <input id="magi1" name="checkinp94" type="checkbox">
+                    <label for="magi1"><b>Magnesium</b></label>
+                </div>
+                <div class="">
+                    <input id="fc1" name="checkinp100" type="checkbox">
+                    <label for="fc1"><b>Faecal coliform</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="taste1" name="checkinp61" type="checkbox">
+                    <label for="taste1"><b>Taste</b></label>
+                </div>
+                <div class="">
+                    <input id="chl1" name="checkinp68" type="checkbox">
+                    <label for="chl1"><b>Chloride*</b></label>
+                </div>
+                <div class="">
+                    <input id="ld1" name="checkinp75" type="checkbox">
+                    <label for="ld1"><b>Lead</b></label>
+                </div>
+                <div class="">
+                    <input id="acidity1" name="checkinp88" type="checkbox">
+                    <label for="acidity1"><b>Acidity</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="odor1" name="checkinp62" type="checkbox">
+                    <label for="odor1"><b>Odor</b></label>
+                </div>
+                <div class="">
+                    <input id="cyn1" name="checkinp69" type="checkbox">
+                    <label for="cyn1"><b>Cyanide</b></label>
+                </div>
+                <div class="">
+                    <input id="nick1" name="checkinp76" type="checkbox">
+                    <label for="nick1"><b>Nickel</b></label>
+                </div>
+                <div class="">
+                    <input id="zn1" name="checkinp82" type="checkbox">
+                    <label for="zn1"><b>Zinc</b></label>
+                </div>
+                <div class="">
+                    <input id="pot1" name="checkinp89" type="checkbox">
+                    <label for="pot1"><b>Potassium</b></label>
+                </div>
+                <div class="">
+                    <input id="ph1" name="checkinp95" type="checkbox">
+                    <label for="ph1"><b>pH*</b></label>
+                </div>
+                <div class="">
+                    <input id="pa1" name="checkinp101" type="checkbox">
+                    <label for="pa1"><b>Pseudomonas aeruginosa</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="turbidity1" name="checkinp63" type="checkbox">
+                    <label for="turbidity1"><b>Turbidity</b></label>
+                </div>
+                <div class="">
+                    <input id="cop1" name="checkinp70" type="checkbox">
+                    <label for="cop1"><b>Copper</b></label>
+                </div>
+                <div class="">
+                    <input id="nitrate1" name="checkinp77" type="checkbox">
+                    <label for="nitrate1"><b>Nitrate</b></label>
+                </div>
+                <div class="">
+                    <input id="do1" name="checkinp83" type="checkbox">
+                    <label for="do1"><b>DO</b></label>
+                </div>
+                <div class="">
+                    <input id="car1" name="checkinp90" type="checkbox">
+                    <label for="car1"><b>Carbonates</b></label>
+                </div>
+                <div class="">
+                    <input id="sulp1" name="checkinp96" type="checkbox">
+                    <label for="sulp1"><b>Sulphate*</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="total_hardness1" name="checkinp64" type="checkbox">
+                    <label for="total_hardness1"><b>Total Hardness</b></label>
+                </div>   
+                <div class="">
+                    <input id="ant1" name="checkinp71" type="checkbox">
+                    <label for="ant1"><b>Antimony</b></label>
+                </div>
+                <div class="">
+                    <input id="mircury1" name="checkinp78" type="checkbox">
+                    <label for="mircury1"><b>Mercury</b></label>
+                </div>
+                <div class="">
+                    <input id="cond1" name="checkinp84" type="checkbox">
+                    <label for="cond1"><b>Conductivity</b></label>
+                </div>
+                <div class="">
+                    <input id="barc1" name="checkinp91" type="checkbox">
+                    <label for="barc1"><b>Bicarbonates</b></label>
+                </div>
+                <div class="">
+                    <input id="sil1" name="checkinp97" type="checkbox">
+                    <label for="sil1"><b>Silica </b></label>
+                </div>
+                <div class="">
+                    <input id="tbc1" name="checkinp102" type="checkbox">
+                    <label for="tbc1"><b>Total Bacterial count</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="tds1" name="checkinp65" type="checkbox">
+                    <label for="tds1"><b>TDS</b></label>
+                </div>
+                <div class="">
+                    <input id="alm1" name="checkinp72" type="checkbox">
+                    <label for="alm1"><b>Aluminium</b></label>
+                </div>
+                <div class="">
+                    <input id="nit1" name="checkinp79" type="checkbox">
+                    <label for="nit1"><b>Nitrite</b></label>
+                </div>
+                <div class="">
+                    <input id="tkn1" name="checkinp85" type="checkbox">
+                    <label for="tkn1"><b>TKN</b></label>
+                </div>
+                <div class="">
+                    <input id="alk1" name="checkinp92" type="checkbox">
+                    <label for="alk1"><b>Alkalinity</b></label>
+                </div>
+                <div class="">
+                    <input id="cali1" name="checkinp98" type="checkbox">
+                    <label for="cali1"><b>Coliform</b></label>
+                </div>
+                <div class="">
+                    <input id="ot1" name="checkinp103" type="checkbox">
+                    <label for="ot1"><b>others</b></label>
+                </div>
+                 <div class="">
+                                <input id="others" class="border" name="other2" type="text" placeholder="Others">
+                            </div>
+            </div>
+            <div class="">
+                <div class="">
+                    <input id="flo1" name="checkinp66" type="checkbox">
+                    <label for="flo1"><b>Fluoride</b></label>
+                </div>
+                <div class="">
+                    <input id="ars1" name="checkinp73" type="checkbox">
+                    <label for="ars1"><b>Arsenic</b></label>
+                </div>
+                <div class="">
+                    <input id="selen1" name="checkinp80" type="checkbox">
+                    <label for="selen1"><b>Selenium</b></label>
+                </div>
+                <div class="">
+                    <input id="phen1" name="checkinp86" type="checkbox">
+                    <label for="phen1"><b>Phenol</b></label>
+                </div>
+                <div class="">
+                    <input id="cal1" name="checkinp93" type="checkbox">
+                    <label for="cal1"><b>Calcium</b></label>
+                </div>
+                <div class="">
+                    <input id="e.1" name="checkinp99" type="checkbox">
+                    <label for="e.1"><b>E.coli </b></label>
+                </div>
+            </div>
+<div class="">
+  <div><input id="other1" name="other_param_1" type="checkbox"><label for="other1"><b>Barium</b></label></div>
+  <div><input id="other2" name="other_param_2" type="checkbox"><label for="other2"><b>Manganese</b></label></div>
+  <div><input id="other3" name="other_param_3" type="checkbox"><label for="other3"><b>Cadmium</b></label></div>
+  <div><input id="other4" name="other_param_4" type="checkbox"><label for="other4"><b>Silver</b></label></div>
+  <div><input id="other5" name="other_param_5" type="checkbox"><label for="other5"><b>Reactive Silica</b></label></div>
+  <div><input id="other6" name="other_param_6" type="checkbox"><label for="other6"><b>Silicic Acid</b></label></div>
+  <div><input id="other7" name="other_param_7" type="checkbox"><label for="other7"><b>COD</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other8" name="other_param_8" type="checkbox"><label for="other8"><b>BOD</b></label></div>
+  <div><input id="other9" name="other_param_9" type="checkbox"><label for="other9"><b>Cobalt</b></label></div>
+  <div><input id="other10" name="other_param_10" type="checkbox"><label for="other10"><b>Polyaromatic Hydrocarbons (PAH)</b></label></div>
+  <div><input id="other11" name="other_param_11" type="checkbox"><label for="other11"><b>Pesticides</b></label></div>
+  <div><input id="other12" name="other_param_12" type="checkbox"><label for="other12"><b>Oil &amp; Grease</b></label></div>
+  <div><input id="other13" name="other_param_13" type="checkbox"><label for="other13"><b>Alpha Emitters</b></label></div>
+  <div><input id="other14" name="other_param_14" type="checkbox"><label for="other14"><b>Beta Emitters</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other15" name="other_param_15" type="checkbox"><label for="other15"><b>Salinity</b></label></div>
+  <div><input id="other16" name="other_param_16" type="checkbox"><label for="other16"><b>Resistivity</b></label></div>
+  <div><input id="other17" name="other_param_17" type="checkbox"><label for="other17"><b>TOC</b></label></div>
+  <div><input id="other18" name="other_param_18" type="checkbox"><label for="other18"><b>VOC</b></label></div>
+  <div><input id="other19" name="other_param_19" type="checkbox"><label for="other19"><b>Phosphorus</b></label></div>
+  <div><input id="other20" name="other_param_20" type="checkbox"><label for="other20"><b>Calcium Hardness</b></label></div>
+  <div><input id="other21" name="other_param_21" type="checkbox"><label for="other21"><b>Magnesium Hardness</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other22" name="other_param_22" type="checkbox"><label for="other22"><b>Carbonate Hardness</b></label></div>
+  <div><input id="other23" name="other_param_23" type="checkbox"><label for="other23"><b>Non-Carbonate Hardness</b></label></div>
+  <div><input id="other24" name="other_param_24" type="checkbox"><label for="other24"><b>Temporary Hardness</b></label></div>
+  <div><input id="other25" name="other_param_25" type="checkbox"><label for="other25"><b>Strontium</b></label></div>
+  <div><input id="other26" name="other_param_26" type="checkbox"><label for="other26"><b>Chromium III</b></label></div>
+  <div><input id="other27" name="other_param_27" type="checkbox"><label for="other27"><b>Chromium VI</b></label></div>
+  <div><input id="other28" name="other_param_28" type="checkbox"><label for="other28"><b>Iron</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other29" name="other_param_29" type="checkbox"><label for="other29"><b>Ferrous (Fe+2)</b></label></div>
+  <div><input id="other30" name="other_param_30" type="checkbox"><label for="other30"><b>Ferric (Fe+3)</b></label></div>
+  <div><input id="other31" name="other_param_31" type="checkbox"><label for="other31"><b>Ammonia</b></label></div>
+  <div><input id="other32" name="other_param_32" type="checkbox"><label for="other32"><b>Tin</b></label></div>
+  <div><input id="other33" name="other_param_33" type="checkbox"><label for="other33"><b>Ammonium</b></label></div>
+  <div><input id="other34" name="other_param_34" type="checkbox"><label for="other34"><b>Free CO2</b></label></div>
+  <div><input id="other35" name="other_param_35" type="checkbox"><label for="other35"><b>Hydroxide Alkalinity as CaCO3</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other36" name="other_param_36" type="checkbox"><label for="other36"><b>Methyl Orange Alkalinity as CaCO3</b></label></div>
+  <div><input id="other37" name="other_param_37" type="checkbox"><label for="other37"><b>Phenolphthalein Alkalinity as CaCO3</b></label></div>
+  <div><input id="other38" name="other_param_38" type="checkbox"><label for="other38"><b>Particulate Matter</b></label></div>
+  <div><input id="other39" name="other_param_39" type="checkbox"><label for="other39"><b>Silt Density Index</b></label></div>
+  <div><input id="other40" name="other_param_40" type="checkbox"><label for="other40"><b>Particles Size</b></label></div>
+  <div><input id="other41" name="other_param_41" type="checkbox"><label for="other41"><b>AOx</b></label></div>
+  <div><input id="other42" name="other_param_42" type="checkbox"><label for="other42"><b>Chlorine</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other43" name="other_param_43" type="checkbox"><label for="other43"><b>Free Chlorine</b></label></div>
+  <div><input id="other44" name="other_param_44" type="checkbox"><label for="other44"><b>Sulphide</b></label></div>
+  <div><input id="other45" name="other_param_45" type="checkbox"><label for="other45"><b>Total Solid</b></label></div>
+  <div><input id="other46" name="other_param_46" type="checkbox"><label for="other46"><b>Beryllium</b></label></div>
+
+  <div><input id="other49" name="other_param_47" type="checkbox"><label for="other47"><b>Phosphate</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other50" name="other_param_48" type="checkbox"><label for="other48"><b>Volatile Suspended Solids (VSS)</b></label></div>
+  <div><input id="other51" name="other_param_49" type="checkbox"><label for="other49"><b>Settleable solids (Imhoff cone)</b></label></div>
+  <div><input id="other52" name="other_param_50" type="checkbox"><label for="other50"><b>Oxidation–Reduction Potential (ORP)</b></label></div>
+  <div><input id="other53" name="other_param_51" type="checkbox"><label for="other51"><b>Volatile Organic Halogens (VOX)</b></label></div>
+  <div><input id="other54" name="other_param_52" type="checkbox"><label for="other52"><b>Sodium Adsorption Ratio (SAR)</b></label></div>
+  <div><input id="other55" name="other_param_53" type="checkbox"><label for="other53"><b>Residual Sodium Carbonate (RSC)</b></label></div>
+  <div><input id="other56" name="other_param_54" type="checkbox"><label for="other54"><b>Temperature</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other57" name="other_param_55" type="checkbox"><label for="other55"><b>TSS</b></label></div>
+  <div><input id="other58" name="other_param_56" type="checkbox"><label for="other56"><b>Anionic Surfactants as MBAS</b></label></div>
+  <div><input id="other59" name="other_param_57" type="checkbox"><label for="other57"><b>Total Plate Count</b></label></div>
+  <div><input id="other60" name="other_param_58" type="checkbox"><label for="other58"><b>Legionella</b></label></div>
+  <div><input id="other61" name="other_param_59" type="checkbox"><label for="other59"><b>Fecal Enterococci</b></label></div>
+  <div><input id="other62" name="other_param_60" type="checkbox"><label for="other60"><b>Heterotrophic Bacteria</b></label></div>
+  <div><input id="other63" name="other_param_61" type="checkbox"><label for="other61"><b>Enterobacteriaceae</b></label></div>
+</div>
+
+<div class="">
+  <div><input id="other64" name="other_param_62" type="checkbox"><label for="other62"><b>Listeria Spp.</b></label></div>
+  <div><input id="other65" name="other_param_63" type="checkbox"><label for="other63"><b>Salmonella</b></label></div>
+  <div><input id="other66" name="other_param_64" type="checkbox"><label for="other64"><b>Yeasts &amp; Molds</b></label></div>
+</div>
+
+                    `)
+                    
+                }
+                switch (region) {
+                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                }
+                
+                setTimeout(function(){
+                    $("#loc_err").hide()
+                },1000)
+              
+            }
+        }
+    })
+
+    var seqs_value = document.querySelector(".SEQS-value")
+    var peqs_value = document.querySelector(".PEQS-value")
+    var neqs_value = document.querySelector(".NEQS-value")
+    var checkinput = document.querySelector("#checkinput")
+    var city_location = document.querySelector(".city_location")
+    var lab = document.querySelector(".lab")
+    var issue_date = document.querySelector(".issue_date")
+    var issue_no = document.querySelector(".issue_no")
+    var con_date = document.querySelector(".con_date")
+    var con_no = document.querySelector(".con_no")
+
+
+seqs_value.addEventListener("change",()=>{
+    if(seqs_value.checked){
+        checkinput.value = "SEQS"
+        city_location.value="Karachi"
+        peqs_value.disabled=true
+        neqs_value.disabled=true
+
+    }else {
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        neqs_value.disabled=false
+    }
+})
+peqs_value.addEventListener("change",()=>{
+    
+    if(peqs_value.checked){
+        checkinput.value = "PEQS"
+        city_location.value="Lahore"
+        seqs_value.disabled=true
+        neqs_value.disabled=true
+        issue_date.value='Issue Date: 05-01-2023'
+        issue_no.value='Issue No: 01 Rev.No 00'
+        con_date.value = "05-01-2023"
+        
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        neqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+neqs_value.addEventListener("change",()=>{
+    if(neqs_value.checked){
+        checkinput.value = "NEQS"
+        city_location.value="NEQS"
+        seqs_value.disabled=true
+        peqs_value.disabled=true
+        
+        
+
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+
+
+</script>
+</html>

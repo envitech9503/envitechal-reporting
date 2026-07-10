@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <title>Document</title>
+</head>
+{% load static %}
+
+<body>
+    {% if messages %}
+    <div class="w-full flex justify-center items-center">
+        <ul class="messages w-full bg-green-100 text-center rounded-lg p-2"> 
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }} text-green-700"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    <script>
+        setTimeout(function() {
+          var successMessage = document.querySelector('.messages');
+          if (successMessage) {
+            successMessage.style.display = 'none';
+          }
+        }, 5000); // Hide after 5 seconds (5000 milliseconds)
+      </script>
+    
+    <form action="{% url 'addLogging' %}" method="post" enctype="multipart/form-data" class="w-full flex flex-col justify-around">
+        {% csrf_token %}
+   
+    
+    
+    <div class="w-full text-center mt-16 mb-16">
+        <h1 class="text-4xl font-bold">Logging Sheet Form</h1>
+    </div>
+    <div  class="w-full flex flex-col justify-around ">
+        <div class="flex w-8/12 justify-center">
+            <div class="alert w-52 flex flex-col justify-around my-6">
+            
+                <div class="">
+                    <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                </div>
+                <div class="">
+                    <input class="SEQS-value" type="checkbox" value="SEQS_">
+                    <label for="">SEQS</label>
+                </div>
+                <div class="">
+                    <input class="PEQS-value" type="checkbox" value="PEQS_">
+                    <label for="">PEQS</label>
+                </div>
+                <div class="">
+                    <input class="NEQS-value" type="checkbox" value="NEQS_">
+                    <label for="">NEQS</label>
+                </div>
+                <input id="checkinput" type="text" name="location" value="" style="display: none;">
+                <div class="flex justify-between flex-wrap">
+              
+                <div class="mt-4 flex flex-col">
+                    <label class="font-bold text-lg" for="">Location</label>
+                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                </div>
+               
+                
+            </div>
+            </div>
+
+           
+            
+            
+        </div>
+       
+    
+    <div class=" w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 ">
+            <tr >
+                <td class="p-2 border border-gray-300"><b>PLease Select Month</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" type="date" name="month" id=""></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sample/Test ID</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="sample_id" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Client Name</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="client_name" type="text"></td>
+            </tr>
+            <tr>
+                
+                <td class="p-2 border border-gray-300"><b>Address</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="address" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Name Of Attention Person</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="att_person" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Contact Detail/Email Address</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="email" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Nature Of Sample/Test</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="sample_nature" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Receiving Date</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="rec_date" type="date"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Expected Reported Date</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="exp_date" type="date"></td>
+                <td class="p-2 border border-gray-300"><b>Reporting Date</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="rep_date" type="date"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Received By</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="rec_by" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Remarks</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="remarks" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="lab" value="ETAL-LAB-704-FF-1(A)" type="text"></td>
+                <td  class="p-2 border border-gray-300"><input id="issue_date"
+                        class="issue_date w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="issue_date" value="" type="text"></td>
+                <td  class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="issue_no" value="issue No:01 Rev.No.00" type="text"></td>
+                <td  class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="issue" value="issue # 01" type="text"></td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    
+    <div class="h-32  mt-8 flex justify-center items-center">
+        <div class=" space-x-8">
+            <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+            <input  type="submit" name="submit_and_new"
+                class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "
+                value='Save & Add New' />
+            <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input  type="submit"
+                name="submit_and_view" value="Save & View Report"
+                class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+        </div>
+    </div>
+</div>
+</form>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(async () => {
+        $("#loc_err").show()
+        const req_pip = await fetch('https://api.ipify.org?format=json');
+        var public_ip = await req_pip.json();
+        public_ip = public_ip.ip ? public_ip.ip : null;
+        if (public_ip) {
+            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+            const req_loc_ip = await fetch(url);
+            var location = await req_loc_ip.json();
+            console.log(location)
+            if (location) {
+                // if(location.region == 'punjab'){
+                //     console.log('hello')
+                //     let issue_date = $('#issue_date')
+                //     issue_date.val('Issue Date: 05-01-2023')
+                // }
+                // else{
+                //     let issue_date = $('#issue_date')
+                //     issue_date.val('Issue Date: 17-12-2021')
+                // }
+                let region = location.region.toLowerCase();
+                switch (region) {
+                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                }
+                setTimeout(function(){
+                    $("#loc_err").hide()
+                },1000)
+              
+            }
+        }
+    })
+
+    var seqs_value = document.querySelector(".SEQS-value")
+    var peqs_value = document.querySelector(".PEQS-value")
+    var neqs_value = document.querySelector(".NEQS-value")
+    var checkinput = document.querySelector("#checkinput")
+    var city_location = document.querySelector(".city_location")
+    var lab = document.querySelector(".lab")
+    var issue_date = document.querySelector(".issue_date")
+    var issue_no = document.querySelector(".issue_no")
+    var con_date = document.querySelector(".con_date")
+    var con_no = document.querySelector(".con_no")
+
+
+seqs_value.addEventListener("change",()=>{
+    if(seqs_value.checked){
+        checkinput.value = "SEQS"
+        city_location.value="Karachi"
+        issue_date.value="Issue Date: 17-12-2021"
+        peqs_value.disabled=true
+        neqs_value.disabled=true
+
+    }else {
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        neqs_value.disabled=false
+    }
+})
+peqs_value.addEventListener("change",()=>{
+    
+    if(peqs_value.checked){
+        console.log('hello')
+        checkinput.value = "PEQS"
+        city_location.value="Lahore"
+        seqs_value.disabled=true
+        neqs_value.disabled=true
+        issue_date.value='Issue Date: 05-01-2023'
+        issue_no.value='Issue No: 01 Rev.No 00'
+        con_date.value = "05-01-2023"
+        
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        neqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+neqs_value.addEventListener("change",()=>{
+    if(neqs_value.checked){
+        checkinput.value = "NEQS"
+        city_location.value="NEQS"
+        seqs_value.disabled=true
+        peqs_value.disabled=true
+        
+        
+
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+
+
+</script>
+</html>

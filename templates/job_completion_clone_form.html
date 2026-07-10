@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2-tailwindcss-theme@0.1.2/dist/select2-tailwindcss-theme.min.css" rel="stylesheet">
+    <title>Clone Job Completion Form</title>
+    <style>
+        input, textarea {
+            transition: all 0.2s ease;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+        .btn-transition {
+            transition: all 0.2s ease;
+        }
+        .btn-transition:active {
+            transform: scale(0.97);
+        }
+        .autofill-highlight {
+            background-color: #e8f0fe;
+            transition: background-color 0.5s;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 20px;
+            text-align: center;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 20px;
+            text-align: center;
+        }
+        .select2-container--tailwind .select2-selection {
+            border-radius: 0.5rem;
+            border-color: #1f2937;
+            min-height: 46px;
+        }
+        .select2-container--tailwind .select2-selection--single .select2-selection__rendered {
+            line-height: 42px;
+            padding-left: 0.75rem;
+        }
+        .select2-container--tailwind .select2-selection--single .select2-selection__arrow {
+            height: 44px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .info-banner {
+            background-color: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            padding: 12px 16px;
+            margin: 0 40px 20px 40px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <h1 class="text-lg lg:text-3xl md:text-3xl text-gray-900 text-center mt-6 mb-2">Clone Work Completion Form</h1>
+    
+    <div class="info-banner">
+        <p class="text-gray-700">📋 Cloning from Work Completion Number: <strong>{{ original_job.job_number }}</strong></p>
+        <!-- <p class="text-gray-600 text-sm mt-1">A new job number will be automatically generated when you save.</p> -->
+    </div>
+    
+    <div class="w-full flex justify-center items-center">
+        <form id="form" onsubmit="submitform(event)" class="w-full flex justify-center items-between flex-col" action="" method="post">
+            {% csrf_token %}
+            
+            <!-- Company Details Section -->
+            <div class="p-10 grid grid-cols-1 lg:grid-cols-2 md:grid-cols-2 gap-10 content-stretch">
+                
+                <!-- Company Selection Dropdown -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full lg:col-span-2 md:col-span-2">
+                    <label class="text-gray-800 text-lg font-semibold" for="company_select">
+                        Select Existing Company 
+                        <span class="text-sm text-gray-500 font-normal">(or type new company name below)</span>
+                    </label>
+                    <select id="company_select" class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2 bg-white" style="width: 100%;">
+                        <option value="">-- Select a company to auto-fill details --</option>
+                    </select>
+                    <div id="company_loading" class="hidden text-blue-600 text-sm mt-1">Loading company data...</div>
+                </div>
+                
+                <!-- Company Name -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="company_name">Company Name <span class="text-red-500">*</span></label>
+                    <input class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                           type="text" placeholder="Envi Tech AL" name="company_name" id="company_name" list="company_list" required value="{{ original_job.company.company_name }}">
+                    <datalist id="company_list"></datalist>
+                    <p class="text-xs text-gray-500 mt-1">Start typing or select from dropdown above</p>
+                </div>
+                
+                <!-- Address -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="address">Address</label>
+                    <textarea class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                              name="address" id="address" rows="2">{{ original_job.company.address|default:'' }}</textarea>
+                </div>
+                
+                <!-- Invoice Number Reference -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="invoice_ref">Invoice Number Reference</label>
+                    <input class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                           type="text" placeholder="" name="invoice_ref" id="invoice_ref" value="{{ original_job.invoice_ref|default:'' }}">
+                </div>
+                
+                <!-- PO Reference -->
+                <div class="flex flex-col gap-2 items-start justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="po_reference">PO Reference</label>
+                    <input class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                        type="text" placeholder="Enter PO Reference" name="po_reference" id="po_reference" value="{{ original_job.po_reference|default:'' }}">
+                    
+                    <!-- Container for dynamic PO fields -->
+                    <div id="poFieldsContainer" class="w-full mt-2 space-y-2"></div>
+                    
+                    <button type="button" id="custom_po" onclick="addCustomPORow()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md btn-transition flex items-center gap-2 mt-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Custom PO
+                    </button>
+                </div>
+                
+                <!-- Contact Person -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="contact_person">Contact Person</label>
+                    <input class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                           type="text" placeholder="" name="contact_person" id="contact_person" value="{{ original_job.company.contact_person|default:'' }}">
+                </div>
+                
+                <!-- Contact Number -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="contact_number">Contact Number</label>
+                    <input class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                           type="tel" placeholder="" name="contact_number" id="contact_number" value="{{ original_job.company.contact_number|default:'' }}">
+                </div>
+                
+                <!-- Email -->
+                <div class="flex flex-col gap-2 items-center justify-center w-full">
+                    <label class="text-gray-800 text-lg" for="email">Email</label>
+                    <input class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" 
+                           type="email" placeholder="" name="email" id="email" value="{{ original_job.company.email|default:'' }}">
+                </div>
+            </div>
+            
+            <!-- Save Company Button -->
+            <div class="flex justify-end px-10 mb-5">
+                <button type="button" id="saveCompanyBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                    💾 Save Current as New Company
+                </button>
+            </div>
+            
+            <!-- Service Table Section -->
+            <div class="mb-6 w-full flex justify-center px-6 md:px-10">
+                <div class="w-full overflow-x-auto">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">Service Description</h2>
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border border-gray-400 p-3 text-center bg-gray-100" colspan="5">Service Details</th>
+                            </tr>
+                            <tr>
+                                <th class="border border-gray-400 p-3 text-left">Sr.No</th>
+                                <th class="border border-gray-400 p-3 text-left">Type of Services</th>
+                                <th class="border border-gray-400 p-3 text-left">Site Location</th>
+                                <th class="border border-gray-400 p-3 text-left">QTY</th>
+                                <th class="border border-gray-400 p-3 text-left">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dynamicTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Add/Remove Row Buttons -->
+            <div class="flex justify-center items-center gap-4 px-6 md:px-10 pb-8">
+                <button type="button" id="addRowExtraBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md btn-transition flex items-center gap-2">
+                    + Add Extra Row
+                </button>
+                <button type="button" id="removeLastRowBtn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md btn-transition flex items-center gap-2">
+                    − Remove Last Row
+                </button>
+            </div>
+
+            <!-- Acknowledgment Section -->
+            <div class="my-6 w-full flex flex-col items-center justify-center px-6 md:px-10">
+                <h2 class="text-2xl text-gray-900 text-center mb-4">Acknowledgment</h2>
+                <div class="w-full px-10 grid grid-cols-1 lg:grid-cols-2 md:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-2 items-center justify-center w-full">
+                        <label class="text-gray-800 text-lg" for="sign">Signature of Envi Tech AL Representative</label>
+                        <select name="sign" id="sign" class="w-full">
+                            {% for sign in signs %}
+                                <option value="{{sign.id}}" {% if original_job.representative_sign == sign.id|stringformat:"s" %}selected{% endif %}>
+                                    {{sign.user.username}} ({{sign.role}})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-2 items-center justify-center w-full">
+                        <label class="text-gray-800 text-lg" for="receiver_name">Name of Service Receiver Representative</label>
+                        <input name="receiver_name" id="receiver_name" class="border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2" value="{{ original_job.service_receiver|default:'' }}">
+                    </div>
+                </div>
+            </div>
+            
+            <input class="border rounded p-2 w-96 border-gray-700 hidden" type="text" id="location" name="location" value="{{ original_job.location|default:'' }}">
+            
+            <!-- Submit and Cancel Buttons -->
+            <div class="p-6 md:p-10 border-t border-gray-200 flex justify-end gap-4">
+                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-8 rounded-lg shadow transition">Clone & Save Job</button>
+                <a href="{% url 'job_completion_form' %}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-8 rounded-lg shadow transition text-center">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    <div id="loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px; border-radius:5px; display:flex; flex-direction:column; align-items:center;">
+            <div class="spinner" style="border:4px solid #f3f3f3; border-top:4px solid #3498db; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite;"></div>
+            <p style="margin-top:10px;">Cloning Job, please wait...</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let poRowCounter = 0;
+        let originalJobId = {{ original_job.id }};
+
+        // Function to add new custom PO row
+        function addCustomPORow(label = '', value = '') {
+            poRowCounter++;
+            const container = document.getElementById('poFieldsContainer');
+            
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'flex gap-3 items-center w-full p-3 bg-gray-50 rounded-lg border border-gray-200';
+            rowDiv.id = `po_row_${poRowCounter}`;
+            
+            // Label input
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'flex-1';
+            const labelInput = document.createElement('input');
+            labelInput.type = 'text';
+            labelInput.name = `po_label_${poRowCounter}`;
+            labelInput.id = `po_label_${poRowCounter}`;
+            labelInput.placeholder = 'Enter Label (e.g., Project Name, Department)';
+            labelInput.className = 'border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2';
+            labelInput.value = label;
+            labelDiv.appendChild(labelInput);
+            
+            // Value input
+            const valueDiv = document.createElement('div');
+            valueDiv.className = 'flex-1';
+            const valueInput = document.createElement('input');
+            valueInput.type = 'text';
+            valueInput.name = `po_value_${poRowCounter}`;
+            valueInput.id = `po_value_${poRowCounter}`;
+            valueInput.placeholder = 'Enter Value';
+            valueInput.className = 'border border-gray-800 w-full rounded-lg outline-blue-400 focus:border-blue-400 p-2';
+            valueInput.value = value;
+            valueDiv.appendChild(valueInput);
+            
+            // Remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'text-red-600 hover:text-red-800 transition-colors p-2';
+            removeBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+            removeBtn.onclick = function() { removeCustomPORow(poRowCounter); };
+            
+            rowDiv.appendChild(labelDiv);
+            rowDiv.appendChild(valueDiv);
+            rowDiv.appendChild(removeBtn);
+            container.appendChild(rowDiv);
+        }
+
+        function removeCustomPORow(rowId) {
+            const row = document.getElementById(`po_row_${rowId}`);
+            if (row) row.remove();
+        }
+
+        function getCustomPOData() {
+            const poData = [];
+            const container = document.getElementById('poFieldsContainer');
+            const rows = container.querySelectorAll('[id^="po_row_"]');
+            rows.forEach(row => {
+                const labelInput = row.querySelector('input[name^="po_label_"]');
+                const valueInput = row.querySelector('input[name^="po_value_"]');
+                if (labelInput && valueInput && labelInput.value.trim()) {
+                    poData.push({ label: labelInput.value.trim(), value: valueInput.value.trim() });
+                }
+            });
+            return poData;
+        }
+
+        // Load existing custom PO fields from original job
+        function loadExistingCustomPOFields() {
+            const customPOFields = {{ original_job.custom_po_fields|default:'[]'|safe }};
+            if (customPOFields && customPOFields.length > 0) {
+                customPOFields.forEach(field => {
+                    addCustomPORow(field.label, field.value);
+                });
+            }
+        }
+
+        // Populate service table with existing data from original job
+        function populateServiceTable() {
+            const serviceDetails = {{ service_details|safe }};
+            const tbody = document.getElementById('dynamicTableBody');
+            tbody.innerHTML = '';
+            
+            serviceDetails.forEach((service) => {
+                const tr = document.createElement('tr');
+                
+                const tdSr = document.createElement('td');
+                tdSr.className = 'border border-gray-400 p-3 text-center';
+                tdSr.textContent = service.sr_no;
+                tr.appendChild(tdSr);
+                
+                const tdService = document.createElement('td');
+                tdService.className = 'border border-gray-400 p-3';
+                const serviceInput = document.createElement('input');
+                serviceInput.type = 'text';
+                serviceInput.name = `service_${service.sr_no}`;
+                serviceInput.className = 'border border-gray-500 p-2 w-full rounded';
+                serviceInput.value = service.service;
+                tdService.appendChild(serviceInput);
+                tr.appendChild(tdService);
+                
+                const tdLocation = document.createElement('td');
+                tdLocation.className = 'border border-gray-400 p-3';
+                const locationInput = document.createElement('input');
+                locationInput.type = 'text';
+                locationInput.name = `site_location_${service.sr_no}`;
+                locationInput.className = 'border border-gray-500 p-2 w-full rounded';
+                locationInput.value = service.site_location;
+                tdLocation.appendChild(locationInput);
+                tr.appendChild(tdLocation);
+                
+                const tdQty = document.createElement('td');
+                tdQty.className = 'border border-gray-400 p-3';
+                const qtyInput = document.createElement('input');
+                qtyInput.type = 'number';
+                qtyInput.name = `qty_${service.sr_no}`;
+                qtyInput.className = 'border border-gray-500 p-2 w-full rounded';
+                qtyInput.value = service.qty;
+                tdQty.appendChild(qtyInput);
+                tr.appendChild(tdQty);
+                
+                const tdDate = document.createElement('td');
+                tdDate.className = 'border border-gray-400 p-3';
+                const dateInput = document.createElement('input');
+                dateInput.type = 'date';
+                dateInput.name = `date_${service.sr_no}`;
+                dateInput.className = 'border border-gray-500 p-2 w-full rounded';
+                dateInput.value = service.date;
+                tdDate.appendChild(dateInput);
+                tr.appendChild(tdDate);
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Table management
+        (function() {
+            const tbody = document.getElementById('dynamicTableBody');
+            const addButton = document.getElementById('addRowExtraBtn');
+            const removeButton = document.getElementById('removeLastRowBtn');
+            
+            function getCurrentMaxRowNumber() {
+                let max = 0;
+                const rows = tbody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const srCell = row.cells[0];
+                    if (srCell && srCell.textContent) {
+                        const val = parseInt(srCell.textContent.trim(), 10);
+                        if (!isNaN(val) && val > max) max = val;
+                    }
+                });
+                return max;
+            }
+            
+            function createEmptyRow(newIndex) {
+                const tr = document.createElement('tr');
+                const tdSr = document.createElement('td');
+                tdSr.className = 'border border-gray-400 p-3 text-center';
+                tdSr.textContent = newIndex;
+                tr.appendChild(tdSr);
+                
+                const tdService = document.createElement('td');
+                tdService.className = 'border border-gray-400 p-3';
+                const serviceInput = document.createElement('input');
+                serviceInput.type = 'text';
+                serviceInput.name = `service_${newIndex}`;
+                serviceInput.className = 'border border-gray-500 p-2 w-full rounded';
+                tdService.appendChild(serviceInput);
+                tr.appendChild(tdService);
+                
+                const tdLocation = document.createElement('td');
+                tdLocation.className = 'border border-gray-400 p-3';
+                const locationInput = document.createElement('input');
+                locationInput.type = 'text';
+                locationInput.name = `site_location_${newIndex}`;
+                locationInput.className = 'border border-gray-500 p-2 w-full rounded';
+                tdLocation.appendChild(locationInput);
+                tr.appendChild(tdLocation);
+                
+                const tdQty = document.createElement('td');
+                tdQty.className = 'border border-gray-400 p-3';
+                const qtyInput = document.createElement('input');
+                qtyInput.type = 'number';
+                qtyInput.value = 1;
+                qtyInput.name = `qty_${newIndex}`;
+                qtyInput.className = 'border border-gray-500 p-2 w-full rounded';
+                tdQty.appendChild(qtyInput);
+                tr.appendChild(tdQty);
+                
+                const tdDate = document.createElement('td');
+                tdDate.className = 'border border-gray-400 p-3';
+                const dateInput = document.createElement('input');
+                dateInput.type = 'date';
+                dateInput.name = `date_${newIndex}`;
+                dateInput.className = 'border border-gray-500 p-2 w-full rounded';
+                tdDate.appendChild(dateInput);
+                tr.appendChild(tdDate);
+                return tr;
+            }
+            
+            function reindexAllRows() {
+                const rows = tbody.querySelectorAll('tr');
+                for (let i = 0; i < rows.length; i++) {
+                    const newSerial = i + 1;
+                    const row = rows[i];
+                    const srCell = row.cells[0];
+                    if (srCell) srCell.textContent = newSerial;
+                    const inputs = row.querySelectorAll('input');
+                    if (inputs.length >= 4) {
+                        inputs[0].name = `service_${newSerial}`;
+                        inputs[1].name = `site_location_${newSerial}`;
+                        inputs[2].name = `qty_${newSerial}`;
+                        inputs[3].name = `date_${newSerial}`;
+                    }
+                }
+            }
+            
+            function addNewRow() {
+                const maxIdx = getCurrentMaxRowNumber();
+                const newIndex = maxIdx + 1;
+                const newRow = createEmptyRow(newIndex);
+                tbody.appendChild(newRow);
+                newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            
+            function removeLastRow() {
+                const rows = tbody.querySelectorAll('tr');
+                if (rows.length <= 1) {
+                    alert("At least one service row is required.");
+                    return;
+                }
+                const lastRow = rows[rows.length - 1];
+                lastRow.remove();
+                reindexAllRows();
+            }
+            
+            if (addButton) addButton.addEventListener('click', addNewRow);
+            if (removeButton) removeButton.addEventListener('click', removeLastRow);
+        })();
+
+        // Select2 initialization
+        $(document).ready(function() {
+            $('#company_select').select2({
+                placeholder: "-- Select a company to auto-fill details --",
+                allowClear: true,
+                width: '100%',
+                language: { noResults: () => "No companies found. Type to add new company" }
+            });
+            $('#sign').select2({ placeholder: "Select Sign", allowClear: true, width: '100%' });
+        });
+
+        const API_BASE_URL = '';
+
+        async function loadAllCompanies() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/get-all-companies/`);
+                const data = await response.json();
+                const select = document.getElementById('company_select');
+                select.innerHTML = '<option value="">-- Select a company to auto-fill details --</option>';
+                if (data.companies && data.companies.length > 0) {
+                    data.companies.forEach(company => {
+                        const option = document.createElement('option');
+                        option.value = company;
+                        option.textContent = company;
+                        select.appendChild(option);
+                    });
+                }
+                $('#company_select').trigger('change');
+            } catch (error) {
+                console.error('Error loading companies:', error);
+            }
+        }
+
+        async function autoFillClientDetails(companyName) {
+            if (!companyName) return;
+            const loadingDiv = document.getElementById('company_loading');
+            if (loadingDiv) loadingDiv.classList.remove('hidden');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/get-client-details/?company_name=${encodeURIComponent(companyName)}`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('address').value = data.address || '';
+                    document.getElementById('contact_person').value = data.contact_person || '';
+                    document.getElementById('contact_number').value = data.contact_number || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('po_reference').value = data.po_reference || '';
+                    
+                    const container = document.getElementById('poFieldsContainer');
+                    container.innerHTML = '';
+                    poRowCounter = 0;
+                    if (data.custom_po_fields && data.custom_po_fields.length > 0) {
+                        data.custom_po_fields.forEach(poField => addCustomPORow(poField.label, poField.value));
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching client details:', error);
+            } finally {
+                if (loadingDiv) loadingDiv.classList.add('hidden');
+            }
+        }
+
+        async function saveCurrentAsCompany() {
+            const companyName = document.getElementById('company_name').value;
+            if (!companyName) { alert('Please enter a company name first'); return; }
+            const clientData = {
+                company_name: companyName,
+                address: document.getElementById('address').value,
+                contact_person: document.getElementById('contact_person').value,
+                contact_number: document.getElementById('contact_number').value,
+                email: document.getElementById('email').value,
+                po_reference: document.getElementById('po_reference').value,
+                custom_po_fields: getCustomPOData(),
+            };
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/save-client-details/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+                    body: JSON.stringify(clientData)
+                });
+                const result = await response.json();
+                if (result.success) { alert(`Company "${companyName}" saved successfully!`); loadAllCompanies(); }
+                else { alert('Error saving company: ' + result.error); }
+            } catch (error) { console.error('Error saving company:', error); alert('Error saving company. Please try again.'); }
+        }
+
+        $('#company_select').on('change', function(e) {
+            const selectedCompany = $(this).val();
+            if (selectedCompany) {
+                document.getElementById('company_name').value = selectedCompany;
+                autoFillClientDetails(selectedCompany);
+            }
+        });
+
+        let typingTimer;
+        document.getElementById('company_name').addEventListener('input', function(e) {
+            clearTimeout(typingTimer);
+            const companyName = e.target.value;
+            typingTimer = setTimeout(() => { if (companyName.length > 2) autoFillClientDetails(companyName); }, 800);
+        });
+
+        document.getElementById('saveCompanyBtn').addEventListener('click', saveCurrentAsCompany);
+        
+        // Initialize page
+        loadAllCompanies();
+        loadExistingCustomPOFields();
+        populateServiceTable();
+
+        function showLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'flex';
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'none';
+        }
+
+        function showNotification(type, message) {
+            $('.alert-success, .alert-error').remove();
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            const alertHtml = `<div class="${alertClass}" style="position: fixed; top: 20px; right: 20px; z-index: 1000; min-width: 300px; animation: slideIn 0.3s ease-out;">${message}</div>`;
+            $('body').append(alertHtml);
+            setTimeout(() => $(`.${alertClass}`).fadeOut('slow', function() { $(this).remove(); }), 5000);
+        }
+
+        function submitform(e) {
+            e.preventDefault();
+            
+            const services = [];
+            const rows = document.querySelectorAll('#dynamicTableBody tr');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if (inputs.length >= 4) {
+                    services.push({
+                        service: inputs[0].value,
+                        site_location: inputs[1].value,
+                        qty: parseInt(inputs[2].value) || 0,
+                        date: inputs[3].value
+                    });
+                }
+            });
+            
+            const data = {
+                company_name: document.getElementById('company_name').value,
+                address: document.getElementById('address').value,
+                contact_person: document.getElementById('contact_person').value,
+                contact_number: document.getElementById('contact_number').value,
+                email: document.getElementById('email').value,
+                invoice_ref: document.getElementById('invoice_ref').value,
+                po_reference: document.getElementById('po_reference').value,
+                custom_po_fields: getCustomPOData(),
+                receiver_name: document.getElementById('receiver_name').value,
+                sign: document.getElementById('sign').value,
+                location: document.getElementById('location').value,
+                services: services,
+                csrfmiddlewaretoken: document.querySelector('[name=csrfmiddlewaretoken]').value
+            };
+            
+            console.log('Cloning job data:', data);
+            showLoader();
+            
+            fetch(`/api/clone_job/${originalJobId}/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value },
+                body: JSON.stringify(data)
+            })
+            .then(async response => {
+                hideLoader();
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    console.log("SERVER RESPONSE:", text);
+                    try {
+                        const errorData = JSON.parse(text);
+                        throw new Error(errorData.error || "Job creation failed");
+                    } catch {
+                        throw new Error("Server returned HTML instead of JSON");
+                    }
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Open PDF in new tab using the job ID
+                    const pdfUrl = `/job_completion_pdf/${result.job_id}/`;
+                    window.open(pdfUrl, '_blank');
+                    
+                    showNotification('success', `Job ${result.job_number} created successfully! PDF is opening...`);
+                    
+                    // Optional: Reset form after successful submission
+                    setTimeout(() => {
+                        
+                            resetForm();
+                        
+                    }, 1000);
+                } else {
+                    showNotification('error', result.error || 'Error creating job');
+                }
+            })
+            .catch(error => {
+                hideLoader();
+                console.error("Error:", error);
+                showNotification('error', error.message || 'Error cloning form.');
+            });
+        }
+    </script>
+</body>
+</html>

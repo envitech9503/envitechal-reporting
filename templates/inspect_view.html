@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+    <title>Inspection</title>
+    {% load static %}
+</head>
+<body>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 2px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+          width: 20%;
+        }
+        #watermark {
+            color: rgb(0 61 139 / 30%);
+            height: 100%;
+            left: -110px;
+            line-height: 2;
+            margin: 0;
+            position: fixed;
+            top: 0;
+            transform: rotate(-30deg);
+            transform-origin: 0 100%;
+            width: 119%;
+            word-spacing: 10px;
+            z-index: 1;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+            supported by Chrome, Edge, Opera and Firefox */
+           }
+        
+        </style>
+        {% if data %}
+        <section class="sticky top-60 w-32 text-xl flex flex-col left-9 px relative z-50 flex gap-8">
+            <a target="_blank" href="{% url 'inspect_pdf' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Report</a>
+            <a target="_blank" href="{% url 'inspect_pdf1' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Print</a>
+            <a  href="{% url 'nav' %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+              </svg ></a>
+              
+          </section>
+    <section class="w-full flex flex-col justify-center items-center ">
+        <div class="m-10">
+            <h1 class="text-4xl " style="font-family: 'Pacifico', cursive;">Certificate of Inspection</h1>
+        </div>
+    </section>
+    <p id="watermark">Lab Report No:{{data.lab_report_no}}</p>
+    <section class="w-full flex justify-center mb-52">
+        <div  class="m-20 w-8/12 ">
+            <div class="mb-8 space-x-4 flex justify-between items-center">
+                <div>
+                    <label class="font-bold  text-lg" for="">Certificate Number:</label>
+                    <input class="border border-gray-500 px-3 py-1 w-96 outline-none" type="text"  disabled value="{{data.cert_num}}" name="cert_num" > 
+                </div>
+                <div class="">
+                    <img style="width:80px;height:80px" class="" src="{{qr}}" alt="">
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <td style="width: 5%;"><b>Client</b></td>
+                    <td colspan="3"><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.client}}" name="client" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Address</b></td>
+                    <td colspan="3"><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.address}}" name="address" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Inspection Date</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.date}}" name="insp_date" type="text"></td>
+                    <td style="width: 5%;"><b>Re-Inspection Date</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.re_insp_date}}" name="insp_date" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table >
+                <tr>
+                    <th colspan="4" style="width: 80%;"><b>Client's Equipment Data</b></th>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.equipment}}" name="equipment" type="text"></td>
+                    <td style="width: 5%;"><b>Manufacturer</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.manufacturer}}" name="Manufacturer" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment ID</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.equip_id}}" name="equip_id" type="text"></td>
+                    <td style="width: 5%;"><b>Model/Type</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.model}}" name="model" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table>
+                <tr>
+                    <td colspan="5"><b>Master Equipment and References</b></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><b>Equipment</b></td>
+                    <td class="text-center"><b>Model</b></td>
+                    <td class="text-center"><b>Serial No.</b></td>
+                    <td class="text-center"><b>Certificate Number</b></td>
+                </tr>
+                <tr>
+                    <td>{{data.equipment_1}}</td>
+                    <td>{{data.model_1}}</td>
+                    <td>{{data.serial_no1}}</td>
+                    <td>{{data.cert_num1}}</td>
+                </tr>
+                {% if data.extra_field1 %}
+                    {% for extra_field in data.extra_field1 %}
+                        <tr>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr[]"  type="text"></b></td>
+                            <td>{{extra_field.inp1}}</b></td>
+                            <td>{{extra_field.inp2}}</td>
+                            <td>{{extra_field.inp3}}</td>
+                            <td>{{extra_field.inp4}}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+            </table>
+            
+            
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% if data.client_date_table %}
+            <table>
+                <tr>
+                    <th colspan="4" style="width: 80%;"><b><input class="font-bold" type="text" name="client_date_table" value="{{data.client_date_table}}"></b></th>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="{{data.client_equipment}}" name="client_equipment"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_equipment_1}}" name="client_equipment_1" type="text"></td>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="{{data.client_manufacturer}}" name="client_manufacturer"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_manufacturer_1}}" name="client_manufacturer_1" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="{{data.client_equip_id}}" name="client_equip_id"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_equip_id_1}}" name="client_equip_id_1" type="text"></td>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="{{data.client_model}}" name="client_model"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_model_1}}" name="client_model_1" type="text"></td>
+                </tr>
+                <tr>
+                    <td><b><input type="text" class="font-bold" value="{{data.client_location}}" name="client_location"></b></td>
+                    <td colspan="4"><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_location_1}}" name="client_location_1" type="text"></td>
+                </tr>
+                <tr>
+                    <td><b><input type="text" class="font-bold" value="{{data.client_param}}" name="client_param"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_param_1}}" name="client_param_1" type="text"></td>
+                    <td><b><input type="text" class="font-bold" value="Range/L.C Serial No." value="{{data.client_range}}" name="client_range"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_range_1}}" name="client_range_1" type="text"></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><input type="text" class="font-bold" value="{{data.client_tolerance}}" name="client_tolerance"></b></td>
+                    <td colspan="4"><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client_tolerance_1}}" name="client_tolerance_1" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% endif %}
+
+            {% if data.param_1 %}
+            <table>
+                <tr>
+                    <td class="text-center"><b>Parameter</b></td>
+                    <td class="text-center"><b>Results</b></td>
+                    <td class="text-center"><b>Load Condition Static/Dynamic</b></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.param_1}}" name="param_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.result_1}}" name="result_1" type="text"></td>
+                    <td rowspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none h-24" value="{{data.load_cond}}" name="load_cond" type="text"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.param_2}}" name="param_2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.result_2}}" name="result_2" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% endif %}
+
+            {% if data.temp_1 %}
+            <table>
+                <tr>
+                    <td class="text-center"><b>Test Environment</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="temp_1" type="text" value="{{data.temp_1}}"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="temp_2" value="{{data.temp_2}}"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="humidity_1" value="{{data.humidity_1}}"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="humidity_2" value="{{data.humidity_2}}"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% endif %}
+            
+
+
+            {% if data.test1 %}
+            <table id="table">
+                <tr>
+                    <th colspan="3">Physical Inspection & Testing</th>
+                </tr>
+                <tr>
+                    <th>Testing Parameter</th>
+                    <th>Observations</th>
+                </tr>
+                <tr>
+                    <td><input type="text"  disabled value="{{data.test1}}" name="test1" ></td>
+                    <td><input type="text"  disabled value="{{data.test2}}" name="test2" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text"  disabled value="{{data.test3}}" name="test3" ></td>
+                    <td><input type="text"  disabled value="{{data.test4}}" name="test4" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text"  disabled value="{{data.test5}}" name="test5" ></td>
+                    <td><input type="text"  disabled value="{{data.test6}}" name="test6" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text"  disabled value="{{data.test7}}" name="test7" ></td>
+                    <td><input type="text"  disabled value="{{data.test8}}" name="test8" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text"  disabled value="{{data.test9}}" name="test9" ></td>
+                    <td><input type="text"  disabled value="{{data.test10}}" name="test10" ></td>
+                </tr>
+                {% if data.extra_field %}
+                    {% for extra_field in data.extra_field %}
+                        <tr>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" disabled value="{{extra_field.sr}}" name="sr[]"  type="text"></b></td>
+                            <td><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" disabled value="{{extra_field.test}}" name="test[]"  type="text"></b></td>
+                            <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" disabled value="{{extra_field.observation}}" name="observation[]" type="text" ></td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+                
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% endif %}
+            
+            
+
+            {% if data.forklift_table %}
+            <div class="mb-8 flex flex-row space-x-6">
+                <label class="font-bold  text-lg" for="">Table :</label>
+                <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" name="forklift_table" value="{{data.forklift_table}}">
+            </div>
+            <table id="table1">
+                <tr>
+                  <th class="text-center" rowspan="2">Weight</th>
+                  <th class="text-center" rowspan="2">Set Value Height</th>
+                  <th class="text-center" rowspan="2">Master Reading Height</th>
+                  <th class="text-center" colspan="2">Actual Reading Height</th>
+                  <th class="text-center" rowspan="2">Deviation Height</th>
+                </tr>
+                <tr>
+                  <th class="text-center">Before</th>
+                  <th class="text-center">After</th>
+                </tr>
+                <tr>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="kg1" value="{{data.kg1}}"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_1" value="{{data.ft_1}}"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_2" value="{{data.ft_2}}"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_3" value="{{data.ft_3}}"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_4" value="{{data.ft_4}}"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_5" value="{{data.ft_5}}"></th>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight1" value="{{data.weight1}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set1" value="{{data.set1}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master1" value="{{data.master1}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before1" value="{{data.before1}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after1" value="{{data.after1}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev1" value="{{data.dev1}}" type="text"></td>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight2" value="{{data.weight2}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set2" value="{{data.set2}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master2" value="{{data.master2}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before2" value="{{data.before2}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after2" value="{{data.after2}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev2" value="{{data.dev2}}" type="text"></td>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight3" value="{{data.weight3}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set3" value="{{data.set3}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master3" value="{{data.master3}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before3" value="{{data.before3}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after3" value="{{data.after3}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev3" value="{{data.dev3}}" type="text"></td>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight4" value="{{data.weight4}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set4" value="{{data.set4}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master4" value="{{data.master4}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before4" value="{{data.before4}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after4" value="{{data.after4}}" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev4" value="{{data.dev4}}" type="text"></td>
+                </tr>
+                
+              </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% endif %}
+
+            {% if data.knife_table %}
+            <div class="mb-8 flex flex-row space-x-6">
+                <label class="font-bold  text-lg" for="">Table :</label>
+                <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" name="knife_table" value="{{data.knife_table}}">
+            </div>
+
+            <table>
+                <tr>
+                    <th>Set Value</th>
+                    <th>Master Reading</th>
+                    <th>Actual reading (before)</th>
+                    <th>Actual reading (after)</th>
+                    <th>Deviation</th>
+                </tr>
+                <tr>
+                    <th colspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none text-center" type="text" name="rpm1" value="{{data.rpm1}}"></th>
+                    <th colspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none text-center" type="text" name="rpm2" value="{{data.rpm2}}"></th>
+                    <th colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none text-center" type="text" name="rpm3" value="{{data.rpm3}}"></th>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value1" value="{{data.knife_Set_value1}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master1" value="{{data.knife_master1}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before1" value="{{data.knife_before1}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after1" value="{{data.knife_after1}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev1" value="{{data.knife_dev1}}" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value2" value="{{data.knife_Set_value2}}"  ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master2" value="{{data.knife_master2}}"  ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before2" value="{{data.knife_before2}}"  ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after2" value="{{data.knife_after2}}"  ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev2" value="{{data.knife_dev2}}"  ></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value3" value="{{data.knife_Set_value3}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master3" value="{{data.knife_master3}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before3" value="{{data.knife_before3}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after3" value="{{data.knife_after3}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev3" value="{{data.knife_dev3}}" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value4" value="{{data.knife_Set_value4}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master4" value="{{data.knife_master4}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before4" value="{{data.knife_before4}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after4" value="{{data.knife_after4}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev4" value="{{data.knife_dev4}}" ></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value5" value="{{data.knife_Set_value5}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master5" value="{{data.knife_master5}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before5" value="{{data.knife_before5}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after5" value="{{data.knife_after5}}" ></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev5" value="{{data.knife_dev5}}" ></td>
+                </tr>
+            </table>
+
+            <hr class="w-full border border-black mt-5 mb-5">
+            {% endif %}
+
+
+
+
+
+
+            <div class="">
+                <p class="font-bold">Conclusion :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.conc}}" name="conc" type="text">
+            </div>
+            <div class="">
+                <p class="font-bold">Inspection Status :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none"  disabled value="{{data.insp_status}}" name="insp_status" type="text">
+            </div>
+            <div class="mt-8 border border-gray-400 p-2">
+                <span class="">{{data.text}}</span>
+              </div>
+              <div class="flex justify-between mt-6 text-sm">
+                <div class="flex flex-col space-y-4  p-2">
+                    <img class="h-24 w-28" src="{{data.ispect_by_signature.signature.url}}" alt="img">
+                    <label class="font-bold text-lg" for=""> Inspected By:</label>
+                </div>
+                <div class="flex flex-col space-y-4  p-2 " style="width: 50%;">
+                    
+                    <div class="flex  w-full justify-around" style="column-gap: 20px; font-size: 12px;">
+
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %} alt="">
+                            <p>(License # R-KC)</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/ISO-9001_2015 LOGO.png" %} alt="">
+                            <p>(Certificate # 080177324-QMS)</p>
+
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/ISO-14001_2015 LOGO.png" %} alt="">
+                            <p>(Certificate # 080177424-EMS)</p>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="flex flex-col space-y-4  p-2">
+                    
+
+                    <div class="flex text-sm" style="column-gap: 20px;">
+                        <img class="h-24 w-28" src="{{logo}}" alt="img">
+
+                        <img class="h-24 w-28" src="{{data.check1_signature.signature.url}}" alt="img">
+
+                    </div>
+                    <label class="font-bold text-lg text-center" for="">Checked By</label>
+                </div>
+
+            </div>
+            <div class="flex flex-col mt-8">
+                <label class="font-bold" for="">Disclaimer</label>
+                <input class="border border-gray-500 w-96 py-1 px-3 w-full outline-none" type="text"  disabled value="{{data.disc}}" name="disc" >
+            </div>
+            <input id="extra_field" name="extra_field" style="display: none;" value="[]" type="text"/>
+            
+        </div>
+    </section>
+    {% endif %}
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    
+
+    {% comment %} var extraFields = [];
+const getExtraFields = async () => {
+    var extraRows = $("tr[id^='extraRow-']")
+for(var i =0;i<extraRows.length;i++){
+    let _row = extraRows[i];
+    let num_row = _row.id.split("-")[1]
+
+    let obj = {
+        "test":$(`input[name='extra-${num_row}-1']`).val(),
+        "observation":$(`input[name='extra-${num_row}-2']`).val(),
+    }
+    extraFields.push(obj);
+}
+$("#extra_field").val(JSON.stringify(extraFields))
+}
+
+
+
+$("#save_rows").on('click', getExtraFields)
+
+var table = document.querySelector('#table')
+var add_rows = document.querySelector('#add_rows')
+currentNumber = 33
+
+add_rows.addEventListener('click', (e) => {
+e.preventDefault()
+var newRow = table.insertRow(table.rows.length);
+$(newRow).attr("id",`extraRow-${currentNumber}`)
+
+for (var i = 0; i < 3; i++) {
+    var cell = newRow.insertCell(i);
+    cell.innerHTML = `<input class="w-full border border-gray-500 px-2 py-1" type="text" name="extra-${currentNumber}-${i}">`;
+}
+
+currentNumber++;
+}) {% endcomment %}
+
+{% comment %} const stringToJSON =   (s)=>{
+    s = s.replaceAll('&#x27;','"')
+   s =  JSON.parse(s)
+  return s
+}
+
+{% comment %} var extraFields = stringToJSON('{{list.extra_field}}'); {% endcomment %}
+ {% comment %} var extraFields = []
+const getExtraFields = async () => {
+var extraRows = $("tr[id^='extraRow-']")
+for(var i =0;i<extraRows.length;i++){
+let _row = extraRows[i];
+let num_row = _row.id.split("-")[1]
+
+let obj = {
+    "sr":num_row,
+    "test":$(`input[name='extra-${num_row}-1']`).val(),
+    "observation":$(`input[name='extra-${num_row}-2']`).val(),
+    }
+extraFields.push(obj);
+}
+$("#extra_field").val(JSON.stringify(extraFields))
+}
+
+
+
+$("#save_rows").on('click', getExtraFields)
+
+var table = document.querySelector('#table')
+var add_rows = document.querySelector('#add_rows')
+currentNumber = 33
+
+add_rows.addEventListener('click', (e) => {
+e.preventDefault()
+var newRow = table.insertRow(table.rows.length);
+$(newRow).attr("id",`extraRow-${currentNumber}`)
+var cell0 = newRow.insertCell(0);
+cell0.innerHTML = `${currentNumber}`;
+cell0.style.display="none"
+for (var i = 1; i < 3; i++) {
+var cell = newRow.insertCell(i);
+cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+}
+
+currentNumber++;
+})  {% endcomment %}
+
+var water_mark = document.getElementById('watermark').textContent
+
+var n =1000
+for(var i = 0;i <= n; i++){
+    document.getElementById('watermark').innerHTML = water_mark
+}
+
+</script>
+
+</html>

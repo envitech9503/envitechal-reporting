@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if user.is_authenticated %}
+  {% load static %}
+
+  <title>Envi Tech AL</title>
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={% static "style.css" %}>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+  <!-- Header -->
+  <header class="fixed top-0 w-full bg-gray-900 shadow-md z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="{% url 'nav' %}" class="flex items-center gap-2">
+        <img class="h-12" src={% static '/assets/logo-light.png' %} alt="Logo">
+      </a>
+
+      <div class="flex items-center gap-6 text-gray-200">
+        <span class="flex items-center gap-2 text-lg">
+          User: <span class="text-green-400 font-medium">{{ user.username }}</span>
+        </span>
+        <a href="{% url 'logout' %}" 
+           class="flex items-center gap-2 text-sm hover:text-red-400 transition">
+          <i class="fa-solid fa-power-off text-red-500"></i> Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="pt-24 pb-12 bg-gray-200 relative h-screen">
+    <div class="max-w-7xl mx-auto text-center relative">
+      <img class="h-72 mx-auto opacity-20 select-none" 
+           src="/static/assets/0x0-removebg-preview.png" 
+           alt="">
+      <h1 class="text-5xl md:text-6xl font-bold text-blue-800 opacity-20 tracking-widest font-serif mt-6">
+        ENVITECHAL
+      </h1>
+    </div>
+  </section>
+
+  <!-- Navigation Cards -->
+  <section class="relative" style="margin-top: -13rem;">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-6">
+      <a href="{% url 'home' %}" 
+         class="rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+        <i class="fa-solid fa-clipboard-list text-2xl mb-3"></i>
+        <h3 class="font-semibold text-lg">Reports</h3>
+      </a>
+
+      <a href="{% url 'certificate' %}" 
+         class="rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+        <i class="fa-solid fa-certificate text-2xl mb-3"></i>
+        <h3 class="font-semibold text-lg">Certifications</h3>
+      </a>
+
+      <a href="{% url 'sample_main' %}" 
+         class="rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+        <i class="fa-solid fa-flask text-2xl mb-3"></i>
+        <h3 class="font-semibold text-lg">Sample Registration</h3>
+      </a>
+
+      <a href="{% url 'qc_main' %}" 
+         class="rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+        
+        <i class="fa-solid fa-clipboard-list text-2xl mb-3"></i>
+        <h3 class="font-semibold text-lg">QC Reports</h3>
+      </a>
+
+      {% if request.user.is_superuser %}
+      <a href="/dashboard/dashboard/" 
+         class="rounded-xl bg-gradient-to-r from-pink-500 to-pink-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+        <i class="fa-solid fa-chart-line text-2xl mb-3"></i>
+        <h3 class="font-semibold text-lg">Dashboard</h3>
+      </a>
+      {% endif %}
+
+      <a href="{% url 'job_main' %}" 
+         class="rounded-xl bg-gradient-to-r from-purple-400 to-purple-500 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+        
+        <i class="fa-solid fa-clipboard-list text-2xl mb-3"></i>
+        <h3 class="font-semibold text-lg">Work Completion</h3>
+      </a>
+    </div>
+  </section>
+
+  <script src={% static '/js/app.js' %} defer></script>
+  {% else %}
+  <script>window.location='/login/'</script>
+  {% endif %}
+</body>
+</html>

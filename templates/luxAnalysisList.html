@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<head>
+    
+    {%load static%}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={%static "style.css"%}>
+
+    <title>List of Ambient Air Form</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+  <style>
+    @media (min-width: 768px) {
+        .side-nav {
+            width: 17%; /* Adjust the sidebar width for larger screens */
+        }
+    
+        .drinkingwaterform {
+            width: 80%; /* Adjust the main content width for larger screens */
+            margin-left: 20%; /* Leave space for the sidebar */
+        }
+    }
+    
+    /* Styles for smaller screens (e.g., tablets and mobile) */
+    @media (max-width: 767px) {
+        .side-nav {
+            width: 100%; /* Full width for the sidebar on smaller screens */
+            left: -100%; /* Hide the sidebar off-screen */
+            transition: left 0.3s ease;
+        }
+    
+        .side-nav.show {
+            left: 0; /* Show the sidebar when the toggle button is clicked */
+        }
+    
+        .drinkingwaterform {
+            width: 100%; /* Full width for the main content on smaller screens */
+        }
+    }
+</style>
+  
+</head>
+<body>
+    
+<section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0 z-10">
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    
+        <div id="profile" class="flex space-x-10 mr-10">
+            <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+            <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+        </div>
+    
+</section>
+
+
+<section class="main w-full flex flex-row justify-end h-screen ">
+    
+        <nav class="side-nav list-none w-72 bg-gray-900 text-gray-100 h-full flex flex-col items-center fixed  top-22 left-0 overflow-x-hidden mt-20" >
+            <hr class="border border-gray-100 w-full">
+            <h1 class="text-2xl pb-4 pt-4 text-gray-100 font-bold text-center">SITE NAVIGATION</h1>
+                <ul class="w-48 ">
+                    
+
+                    
+                        <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms.<i class="fa-solid fa-chevron-right pl-20"></i></button>
+                        <div class="formMainDiv hidden">
+                            <hr class=" border-blue-200">
+                                <button class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
+                                <div class="DWaterDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li ><a class="addDrinkFormBtn" href="/drinkingWaterForm"></i>Add Drinking Water</a></li>
+                                    <li ><a class="ListDrinkBtn" href="/drinkingWaterList"></i>List Drinking Water</a></li>
+                                
+                                </div>  
+                            
+                                <hr class=" border-blue-200">
+                                <ul class="">
+                                    <button class="gasEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Gaseous Emission</button>
+                                    <div class="gasEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="addGaseousFormBtn" href="/gaseousEmission">Add Gaseous Emis</a></li>
+                                    <li><a class="addGaseousListBtn" href="/gaseousEmissionList">List Gaseous Emis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambienty Air Quality</button>
+                                    <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambienty Air Qua..</a></li>
+                                    <li><a class="ambientAirList" href="/ambientAirList">List Ambienty Air Qua..</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                            
+                                <ul>
+                                    <button class="wasteWaterBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water Sludge</button>
+                                    <div class="wasteWaterDiv hidden text-blue-100 pl-6 space-y-2 ">
+                                    <li><a class="wasteWatewrSludgeBtn" href="/wasteWaterSludge">Add Waste Water Slu.</a></li>
+                                    <li><a class="wasteWaterSludgeListBtn" href="/wasteWaterSludgeList">List Waste Water Slu.</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="vehicEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Vehicular Emission</button>
+                                    <div class="vehicEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="vehicularEmisFormBtn" href="/vehicularEmission">Add Vehicular Emission</a></li>
+                                    <li><a class="vehicularemisListBtn" href="/vehicularEmissionList">List Vehicular Emission</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="luxBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Lux Analysis</button>
+                                    <div class="luxDiv text-blue-100 hidden pl-6 space-y-2">
+                                    <li><a class="luxAnalysisFormBtn" href="/luxAnalysis">Add Lux Analysis</a></li>
+                                    <li><a class="luxAnalysisListBtn" href="/luxAnalysisList">List Lux Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="noiseBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise Analysis</button>
+                                <div class="noiseDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="noiseAnalysisFormBtn" href="/noiseAnalysis">Add Noise Analysis</a></li>
+                                    <li><a class="noiseAnalysisListBtn" href="/noiseAnalysisList">List Noise Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ppbagBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Packing Poly Bag</button>
+                                <div class="ppbagDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="packingPolyFormBtn" href="/packingPolyBag">Add Packing Poly Bag</a></li>
+                                    <li><a class="packingPolyListBtn" href="/packingPolyBagList">List Packing Poly Bag</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <div class="">
+                                    <button class="machineOilBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Machine Oil</button>
+                                   <div class="machineOilDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="machineOilFormBtn" href="/machineOil">Add Machine Oil</a></li>
+                                    <li><a class="machineOilListBtn" href="/machineOilList">List Machine Oil</a></li>
+                                   </div>
+                                </div>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                                    <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
+                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                    </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="viscBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Viscous Liquid</button>
+                                <div class="viscDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="viscousLiquidFormBtn" href="/viscousLiquid">Add Viscous Liquid</a></li>
+                                    <li><a class="viscousLiquidListBtn" href="/viscousLiquidList">List Viscous Liquid</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientAirBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality 2</button>
+                                <div class="ambientAirDiv hidden text-blue-100 pl-6 space-y-2" >
+                                    <li><a class="ambientAir2FormBtn" href="/ambientAirQuality2">Add Ambient Air 2</a></li>
+                                    <li><a class="ambientAir2ListBtn" href="/ambientAir2List">List Ambient Air 2</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="waterwastebtn2 pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water2</button>
+                                <div class="waterwastediv2 hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="wasteWater2FormBtn" href="/wasteWater2">Add Waste Water2</a></li>
+                                    <li><a class="wasteWater2ListBtn" href="/wasteWater2List">List Waste Water2</a></li>
+                                </div>
+                                </ul>
+                        </div>
+                            
+                        
+                        </ul>
+                        
+                    
+                    
+                        
+
+                
+            
+        </nav>
+
+        <div class="drinkingwaterform  w-10/12 flex flex-col items-center mt-36">
+
+            <h1 class="text-4xl font-bold">Lux Analysis List</h1>
+
+            {% block content %}
+            
+            
+            <table id="example" class="Table border border-black" style="width:100%; "cellspacing=10 >
+                <thead>
+                    <tr class="bg-gray-900 text-gray-200 font-mono">
+                        
+                        <th>Reporting Date</th>
+                        <th>Lab Report No</th>
+                        <th>Invoice Bill No</th>
+                        <th>Report To</th>
+                        <th>Attention</th>
+                        <th>Email</th>
+                        <th>Sample ID</th>
+                        <th>View</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                        <th>Clone</th>
+                        
+                        
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    {%if data%}
+                    {% for data in  data %}
+                    <tr> 
+                        
+                        <td>{{data.reporting_date}}</td>
+                        <td>{{data.lab_report_no}}</td>
+                        <td>{{data.invoice_bill_no}}</td>
+                        <td>{{data.report_to}}</td>
+                        <td>{{data.attention}}</td>
+                        <td>{{data.email}}</td>
+                        <td>{{data.sample_id}}</td>
+                        <td><a href="{% url 'luxAnalysis-view' data.id %}"><i class="file-icon fa-solid fa-file  text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'luxAnalysis-edit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600 text-3xl cursor-pointer "></i></a></td>
+                        <td><a id="gasemdltBtn" href="{% url 'luxAnalysis-delete' data.id%}"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></a></td>
+                        <td><a id="gasemdltBtn" href="{% url 'luxAnalysis-clone' data.id%}"><i class="fa-solid fa-copy text-3xl cursor-pointer " style="color:#f97316;"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    
+                </tbody>
+                
+                <tfoot>
+                    
+                </tfoot>
+                
+              </table>
+              
+              
+
+            
+            
+                      
+              
+              
+        </div>
+        </section>
+
+        
+        
+
+        {% endblock content %}
+
+        
+<script src="{% static '/js/app.js'%}" defer >
+    
+    
+    
+    
+</script>
+
+
+</body>
+</html>

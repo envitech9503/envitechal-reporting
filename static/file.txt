@@ -1,0 +1,324 @@
+ if request.method == 'POST':
+        lab_report_no_w = request.POST['lab_report_no']
+        invoice_bill_no_w = request.POST['invoice_bill_no']
+        reporting_date_w = request.POST['reporting_date']
+        report_to_W = request.POST['report_to']
+        address_W = request.POST['address']
+        attention_w = request.POST['attention']
+        email_w = request.POST['email']
+        sample_id_w = request.POST['sample_id']
+        sample_collection_date_w = request.POST['collection_date']
+        sample_description_w = request.POST['sample_description']
+        sample_type_w = request.POST['sample_type']
+        sample_collected_by_w = request.POST['sample_collected_by']
+        date_of_analysis_from_W = request.POST['date_of_analysis_from']
+        date_of_analysis_to_w = request.POST['date_of_analysis_to']
+        test_description_W = request.POST['test_description']
+
+
+
+
+        
+class DrinkingWaterForm(models.Model):
+    #form_name = "Drinking Water Form"
+    lab_report_no = models.CharField(max_length=50)
+    invoice_bill_no = models.CharField(max_length=50)
+    reporting_date = models.DateField()
+    report_to = models.CharField(max_length=50)
+    address = models.CharField(max_length=100)
+    attention = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    sample_id = models.CharField(max_length=30)
+    sample_collection_date = models.DateField()
+    sample_description = models.CharField(max_length=300)
+    sample_type = models.CharField(max_length=100)
+    sample_collected_by = models.CharField(max_length=100)
+    date_of_analysis_from = models.DateField()
+    date_of_analysis_to = models.DateField()
+    test_description = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.form_name 
+
+
+
+
+$("#result_type").on("change",function(){
+       const value_range = $("#result_type").val()
+       switch(value_range){
+        case "PEQS":
+            $(".SEQS,.NEQS").hide()    
+            $(".PEQS").show()
+        break;
+        case "NEQS":
+            $(".SEQS,.PEQS").hide()    
+            $(".NEQS").show()    
+        break;
+        case "SEQS":
+            $(".PEQS,.NEQS").hide()    
+            $(".SEQS").show()    
+        break;
+       }
+    })
+
+    <select id="result_type" name="limits" class="h-8 text-center w-36 font-bold">        
+                            <option value="SEQS">SEQS Limits</option>
+                            <option value="PEQS">Peqs Limits</option>
+                            <option value="NEQS">NEQS Limits</option>
+                            
+                       </select>
+
+
+
+
+
+
+
+
+
+
+                       <table id="example" class="Table border border-black" style="width:100%; "cellspacing=10 >
+                <thead>
+                    <tr>
+                        <th>Reporting Date</th>
+                        <th>Lab Report No</th>
+                        <th>Invoice Bill No</th>
+                        <th>Report To</th>
+                        <th>Attention</th>
+                        <th>Email</th>
+                        <th>Sample ID</th>
+                        <th>View</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                        
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+                    <tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr><tr>
+                        <td>Tiger Nixon</td>
+                        <td>4240425457780</td>
+                        <td>0310228801</td>
+                        <td>lab@envitechal.com</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td>345, First Floor, Street-15, Block-3, Bahadurabad, Karachi.</td>
+                        <td><button><i class="fa-solid fa-file text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-user-pen text-blue-600 text-xl cursor-pointer"></i></button></i></td>
+                        <td><button><i class="fa-solid fa-trash text-red-600 text-xl cursor-pointer"></i></button></i></td>
+                    </tr>
+    
+                    
+                    
+                </tbody>
+                <tfoot>
+                    
+                </tfoot>
+              </table>
+
+
+
+              path_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+     config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
+     current_url = request.build_absolute_uri() 
+     if current_url:
+          try:
+               pdf_data = pdfkit.from_url(current_url, False)
+               response = HttpResponse(pdf_data, content_type='application/pdf')
+               response['Content-Disposition'] = f'attachment; filename="webpage.pdf"'
+               return response
+          except Exception as e:
+               return HttpResponse(f'Error: {str(e)}')
+     else:
+        return HttpResponse('No URL provided.')     

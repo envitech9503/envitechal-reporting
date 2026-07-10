@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+    
+    {%load static%}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={%static "style.css"%}>
+
+    <title>Calibration LIst</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+  <style>
+    @media (min-width: 768px) {
+    .side-nav {
+        width: 17%; /* Adjust the sidebar width for larger screens */
+    }
+
+    .drinkingwaterform {
+        width: 80%; /* Adjust the main content width for larger screens */
+        margin-left: 20%; /* Leave space for the sidebar */
+    }
+}
+
+/* Styles for smaller screens (e.g., tablets and mobile) */
+@media (max-width: 767px) {
+    .side-nav {
+        width: 100%; /* Full width for the sidebar on smaller screens */
+        left: -100%; /* Hide the sidebar off-screen */
+        transition: left 0.3s ease;
+    }
+
+    .side-nav.show {
+        left: 0; /* Show the sidebar when the toggle button is clicked */
+    }
+
+    .drinkingwaterform {
+        width: 100%; /* Full width for the main content on smaller screens */
+    }
+}
+</style>
+  
+</head>
+<body>
+    
+<section id="header"  class="h-20 w-full  flex flex-wrap items-center justify-between p-4 fixed top-0 z-10 bg-gray-900" >
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    
+        <div id="profile" class="flex space-x-10 mr-10">
+            <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+            <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+        </div>
+    
+</section>
+
+
+<section class="main w-full flex flex-row justify-end h-screen "> 
+
+        <div class="drinkingwaterform  w-full flex flex-col items-center ">
+
+            <h1 class="text-4xl font-bold pt-28 text-gray-700">Calibration List</h1>
+
+            {% block content %}
+            
+            
+            <table id="example" class="Table border border-black" style="width:80%; "cellspacing=10 >
+                <thead>
+                    <tr class="bg-gray-900 text-gray-200 font-mono">
+                        
+                        <th>Date of Calibration</th>
+                        <th>Certificate No</th>
+                        <th>Client</th>
+                        <th>Contact Person</th>
+                        <th>Location</th>
+                        <th>View</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                        <th>Clone</th>
+                        
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {%if data%}
+                    {% for data in  data %}
+                    <tr> 
+                        
+                        <td>{{data.date}}</td>
+                        <td>{{data.cert_num}}</td>
+                        <td>{{data.client}}</td>
+                        <td>{{data.contact_person}}</td>
+                        <td>{{data.city_location}}</td>
+                        <td><a href="{% url 'calib_view' data.id%}"><i class="file-icon fa-solid fa-file  text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'calib_edit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600 text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'calibration_delete' data.id%}"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'calib_clone' data.id%}"><i class="fa-solid fa-copy text-3xl cursor-pointer " style="color:#f97316;"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    
+                </tbody>
+                
+                <tfoot>
+                    
+                </tfoot>
+                
+              </table>
+              
+              
+
+            
+            
+                      
+              
+              
+        </div>
+        </section>
+
+        
+        
+
+        {% endblock content %}
+<script src={% static '/js/app.js'%} defer >
+    
+    
+</script>
+</body>
+</html>

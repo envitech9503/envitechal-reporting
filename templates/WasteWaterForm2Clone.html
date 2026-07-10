@@ -1,0 +1,1890 @@
+<!doctype html>
+<html>
+<head>
+    
+    {%load static%}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={%static "style.css"%}>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  
+    <style>
+        
+</style> 
+  
+</head>
+<body>
+    
+<section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    <div id="profile" class="flex space-x-10 mr-10">
+        <span class="text-gray-200 text-xl flex gap-2">User : <p class="text-green-400">{{user.username}}</p></span>
+        <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+    </div>
+    
+</section>
+
+
+<section class="main w-full flex flex-row justify-end ">
+    
+        <nav class="side-nav list-none w-72 bg-gray-900 text-gray-100 h-full flex flex-col items-center fixed  top-22 left-0 overflow-x-hidden mt-20" >
+            <hr class="border border-gray-100 w-full">
+            <h1 class="text-2xl pb-4 pt-4 text-gray-100 font-bold text-center">SITE NAVIGATION</h1>
+                <ul class="w-48 ">
+                    
+
+                    
+                        <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms.<i class="fa-solid fa-chevron-right pl-20"></i></button>
+                        <div class="formMainDiv hidden">
+                            <hr class=" border-blue-200">
+                                <button class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
+                                <div class="DWaterDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li ><a class="addDrinkFormBtn" href="/drinkingWaterForm"></i>Add Drinking Water</a></li>
+                                    <li ><a class="ListDrinkBtn" href="/drinkingWaterList"></i>List Drinking Water</a></li>
+                                
+                                </div>  
+                            
+                                <hr class=" border-blue-200">
+                                <ul class="">
+                                    <button class="gasEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Gaseous Emission</button>
+                                    <div class="gasEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="addGaseousFormBtn" href="/gaseousEmission">Add Gaseous Emis</a></li>
+                                    <li><a class="addGaseousListBtn" href="/gaseousEmissionList">List Gaseous Emis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambienty Air Quality</button>
+                                    <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambienty Air Qua..</a></li>
+                                    <li><a class="ambientAirList" href="/ambientAirList">List Ambienty Air Qua..</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                            
+                                <ul>
+                                    <button class="wasteWaterBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water Sludge</button>
+                                    <div class="wasteWaterDiv hidden text-blue-100 pl-6 space-y-2 ">
+                                    <li><a class="wasteWatewrSludgeBtn" href="/wasteWaterSludge">Add Waste Water Slu.</a></li>
+                                    <li><a class="wasteWaterSludgeListBtn" href="/wasteWaterSludgeList">List Waste Water Slu.</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="vehicEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Vehicular Emission</button>
+                                    <div class="vehicEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="vehicularEmisFormBtn" href="/vehicularEmission">Add Vehicular Emission</a></li>
+                                    <li><a class="vehicularemisListBtn" href="/vehicularEmissionList">List Vehicular Emission</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="luxBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Lux Analysis</button>
+                                    <div class="luxDiv text-blue-100 hidden pl-6 space-y-2">
+                                    <li><a class="luxAnalysisFormBtn" href="/luxAnalysis">Add Lux Analysis</a></li>
+                                    <li><a class="luxAnalysisListBtn" href="/luxAnalysisList">List Lux Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="noiseBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise Analysis</button>
+                                <div class="noiseDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="noiseAnalysisFormBtn" href="/noiseAnalysis">Add Noise Analysis</a></li>
+                                    <li><a class="noiseAnalysisListBtn" href="/noiseAnalysisList">List Noise Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ppbagBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Packing Poly Bag</button>
+                                <div class="ppbagDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="packingPolyFormBtn" href="/packingPolyBag">Add Packing Poly Bag</a></li>
+                                    <li><a class="packingPolyListBtn" href="/packingPolyBagList">List Packing Poly Bag</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <div class="">
+                                    <button class="machineOilBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Machine Oil</button>
+                                   <div class="machineOilDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="machineOilFormBtn" href="/machineOil">Add Machine Oil</a></li>
+                                    <li><a class="machineOilListBtn" href="/machineOilList">List Machine Oil</a></li>
+                                   </div>
+                                </div>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                                    <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
+                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                    </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="viscBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Viscous Liquid</button>
+                                <div class="viscDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="viscousLiquidFormBtn" href="/viscousLiquid">Add Viscous Liquid</a></li>
+                                    <li><a class="viscousLiquidListBtn" href="/viscousLiquidList">List Viscous Liquid</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientAirBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality 2</button>
+                                <div class="ambientAirDiv hidden text-blue-100 pl-6 space-y-2" >
+                                    <li><a class="ambientAir2FormBtn" href="/ambientAirQuality2">Add Ambient Air 2</a></li>
+                                    <li><a class="ambientAir2ListBtn" href="/ambientAir2List">List Ambient Air 2</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="waterwastebtn2 pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water2</button>
+                                <div class="waterwastediv2 hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="wasteWater2FormBtn" href="/wasteWater2">Add Waste Water2</a></li>
+                                    <li><a class="wasteWater2ListBtn" href="/wasteWater2List">List Waste Water2</a></li>
+                                </div>
+                                </ul>
+                        </div>
+                            
+                        
+                        </ul>
+                        
+                    
+                    
+                        
+
+                
+            
+        </nav>
+
+        <div class="wasteWaters2 h-full w-10/12 flex flex-col items-center ">
+                        
+{% block content %}
+{% if data %}
+            <form action="{% url 'wasteWater2-Save' pk=data.id %}" method="post" enctype="multipart/form-data" class="flex flex-col justify-around w-11/12 mt-10 ">
+                {% csrf_token %}
+                <h1 class="text-center mt-10 text-3xl py-16">Waste Water 2</h1>
+                <div class="flex ">
+                    <div class="alert w-52 flex flex-col justify-around my-6">
+                    
+                        <div class="">
+                            <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                        </div>
+                        <div>
+                            <input class="SEQS-value" type="checkbox" value="SEQS_" {% if data.location == 'SEQS' %}checked{% endif %}>
+                            <label for="">SEQS</label>
+                        </div>
+
+                        <div>
+                            <input class="PEQS-value" type="checkbox" value="PEQS_" {% if data.location == 'PEQS' %}checked{% endif %}>
+                            <label for="">PEQS</label>
+                        </div>
+
+                        <div>
+                            <input class="NEQS-value" type="checkbox" value="NEQS_" {% if data.location != 'SEQS' and data.location != 'PEQS' %}checked{% endif %} >
+                            <label for="">NEQS</label>
+                        </div>
+                        <input id="checkinput" type="text" name="location" value="{{data.location}}"
+                            style="display: none;">
+                        <div class="mt-4 flex flex-col">
+                            <label class="font-bold text-lg" for="">Location</label>
+                            <input class="border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
+                        </div>
+                        <div class=" flex flex-col">
+                                <label class="font-bold text-lg" for="">Industry</label>
+                                <select required class="border-2 border-black w-96 px-2 py-2 rounded-lg" name="industry" id="">
+                                    <option value="" selected disabled>Select Industry</option>
+                                    {% for industry in industry %}  
+                                        <option value="{{industry.id}}">{{industry.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                            </div>
+                        
+    
+                    </div>
+                    <div class="w-52 pt-8 ml-4">
+                        <div class="">
+                            <input class="in" {% if data.in_out == 'in' %}checked{% endif %} type="checkbox" value="in">
+                            <label for="">Inlet or Result </label>
+                        </div>
+                        <div class="">
+                            <input class="out" {% if data.in_out == 'out' %}checked{% endif %} type="checkbox" value="out">
+                            <label for="">Outlet</label>
+                        </div>
+                        <div class="">
+                            <input class="in-out" {% if data.in_out == 'in-out' %}checked{% endif %} type="checkbox" value="in-out">
+                            <label for="">Inlet & Outlet</label>
+                        </div>
+                        <div class="">
+                            <input id="inlet_customLimits" {% if data.in_out == 'inlet_customlimits' %}checked{% endif %} type="checkbox" value="inlet_customlimits">
+                            <label for="">Inlet & Custom Limits</label>
+                        </div>
+                        <div class="">
+                            <input id="outlet_customLimits" {% if data.in_out == 'outlet_customLimits' %}checked{% endif %} type="checkbox" value="outlet_customLimits">
+                            <label for="">Outlet & Custom Limits</label>
+                        </div>
+                        <input id="in_out_checkbox" type="text" name="in_out" value="{{data.in_out}}" style="display: none;">
+                    </div>
+                </div>
+                <div class="flex justify-between">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Lab Report No</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="lab_rep_no" type="text" value="{{data.lab_report_no}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Invoice Bill No</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="invoice_no" type="text" value="{{data.invoice_bill_no}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Reporting Date</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="repo_date" type="text" value="{{data.reporting_date}}">
+                        {% comment %} <input type="text" class="formattedDateOutput hidden" > {% endcomment %}
+                    </div>
+                </div>
+                <hr class="broder border-black mt-10">
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Report To :</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="report_to" style="width: 35rem;" type="text" value="{{data.report_to}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Address</label>
+                        <input class="border-2 border-black p-2 h-10 rounded text-lg" name="address" style="width: 35rem;" type="text" value="{{data.address}}">
+                    </div>
+                    
+                    
+                </div>
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Attention</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="attention" style="width: 35rem;" type="text" value="{{data.attention}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Email</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="email" style="width: 35rem;" type="text" value="{{data.email}}" >
+                    </div>
+                </div>
+    
+                <hr class="broder border-black mt-10">
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample ID</label>
+                        <input id="" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sampleId" style="width: 24rem;" type="text" value="{{data.sample_id}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Collection Date</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_Col_date" style="width: 24rem;" type="text" value="{{data.sample_Col_date}}">
+                        {% comment %} <input type="text" class="formattedDateOutput2 hidden" > {% endcomment %}
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Description</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_desc" style="width: 24rem;" type="text" value="{{data.sample_desc}}">
+                    </div>
+                </div>
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sampling Method</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sampling_method" style="width: 24rem;" type="text" value="{{data.sampling_method}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Type</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_type" style="width: 24rem;" type="text" value="{{data.sample_type}}">
+                    </div>
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Samle Collected By</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_collected_by" style="width: 24rem;" type="text" value="{{data.sample_collected_by}}">
+                    </div>
+                </div>
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Date of Analysis From</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="date_of_analysis_from" style="width: 38rem;" type="text" value="{{data.date_of_analysis_from}}">
+                        {% comment %} <input type="text" class="formattedDateOutput3 hidden" > {% endcomment %}
+                    </div>
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Date of Analysis To</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="date_of_analysis_to" style="width: 38rem;" type="text" value="{{data.date_of_analysis_to}}">
+                        {% comment %} <input type="text" class="formattedDateOutput4 hidden" > {% endcomment %}
+                    </div>
+                   
+                </div>
+                <div class="flex justify-between mt-4">
+
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Test Description</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="test_description" style="width: 38rem;" type="text" value="{{data.test_description}}">
+                    </div>
+                   
+                </div>
+                <hr class="broder border-black mt-10">
+    
+    
+    
+                <div class="w-full flex flex-col justify-center">
+                    <table id="table" class="water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
+                        <thead>
+                            <tr class="table_row">
+                                <th>Sr.#</th>
+                                <th>Parameter/Analytes Description</th>
+                                <th>Methods</th>
+                                <th>Unit</th>
+                                <th class="inlet_result"><input class=" border-2 w-full py-10" type="text" value="Inlet Result" name="inlet_result"></th>
+                                <th class="outlet_result">Outlet Result</th>
+                                <th class="outlet_result_1"  colspan="3"><select id= "result_type" name="select" class="select w-full outline-none border border-gray-700 p-2">
+                                    <option {% if data.location == 'SEQS' %}selected{% endif %} value="SEQS">SEQS Limits</option>
+                                    <option {% if data.location == 'PEQS' %}selected{% endif %} value="PEQS">PEQS Limits</option>
+                                    <option {% if data.location != 'SEQS' and data.location != 'PEQS' %}selected{% endif %} value="NEQS">NEQS Limits</option>
+                                </select>
+                                <br>
+                                <div class="flex justify-around pt-1 text-lg">
+                                <div class="">1</div>
+                                <div class="">2</div>
+                                <div class="">3</div>
+
+
+                
+
+                                </div>
+                            </th>
+                            <th class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit1}}" name="cutomLimit1"></th>
+                                
+                                
+                                
+                            </tr>
+                        </thead>
+                        <tbody class="">
+                            <tr class="text-center border h-16">
+                                <td>01</td>
+                                <td>Temperature 40 °C</td>
+                                <td>*APHA 2550</td>
+                                <td>°C</td>
+                                <td class="inlet_result"><input name="result_1" class=" border-2 border-black  px-2" value="{{data.result_1}}"  type="text"></td>
+                                <td class="outlet_result"><input name="result_1_1" class="border-2 border-black px-2" value="{{data.result_1_1}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">≤ <br> 3C</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">≤ <br> 3C</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS">≤ <br> 3C</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">≤ <br> 3C</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">≤ <br> 3C</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1 px-4">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">≤ <br> 3C</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">≤ <br> 3C</td>         
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1 px-4">-</td>         
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit2}}"  name="cutomLimit2"></td>
+                                            
+
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>02</td>
+                                <td>pH</td>
+                                <td>*APHA 4500 H-B</td>
+                                <td>-</td>
+                                <td class="inlet_result"><input name="result_2" class=" border-2 border-black  px-2" value="{{data.result_2}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_2_2" class="border-2 border-black px-2" value="{{data.result_2_2}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">6-9</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">6-9</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">6-9</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">6-9</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">6-9</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">6-9</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">6-9</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit3}}" name="cutomLimit3"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>03</td>
+                                <td>Sulphide</td>
+                                <td>*APHA 4500-S2-D</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_3" class=" border-2 border-black  px-2" value="{{data.result_3}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_3_3" class="border-2 border-black px-2" value="{{data.result_3_3}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS  outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit4}}" name="cutomLimit4"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>04</td>
+                                <td>Biological Oxygen Demand(BOD)5</td>
+                                <td>HACH 10099</td>
+                                <td>mg/L</td>
+                                <td  class="inlet_result"><input name="result_4" class=" border-2 border-black  px-2" value="{{data.result_4}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_4_4" class="border-2 border-black px-2" value="{{data.result_4_4}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">80</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">250</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">80</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">80</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">250</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">80</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">250</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit5}}" name="cutomLimit5"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>05</td>
+                                <td>Chemical Oxygen Demand(COD)</td>
+                                <td>*HACH 8000</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_5" class=" border-2 border-black  px-2" value="{{data.result_5}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_5_5" class="border-2 border-black px-2" value="{{data.result_5_5}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">150</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">400</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">400</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">150</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">400</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">150</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">400</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit6}}" name="cutomLimit6"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>06</td>
+                                <td>Total Dissolved Solids (TDS)</td>
+                                <td>*APHA 2540-C</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_6" class=" border-2 border-black  px-2" value="{{data.result_6}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_6_6" class="border-2 border-black px-2" value="{{data.result_6_6}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">3500</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">3500</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">3500</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">3500</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">3500</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">3500</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">3500</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit7}}" name="cutomLimit7"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>07</td>
+                                <td>Total Suspended Solids (TSS)</td>
+                                <td>*APHA 2540-D</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_7" class=" border-2 border-black  px-2" value="{{data.result_7}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_7_7" class="border-2 border-black px-2" value="{{data.result_7_7}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">200</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">400</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">200</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">200</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">400</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">200</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">400</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit8}}" name="cutomLimit8"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>08</td>
+                                <td>Oil & Grease</td>
+                                <td><select class="border border-black " name="metho_select" id="">
+                                    <option value="ASTM">ASTM D-3921</option>
+                                    <option value="USEPA">USEPA 1664</option>
+                                    <option value="APHA">APHA 5220-B</option>
+                                </select></td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_8" class=" border-2 border-black  px-2" value="{{data.result_8}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_8_8" class="border-2 border-black px-2" value="{{data.result_8_8}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">10</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">10</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">10</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit9}}" name="cutomLimit9"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>09</td>
+                                <td>Cadmium</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_9" class="border-2 border-black  px-2" value="{{data.result_9}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_9_9" class="border-2 border-black px-2" value="{{data.result_9_9}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit10}}" name="cutomLimit10"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>10</td>
+                                <td>Copper</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_10" class="inlet_result border-2 border-black  px-2" value="{{data.result_10}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_10_10" class="border-2 border-black px-2" value="{{data.result_10_10}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit11}}" name="cutomLimit11"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>11</td>
+                                <td>Iron</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_11" class="inlet_result border-2 border-black  px-2" value="{{data.result_11}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_11_11" class="border-2 border-black px-2" value="{{data.result_11_11}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">8</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">8</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">8</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">8</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">8</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">8</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">8</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit12}}" name="cutomLimit12"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>12</td>
+                                <td>Lead</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_12" class="inlet_result border-2 border-black  px-2" value="{{data.result_12}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_12_12" class="border-2 border-black px-2" value="{{data.result_12_12}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.5</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit13}}" name="cutomLimit13"></td>
+                            </tr>
+                            
+                            <tr class="text-center border h-16">
+                                <td>13</td>
+                                <td>Manganese</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_13" class="inlet_result border-2 border-black  px-2" value="{{data.result_13}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_13_13" class="border-2 border-black px-2" value="{{data.result_13_13}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1.5</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit14}}" name="cutomLimit14"></td>
+                                
+                            </tr>
+
+                            <tr class="text-center border h-16">
+                                <td>14</td>
+                                <td>Mercury</td>
+                                <td>*APHA 3112-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_14" class="inlet_result border-2 border-black  px-2" value="{{data.result_14}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_14_14" class="border-2 border-black px-2" value="{{data.result_14_14}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.01</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.01</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.01</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.01</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.01</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.01</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.01</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit15}}" name="cutomLimit15"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>15</td>
+                                <td>Nickel</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_15" class="inlet_result border-2 border-black  px-2" value="{{data.result_15}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_15_15" class="border-2 border-black px-2" value="{{data.result_15_15}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit16}}" name="cutomLimit16"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>16</td>
+                                <td>Selenium</td>
+                                <td>*APHA 3114-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_16" class="inlet_result border-2 border-black  px-2" value="{{data.result_16}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_16_16" class="border-2 border-black px-2" value="{{data.result_16_16}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.5</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit17}}" name="cutomLimit17"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>17</td>
+                                <td>Chromium</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_17" class="inlet_result border-2 border-black  px-2" value="{{data.result_17}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_17_17" class="border-2 border-black px-2" value="{{data.result_17_17}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit18}}" name="cutomLimit18"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>18</td>
+                                <td>Zinc</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_18" class="inlet_result border-2 border-black  px-2" value="{{data.result_18}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_18_18" class="border-2 border-black px-2" value="{{data.result_18_18}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">5</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit19}}" name="cutomLimit19"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>19</td>
+                                <td>Arsenic</td>
+                                <td>*APHA 3114-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_19" class="inlet_result border-2 border-black  px-2" value="{{data.result_19}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_19_19" class="border-2 border-black px-2" value="{{data.result_19_19}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit20}}" name="cutomLimit20"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>20</td>
+                                <td>Chlorine</td>
+                                <td>HACH 10069</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_20" class="inlet_result border-2 border-black  px-2" value="{{data.result_20}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_20_20" class="border-2 border-black px-2" value="{{data.result_20_20}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit21}}" name="cutomLimit21"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>21</td>
+                                <td>Chloride</td>
+                                <td>*APHA 4500 CL-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_21" class="inlet_result border-2 border-black  px-2" value="{{data.result_21}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_21_21" class="border-2 border-black px-2" value="{{data.result_21_21}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1000</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1000</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">**SC</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1000</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1000</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1000</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1000</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+                                
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit22}}" name="cutomLimit22"></td>
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>22</td>
+                                <td>Cyanide</td>
+                                <td>HACH 8027</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_22" class="inlet_result border-2 border-black  px-2" value="{{data.result_22}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_22_22" class="border-2 border-black px-2" value="{{data.result_22_22}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit23}}" name="cutomLimit23"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>23</td>
+                                <td>Fluoride</td>
+                                <td>*HACH 8029</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_23" class="inlet_result border-2 border-black  px-2" value="{{data.result_23}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_23_23" class="border-2 border-black px-2" value="{{data.result_23_23}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">10</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">10</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">10</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">10</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit24}}" name="cutomLimit24"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>24</td>
+                                <td>Ammonia</td>
+                                <td>*HACH 8038</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_24" class="inlet_result border-2 border-black  px-2" value="{{data.result_24}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_24_24" class="border-2 border-black px-2" value="{{data.result_24_24}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">40</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">40</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">40</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">40</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">40</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">40</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">40</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit25}}" name="cutomLimit25"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>25</td>
+                                <td>Total Toxic Metals</td>
+                                <td>	APHA 3111</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_25" class="inlet_result border-2 border-black  px-2" value="{{data.result_25}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_25_25" class="border-2 border-black px-2" value="{{data.result_25_25}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">2</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">2</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">2</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">2</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">2</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">2</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">2</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit26}}" name="cutomLimit26"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>26</td>
+                                <td>Sulphate</td>
+                                <td>HACH 8051</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_26" class="inlet_result border-2 border-black  px-2" value="{{data.result_26}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_26_26" class="border-2 border-black px-2" value="{{data.result_26_26}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">600</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1000</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">**SC</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">600</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1000</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">600</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1000</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit27}}" name="cutomLimit27"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>27</td>
+                                <td>An Ionic Detergent As MBAs</td>
+                                <td>*APHA 5540 C</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_27" class="inlet_result border-2 border-black  px-2" value="{{data.result_27}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_27_27" class="border-2 border-black px-2" value="{{data.result_27_27}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">20</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">20</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">20</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">20</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">20</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">20</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">20</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit28}}" name="cutomLimit28"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>28</td>
+                                <td>Pesticides</td>
+                                <td>USEPA-614.1</td>
+                                <td>mg/L</td> 
+                                <td class="inlet_result"><input name="result_28" class="inlet_result border-2 border-black  px-2" value="{{data.result_28}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_28_28" class="border-2 border-black px-2" value="{{data.result_28_28}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.15</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.15</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.15</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.15</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.15</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.15</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.15</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit29}}" name="cutomLimit29"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>29</td>
+                                <td>Phenolic Compounds(as Phenol)</td>
+                                <td>HACH 8047</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_29" class="inlet_result border-2 border-black  px-2" value="{{data.result_29}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_29_29" class="border-2 border-black px-2" value="{{data.result_29_29}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.3</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">0.3</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">0.3</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">0.3</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit30}}" name="cutomLimit30"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>30</td>
+                                <td>Boron</td>
+                                <td>HACH 8015</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_30" class="inlet_result border-2 border-black  px-2" value="{{data.result_30}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_30_30" class="border-2 border-black px-2" value="{{data.result_30_30}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">6</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">6</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">6</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">6</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">6</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">6</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">6</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit31}}" name="cutomLimit31"></td>
+                                
+                            </tr>
+
+                            <tr class="text-center border h-16">
+                                <td>31</td>
+                                <td>Barium</td>
+                                <td>HACH 8014</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_31" class="inlet_result border-2 border-black  px-2" value="{{data.result_31}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_31_31" class="border-2 border-black px-2" value="{{data.result_31_31}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1.5</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1.5</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1.5</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit32}}" name="cutomLimit32"></td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>32</td>
+                                <td>Silver</td>
+                                <td>*APHA 3111-B</td>
+                                <td>mg/L</td>
+                                <td class="inlet_result"><input name="result_32" class="inlet_result border-2 border-black  px-2" value="{{data.result_32}}" type="text"></td>
+                                <td class="outlet_result"><input name="result_32_32" class="border-2 border-black px-2" value="{{data.result_32_32}}" type="text"></td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                <td {% if data.location != 'SEQS' %}style="display:none;"{% endif %} class="SEQS outlet_result_1">1</td>
+                                 
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'PEQS' %}style="display:none;"{% endif %} class="PEQS outlet_result_1">-</td>
+
+                                 
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">1</td>
+                                 <td {% if data.location != 'NEQS' %}style="display:none;"{% endif %} class="NEQS outlet_result_1">-</td>
+
+                                 <td class="customLimits_td" style="display:none;"><input type="text"value="{{data.cutomLimit33}}" name="cutomLimit33"></td>
+                                
+                            </tr>
+                            {% for extra_field in data.extra_field  %}
+                            <tr class=" border">
+                                {% if data.in_out == 'in-out' %}
+                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim1}}" name="lim1[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim2}}" name="lim2[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim3}}" name="lim3[]"></td>
+                                {% endif %}
+                                {% if data.in_out == 'in' %}
+                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim1}}" name="lim1[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim2}}" name="lim2[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim3}}" name="lim3[]"></td>
+                                {%endif%}
+                                {% if data.in_out == 'out' %}
+                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim1}}" name="lim1[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim2}}" name="lim2[]"></td>
+                                <td class="text-center"><input type="text" value="{{extra_field.lim3}}" name="lim3[]"></td>
+                                {%endif%}
+                                {% if data.in_out == 'inlet_customlimits' %}
+                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
+                                {%endif%}
+                            {% if data.in_out == 'outlet_customLimits' %}
+                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
+                                {%endif%}
+                            </tr>
+                            {% endfor %}
+                            
+                           
+                            
+                        </tbody>
+                    </table>
+                    <div class="flex flex-row-reverse">
+
+
+                        <a href="#"><button id="save_rows"
+                                class="bg-blue-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500">Save
+                                Rows</button></a>
+                        <a href="#"><button id="add_rows"
+                                class="bg-green-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500">Add
+                                Rows</button></a>
+
+                    </div>
+    
+                    <hr class="broder border-black mt-10">
+    
+                    
+    
+                        <h2 class="py-2 font-bold">LEGENDS</h2>
+    
+                        
+                        
+                        <div class="legends w-full flex flex-col space-y-10 border-2 border-gray-200 p-8 mt-10">
+                            <input class="legend-1 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_1"  value="{{data.legend_1}}">
+                            <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_2"  value="{{data.legend_2}}">
+                            <input class="legend-3 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_3"  value="{{data.legend_3}}">
+                            <input class="legend-4 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_4"  value="{{data.legend_4}}">
+                            <input class="legend-5 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_5"  value="{{data.legend_5}}">
+                            <input class="legend-6 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_6"  value="{{data.legend_6}}">
+                            <input class="legend-7 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_7"  value="{{data.legend_7}}">
+                            <input class="legend-8 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_8"  value="{{data.legend_8}}">
+                            <input class="legend-9 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_9"  value="{{data.legend_9}}">
+                            <input class="legend-10 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_10"  value="{{data.legend_10}}">
+                            <input class="legend-11 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend_11"  value="{{data.legend_11}}">
+                        </div>
+
+                            <div class="flex flex-col justify-between mt-6">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Edit Note</label>
+                                    <input class="border-2 border-black p-2 h-10 rounded text-lg" name="editNote" style="width: 79rem;" type="text" value="{{data.editNote}}">
+                                </div>
+                                <div class="flex flex-col mt-4">
+                                    <label class="font-bold text-lg" for="">Custom Legend (if any):</label>
+                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="customlegend" style="width: 35rem;" type="text" value="{{data.customlegend}}">
+                                </div>
+                                
+                            </div>
+        
+                            <div class="flex justify-between mt-6">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for=""> Doc. Controller 1:</label>
+                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="doc1" type="text" value="{{data.doc1}}">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Doc. Controller 2:</label>
+                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc2" value="{{data.doc2}}">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Doc. Controller 3:</label>
+                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc3" value="{{data.doc3}}">
+                                </div>
+                            </div>
+
+                            <hr class="broder border-black mt-10">
+
+                            <div class="mt-10 space-y-3">
+                                            <label for="" class="text-xl font-bold">PDF Image Page Heading</label>
+                                            <input type="text" value="{data.pdf_heading}" name="pdf_heading"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200">
+                                        
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                                        <!-- Image 1 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 1</label>
+                                            {% if pdf_image_1 %}
+                                            <div class="mb-3" id="image-preview-1">
+                                                <img src="{{ pdf_image_1 }}" alt="Image 1" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_1"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_1" accept="image/*" onchange="hidePreview(1)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_1" value="{{ list.pdf_desc_1 }}" placeholder="Description for Image 1"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 2 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 2</label>
+                                            {% if pdf_image_2 %}
+                                            <div class="mb-3" id="image-preview-2">
+                                                <img src="{{ pdf_image_2 }}" alt="Image 2" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_2"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_2" accept="image/*" onchange="hidePreview(2)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_2" value="{{ list.pdf_desc_2 }}" placeholder="Description for Image 2"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 3 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 3</label>
+                                            {% if pdf_image_3 %}
+                                            <div class="mb-3" id="image-preview-3">
+                                                <img src="{{ pdf_image_3 }}" alt="Image 3" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_3"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_3" accept="image/*" onchange="hidePreview(3)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_3" value="{{ list.pdf_desc_3 }}" placeholder="Description for Image 3"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 4 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 4</label>
+                                            {% if pdf_image_4 %}
+                                            <div class="mb-3" id="image-preview-4">
+                                                <img src="{{ pdf_image_4 }}" alt="Image 4" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_4"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_4" accept="image/*" onchange="hidePreview(4)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_4" value="{{ list.pdf_desc_4 }}" placeholder="Description for Image 4"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 5 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 5</label>
+                                            {% if pdf_image_5 %}
+                                            <div class="mb-3" id="image-preview-5">
+                                                <img src="{{ pdf_image_5 }}" alt="Image 5" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_5"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_5" accept="image/*" onchange="hidePreview(5)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_5" value="{{ list.pdf_desc_5 }}" placeholder="Description for Image 5"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 6 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 6</label>
+                                            {% if pdf_image_6 %}
+                                            <div class="mb-3" id="image-preview-6">
+                                                <img src="{{ pdf_image_6 }}" alt="Image 6" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_6"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_6" accept="image/*" onchange="hidePreview(6)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_6" value="{{ list.pdf_desc_6 }}" placeholder="Description for Image 6"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    </div>
+                                    
+                                    <script>
+                                        function hidePreview(i) {
+                                            const preview = document.getElementById(`image-preview-${i}`);
+                                            if (preview) {
+                                                preview.classList.add('hidden');
+                                            }
+                                        }
+                                    </script>
+                                   
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sm">
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2" for="analyst-sign">Analyzed By</label>
+                            <select id="analyst-sign" name="analyst_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Analyzed By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2" for="review-sign">Reviewed By</label>
+                            <select id="review-sign" name="review_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Reviewed By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2 text-center" for="approved-sign">Approved By</label>
+                            <select id="approved-sign" name="approved_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Approved By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                                        </div>
+                            <input id="extra_field" name="extra_field" style="display: none;" value="[]" type="text"/>
+        
+                            <div class="h-32  mt-8 flex justify-center items-center">
+                                <div class=" space-x-8">
+                                    <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+                                    <input type="submit" name="submit_and_new" class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "value='Update' />
+                                    <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input type="submit" name="submit_and_view" value="Update & View Report" class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+                                </div>
+                            </div>
+    
+                     
+                    </div>
+    
+                    
+    
+            </form>
+            {% endif %}
+            {% endblock  %}
+            <section class="bg-gray-900 h-20 flex justify-center items-center w-full ">
+                      <div class="">
+                            <p class="text-lg text-gray-300">© Copyright 2023 EnviTechAl. All Rights Reserved.</p>
+                            <p></p>
+                      </div>
+                    </section>
+            
+        </div>
+        </section>
+
+        <script>
+            $(document).ready(function () {
+                $('select').select2();
+                $(".datepicker").each(function () {
+                    let dateFromDB = $(this).data("date");  // Get date from data attribute
+                    $(this).datepicker({
+                        dateFormat: "dd-MM-yy",
+                        defaultDate: new Date(dateFromDB),
+                        changeMonth: true,
+                        changeYear: true,
+    
+                    });
+                });
+            });
+
+        </script>
+        <script>
+            var seqs_value = document.querySelector(".SEQS-value")
+            var peqs_value = document.querySelector(".PEQS-value")
+            var neqs_value = document.querySelector(".NEQS-value")
+            var leg_1 = document.querySelector(".legend-1")
+            var leg_2 = document.querySelector(".legend-2")
+            var leg_3 = document.querySelector(".legend-3")
+            var leg_4 = document.querySelector(".legend-4")
+            var leg_5 = document.querySelector(".legend-5")
+            var leg_6 = document.querySelector(".legend-6")
+            var leg_7 = document.querySelector(".legend-7")
+            var leg_8 = document.querySelector(".legend-8")
+            var leg_9 = document.querySelector(".legend-9")
+            var leg_10 = document.querySelector(".legend-10")
+            var leg_11 = document.querySelector(".legend-11")
+            const select = document.querySelector('select[name="select"]');
+            var checkinput = document.querySelector("#checkinput")
+            
+            
+            
+            seqs_value.addEventListener("change",()=>{
+                if(seqs_value.checked){
+                    checkinput.value = "SEQS"
+                    select.value = "SEQS"
+                    peqs_value.disabled=true
+                    neqs_value.disabled=true
+                select.dispatchEvent(new Event("change"));
+
+            
+                }else {
+                    checkinput.value = ""
+                    peqs_value.disabled=false
+                    neqs_value.disabled=false
+                }
+                
+            
+            })
+            peqs_value.addEventListener("change",()=>{
+                
+                if(peqs_value.checked){
+                    checkinput.value = "PEQS"
+                    select.value = "PEQS"
+                    seqs_value.disabled=true
+                    neqs_value.disabled=true
+                    select.dispatchEvent(new Event("change"));
+                    
+                }else{
+                    checkinput.value = ""
+                    select.value = "SEQS"
+                    neqs_value.disabled=false
+                    seqs_value.disabled=false
+                   
+                }
+            })
+            neqs_value.addEventListener("change",()=>{
+                if(neqs_value.checked){
+                    checkinput.value = "NEQS"
+                    select.value = "NEQS"
+                    seqs_value.disabled=true
+                    peqs_value.disabled=true
+                    select.dispatchEvent(new Event("change"));
+
+            
+                }else{
+                    checkinput.value = ""
+                    select.value = "SEQS"
+                    peqs_value.disabled=false
+                    seqs_value.disabled=false
+                    
+                   
+                }
+            })
+
+            
+
+            var inlet = document.querySelector('.in')
+            var outlet = document.querySelector('.out')
+            var in_out = document.querySelector('.in-out')
+            var in_out_checkbox = document.querySelector('#in_out_checkbox')
+            var customLimits = document.querySelector('#customLimits')
+            var custom_checkbox = document.querySelector('#custom_checkbox')
+            var inlet_customLimits = document.querySelector('#inlet_customLimits')
+            var outlet_customLimits = document.querySelector('#outlet_customLimits')
+
+            function inlet__customLimits(){
+                const stringToJSON = (s)=>{
+                    s = s.replaceAll('&#x27;','"')
+                   s =  JSON.parse(s)
+                  return s
+                }
+                var extraFields = [];
+                  const getExtraFields = async () => {
+                  var extraRows = $("tr[id^='extraRow-']")
+                for(var i =0;i<extraRows.length;i++){
+                    let _row = extraRows[i];
+                    let num_row = _row.id.split("-")[1]
+
+                    let obj = {
+                        "sr":num_row,
+                        "parameters":$(`input[name='extra-${num_row}-1']`).val(),
+                        "methods":$(`input[name='extra-${num_row}-2']`).val(),
+                        "unit":$(`input[name='extra-${num_row}-3']`).val(),
+                        "result":$(`input[name='extra-${num_row}-4']`).val(),
+                        "customLimits":$(`input[name='extra-${num_row}-5']`).val(),
+
+                    }
+                    extraFields.push(obj);
+                }
+                $("#extra_field").val(JSON.stringify(extraFields))
+                }
+
+
+
+                $("#save_rows").on('click', getExtraFields)
+                var table = document.querySelector('#table')
+                var add_rows = document.querySelector('#add_rows')
+                currentNumber = 33
+
+                add_rows.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    var newRow = table.insertRow(table.rows.length);
+                    $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    var cell0 = newRow.insertCell(0);
+                    cell0.innerHTML = `${currentNumber}`;
+
+                    for (var i = 1; i < 6; i++) {
+                        var cell = newRow.insertCell(i);
+                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                    }
+
+                    currentNumber++;
+
+                });
+                if(inlet_customLimits.checked){
+                    in_out_checkbox.value = 'inlet_customlimits'
+                    $(".outlet_result,.outlet_result_1,.SEQS,.PEQS,.NEQS").hide()
+                    $(".customLimits_td").show()
+                    inlet__customLimits()
+                
+                }
+                else{
+                    in_out_checkbox.value = ''
+                    $(".outlet_result,.outlet_result_1").show()
+                    $(".customLimits_td").hide()
+                }
+
+            }
+
+            if(inlet_customLimits.checked){
+                inlet__customLimits()
+            }
+            
+
+                
+
+            function outlet__customLimits(){
+                const stringToJSON =   (s)=>{
+                    s = s.replaceAll('&#x27;','"')
+                   s =  JSON.parse(s)
+                  return s
+                }
+                var extraFields = [];
+                  const getExtraFields = async () => {
+                  var extraRows = $("tr[id^='extraRow-']")
+                for(var i =0;i<extraRows.length;i++){
+                    let _row = extraRows[i];
+                    let num_row = _row.id.split("-")[1]
+
+                    let obj = {
+                        "sr":num_row,
+                        "parameters":$(`input[name='extra-${num_row}-1']`).val(),
+                        "methods":$(`input[name='extra-${num_row}-2']`).val(),
+                        "unit":$(`input[name='extra-${num_row}-3']`).val(),
+                        "outlet":$(`input[name='extra-${num_row}-4']`).val(),
+                        "customLimits":$(`input[name='extra-${num_row}-5']`).val(),
+
+                    }
+                    extraFields.push(obj);
+                }
+                $("#extra_field").val(JSON.stringify(extraFields))
+                }
+
+
+
+                $("#save_rows").on('click', getExtraFields)
+                var table = document.querySelector('#table')
+                var add_rows = document.querySelector('#add_rows')
+                currentNumber = 33
+
+                add_rows.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    var newRow = table.insertRow(table.rows.length);
+                    $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    var cell0 = newRow.insertCell(0);
+                    cell0.innerHTML = `${currentNumber}`;
+
+                    for (var i = 1; i < 6; i++) {
+                        var cell = newRow.insertCell(i);
+                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                    }
+
+                    currentNumber++;
+
+                });
+                if(outlet_customLimits.checked){
+                    in_out_checkbox.value = 'outlet_customLimits'
+                    $(".inlet_result,.outlet_result_1,.SEQS,.PEQS,.NEQS").hide()
+                    $(".customLimits_td").show()
+                    outlet__customLimits()
+                
+                
+                }
+                else{
+                    in_out_checkbox.value = ''
+                    $(".inlet_result").show()
+                    $(".customLimits_td").hide()
+                    
+                }
+
+            }
+
+            if(outlet_customLimits){
+
+                outlet__customLimits()
+            }
+                
+
+            function inlet_(){
+                const stringToJSON =   (s)=>{
+                    s = s.replaceAll('&#x27;','"')
+                   s =  JSON.parse(s)
+                  return s
+                }
+                var extraFields = [];
+                   const getExtraFields = async () => {
+                   var extraRows = $("tr[id^='extraRow-']")
+                 for(var i =0;i<extraRows.length;i++){
+                     let _row = extraRows[i];
+                     let num_row = _row.id.split("-")[1]
+
+                     let obj = {
+                         "sr":num_row,
+                         "parameters":$(`input[name='extra-${num_row}-1']`).val(),
+                         "methods":$(`input[name='extra-${num_row}-2']`).val(),
+                         "unit":$(`input[name='extra-${num_row}-3']`).val(),
+                         "result":$(`input[name='extra-${num_row}-4']`).val(),
+                         "lim1":$(`input[name='extra-${num_row}-5']`).val(),
+                         "lim2":$(`input[name='extra-${num_row}-6']`).val(),
+                         "lim3":$(`input[name='extra-${num_row}-7']`).val(),
+
+                     }
+                     extraFields.push(obj);
+                 }
+                 $("#extra_field").val(JSON.stringify(extraFields))
+                 }
+
+
+
+                 $("#save_rows").on('click', getExtraFields)
+                 var table = document.querySelector('#table')
+                 var add_rows = document.querySelector('#add_rows')
+                 currentNumber = 33
+
+                 add_rows.addEventListener('click', (e) => {
+                     e.preventDefault()
+                     var newRow = table.insertRow(table.rows.length);
+                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                     var cell0 = newRow.insertCell(0);
+                     cell0.innerHTML = `${currentNumber}`;
+
+                     for (var i = 1; i < 8; i++) {
+                         var cell = newRow.insertCell(i);
+                         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                     }
+
+                     currentNumber++;
+
+                 });
+
+                 if(inlet.checked){
+                    in_out_checkbox.value = 'in'
+                    $(".outlet_result").hide()
+                    inlet_()
+                }
+                else{
+                    in_out_checkbox.value = ''
+                    $(".outlet_result").show()
+                    
+                }
+            }
+            if(inlet.checked){
+                inlet_()
+
+            }
+                 
+
+            function inlet_outlet(){
+                const stringToJSON =   (s)=>{
+                    s = s.replaceAll('&#x27;','"')
+                   s =  JSON.parse(s)
+                  return s
+                }
+                var extraFields = [];
+                   const getExtraFields = async () => {
+                   var extraRows = $("tr[id^='extraRow-']")
+                 for(var i =0;i<extraRows.length;i++){
+                     let _row = extraRows[i];
+                     let num_row = _row.id.split("-")[1]
+
+                     let obj = {
+                         "sr":num_row,
+                         "parameters":$(`input[name='extra-${num_row}-1']`).val(),
+                         "methods":$(`input[name='extra-${num_row}-2']`).val(),
+                         "unit":$(`input[name='extra-${num_row}-3']`).val(),
+                         "result":$(`input[name='extra-${num_row}-4']`).val(),
+                         "outlet":$(`input[name='extra-${num_row}-5']`).val(),
+                         "lim1":$(`input[name='extra-${num_row}-6']`).val(),
+                         "lim2":$(`input[name='extra-${num_row}-7']`).val(),
+                         "lim3":$(`input[name='extra-${num_row}-8']`).val(),
+
+                     }
+                     extraFields.push(obj);
+                 }
+                 $("#extra_field").val(JSON.stringify(extraFields))
+                 }
+
+
+
+                 $("#save_rows").on('click', getExtraFields)
+                 var table = document.querySelector('#table')
+                 var add_rows = document.querySelector('#add_rows')
+                 currentNumber = 33
+
+                 add_rows.addEventListener('click', (e) => {
+                     e.preventDefault()
+                     var newRow = table.insertRow(table.rows.length);
+                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                     var cell0 = newRow.insertCell(0);
+                     cell0.innerHTML = `${currentNumber}`;
+
+                     for (var i = 1; i <= 9; i++) {
+                         var cell = newRow.insertCell(i);
+                         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                     }
+
+                     currentNumber++;
+
+                 });
+
+                 if (in_out.checked) {
+                    in_out_checkbox.value = 'in-out';
+                    inlet_outlet()
+
+                } else {
+                    in_out_checkbox.value = '';
+                }
+            }
+
+            if(in_out.checked){
+
+                inlet_outlet()
+            }  
+                
+            
+            
+            function outlet_(){
+                const stringToJSON =   (s)=>{
+                    s = s.replaceAll('&#x27;','"')
+                   s =  JSON.parse(s)
+                  return s
+                }
+                var extraFields = [];
+            
+                    const getExtraFields = async () => {
+                        var extraRows = $("tr[id^='extraRow-']");
+                        for (var i = 0; i < extraRows.length; i++) {
+                            let _row = extraRows[i];
+                            let num_row = _row.id.split("-")[1];
+            
+                            let obj = {
+                                "sr": num_row,
+                                "parameters": $(`input[name='extra-${num_row}-1']`).val(),
+                                "methods": $(`input[name='extra-${num_row}-2']`).val(),
+                                "unit": $(`input[name='extra-${num_row}-3']`).val(),
+                                "outlet": $(`input[name='extra-${num_row}-4']`).val(),
+                                "lim1": $(`input[name='extra-${num_row}-5']`).val(),
+                                "lim2": $(`input[name='extra-${num_row}-6']`).val(),
+                                "lim3": $(`input[name='extra-${num_row}-7']`).val(),
+                            };
+                            extraFields.push(obj);
+                        }
+                        $("#extra_field").val(JSON.stringify(extraFields));
+                    };
+            
+                    $("#save_rows").on('click', getExtraFields);
+                    var table = document.querySelector('#table');
+                    var add_rows = document.querySelector('#add_rows');
+                    var currentNumber = 33;
+            
+                    add_rows.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        var newRow = table.insertRow(table.rows.length);
+                        $(newRow).attr("id", `extraRow-${currentNumber}`);
+                        var cell0 = newRow.insertCell(0);
+                        cell0.innerHTML = `${currentNumber}`;
+            
+                        for (var i = 1; i < 8; i++) {
+                            var cell = newRow.insertCell(i);
+                            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        }
+            
+                        currentNumber++;
+                    });
+
+                    if (outlet.checked) {
+                        in_out_checkbox.value = 'out';
+                        $(".outlet_result").show();
+                        $(".inlet_result").hide();
+                        outlet_()
+                        
+                    } else {
+                        in_out_checkbox.value = '';
+                        $(".outlet_result,.inlet_result").show();
+                        
+                    }
+            }
+             
+            if(outlet.checked){
+
+                outlet_()
+            }                  
+                
+            
+                
+            
+
+            
+            
+                    {% comment %} $(document).ready(async () => {
+                        $("#loc_err").show()
+                        const req_pip = await fetch('https://api.ipify.org?format=json');
+                        var public_ip = await req_pip.json();
+                        public_ip = public_ip.ip ? public_ip.ip : null;
+                        if (public_ip) {
+                            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+                            const req_loc_ip = await fetch(url);
+                            var location = await req_loc_ip.json();
+                            console.log(location)
+                            if (location) {
+                                let region = location.region.toLowerCase();
+                                switch (region) {
+                                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                                }
+                                setTimeout(function(){
+                                    $("#loc_err").hide()
+                                },1000)
+                              
+                            }
+                        }
+                    }) {% endcomment %}
+                </script>
+<script src={% static '/js/app.js'%} defer >
+    
+    
+</script>
+</body>
+</html>

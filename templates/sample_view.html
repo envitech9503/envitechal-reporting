@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+
+    <title>Document</title>
+</head>
+{% load static %}
+
+<body>
+    <style>
+        .parallelogram {
+            width: 160px;
+            height: 80px;
+            transform: skew(20deg);
+            background: orange;
+          }
+          input[type="checkbox"][disabled] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            cursor: not-allowed;
+            border:1px solid;
+        }
+        
+        input[type="checkbox"][disabled]:checked {
+            background-color: white;
+        }
+        
+        /* Style for the check mark */
+        input[type="checkbox"][disabled]:checked:after {
+            content: "✔";
+            color: black; /* Changed color to blue */
+            display: block;
+            text-align: center;
+            position: relative;
+            top: -5px;
+        }
+        .rectangle {
+            position: relative;
+            height: 50px;             /* Set the height of the rectangle */
+            width: 200px;             /* Set the width of the rectangle */
+            background-color: #0301AD;   /* Set the background color of the rectangle */
+            margin-left:20px	
+          }
+      
+          .rectangle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -118px;
+            height: 100%;
+            width: 143px;            /* Set the width of the sloped side */
+            background-color: #0301AD;   /* Match the background color of the rectangle */
+            transform: skew(-40deg);  /* Skew the pseudo-element to create the slope */
+          }
+          .rectangle1 {
+            position: relative;
+            height: 20px;             /* Set the height of the rectangle */
+            width: 250px;             /* Set the width of the rectangle */
+            background-color: #0CA84A;   /* Set the background color of the rectangle */
+            margin-left:20px	
+          }
+      
+          .rectangle1::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -30px;              /* Adjust the distance of the sloped side */
+            height: 100%;
+            width: 60px;              /* Set the width of the sloped side */
+            background-color: #0CA84A;   /* Match the background color of the rectangle */
+            transform: skew(50deg);  /* Skew the pseudo-element to create the slope */
+          }
+    </style>
+    
+    
+    <div class="w-full flex justify-around items-center">
+        <div class="">
+            <img class="w-20" src="/static/assets/0x0-removebg-preview.png" alt="">
+        </div>
+        <div class="">
+            <h4 class="text-center text-lg font-bold" style="font-family: Pussycat, Algerian, Broadway, fantasy; color:#0301AD;">Envi Tech AL</h4>
+            <h1 class="font-bold text-2xl text-center">Sample Registration Form</h1>
+        </div>
+        <div class="flex flex-col items-center" >
+            <div class="rectangle1"></div>
+            <div class="text-xs border border-2 border-black p-2 mt-2" style="width:fit-content;">
+                <p>{{data.lab_no}}</p>
+                <p>{{data.issue_date}}</p>
+                <p>{{data.issue_no}}</p>
+                <p>Page No: 01 of 01</p>
+            </div>
+        </div>
+    </div>
+    <hr class="w-full mt-4" style="border:2px solid #0CA84A"> 
+    <section class="sticky top-60 w-32 text-xl  left-9 px relative z-50 flex flex-col gap-8">
+        <a class="text-lg pl-2" target="_blank" href="{% url 'sample-pdfPrint1' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Print</a>
+        <a class="text-lg pl-2" target="_blank" href="{% url 'sample-pdfPrint' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Report</a>
+        <a  href="{% url "nav" %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+        </svg ></a>
+      </section>
+    <div  class="w-full flex flex-col justify-around " style="margin-top:-7rem;">
+       
+        <div class="w-full flex justify-center ">
+         <div class="w-8/12 border border-2 border-gray-300  p-2 flex justify-between p-4 items-center ">
+             <h5 class="" style=""><b>Sample Information:</b></h5>
+             <div class="">
+                 <label for="">Sample ID</label>
+                 <input class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" disabled value="{{data.sample_id}}" type="text" name="sample_id" id="">
+             </div>
+         </div>
+     </div>
+    <div class="w-full flex flex-col justify-around">
+        <div class="w-full flex justify-center">
+            <div class="w-8/12 flex flex-col  p-4 gap-2 border border-2 border-gray-200">
+                <div class="">
+                    <h4 class="font-bold">Analysis Requested:</h4><br>
+                    
+                </div>
+                
+                <div class="">
+                    <table width="100%">
+                        <tr>
+                            
+                            
+                            {% if data.checkinp_chemical %}
+                            <td><input class="user-none" type="checkbox"  checked disabled name="checkinp_chemical"><span class="px-4">Chemical Analysis</span></td>
+                            
+                            {% else %}
+                                <td><input class="user-none" type="checkbox" disabled name="checkinp_chemical"><span class="px-4">Chemical Analysis</span></td>  
+                            {% endif %}
+                            {% if data.checkinp_bacteria %}
+                                <td><input type="checkbox" checked disabled name="checkinp_bacteria"><span class="px-4">Bacterial Analysis</span></td>
+                                {% else %}
+                                    <td><input type="checkbox" disabled name="checkinp_bacteria"><span class="px-4">Bacterial Analysis</span></td>
+                            {% endif %}
+                            
+                            <td class="float-right"><span class="px-2">Other(Please Specify)</span><input
+                                class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                                name="inp1" disabled value="{{data.inp1}}" type="text"></td>
+                            
+                            
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+    <div class=" w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 ">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sampling By</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp2" value="{{data.inp2}}" disabled type="text"></td>
+                <td colspan="3" class="p-2 border border-gray-300 "><b>Registration Date & Time</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp3" disabled value="{{data.inp3}}" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Location Of Sample</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp4" value="{{data.inp4}}" disabled type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Sample Method</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp5" value="{{data.inp5}}" disabled type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sample Collected By</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp6" value="{{data.inp6}}" disabled type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Sampling/ Receiving Date</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp7" value="{{data.inp7}}" disabled type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Sampling / Receiving Time</b></td>
+                <td class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp8" disabled value="{{data.inp8}}" type="text"></td>
+                <td class="p-2 border border-gray-300"><b>Estimated Reporting Date</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        name="inp9" value="{{data.inp9}}" disabled type="text"></td>
+            </tr>
+
+        </table>
+
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="p-4" style="width: 66%; display: flex; justify-content: space-between;border:1px solid ">
+            <div class="" style="width:50%;">
+                <div class="py-4 flex justify-between">
+                    <tr>
+                        <td class="p-2 border border-gray-300"><b>No. Of Samples</b></td>
+                        <td class="p-2 border border-gray-300"><input
+                                class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                                name="inp10" value="{{data.inp10}}" disabled type="text"></td>
+                        
+                    </tr>
+                </div>
+                <div class="py-4 flex justify-between">
+                    <tr>
+                        <td class="p-2 border border-gray-300"><b>Sampling Methodology</b></td>
+                        
+                        {% if data.checkinp14 %}
+
+                            <td class="p-2 space-x-4"><input id="grab" checked disabled class="" name="checkinp14" type="checkbox"><label
+                                for="grab"><b>Grab</b></label></td>
+                        {% else %} 
+                            <td class="p-2 space-x-4"><input id="grab" disabled class="" name="checkinp14" type="checkbox"><label
+                                for="grab"><b>Grab</b></label></td>
+                        {% endif %}
+                        {% if data.checkinp15 %}
+                            <td class="p-2 space-x-4"><input id="comp" class="" disabled checked name="checkinp15" type="checkbox"><label
+                                for="comp"><b>Composite</b></label></td>
+                        {% else %} 
+                            <td class="p-2 space-x-4"><input id="comp" class="" disabled name="checkinp15" type="checkbox"><label
+                                for="comp"><b>Composite</b></label></td>
+                        {% endif %}
+                        
+                    </tr>
+                </div>
+            </div>
+            <div class=""style="width: 50%; display: flex;justify-content: space-around;">
+                
+                    <div class="space-y-4">
+                        {% if data.checkinp11 %}
+                            <div class="">
+                                <input checked disabled name="checkinp11" class="" type="checkbox">
+                                <span><b>Drinking Water</b></span> 
+                            </div>
+                        {% else %}
+                            <div class="">
+                                <input  disabled name="checkinp11" class="" type="checkbox">
+                                <span><b>Drinking Water</b></span>
+                            </div>
+                        {% endif %}
+                        {% if data.checkinp16 %}
+                           <div class="">
+                            <input id="effluent" checked disabled class="" name="checkinp16" type="checkbox">
+                            <labelfor="effluent"><b>Effluent</b></labelfor=>
+                           </div>
+                        {% else %} 
+                            <div class="">
+                                <input id="effluent" disabled class="" name="checkinp16" type="checkbox">
+                                <labelfor="effluent"><b>Effluent</b></labelfor=>  
+                            </div>                 
+                        {% endif %}
+                        
+                    </div>
+                    
+                        <div class="space-y-4">
+                            {% if data.checkinp12 %}
+                            <div class="">
+                                <input checked disabled name="checkinp12" class="" type="checkbox">
+                                <b>Sludge</b>
+                            </div>
+                        {% else %} 
+                            <div class="">
+                                <input  disabled name="checkinp12" class="" type="checkbox">
+                                <b>Sludge</b>
+                            </div>
+                        {% endif %}
+                            {% if data.checkinp17 %}
+                                    <div class="">
+                                        <input id="bore_water" checked disabled class="" name="checkinp17" type="checkbox">
+                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>
+                                    </div>
+                                {% else %} 
+                                    <div class="">
+                                        <input id="bore_water" disabled class="" name="checkinp17" type="checkbox">
+                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>  
+                                    </div> 
+                                {% endif %}
+                            
+                        </div>
+                        <div class="space-y-4">
+                            {% if data.checkinp13 %}
+                            <div class="">
+                                <input checked disabled name="checkinp13" class="" type="checkbox">
+                                <b>Influent</b>
+                            </div>
+                            {% else %}
+                           <div class="">
+                            <input disabled name="checkinp13" class="" type="checkbox">
+                            <b>Influent</b>
+                           </div>
+                            {% endif %}
+                            {% if data.checkinp18 %}
+                                        <div class="">
+                                            <input disabled checked id="r.o" class="" name="checkinp18" type="checkbox">
+                                        <label for="r.o"><b>R.O Water</b></label>
+                                        </div>
+                                    {% else %} 
+                                        <div class="">
+                                            <input disabled id="r.o" class="" name="checkinp18" type="checkbox">
+                                        <label for="r.o"><b>R.O Water</b></label>
+                                        </div>
+                                {% endif %}
+                            
+                        </div>
+                
+            </div>
+        </div>
+        
+    </div>
+    <div class="w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 border-t-0">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Environmental Conditions (when sample Received):</b></td>
+                {% if data.inp19 %}
+                    <td class="p-2 space-x-4"><b>Temp</b><input disabled 
+                        class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                    name="inp19" value="{{data.inp19}}" type="text"></td>
+                
+                {% endif %}
+                {% if data.inp20 %}
+                    <td class="p-2 space-x-4"><b>pH</b><input disabled 
+                        class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                    name="inp20" value="{{data.inp20}}" type="text"></td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Analysis Request for Wastewater:</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="border-2 border-gray-200 w-8/12 border-t-0 flex justify-around flex-wrap gap-3 ">
+            <div class="">
+                <div class="">
+                    {% if data.checkinp21%}
+                        <input disabled checked id="ana_ph" name="checkinp21" type="checkbox">
+                    {% else %}
+                        <input disabled  id="ana_ph" name="checkinp21" type="checkbox">
+
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="ana_ph"><b>pH</b></label>
+                    {% else %}
+                    <label for="ana_ph"><b>pH*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp30%}
+                        <input disabled checked id="lead" name="checkinp30" type="checkbox">
+                    {% else %}
+                        <input disabled  id="lead" name="checkinp30" type="checkbox">
+                    {% endif %}
+                    <label for="lead"><b>Lead</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp39%}
+                        <input disabled checked id="boron" name="checkinp39" type="checkbox">
+                    {% else %}
+                        <input disabled  id="boron" name="checkinp39" type="checkbox">
+                    {% endif %}
+                    <label for="boron"><b>Boron</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp48%}
+                        <input disabled checked id="chlorine" name="checkinp48" type="checkbox">
+                    {% else %}
+                        <input disabled  id="chlorine" name="checkinp48" type="checkbox">
+                    {% endif %}
+                    <label for="chlorine"><b>Chlorine</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp56%}
+                        <input disabled checked id="totaln" name="checkinp56" type="checkbox">
+                    {% else %}
+                        <input disabled  id="totaln" name="checkinp56" type="checkbox">
+                    {% endif %}
+                    <label for="totaln"><b>Total N</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp22%}
+                        <input disabled checked id="flouride" name="checkinp22" type="checkbox">
+                    {% else %}
+                        <input disabled  id="flouride" name="checkinp22" type="checkbox">    
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="flouride"><b>Fluoride</b></label>
+                    {% else %}
+                    <label for="flouride"><b>Fluoride*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp31%}
+                        <input disabled checked id="tds" name="checkinp31" type="checkbox">
+                    {% else %}  
+                        <input disabled  id="tds" name="checkinp31" type="checkbox">
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="tds"><b>TDS</b></label>
+                    {% else %}
+                    <label for="tds"><b>TDS*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp40%}
+                        <input disabled checked id="nik" name="checkinp40" type="checkbox">
+                    {% else %}  
+                        <input disabled  id="nik" name="checkinp40" type="checkbox">
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="nik"><b>Nickel</b></label>
+                    {% else %}
+                    <label for="nik"><b>Nickel*</b></label>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp23%}
+                        <input disabled checked id="chromium" name="checkinp23" type="checkbox">
+                    {% else %}
+                        <input disabled  id="chromium" name="checkinp23" type="checkbox">
+                    {% endif %}
+                    <label for="chromium"><b>Chromium</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp32%}
+                        <input disabled checked id="sul" name="checkinp32" type="checkbox">
+                    {% else %}
+                        <input disabled  id="sul" name="checkinp32" type="checkbox">
+                    {% endif %}
+                    <label for="sul"><b>Sulphide</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp41%}
+                        <input disabled checked id="silver" name="checkinp41" type="checkbox">
+                    {% else %}
+                        <input disabled  id="silver" name="checkinp41" type="checkbox">
+                    {% endif %}
+                    <label for="silver"><b>Silver</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp49%}
+                        <input disabled checked id="sulphate" name="checkinp49" type="checkbox">
+                    {% else %}
+                        <input disabled  id="sulphate" name="checkinp49" type="checkbox">
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="sulphate"><b>Sulphate</b></label>
+                    {% else %}
+                    <label for="sulphate"><b>Sulphate*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp57%}
+                        <input disabled checked id="phos" name="checkinp57" type="checkbox">
+                    {% else %}
+                        <input disabled  id="phos" name="checkinp57" type="checkbox">
+                    {% endif %}
+                    <label for="phos"><b>Phosphorus</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp24%}
+                        <input disabled checked id="bod" name="checkinp24" type="checkbox">
+                    {% else %}
+                        <input disabled  id="bod" name="checkinp24" type="checkbox">
+                    {% endif %}
+                    <label for="bod"><b>BOD</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp33%}
+                        <input disabled checked id="mercury" name="checkinp33" type="checkbox">
+                    {% else %}
+                        <input disabled  id="mercury" name="checkinp33" type="checkbox">
+                    {% endif %}
+                    <label for="mercury"><b>Mercury</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp42%}
+                        <input disabled checked id="zinc" name="checkinp42" type="checkbox">
+                    {% else %}
+                        <input disabled  id="zinc" name="checkinp42" type="checkbox">
+                    {% endif %}
+                    <label for="zinc"><b>Zinc</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp50%}
+                        <input disabled checked id="cadmium" name="checkinp50" type="checkbox">
+                    {% else %}  
+                        <input disabled  id="cadmium" name="checkinp50" type="checkbox">
+                    {% endif %}
+                    <label for="cadmium"><b>Cadmium</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp58%}
+                        <input disabled checked id="colif" name="checkinp58" type="checkbox">
+                    {% else %}
+                        <input disabled  id="colif" name="checkinp58" type="checkbox">
+                    {% endif %}
+                    <label for="colif"><b>Coliform</b></label>
+                </div>
+            </div>
+            <div class="">
+                
+                <div class="">
+                    {% if data.checkinp25%}
+                        <input disabled checked id="cynaid" name="checkinp25" type="checkbox">
+                    {% else %}
+                        <input disabled  id="cynaid" name="checkinp25" type="checkbox">
+                    {% endif %}
+                    <label for="cynaid"><b>Cyanide</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp34%}
+                        <input disabled checked id="og" name="checkinp34" type="checkbox">
+                    {% else %}
+                        <input disabled  id="og" name="checkinp34" type="checkbox">
+                    {% endif %}
+                    <label for="og"><b>Oil & Grease</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp43%}
+                        <input disabled checked id="arsen" name="checkinp43" type="checkbox">
+                    {% else %}
+                        <input disabled  id="arsen" name="checkinp43" type="checkbox">
+                    {% endif %}
+                    <label for="arsen"><b>Arsenic</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp51%}
+                        <input disabled checked id="chloride" name="checkinp51" type="checkbox">
+                    {% else %}
+                        <input disabled  id="chloride" name="checkinp51" type="checkbox">
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="chloride"><b>Chloride</b></label>
+                    {% else %}
+                    <label for="chloride"><b>Chloride*</b></label>
+
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp59%}
+                        <input disabled checked id="others" name="checkinp59" type="checkbox">
+                    {% else %}
+                        <input disabled  id="others" name="checkinp59" type="checkbox">
+                    {% endif %}
+                    <label for="others"><b>Others</b></label>
+                    {% if data.other1 %}
+                    <p class="border border-black p-1">{{data.other1}}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp26%}
+                        <input disabled checked id="copper" name="checkinp26" type="checkbox">
+                    {% else %}
+                        <input disabled  id="copper" name="checkinp26" type="checkbox">
+                    {% endif %}
+                    <label for="copper"><b>Copper</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp35%}
+                        <input disabled checked id="ammonia" name="checkinp35" type="checkbox">
+                    {% else %}
+                        <input disabled  id="ammonia" name="checkinp35" type="checkbox">
+                    {% endif %}
+                    <label for="ammonia"><b>Ammonia</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp44%}
+                        <input disabled checked id="bar" name="checkinp44" type="checkbox">
+                    {% else %}
+                        <input disabled  id="bar" name="checkinp44" type="checkbox">
+                    {% endif %}
+                    <label for="bar"><b>Barium</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp52%}
+                        <input disabled checked id="selenium" name="checkinp52" type="checkbox">
+                    {% else %}
+                        <input disabled  id="selenium" name="checkinp52" type="checkbox">
+                    {% endif %}
+                    <label for="selenium"><b>Selenium</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp27%}
+                        <input disabled checked id="cod" name="checkinp27" type="checkbox">
+                    {% else %}
+                        <input disabled  id="cod" name="checkinp27" type="checkbox">
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="cod"><b>COD</b></label>
+                    {% else %}
+                    <label for="cod"><b>COD*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp36%}
+                        <input disabled checked id="phenol" name="checkinp36" type="checkbox">
+                    {% else %}
+                        <input disabled  id="phenol" name="checkinp36" type="checkbox">
+                    {% endif %}
+                    <label for="phenol"><b>Phenol</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp45%}
+                        <input disabled checked id="mag" name="checkinp45" type="checkbox">
+                    {% else %}  
+                        <input disabled  id="mag" name="checkinp45" type="checkbox">
+                    {% endif %} 
+                    <label for="mag"><b>Manganese</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp53%}
+                        <input disabled checked id="DO" name="checkinp53" type="checkbox">
+                    {% else %}
+                        <input disabled  id="DO" name="checkinp53" type="checkbox">
+                    {% endif %}
+                    <label for="DO"><b>DO</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp28%}
+                        <input disabled checked id="ion" name="checkinp28" type="checkbox">
+                    {% else %}
+                        <input disabled  id="ion" name="checkinp28" type="checkbox">
+                    {% endif %}
+                    <label for="ion"><b>An-ionic detergent </b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp37%}
+                        <input disabled checked id="pest" name="checkinp37" type="checkbox">
+                    {% else %}
+                        <input disabled  id="pest" name="checkinp37" type="checkbox">
+                    {% endif %}
+                    <label for="pest"><b>Pesticides</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp46%}
+                        <input disabled checked id="tm" name="checkinp46" type="checkbox">
+                    {% else %}
+                        <input disabled  id="tm" name="checkinp46" type="checkbox">
+                    {% endif %}
+                    <label for="tm"><b>Toxic metal</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp54%}
+                        <input disabled checked id="MLSS" name="checkinp54" type="checkbox">
+                    {% else %}  
+                        <input disabled  id="MLSS" name="checkinp54" type="checkbox">
+                    {% endif %}
+                    <label for="MLSS"><b>MLSS</b></label>
+                </div>
+                
+            </div>
+            <div class="">
+                <div class="">
+                    {% if data.checkinp29%}
+                        <input disabled checked id="ts" name="checkinp29" type="checkbox">
+                    {% else %}
+                        <input disabled  id="ts" name="checkinp29" type="checkbox">
+                    {% endif %}
+                    <label for="ts"><b>TSS</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp38%}
+                        <input disabled checked id="iron" name="checkinp38" type="checkbox">
+                    {% else %}
+                        <input disabled  id="iron" name="checkinp38" type="checkbox">
+                    {% endif %}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="iron"><b>Iron</b></label>
+                    {% else %}
+                    <label for="iron"><b>Iron*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {% if data.checkinp47%}
+                        <input disabled checked id="toc" name="checkinp47" type="checkbox">
+                    {% else %}
+                        <input disabled  id="toc" name="checkinp47" type="checkbox">
+                    {% endif %}
+                    <label for="toc"><b>TOC</b></label>
+                </div>
+                <div class="">
+                    {% if data.checkinp55%}
+                        <input disabled checked id="MLVSS" name="checkinp55" type="checkbox">
+                    {% else %}
+                        <input disabled  id="MLVSS" name="checkinp55" type="checkbox">
+                    {% endif %}
+                    <label for="MLVSS"><b>MLVSS</b></label>
+                </div>
+            </div>
+
+            <!-- Group 1 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_1 %}<input disabled checked id="ww_param_1" name="ww_other_param_1" type="checkbox">{% else %}<input disabled id="ww_param_1" name="ww_other_param_1" type="checkbox">{% endif %}
+        <label for="ww_param_1"><b>Temperature</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_2 %}<input disabled checked id="ww_param_2" name="ww_other_param_2" type="checkbox">{% else %}<input disabled id="ww_param_2" name="ww_other_param_2" type="checkbox">{% endif %}
+        <label for="ww_param_2"><b>Colour</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_3 %}<input disabled checked id="ww_param_3" name="ww_other_param_3" type="checkbox">{% else %}<input disabled id="ww_param_3" name="ww_other_param_3" type="checkbox">{% endif %}
+        <label for="ww_param_3"><b>Odour</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_4 %}<input disabled checked id="ww_param_4" name="ww_other_param_4" type="checkbox">{% else %}<input disabled id="ww_param_4" name="ww_other_param_4" type="checkbox">{% endif %}
+        <label for="ww_param_4"><b>Turbidity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_5 %}<input disabled checked id="ww_param_5" name="ww_other_param_5" type="checkbox">{% else %}<input disabled id="ww_param_5" name="ww_other_param_5" type="checkbox">{% endif %}
+        <label for="ww_param_5"><b>Calcium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_6 %}<input disabled checked id="ww_param_6" name="ww_other_param_6" type="checkbox">{% else %}<input disabled id="ww_param_6" name="ww_other_param_6" type="checkbox">{% endif %}
+        <label for="ww_param_6"><b>Sodium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_7 %}<input disabled checked id="ww_param_7" name="ww_other_param_7" type="checkbox">{% else %}<input disabled id="ww_param_7" name="ww_other_param_7" type="checkbox">{% endif %}
+        <label for="ww_param_7"><b>Magnesium</b></label>
+    </div>
+</div>
+
+<!-- Group 2 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_8 %}<input disabled checked id="ww_param_8" name="ww_other_param_8" type="checkbox">{% else %}<input disabled id="ww_param_8" name="ww_other_param_8" type="checkbox">{% endif %}
+        <label for="ww_param_8"><b>Potassium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_9 %}<input disabled checked id="ww_param_9" name="ww_other_param_9" type="checkbox">{% else %}<input disabled id="ww_param_9" name="ww_other_param_9" type="checkbox">{% endif %}
+        <label for="ww_param_9"><b>Silica</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_10 %}<input disabled checked id="ww_param_10" name="ww_other_param_10" type="checkbox">{% else %}<input disabled id="ww_param_10" name="ww_other_param_10" type="checkbox">{% endif %}
+        <label for="ww_param_10"><b>Reactive Silica</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_11 %}<input disabled checked id="ww_param_11" name="ww_other_param_11" type="checkbox">{% else %}<input disabled id="ww_param_11" name="ww_other_param_11" type="checkbox">{% endif %}
+        <label for="ww_param_11"><b>Alkalinity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_12 %}<input disabled checked id="ww_param_12" name="ww_other_param_12" type="checkbox">{% else %}<input disabled id="ww_param_12" name="ww_other_param_12" type="checkbox">{% endif %}
+        <label for="ww_param_12"><b>Ammonium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_13 %}<input disabled checked id="ww_param_13" name="ww_other_param_13" type="checkbox">{% else %}<input disabled id="ww_param_13" name="ww_other_param_13" type="checkbox">{% endif %}
+        <label for="ww_param_13"><b>Carbonates</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_14 %}<input disabled checked id="ww_param_14" name="ww_other_param_14" type="checkbox">{% else %}<input disabled id="ww_param_14" name="ww_other_param_14" type="checkbox">{% endif %}
+        <label for="ww_param_14"><b>Bicarbonates</b></label>
+    </div>
+</div>
+
+<!-- Group 3 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_15 %}<input disabled checked id="ww_param_15" name="ww_other_param_15" type="checkbox">{% else %}<input disabled id="ww_param_15" name="ww_other_param_15" type="checkbox">{% endif %}
+        <label for="ww_param_15"><b>Conductivity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_16 %}<input disabled checked id="ww_param_16" name="ww_other_param_16" type="checkbox">{% else %}<input disabled id="ww_param_16" name="ww_other_param_16" type="checkbox">{% endif %}
+        <label for="ww_param_16"><b>Salinity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_17 %}<input disabled checked id="ww_param_17" name="ww_other_param_17" type="checkbox">{% else %}<input disabled id="ww_param_17" name="ww_other_param_17" type="checkbox">{% endif %}
+        <label for="ww_param_17"><b>Resistivity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_18 %}<input disabled checked id="ww_param_18" name="ww_other_param_18" type="checkbox">{% else %}<input disabled id="ww_param_18" name="ww_other_param_18" type="checkbox">{% endif %}
+        <label for="ww_param_18"><b>Total Solid</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_19 %}<input disabled checked id="ww_param_19" name="ww_other_param_19" type="checkbox">{% else %}<input disabled id="ww_param_19" name="ww_other_param_19" type="checkbox">{% endif %}
+        <label for="ww_param_19"><b>Acidity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_20 %}<input disabled checked id="ww_param_20" name="ww_other_param_20" type="checkbox">{% else %}<input disabled id="ww_param_20" name="ww_other_param_20" type="checkbox">{% endif %}
+        <label for="ww_param_20"><b>Total Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_21 %}<input disabled checked id="ww_param_21" name="ww_other_param_21" type="checkbox">{% else %}<input disabled id="ww_param_21" name="ww_other_param_21" type="checkbox">{% endif %}
+        <label for="ww_param_21"><b>Calcium Hardness</b></label>
+    </div>
+</div>
+
+<!-- Group 4 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_22 %}<input disabled checked id="ww_param_22" name="ww_other_param_22" type="checkbox">{% else %}<input disabled id="ww_param_22" name="ww_other_param_22" type="checkbox">{% endif %}
+        <label for="ww_param_22"><b>Magnesium Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_23 %}<input disabled checked id="ww_param_23" name="ww_other_param_23" type="checkbox">{% else %}<input disabled id="ww_param_23" name="ww_other_param_23" type="checkbox">{% endif %}
+        <label for="ww_param_23"><b>Carbonate Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_24 %}<input disabled checked id="ww_param_24" name="ww_other_param_24" type="checkbox">{% else %}<input disabled id="ww_param_24" name="ww_other_param_24" type="checkbox">{% endif %}
+        <label for="ww_param_24"><b>Non-Carbonate Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_25 %}<input disabled checked id="ww_param_25" name="ww_other_param_25" type="checkbox">{% else %}<input disabled id="ww_param_25" name="ww_other_param_25" type="checkbox">{% endif %}
+        <label for="ww_param_25"><b>Temporary Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_26 %}<input disabled checked id="ww_param_26" name="ww_other_param_26" type="checkbox">{% else %}<input disabled id="ww_param_26" name="ww_other_param_26" type="checkbox">{% endif %}
+        <label for="ww_param_26"><b>Strontium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_27 %}<input disabled checked id="ww_param_27" name="ww_other_param_27" type="checkbox">{% else %}<input disabled id="ww_param_27" name="ww_other_param_27" type="checkbox">{% endif %}
+        <label for="ww_param_27"><b>Cobalt</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_28 %}<input disabled checked id="ww_param_28" name="ww_other_param_28" type="checkbox">{% else %}<input disabled id="ww_param_28" name="ww_other_param_28" type="checkbox">{% endif %}
+        <label for="ww_param_28"><b>Aluminium (Al)</b></label>
+    </div>
+</div>
+
+<!-- Group 5 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_29 %}<input disabled checked id="ww_param_29" name="ww_other_param_29" type="checkbox">{% else %}<input disabled id="ww_param_29" name="ww_other_param_29" type="checkbox">{% endif %}
+        <label for="ww_param_29"><b>Antimony</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_30 %}<input disabled checked id="ww_param_30" name="ww_other_param_30" type="checkbox">{% else %}<input disabled id="ww_param_30" name="ww_other_param_30" type="checkbox">{% endif %}
+        <label for="ww_param_30"><b>Chromium III</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_31 %}<input disabled checked id="ww_param_31" name="ww_other_param_31" type="checkbox">{% else %}<input disabled id="ww_param_31" name="ww_other_param_31" type="checkbox">{% endif %}
+        <label for="ww_param_31"><b>Chromium VI</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_32 %}<input disabled checked id="ww_param_32" name="ww_other_param_32" type="checkbox">{% else %}<input disabled id="ww_param_32" name="ww_other_param_32" type="checkbox">{% endif %}
+        <label for="ww_param_32"><b>Ferrous (Fe +2)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_33 %}<input disabled checked id="ww_param_33" name="ww_other_param_33" type="checkbox">{% else %}<input disabled id="ww_param_33" name="ww_other_param_33" type="checkbox">{% endif %}
+        <label for="ww_param_33"><b>Ferric (Fe +3)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_34 %}<input disabled checked id="ww_param_34" name="ww_other_param_34" type="checkbox">{% else %}<input disabled id="ww_param_34" name="ww_other_param_34" type="checkbox">{% endif %}
+        <label for="ww_param_34"><b>Tin (Sn)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_35 %}<input disabled checked id="ww_param_35" name="ww_other_param_35" type="checkbox">{% else %}<input disabled id="ww_param_35" name="ww_other_param_35" type="checkbox">{% endif %}
+        <label for="ww_param_35"><b>Beryllium</b></label>
+    </div>
+</div>
+
+<!-- Group 6 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_36 %}<input disabled checked id="ww_param_36" name="ww_other_param_36" type="checkbox">{% else %}<input disabled id="ww_param_36" name="ww_other_param_36" type="checkbox">{% endif %}
+        <label for="ww_param_36"><b>Free CO2</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_37 %}<input disabled checked id="ww_param_37" name="ww_other_param_37" type="checkbox">{% else %}<input disabled id="ww_param_37" name="ww_other_param_37" type="checkbox">{% endif %}
+        <label for="ww_param_37"><b>Hydroxide Alkalinity as CaCO3</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_38 %}<input disabled checked id="ww_param_38" name="ww_other_param_38" type="checkbox">{% else %}<input disabled id="ww_param_38" name="ww_other_param_38" type="checkbox">{% endif %}
+        <label for="ww_param_38"><b>Methyl Orange Alkalinity as CaCO3</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_39 %}<input disabled checked id="ww_param_39" name="ww_other_param_39" type="checkbox">{% else %}<input disabled id="ww_param_39" name="ww_other_param_39" type="checkbox">{% endif %}
+        <label for="ww_param_39"><b>Phenolphthalein Alkalinity as CaCO3</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_40 %}<input disabled checked id="ww_param_40" name="ww_other_param_40" type="checkbox">{% else %}<input disabled id="ww_param_40" name="ww_other_param_40" type="checkbox">{% endif %}
+        <label for="ww_param_40"><b>Particulate Matter</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_41 %}<input disabled checked id="ww_param_41" name="ww_other_param_41" type="checkbox">{% else %}<input disabled id="ww_param_41" name="ww_other_param_41" type="checkbox">{% endif %}
+        <label for="ww_param_41"><b>Silt Density Index (SDI)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_42 %}<input disabled checked id="ww_param_42" name="ww_other_param_42" type="checkbox">{% else %}<input disabled id="ww_param_42" name="ww_other_param_42" type="checkbox">{% endif %}
+        <label for="ww_param_42"><b>Particles Size</b></label>
+    </div>
+</div>
+
+<!-- Group 7 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_43 %}<input disabled checked id="ww_param_43" name="ww_other_param_43" type="checkbox">{% else %}<input disabled id="ww_param_43" name="ww_other_param_43" type="checkbox">{% endif %}
+        <label for="ww_param_43"><b>AOx</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_44 %}<input disabled checked id="ww_param_44" name="ww_other_param_44" type="checkbox">{% else %}<input disabled id="ww_param_44" name="ww_other_param_44" type="checkbox">{% endif %}
+        <label for="ww_param_44"><b>Free Chlorine</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_45 %}<input disabled checked id="ww_param_45" name="ww_other_param_45" type="checkbox">{% else %}<input disabled id="ww_param_45" name="ww_other_param_45" type="checkbox">{% endif %}
+        <label for="ww_param_45"><b>Residual Chlorine</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_46 %}<input disabled checked id="ww_param_46" name="ww_other_param_46" type="checkbox">{% else %}<input disabled id="ww_param_46" name="ww_other_param_46" type="checkbox">{% endif %}
+        <label for="ww_param_46"><b>Persistent Foam</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_47 %}<input disabled checked id="ww_param_47" name="ww_other_param_47" type="checkbox">{% else %}<input disabled id="ww_param_47" name="ww_other_param_47" type="checkbox">{% endif %}
+        <label for="ww_param_47"><b>Flow rate</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_48 %}<input disabled checked id="ww_param_48" name="ww_other_param_48" type="checkbox">{% else %}<input disabled id="ww_param_48" name="ww_other_param_48" type="checkbox">{% endif %}
+        <label for="ww_param_48"><b>Phosphate</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_49 %}<input disabled checked id="ww_param_49" name="ww_other_param_49" type="checkbox">{% else %}<input disabled id="ww_param_49" name="ww_other_param_49" type="checkbox">{% endif %}
+        <label for="ww_param_49"><b>Nitrate</b></label>
+    </div>
+</div>
+
+<!-- Group 8 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_50 %}<input disabled checked id="ww_param_50" name="ww_other_param_50" type="checkbox">{% else %}<input disabled id="ww_param_50" name="ww_other_param_50" type="checkbox">{% endif %}
+        <label for="ww_param_50"><b>Nitrite</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_51 %}<input disabled checked id="ww_param_51" name="ww_other_param_51" type="checkbox">{% else %}<input disabled id="ww_param_51" name="ww_other_param_51" type="checkbox">{% endif %}
+        <label for="ww_param_51"><b>Volatile Suspended Solids (VSS)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_52 %}<input disabled checked id="ww_param_52" name="ww_other_param_52" type="checkbox">{% else %}<input disabled id="ww_param_52" name="ww_other_param_52" type="checkbox">{% endif %}
+        <label for="ww_param_52"><b>Settleable solids (Imhoff cone)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_53 %}<input disabled checked id="ww_param_53" name="ww_other_param_53" type="checkbox">{% else %}<input disabled id="ww_param_53" name="ww_other_param_53" type="checkbox">{% endif %}
+        <label for="ww_param_53"><b>Oxidation–Reduction Potential (ORP)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_54 %}<input disabled checked id="ww_param_54" name="ww_other_param_54" type="checkbox">{% else %}<input disabled id="ww_param_54" name="ww_other_param_54" type="checkbox">{% endif %}
+        <label for="ww_param_54"><b>Volatile Organic Halogens (VOX)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_55 %}<input disabled checked id="ww_param_55" name="ww_other_param_55" type="checkbox">{% else %}<input disabled id="ww_param_55" name="ww_other_param_55" type="checkbox">{% endif %}
+        <label for="ww_param_55"><b>Sodium Adsorption Ratio (SAR)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_56 %}<input disabled checked id="ww_param_56" name="ww_other_param_56" type="checkbox">{% else %}<input disabled id="ww_param_56" name="ww_other_param_56" type="checkbox">{% endif %}
+        <label for="ww_param_56"><b>Residual Sodium Carbonate (RSC)</b></label>
+    </div>
+</div>
+
+<!-- Group 9 -->
+<div class="">
+    <div class="">
+        {% if data.ww_other_param_57 %}<input disabled checked id="ww_param_57" name="ww_other_param_57" type="checkbox">{% else %}<input disabled id="ww_param_57" name="ww_other_param_57" type="checkbox">{% endif %}
+        <label for="ww_param_57"><b>Total Plate Count</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_58 %}<input disabled checked id="ww_param_58" name="ww_other_param_58" type="checkbox">{% else %}<input disabled id="ww_param_58" name="ww_other_param_58" type="checkbox">{% endif %}
+        <label for="ww_param_58"><b>E. Coli</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_59 %}<input disabled checked id="ww_param_59" name="ww_other_param_59" type="checkbox">{% else %}<input disabled id="ww_param_59" name="ww_other_param_59" type="checkbox">{% endif %}
+        <label for="ww_param_59"><b>Faecal Coliform</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_60 %}<input disabled checked id="ww_param_60" name="ww_other_param_60" type="checkbox">{% else %}<input disabled id="ww_param_60" name="ww_other_param_60" type="checkbox">{% endif %}
+        <label for="ww_param_60"><b>Faecal Enterococci</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_61 %}<input disabled checked id="ww_param_61" name="ww_other_param_61" type="checkbox">{% else %}<input disabled id="ww_param_61" name="ww_other_param_61" type="checkbox">{% endif %}
+        <label for="ww_param_61"><b>Total Bacterial Count</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_62 %}<input disabled checked id="ww_param_62" name="ww_other_param_62" type="checkbox">{% else %}<input disabled id="ww_param_62" name="ww_other_param_62" type="checkbox">{% endif %}
+        <label for="ww_param_62"><b>Legionella</b></label>
+    </div>
+
+    <div class="">
+        {% if data.ww_other_param_63 %}<input disabled checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input disabled id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
+        <label for="ww_param_63"><b>Pseudomonas aeruginosa</b></label>
+    </div>
+    <div class="">
+        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
+        <label for="ww_param_64"><b>Bioassay test</b></label>
+    </div>
+</div>
+            
+            
+            
+        </div>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Analysis Request for Water (Drinking water, Bore water or R.O water
+                    etc.):</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="border-2 border-gray-200 w-8/12 border-t-0 flex justify-around flex-wrap gap-4 ">
+            <div class="">
+                <div class="">
+                    {%if data.checkinp60%}
+                        <input checked disabled id="color" name="checkinp60" type="checkbox">
+                    {%else%}
+                        <input  disabled id="color" name="checkinp60" type="checkbox">
+                    {%endif%}
+                    <label for="color"><b>Color</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp67%}
+                        <input checked disabled id="chr" name="checkinp67" type="checkbox">
+                    {%else%}
+                        <input  disabled id="chr" name="checkinp67" type="checkbox">
+                    {%endif%}
+                    <label for="chr"><b>Chromium</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp74%}
+                        <input checked disabled id="bor" name="checkinp74" type="checkbox">
+                    {%else%}
+                        <input  disabled id="bor" name="checkinp74" type="checkbox">
+                    {%endif%}
+                    <label for="bor"><b>Boron</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp81%}
+                        <input checked disabled id="residual" name="checkinp81" type="checkbox">
+                    {%else%}
+                        <input  disabled id="residual" name="checkinp81" type="checkbox">
+                    {%endif%}
+                    <label for="residual"><b>Residual Chlorine</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp87%}
+                        <input checked disabled id="sod" name="checkinp87" type="checkbox">
+                    {%else%}
+                        <input  disabled id="sod" name="checkinp87" type="checkbox">
+                    {%endif%}
+                    <label for="sod"><b>Sodium</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp94%}
+                        <input checked disabled id="magi" name="checkinp94" type="checkbox">
+                    {%else%}
+                        <input  disabled id="magi" name="checkinp94" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="magi"><b>Magnesium</b></label>
+                    {% else %}
+                    <label for="magi"><b>Magnesium*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp100%}
+                        <input checked disabled id="fc" name="checkinp100" type="checkbox">
+                    {%else%}
+                        <input  disabled id="fc" name="checkinp100" type="checkbox">
+                    {%endif%}
+                    <label for="fc"><b>Faecal coliform</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {%if data.checkinp61%}
+                        <input checked disabled id="taste" name="checkinp61" type="checkbox">
+                    {%else%}
+                        <input  disabled id="taste" name="checkinp61" type="checkbox">
+                    {%endif%}
+                    <label for="taste"><b>Taste</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp68%}
+                        <input checked disabled id="chl" name="checkinp68" type="checkbox">
+                    {%else%}
+                        <input  disabled id="chl" name="checkinp68" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="chl"><b>Chloride</b></label>
+                    {% else %}
+                    <label for="chl"><b>Chloride*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp75%}
+                        <input checked disabled id="ld" name="checkinp75" type="checkbox">
+                    {%else%}
+                        <input  disabled id="ld" name="checkinp75" type="checkbox">
+                    {%endif%}
+                    <label for="ld"><b>Lead</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp88%}
+                    <input checked disabled id="acidity" name="checkinp88" type="checkbox">
+                    {%else%}
+                    <input  disabled id="acidity" name="checkinp88" type="checkbox">
+                    {%endif%}
+                    <label for="acidity"><b>Acidity</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {%if data.checkinp62%}
+                        <input checked disabled id="odor" name="checkinp62" type="checkbox">
+                    {%else%}
+                        <input  disabled id="odor" name="checkinp62" type="checkbox">
+                    {%endif%}
+                    <label for="odor"><b>Odor</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp69%}
+                        <input checked disabled id="cyn" name="checkinp69" type="checkbox">
+                    {%else%}
+                        <input  disabled id="cyn" name="checkinp69" type="checkbox">
+                    {%endif%}
+                    <label for="cyn"><b>Cyanide</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp76%}
+                        <input checked disabled id="nick" name="checkinp76" type="checkbox">
+                    {%else%}
+                        <input  disabled id="nick" name="checkinp76" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="nick"><b>Nickel</b></label>
+                    {% else %}
+                    <label for="nick"><b>Nickel*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp82%}
+                        <input checked disabled id="zn" name="checkinp82" type="checkbox">
+                    {%else%}
+                        <input  disabled id="zn" name="checkinp82" type="checkbox">
+                    {%endif%}
+                    <label for="zn"><b>Zinc</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp89%}
+                        <input checked disabled id="pot" name="checkinp89" type="checkbox">
+                    {%else%}
+                        <input  disabled id="pot" name="checkinp89" type="checkbox">
+                    {%endif%}
+                    <label for="pot"><b>Potassium</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp95%}
+                        <input checked disabled id="ph" name="checkinp95" type="checkbox">
+                    {%else%}
+                        <input  disabled id="ph" name="checkinp95" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="ph"><b>pH</b></label>
+                    {% else %}
+                    <label for="ph"><b>pH*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp101%}
+                        <input checked disabled id="pa" name=" " type="checkbox">
+                    {%else%}
+                        <input  disabled id="pa" name="checkinp101" type="checkbox">
+                    {%endif%}    
+                    <label for="pa"><b>Pseudomonas aeruginosa</b></label>
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {%if data.checkinp63%}
+                        <input checked disabled id="turbidity" name="checkinp63" type="checkbox">
+                    {%else%}
+                        <input  disabled id="turbidity" name="checkinp63" type="checkbox">
+                    {%endif%}
+                    <label for="turbidity"><b>Turbidity</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp70%}
+                        <input checked disabled id="cop" name="checkinp70" type="checkbox">
+                    {%else%}
+                        <input  disabled id="cop" name="checkinp70" type="checkbox">
+                    {%endif%}
+                    <label for="cop"><b>Copper</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp77%}
+                        <input checked disabled id="nitrate" name="checkinp77" type="checkbox">
+                    {%else%}
+                        <input  disabled id="nitrate" name="checkinp77" type="checkbox">
+                    {%endif%}
+                    <label for="nitrate"><b>Nitrite</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp83%}
+                        <input checked disabled id="do" name="checkinp83" type="checkbox">
+                    {%else%}
+                        <input  disabled id="do" name="checkinp83" type="checkbox">
+                    {%endif%}
+                    <label for="do"><b>DO</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp90%}
+                        <input checked disabled id="car" name="checkinp90" type="checkbox">
+                    {%else%}
+                        <input  disabled id="car" name="checkinp90" type="checkbox">
+                    {%endif%}
+                    <label for="car"><b>Carbonates</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp96%}
+                        <input checked disabled id="sulp" name="checkinp96" type="checkbox">
+                    {%else%}
+                        <input  disabled id="sulp" name="checkinp96" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="sulp"><b>Sulphate</b></label>
+                    {% else %}
+                    <label for="sulp"><b>Sulphate*</b></label>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {%if data.checkinp64%}
+                        <input checked disabled id="total_hardness" name="checkinp64" type="checkbox">
+                    {%else%}
+                        <input  disabled id="total_hardness" name="checkinp64" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="total_hardness"><b>Total Hardness</b></label>
+                    {% else %}
+                    <label for="total_hardness"><b>Total Hardness*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp71%}
+                        <input checked disabled id="ant" name="checkinp71" type="checkbox">
+                    {%else%}
+                        <input  disabled id="ant" name="checkinp71" type="checkbox">
+                    {%endif%}
+                    <label for="ant"><b>Antimony</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp78%}
+                        <input checked disabled id="mircury" name="checkinp78" type="checkbox">
+                    {%else%}
+                        <input  disabled id="mircury" name="checkinp78" type="checkbox">
+                    {%endif%}
+                    <label for="mircury"><b>Mercury</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp84%}
+                        <input checked disabled id="cond" name="checkinp84" type="checkbox">
+                    {%else%}
+                        <input  disabled id="cond" name="checkinp84" type="checkbox">
+                    {%endif%}
+                    <label for="cond"><b>Conductivity</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp91%}
+                        <input checked disabled id="barc" name="checkinp91" type="checkbox">
+                    {%else%}
+                        <input  disabled id="barc" name="checkinp91" type="checkbox">
+                    {%endif%}
+                    <label for="barc"><b>Bicarbonates</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp97%}
+                        <input checked disabled id="sil" name="checkinp97" type="checkbox">
+                    {%else%}
+                        <input  disabled id="sil" name="checkinp97" type="checkbox">
+                    {%endif%}
+                    <label for="sil"><b>Silica </b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp102%}
+                        <input checked disabled id="tbc" name="checkinp102" type="checkbox">
+                    {%else%}
+                        <input  disabled id="tbc" name="checkinp102" type="checkbox">
+                    {%endif%}
+                    <label for="tbc"><b>Total Bacterial count</b></label>
+                </div>
+                
+            </div>
+            <div class="">
+                <div class="">
+                    {%if data.checkinp65%}
+                        <input checked disabled id="tds1" name="checkinp65" type="checkbox">
+                    {%else%}
+                        <input  disabled id="tds1" name="checkinp65" type="checkbox">
+                    {%endif%}
+                    <label for="tds1"><b>TDS</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp72%}
+                        <input checked disabled id="alm" name="checkinp72" type="checkbox">
+                    {%else%}
+                        <input  disabled id="alm" name="checkinp72" type="checkbox">
+                    {%endif%}
+                    <label for="alm"><b>Aluminium</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp79%}
+                        <input checked disabled id="nit" name="checkinp79" type="checkbox">
+                    {%else%}
+                        <input  disabled id="nit" name="checkinp79" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="nit"><b>Nitrate</b></label>
+                    {% else %}
+                    <label for="nit"><b>Nitrate*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp85%}
+                        <input checked disabled id="tkn" name="checkinp85" type="checkbox">
+                    {%else%}
+                        <input  disabled id="tkn" name="checkinp85" type="checkbox">
+                    {%endif%}
+                    <label for="tkn"><b>TKN</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp92%}
+                        <input checked disabled id="alk" name="checkinp92" type="checkbox">
+                    {%else%}
+                        <input  disabled id="alk" name="checkinp92" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="alk"><b>Alkalinity</b></label>
+                    {% else %}
+                    <label for="alk"><b>Alkalinity*</b></label> 
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp98%}
+                        <input checked disabled id="cali" name="checkinp98" type="checkbox">
+                    {%else%}
+                        <input  disabled id="cali" name="checkinp98" type="checkbox">
+                    {%endif%}
+                    <label for="cali"><b>Coliform</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp103%}
+                        <input checked disabled id="ot" name="checkinp103" type="checkbox">
+                    {%else%}    
+                        <input  disabled id="ot" name="checkinp103" type="checkbox">
+                    {%endif%}
+                    <label for="ot"><b>others</b></label>
+                    {% if data.other2 %}
+                    <p class="border border-black p-1">{{data.other2}}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="">
+                <div class="">
+                    {%if data.checkinp66%}
+                        <input checked disabled id="flo" name="checkinp66" type="checkbox">
+                    {%else%}
+                        <input  disabled id="flo" name="checkinp66" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="flo"><b>Fluoride</b></label>
+                    {% else %}
+                    <label for="flo"><b>Fluoride*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp73%}
+                        <input checked disabled id="ars" name="checkinp73" type="checkbox">
+                    {%else%}    
+                        <input  disabled id="ars" name="checkinp73" type="checkbox">
+                    {%endif%}
+                    <label for="ars"><b>Arsenic</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp80%}
+                        <input checked disabled id="selen" name="checkinp80" type="checkbox">
+                    {%else%}
+                        <input  disabled id="selen" name="checkinp80" type="checkbox">
+                    {%endif%}
+                    <label for="selen"><b>Selenium</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp86%}
+                        <input checked disabled id="phen" name="checkinp86" type="checkbox">
+                    {%else%}
+                        <input  disabled id="phen" name="checkinp86" type="checkbox">
+                    {%endif%}
+                    <label for="phen"><b>Phenol</b></label>
+                </div>
+                <div class="">
+                    {%if data.checkinp93%}
+                        <input checked disabled id="cal" name="checkinp93" type="checkbox">
+                    {%else%}
+                        <input  disabled id="cal" name="checkinp93" type="checkbox">
+                    {%endif%}
+                    {% if data.city_location == 'Lahore' %}
+                    <label for="cal"><b>Calcium</b></label>
+                    {% else %}
+                    <label for="cal"><b>Calcium*</b></label>
+                    {% endif %}
+                </div>
+                <div class="">
+                    {%if data.checkinp99%}
+                        <input checked disabled id="e." name="checkinp99" type="checkbox">
+                    {%else%}
+                        <input  disabled id="e." name="checkinp99" type="checkbox">
+                    {%endif%}
+                    <label for="e."><b>E.coli </b></label>
+                </div>
+            </div>
+            <!-- Group 1 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_1 %}<input disabled checked id="other_param_1" name="other_param_1" type="checkbox">{% else %}<input disabled id="other_param_1" name="other_param_1" type="checkbox">{% endif %}
+        <label for="other_param_1"><b>Barium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_2 %}<input disabled checked id="other_param_2" name="other_param_2" type="checkbox">{% else %}<input disabled id="other_param_2" name="other_param_2" type="checkbox">{% endif %}
+        <label for="other_param_2"><b>Manganese</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_3 %}<input disabled checked id="other_param_3" name="other_param_3" type="checkbox">{% else %}<input disabled id="other_param_3" name="other_param_3" type="checkbox">{% endif %}
+        <label for="other_param_3"><b>Cadmium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_4 %}<input disabled checked id="other_param_4" name="other_param_4" type="checkbox">{% else %}<input disabled id="other_param_4" name="other_param_4" type="checkbox">{% endif %}
+        <label for="other_param_4"><b>Silver</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_5 %}<input disabled checked id="other_param_5" name="other_param_5" type="checkbox">{% else %}<input disabled id="other_param_5" name="other_param_5" type="checkbox">{% endif %}
+        <label for="other_param_5"><b>Reactive Silica</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_6 %}<input disabled checked id="other_param_6" name="other_param_6" type="checkbox">{% else %}<input disabled id="other_param_6" name="other_param_6" type="checkbox">{% endif %}
+        <label for="other_param_6"><b>Silicic Acid</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_7 %}<input disabled checked id="other_param_7" name="other_param_7" type="checkbox">{% else %}<input disabled id="other_param_7" name="other_param_7" type="checkbox">{% endif %}
+        <label for="other_param_7"><b>COD</b></label>
+    </div>
+</div>
+
+<!-- Group 2 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_8 %}<input disabled checked id="other_param_8" name="other_param_8" type="checkbox">{% else %}<input disabled id="other_param_8" name="other_param_8" type="checkbox">{% endif %}
+        <label for="other_param_8"><b>BOD</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_9 %}<input disabled checked id="other_param_9" name="other_param_9" type="checkbox">{% else %}<input disabled id="other_param_9" name="other_param_9" type="checkbox">{% endif %}
+        <label for="other_param_9"><b>Cobalt</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_10 %}<input disabled checked id="other_param_10" name="other_param_10" type="checkbox">{% else %}<input disabled id="other_param_10" name="other_param_10" type="checkbox">{% endif %}
+        <label for="other_param_10"><b>Polyaromatic Hydrocarbons (PAH)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_11 %}<input disabled checked id="other_param_11" name="other_param_11" type="checkbox">{% else %}<input disabled id="other_param_11" name="other_param_11" type="checkbox">{% endif %}
+        <label for="other_param_11"><b>Pesticides</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_12 %}<input disabled checked id="other_param_12" name="other_param_12" type="checkbox">{% else %}<input disabled id="other_param_12" name="other_param_12" type="checkbox">{% endif %}
+        <label for="other_param_12"><b>Oil &amp; Grease</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_13 %}<input disabled checked id="other_param_13" name="other_param_13" type="checkbox">{% else %}<input disabled id="other_param_13" name="other_param_13" type="checkbox">{% endif %}
+        <label for="other_param_13"><b>Alpha Emitters</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_14 %}<input disabled checked id="other_param_14" name="other_param_14" type="checkbox">{% else %}<input disabled id="other_param_14" name="other_param_14" type="checkbox">{% endif %}
+        <label for="other_param_14"><b>Beta Emitters</b></label>
+    </div>
+</div>
+
+<!-- Group 3 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_15 %}<input disabled checked id="other_param_15" name="other_param_15" type="checkbox">{% else %}<input disabled id="other_param_15" name="other_param_15" type="checkbox">{% endif %}
+        <label for="other_param_15"><b>Salinity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_16 %}<input disabled checked id="other_param_16" name="other_param_16" type="checkbox">{% else %}<input disabled id="other_param_16" name="other_param_16" type="checkbox">{% endif %}
+        <label for="other_param_16"><b>Resistivity</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_17 %}<input disabled checked id="other_param_17" name="other_param_17" type="checkbox">{% else %}<input disabled id="other_param_17" name="other_param_17" type="checkbox">{% endif %}
+        <label for="other_param_17"><b>TOC</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_18 %}<input disabled checked id="other_param_18" name="other_param_18" type="checkbox">{% else %}<input disabled id="other_param_18" name="other_param_18" type="checkbox">{% endif %}
+        <label for="other_param_18"><b>VOC</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_19 %}<input disabled checked id="other_param_19" name="other_param_19" type="checkbox">{% else %}<input disabled id="other_param_19" name="other_param_19" type="checkbox">{% endif %}
+        <label for="other_param_19"><b>Phosphorus</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_20 %}<input disabled checked id="other_param_20" name="other_param_20" type="checkbox">{% else %}<input disabled id="other_param_20" name="other_param_20" type="checkbox">{% endif %}
+        <label for="other_param_20"><b>Calcium Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_21 %}<input disabled checked id="other_param_21" name="other_param_21" type="checkbox">{% else %}<input disabled id="other_param_21" name="other_param_21" type="checkbox">{% endif %}
+        <label for="other_param_21"><b>Magnesium Hardness</b></label>
+    </div>
+</div>
+
+<!-- Group 4 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_22 %}<input disabled checked id="other_param_22" name="other_param_22" type="checkbox">{% else %}<input disabled id="other_param_22" name="other_param_22" type="checkbox">{% endif %}
+        <label for="other_param_22"><b>Carbonate Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_23 %}<input disabled checked id="other_param_23" name="other_param_23" type="checkbox">{% else %}<input disabled id="other_param_23" name="other_param_23" type="checkbox">{% endif %}
+        <label for="other_param_23"><b>Non-Carbonate Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_24 %}<input disabled checked id="other_param_24" name="other_param_24" type="checkbox">{% else %}<input disabled id="other_param_24" name="other_param_24" type="checkbox">{% endif %}
+        <label for="other_param_24"><b>Temporary Hardness</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_25 %}<input disabled checked id="other_param_25" name="other_param_25" type="checkbox">{% else %}<input disabled id="other_param_25" name="other_param_25" type="checkbox">{% endif %}
+        <label for="other_param_25"><b>Strontium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_26 %}<input disabled checked id="other_param_26" name="other_param_26" type="checkbox">{% else %}<input disabled id="other_param_26" name="other_param_26" type="checkbox">{% endif %}
+        <label for="other_param_26"><b>Chromium III</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_27 %}<input disabled checked id="other_param_27" name="other_param_27" type="checkbox">{% else %}<input disabled id="other_param_27" name="other_param_27" type="checkbox">{% endif %}
+        <label for="other_param_27"><b>Chromium VI</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_28 %}<input disabled checked id="other_param_28" name="other_param_28" type="checkbox">{% else %}<input disabled id="other_param_28" name="other_param_28" type="checkbox">{% endif %}
+        <label for="other_param_28"><b>Iron</b></label>
+    </div>
+</div>
+
+<!-- Group 5 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_29 %}<input disabled checked id="other_param_29" name="other_param_29" type="checkbox">{% else %}<input disabled id="other_param_29" name="other_param_29" type="checkbox">{% endif %}
+        <label for="other_param_29"><b>Ferrous (Fe+2)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_30 %}<input disabled checked id="other_param_30" name="other_param_30" type="checkbox">{% else %}<input disabled id="other_param_30" name="other_param_30" type="checkbox">{% endif %}
+        <label for="other_param_30"><b>Ferric (Fe+3)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_31 %}<input disabled checked id="other_param_31" name="other_param_31" type="checkbox">{% else %}<input disabled id="other_param_31" name="other_param_31" type="checkbox">{% endif %}
+        <label for="other_param_31"><b>Ammonia</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_32 %}<input disabled checked id="other_param_32" name="other_param_32" type="checkbox">{% else %}<input disabled id="other_param_32" name="other_param_32" type="checkbox">{% endif %}
+        <label for="other_param_32"><b>Tin</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_33 %}<input disabled checked id="other_param_33" name="other_param_33" type="checkbox">{% else %}<input disabled id="other_param_33" name="other_param_33" type="checkbox">{% endif %}
+        <label for="other_param_33"><b>Ammonium</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_34 %}<input disabled checked id="other_param_34" name="other_param_34" type="checkbox">{% else %}<input disabled id="other_param_34" name="other_param_34" type="checkbox">{% endif %}
+        <label for="other_param_34"><b>Free CO2</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_35 %}<input disabled checked id="other_param_35" name="other_param_35" type="checkbox">{% else %}<input disabled id="other_param_35" name="other_param_35" type="checkbox">{% endif %}
+        <label for="other_param_35"><b>Hydroxide Alkalinity as CaCO3</b></label>
+    </div>
+</div>
+
+<!-- Group 6 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_36 %}<input disabled checked id="other_param_36" name="other_param_36" type="checkbox">{% else %}<input disabled id="other_param_36" name="other_param_36" type="checkbox">{% endif %}
+        <label for="other_param_36"><b>Methyl Orange Alkalinity as CaCO3</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_37 %}<input disabled checked id="other_param_37" name="other_param_37" type="checkbox">{% else %}<input disabled id="other_param_37" name="other_param_37" type="checkbox">{% endif %}
+        <label for="other_param_37"><b>Phenolphthalein Alkalinity as CaCO3</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_38 %}<input disabled checked id="other_param_38" name="other_param_38" type="checkbox">{% else %}<input disabled id="other_param_38" name="other_param_38" type="checkbox">{% endif %}
+        <label for="other_param_38"><b>Particulate Matter</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_39 %}<input disabled checked id="other_param_39" name="other_param_39" type="checkbox">{% else %}<input disabled id="other_param_39" name="other_param_39" type="checkbox">{% endif %}
+        <label for="other_param_39"><b>Silt Density Index</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_40 %}<input disabled checked id="other_param_40" name="other_param_40" type="checkbox">{% else %}<input disabled id="other_param_40" name="other_param_40" type="checkbox">{% endif %}
+        <label for="other_param_40"><b>Particles Size</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_41 %}<input disabled checked id="other_param_41" name="other_param_41" type="checkbox">{% else %}<input disabled id="other_param_41" name="other_param_41" type="checkbox">{% endif %}
+        <label for="other_param_41"><b>AOx</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_42 %}<input disabled checked id="other_param_42" name="other_param_42" type="checkbox">{% else %}<input disabled id="other_param_42" name="other_param_42" type="checkbox">{% endif %}
+        <label for="other_param_42"><b>Chlorine</b></label>
+    </div>
+</div>
+
+<!-- Group 7 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_43 %}<input disabled checked id="other_param_43" name="other_param_43" type="checkbox">{% else %}<input disabled id="other_param_43" name="other_param_43" type="checkbox">{% endif %}
+        <label for="other_param_43"><b>Free Chlorine</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_44 %}<input disabled checked id="other_param_44" name="other_param_44" type="checkbox">{% else %}<input disabled id="other_param_44" name="other_param_44" type="checkbox">{% endif %}
+        <label for="other_param_44"><b>Sulphide</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_45 %}<input disabled checked id="other_param_45" name="other_param_45" type="checkbox">{% else %}<input disabled id="other_param_45" name="other_param_45" type="checkbox">{% endif %}
+        <label for="other_param_45"><b>Total Solid</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_46 %}<input disabled checked id="other_param_46" name="other_param_46" type="checkbox">{% else %}<input disabled id="other_param_46" name="other_param_46" type="checkbox">{% endif %}
+        <label for="other_param_46"><b>Beryllium</b></label>
+    </div>
+
+    <!-- <div class="">
+        {% if data.other_param_47 %}<input disabled checked id="other_param_47" name="other_param_47" type="checkbox">{% else %}<input disabled id="other_param_47" name="other_param_47" type="checkbox">{% endif %}
+        <label for="other_param_47"><b>Silt Density Index (SDI)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_48 %}<input disabled checked id="other_param_48" name="other_param_48" type="checkbox">{% else %}<input disabled id="other_param_48" name="other_param_48" type="checkbox">{% endif %}
+        <label for="other_param_48"><b>Particles Size</b></label>
+    </div> -->
+
+    <div class="">
+        {% if data.other_param_47 %}<input disabled checked id="other_param_47" name="other_param_47" type="checkbox">{% else %}<input disabled id="other_param_47" name="other_param_47" type="checkbox">{% endif %}
+        <label for="other_param_47"><b>Phosphate</b></label>
+    </div>
+</div>
+
+<!-- Group 8 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_48 %}<input disabled checked id="other_param_48" name="other_param_48" type="checkbox">{% else %}<input disabled id="other_param_48" name="other_param_48" type="checkbox">{% endif %}
+        <label for="other_param_48"><b>Volatile Suspended Solids (VSS)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_49 %}<input disabled checked id="other_param_49" name="other_param_49" type="checkbox">{% else %}<input disabled id="other_param_49" name="other_param_49" type="checkbox">{% endif %}
+        <label for="other_param_49"><b>Settleable solids (Imhoff cone)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_50 %}<input disabled checked id="other_param_50" name="other_param_50" type="checkbox">{% else %}<input disabled id="other_param_50" name="other_param_50" type="checkbox">{% endif %}
+        <label for="other_param_50"><b>Oxidation–Reduction Potential (ORP)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_51 %}<input disabled checked id="other_param_51" name="other_param_51" type="checkbox">{% else %}<input disabled id="other_param_51" name="other_param_51" type="checkbox">{% endif %}
+        <label for="other_param_51"><b>Volatile Organic Halogens (VOX)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_52 %}<input disabled checked id="other_param_52" name="other_param_52" type="checkbox">{% else %}<input disabled id="other_param_52" name="other_param_52" type="checkbox">{% endif %}
+        <label for="other_param_52"><b>Sodium Adsorption Ratio (SAR)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_53 %}<input disabled checked id="other_param_53" name="other_param_53" type="checkbox">{% else %}<input disabled id="other_param_53" name="other_param_53" type="checkbox">{% endif %}
+        <label for="other_param_53"><b>Residual Sodium Carbonate (RSC)</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_54 %}<input disabled checked id="other_param_54" name="other_param_54" type="checkbox">{% else %}<input disabled id="other_param_54" name="other_param_54" type="checkbox">{% endif %}
+        <label for="other_param_54"><b>Temperature</b></label>
+    </div>
+</div>
+
+<!-- Group 9 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_55 %}<input disabled checked id="other_param_55" name="other_param_55" type="checkbox">{% else %}<input disabled id="other_param_55" name="other_param_55" type="checkbox">{% endif %}
+        <label for="other_param_55"><b>TSS</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_56 %}<input disabled checked id="other_param_56" name="other_param_56" type="checkbox">{% else %}<input disabled id="other_param_56" name="other_param_56" type="checkbox">{% endif %}
+        <label for="other_param_56"><b>Anionic Surfactants as MBAS</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_57 %}<input disabled checked id="other_param_57" name="other_param_57" type="checkbox">{% else %}<input disabled id="other_param_57" name="other_param_57" type="checkbox">{% endif %}
+        <label for="other_param_57"><b>Total Plate Count</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_58 %}<input disabled checked id="other_param_58" name="other_param_58" type="checkbox">{% else %}<input disabled id="other_param_58" name="other_param_58" type="checkbox">{% endif %}
+        <label for="other_param_58"><b>Legionella</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_59 %}<input disabled checked id="other_param_59" name="other_param_59" type="checkbox">{% else %}<input disabled id="other_param_59" name="other_param_59" type="checkbox">{% endif %}
+        <label for="other_param_59"><b>Fecal Enterococci</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_60 %}<input disabled checked id="other_param_60" name="other_param_60" type="checkbox">{% else %}<input disabled id="other_param_60" name="other_param_60" type="checkbox">{% endif %}
+        <label for="other_param_60"><b>Heterotrophic Bacteria</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_61 %}<input disabled checked id="other_param_61" name="other_param_61" type="checkbox">{% else %}<input disabled id="other_param_61" name="other_param_61" type="checkbox">{% endif %}
+        <label for="other_param_61"><b>Enterobacteriaceae</b></label>
+    </div>
+</div>
+
+<!-- Group 10 -->
+<div class="">
+    <div class="">
+        {% if data.other_param_62 %}<input disabled checked id="other_param_62" name="other_param_62" type="checkbox">{% else %}<input disabled id="other_param_62" name="other_param_62" type="checkbox">{% endif %}
+        <label for="other_param_62"><b>Listeria Spp.</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_63 %}<input disabled checked id="other_param_63" name="other_param_63" type="checkbox">{% else %}<input disabled id="other_param_63" name="other_param_63" type="checkbox">{% endif %}
+        <label for="other_param_63"><b>Salmonella</b></label>
+    </div>
+
+    <div class="">
+        {% if data.other_param_64 %}<input disabled checked id="other_param_64" name="other_param_64" type="checkbox">{% else %}<input disabled id="other_param_64" name="other_param_64" type="checkbox">{% endif %}
+        <label for="other_param_64"><b>Yeasts &amp; Molds</b></label>
+    </div>
+</div>
+            
+        </div>
+
+        
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Additional Requirements of Customer:</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <table class="border-2 border-gray-200 w-8/12 border-t-0">
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Customer Specification Limits</b></td>
+               {% if data.checkinp104 %}
+               <td class="p-2 space-x-4"><input disabled checked id="req1" name="checkinp104" type="checkbox"><label for="req1">Required</label></td>
+               {% else %}
+               <td class="p-2 space-x-4"><input disabled id="req1" name="checkinp104" type="checkbox"><label for="req1">Required</label></td>
+               {% endif %}
+                {% if data.checkinp105 %}
+                <td class="p-2 space-x-4"><input disabled checked id="no_req1" name="checkinp105" type="checkbox"><label for="no_req1">Not Required</label>
+                </td>
+                {% else %}
+                <td class="p-2 space-x-4"><input disabled id="no_req1" name="checkinp105" type="checkbox"><label for="no_req1">Not Required</label>
+                </td>
+                {% endif %}
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" value="{{data.inp106}}" disabled name="inp106" type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Measurement of Uncertainty</b></td>
+                {% if data.checkinp107 %}
+                <td class="p-2 space-x-4"><input id="req2" checked disabled name="checkinp107" type="checkbox"><label for="req2">Required</label></td>
+                {% else %}
+                <td class="p-2 space-x-4"><input id="req2" disabled name="checkinp107" type="checkbox"><label for="req2">Required</label></td>
+                {% endif %}
+               {% if data.checkinp108 %}
+               <td class="p-2 space-x-4"><input checked disabled id="no_req2" name="checkinp108" type="checkbox"><label for="no_req2">Not Required</label>
+               </td>
+               {% else %}
+               <td class="p-2 space-x-4"><input disabled id="no_req2" name="checkinp108" type="checkbox"><label for="no_req2">Not Required</label>
+               </td>
+               {% endif %}
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp109" value="{{data.inp109}}" disabled type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Statement of Conformity</b></td>
+                {% if data.checkinp110 %}
+                <td class="p-2 space-x-4"><input id="req3" disabled checked name="checkinp110" type="checkbox"><label for="req3">Required</label></td>
+                {% else %}
+                <td class="p-2 space-x-4"><input id="req3" disabled name="checkinp110" type="checkbox"><label for="req3">Required</label></td>
+                {% endif %}
+                {% if data.checkinp111 %}
+                <td class="p-2 space-x-4"><input disabled checked id="no_req3" name="checkinp111" type="checkbox"><label for="no_req3">Not Required</label>
+                </td>
+                {% else %}
+                <td class="p-2 space-x-4"><input disabled id="no_req3" name="checkinp111" type="checkbox"><label for="no_req3">Not Required</label>
+                </td>
+                {% endif %}
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp112" value="{{data.inp112}}" disabled type="text"></td>
+            </tr>
+            <tr>
+                <td class="p-2 border border-gray-300"><b>Opinion & Interpretations</b></td>
+                {% if data.checkinp113 %}
+                <td class="p-2 space-x-4"><input id="req4" disabled checked name="checkinp113" type="checkbox"><label for="req4">Required</label></td>
+                {% else %}
+                <td class="p-2 space-x-4"><input id="req4" disabled name="checkinp113" type="checkbox"><label for="req4">Required</label></td>
+                {% endif %}
+               {% if data.checkinp114 %}
+               <td class="p-2 space-x-4"><input checked disabled id="no_req4" name="checkinp114" type="checkbox"><label for="no_req4">Not Required</label>
+               </td>
+               {% else %}
+               <td class="p-2 space-x-4"><input disabled id="no_req4" name="checkinp114" type="checkbox"><label for="no_req4">Not Required</label>
+               </td>
+               {% endif %}
+                <td class="p-2 border border-gray-300">Detail(if Required)</td>
+                <td><input
+                        class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                        id="no_req1" name="inp115" value="{{data.inp115}}" disabled type="text"></td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>Assigned to (): {{data.assign_to}}</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="w-8/12 flex justify-between border border-2 border-gray-300">
+            <div class="flex flex-col justify-center w-1/2 border border-2 border-gray-500 h-auto space-y-4">
+                <div class="space-x-2 p-2">
+                    {% if data.checkinp116 %}
+                    <input id="accep" checked disabled name="checkinp116" type="checkbox">
+                    {% else %}
+                    <input id="accep" disabled name="checkinp116" type="checkbox">
+                    {% endif %}
+                    <label for="accep"><b>Accepted</b></label>
+                </div>
+                <div class="space-x-2 p-2">
+                    {% if data.checkinp117 %}
+                    <input id="rej" checked disabled name="checkinp117" type="checkbox">
+                    {% else %}
+                    <input id="rej" disabled name="checkinp117" type="checkbox">
+                    {% endif %}
+                    <label for="rej"><b>Rejected</b></label>
+                </div>
+            </div>
+            <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                <img class="w-20" src="{{data.auth_signature.signature.url}}" alt="">
+                <label class="font-bold text-lg" for=""> Authorized Signature</label>
+                <hr class="w-full text-black">
+                <p><b>Lab Manager / Deputy Manager Lab</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="w-full flex justify-center ">
+        <div class="w-8/12 border border-2 border-gray-300 p-2 bg-gray-800">
+            <h5 class="" style="color: white;"><b>For Sample Identification Label:</b></h5>
+        </div>
+    </div>
+    <div class="w-full flex justify-center">
+        <div class="w-8/12 flex justify-between border border-2 border-gray-300">
+            
+            <div class="flex flex-col justify-center w-1/2 border border-2 border-gray-500 h-auto space-y-4">
+                <label for=""><b>control number for label </b>:</label>
+                <input class="border border-gray-300 border-2 w-96 outline p-1" disabled value="{{data.conntrol_1}}" type="text" name="conntrol_1">
+                <input class="con_date border border-gray-300 border-2 w-96 outline p-1" disabled value="{{data.conntrol_date}}" type="text" name="conntrol_date">
+                <input class="con_no border border-gray-300 border-2 w-96 outline p-1" disabled value="{{data.conntrol_no}}" type="text" name="conntrol_no">
+            </div>
+            <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                <img class="w-20" src="{{data.sampling_by_signature.signature.url}}" alt="">
+                <label class="font-bold text-lg" for=""> Authorized Signature</label>
+                <hr class="w-full text-black">
+                <p><b>Lab Manager / Deputy Manager Lab</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-10 w-full flex justify-center mb-6">
+        <div class="w-8/12 flex justify-between">
+            {% if data.city_location == 'Karachi' %}
+            <div class="flex gap-2 items-center">
+                <img class="w-8 " src="{% static "assets/phone.PNG" %}" alt="">
+                <p>+92 310 2288801</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <img class="w-12 " src="{% static "assets/office.PNG" %}" alt="">
+                <p><b>Head Office:</b> 345,First Floor, Street-15,Block-3 <br>Bahadurabad, Karachi, 75900, Pakistan</p>
+            </div>
+            {% endif %}
+            {% if data.city_location == 'Lahore' %}
+            <div class="flex gap-2 items-center">
+                <img class="w-8 " src="{% static "assets/phone.PNG" %}" alt="">
+                <p>+92 42 32296099</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <img class="w-12 " src="{% static "assets/office.PNG" %}" alt="">
+                <p><b>Lahore Office:</b> 87-E Madina Height, Office # A/30 & A/31 <br>8th Floor,Johar Town, Lahore</p>
+            </div>
+            {% endif %}
+
+            <div class="rectangle flex items-center">
+                <img class="w-8 absolute z-100" style="left:-65px; top:9px;" src="{% static "assets/earth.png" %}" alt="">
+                <div class="z-100 absolute text-white" style="left:-13px">
+                    <p>info@envitechal.com</p>
+                    <p>www.envitechal.com</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <hr class="w-full border  mt-6" style="width: 100%;border: 22px solid #0CA84A;">
+</div>
+</body>
+
+</html>

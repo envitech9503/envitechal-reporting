@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link type="text/css" rel="stylesheet" media="all"
+    href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" />
+  <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>Document</title>
+</head>
+
+<style>
+  body {
+    color: #000000;
+    background-color: #FFFFFF;
+    font-size: 13px;
+    font-family: 'Helvetica', arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+  }
+
+  table.header {
+    display: inline-block;
+
+
+  }
+  .background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    z-index: -1;
+    opacity:0.8;
+  }
+
+  .water-report-table tr td {
+    border: 1px solid black;
+  }
+
+  .header {
+    text-align: center;
+
+    color: #fff;
+    padding: 10px;
+  }
+
+  @page {
+    margin: 20px;
+    size: A4;
+    counter-increment: page;
+    content: "Page " counter(page);
+
+    @top-center {
+      content: element(header);
+    }
+  }
+
+  .background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    z-index: -1;
+    opacity:0.8;
+  }
+  
+  #watermark {
+    color: rgb(0 61 139 / 30%);
+    height: 100%;
+    left: -110px;
+    line-height: 2;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    transform: rotate(-30deg);
+    transform-origin: 0 100%;
+    width: 119%;
+    word-spacing: 10px;
+    z-index: 1;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+    supported by Chrome, Edge, Opera and Firefox */
+   }
+</style>
+
+
+<body class="">
+
+  {%block content%} {% if data %}
+
+  <section class="sticky top-60 w-32 text-xl flex felx-col left-9 px relative z-50 flex gap-8">
+    <a class="text-lg"target="_blank" href="{% url 'wastewaterReport-pdfPrint1' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Print</a>
+    <a class="text-lg"target="_blank" href="{% url 'wastewaterReport-pdfReport1' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Report</a>
+    <a  href="{% url "nav" %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+    </svg ></a>
+  </section>
+
+
+  <p id="watermark">Lab Report No:{{data.lab_report_no}}</p>
+
+
+
+  
+
+  <table id="header-content" class="header relative w-full" style=" display: inline-block; top: -53px;">
+    <img class="" src="/static/assets/Header watermark.jpg" alt="" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; max-height: 14%;
+                 opacity: 0.5; background-position: center; background-size: cover; ">
+    <tbody style="display: flex; justify-content: space-around; ">
+      <tr>
+        <td><img class="logo" src="/static/assets/0x0-removebg-preview.png" alt="" style="width: 60px; opacity: 12;">
+        </td>
+      </tr>
+      <tr class="mt-8 flex flex-col items-center">
+        <td>
+          <h1 style="font-family: Pussycat, Algerian, Broadway, fantasy;" class="text-3xl text-indigo-800 ">Envi Tech AL
+          </h1>
+        </td>
+
+      </tr>
+      <tr class="mt-4">
+        <td><img src="/static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png" alt=""
+            style="width: 70px;"></td>
+      </tr>
+    </tbody>
+
+  </table>
+  <div class="mt-2 " style="position: absolute; width: 100%; top: 123px;">
+    <hr class="" style="border: 2px solid #65a30d;">
+    <div class="background-image" style="background-image: url('{% static "/assets/18271682-laboratory-glassware-over-white-background.jpg" %}');">
+    </div>
+  </div>
+  <section id="img1">
+    <div id="" class=" w-full flex justify-center items-center ">
+      <div class="w-8/12 flex justify-between items-center space-x-10">
+        <div class="space-y-2 ">
+          <div class="">
+            <td><Strong>Lab Report No:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.lab_report_no}}</span>
+            </td>
+
+          </div>
+          <div class="w-80">
+            <td><Strong>Invoice Bill No:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.invoice_bill_no}}</span>
+            </td>
+          </div>
+        </div>
+        <div class="">
+          <img style="width:80px;height:80px" class=" float-right mr-20 items-center text-center" src="{{qr}}" alt="">
+        </div>
+
+        <div class="space-y-2 ">
+          <div class="ml-16">
+            <td class="page"><Strong>Page:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">1
+                of 1</span></td>
+
+          </div>
+          <div class="w-80">
+            <td><Strong>Reporting Date:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.reporting_date}}</span>
+            </td>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdf2 w-full flex  flex-col  items-center">
+      <table id="img2" class="border border-black w-8/12 mt-6">
+        <tbody>
+          <tr class="text-center">
+            <td class="border text-left pl-2 border-black align-text-top w-24"><strong>Report To :</strong></td>
+            <div class="">
+              <td class="flex space-x-10 ml-10 pt-1">
+                <p><strong>M/S.</strong></p>
+                <p>{{data.report_to}}</p>
+              </td>
+            </div>
+            <div>
+              <td class="flex space-x-10 ml-2 border-none pb-2">
+                <p><strong>Address:</strong></p>
+                <p>{{data.address}}</p>
+              </td>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+
+    <center>
+      <table class="border border-black w-8/12 mt-2">
+        <tbody>
+          <tr class="">
+            <td class="border border-black pl-2 align-text-top w-24"><strong>Attention :</strong></td>
+            <div class="">
+              <td class="flex space-x-10 ml-10 border-none pt-1">
+                <p><strong>Mr.</strong></p>
+                <p>{{data.attention}}</p>
+              </td>
+            </div>
+            <div>
+              <td class="flex space-x-10 ml-4 border-none pb-2">
+                <p><strong>Email:</strong></p>
+                <p>{{data.email}}</p>
+              </td>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+    </center>
+
+
+    <center>
+      <table class="mt-2 text-center w-8/12 border-black border pb-1">
+        <tbody>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">Sample ID</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.sample_id}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">Sample Collection Date:</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">
+              {{data.ww_sample_colec_Date}}
+            </td>
+          </tr>
+          
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">Sample Description:</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.ww_sample_desc}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Sample Type:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.ww_sample_type}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Sample Collected By:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.ww_sample_colec_by}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Date OF Analysis:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.ww_date_of_analy_from}} to {{data.ww_date_of_analy_to}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Test Description:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.ww_test_desc}}</td>
+          </tr>
+          
+    
+        </tbody>
+      </table>
+    </center>
+  </section>
+  <section id="pdf-content">
+    <div class="w-full  flex flex-col">
+      <div class="pdf-child">
+
+
+
+
+        <!-- <section> -->
+      
+      </div>
+    </div>
+
+
+    <center>
+      <table id="" class="water-report-table border border-black mt-2 w-8/12" cellspacing="15">
+        <thead>
+          <tr>
+            <th class="font-semibold" style="font-size: 15px;" colspan="6">Analyyical Test Report</th>
+          </tr>
+          <tr class="">
+            <th class="border border-black">Sr.#</th>
+            <th class="border border-black">Parameter/Analytes Description</th>
+            <th class="border border-black">Methods</th>
+            <th class="border border-black">Units</th>
+            <th class="border border-black">Test Results</th>
+            {%if data.zdhc == 'zdhc'%}
+            <th class="border border-black">ZDHC Limits</th>
+            {%endif%}
+          </tr>
+          
+            
+          </tr>
+        </thead>
+        <tbody id="report-table">
+          {% if data.ww_sr1 %}
+          <tr class=" border">
+            <td class="text-center">01</td>
+            <td class="pl-2">Cadmium (Cd)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr1}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">01</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr2 %}
+          <tr class=" border">
+            <td class="text-center">02</td>
+            <td class="pl-2">Copper (Cu)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr2}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">50</td>
+            {%endif%}
+          </tr>
+            
+          
+          {% endif %}
+          {% if data.ww_sr3 %}
+          <tr class=" border">
+            <td class="text-center">03</td>
+            <td class="pl-2">Iron (Fe)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr3}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">-</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr4 %}
+          <tr class=" border">
+            <td class="text-center">04</td>
+            <td class="pl-2">Boron (B)</td>
+            <td class="text-center">HACH 8015</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr4}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">-</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr5 %}
+          <tr class=" border">
+            <td class="text-center">05</td>
+            <td class="pl-2">Lead (Pb)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr5}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">05</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr6 %}
+          <tr class=" border">
+            <td class="text-center">06</td>
+            <td class="pl-2">Mercury (Hg)</td>
+            <td class="text-center">*APHA 3112- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr6}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">01</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr7 %}
+          <tr class=" border">
+            <td class="text-center">07</td>
+            <td class="pl-2">Selenium (Se)</td>
+            <td class="text-center">*APHA 3114- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr7}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">05</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr8 %}
+          <tr class=" border">
+            <td class="text-center">08</td>
+            <td class="pl-2">Silver (Ag)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr8}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">50</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr9 %}
+          <tr class=" border">
+            <td class="text-center">09</td>
+            <td class="pl-2">Nickel (Ni)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr9}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">20</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr10 %}
+          <tr class=" border">
+            <td class="text-center">10</td>
+            <td class="pl-2">Zinc (Zn)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr10}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">400</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr11 %}
+          <tr class=" border">
+            <td class="text-center">11</td>
+            <td class="pl-2">Arsenic (As)</td>
+            <td class="text-center">*APHA 3114- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr11}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">05</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr12 %}
+          <tr class=" border">
+            <td class="text-center">12</td>
+            <td class="pl-2">Manganese (Mn)</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr12}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">-</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr13 %}
+          <tr class=" border">
+            <td class="text-center">13</td>
+            <td class="pl-2">Chromium</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr13}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">50</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr14 %}
+          <tr class=" border">
+            <td class="text-center">14</td>
+            <td class="pl-2">Antimony</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr14}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">05</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr15 %}
+          <tr class=" border">
+            <td class="text-center">15</td>
+            <td class="pl-2">Cobalt</td>
+            <td class="text-center">*APHA 3111- B</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr15}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">400</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr16 %}
+          <tr class=" border">
+            <td class="text-center">16</td>
+            <td class="pl-2">Barium</td>
+            <td class="text-center">HACH 8014</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr16}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">200</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+          {% if data.ww_sr17 %}
+          <tr class=" border">
+            <td class="text-center">17</td>
+            <td class="pl-2">Chromium</td>
+            <td class="text-center">HACH 8023</td>
+            <td class="text-center">mg/Kg</td>
+            <td class="text-center">{{data.ww_sr17}}</td>
+            {%if data.zdhc == 'zdhc'%}
+            <td class="text-center">20</td>
+            {%endif%}
+          </tr>
+          
+          {%endif%}
+          
+          
+        </tbody>
+      </table>
+    </center>
+
+
+
+    <div class=" space-y-1 w-full flex flex-col items-center">
+
+      <div class="w-8/12 ">
+
+        {%if data.ww_editnote%}
+        <div class="mt-2 flex flex-row space-x-2  text-xs">
+          <p class="underline"><strong>Note:</strong></p>
+          <p class="">{{data.ww_editnote}}</p>
+        </div>
+        {%endif%}
+    
+
+        
+
+        <p class="py-1 underline"><strong>Legends:</strong></p>
+
+        <div class=" w-full text-xs">
+          {%if data.ww_legend_1%}
+          <p>{{data.ww_legend_1}}</p>
+          {%endif%}
+          {%if data.ww_legend_2%}
+          <p>{{data.ww_legend_2}}</p>
+          {%endif%}
+          {%if data.ww_legend_3%}
+          <p>{{data.ww_legend_3}}</p>
+          {%endif%}
+          {%if data.ww_legend_4%}
+          <p>{{data.ww_legend_4}}</p>
+          {%endif%}
+          {%if data.ww_legend_5%}
+          <p>{{data.ww_legend_5}}</p>
+          {%endif%}
+          {%if data.ww_legend_6%}
+          <p>{{data.ww_legend_6}}</p>
+          {%endif%}
+          {%if data.ww_legend_7%}
+          <p>{{data.ww_legend_7}}</p>
+          {%endif%}
+          {%if data.ww_legend_8%}
+          <p>{{data.ww_legend_8}}</p>
+          {%endif%}
+          {%if data.ww_legend_9%}
+          <p>{{data.ww_legend_9}}</p>
+          {%endif%}
+          {%if data.ww_legend_10%}
+          <p>{{data.ww_legend_10}}</p>
+          {%endif%}
+          {%if data.ww_legend_11%}
+          <p>{{data.ww_legend_11}}</p>
+          {%endif%}
+          
+        </div>
+      </div>
+
+    </div>
+
+    <div class=" space-y-1 w-full flex flex-col items-center">
+
+        <div class="w-8/12 ">
+  
+          {%if data.ww_custom_legend%}
+          <div class="mt-2 flex flex-row space-x-2  text-xs">
+            <p class="underline"><strong>Custom Legend:</strong></p>
+            <p class="">{{data.ww_custom_legend}}</p>
+          </div>
+          {%endif%}
+      </div>
+
+    <div class="w-full flex flex-col items-center">
+      <div class="w-8/12 flex justify-around mt-6">
+        <div class="">
+          <img class="h-16 w-20" src="{{data.analyst_signature.signature.url}}" alt="image" />
+          <hr class="border border-black mt-2" />
+          <p><strong>Analyzed By Analyzed By (Analyst)</strong></p>
+        </div>
+        <div class="">
+          <img class="h-16 w-20" src="{{data.assistant_manager_signature.signature.url}}" alt="image" />
+          <hr class="border border-black mt-2" />
+          <p><strong>Reviewed By (Assistant Manager)</strong></p>
+        </div>
+        <div class="">
+          <div class="flex space-x-6">
+            <img class="h-20 w-20" src="{{logo}}" alt="image" />
+            <img class="h-16 w-20" src="{{data.lab_manager_signature.signature.url}}" alt="image" />
+          </div>
+          <hr class="border border-black mt-2" />
+          <p><strong>Approved By (Lab Manager)</strong></p>
+        </div>
+      </div>
+    </div>
+    <hr class="border border-gray-700 mt-3">
+
+
+    <div class="w-full  flex items-center justify-center">
+      <div class="mt-2 w-8/12 flex justify-between">
+        <div class="w-7/12">
+          <span><strong>Disclaimer :</strong></span>
+          <div class="mt-2 " style="font-size: 10px; ">
+            <li>Report is valid for current batch (sample).</li>
+            <li>This report is not valid for any publication or judicial purpose.</li>
+            <li>If sample is provided by the customer, <span class="text-indigo-700 font-bold">Envi Tech AL</span> is
+              not responsible for the sample identification and data shared by the client.</li>
+            <li>The remaining portion of te sample shall be discarded after five working days unless otherwise
+              instructed.</li>
+          </div>
+        </div>
+        <div class="flex text-center mt-8">
+          <div class=" flex items-center flex-col">
+            <img class="h-16 w-20" src={% static "/asset /ISO-9001_2015-LOGO.png" %} alt="">
+            {%if data.ww_doc_con_1%}
+            <p style="font-size: 8px;">(Certificate # 080177324-QMS)</p>
+            <div class="border border-black w-28 p-1" style="font-size: 9px;">
+              <p>{{data.ww_doc_con_1}}</p>
+            </div>
+            {%endif%}
+          </div>
+          <div class="text-center flex flex-col items-center">
+            {% if data.location == 'SEQS' %}
+            <img class="h-16 w-20" src="{% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %}" alt="">
+            {% endif %}
+                        
+            {% if data.location == 'PEQS' %}
+              <img class="h-16 w-20" src="{% static '/assets/EPA_updated.png' %}" alt="">
+            {% endif %}
+            {% if data.location == 'NEQS' %}
+            <img class="h-16 w-20" src="{% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %}" alt="">
+            {% endif %}
+            {%if data.location == 'PEQS'%}
+              <p style="font-size: 8px;">(82/Dir/(ML&I)/EPA/03/2025)</p>
+            {%else%}
+              <p style="font-size: 8px;">LAB/L.C/ENVI TECH AL-2/20/93/2024</p>
+            {%endif%}
+            {%if data.ww_doc_con_2%}
+            <div class="border border-black w-28 p-1" style="font-size: 9px; width:100%">
+
+              <p>{{data.ww_doc_con_2}}</p>
+            </div>
+            {%endif%}
+
+          </div>
+          <div class="text-center flex flex-col items-center">
+            <img class="h-16 w-20" src={% static "/assets/ISO-14001_2015 LOGO.png" %} alt="">
+            {%if data.ww_doc_con_3%}
+            <p style="font-size: 8px;">(certificate # 080177424-EMS)</p>
+            <div class="border border-black w-28 p-1 " style="font-size: 9px; ">
+
+              <p>{{data.ww_doc_con_3}}</p>
+            </div>
+            {%endif%}
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <hr class="border border-gray-700 mt-2 mb-10">
+
+
+
+
+
+
+
+    </div>
+    </div>
+    </div>
+  </section>
+  <footer id="footer-content" class="footer bg-indigo-900 h-14">
+    <div class="w-full">
+      <div class="flex justify-between ml-4 mr-4">
+        <div class="flex justify-center py-2 items-center">
+          <img class="h-10 text-center" src="/static/assets/Picture1.png" alt="">
+          <div class=" flex flex-col text-gray-200" style="font-size: 10px;">
+            <span><strong>Head Office:</strong> First Floor, 345, Street 15, Bahadurabad Bahadur Yar Jang CHS, Karachi,
+              Karachi City, Sindh 75900</span>
+            <span><strong>Lahore Office:</strong> 87-E Madina Heights, Office # A/30-31, 8th Floor, Maulana Shaukat Ali
+              Rd, Block E Phase 1 Johar Town, Lahore</span>
+          </div>
+        </div>
+        <div class="flex justify-center py-4 space-x-4">
+          <i class="fa-solid fa-earth-americas text-center mt-1 text-xl text-gray-200"></i>
+          <div class=" flex flex-col text-gray-200" style="font-size: 10px;">
+            <span>info@envitechal.com</span>
+            <span>www.envitechal.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+
+
+
+  {%endif%}
+  {%endblock%}
+
+
+
+
+  
+
+ 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script defer>
+    
+    $(document).ready(() => {
+      var td = $("#report-table td:nth-child(1)");
+      var i = 1;
+      
+      td.each(function() {
+        $(this).text(i < 10 ? `0${i}` : i.toString());
+        i++;
+      });
+    });
+
+    var water_mark = document.getElementById('watermark').textContent
+ 
+    var textWatermark = water_mark
+    var fullTextWatermark = '';
+    var n = 10000;
+    for (var i = 0; i < n; i++) {
+     fullTextWatermark+= ' ' + textWatermark;
+    }
+    document.getElementById('watermark').innerHTML = fullTextWatermark
+
+    window.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+  });
+
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'PrintScreen' || e.key === 'PrtScn') {
+        // Handle the print screen key press
+    }
+});
+
+window.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+
+window.addEventListener('dragstart', function (e) {
+  e.preventDefault();
+});
+
+
+window.addEventListener('load', function() {
+  var id = window.location.hash.substring(1);
+  var id = 123;
+  history.pushState(null, '', '/page/' + id);
+});
+
+  
+
+
+
+  </script>
+
+
+</body>
+
+</html>

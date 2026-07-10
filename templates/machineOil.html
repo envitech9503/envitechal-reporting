@@ -1,0 +1,872 @@
+<!doctype html>
+<html>
+<head>
+    
+    {%load static%}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={%static "style.css"%}>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+  <style>
+    .NEQS,.PEQS{
+    display: none;
+    }
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .side-nav {
+            width: 100%; /* Make the navigation full width */
+            left: -100%; /* Hide it off-screen by default */
+            transition: left 0.3s ease;
+            font-size:15px;
+        }
+    
+        .side-nav.show {
+            left: 0; /* Show the navigation on smaller screens */
+        }
+    }
+    
+    /* Add a hamburger menu icon for mobile */
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .menu-toggle {
+            display: block; /* Show the toggle button on small screens */
+        }
+    
+        .menu-toggle a {
+            cursor: pointer;
+        }
+    }
+    
+    /* You can style the hamburger icon as you like */
+    .menu-toggle i {
+        font-size: 24px;
+        margin-right: 10px;
+    }
+    
+    /* Add this CSS to make the submenus visible on mobile */
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .sub-menu.show {
+            display: block;
+        }
+    }
+</style>
+  
+</head>
+<body>
+    
+<section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    
+        <div id="profile" class="flex space-x-10 mr-10">
+            <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+            <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+        </div>
+    
+</section>
+
+
+<section class="main w-full flex flex-row justify-end ">
+    
+        <nav class="side-nav list-none w-72 bg-gray-900 text-gray-100 h-full flex flex-col items-center fixed  top-22 left-0 overflow-x-hidden mt-20" >
+            <hr class="border border-gray-100 w-full">
+            <h1 class="text-2xl pb-4 pt-4 text-gray-100 font-bold text-center">SITE NAVIGATION</h1>
+                <ul class="w-48 ">
+                    
+
+                    
+                        <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms.<i class="fa-solid fa-chevron-right pl-20"></i></button>
+                        <div class="formMainDiv hidden">
+                            <hr class=" border-blue-200">
+                                <button class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
+                                <div class="DWaterDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li ><a class="addDrinkFormBtn" href="/drinkingWaterForm"></i>Add Drinking Water</a></li>
+                                    <li ><a class="ListDrinkBtn" href="/drinkingWaterList"></i>List Drinking Water</a></li>
+                                
+                                </div>  
+                            
+                                <hr class=" border-blue-200">
+                                <ul class="">
+                                    <button class="gasEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Gaseous Emission</button>
+                                    <div class="gasEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="addGaseousFormBtn" href="/gaseousEmission">Add Gaseous Emis</a></li>
+                                    <li><a class="addGaseousListBtn" href="/gaseousEmissionList">List Gaseous Emis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambienty Air Quality</button>
+                                    <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambienty Air Qua..</a></li>
+                                    <li><a class="ambientAirList" href="/ambientAirList">List Ambienty Air Qua..</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                            
+                                <ul>
+                                    <button class="wasteWaterBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water Sludge</button>
+                                    <div class="wasteWaterDiv hidden text-blue-100 pl-6 space-y-2 ">
+                                    <li><a class="wasteWatewrSludgeBtn" href="/wasteWaterSludge">Add Waste Water Slu.</a></li>
+                                    <li><a class="wasteWaterSludgeListBtn" href="/wasteWaterSludgeList">List Waste Water Slu.</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="vehicEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Vehicular Emission</button>
+                                    <div class="vehicEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="vehicularEmisFormBtn" href="/vehicularEmission">Add Vehicular Emission</a></li>
+                                    <li><a class="vehicularemisListBtn" href="/vehicularEmissionList">List Vehicular Emission</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="luxBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Lux Analysis</button>
+                                    <div class="luxDiv text-blue-100 hidden pl-6 space-y-2">
+                                    <li><a class="luxAnalysisFormBtn" href="/luxAnalysis">Add Lux Analysis</a></li>
+                                    <li><a class="luxAnalysisListBtn" href="/luxAnalysisList">List Lux Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="noiseBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise Analysis</button>
+                                <div class="noiseDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="noiseAnalysisFormBtn" href="/noiseAnalysis">Add Noise Analysis</a></li>
+                                    <li><a class="noiseAnalysisListBtn" href="/noiseAnalysisList">List Noise Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ppbagBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Packing Poly Bag</button>
+                                <div class="ppbagDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="packingPolyFormBtn" href="/packingPolyBag">Add Packing Poly Bag</a></li>
+                                    <li><a class="packingPolyListBtn" href="/packingPolyBagList">List Packing Poly Bag</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <div class="">
+                                    <button class="machineOilBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Machine Oil</button>
+                                   <div class="machineOilDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="machineOilFormBtn" href="/machineOil">Add Machine Oil</a></li>
+                                    <li><a class="machineOilListBtn" href="/machineOilList">List Machine Oil</a></li>
+                                   </div>
+                                </div>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                                    <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
+                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                    </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="viscBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Viscous Liquid</button>
+                                <div class="viscDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="viscousLiquidFormBtn" href="/viscousLiquid">Add Viscous Liquid</a></li>
+                                    <li><a class="viscousLiquidListBtn" href="/viscousLiquidList">List Viscous Liquid</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientAirBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality 2</button>
+                                <div class="ambientAirDiv hidden text-blue-100 pl-6 space-y-2" >
+                                    <li><a class="ambientAir2FormBtn" href="/ambientAirQuality2">Add Ambient Air 2</a></li>
+                                    <li><a class="ambientAir2ListBtn" href="/ambientAir2List">List Ambient Air 2</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="waterwastebtn2 pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water2</button>
+                                <div class="waterwastediv2 hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="wasteWater2FormBtn" href="/wasteWater2">Add Waste Water2</a></li>
+                                    <li><a class="wasteWater2ListBtn" href="/wasteWater2List">List Waste Water2</a></li>
+                                </div>
+                                </ul>
+                        </div>
+                            
+                        
+                        </ul>
+                        
+                    
+                    
+                        
+
+                
+            
+        </nav>
+
+        <div class="machineOil h-full w-10/12 flex flex-col items-center">
+            
+            
+
+            <form id="machine" action="/machineOil" method="post" enctype="multipart/form-data" class=" flex flex-col justify-around  w-11/12 mt-10">
+                
+                {% csrf_token %}
+                <h1 class=" mt-10 text-3xl py-16 font-bold text-center font-bold text-gray-900">Machine Oil</h1>
+                
+                <div class="alert w-10/12 flex flex-col justify-around my-6">
+                    
+                    <div class="">
+                       
+                        <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="static/assets/loader.gif"/></p>
+                    </div>
+                    <div class="">
+                        <input class="SEQS-value" type="checkbox" value="SEQS">
+                        <label for="">SEQS</label>
+                    </div>
+                    <div class="">
+                        <input class="PEQS-value" type="checkbox" value="PEQS">
+                        <label for="">PEQS</label>
+                    </div>
+                    <div class="">
+                        <input class="NEQS-value" type="checkbox" value="NEQS">
+                        <label for="">NEQS</label>
+                    </div>
+
+                </div>
+                <input id="checkinput" type="text" name="location" value="" style="display: none;">
+                <div class="mt-4 flex gap-6">
+                            <div class=" flex flex-col">
+                                <label class="font-bold text-lg" for="">Location</label>
+                                <input class="border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                            </div>
+                            <div class=" flex flex-col">
+                                <label class="font-bold text-lg" for="">Industry</label>
+                                <select required  class="border-2 border-black w-96 px-2 py-2 rounded-lg" name="industry" id="">
+                                    <option value="" selected disabled>Select Industry</option>
+                                    {% for industry in industry %}  
+                                        <option value="{{industry.id}}">{{industry.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                            </div>
+                        </div>
+                <div class="mt-4 flex flex-col">
+                    <label class="font-bold text-lg" for="">Customer</label>
+                   <select id="customers" onchange="selectCustomer(this)"  class="border-2 border-black w-96 px-2 py-2 rounded-lg">
+                    <option selected disabled>Select Customer</option>
+                  
+                   </select>
+                </div>
+                <div class="flex justify-between">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Lab Report No</label>
+                        <input class="date border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_lab_rep_no" type="text" value="">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Invoice Bill No</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_invoice_no" type="text" >
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Reporting Date</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg"  type="text" name="machine_rep_date">
+                        <!-- <input type="text" class="formattedDateOutput hidden" name="machine_rep_date"> -->
+                        <input class="hidden border-2 border-black p-2 h-10 rounded text-lg" name="customer_id"
+                            style="width: 35rem;" type="text">
+                    </div>
+                </div>
+                <hr class="broder border-black mt-10">
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Report To :</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_report_to" style="width: 35rem;" type="text" >
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Address</label>
+                        <input class="border-2 border-black p-2 h-10 rounded text-lg" name="machine_address" style="width: 35rem;" type="text" >
+                    </div>
+                    
+                    
+                </div>
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Attention</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_attention" style="width: 35rem;" type="text" >
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Email</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_email" style="width: 35rem;" type="text" >
+                    </div>
+                </div>
+    
+                <hr class="broder border-black mt-10">
+    
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample ID</label>
+                        <input id="date" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_sampleId" style="width: 24rem;" type="text" value="">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Collection Date</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_sample_col_date" style="width: 24rem;" type="text">
+
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Description</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_sample_desc" style="width: 24rem;" type="text" value="Machine Oil">
+                    </div>
+                </div>
+    
+                <div class="flex justify-between mt-4">
+                    
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Type</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_sample_type" style="width: 24rem;" type="text" value="Liquid Oil">
+                    </div>
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Sample Collected By</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_sample_col_by" style="width: 24rem;" type="text" value="Envi Tech AL">
+                    </div>
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Test Description</label>
+                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_test_desc" style="width: 24rem;" type="text" value="Heavy Metal Testing of Machine Oil – 16 Metals">
+                    </div>
+                </div>
+    
+                
+                <hr class="broder border-black mt-10">
+    
+    
+    
+                <div class="w-full flex flex-col justify-center">
+                    <table id="" class=" water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
+                        <thead>
+                            <tr>
+                                <th>Sr.#</th>
+                                <th>Parameter/Analytes Description</th>
+                                <th>Testing Method</th>
+                                <th>Unit</th>
+                                <th>Test Result</th>
+                                <th>GOTS Limits</th>
+                                
+                                
+                                
+                            </tr>
+                        </thead>
+                        <tbody class="">
+                            <tr class="text-center border h-16">
+                                <td>01</td>
+                                <td>Antimony (Sb)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr1" type="text"></td>
+                                <td>50</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>02</td>
+                                <td>Arsenic (As)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr2" type="text"></td>
+                                <td>50</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>03</td>
+                                <td>Barium (Ba)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr3" type="text"></td>
+                                <td>100</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>04</td>
+                                <td>Cadmium (Cd)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr4" type="text"></td>
+                                <td>20</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>05</td>
+                                <td>Cobalt (Co)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr5" type="text"></td>
+                                <td>500</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>06</td>
+                                <td>Copper (Cu)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr6" type="text"></td>
+                                <td>250</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>07</td>
+                                <td>Chromium (Cr)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr7" type="text"></td>
+                                <td>100</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>08</td>
+                                <td>Iron (Fe)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr8" type="text"></td>
+                                <td>2500</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>09</td>
+                                <td>Lead (Pb)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr9" type="text"></td>
+                                <td>100</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>10</td>
+                                <td>Manganese (Mn)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr10" type="text"></td>
+                                <td>1000</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>11</td>
+                                <td>Nickel (Ni)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr11" type="text"></td>
+                                <td>200</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>12</td>
+                                <td>Mercury (Hg)</td>
+                                <td>ASTM D7622</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr12" type="text"></td>
+                                <td>04</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>13</td>
+                                <td>Selenium (Se)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr13" type="text"></td>
+                                <td>20</td>
+                                
+                            </tr>
+                            
+                            <tr class="text-center border h-16">
+                                <td>14</td>
+                                <td>Silver (Ag)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr14" type="text"></td>
+                                <td>100</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>15</td>
+                                <td>Zinc (Zn)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr15" type="text"></td>
+                                <td>1500</td>
+                                
+                            </tr>
+                            <tr class="text-center border h-16">
+                                <td>16</td>
+                                <td>Tin (Sn)</td>
+                                <td>ASTM D-5185</td>
+                                <td>mg/kg</td>
+                                <td><input class="border-2 border-black w-96 h-10 rounded p-2" name="machine_sr16" type="text"></td>
+                                <td>250</td>
+                                
+                            </tr>
+                            
+                            
+                            
+                        </tbody>
+                    </table>
+    
+                    <hr class="broder border-black mt-10">
+    
+                    
+    
+                    <h2 class="py-2 font-bold">LEGENDS</h2>
+                    
+                    
+        
+                        
+                    
+
+                    <div class="legends w-full flex flex-col space-y-10 border-2 border-gray-200 p-8 ">
+                        <input class="legend-1 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="machine_legend-1" maxlength="150" value="N.D. = Not Detected.">
+                        <!-- <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="machine_legend-2" maxlength="150" value=""> -->
+                        <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="machine_legend-2" maxlength="150" value="*GOTS Limits: Global Organic Textile Standards Version 7.0.">
+                    </div>
+
+                    <h2 class="font-bold">Custom Legends</h2>
+
+                    <div class="legends w-full flex flex-col space-y-10 border-2 border-gray-200 ">
+                        
+                        <input class="legend-1 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="custom_legend" maxlength="150" value="">
+                    </div>
+
+    
+                            <div class="flex flex-col justify-between mt-6">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Edit Note</label>
+                                    <input class="border-2 border-black p-2 h-10 rounded text-s" name="machine_edit_note" style="width: 79rem;" type="text" value="Measurement of uncertainty or Statement of conformity will be provided on customer Demand. Environmental Conditions at the time of Testing; Temperature: 25 ⁰C (± 3⁰C) & Humidity: 51 % (± 9%).">
+                                </div>
+                                <div class="flex flex-col mt-4">
+                                    <label class="font-bold text-lg" for="">Custom Legend (if any):</label>
+                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_custom_legend" style="width: 35rem;" type="text" value="">
+                                </div>
+                                
+                            </div>
+    
+                            <div class="flex justify-between mt-6">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for=""> Doc. Controller 1:</label>
+                                    <input id="doc_1" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_doc1" type="text" value="">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Doc. Controller 2:</label>
+                                    <input id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" name="machine_doc2" type="text" value="">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Doc. Controller 3:</label>
+                                    <input id="doc_3" class="doc_issue border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="machine_doc3" value="">
+                                </div>
+                            </div>
+
+                            <hr class="broder border-black mt-10">
+                                        
+                                        <div class="mt-10 space-y-3">
+                                            <label for="" class="text-xl font-bold">PDF Image Page Heading</label>
+                                            <input type="text" value="Pictorial Evidence" name="pdf_heading"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200">
+                                        
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10" id="imageFieldsContainer">
+                                        
+                                            <div class="border border-black p-4 rounded-md shadow-sm">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Image 1</label>
+                                                <input type="file" name="pdf_image_1" accept="image/*"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+                                                <input type="text" name="pdf_desc_1" placeholder="Description for Image 1"
+                                                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200" />
+                                            </div>
+                                            <div class="border border-black p-4 rounded-md shadow-sm">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Image 2</label>
+                                                <input type="file" name="pdf_image_2" accept="image/*"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+                                                <input type="text" name="pdf_desc_2" placeholder="Description for Image 2"
+                                                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200" />
+                                            </div>
+                                            <div class="border border-black p-4 rounded-md shadow-sm">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Image 3</label>
+                                                <input type="file" name="pdf_image_3" accept="image/*"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+                                                <input type="text" name="pdf_desc_3" placeholder="Description for Image 3"
+                                                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200" />
+                                            </div>
+                                            <div class="border border-black p-4 rounded-md shadow-sm">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Image 4</label>
+                                                <input type="file" name="pdf_image_4" accept="image/*"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+                                                <input type="text" name="pdf_desc_4" placeholder="Description for Image 4"
+                                                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200" />
+                                            </div>
+                                            <div class="border border-black p-4 rounded-md shadow-sm">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Image 5</label>
+                                                <input type="file" name="pdf_image_5" accept="image/*"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+                                                <input type="text" name="pdf_desc_5" placeholder="Description for Image 5"
+                                                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200" />
+                                            </div>
+                                            <div class="border border-black p-4 rounded-md shadow-sm">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">Image 6</label>
+                                                <input type="file" name="pdf_image_6" accept="image/*"
+                                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3" />
+                                                <input type="text" name="pdf_desc_6" placeholder="Description for Image 6"
+                                                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200" />
+                                            </div>
+                                        </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sm">
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2" for="analyst-sign">Analyzed By</label>
+                            <select id="analyst-sign" name="analyst_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Analyzed By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2" for="review-sign">Reviewed By</label>
+                            <select id="review-sign" name="review_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Reviewed By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2 text-center" for="approved-sign">Approved By</label>
+                            <select id="approved-sign" name="approved_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Approved By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+        
+                            <div class="h-32  mt-8 flex justify-center items-center">
+                                <div class=" space-x-8">
+                                    <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+                                    <input type="submit" name="submit_and_new" class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "value='Save & Add New' />
+                                    <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input type="submit" name="submit_and_view" value="Save & View Report" class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+                                </div>
+                            </div>
+        
+    
+                     
+                    </div>
+    
+                    
+    
+            </form>
+            <section class="bg-gray-900 h-20 flex justify-center items-center w-full ">
+                      <div class="">
+                            <p class="text-lg text-gray-300">© Copyright 2023 EnviTechAl. All Rights Reserved.</p>
+                            <p></p>
+                      </div>
+                    </section>
+            
+        </div>
+        </section>
+
+        <script>
+            $(document).ready(function () {
+                $('select').select2();
+                $(".datepicker").each(function () {
+                    let dateFromDB = $(this).data("date");  // Get date from data attribute
+                    $(this).datepicker({
+                        dateFormat: "dd-MM-yy",
+                        defaultDate: new Date(dateFromDB),
+                        changeMonth: true,
+                        changeYear: true,
+                        
+                    });
+                });
+            });
+
+            var now = new Date()
+                var date = now.getDate() 
+                var month = now.getMonth() + 1
+                var year = now.getFullYear()
+                var currentDate = `${year}${month}${date}`        
+                document.querySelector("#date").value = currentDate
+                document.querySelector(".date").value = currentDate
+                
+                const dateInput = document.querySelector(".dateInput");
+                const formattedDateOutput = document.querySelector(".formattedDateOutput");
+        
+                dateInput.addEventListener("input", function() {
+                    const inputDate = new Date(this.value);
+                    
+                    if (!isNaN(inputDate.getTime())) {
+                        const day = String(inputDate.getDate()).padStart(2, '0');
+                        const monthIndex = inputDate.getMonth();
+                        const monthNames = [
+                            "January", "February", "March", "April", "May", "June", "July",
+                            "August", "September", "October", "November", "December"
+                        ];
+                        const monthName = monthNames[monthIndex];
+                        const year = inputDate.getFullYear();
+                        const formattedDate = `${day}-${monthName}-${year}`;
+                        
+                        formattedDateOutput.value = formattedDate;
+        
+                    }
+                });
+        
+                const dateInput2 = document.querySelector(".dateInput2");
+                const formattedDateOutput2 = document.querySelector(".formattedDateOutput2");
+        
+                dateInput2.addEventListener("input", function() {
+                    const inputDate = new Date(this.value);
+                    
+                    if (!isNaN(inputDate.getTime())) {
+                        const day = String(inputDate.getDate()).padStart(2, '0');
+                        const monthIndex = inputDate.getMonth();
+                        const monthNames = [
+                            "January", "February", "March", "April", "May", "June", "July",
+                            "August", "September", "October", "November", "December"
+                        ];
+                        const monthName = monthNames[monthIndex];
+                        const year = inputDate.getFullYear();
+                        const formattedDate = `${day}-${monthName}-${year}`;
+                        
+                        formattedDateOutput2.value = formattedDate;
+        
+                    }
+                });
+        </script>
+        <script>
+            var seqs_value = document.querySelector(".SEQS-value")
+            var peqs_value = document.querySelector(".PEQS-value")
+            var neqs_value = document.querySelector(".NEQS-value")
+            var leg_1 = document.querySelector(".legend-1")
+            var leg_2 = document.querySelector(".legend-2")
+            var leg_3 = document.querySelector(".legend-3")
+            var leg_4 = document.querySelector(".legend-4")
+            var leg_5 = document.querySelector(".legend-5")
+            var leg_6 = document.querySelector(".legend-6")
+            var leg_7 = document.querySelector(".legend-7")
+            var leg_8 = document.querySelector(".legend-8")
+            var leg_9 = document.querySelector(".legend-9")
+            var leg_10 = document.querySelector(".legend-10")
+            var leg_11 = document.querySelector(".legend-11")
+            var checkinput = document.querySelector("#checkinput")
+            const doc_1 = document.querySelector('#doc_1')
+            const doc_2 = document.querySelector('#doc_2')
+            const doc_3 = document.querySelector('#doc_3')
+            
+            
+            
+            seqs_value.addEventListener("change",()=>{
+                if(seqs_value.checked){
+                    checkinput.value = "SEQS"
+                    doc_1.value = "ETAL-LAB-708-FF-13"
+                    doc_2.value = "Issue Date: 03-10-22"
+                    doc_3.value = "Issue:03 Rev:02" 
+                    peqs_value.disabled=true
+                    neqs_value.disabled=true
+            
+                }else {
+                    checkinput.value = ""
+                    
+                    peqs_value.disabled=false
+                    neqs_value.disabled=false
+                }
+                
+            
+            })
+            peqs_value.addEventListener("change",()=>{
+                
+                if(peqs_value.checked){
+                    checkinput.value = "PEQS"
+                    doc_1.value = "ETAL-LAB-708-FF-13"
+                    doc_2.value = "Issue Date: 25-03-25"
+                    doc_3.value = "Issue:02 Rev:01"
+                    seqs_value.disabled=true
+                    neqs_value.disabled=true
+            
+                }else{
+                    checkinput.value = ""
+                    
+                    neqs_value.disabled=false
+                    seqs_value.disabled=false
+                   
+                }
+            })
+            neqs_value.addEventListener("change",()=>{
+                if(neqs_value.checked){
+                    checkinput.value = "NEQS"
+                    doc_1.value = "ETAL-LAB-708-FF-13"
+                    doc_2.value = "Issue Date: 03-10-22"
+                    doc_3.value = "Issue:03 Rev:02" 
+                    seqs_value.disabled=true
+                    peqs_value.disabled=true
+            
+                }else{
+                    checkinput.value = ""
+                    
+                    peqs_value.disabled=false
+                    seqs_value.disabled=false
+                   
+                }
+            }) 
+            
+            
+                    $(document).ready(async () => {
+                        $("#loc_err").show()
+                        const req_pip = await fetch('https://api.ipify.org?format=json');
+                        var public_ip = await req_pip.json();
+                        public_ip = public_ip.ip ? public_ip.ip : null;
+                        if (public_ip) {
+                            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+                            const req_loc_ip = await fetch(url);
+                            var location = await req_loc_ip.json();
+                            console.log(location)
+                            if (location) {
+                                let region = location.region.toLowerCase();
+                                switch (region) {
+                                    case "sindh": $("input[value='SEQS']").trigger("click"); break;
+                                    case "punjab": $("input[value='PEQS']").trigger("click"); break;
+                                    case "kpk": $("input[value='NEQS']").trigger("click"); break;
+                                }
+                                setTimeout(function(){
+                                    $("#loc_err").hide()
+                                },1000)
+                              
+                            }
+                        }
+                    })
+                    $(document).ready(function() {
+                        $('select').select2();
+                    });
+        
+                    const loadCustomers = async()=>{
+                        const customers = {{log|safe}}
+                        for(customer of customers){
+                            let html =`<option data-id="${customer.pk}" value='${JSON.stringify(customer.fields)}'> ${customer.fields.sample_id} - ${customer.fields.client_name}-
+                                ${customer.fields.sample_nature} </option>`
+                            $("#customers").append(html)    
+                        }
+                    }
+                    const selectCustomer = async(t)=>{
+                        const customer = JSON.parse(t.value)
+                        var customer_id = $("#customers option:selected").attr("data-id");
+                        // const customer = t.value
+                        console.log('pk',customer_id)
+                        $("input[name='customer_id']").val(customer_id) 
+                        $("input[name='machine_lab_rep_no']").val(customer.sample_id)
+                        $("input[name='machine_sampleId']").val(customer.sample_id)
+                        $("input[name='machine_report_to']").val(customer.client_name)
+                        $("input[name='machine_attention']").val(customer.att_person)
+                        $("input[name='machine_address']").val(customer.address)
+                        $("input[name='machine_email']").val(customer.email)
+                        $("input[name='machine_sample_col_date']").val(customer.rec_date)
+                        $("input[name='machine_rep_date']").val(customer.rep_date)
+                    }
+        
+                    loadCustomers()
+                </script>
+<script src={% static '/js/app.js'%} defer >
+    
+    
+</script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+    <title>Calibration</title>
+    {% load static %}
+</head>
+<body>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 2px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+          width: 20%;
+        }
+        
+        </style>
+        {% if data %}
+        <section class="sticky top-60 w-32 text-xl flex flex-col left-9 px relative z-50 flex gap-8">
+            <a target="_blank" href="{% url 'calib_pdf' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Report</a>
+            <a target="_blank" href="{% url 'calib_pdf1' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Print</a>
+            <a  href="{% url 'nav' %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+              </svg ></a>
+              
+          </section>
+    <section class="w-full flex flex-col justify-center items-center ">
+        <div class="m-10">
+            <h1 class="text-4xl " style="font-family: 'Pacifico', cursive;">Certificate of Calibration</h1>
+        </div>
+    </section>
+    
+     <section class="w-full flex justify-center mb-52">
+        <div  class="m-20 w-10/12 ">
+           
+            <div class="mb-8 space-x-4 flex justify-between items-center">
+                <div class="">
+                    <label class="font-bold  text-lg" for="">Certificate Number:</label>
+                <input class="border border-gray-500 px-3 py-1 w-96 outline-none" type="text" disabled value="{{data.cert_num}}" >
+                </div>
+                <div class="">
+                    <img style="width:80px;height:80px" class="" src="{{qr}}" alt="">
+                </div>
+            </div>
+            <table >
+                <tr>
+                    <td><b>Client</b></td>
+                    <td>{{data.client}}</td>
+                    <td><b>Contact Person</b></td>
+                    <td>{{data.contact_person}}</td>
+                </tr>
+                <tr>
+                    <td><b>Address</b></td>
+                    <td colspan="3">{{data.address}}</td>
+                </tr>
+                <tr>
+                    <td><b>Date Of Calibration</b></td>
+                    <td colspan="3">{{data.date}}</td>
+                </tr>
+                <tr>
+                    <td><b>Calibration Performed at</b></td>
+                    <td>{{data.calib_perf_at}}</td>
+                    <td><b>Recom. Re-Calibration Date</b></td>
+                    <td>{{data.re_calib_perf_at}}</td>
+                </tr>
+                <tr>
+                    <td><b>Certificate issuance Date</b></td>
+                    <td colspan="3">{{data.cert_issue_date}}</td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table >
+                <tr>
+                    <td colspan="6"><b>Client's Equipment Data</b></td>
+                </tr>
+                <tr>
+                    <td><b>Equipment</b></td>
+                    <td>{{data.equipment}}</td>
+                    <td><b>Manufacturer</b></td>
+                    <td>{{data.manufacturer}}</td>
+                    <td><b>Condition of Item</b></td>
+                    <td>{{data.cond_item}}</td>
+                </tr>
+                <tr>
+                    <td><b>Client ID</b></td>
+                    <td>{{data.client_id}}</td>
+                    <td><b>Model / Type</b></td>
+                    <td colspan="3">{{data.model}}</td>
+                    
+                </tr>
+                <tr>
+                    <td><b>Location</b></td>
+                    <td colspan="5">{{data.location}}</td>
+                </tr>
+                <tr>
+                    <td><b>Parameter(s)</b></td>
+                    <td>{{data.param}}</td>
+                    <td><b>Range / L.C.</b></td>
+                    <td>{{data.range}}</td>
+                    <td><b>Serial No.</b></td>
+                    <td>{{data.serial_no}}</td>
+                </tr>
+                <tr>
+                    <td><b>Tolerance</b></td>
+                    <td colspan="5">{{data.tolerance}}</td>
+                </tr>
+                
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+
+            <table id="table">
+                <tr>
+                    <td colspan="5"><b>Master Equipment and References</b></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><b>Equipment</b></td>
+                    <td class="text-center"><b>Model</b></td>
+                    <td class="text-center"><b>Serial No.</b></td>
+                    <td class="text-center"><b>Certificate Number</b></td>
+                </tr>
+                <tr>
+                    <td>{{data.equipment_1}}</td>
+                    <td>{{data.model_1}}</td>
+                    <td>{{data.serial_no1}}</td>
+                    <td>{{data.cert_num1}}</td>
+                </tr>
+                {% if data.extra_field %}
+                    {% for extra_field in data.extra_field %}
+                        <tr>
+                            <td><b>{{extra_field.inp1}}</b></td>
+                            <td style="display:none;"><b>{{extra_field.sr}}</b></td>
+                            <td>{{extra_field.inp2}}</td>
+                            <td>{{extra_field.inp3}}</td>
+                            <td>{{extra_field.inp4}}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+                <tr>
+                    <td><b>Traceablity</b></td>
+                    <td colspan="5">{{data.traceability}}</td>
+                </tr>
+                <tr>
+                    <td><b>Procedure</b></td>
+                    <td>{{data.procedure}}</td>
+                    <td><b>Method/Reference</b></td>
+                    <td colspan="3">{{data.method}}</td>
+                </tr>
+                <tr>
+                    <td><b>Sindh Weight and Measures</b></td>
+                    <td colspan="5">{{data.sindh_wm}}</td>
+                </tr>
+                
+                
+            </table>
+            
+            <hr class="w-full border border-black mt-5 mb-5">
+            <div class="">
+                <tr>
+                    <td colspan=""><b>Test Environment</b></td>
+                    <td colspan="">{{data.test1}}</td>
+                    <td colspan="2">{{data.test2}}</td>
+                </tr>
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+
+            <div class="mb-8 flex flex-row space-x-6">
+                <label class="font-bold  text-lg" for="">Table :</label>
+                <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" disabled value="{{data.weight1}}" disabled value="Weight Balance">
+            </div>
+
+            <table >
+                <tr>
+                  <th class="text-center" rowspan="2">Set Value</th>
+                  <th class="text-center" rowspan="2">Master Reading</th>
+                  <th class="text-center" colspan="2">Actual Reading</th>
+                  <th class="text-center" rowspan="2">Deviation</th>
+                </tr>
+                <tr>
+                  <th class="text-center">Before</th>
+                  <th class="text-center">After</th>
+                </tr>
+                <tr>
+                    <th class="text-center" colspan="2">{{data.kg1}}</th>
+                    <th class="text-center" colspan="2">{{data.kg2}}</th>
+                    <th class="text-center" colspan="">{{data.kg3}}</th>
+                </tr>
+                <tr>
+                  <td>{{data.set1}}</td>
+                  <td>{{data.master1}}</td>
+                  <td>{{data.before1}}</td>
+                  <td>{{data.after1}}</td>
+                  <td>{{data.dev1}}</td>
+                </tr>
+                <tr>
+                  <td>{{data.set2}}</td>
+                  <td>{{data.master2}}</td>
+                  <td>{{data.before2}}</td>
+                  <td>{{data.after2}}</td>
+                  <td>{{data.dev2}}</td>
+                </tr>
+                <tr>
+                  <td>{{data.set3}}</td>
+                  <td>{{data.master3}}</td>
+                  <td>{{data.before3}}</td>
+                  <td>{{data.after3}}</td>
+                  <td>{{data.dev3}}</td>
+                </tr>
+                <tr>
+                  <td>{{data.set4}}</td>
+                  <td>{{data.master4}}</td>
+                  <td>{{data.before4}}</td>
+                  <td>{{data.after4}}</td>
+                  <td>{{data.dev4}}</td>
+                </tr>
+                {% if data.extra_field1 %}
+                    {% for extra_field in data.extra_field1 %}
+                        <tr>
+                            <td style="display:none;"><b>{{extra_field.sr}}</b></td>
+                            <td>{{extra_field.inp2_1}}</td>
+                            <td>{{extra_field.inp2_2}}</td>
+                            <td>{{extra_field.inp2_3}}</td>
+                            <td>{{extra_field.inp2_4}}</td>
+                            <td>{{extra_field.inp2_5}}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+                
+              </table>
+
+              {% if data.weight2 %}
+              <div class="mb-8 flex flex-row space-x-6 mt-4">
+                <label class="font-bold  text-lg" for="">Table :</label>
+                <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" disabled value="{{data.weight2}}" disabled value="Weight Balance">
+            </div>
+
+            <table >
+                <tr>
+                  <th class="text-center" rowspan="2">Set Value</th>
+                  <th class="text-center" rowspan="2">Master Reading</th>
+                  <th class="text-center" colspan="2">Actual Reading</th>
+                  <th class="text-center" rowspan="2">Deviation</th>
+                </tr>
+                <tr>
+                  <th class="text-center">Before</th>
+                  <th class="text-center">After</th>
+                </tr>
+                <tr>
+                    <th class="text-center" colspan="2">{{data.kg1_1}}</th>
+                    <th class="text-center" colspan="2">{{data.kg2_2}}</th>
+                    <th class="text-center" colspan="">{{data.kg3_3}}</th>
+                </tr>
+                <tr>
+                  <td>{{data.set1_1}}</td>
+                  <td>{{data.master1_1}}</td>
+                  <td>{{data.before1_1}}</td>
+                  <td>{{data.after1_1}}</td>
+                  <td>{{data.dev1_1}}</td>
+                </tr>
+                <tr>
+                  <td>{{data.set2_2}}</td>
+                  <td>{{data.master2_2}}</td>
+                  <td>{{data.before2_2}}</td>
+                  <td>{{data.after2_2}}</td>
+                  <td>{{data.dev2_2}}</td>
+                </tr>
+                <tr>
+                  <td>{{data.set3_3}}</td>
+                  <td>{{data.master3_3}}</td>
+                  <td>{{data.before3_3}}</td>
+                  <td>{{data.after3_3}}</td>
+                  <td>{{data.dev3_3}}</td>
+                </tr>
+                <tr>
+                  <td>{{data.set4_4}}</td>
+                  <td>{{data.master4_4}}</td>
+                  <td>{{data.before4_4}}</td>
+                  <td>{{data.after4_4}}</td>
+                  <td>{{data.dev4_4}}</td>
+                </tr>
+                {% if data.extra_field2 %}
+                    {% for extra_field in data.extra_field2 %}
+                        <tr>
+                            <td style="display:none;"><b>{{extra_field.sr}}</b></td>
+                            <td>{{extra_field.inp3_1}}</td>
+                            <td>{{extra_field.inp3_2}}</td>
+                            <td>{{extra_field.inp3_3}}</td>
+                            <td>{{extra_field.inp3_4}}</td>
+                            <td>{{extra_field.inp3_5}}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+                
+              </table>
+              {% endif %}
+
+              <div class="mt-5 border-2 flex justify-around py-2">
+                <tr >
+                    <td ><b>Calibration Status</b></td>
+                    <td>{{data.calib_status}}</td>
+                    
+                  </tr>
+                  <tr>
+                    <td><b>Maximum Error</b></td>
+                    <td>{{data.max_error}}</td>
+                  </tr>
+              </div>
+
+              <div class="mt-8 border border-gray-400 p-2">
+                <span class="">{{data.text}}</span>
+              </div>
+              <div class="flex justify-between mt-6 text-sm">
+                <div class="flex flex-col space-y-4  p-2">
+                    <img class="h-24 w-28" src="{{data.calib_by_signature.signature.url}}" alt="img">
+                    <label class="font-bold text-lg" for=""> Calibrated By:</label>
+                </div>
+                <div class="flex flex-col space-y-4  p-2 " style="width: 50%;">
+                    
+                    <div class="flex  w-full justify-around" style="column-gap: 20px; font-size: 12px;">
+
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %} alt="">
+                            <p>(License # R-K\242)</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/ISO-9001_2015 LOGO.png" %} alt="">
+                            <p>(Certificate # 080177324-QMS)</p>
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/ISO-14001_2015 LOGO.png" %} alt="">
+                            <p>(Certificate # 080177424-EMS)</p>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="flex flex-col space-y-4  p-2">
+                    
+
+                    <div class="flex text-sm" style="column-gap: 20px;">
+                        <img class="h-24 w-28" src="{{logo}}" alt="img">
+
+                        <img class="h-24 w-28" src="{{data.checked1_signature.signature.url}}" alt="img">
+
+                    </div>
+                    <label class="font-bold text-lg text-center" for="">Checked By</label>
+                </div>
+
+            </div>
+            <div class="flex flex-col mt-8">
+                <label class="font-bold" for="">Disclaimer</label>
+                <input class="border border-gray-500 w-96 py-1 px-3 w-full outline-none" type="text" disabled value="{{data.disc}}" disabled value="Our Certificate can be verified by ">
+            </div>
+        
+            
+        </div>
+    </section> 
+    {% endif %}
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% comment %} <script>
+    document.getElementById("textArea").value = "The certificate is a true record of the measurement made and the value reflected on this certificate were correct at the time of calibration. And this certificate is valid for current equipment only. Re-calibration is recommended at the mentioned date, however, should be performed earlier in case of any repairs, services, or relocation of the equipment.";
+    var extraFields = [];
+const getExtraFields = async () => {
+    var extraRows = $("tr[id^='extraRow-']")
+for(var i =0;i<extraRows.length;i++){
+    let _row = extraRows[i];
+    let num_row = _row.id.split("-")[1]
+
+    let obj = {
+        "inp1":$(`input[name='extra-${num_row}-1']`).val(),
+        "inp2":$(`input[name='extra-${num_row}-2']`).val(),
+        "inp3":$(`input[name='extra-${num_row}-3']`).val(),
+    }
+    extraFields.push(obj);
+}
+$("#extra_field").val(JSON.stringify(extraFields))
+}
+
+
+
+$("#save_rows").on('click', getExtraFields)
+
+var table = document.querySelector('#table')
+var add_rows = document.querySelector('#add_rows')
+currentNumber = 33
+
+add_rows.addEventListener('click', (e) => {
+e.preventDefault()
+var newRow = table.insertRow(table.rows.length);
+$(newRow).attr("id",`extraRow-${currentNumber}`)
+
+for (var i = 0; i < 3                                                                                                          ; i++) {
+    var cell = newRow.insertCell(i);
+    cell.innerHTML = `<input class="w-full border border-gray-500 px-2 py-1" type="text" name="extra-${currentNumber}-${i}">`;
+}
+
+currentNumber++;
+})
+</script> {% endcomment %}
+</html>

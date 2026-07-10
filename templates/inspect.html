@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <!-- jQuery (only once, and FIRST) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    
+    <!-- DataTables (optional) -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <!-- Select2 -->
+    <!-- ✅ Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <!-- ✅ Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    
+    <!-- jQuery UI (optional) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>Inspection</title>
+    {% load static %}
+</head>
+<body>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 2px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+          width: 20%;
+        }
+        
+        </style>
+        <section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
+            <a href="{% url 'nav' %}"><img class="h-14 ml-10" src="{% static '/assets/logo-light.png'%}" alt="image"></a>
+            
+                <div id="profile" class="flex space-x-10 mr-10">
+                    <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+                    <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+                </div>
+        </section>
+    <section class="w-full flex flex-col justify-center items-center mt-16">
+        <div class="m-10">
+            <h1 class="text-4xl " style="font-family: 'Pacifico', cursive;">Certificate of Inspection</h1>
+        </div>
+    </section>
+    
+    <section class="w-full flex justify-center mb-52">
+        <form action="{% url 'inspection' %}" method="post" enctype="multipart/form-data" class="m-20 w-8/12 ">
+            {% csrf_token %}
+            <input class="formattedDateOutput border border-gray-500 px-3 py-1 w-full outline-none hidden" name="insp_date" type="text">
+            <div class="mb-8 space-x-4">
+                <label class="font-bold  text-lg" for="">Certificate Number:</label>
+                <input class="border border-gray-500 px-3 py-1 w-96 outline-none" type="text" name="cert_num" >
+            </div>
+            <table>
+                <tr>
+                    <td style="width: 5%;"><b>Client</b></td>
+                    <td colspan="4"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Address</b></td>
+                    <td colspan="4"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="address" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Inspection Date</b></td>
+                    <td><input class="insp_date border border-gray-500 px-3 py-1 w-full outline-none"  type="date"></td>
+                    <td>6 months <input class="six_month" type="checkbox"></td>
+                    <td>3 months <input class="three_month" type="checkbox"></td>
+                    <td>year <input class="year" type="checkbox"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Re-Inspection Date</b></td>
+                    <td colspan="4"><input class="re_insp_date border border-gray-500 px-3 py-1 w-full outline-none" name="re_insp_date" type="text"></td>
+                    
+                </tr>
+                
+            </table>
+            <div class="flex w-8/12 hidden">
+                <div class="alert w-52 flex flex-col justify-around my-6">
+                
+                    <div class="">
+                        <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                    </div>
+                    <div class="">
+                        <input class="SEQS-value" type="checkbox" value="SEQS_">
+                        <label for="">SEQS</label>
+                    </div>
+                    <div class="">
+                        <input class="PEQS-value" type="checkbox" value="PEQS_">
+                        <label for="">PEQS</label>
+                    </div>
+                    <div class="">
+                        <input class="NEQS-value" type="checkbox" value="NEQS_">
+                        <label for="">NEQS</label>
+                    </div>
+                    <input id="checkinput" type="text" name="location" value="" style="display: none;">
+                    <div class="flex justify-between flex-wrap">
+                  
+                    <div class="mt-4 flex flex-col">
+                        <label class="font-bold text-lg" for="">Location</label>
+                        <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                    </div>
+                   
+                    
+                </div>
+                </div>
+    
+               
+                
+                
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table >
+                <tr>
+                    <th colspan="4" style="width: 80%;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="Client's Equipment Data" name="client_equip_data"></b></th>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equipment" type="text"></td>
+                    <td style="width: 5%;"><b>Manufacturer</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="Manufacturer" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment ID</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equip_id" type="text"></td>
+                    <td style="width: 5%;"><b>Model/Type</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="model" type="text"></td>
+                </tr>
+            </table >
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table id="table1">
+                <tr>
+                    <td colspan="5"><b><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" value="Master Equipment and References" name="master_equip"></b></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><b>Equipment</b></td>
+                    <td class="text-center"><b>Model</b></td>
+                    <td class="text-center"><b>Serial No.</b></td>
+                    <td class="text-center"><b>Certificate Number</b></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equipment_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="model_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="serial_no1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="cert_num1" type="text"></td>
+                </tr>
+            </table>
+            <div class="flex flex-row-reverse">
+
+
+                <a href="#"><button type="button" id="save_rows1"
+                        class="bg-blue-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500">Save
+                        Rows</button></a>
+                <a href="#"><button type="button" id="add_rows1"
+                        class="bg-green-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500">Add
+                        Rows</button></a>
+
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table>
+                <tr>
+                    <th colspan="4" style="width: 80%;"><b><input class="font-bold" class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="client_date_table" value="Client's Equipment Date"></b></th>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="Equipment" name="client_equipment"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_equipment_1" type="text"></td>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="Manufacturer" name="client_manufacturer"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_manufacturer_1" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="Equipment ID" name="client_equip_id"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_equip_id_1" type="text"></td>
+                    <td style="width: 5%;"><b><input type="text" class="font-bold" value="Model/Type" name="client_model"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_model_1" type="text"></td>
+                </tr>
+                <tr>
+                    <td><b><input type="text" class="font-bold" value="Location" name="client_location"></b></td>
+                    <td colspan="4"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_location_1" type="text"></td>
+                </tr>
+                <tr>
+                    <td><b><input type="text" class="font-bold" value="parameter(s)" name="client_param"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_param_1" type="text"></td>
+                    <td><b><input type="text" class="font-bold" value="Range/L.C Serial No." name="client_range"></b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_range_1" type="text"></td>
+                    
+                </tr>
+                <tr>
+                    <td><b><input type="text" class="font-bold" value="Tolerance" name="client_tolerance"></b></td>
+                    <td colspan="4"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client_tolerance_1" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+
+            <table>
+                <tr>
+                    <td class="text-center"><b>Parameter</b></td>
+                    <td class="text-center"><b>Results</b></td>
+                    <td class="text-center"><b>Load Condition Static/Dynamic</b></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="param_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="result_1" type="text"></td>
+                    <td rowspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none h-24" name="load_cond" type="text"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="param_2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="result_2" type="text"></td>
+                </tr>
+            </table>
+
+            <hr class="w-full border border-black mt-5 mb-5">
+
+            <table>
+                <tr>
+                    <td class="text-center"><b>Test Environment</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="temp_1" type="text" value="Temperature"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="temp_2" value="28 �C"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="humidity_1" value="Humidity"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="humidity_2" value="42% RH"></td>
+                </tr>
+            </table>
+
+            <hr class="w-full border border-black mt-5 mb-5">
+
+
+            <table id="table">
+                <tr>
+                    <th colspan="3"><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" value="Physical Inspection & Testing" name="physical_inspect"></th>
+                </tr>
+                <tr>
+                    <th>Testing Parameter</th>
+                    <th>Observations</th>
+                </tr>
+                <tr>
+                    <td><input type="text" name="test1" value="Control Panel Check"></td>
+                    <td><input type="text" name="test2" value="Satisfactory"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="test3" value="Life Check with Heavy Load"></td>
+                    <td><input type="text" name="test4" value="Satisfactory"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="test5" value="Shiring Wire Check"></td>
+                    <td><input type="text" name="test6" value="Satisfactory"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="test7" value="Lift Viberation Check"></td>
+                    <td><input type="text" name="test8" value="Satisfactory"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" name="test9" value="Lift Balance Check"></td>
+                    <td><input type="text" name="test10" value="Satisfactory"></td>
+                </tr>
+                
+            </table>
+            <div class="flex flex-row-reverse">
+
+
+                <a href="#"><button type="button" id="save_rows"
+                        class="bg-blue-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500">Save
+                        Rows</button></a>
+                <a href="#"><button type="button" id="add_rows"
+                        class="bg-green-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500">Add
+                        Rows</button></a>
+
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+
+            <div class="mb-8 flex flex-row space-x-6">
+                <label class="font-bold  text-lg" for="">Table :</label>
+                <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" name="forklift_table" value="Forklift (Weight Lifted)">
+            </div>
+            <table id="table1">
+                <tr>
+                  <th class="text-center" rowspan="2">Weight</th>
+                  <th class="text-center" rowspan="2">Set Value Height</th>
+                  <th class="text-center" rowspan="2">Master Reading Height</th>
+                  <th class="text-center" colspan="2">Actual Reading Height</th>
+                  <th class="text-center" rowspan="2">Deviation Height</th>
+                </tr>
+                <tr>
+                  <th class="text-center">Before</th>
+                  <th class="text-center">After</th>
+                </tr>
+                <tr>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="kg1" value="Kgs"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_1" value="ft"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_2" value="ft"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_3" value="ft"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_4" value="ft"></th>
+                    <th class="text-center" colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="ft_5" value="ft"></th>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight1" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set1" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master1" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before1" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after1" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev1" type="text"></td>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight2" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set2" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master2" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before2" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after2" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev2" type="text"></td>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight3" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set3" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master3" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before3" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after3" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev3" type="text"></td>
+                </tr>
+                <tr>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="weight4" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="set4" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="master4" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="before4" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="after4" type="text"></td>
+                  <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="dev4" type="text"></td>
+                </tr>
+                
+              </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+
+            <div class="mb-8 flex flex-row space-x-6">
+                <label class="font-bold  text-lg" for="">Table :</label>
+                <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" name="knife_table" value="Knife Speed">
+            </div>
+
+            <table>
+                <tr>
+                    <th>Set Value</th>
+                    <th>Master Reading</th>
+                    <th>Actual reading (before)</th>
+                    <th>Actual reading (after)</th>
+                    <th>Deviation</th>
+                </tr>
+                <tr>
+                    <th colspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none text-center" type="text" name="rpm1" value="RPM"></th>
+                    <th colspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none text-center" type="text" name="rpm2" value="RPM"></th>
+                    <th colspan=""><input class="border border-gray-500 px-3 py-1 w-full outline-none text-center" type="text" name="rpm3" value="RPM"></th>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value1"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master1"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before1"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after1"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev1"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value2"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master2"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before2"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after2"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev2"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value3"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master3"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before3"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after3"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev3"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value4"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master4"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before4"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after4"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev4"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_Set_value5"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_master5"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_before5"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_after5"></td>
+                    <td><input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="knife_dev5"></td>
+                </tr>
+            </table>
+
+
+            <hr class="w-full border border-black mt-5 mb-5">
+            <div class="">
+                <p class="font-bold">Conclusion :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none" name="conc" type="text">
+            </div>
+            <div class="mt-4">
+                <p class="font-bold">Inspection Status :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none" name="insp_status" type="text">
+            </div>
+            <div class="mt-8">
+                <span><textarea class="border-2 border-gray-200 px-3 py-1 w-full outline-none" name="text" id="textArea" cols="30" rows="5" ></textarea></span>
+              </div>
+              <div class="flex justify-between mt-6 text-sm">
+                <div class="flex flex-col space-y-4 border p-2  border-gray-500">
+                    <label class="font-bold text-lg" for=""> Inspect By:</label>
+                    <select id="analyst-sign" name="inspect_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Inspect By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="flex flex-col space-y-4 border p-2 border-gray-500">
+                    <label class="font-bold text-lg text-center" for="">Checked By</label>
+
+                    <div class="flex text-sm">
+
+                        <select id="" name="check_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Checked By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                        </select>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="flex flex-col mt-8">
+                <label class="font-bold" for="">Disclaimer</label>
+                <input class="border border-gray-500 w-96 py-1 px-3 w-full outline-none" type="text" name="disc" value="Our Certificate can be verified by scanning system generated QR Codes.">
+            </div>
+            <input id="extra_field" name="extra_field" style="display: none;" value="[]" type="text"/>
+            <input id="extra_field1" name="extra_field1" style="display: none;" value="[]" type="text"/>
+            <div class="h-32  mt-8 flex justify-center items-center">
+                <div class=" space-x-8">
+                    <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+                    <input type="submit" name="submit_and_new" class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "value='Save & Add New' />
+                    <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input type="submit" name="submit_and_view" value="Save & View Report" class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+                </div>
+            </div>
+        </form>
+    </section>
+</body>
+
+<script>
+    $(document).ready(function () {
+            $('select').select2();
+        });
+    document.getElementById("textArea").value = "The certificate is a true record of the measurement made and the value reflected on this certificate were correct at the time of Inspection. And this certificate is valid for current equipment only. Re-Inspection is recommended at the mentioned date, however, should be performed earlier in case of any repairs, services, or relocation of the equipment.";
+
+
+
+const stringToJSON =   (s)=>{
+    s = s.replaceAll('&#x27;','"')
+   s =  JSON.parse(s)
+  return s
+}
+
+{% comment %} var extraFields = stringToJSON('{{list.extra_field}}'); {% endcomment %}
+ function extra_field(){
+    var extraFields = []
+    const getExtraFields = async () => {
+    var extraRows = $("tr[id^='extraRow-']")
+    for(var i =0;i<extraRows.length;i++){
+        let _row = extraRows[i];
+        let num_row = _row.id.split("-")[1]
+
+        let obj = {
+            "sr":num_row,
+            "test":$(`input[name='extra-${num_row}-1']`).val(),
+            "observation":$(`input[name='extra-${num_row}-2']`).val(),
+            }
+        extraFields.push(obj);
+        }
+        $("#extra_field").val(JSON.stringify(extraFields))
+        }
+
+
+
+    $("#save_rows").on('click', getExtraFields)
+
+    var table = document.querySelector('#table')
+    var add_rows = document.querySelector('#add_rows')
+    currentNumber = 33
+
+    add_rows.addEventListener('click', (e) => {
+        e.preventDefault()
+        var newRow = table.insertRow(table.rows.length);
+        $(newRow).attr("id",`extraRow-${currentNumber}`)
+        var cell0 = newRow.insertCell(0);
+        cell0.innerHTML = `${currentNumber}`;
+        cell0.style.display="none"
+        for (var i = 1; i < 3; i++) {
+            var cell = newRow.insertCell(i);
+            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+    }
+
+    currentNumber++;
+    })
+    }
+
+    function extra_field1(){
+        var extraFields1 = []
+        const getExtraFields1 = async () => {
+        var extraRows = $("tr[id^='extraRow1-']")
+        for(var i =0;i<extraRows.length;i++){
+            let _row = extraRows[i];
+            let num_row = _row.id.split("-")[1]
+    
+            let obj = {
+                "sr":num_row,
+                "inp1":$(`input[name='extra1-${num_row}-1']`).val(),
+                "inp2":$(`input[name='extra1-${num_row}-2']`).val(),
+                "inp3":$(`input[name='extra1-${num_row}-3']`).val(),
+                "inp4":$(`input[name='extra1-${num_row}-4']`).val(),
+                }
+            extraFields1.push(obj);
+            }
+            $("#extra_field1").val(JSON.stringify(extraFields1))
+            }
+    
+        
+    
+        $("#save_rows1").on('click', getExtraFields1)
+    
+        var table = document.querySelector('#table1')
+        var add_rows = document.querySelector('#add_rows1')
+        currentNumber = 33
+    
+        add_rows.addEventListener('click', (e) => {
+            e.preventDefault()
+            var newRow = table.insertRow(table.rows.length);
+            $(newRow).attr("id",`extraRow1-${currentNumber}`)
+            var cell0 = newRow.insertCell(0);
+            cell0.innerHTML = `${currentNumber}`;
+            cell0.style.display="none"
+            for (var i = 1; i < 5; i++) {
+                var cell = newRow.insertCell(i);
+                cell.innerHTML = `<input type="text" name="extra1-${currentNumber}-${i}">`;
+        }
+    
+        currentNumber++;
+        })
+        }
+
+        extra_field()
+        extra_field1()
+
+const dateInput = document.querySelector(".insp_date");
+        const formattedDateOutput = document.querySelector(".formattedDateOutput");
+
+        dateInput.addEventListener("input", function() {
+            const inputDate = new Date(this.value);
+            
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+                const monthName = monthNames[monthIndex];
+                const year = inputDate.getFullYear();
+                const formattedDate = `${day}-${monthName}-${year}`;
+                
+                formattedDateOutput.value = formattedDate;
+
+            }
+        });
+
+        var six_month = document.querySelector(".six_month");
+        var three_month = document.querySelector(".three_month");
+        var year = document.querySelector(".year");
+        var re_insp_date = document.querySelector(".re_insp_date");
+        var insp_date = document.querySelector('.insp_date');
+        
+        six_month.addEventListener('change', () => {
+            if (six_month.checked) {
+                current_date =  new Date(insp_date.value)
+                current_date.setMonth(current_date.getMonth()+6)
+                current_date.setDate(current_date.getDate()-1)
+                console.log(insp_date.value)
+                
+                
+                
+                re_insp_date.value = current_date.toLocaleDateString('en-US',
+                    {
+                        day: 'numeric',
+                        month : 'long',
+                        year : 'numeric',
+                    }
+                );
+                var parts = re_insp_date.value.split(" ")
+                var  formateDate = parts[1].replace(',', '') + "-" + parts[0] + "-" + parts[2];
+        
+                re_insp_date.value = formateDate
+                
+            }
+            
+            
+            else {
+                re_insp_date.value = ""; // Clear the text content if the checkbox is unchecked
+            }
+        });
+        three_month.addEventListener('change', () => {
+            if (three_month.checked) {
+                current_date =  new Date(insp_date.value)
+                current_date.setMonth(current_date.getMonth()+3)
+                current_date.setDate(current_date.getDate()-1)
+                console.log(insp_date.value)
+                
+                
+                
+                re_insp_date.value = current_date.toLocaleDateString('en-US',
+                    {
+                        day: 'numeric',
+                        month : 'long',
+                        year : 'numeric',
+                    }
+                );
+                var parts = re_insp_date.value.split(" ")
+                var  formateDate = parts[1].replace(',', '') + "-" + parts[0] + "-" + parts[2];
+        
+                re_insp_date.value = formateDate
+                
+            }
+            
+            
+            else {
+                re_insp_date.value = ""; // Clear the text content if the checkbox is unchecked
+            }
+        });
+         year.addEventListener('change',()=>{
+            if(year.checked){
+                current_date =  new Date(insp_date.value)
+                current_date.setMonth(current_date.getMonth()+12)
+                current_date.setDate(current_date.getDate()-1)
+                
+                re_insp_date.value = current_date.toLocaleDateString('en-US',
+                    {
+                        day: 'numeric',
+                        month : 'long',
+                        year : 'numeric',
+                    }
+                );
+                var parts = re_insp_date.value.split(" ")
+                var  formateDate = parts[1].replace(',', '') + "-" + parts[0] + "-" + parts[2];
+        
+                re_insp_date.value = formateDate
+                
+            } else {
+                re_insp_date.value = ""; // Clear the text content if the checkbox is unchecked
+            }
+         })
+
+</script>
+
+
+<script>
+    $(document).ready(async () => {
+        $("#loc_err").show()
+        const req_pip = await fetch('https://api.ipify.org?format=json');
+        var public_ip = await req_pip.json();
+        public_ip = public_ip.ip ? public_ip.ip : null;
+        if (public_ip) {
+            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+            const req_loc_ip = await fetch(url);
+            var location = await req_loc_ip.json();
+            console.log(location)
+            if (location) {
+                let region = location.region.toLowerCase();
+                switch (region) {
+                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                }
+                setTimeout(function(){
+                    $("#loc_err").hide()
+                },1000)
+              
+            }
+        }
+    })
+
+    var seqs_value = document.querySelector(".SEQS-value")
+    var peqs_value = document.querySelector(".PEQS-value")
+    var neqs_value = document.querySelector(".NEQS-value")
+    var checkinput = document.querySelector("#checkinput")
+    var city_location = document.querySelector(".city_location")
+
+
+seqs_value.addEventListener("change",()=>{
+    if(seqs_value.checked){
+        checkinput.value = "SEQS"
+        city_location.value="Karachi"
+        peqs_value.disabled=true
+        neqs_value.disabled=true
+
+    }else {
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        neqs_value.disabled=false
+    }
+})
+peqs_value.addEventListener("change",()=>{
+    
+    if(peqs_value.checked){
+        checkinput.value = "PEQS"
+        city_location.value="Lahore"
+        seqs_value.disabled=true
+        neqs_value.disabled=true
+        
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        neqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+neqs_value.addEventListener("change",()=>{
+    if(neqs_value.checked){
+        checkinput.value = "NEQS"
+        city_location.value="NEQS"
+        seqs_value.disabled=true
+        peqs_value.disabled=true
+        
+        
+
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+
+
+</script>
+
+</html>

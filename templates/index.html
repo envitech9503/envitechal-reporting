@@ -1,0 +1,588 @@
+<!doctype html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if user.is_authenticated %}
+  {% load static %}
+  
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href= "/static/style.css">
+    <title>Envi Tech AL|</title>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.8/css/dataTables.dataTables.css" />
+  
+    <script src="https://cdn.datatables.net/2.3.8/js/dataTables.js"></script>
+  
+  
+    
+    <style>
+        .main-img::-webkit-scrollbar {
+            width: 1em;
+          }
+           
+          .main-img::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+          }
+           
+          .main-img::-webkit-scrollbar-thumb {
+            background-color: darkgrey;
+            outline: 1px solid slategrey;
+          }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .NEQS,.PEQS{
+	    display: none;
+        }
+        @media (max-width: 768px) {
+            .side-nav {
+                width: 100%; /* Make the navigation full-width */
+                top: 0; /* Place it at the top */
+                left: -100%; /* Hide it off-screen by default */
+                transition: left 0.3s ease-in-out;
+                font-size:12;
+            }
+        
+            /* Show the navigation when a button is clicked */
+            .nav-opened .side-nav {
+                left: 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .side-nav {
+                width: 100%; /* Make the navigation full-width */
+                top: 0; /* Place it at the top */
+                left: -100%; /* Hide it off-screen by default */
+                transition: left 0.3s ease-in-out;
+                font-size:12;
+            }
+        
+            /* Show the navigation when a button is clicked */
+            .nav-opened .side-nav {
+                left: 0;
+            }
+        }
+        
+        /* Add a button to open/close the navigation on smaller screens */
+        .nav-toggle {
+            display: none; /* Initially hide the toggle button on larger screens */
+        }
+        
+        /* Style the toggle button */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block; /* Show the toggle button on smaller screens */
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                cursor: pointer;
+            }
+        }
+        input[type='checkbox']{
+            display:none;
+        }
+    </style>
+
+</head>
+
+<body class="overflow-hidden" >
+     <section id="header" class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
+            <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+            
+            <div id="profile" class="flex space-x-10 mr-10">
+                <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+                <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+            </div>
+        </section>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Mobile menu button -->
+        <button id="menu-button" class="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-900 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 w-64 h-full bg-gray-900 text-white flex-shrink-0 flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+            </div>
+            <nav class="p-4 overflow-y-auto flex-grow">
+                <ul class="w-48">
+                    <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms.<i class="fa-solid fa-chevron-right pl-20"></i></button>
+                    <div class="formMainDiv hidden">
+                        <hr class=" border-blue-200">
+                        <button class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
+                        <div class="DWaterDiv hidden text-blue-100 pl-6 space-y-2">
+                            <li><a class="addDrinkFormBtn" href="/drinkingWaterForm"></i>Add Drinking Water</a></li>
+                            <li><a class="ListDrinkBtn" href="/drinkingWaterList"></i>List Drinking Water</a></li>
+                        </div>  
+                        
+                        <hr class=" border-blue-200">
+                        <ul class="">
+                            <button class="gasEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Gaseous Emission</button>
+                            <div class="gasEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="addGaseousFormBtn" href="/gaseousEmission">Add Gaseous Emis</a></li>
+                                <li><a class="addGaseousListBtn" href="/gaseousEmissionList">List Gaseous Emis</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality</button>
+                            <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambient Air Qua..</a></li>
+                                <li><a class="ambientAirList" href="/ambientAirList">List Ambient Air Qua..</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                    
+                        <ul>
+                            <button class="wasteWaterBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water Sludge</button>
+                            <div class="wasteWaterDiv hidden text-blue-100 pl-6 space-y-2 ">
+                                <li><a class="wasteWatewrSludgeBtn" href="/wasteWaterSludge">Add Waste Water Slu.</a></li>
+                                <li><a class="wasteWaterSludgeListBtn" href="/wasteWaterSludgeList">List Waste Water Slu.</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="vehicEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Vehicular Emission</button>
+                            <div class="vehicEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="vehicularEmisFormBtn" href="/vehicularEmission">Add Vehicular Emission</a></li>
+                                <li><a class="vehicularemisListBtn" href="/vehicularEmissionList">List Vehicular Emission</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="luxBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Lux Analysis</button>
+                            <div class="luxDiv text-blue-100 hidden pl-6 space-y-2">
+                                <li><a class="luxAnalysisFormBtn" href="/luxAnalysis">Add Lux Analysis</a></li>
+                                <li><a class="luxAnalysisListBtn" href="/luxAnalysisList">List Lux Analysis</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="noiseBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise Analysis</button>
+                            <div class="noiseDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="noiseAnalysisFormBtn" href="/noiseAnalysis">Add Noise Analysis</a></li>
+                                <li><a class="noiseAnalysisListBtn" href="/noiseAnalysisList">List Noise Analysis</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="ppbagBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Packing Poly Bag</button>
+                            <div class="ppbagDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="packingPolyFormBtn" href="/packingPolyBag">Add Packing Poly Bag</a></li>
+                                <li><a class="packingPolyListBtn" href="/packingPolyBagList">List Packing Poly Bag</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <div class="">
+                            <button class="machineOilBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Machine Oil</button>
+                            <div class="machineOilDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="machineOilFormBtn" href="/machineOil">Add Machine Oil</a></li>
+                                <li><a class="machineOilListBtn" href="/machineOilList">List Machine Oil</a></li>
+                            </div>
+                        </div>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                            <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
+                                <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="viscBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Viscous Liquid</button>
+                            <div class="viscDiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="viscousLiquidFormBtn" href="/viscousLiquid">Add Viscous Liquid</a></li>
+                                <li><a class="viscousLiquidListBtn" href="/viscousLiquidList">List Viscous Liquid</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="ambientAirBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality 2</button>
+                            <div class="ambientAirDiv hidden text-blue-100 pl-6 space-y-2" >
+                                <li><a class="ambientAir2FormBtn" href="/ambientAirQuality2">Add Ambient Air 2</a></li>
+                                <li><a class="ambientAir2ListBtn" href="/ambientAir2List">List Ambient Air 2</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="waterwastebtn2 pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water</button>
+                            <div class="waterwastediv2 hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="wasteWater2FormBtn" href="/wasteWater2">Add Waste Water</a></li>
+                                <li><a class="wasteWater2ListBtn" href="/wasteWater2List">List Waste Water</a></li>
+                            </div>
+                        </ul>
+                        <hr class=" border-blue-200">
+                        <ul>
+                            <button class="detoxbtn  pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Detox</button>
+                            <div class="detoxdiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="detoxFormBtn " href="/detox/create_detox">Add Detox</a></li>
+                                <li><a class="detoxListBtn " href="/detox/detoxList">List Detox</a></li>
+                            </div>
+                        </ul>
+                        <ul>
+                            <button class="nosie_monibtn  pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise LAeq</button>
+                            <div class="nosie_monidiv hidden text-blue-100 pl-6 space-y-2">
+                                <li><a class="nosie_moniFormBtn " href="/noisemonitoring">Add Noise LAeq</a></li>
+                                <li><a class="nosie_moniListBtn " href="/noiseMonitoring_list">List Noise LAeq</a></li>
+                            </div>
+                        </ul>
+                    </div>
+                </ul>
+            </nav>
+        </div>
+            <div class="flex-1 overflow-auto mt-20 ">
+                
+                {% comment %} <img class="h-96 mt-44 opacity-20 select-none" src="/static/assets/0x0-removebg-preview.png"  alt="">
+                <h1 class="text-6xl opacity-10 text-blue-800 font-serif pt-10 select-none">ENVITECHAL</h1> {% endcomment %}
+                <div class="w-10/12 mt-52" style="
+                                                padding-bottom: 56px;
+                                                margin-top: 151px;
+                                                max-height: 84%;
+                                                overflow-y: auto;
+                                                padding: 20px;
+                                                width: 94%;
+                                                border-radius: 14px;
+                                                scroll-behavior: smooth;
+                                                inline-size: -webkit-fill-available;
+                                                margin-bottom:50px
+                                            ">
+           
+                    <div class="">
+                        
+                        <form method="get" action="{% url 'home' %}">
+                            {% csrf_token %}
+                            <div class="w-10/12 flex justify-around" style="position: fixed; top: 100px; background: white; padding: 10px; z-index: 1000;">
+                                <input class="w-48 px-2 py-2 border border-gray-400 outline-none rounded" 
+                                    type="text" name="nameInput" value="{{ name_input|default:'' }}" 
+                                    placeholder="Search by Name">
+                                
+                                <input class="dateInput w-40 px-2 py-2 border border-gray-400 outline-none rounded" 
+                                    type="date" name="from_date" value="{{ from_date|default:'' }}">
+                                
+                                <input class="dateInput w-40 px-2 py-2 border border-gray-400 outline-none rounded" 
+                                    type="date" name="to_date" value="{{ to_date|default:'' }}">
+                                
+                                <input class="w-48 px-2 py-2 border border-gray-400 outline-none rounded" 
+                                    type="text" name="locationSearch" value="{{ location_search|default:'' }}" 
+                                    placeholder="Search by Location">
+                                
+                                <input class="w-48 px-2 py-2 border border-gray-400 outline-none rounded" 
+                                    type="text" name="sampleSearch" value="{{ sample_search|default:'' }}" 
+                                    placeholder="Search by Sample ID">
+                                
+                                <input class="border border-2 border-blue-500 bg-blue-500 text-gray-200 px-4 py-2 cursor-pointer rounded-md" 
+                                    type="submit" value="Search Result" name="search">
+                            </div>
+                        </form>
+                    </div>
+
+                    {% if search_performed %}
+                    <form id="merge-form" class="flex justify-center items-center" method="post" action="{% url 'generate_merged_pdf' %}">
+                            {% csrf_token %}
+                            <input class="hidden" type="text" value="[]" name="selected_reports" required />
+                            <button class="shadow-lg bg-blue-500" style="
+                            border: 2px solid #0064EC;
+                            padding: 6px 32px;
+                            border-radius: 7px;
+                            cursor: pointer;
+                            color: white;
+                            " type="submit">Merge PDFs</button>
+                    </form>
+                    <div class="mt-10">
+                        <div class="mb-4 flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">Found {{ total_results }} results</h3>
+                            {% if total_results > 20 %}
+                            <div class="text-sm text-gray-600">
+                                Showing page {{ all_reports.number }} of {{ all_reports.paginator.num_pages }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+    
+                
+                
+                    <table id="myTable" class="w-full border-collapse mt-4">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="border p-2 text-center">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                                    <label for="selectAllCheckbox" class="cursor-pointer text-sm">Select All</label>
+                                </th>
+                                <th class="border p-2">Reporting Date</th>
+                                <th class="border p-2">Lab Report No</th>
+                                <th class="border p-2">Invoice No</th>
+                                <th class="border p-2">Report To</th>
+                                <th class="border p-2">Attention</th>
+                                <th class="border p-2">Location</th>
+                                <th class="border p-2">Sample Id</th>
+                                <th class="border p-2">View</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reports in all_reports %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="border p-2 text-center">
+                                    <input type="checkbox" class="report-checkbox" 
+                                        onchange="selectReport(this)" 
+                                        data-id="{{ reports.id }}" 
+                                        data-type="{{ reports.report_type }}"
+                                        data-lab-report-no="{{ reports.lab_report_no }}">
+                                </td>
+                                <td class="border p-2 date_column">{{ reports.reporting_date|default:"-" }}</td>
+                                <td class="border p-2">{{ reports.lab_report_no|default:"-" }}</td>
+                                <td class="border p-2">{{ reports.invoice_bill_no|default:"-" }}</td>
+                                <td class="border p-2 nameColumn">{{ reports.report_to|default:"-" }}</td>
+                                <td class="border p-2">{{ reports.attention|default:"-" }}</td>
+                                <td class="border p-2 city_location">{{ reports.city_location|default:reports.location|default:"-" }}</td>
+                                <td class="border p-2 sample_id">{{ reports.sample_id|default:"-" }}</td>
+                                <td class="border p-2 text-center">
+                                    {% if reports.report_type == 'dw' %}
+                                    <a href="{% url 'DrinkingWaterform-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'gae' %}
+                                    <a href="{% url 'GaseousForm-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'aa' %}
+                                    <a href="{% url 'ambientAir-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'ww' %}
+                                    <a href="{% url 'wastewater-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 've' %}
+                                    <a href="{% url 'vehicularEmission-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'la' %}
+                                    <a href="{% url 'luxAnalysis-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'pp' %}
+                                    <a href="{% url 'packingpolybag-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'mo' %}
+                                    <a href="{% url 'machineOil-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'ma' %}
+                                    <a href="{% url 'microbial-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'vl' %}
+                                    <a href="{% url 'viscousLiquid-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'aa2' %}
+                                    <a href="{% url 'ambientAir2-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'ww2' %}
+                                    <a href="{% url 'wasteWater2-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% elif reports.report_type == 'na' %}
+                                    <a href="{% url 'noiseAnalysis-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-file text-2xl"></i>
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center p-8 text-gray-500">
+                                    No reports found matching your search criteria.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                 
+                </div>
+
+
+                {% if search_performed and all_reports.has_other_pages %}
+                <div class="flex justify-center mt-6 space-x-2 mb-10">
+                    {% if all_reports.has_previous %}
+                    <a href="?page=1&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">&laquo; First</a>
+                    <a href="?page={{ all_reports.previous_page_number }}&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">Previous</a>
+                    {% endif %}
+                    
+                    <span class="px-3 py-1 bg-blue-500 text-white rounded">
+                        Page {{ all_reports.number }} of {{ all_reports.paginator.num_pages }}
+                    </span>
+                    
+                    {% if all_reports.has_next %}
+                    <a href="?page={{ all_reports.next_page_number }}&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">Next</a>
+                    <a href="?page={{ all_reports.paginator.num_pages }}&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">Last &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+        </div>
+
+        
+
+        
+
+        
+
+
+
+
+
+    <script>
+
+        // $(document).ready( function () {
+        //     $('#myTable').DataTable();
+        // } );
+        document.querySelector('form').addEventListener('submit', function() {
+            var submitBtn = this.querySelector('input[type="submit"]');
+            submitBtn.value = 'Searching...';
+            submitBtn.disabled = true;
+        });
+       
+        const removeFromArray = function(array,value_to_remove){
+    
+        const newArray = array.filter(item => item !== value_to_remove);
+        return newArray;
+        }
+        
+        // Add this new function for Select All
+        const toggleSelectAll = function(source) {
+            const checkboxes = document.querySelectorAll('.report-checkbox');
+            const isChecked = source.checked;
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                // Trigger the selectReport function for each checkbox
+                selectReport(checkbox);
+            });
+        }
+        
+        const selectReport = function(checkbox_elem) {
+            let lab_report_no = $(checkbox_elem).attr("data-lab-report-no");
+            let report_type = $(checkbox_elem).attr("data-type");
+            let report_key = lab_report_no;  // lab_report_no is already unique
+            
+            var previous = JSON.parse($("input[name='selected_reports']").val());
+
+            if ($(checkbox_elem).is(":checked")) {
+                if(!previous.includes(report_key)) {
+                    previous.push(report_key);
+                }
+            } else {
+                previous = removeFromArray(previous, report_key);
+            }
+            $("input[name='selected_reports']").val(JSON.stringify(previous));
+        }
+ 
+    </script>
+    
+    <script src="/static/js/app.js"></script>
+    <script  >
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.querySelector('.nav-toggle');
+            const body = document.querySelector('body');
+            $("input[type='checkbox']").show()
+        
+            {% comment %} toggleButton.addEventListener('click', function () {
+                body.classList.toggle('nav-opened');
+            }); {% endcomment %}
+        });
+
+    
+        
+    </script>
+   
+    <script>
+        const dateInput = document.querySelector(".dateInput")
+        const formattedDate = document.querySelector(".formattedDate")
+
+        dateInput.addEventListener('input',function(){
+            const inputDate = new Date(this.value)
+            if(!isNaN(inputDate.getTime())){
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth()
+                const year = inputDate.getFullYear()
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+
+                const monthName = monthNames[monthIndex]
+                const formateDate = `${day}-${monthName}-${year}`
+
+                formattedDate.value = formateDate
+                searchTable('dateSearch', 'date_column')
+            }
+                
+
+        })
+
+
+
+        function searchTable(inputId, columnClass) {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById(inputId);
+        
+            // Use oninput for date input
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+        
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByClassName(columnClass)[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    // Use includes for date input
+                    if (txtValue.toUpperCase().includes(filter)) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        
+    </script>
+
+  
+    {% else %}
+    <script>window.location='/login/'</script>
+    {% endif %}
+    
+</body>
+
+</html>

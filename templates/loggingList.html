@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+    
+    {%load static%}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={%static "style.css"%}>
+
+    <title>Calibration LIst</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
+  
+  
+</head>
+<body>
+    
+<section id="header"  class="h-20 w-full  flex flex-wrap items-center justify-between p-4 fixed top-0 z-10 bg-gray-900" >
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    
+        <div id="profile" class="flex space-x-10 mr-10">
+            <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+            <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+        </div>
+    
+</section>
+
+
+<section class="main w-full flex flex-row justify-end h-screen "> 
+
+        <div class="drinkingwaterform  w-full flex flex-col items-center ">
+
+            <h1 class="text-4xl font-bold pt-28 text-gray-700">Logging List</h1>
+
+            {% block content %}
+            <div class="w-full flex justify-around mt-10"style=";">
+                <input class="border border-2 border-gray-300 px-2 py-2 ring-offset-2 focus:ring-2 focus:border-blue-200 w-80 outline-none" type="text" id="clientName" placeholder="Search by Client Name">
+                <input class="border border-2 border-gray-300 px-2 py-2 ring-offset-2 focus:ring-2 focus:border-blue-200 w-80 outline-none" type="text" id="sampleId" placeholder="Search by Sample ID">
+                <input class="border border-2 border-gray-300 px-2 py-2 ring-offset-2 focus:ring-2 focus:border-blue-200 w-80 outline-none" type="text" id="email" placeholder="Search by Email">
+                <input class="border border-2 border-gray-300 px-2 py-2 ring-offset-2 focus:ring-2 focus:border-blue-200 w-80 outline-none" type="text" id="sample" placeholder="Search by sample">
+                <input class="dateInput border border-2 border-gray-300 px-2 py-2 ring-offset-2 focus:ring-2 focus:border-blue-200 w-80 outline-none" type="date" id="date" placeholder="Search by date">
+                <input class="formattedDate hidden" type="text" id="dateSearch" placeholder="Search by Date" value="">
+            </div>
+            
+            <table id="example" class="Table border border-black" style="width:80%; "cellspacing=10 >
+                <thead>
+                    <tr class="bg-gray-900 text-gray-200 font-mono">
+                        
+                        <th>Sample/Test ID</th>
+                        <th>Client Name</th>
+                        <th>Email Address</th>
+                        <th>Receiving Date</th>
+                        <th>Nature of Sample/Test</th>
+                        <th>Month</th>
+                        <th>Location</th>
+                        <th>View</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                        <th>Clone</th>
+                        
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {%if data%}
+                    {% for data in  data %}
+                    <tr> 
+                        
+                        <td>{{data.sample_id}}</td>
+                        <td>{{data.client_name}}</td>
+                        <td>{{data.email}}</td>
+                        <td class="date_column">{{data.rec_date}}</td>
+                        <td>{{data.sample_nature}}</td>
+                        <td>{{data.month}}</td>
+                        <td>{{data.city_location}}</td>
+                        <td><a href="{% url 'loggingView' data.id%}"><i class="file-icon fa-solid fa-file  text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'loggingEdit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600 text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'loggingDelete' data.id%}"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></a></td>
+                        <td><a href="{% url 'loggingClone' data.id%}"><i class="fa-solid fa-copy text-3xl cursor-pointer " style="color:#f97316;"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    
+                </tbody>
+                
+                <tfoot>
+                    
+                </tfoot>
+                
+              </table>
+              
+              
+
+            
+            
+                      
+              
+              
+        </div>
+        </section>
+
+        
+        
+
+        {% endblock content %}
+<script defer >
+    $(document).ready(function() {
+        // Initialize DataTable
+        var table = $('#example').DataTable();
+
+        // Add event listeners for the search fields
+        $('#clientName').on('keyup', function() {
+            table.columns(1).search(this.value).draw();
+        });
+
+        $('#sampleId').on('keyup', function() {
+            table.columns(0).search(this.value).draw();
+        });
+
+        $('#email').on('keyup', function() {
+            table.columns(2).search(this.value).draw();
+        });
+        $('#sample').on('keyup', function() {
+            table.columns(4).search(this.value).draw();
+        });
+
+        // Add more event listeners for additional search fields if needed
+    });
+    
+</script>
+<script>
+    $(document).ready(function() {
+        // ... Existing DataTable initialization code ...
+    
+        // Add event listener for date input using jQuery
+        $('.dateInput').on('input', function() {
+            const inputDate = new Date(this.value);
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const year = inputDate.getFullYear();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+    
+                const monthName = monthNames[monthIndex];
+                const formattedDate = `${day}-${monthName}-${year}`;
+    
+                $('.formattedDate').val(formattedDate);
+                searchTable('dateSearch', 'date_column');
+            }
+        });
+    });
+    
+    function searchTable(inputId, columnClass) {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById(inputId);
+    
+        // Use oninput for date input
+        filter = input.value.toUpperCase();
+        table = $('#example').DataTable(); // Use DataTable API
+        tr = table.rows().nodes(); // Use DataTable API to get rows
+    
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByClassName(columnClass)[0]; // Update index based on your table structure
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                // Use includes for date input
+                if (txtValue.toUpperCase().includes(filter)) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+    
+</script>
+</body>
+</html>

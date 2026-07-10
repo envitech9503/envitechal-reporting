@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  {%load static%}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+  <link type="text/css" rel="stylesheet" media="all"
+    href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" />
+  <link type="text/css" rel="stylesheet" media="all"
+    href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+  <!-- <link rel="stylesheet" href={%static "style.css"%}> -->
+
+  <title>List of drinking Water Form</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+
+
+  <style>
+    /* Your styles here */
+    body {
+      -webkit-print-color-adjust: exact;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+    justify-content: space-between;
+
+
+    }
+
+    @page {
+      size: auto;
+    }
+
+    .header tr td {
+
+      vertical-align: middle;
+      width: 33%;
+      /* Adjust this to control the number of images per row */
+    }
+
+  </style>
+</head>
+
+<body>
+  {%block content%} {% if list %}
+
+
+  <div class="header" >
+    <tr>
+      <td>
+        <center>
+        <img style="   width:100px !important;
+        text-align: center;
+        height: 100px !important;" src="http://127.0.0.1:8000/static/assets/0x0-removebg-preview.png" alt=""/>
+      </center>
+      </td>
+      <td>
+        <center>
+        <p class="mt-1 text-indigo-700 text-2xl font-serif font-semibold">ENVI TECH AL</p>
+        <p class="font-semibold" style="color: #65a30d; font-size: medium;">We strive for pragmatic approach to achieve
+          quality Excellence</p>
+          </center>
+      </td>
+      <td>
+        <center>
+           <img style="   width:100px !important;
+           text-align: center;
+           height: 100px !important;" src="http://127.0.0.1:8000/static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png"
+          alt=""/>
+          </center>
+      </td>
+
+    </tr>
+    <!-- Add more rows as needed -->
+  </div>
+  <div style="display:inline-flex;flex-direction: row !important;justify-content: space-between;justify-items: center;">
+
+    <!-- <img style="width: 60px;"   src="http://127.0.0.1:8000/static/assets/0x0-removebg-preview.png" alt=""> -->
+    <!-- </div>
+      <div class="text-center">
+       
+      </div>
+      <div class="" style=""> -->
+
+
+
+  </div>
+  <hr class="mt-1" style="border: 2px solid #65a30d;">
+  <section>
+    <a target="_blank" href="{% url 'drinkingwaterReport-pdf' %}">pdf</a>
+  </section>
+
+
+  <div>
+
+
+    <center>
+      <br>
+    </center>
+
+    <center>
+      <table class="border border-black w-full mt-6">
+        <tbody>
+          <tr class="text-center" style="background-color: #000;color: #fff;">
+            <td class="border border-black"><strong>Report To</strong></td>
+            <div class="">
+              <td class="flex space-x-10 ml-10 border-none">
+                <p>M/S.</p>
+                <p>{{list.report_to}}</p>
+              </td>
+            </div>
+            <div>
+              <td class="flex space-x-10 ml-4 border-none">
+                <p>Address:</p>
+                <p>{{list.address}}</p>
+              </td>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+      <table class="border border-black w-full mt-2">
+        <tbody>
+          <tr class="text-center">
+            <td class="border border-black"><strong>Attention</strong></td>
+            <div class="">
+              <td class="flex space-x-10 ml-10 border-none">
+                <p>Mr.</p>
+                <p>{{list.attention}}</p>
+              </td>
+            </div>
+            <div>
+              <td class="flex space-x-10 ml-4 border-none">
+                <p>E-mail:</p>
+                <p>{{list.email}}</p>
+              </td>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table3 mt-2 text-center w-full border-black border">
+        <tbody>
+          <tr>
+            <td class="border border-black">Sample ID</td>
+            <td class="border border-black">{{list.sample_id}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black">Sample Collection Date:</td>
+            <td class="border border-black">
+              {{list.sample_collection_date}}
+            </td>
+          </tr>
+          <tr>
+            <td class="border border-black">Sample Description</td>
+            <td class="border border-black">{{list.sample_description}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black">Sample Type:</td>
+            <td class="border border-black">{{list.sample_type}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black">
+              Sample Collected /Submitted by:
+            </td>
+            <td class="border border-black">{{list.sample_collected_by}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black">Date of Analysis:</td>
+            <td class="border border-black">
+              {{list.date_of_analysis_from}} to {{list.date_of_analysis_to}}
+            </td>
+          </tr>
+          <tr>
+            <td class="border border-black">Test Description:</td>
+            <td class="border border-black">{{list.test_description}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table id="" class="water-report-table border border-black mt-10 w-full" cellspacing="15">
+        <thead>
+          <tr>
+            <th>Sr.#</th>
+            <th>Parameter/Analytes Description</th>
+            <th>Methods</th>
+            <th>Unit</th>
+            <th>Test Result</th>
+            <th>SEQS</th>
+          </tr>
+        </thead>
+        <tbody id="report-table">
+          {% if list.water_sr1 %}
+          <tr class="text-center border">
+            <td>01</td>
+            <td>pH @ 25°C</td>
+            <td>*APHA 4500 H</td>
+            <td>-</td>
+            <td>{{list.water_sr1}}}</td>
+            <td>6.5 - 8.5</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr2 %}
+          <tr class="text-center border">
+            <td>02</td>
+            <td>Total Dissolved Solids (TDS)</td>
+            <td>*APHA 2540-C</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr2}}</td>
+            <td>
+              <1000< /td>
+          </tr>
+          {% endif %}
+          {% if list.water_sr3 %}
+          <tr class="text-center border">
+            <td>03</td>
+            <td>Total Hardness as CaCO3</td>
+            <td>ASTM D 1126</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr3}}</td>
+            <td>
+              <500< /td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr4 %}
+          <tr class="text-center border">
+            <td>04</td>
+            <td>Color</td>
+            <td>HACH 8025</td>
+            <td>TCU</td>
+            <td>{{list.water_sr4}}</td>
+            <td>≤ 15</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr5 %}
+          <tr class="text-center border">
+            <td>05</td>
+            <td>Turbidity</td>
+            <td>*APHA 2130</td>
+            <td>NTU</td>
+            <td>{{list.water_sr5}}</td>
+            <td>≤ 5</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr6 %}
+          <tr class="text-center border">
+            <td>06</td>
+            <td>Nitrite (NO₂)</td>
+            <td>HACH 8507</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr6}}</td>
+            <td>≤ 3</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr7 %}
+          <tr class="text-center border">
+            <td>07</td>
+            <td>Nitrate (NO3)</td>
+            <td>HACH 8507</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr7}}</td>
+            <td>≤ 0.5</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr8 %}
+          <tr class="text-center border">
+            <td>08</td>
+            <td>Taste</td>
+            <td>*APHA 2160</td>
+            <td>-</td>
+            <td>{{list.water_sr8}}</td>
+            <td>Non-Objectionable</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr9 %}
+          <tr class="text-center border">
+            <td>09</td>
+            <td>Odor</td>
+            <td>*APHA 2150</td>
+            <td>-</td>
+            <td>{{list.water_sr9}}</td>
+            <td>Non-Objectionable</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr10 %}
+          <tr class="text-center border">
+            <td>10</td>
+            <td>Chloride (Cl)</td>
+            <td>*APHA 4500 Cl</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr10}}</td>
+            <td>≤ 250</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr11 %}
+          <tr class="text-center border">
+            <td>11</td>
+            <td>Fluoride (F)</td>
+            <td>HACH 8029</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr11}}</td>
+            <td>≤ 1.5</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr12 %}
+          <tr class="text-center border">
+            <td>12</td>
+            <td>Aluminum (Al)</td>
+            <td>*APHA 3111-D</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr12}}</td>
+            <td>≤ 0.2</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr13 %}
+          <tr class="text-center border">
+            <td>13</td>
+            <td>Nickel (Ni)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr13}}</td>
+            <td>≤ 0.02</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr14 %}
+          <tr class="text-center border">
+            <td>14</td>
+            <td>Lead (Pb)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr14}}</td>
+            <td>≤ 0.05</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr15 %}
+          <tr class="text-center border">
+            <td>15</td>
+            <td>Barium (Ba)</td>
+            <td>HACH 8014</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr15}}</td>
+            <td>≤ 0.7</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr16 %}
+          <tr class="text-center border">
+            <td>16</td>
+            <td>Antimony (Sb)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr16}}</td>
+            <td>≤ 0.005</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr17 %}
+          <tr class="text-center border">
+            <td>17</td>
+            <td>Arsenic (As)</td>
+            <td>*APHA 3114-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr17}}</td>
+            <td>≤ 0.05</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr18 %}
+          <tr class="text-center border">
+            <td>18</td>
+            <td>Boron (B)</td>
+            <td>HACH 8015</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr18}}</td>
+            <td>0.3</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr19 %}
+          <tr class="text-center border">
+            <td>19</td>
+            <td>Cadmium (Cd)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr19}}</td>
+            <td>0.01</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr20 %}
+          <tr class="text-center border">
+            <td>20</td>
+            <td>Chromium (Cr)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr20}}</td>
+            <td>≤ 0.05</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr21 %}
+          <tr class="text-center border">
+            <td>21</td>
+            <td>Selenium (Se)</td>
+            <td>*APHA 3114-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr21}}</td>
+            <td>0.01</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr22 %}
+          <tr class="text-center border">
+            <td>22</td>
+            <td>Copper (Cu)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr22}}</td>
+            <td>2</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr23 %}
+          <tr class="text-center border">
+            <td>23</td>
+            <td>HACH 8027</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr23}}</td>
+            <td>≤ 0.05</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr24 %}
+          <tr class="text-center border">
+            <td>24</td>
+            <td>Mercury (Hg)</td>
+            <td>*APHA 3112-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr24}}</td>
+            <td>≤ 0.001</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr25 %}
+          <tr class="text-center border">
+            <td>25</td>
+            <td>Manganese (Mn)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr25}}</td>
+            <td>≤ 0.5</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr26 %}
+          <tr class="text-center border">
+            <td>26</td>
+            <td>Zinc (Zn)</td>
+            <td>*APHA 3111-B</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr26}}</td>
+            <td>≤ 5.0</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr27 %}
+          <tr class="text-center border">
+            <td>27</td>
+            <td>Residual Chlorine</td>
+            <td>HACH 10069</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr27}}</td>
+            <td>0.2 - 0.5</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr28 %}
+          <tr class="text-center border">
+            <td>28</td>
+            <td>PhenolicCompounds as Phenols</td>
+            <td>ASTM-D-1783</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr28}}</td>
+            <td>-</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr29 %}
+          <tr class="text-center border">
+            <td>29</td>
+            <td>Fecal Coliform</td>
+            <td>USEPA 1604</td>
+            <td>CFU/100 ml</td>
+            <td>{{list.water_sr29}}</td>
+            <td>0 CFU/100 ml</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr30 %}
+          <tr class="text-center border">
+            <td>30</td>
+            <td>Total Coliform</td>
+            <td>*APHA 922 B</td>
+            <td>CFU/100 ml</td>
+            <td>{{list.water_sr30}}</td>
+            <td>0 CFU/100 ml</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr31 %}
+          <tr class="text-center border">
+            <td>31</td>
+            <td>E-Coli</td>
+            <td>USEPA 1604</td>
+            <td>CFU/100 ml</td>
+            <td>{{list.water_sr31}}</td>
+            <td>0 CFU/100 ml</td>
+          </tr>
+          {%endif%}
+          {% if list.water_sr32 %}
+          <tr class="text-center border">
+            <td>32</td>
+            <td>Pesticides</td>
+            <td>USEPA-614.1</td>
+            <td>mg/L</td>
+            <td>{{list.water_sr32}}</td>
+            <td>-</td>
+          </tr>
+          {%endif%}
+        </tbody>
+      </table>
+
+
+      <div class="mt-1 space-y-1">
+
+        {% if list.conclusion %}
+        <p class="underline"><strong>Conclusion:</strong></p>
+        <p>{{list.conclusion}}</p>
+        {% endif %}
+
+        <p class="py-1 underline"><strong>Legends:</strong></p>
+        {%if list.legend_1%}
+        <p>{{list.legend_1}}</p>
+        {%endif%}
+        {%if list.legend_2%}
+        <p>{{list.legend_2}}</p>
+        {%endif%}
+        {%if list.legend_3%}
+        <p>{{list.legend_3}}</p>
+        {%endif%}
+        {%if list.legend_4%}
+        <p>{{list.legend_4}}</p>
+        {%endif%}
+        {%if list.legend_5%}
+        <p>{{list.legend_5}}</p>
+        {%endif%}
+        {%if list.legend_6%}
+        <p>{{list.legend_6}}</p>
+        {%endif%}
+        {%if list.legend_7%}
+        <p>{{list.legend_7}}</p>
+        {%endif%}
+        {%if list.legend_8%}
+        <p>{{list.legend_8}}</p>
+        {%endif%}
+        {%if list.legend_9%}
+        <p>{{list.legend_9}}</p>
+        {%endif%}
+        {%if list.legend_10%}
+        <p>{{list.legend_10}}</p>
+        {%endif%}
+        {%if list.legend_11%}
+        <p>{{list.legend_11}}</p>
+        {%endif%}
+        {%if list.legend_12%}
+        <p>{{list.legend_12}}</p>
+        {%endif%}
+        {%if list.legend_13%}
+        <p>{{list.legend_13}}</p>
+        {%endif%}
+        {%if list.legend_14%}
+        <p>{{list.legend_14}}</p>
+        {%endif%}
+      </div>
+
+      {%if list.edit_note%}
+      <div class="mt-4 space-y-1">
+        <p class="underline"><strong>Note:</strong></p>
+        <p>{{list.edit_note}}</p>
+      </div>
+      {%endif%}
+
+
+
+
+
+      <div class="flex justify-around mt-6">
+        <div class="">
+          <img class="h-16" src="http://127.0.0.1:8000/{{list.analyzed_by.url}}" alt="image" />
+          <hr class="border border-black mt-2" />
+          <p><strong>Analyzed By Analyzed By (Analyst)</strong></p>
+        </div>
+        <div class="">
+          <img class="h-16" src="http://127.0.0.1:8000/{{list.reviewed_by.url}}" alt="image" />
+          <hr class="border border-black mt-2" />
+          <p><strong>Reviewed By (Assistant Manager)</strong></p>
+        </div>
+        <div class="">
+          <div class="flex space-x-6">
+            <img class="h-16" src="http://127.0.0.1:8000/{{list.analyzed_by.url}}" alt="image" />
+            <img class="h-16" src="http://127.0.0.1:8000/static/assets/Reserved.ReportViewerWebControl.jpg"
+              alt="image" />
+          </div>
+          <hr class="border border-black mt-2" />
+          <p><strong>Approved By (Lab Manager)</strong></p>
+        </div>
+      </div>
+      <hr class="border border-gray-700 mt-3">
+      <div class="mt-2 flex">
+        <div class="w-7/12">
+          <span><strong>Disclaimer :</strong></span>
+          <div class="mt-2 " style="">
+            <li>Report is valid for current batch (sample).</li>
+            <li>This report is not valid for any publication or judical purpose.</li>
+            <li>If sample is provided by the customer, <span class="text-indigo-700 font-bold">Envi Tech AL</span> is
+              not responsible for the sample identification and data shared by the client.</li>
+            <li>The remaining portion of te sample shall be discarded after five working days unless otherwise
+              instructed.</li>
+          </div>
+        </div>
+        <div class="flex text-center ">
+          <div class=" flex items-center flex-col">
+            <img class="h-14" src="http://127.0.0.1:8000/static/assets/ISO-9001_2015-LOGO.png" alt="">
+            {%if list.doc_controll_1%}
+            <div class="border border-black text-xs w-28">
+
+              <p>{{list.doc_controll_1}}</p>
+            </div>
+            {%endif%}
+          </div>
+          <div class="text-center flex flex-col items-center">
+            <img class="h-14" src="http://127.0.0.1:8000/static/assets/SEPA-Sindh-LOGO.png" alt="">
+            {%if list.doc_controll_2%}
+            <div class="border border-black text-xs">
+
+              <p>{{list.doc_controll_2}}</p>
+            </div>
+            {%endif%}
+
+          </div>
+          <div class="text-center flex flex-col items-center">
+            <img class="h-14" src="http://127.0.0.1:8000/static/assets/ISO-14001_2015-LOGO.png" alt="">
+            {%if list.doc_controll_3%}
+            <div class="border border-black text-xs w-28">
+              <p>{{list.doc_controll_3}}</p>
+            </div>
+            {%endif%}
+
+          </div>
+        </div>
+
+      </div>
+      <hr class="border border-gray-700 mt-2 mb-10">
+
+
+  </div>
+
+  </center>
+  <footer class="bg-indigo-900 h-14">
+    <div class="w-full">
+      <div class="flex justify-around ml-4 mr-4">
+        <div class="flex justify-center py-2 items-center">
+          <i class="fa-solid fa-location-dot text-gray-200 w-20 text-center mt-2"></i>
+          <div class=" text-xs flex flex-col text-gray-200">
+            <span><strong>Head Office:</strong> First Floor, 345, Street 15, Bahadurabad Bahadur Yar Jang CHS, Karachi,
+              Karachi City, Sindh 75900</span>
+            <span><strong>Lahore Office:</strong> 87-E Madina Heights, Office # A/30-31, 8th Floor, Maulana Shaukat Ali
+              Rd, Block E Phase 1 Johar Town, Lahore, Punjab 54782</span>
+          </div>
+        </div>
+        <div class="flex justify-center py-4">
+          <i class="fa-solid fa-earth-americas w-20 text-center mt-2 text-gray-200"></i>
+          <div class="text-xs flex flex-col text-gray-200">
+            <span>info@envitechal.com</span>
+            <span>www.envitechal.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+
+  {% endif %} {%endblock content%}
+
+  <script defer>
+    $(document).ready(async () => {
+      var td = $("#report-table td");
+      var i = 1;
+      for (l = 0; l < td.length; l += 6) {
+        td[l].innerText = i < 10 ? `0${i}` : i.toString();
+        i = i + 1
+      }
+    })
+  </script>
+
+  <!-- <script src={% static '/js/app.js'%} defer > -->
+  </script>
+</body>
+
+</html>

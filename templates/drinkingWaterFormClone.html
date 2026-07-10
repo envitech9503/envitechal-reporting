@@ -1,0 +1,1290 @@
+<!doctype html>
+<html>
+<head>
+    
+    {%load static%}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href={%static "style.css"%}>
+
+  <title>Add drinking Water Form</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  
+  <style>
+    .NEQS,.PEQS{
+    display: none;
+    }
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .side-nav {
+            width: 100%; /* Make the navigation full width */
+            left: -100%; /* Hide it off-screen by default */
+            transition: left 0.3s ease;
+            font-size:15px;
+        }
+    
+        .side-nav.show {
+            left: 0; /* Show the navigation on smaller screens */
+        }
+    }
+    
+    /* Add a hamburger menu icon for mobile */
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .menu-toggle {
+            display: block; /* Show the toggle button on small screens */
+        }
+    
+        .menu-toggle a {
+            cursor: pointer;
+        }
+    }
+    
+    /* You can style the hamburger icon as you like */
+    .menu-toggle i {
+        font-size: 24px;
+        margin-right: 10px;
+    }
+    
+    /* Add this CSS to make the submenus visible on mobile */
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .sub-menu.show {
+            display: block;
+        }
+    }
+</style>
+  
+</head>
+<body>
+    
+<section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    
+        <div id="profile" class="flex space-x-10 mr-10">
+            <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+            <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+        </div>
+</section>
+
+
+<section class="main w-full flex flex-row justify-end ">
+    
+        <nav class="side-nav list-none w-72 bg-gray-900 text-gray-100 h-full flex flex-col items-center fixed  top-22 left-0 overflow-x-hidden mt-20" >
+            <hr class="border border-gray-100 w-full">
+            <h1 class="text-2xl pb-4 pt-4 text-gray-100 font-bold text-center">SITE NAVIGATION</h1>
+                <ul class="w-48 ">
+                    
+
+                    
+                        <button class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms.<i class="fa-solid fa-chevron-right pl-20"></i></button>
+                        <div class="formMainDiv hidden">
+                            <hr class=" border-blue-200">
+                                <button class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
+                                <div class="DWaterDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li ><a class="addDrinkFormBtn" href="/drinkingWaterForm"></i>Add Drinking Water</a></li>
+                                    <li ><a class="ListDrinkBtn" href="/drinkingWaterList"></i>List Drinking Water</a></li>
+                                
+                                </div>  
+                            
+                                <hr class=" border-blue-200">
+                                <ul class="">
+                                    <button class="gasEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Gaseous Emission</button>
+                                    <div class="gasEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="addGaseousFormBtn" href="/gaseousEmission">Add Gaseous Emis</a></li>
+                                    <li><a class="addGaseousListBtn" href="/gaseousEmissionList">List Gaseous Emis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambienty Air Quality</button>
+                                    <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambienty Air Qua..</a></li>
+                                    <li><a class="ambientAirList" href="/ambientAirList">List Ambienty Air Qua..</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                            
+                                <ul>
+                                    <button class="wasteWaterBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water Sludge</button>
+                                    <div class="wasteWaterDiv hidden text-blue-100 pl-6 space-y-2 ">
+                                    <li><a class="wasteWatewrSludgeBtn" href="/wasteWaterSludge">Add Waste Water Slu.</a></li>
+                                    <li><a class="wasteWaterSludgeListBtn" href="/wasteWaterSludgeList">List Waste Water Slu.</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="vehicEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Vehicular Emission</button>
+                                    <div class="vehicEmDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="vehicularEmisFormBtn" href="/vehicularEmission">Add Vehicular Emission</a></li>
+                                    <li><a class="vehicularemisListBtn" href="/vehicularEmissionList">List Vehicular Emission</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="luxBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Lux Analysis</button>
+                                    <div class="luxDiv text-blue-100 hidden pl-6 space-y-2">
+                                    <li><a class="luxAnalysisFormBtn" href="/luxAnalysis">Add Lux Analysis</a></li>
+                                    <li><a class="luxAnalysisListBtn" href="/luxAnalysisList">List Lux Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="noiseBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise Analysis</button>
+                                <div class="noiseDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="noiseAnalysisFormBtn" href="/noiseAnalysis">Add Noise Analysis</a></li>
+                                    <li><a class="noiseAnalysisListBtn" href="/noiseAnalysisList">List Noise Analysis</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ppbagBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Packing Poly Bag</button>
+                                <div class="ppbagDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="packingPolyFormBtn" href="/packingPolyBag">Add Packing Poly Bag</a></li>
+                                    <li><a class="packingPolyListBtn" href="/packingPolyBagList">List Packing Poly Bag</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <div class="">
+                                    <button class="machineOilBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Machine Oil</button>
+                                   <div class="machineOilDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="machineOilFormBtn" href="/machineOil">Add Machine Oil</a></li>
+                                    <li><a class="machineOilListBtn" href="/machineOilList">List Machine Oil</a></li>
+                                   </div>
+                                </div>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                                    <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
+                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                    </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="viscBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Viscous Liquid</button>
+                                <div class="viscDiv hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="viscousLiquidFormBtn" href="/viscousLiquid">Add Viscous Liquid</a></li>
+                                    <li><a class="viscousLiquidListBtn" href="/viscousLiquidList">List Viscous Liquid</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="ambientAirBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality 2</button>
+                                <div class="ambientAirDiv hidden text-blue-100 pl-6 space-y-2" >
+                                    <li><a class="ambientAir2FormBtn" href="/ambientAirQuality2">Add Ambient Air 2</a></li>
+                                    <li><a class="ambientAir2ListBtn" href="/ambientAir2List">List Ambient Air 2</a></li>
+                                </div>
+                                </ul>
+                                <hr class=" border-blue-200">
+                                <ul>
+                                    <button class="waterwastebtn2 pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water2</button>
+                                <div class="waterwastediv2 hidden text-blue-100 pl-6 space-y-2">
+                                    <li><a class="wasteWater2FormBtn" href="/wasteWater2">Add Waste Water2</a></li>
+                                    <li><a class="wasteWater2ListBtn" href="/wasteWater2List">List Waste Water2</a></li>
+                                </div>
+                                </ul>
+                        </div>
+                            
+                        
+                        </ul>
+                        
+                    
+                    
+                        
+
+                
+            
+        </nav>
+        {% block content %}
+        
+        <div class="drinkingwaterform h-full w-10/12 flex flex-col items-center  bg-blueGray-600" >
+            
+            {% if list %}
+            
+            <form action="{% url 'DriningWaterform-Save' pk=list.id %}" method="post" enctype="multipart/form-data" class="drink-water-form flex flex-col justify-around w-11/12 mt-10 flex-wrap">
+                {% csrf_token %}
+                <h1 class="text-center mt-10 text-3xl py-16">Drinking Water Form</h1>
+                <div class="flex ">
+                    <div class="alert w-52 flex flex-col justify-around my-6">
+                    
+                        <div class="">
+                            <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                        </div>
+                        <div>
+                            <input class="SEQS-value" type="checkbox" value="SEQS_" 
+                                {% if list.location == "SEQS" %} checked {% endif %}>
+                            <label for="">SEQS</label>
+                        </div>
+                        
+                        <div>
+                            <input class="PEQS-value" type="checkbox" value="PEQS_" 
+                                {% if list.location == "PEQS" %} checked {% endif %}>
+                            <label for="">PEQS</label>
+                        </div>
+                        
+                        <div>
+                            <input class="NEQS-value" type="checkbox" value="NEQS_" 
+                                {% if list.location != "SEQS" and list.location != "PEQS" %} checked {% endif %}>
+                            <label for="">NEQS</label>
+                        </div>
+                        <input id="checkinput" type="text" name="location" value="{{list.location}}" style="display: none;">
+                        <div class="mt-4 flex flex-col">
+                            <label class="font-bold text-lg" for="">Location</label>
+                            <input class="border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{list.city_location}}" placeholder="Karachi,Lahore">
+                        </div>
+                        <div class=" flex flex-col">
+                                <label class="font-bold text-lg" for="">Industry</label>
+                                <select required class="border-2 border-black w-96 px-2 py-2 rounded-lg" name="industry" id="">
+                                    <option value="" selected disabled>Select Industry</option>
+                                    {% for industry in industry %}  
+                                        <option value="{{industry.id}}">{{industry.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                
+                            </div>
+                        <div class="mt-4 flex flex-col">
+                            <label class="font-bold text-lg" for="">Customer</label>
+                        <select id="customers" onchange="selectCustomer(this)"  class="border-2 border-black w-96 px-2 py-2 rounded-lg">
+                            <option selected disabled>Select Customer</option>
+                      
+                       </select>
+                    </div>
+                        
+    
+                    </div>
+    
+                    <div class="w-52 pt-8 ml-4">
+                        <div class="">
+                            <input id="customLimits" type="checkbox" value="customLimits">
+                            <label for="">Custom Limits</label>
+                        </div>
+                        <input id="in_out_checkbox" type="text" name="in_out" value="" style="display: none;">
+                    </div>
+                    
+                    
+                </div>
+                <div class="dwf flex justify-between flex-wrap">
+                    <div class="drink-water-form-1st-input flex flex-col flex-wrap">
+                        <label class="font-bold text-lg" for="">Lab Report No</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="lab_report_no" type="text" value="{{list.lab_report_no}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Invoice Bill No</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="invoice_bill_no" type="text" value="{{list.invoice_bill_no}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Reporting Date</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" 
+                            type="text" name="reporting_date" value="{{list.reporting_date}}">
+                    </div>
+                </div>
+                <hr class="broder border-black mt-10">
+        
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Report To :</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="reporting_to" style="width: 35rem;" type="text" value="{{list.report_to}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Address</label>
+                        <input class=" border-2 border-black p-2 h-10 rounded text-lg" name="address" style="width: 35rem;" type="text" value="{{list.address}}">
+                    </div>
+                    
+                    
+                </div>
+        
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Attention</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="attention" style="width: 35rem;" type="text" value="{{list.attention}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Email</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="email" style="width: 35rem;" type="text" value="{{list.email}}">
+                    </div>
+                </div>
+        
+                <hr class="broder border-black mt-10">
+        
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample ID</label>
+                        <input id="" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_id" style="width: 24rem;" type="text" value="{{list.sample_id}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Collection Date</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg"
+                            style="width: 24rem;" type="text" name="collection_date" value="{{list.sample_collection_date}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Description</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_description" style="width: 24rem;" type="text" value="{{list.sample_description}}">
+                    </div>
+                </div>
+        
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Type</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_type" style="width: 24rem;" type="text" value="{{list.sample_type}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Sample Collected By</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="sample_collected_by" style="width: 24rem;" type="text" value="{{list.sample_collected_by}}">
+                    </div>
+                    <div class="flex flex-col ">
+                        <label class="font-bold text-lg" for="">Date of Analysis From</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="date_of_analysis_from"
+                            style="width: 24rem;" type="text" value="{{list.date_of_analysis_from}}">
+                    </div>
+                </div>
+        
+                <div class="flex justify-between mt-4">
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Date of Analysis To</label>
+                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="date_of_analysis_to"
+                            style="width: 35rem;" type="text" value="{{list.date_of_analysis_to}}">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="font-bold text-lg" for="">Test Description</label>
+                        <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="test_description" style="width: 35rem;" type="text" value="{{list.test_description}}">
+                    </div>
+                    
+                </div>
+                <hr class="broder border-black mt-10">
+        
+        
+        
+                <div class="w-full flex flex-col justify-center">
+                    <table id="table" class=" water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
+                        <thead>
+                            <tr>
+                                <th>Sr.#</th>
+                                <th>Parameter/Analytes Description</th>
+                                <th>Methods</th>
+                                <th>Unit</th>
+                                <th>Test Result</th>
+                                <th class="seqsHeader"><select class="select h-8 text-center w-36 font-bold" name="water-select">
+                                    <option {% if list.location == 'SEQS' %} selected{% endif %} value="SEQS">SEQS Limits</option>
+                                        <option {% if list.location == 'PEQS' %} selected{% endif %} value="PEQS">PEQS Limits</option>
+                                        <option {% if list.location != 'SEQS' and list.location != 'PEQS' %} selected{% endif %} value="NEQS">NEQS Limits</option>
+
+                                </select></th>
+                                <th class="custominput1" style="display: none;"><input type="text" value="{{list.custominput}}" name="custominput"></th>
+
+
+                                
+                            </tr>
+                        </thead>
+                        <tbody class="">
+                            <tr class="text-center border h-16">
+            <td>01</td>
+            <td>pH @ 25°C</td>
+            <td><input class="border-2 border-black w-72" name="method_1" type="text" value="{{list.method_1}}"></td>
+            <td>-</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr1" type="text" value="{{list.water_sr1}}"></td>
+            <td class="seqsHeader">6.5 - 8.5</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput1}}" name="custominput1"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>02</td>
+            <td>Total Dissolved Solids (TDS)</td>
+            <td><input class="border-2 border-black w-72" name="method_2" type="text" value="{{list.method_2}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr2" type="text" value="{{list.water_sr2}}"></td>
+            <td class="seqsHeader">
+                <1000 </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput2}}" name="custominput2"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>03</td>
+            <td>Total Hardness as CaCO₃</td>
+            <td><input class="border-2 border-black w-72" name="method_3" type="text" value="{{list.method_3}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr3" type="text" value="{{list.water_sr3}}"></td>
+            <td class="seqsHeader">
+                <500 </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput3}}" name="custominput3"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>04</td>
+            <td>Color</td>
+            <td><input class="border-2 border-black w-72" name="method_4" type="text" value="{{list.method_4}}"></td>
+            <td>TCU</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr4" type="text" value="{{list.water_sr4}}"></td>
+            <td class="seqsHeader"> ≤ 15 </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput4}}" name="custominput4"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>05</td>
+            <td>Turbidity</td>
+            <td><input class="border-2 border-black w-72" name="method_5" type="text" value="{{list.method_5}}"></td>
+            <td>NTU</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr5" type="text" value="{{list.water_sr5}}"></td>
+            <td class="seqsHeader"> ≤ 5 </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput5}}" name="custominput5"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>06</td>
+            <td>Nitrite</td>
+            <td><input class="border-2 border-black w-72" name="method_6" type="text" value="{{list.method_6}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr6" type="text" value="{{list.water_sr6}}"></td>
+            <td class="seqsHeader"> ≤ 3 </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput6}}" name="custominput6"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>07</td>
+            <td>Nitrate (NO₃)</td>
+            <td><input class="border-2 border-black w-72" name="method_7" type="text" value="{{list.method_7}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr7" type="text" value="{{list.water_sr7}}"></td>
+            <td class="seqsHeader"> ≤ 50 </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput7}}" name="custominput7"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>08</td>
+            <td>Taste</td>
+            <td><input class="border-2 border-black w-72" name="method_8" type="text" value="{{list.method_8}}"></td>
+            <td>-</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr8" type="text" value="{{list.water_sr8}}"></td>
+            <td class="seqsHeader"> Non-Objectionable </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput8}}" name="custominput8"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>09</td>
+            <td>Odor</td>
+            <td><input class="border-2 border-black w-72" name="method_9" type="text" value="{{list.method_9}}"></td>
+            <td>-</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr9" type="text" value="{{list.water_sr9}}"></td>
+            <td class="seqsHeader"> Non-Objectionable </td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput9}}" name="custominput9"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>10</td>
+            <td>Chloride (Cl)</td>
+            <td><input class="border-2 border-black w-72" name="method_10" type="text" value="{{list.method_10}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr10" type="text" value="{{list.water_sr10}}"></td>
+            <td class="seqsHeader"> ≤ 250</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput10}}" name="custominput10"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>11</td>
+            <td>Fluoride (F)</td>
+            <td><input class="border-2 border-black w-72" name="method_11" type="text" value="{{list.method_11}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr11" type="text" value="{{list.water_sr11}}"></td>
+            <td class="seqsHeader"> ≤ 1.5</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput11}}" name="custominput11"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>12</td>
+            <td>Aluminum (Al)</td>
+            <td><input class="border-2 border-black w-72" name="method_12" type="text" value="{{list.method_12}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr12" type="text" value="{{list.water_sr12}}"></td>
+            <td class="seqsHeader"> ≤ 0.2</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput12}}" name="custominput12"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>13</td>
+            <td>Nickel (Ni)</td>
+            <td><input class="border-2 border-black w-72" name="method_13" type="text" value="{{list.method_13}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr13" type="text" value="{{list.water_sr13}}"></td>
+            <td class="seqsHeader"> ≤ 0.02</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput13}}" name="custominput13"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>14</td>
+            <td>Lead (Pb)</td>
+            <td><input class="border-2 border-black w-72" name="method_14" type="text" value="{{list.method_14}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr14" type="text" value="{{list.water_sr14}}"></td>
+            <td class="seqsHeader"> ≤ 0.05</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput14}}" name="custominput14"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>15</td>
+            <td>Barium (Ba)</td>
+            <td><input class="border-2 border-black w-72" name="method_15" type="text" value="{{list.method_15}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr15" type="text" value="{{list.water_sr15}}"></td>
+            <td class="seqsHeader"> 0.7</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput15}}" name="custominput15"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>16</td>
+            <td>Antimony (Sb)</td>
+            <td><input class="border-2 border-black w-72" name="method_16" type="text" value="{{list.method_16}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr16" type="text" value="{{list.water_sr16}}"></td>
+            <td class="seqsHeader"> ≤ 0.005</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput16}}" name="custominput16"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>17</td>
+            <td>Arsenic (As)</td>
+            <td><input class="border-2 border-black w-72" name="method_17" type="text" value="{{list.method_17}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr17" type="text" value="{{list.water_sr17}}"></td>
+            <td class="seqsHeader"> ≤ 0.05</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput17}}" name="custominput17"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>18</td>
+            <td>Boron (B)</td>
+            <td><input class="border-2 border-black w-72" name="method_18" type="text" value="{{list.method_18}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr18" type="text" value="{{list.water_sr18}}"></td>
+            <td class="seqsHeader"> 0.3</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput18}}" name="custominput18"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>19</td>
+            <td>Cadmium (Cd)</td>
+            <td><input class="border-2 border-black w-72" name="method_19" type="text" value="{{list.method_19}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr19" type="text" value="{{list.water_sr19}}"></td>
+            <td class="seqsHeader">0.01</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput19}}" name="custominput19"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>20</td>
+            <td>Chromium (Cr)</td>
+            <td><input class="border-2 border-black w-72" name="method_20" type="text" value="{{list.method_20}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr20" type="text" value="{{list.water_sr20}}"></td>
+            <td class="seqsHeader">≤ 0.05</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput20}}" name="custominput20"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>21</td>
+            <td>Selenium (Se)</td>
+            <td><input class="border-2 border-black w-72" name="method_21" type="text" value="{{list.method_21}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr21" type="text" value="{{list.water_sr21}}"></td>
+            <td class="seqsHeader">0.01</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput21}}" name="custominput21"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>22</td>
+            <td>Copper (Cu)</td>
+            <td><input class="border-2 border-black w-72" name="method_22" type="text" value="{{list.method_22}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr22" type="text" value="{{list.water_sr22}}"></td>
+            <td class="seqsHeader">2</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput22}}" name="custominput22"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>23</td>
+            <td>Cyanide (CN)</td>
+            <td><input class="border-2 border-black w-72" name="method_23" type="text" value="{{list.method_23}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr23" type="text" value="{{list.water_sr23}}"></td>
+            <td class="seqsHeader">≤ 0.05</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput23}}" name="custominput23"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>24</td>
+            <td>Mercury (Hg)</td>
+            <td><input class="border-2 border-black w-72" name="method_24" type="text" value="{{list.method_24}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr24" type="text" value="{{list.water_sr24}}"></td>
+            <td class="seqsHeader">≤ 0.001</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput24}}" name="custominput24"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>25</td>
+            <td>Manganese (Mn)</td>
+            <td><input class="border-2 border-black w-72" name="method_25" type="text" value="{{list.method_25}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr25" type="text" value="{{list.water_sr25}}"></td>
+            <td class="seqsHeader">≤ 0.5</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput25}}" name="custominput25"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>26</td>
+            <td>Zinc (Zn)</td>
+            <td><input class="border-2 border-black w-72" name="method_26" type="text" value="{{list.method_26}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr26" type="text" value="{{list.water_sr26}}"></td>
+            <td class="seqsHeader">≤ 5.0</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput26}}" name="custominput26"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>27</td>
+            <td>Residual Chlorine</td>
+            <td><input class="border-2 border-black w-72" name="method_27" type="text" value="{{list.method_27}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr27" type="text" value="{{list.water_sr27}}"></td>
+            <td class="seqsHeader">0.2 - 0.5</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput27}}" name="custominput27"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>28</td>
+            <td>Phenolic Compounds as Phenols</td>
+            <td><input class="border-2 border-black w-72" name="method_28" type="text" value="{{list.method_28}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr28" type="text" value="{{list.water_sr28}}"></td>
+            <td class="seqsHeader">-</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput28}}" name="custominput28"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>29</td>
+            <td>Fecal Coliform</td>
+            <td><input class="border-2 border-black w-72" name="method_29" type="text" value="{{list.method_29}}"></td>
+            <td>CFU/100 ml</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr29" type="text" value="{{list.water_sr29}}"></td>
+            <td class="seqsHeader">0 CFU/100 ml</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput29}}" name="custominput29"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>30</td>
+            <td>Total Coliform</td>
+            <td><input class="border-2 border-black w-72" name="method_30" type="text" value="{{list.method_30}}"></td>
+            <td>CFU/100 ml</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr30" type="text" value="{{list.water_sr30}}"></td>
+            <td class="seqsHeader">0 CFU/100 ml</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput30}}" name="custominput30"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>31</td>
+            <td>E-Coli</td>
+            <td><input class="border-2 border-black w-72" name="method_31" type="text" value="{{list.method_31}}"></td>
+            <td>CFU/100 ml</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr31" type="text" value="{{list.water_sr31}}"></td>
+            <td class="seqsHeader">0 CFU/100 ml</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput31}}" name="custominput31"></td>
+        </tr>
+        <tr class="text-center border h-16">
+            <td>32</td>
+            <td>Pesticides</td>
+            <td><input class="border-2 border-black w-72" name="method_32" type="text" value="{{list.method_32}}"></td>
+            <td>mg/L</td>
+            <td><input class=" border-2 border-black w-72" name="water_sr32" type="text" value="{{list.water_sr32}}"></td>
+            <td class="seqsHeader">-</td>
+            <td class="custominput" style="display:none;"><input type="text" value="{{list.custominput32}}" name="custominput32"></td>
+        </tr>
+                            {% if list.in_out == 'customLimits' %}
+                                    {% for extra_field in list.extra_field %}
+
+                                    <tr class=" border">
+                                        <td class="text-center"><input type="text" value=" {{ extra_field.sr }}" name="sr[]"></td>
+                                        <td class="pl-2"><input type="text" value="{{ extra_field.parameters }}" name="parameters[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.methods }}" name="methods[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.unit }}" name="unit[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.result }}" name="result[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.limit }}" name="limit[]"></td>
+                                    </tr>
+                                    
+                            {% endfor %}
+                                    {% endif %}
+                            {% if list.in_out == "" %}
+                                    {% for extra_field in list.extra_field %}
+
+                                    <tr class=" border">
+                                        <td class="text-center"><input type="text" value=" {{ extra_field.sr }}" name="sr[]"></td>
+                                        <td class="pl-2"><input type="text" value="{{ extra_field.parameters }}" name="parameters[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.methods }}" name="methods[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.unit }}" name="unit[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.result }}" name="result[]"> </td>
+                                        <td class="text-center"><input type="text" value="{{ extra_field.limit }}" name="limit[]"></td>
+                                    </tr>
+                                    
+                            {% endfor %}
+                                    {% endif %}
+        
+                        </tbody>
+                    </table>
+                    
+                    <div class="flex flex-row-reverse">
+
+
+                        <button type="button" id="save_rows"
+                                class="bg-blue-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500">Save
+                                Rows</button>
+                        <button type="button" id="add_rows"
+                                class="bg-green-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500">Add
+                                Rows</button>
+
+                    </div>
+                    <hr class="broder border-black mt-10">
+        
+                    <div class="flex justify-between mt-4">
+                        <div class="flex flex-col">
+                            <label class="font-bold text-lg" for="">Conclusion</label>
+                            <textarea class="border-2 border-black w-96 rounded " name="water-conclusion" id="" cols="30" rows="3" value="{{list.conclusion}}"></textarea>
+                        </div>
+                            
+                    </div>
+        
+                    <h2 class="py-2 font-bold">LEGENDS</h2>
+                    
+                        
+                    <div class="legends w-full flex flex-col space-y-10 border-2 border-gray-200 p-8 mt-10">
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-1" value="{{list.legend_1}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-2" value="{{list.legend_2}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-3" value="{{list.legend_3}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-4" value="{{list.legend_4}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-5" value="{{list.legend_5}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-6" value="{{list.legend_6}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-7" value="{{list.legend_7}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-8" value="{{list.legend_8}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-9" value="{{list.legend_9}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-10" value="{{list.legend_10}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-11" value="{{list.legend_11}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-12" value="{{list.legend_12}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-13" value="{{list.legend_13}}">    
+                        <input class=" h-12 px-2 py-3 border-2 border-black w-full" type="text " name="legend-14" value="{{list.legend_14}}">    
+                    </div>
+        
+                            <div class="flex flex-col justify-between mt-6">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Edit Note</label>
+                                    <input class=" border-2 border-black p-2 h-10 rounded text-lg" name="edit-note" style="width: 79rem;" type="text" value="{{list.edit_note}}" >
+                                </div>
+                                <div class="flex flex-col mt-4">
+                                    <label class="font-bold text-lg" for="">Custom Legend (if any):</label>
+                                    <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" style="width: 35rem;" name="custom-legend" type="text" value="{{list.custom_legend}}">
+                                </div>
+                                
+                            </div>
+        
+                            <div class="flex justify-between mt-6">
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for=""> Doc. Controller 1:</label>
+                                    <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc-con-1" value="{{list.doc_controll_1}}">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Doc. Controller 2:</label>
+                                    <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc-con-2" value="{{list.doc_controll_2}}">
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="font-bold text-lg" for="">Doc. Controller 3:</label>
+                                    <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc-con-3" value="{{list.doc_controll_3}}">
+                                </div>
+                            </div>
+
+                            <hr class="broder border-black mt-10">
+
+                            <div class="mt-10 space-y-3">
+                                            <label for="" class="text-xl font-bold">PDF Image Page Heading</label>
+                                            <input type="text" value="{{list.pdf_heading}}" name="pdf_heading"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200">
+                                        
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                                        <!-- Image 1 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 1</label>
+                                            {% if pdf_image_1 %}
+                                            <div class="mb-3" id="image-preview-1">
+                                                <img src="{{ pdf_image_1 }}" alt="Image 1" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_1"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_1" accept="image/*" onchange="hidePreview(1)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_1" value="{{ list.pdf_desc_1 }}" placeholder="Description for Image 1"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 2 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 2</label>
+                                            {% if pdf_image_2 %}
+                                            <div class="mb-3" id="image-preview-2">
+                                                <img src="{{ pdf_image_2 }}" alt="Image 2" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_2"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_2" accept="image/*" onchange="hidePreview(2)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_2" value="{{ list.pdf_desc_2 }}" placeholder="Description for Image 2"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 3 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 3</label>
+                                            {% if pdf_image_3 %}
+                                            <div class="mb-3" id="image-preview-3">
+                                                <img src="{{ pdf_image_3 }}" alt="Image 3" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_3"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_3" accept="image/*" onchange="hidePreview(3)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_3" value="{{ list.pdf_desc_3 }}" placeholder="Description for Image 3"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 4 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 4</label>
+                                            {% if pdf_image_4 %}
+                                            <div class="mb-3" id="image-preview-4">
+                                                <img src="{{ pdf_image_4 }}" alt="Image 4" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_4"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_4" accept="image/*" onchange="hidePreview(4)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_4" value="{{ list.pdf_desc_4 }}" placeholder="Description for Image 4"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 5 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 5</label>
+                                            {% if pdf_image_5 %}
+                                            <div class="mb-3" id="image-preview-5">
+                                                <img src="{{ pdf_image_5 }}" alt="Image 5" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_5"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_5" accept="image/*" onchange="hidePreview(5)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_5" value="{{ list.pdf_desc_5 }}" placeholder="Description for Image 5"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    
+                                        <!-- Image 6 -->
+                                        <div class="border border-black p-4 rounded-md shadow-sm">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Image 6</label>
+                                            {% if pdf_image_6 %}
+                                            <div class="mb-3" id="image-preview-6">
+                                                <img src="{{ pdf_image_6 }}" alt="Image 6" class="w-full h-32 object-contain border rounded mb-2">
+                                                <label class="flex items-center text-red-600 text-sm space-x-2">
+                                                    <input type="checkbox" name="remove_image_6"> Remove this image
+                                                </label>
+                                            </div>
+                                            {% endif %}
+                                            <input type="file" name="pdf_image_6" accept="image/*" onchange="hidePreview(6)"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                                            <input type="text" name="pdf_desc_6" value="{{ list.pdf_desc_6 }}" placeholder="Description for Image 6"
+                                                class="w-full border border-gray-300 rounded-md p-2 text-sm">
+                                        </div>
+                                    </div>
+                                    
+                                    <script>
+                                        function hidePreview(i) {
+                                            const preview = document.getElementById(`image-preview-${i}`);
+                                            if (preview) {
+                                                preview.classList.add('hidden');
+                                            }
+                                        }
+                                    </script>
+                                        
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sm">
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2" for="analyst-sign">Analyzed By</label>
+                            <select id="analyst-sign" name="analyst_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Analyzed By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2" for="review-sign">Reviewed By</label>
+                            <select id="review-sign" name="review_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Reviewed By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="border border-black p-4">
+                            <label class="font-bold text-lg block mb-2 text-center" for="approved-sign">Approved By</label>
+                            <select id="approved-sign" name="approved_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Approved By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                                        </div>
+                            
+                            <input id="extra_field" name="extra_field" style="display: none;" value="[]" type="text"/>
+                            <div class="h-32  mt-8 flex justify-center items-center">
+                                <div class=" space-x-8">
+                                    <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+                                    <input type="submit" name="submit_and_new" class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "value='Save & Add New' />
+                                    <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input type="submit" name="submit_and_view" value="Save & View Report" class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+                                </div>
+                            </div>
+        
+                     
+                    </div>
+        
+                    
+        
+            </form>
+            {% endif %}
+            
+            <section class="bg-gray-900 h-20 flex justify-center items-center w-full ">
+                      <div class="">
+                            <p class="text-lg text-gray-300">© Copyright 2023 EnviTechAl. All Rights Reserved.</p>
+                            <p></p>
+                      </div>
+                    </section>
+            
+        </div>
+        {% endblock content %}
+        </section>
+
+        <script>
+            $(document).ready(function () {
+            $('select').select2();
+            $(".datepicker").each(function () {
+                let dateFromDB = $(this).data("date");  // Get date from data attribute
+                $(this).datepicker({
+                    dateFormat: "dd-MM-yy",
+                    defaultDate: new Date(dateFromDB),
+                    changeMonth: true,
+                    changeYear: true,
+
+                });
+            });
+        });
+           
+            {% comment %} var now = new Date()
+                var date = now.getDate() 
+                var month = now.getMonth() + 1
+                var year = now.getFullYear()
+                var currentDate = `${year}${month}${date}`        
+                document.querySelector("#date").value = currentDate
+                document.querySelector(".date").value = currentDate
+                
+
+                const dateInput = document.querySelector(".dateInput");
+        const formattedDateOutput = document.querySelector(".formattedDateOutput");
+
+        dateInput.addEventListener("input", function() {
+            const inputDate = new Date(this.value);
+            
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+                const monthName = monthNames[monthIndex];
+                const year = inputDate.getFullYear();
+                const formattedDate = `${day}-${monthName}-${year}`;
+                
+                formattedDateOutput.value = formattedDate;
+
+            }
+        });
+
+        const dateInput2 = document.querySelector(".dateInput2");
+        const formattedDateOutput2 = document.querySelector(".formattedDateOutput2");
+
+        dateInput2.addEventListener("input", function() {
+            const inputDate = new Date(this.value);
+            
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+                const monthName = monthNames[monthIndex];
+                const year = inputDate.getFullYear();
+                const formattedDate = `${day}-${monthName}-${year}`;
+                
+                formattedDateOutput2.value = formattedDate;
+
+            }
+        });
+
+        const dateInput3 = document.querySelector(".dateInput3");
+        const formattedDateOutput3 = document.querySelector(".formattedDateOutput3");
+
+        dateInput3.addEventListener("input", function() {
+            const inputDate = new Date(this.value);
+            
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+                const monthName = monthNames[monthIndex];
+                const year = inputDate.getFullYear();
+                const formattedDate = `${day}-${monthName}-${year}`;
+                
+                formattedDateOutput3.value = formattedDate;
+
+            }
+        });
+
+        const dateInput4 = document.querySelector(".dateInput4");
+        const formattedDateOutput4 = document.querySelector(".formattedDateOutput4");
+
+        dateInput4.addEventListener("input", function() {
+            const inputDate = new Date(this.value);
+            
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+                const monthName = monthNames[monthIndex];
+                const year = inputDate.getFullYear();
+                const formattedDate = `${day}-${monthName}-${year}`;
+                
+                formattedDateOutput4.value = formattedDate;
+
+            }
+        }); {% endcomment %}
+            
+        </script>
+<script src={% static '/js/app.js'%} defer >
+    $(document).ready(function() {
+        // Toggle the side navigation menu
+        $(".menu-toggle a").click(function() {
+            $(".side-nav").toggleClass("show");
+        });
+
+        // Toggle submenus
+        $(".sub-menu-toggle").click(function() {
+            $(this).siblings(".sub-menu").toggleClass("show");
+        });
+    });
+    
+</script>
+<script>
+    var seqs_value = document.querySelector(".SEQS-value")
+    var peqs_value = document.querySelector(".PEQS-value")
+    var neqs_value = document.querySelector(".NEQS-value")
+    var leg_1 = document.querySelector(".legend-1")
+    var leg_2 = document.querySelector(".legend-2")
+    var leg_3 = document.querySelector(".legend-3")
+    var leg_4 = document.querySelector(".legend-4")
+    var leg_5 = document.querySelector(".legend-5")
+    var leg_6 = document.querySelector(".legend-6")
+    var leg_7 = document.querySelector(".legend-7")
+    var leg_8 = document.querySelector(".legend-8")
+    var leg_9 = document.querySelector(".legend-9")
+    var leg_10 = document.querySelector(".legend-10")
+    var leg_11 = document.querySelector(".legend-11")
+    const select = document.querySelector('select[name="water-select"]');
+    var checkinput = document.querySelector("#checkinput")
+    
+    
+    
+   seqs_value.addEventListener("change",()=>{
+        if(seqs_value.checked){
+            checkinput.value = "SEQS"
+            select.value = "SEQS"
+            peqs_value.disabled=true
+            neqs_value.disabled=true
+            select.dispatchEvent(new Event("change"));
+            
+    
+        }else {
+            checkinput.value = ""
+            peqs_value.disabled=false
+            neqs_value.disabled=false
+            
+        }
+        
+    
+    })
+    peqs_value.addEventListener("change",()=>{
+        
+        if(peqs_value.checked){
+            checkinput.value = "PEQS"
+            select.value = "PEQS"
+            seqs_value.disabled=true
+            neqs_value.disabled=true
+            select.dispatchEvent(new Event("change"));
+            
+    
+        }else{
+            checkinput.value = ""
+            select.value = "SEQS"
+            neqs_value.disabled=false
+            seqs_value.disabled=false
+           
+        }
+    })
+    neqs_value.addEventListener("change",()=>{
+        if(neqs_value.checked){
+            checkinput.value = "NEQS"
+            select.value = "NEQS"
+            seqs_value.disabled=true
+            peqs_value.disabled=true
+            select.dispatchEvent(new Event("change"));
+            
+        }else{
+            checkinput.value = ""
+            select.value = "SEQS"
+            peqs_value.disabled=false
+            seqs_value.disabled=false
+            
+           
+        }
+    })
+
+    const stringToJSON =   (s)=>{
+        s = s.replaceAll('&#x27;','"')
+       s =  JSON.parse(s)
+      return s
+    }
+
+    {% comment %} var extraFields = stringToJSON('{{list.extra_field}}'); {% endcomment %}
+     var extraFields = []
+const getExtraFields = async () => {
+    var extraRows = $("tr[id^='extraRow-']")
+for(var i =0;i<extraRows.length;i++){
+    let _row = extraRows[i];
+    let num_row = _row.id.split("-")[1]
+
+    let obj = {
+        "sr":num_row,
+        "parameters":$(`input[name='extra-${num_row}-1']`).val(),
+        "methods":$(`input[name='extra-${num_row}-2']`).val(),
+        "unit":$(`input[name='extra-${num_row}-3']`).val(),
+        "result":$(`input[name='extra-${num_row}-4']`).val(),
+        "limit":$(`input[name='extra-${num_row}-5']`).val(),
+    }
+    extraFields.push(obj);
+}
+$("#extra_field").val(JSON.stringify(extraFields))
+}
+
+
+
+$("#save_rows").on('click', getExtraFields)
+
+var table = document.querySelector('#table')
+var add_rows = document.querySelector('#add_rows')
+currentNumber = 33
+
+add_rows.addEventListener('click', (e) => {
+e.preventDefault()
+var newRow = table.insertRow(table.rows.length);
+$(newRow).attr("id",`extraRow-${currentNumber}`)
+var cell0 = newRow.insertCell(0);
+cell0.innerHTML = `${currentNumber}`;
+
+for (var i = 1; i < 6; i++) {
+    var cell = newRow.insertCell(i);
+    cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+}
+
+currentNumber++;
+})
+ 
+
+
+var customLimts = document.querySelector('#customLimits')
+var in_out_checkbox = document.querySelector('#in_out_checkbox')
+customLimits.addEventListener('change',()=>{
+    if (customLimts.checked){
+        in_out_checkbox.value="customLimits"
+        $(".seqsHeader").hide()
+        $(".custominput,.custominput1").show()
+        
+        getExtraFields()
+    }
+});
+ 
+ if(!customLimts.checked){
+    in_out_checkbox.value=""
+        $(".seqsHeader").show()
+        $(".custominput,.custominput1").hide()
+        getExtraFields()
+ }
+
+    
+    
+            // $(document).ready(async () => {
+            //     $("#loc_err").show()
+            //     const req_pip = await fetch('https://api.ipify.org?format=json');
+            //     var public_ip = await req_pip.json();
+            //     public_ip = public_ip.ip ? public_ip.ip : null;
+            //     if (public_ip) {
+            //         let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+            //         const req_loc_ip = await fetch(url);
+            //         var location = await req_loc_ip.json();
+            //         console.log(location)
+            //         if (location) {
+            //             let region = location.region.toLowerCase();
+            //             switch (region) {
+            //                 case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+            //                 case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+            //                 case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+            //             }
+            //             setTimeout(function(){
+            //                 $("#loc_err").hide()
+            //             },1000)
+                      
+            //         }
+            //     }
+            // })
+        </script>
+        <script defer>
+
+            $(document).ready(function() {
+                $('select').select2();
+            });
+        </script>
+        <script defer>
+            const selectCustomer = async (t)=>{
+                const customer = JSON.parse(t.value)
+               // const customer = t.value
+               $("input[name='address']").val(customer.address)
+               $("input[name='sample_id']").val(customer.sample_id)
+               $("input[name='lab_report_no']").val(customer.sample_id)
+               $("input[name='reporting_to']").val(customer.client_name)
+               $("input[name='attention']").val(customer.att_person)
+               $("input[name='email']").val(customer.email)
+               $("input[name='collection_date']").val(customer.rec_date)
+               $("input[name='reporting_date']").val(customer.rep_date)
+            }
+    
+            const loadCustomers = async()=>{
+                const customers ={{customers|safe}}
+                
+                for(customer of customers){
+                    let html = `<option value='${JSON.stringify(customer.fields)}'>${customer.fields.sample_id} - 
+                        ${customer.fields.client_name} - ${customer.fields.sample_nature}</option>`
+                    $("#customers").append(html)
+                }
+            
+    
+            }
+            loadCustomers()
+        </script>
+</body>
+</html>

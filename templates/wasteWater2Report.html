@@ -1,0 +1,3011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% load static %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link type="text/css" rel="stylesheet" media="all"
+    href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" />
+  <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <title>Document</title>
+</head>
+
+<style>
+  body {
+    color: #000000;
+    background-color: #FFFFFF;
+    font-size: 13px;
+    font-family: 'Helvetica', arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    
+  }
+ 
+  
+
+  .content {
+    z-index: 1;
+    /* Add other styling for your content */
+  }
+  
+  
+  
+  
+  
+  
+
+  table.header {
+    display: inline-block;
+
+
+  }
+
+  .water-report-table tr td {
+    border: 1px solid black;
+  }
+
+  .header {
+    text-align: center;
+
+    color: #fff;
+    padding: 10px;
+  }
+
+  @page {
+    margin: 20px;
+    size: A4;
+    counter-increment: page;
+    content: "Page " counter(page);
+
+    @top-center {
+      content: element(header);
+    }
+
+  }
+
+  .background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    z-index: -1;
+    opacity:0.8;
+  }
+  
+  #watermark {
+    color: rgb(0 61 139 / 30%);
+    height: 100%;
+    left: -110px;
+    line-height: 2;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    transform: rotate(-30deg);
+    transform-origin: 0 100%;
+    width: 119%;
+    word-spacing: 10px;
+    z-index: 1;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+    supported by Chrome, Edge, Opera and Firefox */
+   }
+   
+</style>
+
+
+<body class="">
+
+  {%block content%} 
+  {% if data %}
+
+  <section class="sticky top-60 w-32 text-xl  left-9 px relative z-50 flex flex-col gap-8">
+    <a class="text-lg" target="_blank" href="{% url 'wasteWater2Report-pdfPrint' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Print</a>
+    <a class="text-lg" target="_blank" href="{% url 'wasteWater2Report-pdfReport' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Report</a>
+    <a  href="{% url "nav" %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+    </svg ></a>
+    
+  </section>
+
+
+  <p id="watermark">Lab Report No:{{data.lab_report_no}}</p>
+
+
+  
+
+  <table id="header-content" class="header relative top-0 w-full" style=" display: inline-block; top: -163px;">
+    <img class="" src="/static/assets/Header watermark.jpg" alt="" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; max-height: 14%;
+                 opacity: 0.5; background-position: center; background-size: cover; ">
+    <tbody style="display: flex; justify-content: space-around; ">
+      <tr>
+        <td><img class="logo" src="/static/assets/0x0-removebg-preview.png" alt="" style="width: 60px; opacity: 12;">
+        </td>
+      </tr>
+      <tr class="mt-8 flex flex-col items-center">
+        <td>
+          <h1 style="font-family: Pussycat, Algerian, Broadway, fantasy;" class="text-3xl text-indigo-800 ">Envi Tech AL
+          </h1>
+        </td>
+
+      </tr>
+      <tr class="mt-4">
+        <td><img src="/static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png" alt=""
+            style="width: 70px;"></td>
+      </tr>
+    </tbody>
+
+  </table>
+  <div class="mt-2 " style="position: absolute; width: 100%; top: 123px;">
+    <hr class="" style="border: 2px solid #65a30d;">
+    <div class="background-image" style="background-image: url('{% static "/assets/18271682-laboratory-glassware-over-white-background.jpg" %}');">
+    </div>
+    
+  </div>
+  <section id="img1">
+    <div id="" class=" w-full flex justify-center items-center ">
+      <div class="w-8/12 flex justify-between items-center space-x-10">
+        <div class="space-y-2 ">
+          <div class="">
+            <td><Strong>Lab Report No:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.lab_report_no}}</span>
+            </td>
+
+          </div>
+          <div class="w-80">
+            <td><Strong>Invoice Bill No:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.invoice_bill_no}}</span>
+            </td>
+          </div>
+        </div>
+        <div class="">
+          <img style="width:80px;height:80px" class=" float-right mr-20 items-center text-center" src="{{qr}}" alt="">
+        </div>
+
+        <div class="space-y-2 ">
+          <div class="ml-16">
+            <td class="page"><Strong>Page:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">1
+                of 1</span></td>
+
+          </div>
+          <div class="w-80">
+            <td><Strong>Reporting Date:</Strong></td>
+            <td><span
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.reporting_date}}</span>
+            </td>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdf2 w-full flex  flex-col  items-center">
+      <table id="img2" class="border border-black w-8/12 mt-6">
+        <tbody>
+          <tr class="text-center">
+            <td class="border text-left pl-2 border-black align-text-top w-24"><strong>Report To :</strong></td>
+            <div class="">
+              <td class="flex space-x-10 ml-10 pt-1">
+                <p><strong>M/S.</strong></p>
+                <p>{{data.report_to}}</p>
+              </td>
+            </div>
+            <div>
+              <td class="flex space-x-10 ml-2 border-none pb-2">
+                <p><strong>Address:</strong></p>
+                <p>{{data.address}}</p>
+              </td>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+
+    <center>
+      <table class="border border-black w-8/12 mt-2">
+        <tbody>
+          <tr class="">
+            <td class="border border-black pl-2 align-text-top w-24"><strong>Attention :</strong></td>
+            <div class="">
+              <td class="flex space-x-10 ml-10 border-none pt-1">
+                <p><strong>Mr.</strong></p>
+                <p>{{data.attention}}</p>
+              </td>
+            </div>
+            <div>
+              <td class="flex space-x-10 ml-4 border-none pb-2">
+                <p><strong>Email:</strong></p>
+                <p>{{data.email}}</p>
+              </td>
+            </div>
+          </tr>
+        </tbody>
+      </table>
+    </center>
+
+
+    <center>
+      <table class="mt-2 text-center w-8/12 border-black border pb-1">
+        <tbody>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">Sample ID</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.sample_id}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">Sample Collection Date:</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">
+              {{data.sample_Col_date}}
+            </td>
+          </tr>
+          
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">Sampling Method:</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.sampling_method}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Sample Type:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.sample_type}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Sample Collected By:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.sample_collected_by}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Date oF Analysis:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.date_of_analysis_from}} to {{data.date_of_analysis_to}}</td>
+          </tr>
+          <tr>
+            <td class="border border-black text-right pr-2 pt-1 pb-1">
+              Test Description:
+            </td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{data.test_description}}</td>
+          </tr>
+          
+    
+        </tbody>
+      </table>
+    </center>
+  </section>
+  
+
+    <center>
+      <table id="" class="water-report-table border border-black mt-2 w-8/12" cellspacing="15">
+        <thead>
+          <tr>
+            <th class="font-semibold" style="font-size: 15px;" colspan="9">Analyyical Test Report</th>
+          </tr>
+          <tr class="">
+            <th class="border border-black">Sr.#</th>
+            <th class="border border-black">Parameter/Analytes Description</th>
+            <th class="border border-black">Methods</th>
+            <th class="border border-black">Units</th>
+            {% if data.in_out == 'in-out' %}
+            <th class="border border-black">{{data.inlet_result}}</th>
+            <th class="border border-black">Outlet Results</th>
+            {% endif %}
+            {% if data.in_out == 'in' %}
+            <th class="border border-black">{{data.inlet_result}}</th>
+            {%endif%}
+            {% if data.in_out == 'out' %}
+            <th class="border border-black">Outlet Results</th>
+            {%endif%}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <th class="border border-black">{{data.inlet_result}}</th>
+            <th class="border border-black">{{data.cutomLimit1}}</th>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <th class="border border-black">Outlet Results</th>
+            <th class="border border-black">{{data.cutomLimit1}}</th>
+            {%endif%}
+            {% if data.in_out == 'in-out' or data.in_out == 'in' or data.in_out == 'out' %}
+            <th colspan="3" class="border border-black">{{data.select}}</th>
+            {% endif %}
+            
+          </tr>
+        </thead>
+        <tbody id="report-table">
+          {% if data.result_1 or data.result_1_1 %}
+          <tr class=" border">
+            <td class="text-center">01</td>
+            <td class="pl-2">Temperature 40°C</td>
+            <td class="text-center">*APHA 2550</td>
+            <td class="text-center">°C</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_1}}</td>
+            <td class="text-center">{{data.result_1_1}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_1}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_1_1}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center">≤ 3C</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_1}}</td>
+            <td class="border border-black">{{data.cutomLimit2}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_1_1}}</td>
+            <td class="border border-black">{{data.cutomLimit2}}</td>
+            {%endif%}
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_2 or data.result_2_2 %}
+          <tr class=" border">
+            <td class="text-center">02</td>
+            <td class="pl-2">pH</td>
+            <td class="text-center">*APHA 4500 H-B</td>
+            <td class="text-center">-</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_2}}</td>
+            <td class="text-center">{{data.result_2_2}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_2}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_2_2}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">6-9</td>
+            <td class="text-center">6-9</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_2}}</td>
+            <td class="border border-black">{{data.cutomLimit3}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_2_2}}</td>
+            <td class="border border-black">{{data.cutomLimit3}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_3 or data.result_3_3 %}
+          <tr class=" border">
+            <td class="text-center">03</td>
+            <td class="pl-2">Sulphide</td>
+            <td class="text-center">*APHA 4500-S2-D</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_3}}</td>
+            <td class="text-center">{{data.result_3_3}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_3}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_3_3}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_3}}</td>
+            <td class="border border-black">{{data.cutomLimit4}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_3_3}}</td>
+            <td class="border border-black">{{data.cutomLimit4}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_4 or data.result_4_4 %}
+          <tr class=" border">
+            <td class="text-center">04</td>
+            <td class="pl-2">Biological Oxygen Demand(BOD)5</td>
+            <td class="text-center">HACH 10099</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_4}}</td>
+            <td class="text-center">{{data.result_4_4}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center">80</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_4}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center">80</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_4_4}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center">80</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">80</td>
+            <td class="text-center">250</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_4}}</td>
+            <td class="border border-black">{{data.cutomLimit5}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_4_4}}</td>
+            <td class="border border-black">{{data.cutomLimit5}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_5 or data.result_5_5 %}
+          <tr class=" border">
+            <td class="text-center">05</td>
+            <td class="pl-2">Chemical Oxygen Demand(COD)</td>
+            <td class="text-center">*HACH 8000</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_5}}</td>
+            <td class="text-center">{{data.result_5_5}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center">400</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_5}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center">150</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_5_5}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center">150</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">150</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_5}}</td>
+            <td class="border border-black">{{data.cutomLimit6}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_5_5}}</td>
+            <td class="border border-black">{{data.cutomLimit6}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_6 or data.result_6_6 %}
+          <tr class=" border">
+            <td class="text-center">06</td>
+            <td class="pl-2">Total Dissolved Solids (TDS)</td>
+            <td class="text-center">*APHA 2540-C</td>
+            <td class="text-center">mg/L	</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_6}}</td>
+            <td class="text-center">{{data.result_6_6}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_6}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_6_6}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">3500</td>
+            <td class="text-center">3500</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_6}}</td>
+            <td class="border border-black">{{data.cutomLimit7}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_6_6}}</td>
+            <td class="border border-black">{{data.cutomLimit7}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_7 or data.result_7_7%}
+          <tr class=" border">
+            <td class="text-center">07</td>
+            <td class="pl-2">Total Suspended Solids (TSS)</td>
+            <td class="text-center">*APHA 2540-D</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_7}}</td>
+            <td class="text-center">{{data.result_7_7}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center">200</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_7}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center">200</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_7_7}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center">200</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">200</td>
+            <td class="text-center">400</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_7}}</td>
+            <td class="border border-black">{{data.cutomLimit8}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_7_7}}</td>
+            <td class="border border-black">{{data.cutomLimit8}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_8 or data.result_8_8%}
+          <tr class=" border">
+            <td class="text-center">08</td>
+            <td class="pl-2">Oil & Grease</td>
+            {% if data.metho_select == "ASTM" %}
+            <td class="text-center">ASTM D-3921</td>
+            {% endif %}
+            {% if data.metho_select == "USEPA" %}
+            <td class="text-center">USEPA 1664</td>
+            {% endif %}
+            {% if data.metho_select == "APHA" %}
+            <td class="text-center">APHA 5220-B</td>
+            {% endif %}
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_8}}</td>
+            <td class="text-center">{{data.result_8_8}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_8}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_8_8}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_8}}</td>
+            <td class="border border-black">{{data.cutomLimit9}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_8_8}}</td>
+            <td class="border border-black">{{data.cutomLimit9}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_9 or data.result_9_9 %}
+          <tr class=" border">
+            <td class="text-center">09</td>
+            <td class="pl-2">Cadmium</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L	</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_9}}</td>
+            <td class="text-center">{{data.result_9_9}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_9}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_9_9}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_9}}</td>
+            <td class="border border-black">{{data.cutomLimit10}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_9_9}}</td>
+            <td class="border border-black">{{data.cutomLimit10}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_10 or data.result_10_10 %}
+          <tr class=" border">
+            <td class="text-center">10</td>
+            <td class="pl-2">Copper</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_10}}</td>
+            <td class="text-center">{{data.result_10_10}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_10}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_10_10}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_10}}</td>
+            <td class="border border-black">{{data.cutomLimit11}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_10_10}}</td>
+            <td class="border border-black">{{data.cutomLimit11}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_11 or data.result_11_11 %}
+          <tr class=" border">
+            <td class="text-center">11</td>
+            <td class="pl-2">Iron</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_11}}</td>
+            <td class="text-center">{{data.result_11_11}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_11}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_11_11}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">8</td>
+            <td class="text-center">8</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_11}}</td>
+            <td class="border border-black">{{data.cutomLimit12}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_11_11}}</td>
+            <td class="border border-black">{{data.cutomLimit12}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_12 or data.result_12_12 %}
+          <tr class=" border">
+            <td class="text-center">12</td>
+            <td class="pl-2">Lead</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_12}}</td>
+            <td class="text-center">{{data.result_12_12}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_12}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_12_12}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_12}}</td>
+            <td class="border border-black">{{data.cutomLimit13}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_12_12}}</td>
+            <td class="border border-black">{{data.cutomLimit13}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_13 or data.result_13_13%}
+          <tr class=" border">
+            <td class="text-center">13</td>
+            <td class="pl-2">Manganese</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_13}}</td>
+            <td class="text-center">{{data.result_13_13}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_13}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_13_13}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_13}}</td>
+            <td class="border border-black">{{data.cutomLimit14}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_13_13}}</td>
+            <td class="border border-black">{{data.cutomLimit14}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_14 or data.result_14_14%}
+          <tr class=" border">
+            <td class="text-center">14</td>
+            <td class="pl-2">Mercury</td>
+            <td class="text-center">*APHA 3112-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_14}}</td>
+            <td class="text-center">{{data.result_14_14}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_14}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_14_14}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.01</td>
+            <td class="text-center">0.01</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_14}}</td>
+            <td class="border border-black">{{data.cutomLimit15}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_14_14}}</td>
+            <td class="border border-black">{{data.cutomLimit15}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_15 or data.result_15_15%}
+          <tr class=" border">
+            <td class="text-center">15</td>
+            <td class="pl-2">Nickel</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_15}}</td>
+            <td class="text-center">{{data.result_15_15}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_15}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_15_15}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_15}}</td>
+            <td class="border border-black">{{data.cutomLimit16}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_15_15}}</td>
+            <td class="border border-black">{{data.cutomLimit16}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_16 or data.result_16_16%}
+          <tr class=" border">
+            <td class="text-center">16</td>
+            <td class="pl-2">Selenium</td>
+            <td class="text-center">*APHA 3114-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_16}}</td>
+            <td class="text-center">{{data.result_16_16}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_16}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_16_16}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.5</td>
+            <td class="text-center">0.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_16}}</td>
+            <td class="border border-black">{{data.cutomLimit17}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_16_16}}</td>
+            <td class="border border-black">{{data.cutomLimit17}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_17 or data.result_17_17%}
+          <tr class=" border">
+            <td class="text-center">17</td>
+            <td class="pl-2">Chromium</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_17}}</td>
+            <td class="text-center">{{data.result_17_17}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_17}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_17_17}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_17}}</td>
+            <td class="border border-black">{{data.cutomLimit18}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_17_17}}</td>
+            <td class="border border-black">{{data.cutomLimit18}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_18 or data.result_18_18%}
+          <tr class=" border">
+            <td class="text-center">18</td>
+            <td class="pl-2">Zinc</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_18}}</td>
+            <td class="text-center">{{data.result_18_18}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_18}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_18_18}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">5</td>
+            <td class="text-center">5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_18}}</td>
+            <td class="border border-black">{{data.cutomLimit19}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_18_18}}</td>
+            <td class="border border-black">{{data.cutomLimit19}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_19 or data.result_19_19%}
+          <tr class=" border">
+            <td class="text-center">19</td>
+            <td class="pl-2">Arsenic</td>
+            <td class="text-center">*APHA 3114-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_19}}</td>
+            <td class="text-center">{{data.result_19_19}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_19}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_19_19}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_19}}</td>
+            <td class="border border-black">{{data.cutomLimit20}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_19_19}}</td>
+            <td class="border border-black">{{data.cutomLimit20}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_20 or data.result_20_20%}
+          <tr class=" border">
+            <td class="text-center">20</td>
+            <td class="pl-2">Chlorine</td>
+            <td class="text-center">HACH 10069</td>
+            <td class="text-center">mg/L	</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_20}}</td>
+            <td class="text-center">{{data.result_20_20}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_20}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_20_20}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_20}}</td>
+            <td class="border border-black">{{data.cutomLimit21}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_20_20}}</td>
+            <td class="border border-black">{{data.cutomLimit21}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_21 or data.result_21_21%}
+          <tr class=" border">
+            <td class="text-center">21</td>
+            <td class="pl-2">Chloride</td>
+            <td class="text-center">*APHA 4500 CL-B</td>
+            <td class="text-center">°C</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_21}}</td>
+            <td class="text-center">{{data.result_21_21}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center">**SC</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_21}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center">**SC</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_21_21}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center">**SC</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1000</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_21}}</td>
+            <td class="border border-black">{{data.cutomLimit22}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_21_21}}</td>
+            <td class="border border-black">{{data.cutomLimit22}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_22 or data.result_22_22%}
+          <tr class=" border">
+            <td class="text-center">22</td>
+            <td class="pl-2">Cyanide</td>
+            <td class="text-center">HACH 8027</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_22}}</td>
+            <td class="text-center">{{data.result_22_22}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_22}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_22_22}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_22}}</td>
+            <td class="border border-black">{{data.cutomLimit23}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_22_22}}</td>
+            <td class="border border-black">{{data.cutomLimit23}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_23 or data.result_23_23%}
+          <tr class=" border">
+            <td class="text-center">23</td>
+            <td class="pl-2">Fluoride</td>
+            <td class="text-center">*HACH 8029</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_23}}</td>
+            <td class="text-center">{{data.result_23_23}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_23}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_23_23}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">10</td>
+            <td class="text-center">10</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_23}}</td>
+            <td class="border border-black">{{data.cutomLimit24}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_23_23}}</td>
+            <td class="border border-black">{{data.cutomLimit24}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+          {% if data.result_24 or data.result_24_24%}
+          <tr class=" border">
+            <td class="text-center">24</td>
+            <td class="pl-2">Ammonia</td>
+            <td class="text-center">*HACH 8038</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_24}}</td>
+            <td class="text-center">{{data.result_24_24}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_24}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_24_24}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">40</td>
+            <td class="text-center">40</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_24}}</td>
+            <td class="border border-black">{{data.cutomLimit25}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_24_24}}</td>
+            <td class="border border-black">{{data.cutomLimit25}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_25 or data.result_25_25%}
+          <tr class=" border">
+            <td class="text-center">25</td>
+            <td class="pl-2">Total Toxic Metals</td>
+            <td class="text-center">APHA 3111</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_25}}</td>
+            <td class="text-center">{{data.result_25_25}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_25}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_25_25}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">2</td>
+            <td class="text-center">2</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_25}}</td>
+            <td class="border border-black">{{data.cutomLimit26}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_25_25}}</td>
+            <td class="border border-black">{{data.cutomLimit26}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_26 or data.result_26_26%}
+          <tr class=" border">
+            <td class="text-center">26</td>
+            <td class="pl-2">Sulphate</td>
+            <td class="text-center">HACH 8051</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_26}}</td>
+            <td class="text-center">{{data.result_26_26}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center">**SC</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_26}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center">**SC</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_26_26}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center">**SC</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">600</td>
+            <td class="text-center">1000</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_26}}</td>
+            <td class="border border-black">{{data.cutomLimit27}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_26_26}}</td>
+            <td class="border border-black">{{data.cutomLimit27}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_27 or data.result_27_27%}
+          <tr class=" border">
+            <td class="text-center">27</td>
+            <td class="pl-2">An Ionic Detergent As MBAs</td>
+            <td class="text-center">*APHA 5540 C</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_27}}</td>
+            <td class="text-center">{{data.result_27_27}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_27}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_27_27}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">20</td>
+            <td class="text-center">20</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_27}}</td>
+            <td class="border border-black">{{data.cutomLimit28}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_27_27}}</td>
+            <td class="border border-black">{{data.cutomLimit28}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_28 or data.result_28_28%}
+          <tr class=" border">
+            <td class="text-center">28</td>
+            <td class="pl-2">Pesticides</td>
+            <td class="text-center">USEPA-614.1</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_28}}</td>
+            <td class="text-center">{{data.result_28_28}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_28}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_28_28}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.15</td>
+            <td class="text-center">0.15</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_28}}</td>
+            <td class="border border-black">{{data.cutomLimit29}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_28_28}}</td>
+            <td class="border border-black">{{data.cutomLimit29}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_29 or data.result_29_29%}
+          <tr class=" border">
+            <td class="text-center">29</td>
+            <td class="pl-2">Phenolic Compounds(as Phenol)</td>
+            <td class="text-center">HACH 8047</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_29}}</td>
+            <td class="text-center">{{data.result_29_29}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center">0.3</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_29}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center">0.3</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_29_29}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center">0.3</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">0.1</td>
+            <td class="text-center">0.3</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_29}}</td>
+            <td class="border border-black">{{data.cutomLimit30}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_29_29}}</td>
+            <td class="border border-black">{{data.cutomLimit30}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_30 or data.result_30_30%}
+          <tr class=" border">
+            <td class="text-center">30</td>
+            <td class="pl-2">Boron</td>
+            <td class="text-center">HACH 8015</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_30}}</td>
+            <td class="text-center">{{data.result_30_30}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_30}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_30_30}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">6</td>
+            <td class="text-center">6</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_30}}</td>
+            <td class="border border-black">{{data.cutomLimit31}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_30_30}}</td>
+            <td class="border border-black">{{data.cutomLimit31}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_31 or data.result_31_31%}
+          <tr class=" border">
+            <td class="text-center">31</td>
+            <td class="pl-2">Barium</td>
+            <td class="text-center">HACH 8014</td>
+            <td class="text-center">mg/L	</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_31}}</td>
+            <td class="text-center">{{data.result_31_31}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_31}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_31_31}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1.5</td>
+            <td class="text-center">1.5</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_31}}</td>
+            <td class="border border-black">{{data.cutomLimit32}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_31_31}}</td>
+            <td class="border border-black">{{data.cutomLimit32}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% if data.result_32 or data.result_32_32%}
+          <tr class=" border">
+            <td class="text-center">32</td>
+            <td class="pl-2">SilverC</td>
+            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">mg/L</td>
+            {% if data.in_out == 'in-out' %}
+            <td class="text-center">{{data.result_32}}</td>
+            <td class="text-center">{{data.result_32_32}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {%endif%}
+            {% if data.in_out == 'in' %}
+            <td class="text-center">{{data.result_32}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'out' %}
+            <td class="text-center">{{data.result_32_32}}</td>
+            {% if data.select == "SEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            {% endif %}
+            {% if data.select == "PEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% if data.select == "NEQS" %}
+            <td class="text-center">1</td>
+            <td class="text-center">1</td>
+            <td class="text-center px-4">-</td>
+            {% endif %}
+            {% endif %}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="text-center">{{data.result_32}}</td>
+            <td class="border border-black">{{data.cutomLimit33}}</td>
+            {%endif%}
+            {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_32_32}}</td>
+            <td class="border border-black">{{data.cutomLimit33}}</td>
+            {%endif%}
+            
+          </tr>
+          {%endif%}
+
+
+          {% for extra_field in data.extra_field  %}
+          <tr class=" border">
+            {% if data.in_out == 'in-out' %}
+            <td class="pl-2">{{extra_field.sr}}</td>
+            <td class="pl-2">{{extra_field.parameters}}</td>
+            <td class="pl-2">{{extra_field.methods}}</td>
+            <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.result}}</td>
+            <td class="pl-2">{{extra_field.outlet}}</td>
+            <td class="pl-2">{{extra_field.lim1}}</td>
+            <td class="pl-2">{{extra_field.lim2}}</td>
+            <td class="pl-2">{{extra_field.lim3}}</td>
+            {% endif %}
+            {% if data.in_out == 'in' %}
+            <td class="pl-2">{{extra_field.sr}}</td>
+            <td class="pl-2">{{extra_field.parameters}}</td>
+            <td class="pl-2">{{extra_field.methods}}</td>
+            <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.result}}</td>
+            <td class="pl-2">{{extra_field.lim1}}</td>
+            <td class="pl-2">{{extra_field.lim2}}</td>
+            <td class="pl-2">{{extra_field.lim3}}</td>
+            {%endif%}
+            {% if data.in_out == 'out' %}
+            <td class="pl-2">{{extra_field.sr}}</td>
+            <td class="pl-2">{{extra_field.parameters}}</td>
+            <td class="pl-2">{{extra_field.methods}}</td>
+            <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.outlet}}</td>
+            <td class="pl-2">{{extra_field.lim1}}</td>
+            <td class="pl-2">{{extra_field.lim2}}</td>
+            <td class="pl-2">{{extra_field.lim3}}</td>
+            {%endif%}
+            {% if data.in_out == 'inlet_customlimits' %}
+            <td class="pl-2">{{extra_field.sr}}</td>
+            <td class="pl-2">{{extra_field.parameters}}</td>
+            <td class="pl-2">{{extra_field.methods}}</td>
+            <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.result}}</td>
+            <td class="pl-2">{{extra_field.customLimits}}</td>
+            {%endif%}
+          {% if data.in_out == 'outlet_customLimits' %}
+            <td class="pl-2">{{extra_field.sr}}</td>
+            <td class="pl-2">{{extra_field.parameters}}</td>
+            <td class="pl-2">{{extra_field.methods}}</td>
+            <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.outlet}}</td>
+            <td class="pl-2">{{extra_field.customLimits}}</td>
+            {%endif%}
+          </tr>
+          {% endfor %}
+          
+        </tbody>
+      </table>
+    </center>
+
+
+
+    <div class=" space-y-1 w-full flex flex-col items-center">
+
+      <div class="w-8/12 ">
+
+        {%if data.editNote%}
+        <div class="mt-2 flex flex-row space-x-2  text-xs">
+          <p class="underline"><strong>Note:</strong></p>
+          <p class="">{{data.editNote}}</p>
+        </div>
+        {%endif%}
+    
+
+        
+
+        <p class="py-1 underline"><strong>Legends:</strong></p>
+
+        <div class=" w-full text-xs">
+          {%if data.legend_1%}
+          <p>{{data.legend_1}}</p>
+          {%endif%}
+          {%if data.legend_2%}
+          <p>{{data.legend_2}}</p>
+          {%endif%}
+          {%if data.legend_3%}
+          <p>{{data.legend_3}}</p>
+          {%endif%}
+          {%if data.legend_4%}
+          <p>{{data.legend_4}}</p>
+          {%endif%}
+          {%if data.legend_5%}
+          <p>{{data.legend_5}}</p>
+          {%endif%}
+          {%if data.legend_6%}
+          <p>{{data.legend_6}}</p>
+          {%endif%}
+          {%if data.legend_7%}
+          <p>{{data.legend_7}}</p>
+          {%endif%}
+          {%if data.legend_8%}
+          <p>{{data.legend_8}}</p>
+          {%endif%}
+          {%if data.legend_9%}
+          <p>{{data.legend_9}}</p>
+          {%endif%}
+          {%if data.legend_10%}
+          <p>{{data.legend_10}}</p>
+          {%endif%}
+          {%if data.legend_11%}
+          <p>{{data.legend_11}}</p>
+          {%endif%}
+          
+        </div>
+      </div>
+
+    </div>
+
+    <div class=" space-y-1 w-full flex flex-col items-center">
+
+      <div class="w-8/12 ">
+
+        {%if data.customlegend%}
+        <div class="mt-2 flex flex-row space-x-2  text-xs">
+          <p class="underline"><strong>Custom Legend:</strong></p>
+          <p class="">{{data.customlegend}}</p>
+        </div>
+        {%endif%}
+    </div>
+
+  <div class="w-full flex flex-col items-center">
+    <div class="w-8/12 flex justify-around mt-6">
+      <div class="">
+        <img class="h-16 w-20" src="{{data.analyst_signature.signature.url}}" alt="image" />
+        <hr class="border border-black mt-2" />
+        <p><strong>Analyzed By Analyzed By (Analyst)</strong></p>
+      </div>
+      <div class="">
+        <img class="h-16 w-20" src="{{data.assistant_manager_signature.signature.url}}" alt="image" />
+        <hr class="border border-black mt-2" />
+        <p><strong>Reviewed By (Assistant Manager)</strong></p>
+      </div>
+      <div class="">
+        <div class="flex space-x-6">
+          <img class="h-20 w-20" src="{{logo}}" alt="image" />
+          <img class="h-16 w-20" src="{{data.lab_manager_signature.signature.url}}" alt="image" />
+        </div>
+        <hr class="border border-black mt-2" />
+        <p><strong>Approved By (Lab Manager)</strong></p>
+      </div>
+    </div>
+  </div>
+  <hr class="border border-gray-700 mt-3">
+
+
+  <div class="w-full  flex items-center justify-center pb-6">
+    <div class="mt-2 w-8/12 flex justify-between">
+      <div class="w-7/12">
+        <span><strong>Disclaimer :</strong></span>
+        <div class="mt-2 " style="font-size: 10px; ">
+          <li>Report is valid for current batch (sample).</li>
+          <li>This report is not valid for any publication or judical purpose.</li>
+          <li>If sample is provided by the customer, <span class="text-indigo-700 font-bold">Envi Tech AL</span> is
+            not responsible for the sample identification and data shared by the client.</li>
+          <li>The remaining portion of te sample shall be discarded after five working days unless otherwise
+            instructed.</li>
+        </div>
+      </div>
+      <div class="flex text-center ">
+        <div class=" flex items-center flex-col">
+          <img class="h-16" src='{% static "/assets/ISO-9001_2015 LOGO.png" %}' alt="">
+          {%if data.doc1%}
+          <p style="font-size: 8px;">(Certificate # 080177324-QMS)</p>
+          <div class="border border-black w-28 p-1"  style="font-size: 9px;">
+            <p>{{data.doc1}}</p>
+          </div>
+          {%endif%}
+        </div>
+        <div class="text-center flex flex-col items-center">
+          {% if data.location == 'SEQS' %}
+            <img class="h-16" src="{% static '/assets/SEPA-Sindh-LOGO-removebg-preview.png' %}" alt="">
+            {% endif %}
+            {% if data.location == 'PEQS' %}
+            <img class="h-16 w-20" src="{% static '/assets/EPA_updated.png' %}" alt="">
+            {% endif %}
+            {% if data.location == 'NEQS' %}
+            <img class="h-16" src="{% static '/assets/SEPA-Sindh-LOGO-removebg-preview.png' %}" alt="">
+            {% endif %}
+            {%if data.location == 'PEQS'%}
+              <p style="font-size: 8px;">(82/Dir/(ML&I)/EPA/03/2025)</p>
+            {%else%}
+              <p style="font-size: 8px;">LAB/L.C/ENVI TECH AL-2/20/93/2024</p>
+            {%endif%}
+          {%if data.doc2%}
+          <div class="border border-black w-28 p-1" style="font-size: 9px; width:100%">
+
+            <p>{{data.doc2}}</p>
+          </div>
+          {%endif%}
+
+        </div>
+        <div class="text-center flex flex-col items-center">
+          <img class="h-16" src='{% static "/assets/ISO-14001_2015 LOGO.png" %}' alt="">
+          {%if data.doc3%}
+          <p style="font-size: 8px;">(certificate # 080177424-EMS)</p>
+          <div class="border border-black w-28 p-1" style="font-size: 9px;">
+
+            <p>{{data.doc3}}</p>
+          </div>
+          {%endif%}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  {%endif%}
+{%endblock%}
+  
+
+
+
+
+
+
+
+  </div>
+  </div>
+  </div>
+  <footer id="footer-content" class="footer bg-indigo-900 h-14" style="width:99%">
+    <div class="w-full">
+      <div class="flex justify-between ml-4 mr-8">
+        <div class="flex justify-center py-2 items-center">
+          <img class="h-10 text-center" src="/static/assets/Picture1.png" alt="">
+          <div class=" flex flex-col text-gray-200" style="font-size: 13px;">
+            <span><strong>Head Office:</strong> First Floor, 345, Street 15, Bahadurabad Bahadur Yar Jang CHS, Karachi,
+              Karachi City, Sindh 75900</span>
+            <span><strong>Lahore Office:</strong> 87-E Madina Heights, Office # A/30-31, 8th Floor, Maulana Shaukat Ali
+              Rd, Block E Phase 1 Johar Town, Lahore</span>
+          </div>
+        </div>
+        <div class="flex justify-center py-4 space-x-4">
+          <i class="fa-solid fa-earth-americas text-center mt-1 text-xl text-gray-200"></i>
+          <div class=" flex flex-col text-gray-200" style="font-size: 13px;">
+            <span>info@envitechal.com</span>
+            <span>www.envitechal.com</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+    
+  
+
+
+
+ 
+
+
+
+
+  
+
+ 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script defer>
+    
+    $(document).ready(() => {
+      var td = $("#report-table td:nth-child(1)");
+      var i = 1;
+      
+      td.each(function() {
+        $(this).text(i < 10 ? `0${i}` : i.toString());
+        i++;
+      });
+    });
+
+    var water_mark = document.getElementById('watermark').textContent
+ 
+    var textWatermark = water_mark
+    var fullTextWatermark = '';
+    var n = 10000;
+    for (var i = 0; i < n; i++) {
+     fullTextWatermark+= ' ' + textWatermark;
+    }
+    document.getElementById('watermark').innerHTML = fullTextWatermark
+
+    window.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+  });
+
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'PrintScreen' || e.key === 'PrtScn') {
+        // Handle the print screen key press
+    }
+});
+
+window.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+});
+
+window.addEventListener('dragstart', function (e) {
+  e.preventDefault();
+});
+
+
+
+  
+
+
+
+  </script>
+</body>
+
+</html>

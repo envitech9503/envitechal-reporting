@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <script src="https://kit.fontawesome.com/db212db5f7.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <!-- jQuery (only once, and FIRST) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    
+    <!-- DataTables (optional) -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    
+    <!-- Select2 -->
+    <!-- ✅ Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <!-- ✅ Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    
+    <!-- jQuery UI (optional) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>Verification</title>
+    {% load static %}
+</head>
+<body>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 2px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+          width: 20%;
+        }
+        
+        </style>
+        <section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
+            <a href="{% url 'nav' %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+            
+                <div id="profile" class="flex space-x-10 mr-10">
+                    <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
+                    <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+                </div>
+        </section>
+    <section class="w-full flex flex-col justify-center items-center mt-16">
+        <div class="m-10">
+            <h1 class="text-4xl " style="font-family: 'Pacifico', cursive;">Certificate of Verification</h1>
+        </div>
+    </section>
+    
+
+    <section class="w-full flex justify-center mb-52">
+        <form action="{% url 'verification' %}" enctype="multipart/form-data" method="post"  class="m-20 w-8/12 ">
+            {% csrf_token %}
+		<input class="formattedDateOutput border border-gray-500 px-3 py-1 w-full outline-none hidden" name="verif_date" type="text">
+    		
+            <div class="mb-8 space-x-4">
+                <label class="font-bold  text-lg" for="">Certificate Number:</label>
+                <input class="border border-gray-500 px-3 py-1 w-96 outline-none" type="text" name="cert_num" >
+            </div>
+            <table>
+                <tr>
+                    <td style="width: 5%;"><b>Client</b></td>
+                    <td colspan="3"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="client" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Address</b></td>
+                    <td colspan="3"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="address" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Verification Date</b></td>
+                    <td><input class="verif_date border border-gray-500 px-3 py-1 w-full outline-none"  type="date"></td>
+                    <td>6 months <input class="six_month"  type="checkbox"></td>
+                    <td>3 months <input class="three_month"  type="checkbox"></td>
+                    <td>year <input class="year"  type="checkbox"></td>
+                    
+               </tr>
+               <tr>
+                <td style="width: 5%;"><b>Re-Verification Date</b></td>
+                    <td><input class="verif_date1 border border-gray-500 px-3 py-1 w-full outline-none" name="re_verif_date"  type="text"></td>
+               </tr>
+                
+            </table>
+            <div class="flex w-8/12 hidden">
+                <div class="alert w-52 flex flex-col justify-around my-6">
+                
+                    <div class="">
+                        <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                    </div>
+                    <div class="">
+                        <input class="SEQS-value" type="checkbox" value="SEQS_">
+                        <label for="">SEQS</label>
+                    </div>
+                    <div class="">
+                        <input class="PEQS-value" type="checkbox" value="PEQS_">
+                        <label for="">PEQS</label>
+                    </div>
+                    <div class="">
+                        <input class="NEQS-value" type="checkbox" value="NEQS_">
+                        <label for="">NEQS</label>
+                    </div>
+                    <input id="checkinput" type="text" name="location" value="" style="display: none;">
+                    <div class="flex justify-between flex-wrap">
+                  
+                    <div class="mt-4 flex flex-col">
+                        <label class="font-bold text-lg" for="">Location</label>
+                        <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                    </div>
+                   
+                    
+                </div>
+                </div>
+    
+               
+                
+                
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table >
+                <tr>
+                    <th colspan="4" style="width: 80%;"><b>Client's Equipment Data</b></th>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equipment" type="text"></td>
+                    <td style="width: 5%;"><b>Manufacturer</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="Manufacturer" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment ID</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equip_id" type="text"></td>
+                    <td style="width: 5%;"><b>Model</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="model" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Parameters</b></td>
+                    <td colspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="param1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="param" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table id="table1">
+                <tr>
+                    <td colspan="5"><b>Master Equipment and References</b></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><b>Equipment</b></td>
+                    <td class="text-center"><b>Model</b></td>
+                    <td class="text-center"><b>Serial No.</b></td>
+                    <td class="text-center"><b>Certificate Number</b></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equipment_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="model_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="serial_no1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="cert_num1" type="text"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="equipment_2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="model_2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="serial_no2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" name="cert_num2" type="text"></td>
+                </tr>
+            </table>
+            <div class="flex flex-row-reverse">
+
+
+                <a href="#"><button type="button" id="save_rows1"
+                        class="bg-blue-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500">Save
+                        Rows</button></a>
+                <a href="#"><button type="button" id="add_rows1"
+                        class="bg-green-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500">Add
+                        Rows</button></a>
+
+            </div>
+
+            <hr class="w-full border border-black mt-5 mb-5">
+            <div class="">
+                <tr>
+                    <td colspan=""><b>Test Environment</b></td>
+                    <td colspan=""><input class="border border-gray-500 px-3 py-1 w-5/12 outline-none" name="test1" type="text" ></td>
+                    <td colspan="2"><input class="border border-gray-500 px-3 py-1 w-5/12 outline-none" name="test2" type="text" ></td>
+                </tr>
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table id="table">
+                <tr>
+                    <th colspan="4">Physical Inspection & Testing</th>
+                </tr>
+                <tr>
+                    <th>Testing Parameter</th>
+                    <th>Equipment Design Specs</th>
+                    <th>Observations</th>
+                    <th>Deviation</th>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_1" value="Voltage"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des1" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser1" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev1" value=""></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_2" value="Frequency"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des2" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser2" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev2" value=""></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_3" value="Compressive Strength"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des3" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser3" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev3" value=""></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_4" value="Motor Power"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des4" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser4" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev4" value=""></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_5" value="Piston Speed"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des5" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser5" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev5" value=""></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_6" value="Compression Space"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des6" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser6" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev6" value=""></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="test_7" value="Maintenance"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="equip_des7" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="obser7" value=""></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" name="dev7" value=""></td>
+                </tr>
+                
+            </table>
+            <div class="flex flex-row-reverse">
+
+
+                <a href="#"><button type="button" id="save_rows"
+                        class="bg-blue-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500">Save
+                        Rows</button></a>
+                <a href="#"><button type="button" id="add_rows"
+                        class="bg-green-600 h-12 m-1 w-40 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500">Add
+                        Rows</button></a>
+
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <div class="">
+                <p class="font-bold">Conclusion :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none" name="conc" type="text">
+            </div>
+            <div class="mt-4">
+                <p class="font-bold">Verification Status :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none" name="verif_status" type="text">
+            </div>
+            <div class="mt-8">
+                <span><textarea class="border-2 border-gray-200 px-3 py-1 w-full outline-none" name="text" id="textArea" cols="30" rows="5" ></textarea></span>
+              </div>
+              <div class="flex justify-between mt-6 text-sm">
+                <div class="flex flex-col space-y-4 border p-2  border-gray-500">
+                    <label class="font-bold text-lg" for=""> Verified By:</label>
+                    <select required id="analyst-sign" name="verif_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Verif By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="flex flex-col space-y-4 border p-2 border-gray-500">
+                    <label class="font-bold text-lg text-center" for="">Checked By</label>
+
+                    <div class="flex text-sm">
+                        <select required id="" name="check_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                <option selected disabled>Checked By</option>
+                                {% for sign in signs %}
+                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                {% endfor %}
+                        </select>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="flex flex-col mt-8">
+                <label class="font-bold" for="">Disclaimer</label>
+                <input class="border border-gray-500 w-96 py-1 px-3 w-full outline-none" type="text" name="disc" value="Our Certificate can be verified by scanning system generated QR Codes.">
+            </div>
+            <input id="extra_field" name="extra_field" style="display: none;" value="[]" type="text"/>
+            <input id="extra_field1" name="extra_field1" style="display: none;" value="[]" type="text"/>
+            <div class="h-32  mt-8 flex justify-center items-center">
+                <div class=" space-x-8">
+                    <i class="fa-solid fa-download pr-4" style="color: #fff;transform: translateX(97px);"></i>
+                    <input type="submit" name="submit_and_new" class=" bg-blue-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-blue-500 "value='Save & Add New' />
+                    <i class="fa-solid fa-file pr-4" style="color: #fff;transform: translateX(90px);"> </i> <input type="submit" name="submit_and_view" value="Save & View Report" class="bg-green-600 h-12 w-60 rounded shadow-2xl cursor-pointer text-white hover:bg-green-500" />
+                </div>
+            </div>
+        </form>
+    </section>
+</body>
+
+<script>
+    $(document).ready(function () {
+            $('select').select2();
+        });
+    document.getElementById("textArea").value = "The certificate is a true record of the measurement made and the value reflected on this certificate were correct at the time of calibration. And this certificate is valid for current equipment only. Re-calibration is recommended at the mentioned date, however, should be performed earlier in case of any repairs, services, or relocation of the equipment.";
+
+    const stringToJSON =   (s)=>{
+        s = s.replaceAll('&#x27;','"')
+       s =  JSON.parse(s)
+      return s
+    }
+
+    {% comment %} var extraFields = stringToJSON('{{list.extra_field}}'); {% endcomment %}
+     function extra_field(){
+        var extraFields = []
+        const getExtraFields = async () => {
+            var extraRows = $("tr[id^='extraRow-']")
+        for(var i =0;i<extraRows.length;i++){
+            let _row = extraRows[i];
+            let num_row = _row.id.split("-")[1]
+
+            let obj = {
+                "sr":num_row,
+                "test":$(`input[name='extra-${num_row}-1']`).val(),
+                "equip":$(`input[name='extra-${num_row}-2']`).val(),
+                "obser":$(`input[name='extra-${num_row}-3']`).val(),
+                "dev":$(`input[name='extra-${num_row}-4']`).val(),
+                }
+            extraFields.push(obj);
+        }
+        $("#extra_field").val(JSON.stringify(extraFields))
+        }
+
+
+
+        $("#save_rows").on('click', getExtraFields)
+
+        var table = document.querySelector('#table')
+        var add_rows = document.querySelector('#add_rows')
+        currentNumber = 33
+
+        add_rows.addEventListener('click', (e) => {
+            e.preventDefault()
+            var newRow = table.insertRow(table.rows.length);
+            $(newRow).attr("id",`extraRow-${currentNumber}`)
+            var cell0 = newRow.insertCell(0);
+            cell0.innerHTML = `${currentNumber}`;
+            cell0.style.display="none"
+            for (var i = 1; i < 5; i++) {
+                var cell = newRow.insertCell(i);
+                cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+            }
+
+        currentNumber++;
+        })
+            }
+        
+        function extra_field1(){
+            var extraFields = []
+            const getExtraFields = async () => {
+            var extraRows = $("tr[id^='extraRow1-']")
+            for(var i =0;i<extraRows.length;i++){
+                let _row = extraRows[i];
+                let num_row = _row.id.split("-")[1]
+        
+                let obj = {
+                    "sr":num_row,
+                    "inp1":$(`input[name='extra1-${num_row}-1']`).val(),
+                    "inp2":$(`input[name='extra1-${num_row}-2']`).val(),
+                    "inp3":$(`input[name='extra1-${num_row}-3']`).val(),
+                    "inp4":$(`input[name='extra1-${num_row}-4']`).val(),
+                    }
+                extraFields.push(obj);
+                }
+                $("#extra_field1").val(JSON.stringify(extraFields))
+                }
+        
+            
+        
+            $("#save_rows1").on('click', getExtraFields)
+        
+            var table = document.querySelector('#table1')
+            var add_rows = document.querySelector('#add_rows1')
+            currentNumber = 33
+        
+            add_rows.addEventListener('click', (e) => {
+                e.preventDefault()
+                var newRow = table.insertRow(table.rows.length);
+                $(newRow).attr("id",`extraRow1-${currentNumber}`)
+                var cell0 = newRow.insertCell(0);
+                cell0.innerHTML = `${currentNumber}`;
+                cell0.style.display="none"
+                for (var i = 1; i < 5; i++) {
+                    var cell = newRow.insertCell(i);
+                    cell.innerHTML = `<input type="text" name="extra1-${currentNumber}-${i}">`;
+            }
+        
+            currentNumber++;
+            })
+            }
+    
+            extra_field()
+            extra_field1()    
+
+const dateInput = document.querySelector(".verif_date");
+        const formattedDateOutput = document.querySelector(".formattedDateOutput");
+
+        dateInput.addEventListener("input", function() {
+            const inputDate = new Date(this.value);
+            
+            if (!isNaN(inputDate.getTime())) {
+                const day = String(inputDate.getDate()).padStart(2, '0');
+                const monthIndex = inputDate.getMonth();
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"
+                ];
+                const monthName = monthNames[monthIndex];
+                const year = inputDate.getFullYear();
+                const formattedDate = `${day}-${monthName}-${year}`;
+                
+                formattedDateOutput.value = formattedDate;
+
+            }
+        });
+
+        
+        
+var six_month = document.querySelector(".six_month");
+var three_month = document.querySelector(".three_month");
+var year = document.querySelector(".year");
+var verif_date1 = document.querySelector(".verif_date1");
+var verif_date = document.querySelector('.verif_date');
+
+six_month.addEventListener('change', () => {
+    if (six_month.checked) {
+        current_date =  new Date(verif_date.value)
+        current_date.setMonth(current_date.getMonth()+6)
+        current_date.setDate(current_date.getDate()-1)
+        console.log(verif_date.value)
+        
+        
+        
+        verif_date1.value = current_date.toLocaleDateString('en-US',
+            {
+                day: 'numeric',
+                month : 'long',
+                year : 'numeric',
+            }
+        );
+        var parts = verif_date1.value.split(" ")
+        var  formateDate = parts[1].replace(',', '') + "-" + parts[0] + "-" + parts[2];
+
+        verif_date1.value = formateDate
+        
+    }
+    
+    
+    else {
+        verif_date1.value = ""; // Clear the text content if the checkbox is unchecked
+    }
+});
+three_month.addEventListener('change', () => {
+    if (three_month.checked) {
+        current_date =  new Date(verif_date.value)
+        current_date.setMonth(current_date.getMonth()+3)
+        current_date.setDate(current_date.getDate()-1)
+        console.log(verif_date.value)
+        
+        
+        
+        verif_date1.value = current_date.toLocaleDateString('en-US',
+            {
+                day: 'numeric',
+                month : 'long',
+                year : 'numeric',
+            }
+        );
+        var parts = verif_date1.value.split(" ")
+        var  formateDate = parts[1].replace(',', '') + "-" + parts[0] + "-" + parts[2];
+
+        verif_date1.value = formateDate
+        
+    }
+    
+    
+    else {
+        verif_date1.value = ""; // Clear the text content if the checkbox is unchecked
+    }
+});
+ year.addEventListener('change',()=>{
+    if(year.checked){
+        current_date =  new Date(verif_date.value)
+        current_date.setMonth(current_date.getMonth()+12)
+        current_date.setDate(current_date.getDate()-1)
+        
+        verif_date1.value = current_date.toLocaleDateString('en-US',
+            {
+                day: 'numeric',
+                month : 'long',
+                year : 'numeric',
+            }
+        );
+        var parts = verif_date1.value.split(" ")
+        var  formateDate = parts[1].replace(',', '') + "-" + parts[0] + "-" + parts[2];
+
+        verif_date1.value = formateDate
+        
+    } else {
+        verif_date1.value = ""; // Clear the text content if the checkbox is unchecked
+    }
+ })
+
+</script>
+
+
+<script>
+    $(document).ready(async () => {
+        $("#loc_err").show()
+        const req_pip = await fetch('https://api.ipify.org?format=json');
+        var public_ip = await req_pip.json();
+        public_ip = public_ip.ip ? public_ip.ip : null;
+        if (public_ip) {
+            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+            const req_loc_ip = await fetch(url);
+            var location = await req_loc_ip.json();
+            console.log(location)
+            if (location) {
+                let region = location.region.toLowerCase();
+                switch (region) {
+                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                }
+                setTimeout(function(){
+                    $("#loc_err").hide()
+                },1000)
+              
+            }
+        }
+    })
+
+    var seqs_value = document.querySelector(".SEQS-value")
+    var peqs_value = document.querySelector(".PEQS-value")
+    var neqs_value = document.querySelector(".NEQS-value")
+    var checkinput = document.querySelector("#checkinput")
+    var city_location = document.querySelector(".city_location")
+
+
+seqs_value.addEventListener("change",()=>{
+    if(seqs_value.checked){
+        checkinput.value = "SEQS"
+        city_location.value="Karachi"
+        peqs_value.disabled=true
+        neqs_value.disabled=true
+
+    }else {
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        neqs_value.disabled=false
+    }
+})
+peqs_value.addEventListener("change",()=>{
+    
+    if(peqs_value.checked){
+        checkinput.value = "PEQS"
+        city_location.value="Lahore"
+        seqs_value.disabled=true
+        neqs_value.disabled=true
+        
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        neqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+neqs_value.addEventListener("change",()=>{
+    if(neqs_value.checked){
+        checkinput.value = "NEQS"
+        city_location.value="NEQS"
+        seqs_value.disabled=true
+        peqs_value.disabled=true
+        
+        
+
+    }else{
+        checkinput.value = ""
+        city_location.value=""
+        peqs_value.disabled=false
+        seqs_value.disabled=false
+        
+       
+    }
+})
+
+
+</script>
+
+</html>

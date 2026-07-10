@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+    <title>Verification</title>
+    {% load static %}
+</head>
+<body>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 2px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+          width: 20%;
+        }
+        
+        </style>
+        {% if data %}
+        <section class="sticky top-60 w-32 text-xl flex flex-col left-9 px relative z-50 flex gap-8">
+            <a target="_blank" href="{% url 'verif_pdf' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Report</a>
+            <a target="_blank" href="{% url 'verif_pdf1' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Print</a>
+            <a  href="{% url 'nav' %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+              </svg ></a>
+          </section>
+    <section class="w-full flex flex-col justify-center items-center ">
+        <div class="m-10">
+            <h1 class="text-4xl " style="font-family: 'Pacifico', cursive;">Certificate of Verification</h1>
+        </div>
+    </section>
+    
+    <section class="w-full flex justify-center mb-52">
+        <div action="{% url 'verif_clone_update' pk=data.id %}" enctype="multipart/form-data" method="post"  class="m-20 w-8/12 ">
+           
+            <div class="mb-8 space-x-4 mb-8 space-x-4 flex justify-between items-center">
+                <div>
+                    <label class="font-bold  text-lg" for="">Certificate Number:</label>
+                <input class="border border-gray-500 px-3 py-1 w-96 outline-none" type="text" value="{{data.cert_num}}" disabled name="cert_num" >
+                </div>
+                <div class="">
+                    <img style="width:80px;height:80px" class="" src="{{qr}}" alt="">
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <td style="width: 5%;"><b>Client</b></td>
+                    <td colspan="3"><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.client}}" disabled name="client" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Address</b></td>
+                    <td colspan="3"><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.address}}" disabled name="address" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Verification Date</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.verif_date}}" disabled  type="text"></td>
+                    <td style="width: 5%;"><b>Re-Verification Date</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.re_verif_date}}" disabled  type="text"></td>
+                </tr>
+                
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table >
+                <tr>
+                    <th colspan="4" style="width: 80%;"><b>Client's Equipment Data</b></th>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.equipment}}" disabled name="equipment" type="text"></td>
+                    <td style="width: 5%;"><b>Manufacturer</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.manufacturer}}" disabled name="Manufacturer" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Equipment ID</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.equip_id}}" disabled name="equip_id" type="text"></td>
+                    <td style="width: 5%;"><b>Model</b></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.model}}" disabled name="model" type="text"></td>
+                </tr>
+                <tr>
+                    <td style="width: 5%;"><b>Parameters</b></td>
+                    <td colspan="2"><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.param1}}" disabled name="prem1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.param}}" disabled name="param" type="text"></td>
+                </tr>
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table>
+                <tr>
+                    <td colspan="5"><b>Master Equipment and References</b></td>
+                </tr>
+                <tr>
+                    <td class="text-center"><b>Equipment</b></td>
+                    <td class="text-center"><b>Model</b></td>
+                    <td class="text-center"><b>Serial No.</b></td>
+                    <td class="text-center"><b>Certificate Number</b></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.equipment_1}}" disabled name="equipment_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.model_1}}" disabled name="model_1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.serial_no1}}" disabled name="serial_no1" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.cert_num1}}" disabled name="cert_num1" type="text"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.equipment_2}}" disabled name="equipment_2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.model_2}}" disabled name="model_2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.serial_no2}}" disabled name="serial_no2" type="text"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.cert_num2}}" disabled name="cert_num2" type="text"></td>
+                </tr>
+                {% if data.extra_field1 %}
+                    {% for extra_field in data.extra_field1 %}
+                        <tr>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr[]"  type="text"></b></td>
+                            <td>{{extra_field.inp1}}</b></td>
+                            <td>{{extra_field.inp2}}</td>
+                            <td>{{extra_field.inp3}}</td>
+                            <td>{{extra_field.inp4}}</td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+            </table>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <div class="">
+                <tr>
+                    <td colspan=""><b>Test Environment</b></td>
+                    <td colspan=""><input class="border border-gray-500 px-3 py-1 w-5/12 outline-none" value="{{data.test1}}" disabled name="test1" type="text" ></td>
+                    <td colspan="2"><input class="border border-gray-500 px-3 py-1 w-5/12 outline-none" value="{{data.test2}}" disabled name="test2" type="text" ></td>
+                </tr>
+            </div>
+            <hr class="w-full border border-black mt-5 mb-5">
+            <table id="table">
+                <tr>
+                    <th colspan="4">Physical Inspection & Testing</th>
+                </tr>
+                <tr>
+                    <th>Testing Parameter</th>
+                    <th>Equipment Design Specs</th>
+                    <th>Observations</th>
+                    <th>Deviation</th>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_1}}" disabled name="test_1" value="Voltage"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des1}}" disabled name="equip_des1"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser1}}" disabled name="obser1"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev1}}" disabled name="dev1"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_2}}" disabled name="test_2" value="Frequency"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des2}}" disabled name="equip_des2"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser2}}" disabled name="obser2"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev2}}" disabled name="dev2"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_3}}" disabled name="test_3" value="Compressive Strength"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des3}}" disabled name="equip_des3"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser3}}" disabled name="obser3"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev3}}" disabled name="dev3"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_4}}" disabled name="test_4" value="Motor Power"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des4}}" disabled name="equip_des4"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser4}}" disabled name="obser4"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev4}}" disabled name="dev4"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_5}}" disabled name="test_5" value="Piston Speed"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des5}}" disabled name="equip_des5"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser5}}" disabled name="obser5"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev5}}" disabled name="dev5"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_6}}" disabled name="test_6" value="Compression Space"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des6}}" disabled name="equip_des6"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser6}}" disabled name="obser6"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev6}}" disabled name="dev6"></td>
+                </tr>
+                <tr>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.test_7}}" disabled name="test_7" value="Maintenance"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.equip_des7}}" disabled name="equip_des7"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.obser7}}" disabled name="obser7"></td>
+                    <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" type="text" value="{{data.dev7}}" disabled name="dev7"></td>
+                </tr>
+                {% if data.extra_field %}
+                    {% for extra_field in data.extra_field %}
+                        <tr>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" disabled name="sr[]"  type="text"></b></td>
+                            <td><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.test}}" disabled name="test[]"  type="text"></b></td>
+                            <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.equip}}" disabled name="equip[]" type="text" ></td>
+                            <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.obser}}" disabled name="obser[]" type="text" ></td>
+                            <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.dev}}" disabled name="dev[]" type="text" ></td>
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+            </table>
+            
+            <hr class="w-full border border-black mt-5 mb-5">
+            <div class="">
+                <p class="font-bold">Conclusion :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.conc}}" disabled name="conc" type="text">
+            </div>
+            <div class="mt-4">
+                <p class="font-bold">Verification Status :</p>
+                <input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{data.verif_status}}" disabled name="verif_status" type="text">
+            </div>
+            <div class="mt-8 border border-gray-400 p-2">
+                <span class="">{{data.text}}</span>
+              </div>
+              <div class="flex justify-between mt-6 text-sm">
+                <div class="flex flex-col space-y-4  p-2">
+                    <img class="h-24 w-28" src="{{data.verif_by_signature.signature.url}}" alt="img">
+                    <label class="font-bold text-lg" for=""> Verified By:</label>
+                </div>
+                <div class="flex flex-col space-y-4  p-2 " style="width: 50%;">
+                    
+                    <div class="flex  w-full justify-around" style="column-gap: 20px; font-size: 12px;">
+
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %} alt="">
+                            <p>(License # R-KC)</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/ISO-9001_2015 LOGO.png" %} alt="">
+                            <p>(Certificate # 080177324-QMS)</p>
+                        </div>
+
+                        <div class="flex flex-col items-center">
+                            <img class="h-24 w-28" src={% static "/assets/ISO-14001_2015 LOGO.png" %} alt="">
+                            <p>(Certificate # 080177424-EMS)</p>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="flex flex-col space-y-4  p-2">
+                    
+
+                    <div class="flex text-sm" style="column-gap: 20px;">
+                        <img class="h-24 w-28" src="{{logo}}" alt="img">
+
+                        <img class="h-24 w-28" src="{{data.check1_signature.signature.url}}" alt="img">
+
+                    </div>
+                    <label class="font-bold text-lg text-center" for="">Checked By</label>
+                </div>
+
+            </div>
+            <div class="flex flex-col mt-8">
+                <label class="font-bold" for="">Disclaimer</label>
+                <input class="border border-gray-500 w-96 py-1 px-3 w-full outline-none" type="text" value="{{data.disc}}" disabled name="disc" >
+            </div>
+            <input id="extra_field" name="extra_field" style="display: none;" value="[]" type="text"/>
+            
+        </div>
+    </section>
+    {% endif %}
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.getElementById("textArea").value = "The certificate is a true record of the measurement made and the value reflected on this certificate were correct at the time of calibration. And this certificate is valid for current equipment only. Re-calibration is recommended at the mentioned date, however, should be performed earlier in case of any repairs, services, or relocation of the equipment.";
+
+    const stringToJSON =   (s)=>{
+        s = s.replaceAll('&#x27;','"')
+       s =  JSON.parse(s)
+      return s
+    }
+
+    {% comment %} var extraFields = stringToJSON('{{list.extra_field}}'); {% endcomment %}
+     var extraFields = []
+const getExtraFields = async () => {
+    var extraRows = $("tr[id^='extraRow-']")
+for(var i =0;i<extraRows.length;i++){
+    let _row = extraRows[i];
+    let num_row = _row.id.split("-")[1]
+
+    let obj = {
+        "sr":num_row,
+        "test":$(`input[name='extra-${num_row}-1']`).val(),
+        "equip":$(`input[name='extra-${num_row}-2']`).val(),
+        "obser":$(`input[name='extra-${num_row}-3']`).val(),
+        "dev":$(`input[name='extra-${num_row}-4']`).val(),
+        }
+    extraFields.push(obj);
+}
+$("#extra_field").val(JSON.stringify(extraFields))
+}
+
+
+
+$("#save_rows").on('click', getExtraFields)
+
+var table = document.querySelector('#table')
+var add_rows = document.querySelector('#add_rows')
+currentNumber = 33
+
+add_rows.addEventListener('click', (e) => {
+e.preventDefault()
+var newRow = table.insertRow(table.rows.length);
+$(newRow).attr("id",`extraRow-${currentNumber}`)
+var cell0 = newRow.insertCell(0);
+cell0.innerHTML = `${currentNumber}`;
+cell0.style.display="none"
+for (var i = 1; i < 5; i++) {
+    var cell = newRow.insertCell(i);
+    cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+}
+
+currentNumber++;
+})
+
+</script>
+
+</html>

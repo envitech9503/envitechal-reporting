@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+env/
+.venv/
+
+# Django data & artifacts
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# Secrets & certificates
+*.key
+*.crt
+*.pem
+private.key
+cert.crt
+.env
+.env.*
+
+# Runtime, logs, sockets
+*.log
+*.sock
+gunicorn.sock
+
+# Backups & dumps
+*.bak
+*.bak-*
+requirements.txt.bak-*
+logging_sheet_backup.json
+
+# OS
+.DS_Store
