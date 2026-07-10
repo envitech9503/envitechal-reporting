@@ -174,3 +174,16 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+# --- Postgres cutover toggle (env-controlled; SQLite stays default) ---
+import os as _os
+DATABASES['sqlite'] = DATABASES['default']
+if _os.environ.get('USE_POSTGRES') == '1':
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': _os.environ.get('PG_NAME','django'),
+        'USER': _os.environ.get('PG_USER','django'),
+        'PASSWORD': _os.environ.get('PG_PASSWORD',''),
+        'HOST': _os.environ.get('PG_HOST','localhost'),
+        'PORT': _os.environ.get('PG_PORT','5432'),
+    }
