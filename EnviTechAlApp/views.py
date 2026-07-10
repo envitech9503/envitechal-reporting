@@ -583,7 +583,9 @@ def search_all_reports(name_input, from_date, to_date, location_search, sample_s
      ]
      
      for config in search_configs:
-         queryset = config['model'].objects.all()
+         _m = config['model']
+         _heavy=[f for f in ('pdf_image_1','pdf_image_2','pdf_image_3','pdf_image_4','pdf_image_5','pdf_image_6') if f in [x.name for x in _m._meta.get_fields()]]
+         queryset = _m.objects.defer(*_heavy) if _heavy else _m.objects.all()
          q_objects = Q()
          has_filters = False
          
