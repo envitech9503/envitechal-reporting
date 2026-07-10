@@ -3,7 +3,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
@@ -125,7 +125,7 @@
                 <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
             </div>
             <nav class="p-4">
-                <ul class="w-48 ">
+                <ul class="w-48 "><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'nav' %}"><i class="fa-solid fa-house pr-4"></i>Home</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'home' %}"><i class="fa-solid fa-magnifying-glass pr-4"></i>Reports</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="/dashboard/dashboard/"><i class="fa-solid fa-chart-line pr-4"></i>Dashboard</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'sample_main' %}"><i class="fa-solid fa-flask pr-4"></i>Samples</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'qc_main' %}"><i class="fa-solid fa-clipboard-check pr-4"></i>QC</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'certificate' %}"><i class="fa-solid fa-certificate pr-4"></i>Certificates</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'job_main' %}"><i class="fa-solid fa-list-check pr-4"></i>Work Completion</a></li><li><hr class="border-gray-600 my-2"></li><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.qk").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.style.color="#34d399";a.style.fontWeight="700";}});});</script>
                     <button type="button" class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms<i class="fa-solid fa-chevron-right pl-20"></i></button>
                     <div class="formMainDiv hidden">
                         <hr class=" border-blue-200">

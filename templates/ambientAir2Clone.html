@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-<head>
+<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     
     {%load static%}
   <meta charset="UTF-8">
@@ -44,7 +44,7 @@
         <nav class="side-nav list-none w-72 bg-gray-900 text-gray-100 h-full flex flex-col items-center fixed  top-22 left-0 overflow-x-hidden mt-20" >
             <hr class="border border-gray-100 w-full">
             <h1 class="text-2xl pb-4 pt-4 text-gray-100 font-bold text-center">SITE NAVIGATION</h1>
-                <ul class="w-48 ">
+                <ul class="w-48 "><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'nav' %}"><i class="fa-solid fa-house pr-4"></i>Home</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'home' %}"><i class="fa-solid fa-magnifying-glass pr-4"></i>Reports</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="/dashboard/dashboard/"><i class="fa-solid fa-chart-line pr-4"></i>Dashboard</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'sample_main' %}"><i class="fa-solid fa-flask pr-4"></i>Samples</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'qc_main' %}"><i class="fa-solid fa-clipboard-check pr-4"></i>QC</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'certificate' %}"><i class="fa-solid fa-certificate pr-4"></i>Certificates</a></li><li><a class="sideNavFormBtn mb-2 flex items-center qk" href="{% url 'job_main' %}"><i class="fa-solid fa-list-check pr-4"></i>Work Completion</a></li><li><hr class="border-gray-600 my-2"></li><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.qk").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.style.color="#34d399";a.style.fontWeight="700";}});});</script>
                     
 
                     
@@ -168,7 +168,7 @@
             
         </nav>
 
-        <div class="ambientair2 h-full w-10/12 flex flex-col items-center " style="margin-left:18rem;max-width:calc(100vw - 19rem)">
+        <div class="ambientair2 h-full w-10/12 flex flex-col items-center " style="margin-left:18rem;max-width:calc(100vw - 19rem)"><div class="crumbtrail text-sm text-gray-500 self-start mt-2 pl-4 w-full"><a href="/" class="text-green-600 hover:underline">Home</a> &rsaquo; <a href="{% url 'home' %}" class="text-green-600 hover:underline">Reports</a> &rsaquo; <span>EnviTechAl|AmbientAir2Edit</span></div>
               
             {% block content %}
             {% if data %}

@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-<head>
+<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
 
   <meta charset="UTF-8">
   
@@ -316,6 +316,27 @@
                             {% if total_results > 20 %}
                             <div class="text-sm text-gray-600">
                                 Showing page {{ all_reports.number }} of {{ all_reports.paginator.num_pages }}
+<div class="toppag">
+                {% if search_performed and all_reports.has_other_pages %}
+                <div class="flex justify-center mt-6 space-x-2 mb-10">
+                    {% if all_reports.has_previous %}
+                    <a href="?page=1&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">&laquo; First</a>
+                    <a href="?page={{ all_reports.previous_page_number }}&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">Previous</a>
+                    {% endif %}
+                    
+                    <span class="px-3 py-1 bg-blue-500 text-white rounded">
+                        Page {{ all_reports.number }} of {{ all_reports.paginator.num_pages }}
+                    </span>
+                    
+                    {% if all_reports.has_next %}
+                    <a href="?page={{ all_reports.next_page_number }}&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">Next</a>
+                    <a href="?page={{ all_reports.paginator.num_pages }}&name={{ name_input|urlencode }}&from={{ from_date }}&to={{ to_date }}&location={{ location_search|urlencode }}&sample={{ sample_search|urlencode }}" 
+                    class="px-3 py-1 border rounded hover:bg-gray-100">Last &raquo;</a>
+                    {% endif %}
+</div>
                             </div>
                             {% endif %}
                         </div>
@@ -360,55 +381,55 @@
                                 <td class="border p-2 sample_id">{{ reports.sample_id|default:"-" }}</td>
                                 <td class="border p-2 text-center">
                                     {% if reports.report_type == 'dw' %}
-                                    <a href="{% url 'DrinkingWaterform-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'DrinkingWaterform-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'gae' %}
-                                    <a href="{% url 'GaseousForm-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'GaseousForm-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'aa' %}
-                                    <a href="{% url 'ambientAir-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'ambientAir-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'ww' %}
-                                    <a href="{% url 'wastewater-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'wastewater-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 've' %}
-                                    <a href="{% url 'vehicularEmission-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'vehicularEmission-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'la' %}
-                                    <a href="{% url 'luxAnalysis-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'luxAnalysis-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'pp' %}
-                                    <a href="{% url 'packingpolybag-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'packingpolybag-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'mo' %}
-                                    <a href="{% url 'machineOil-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'machineOil-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'ma' %}
-                                    <a href="{% url 'microbial-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'microbial-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'vl' %}
-                                    <a href="{% url 'viscousLiquid-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'viscousLiquid-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'aa2' %}
-                                    <a href="{% url 'ambientAir2-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'ambientAir2-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'ww2' %}
-                                    <a href="{% url 'wasteWater2-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'wasteWater2-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% elif reports.report_type == 'na' %}
-                                    <a href="{% url 'noiseAnalysis-view' reports.id %}" class="text-blue-500 hover:text-blue-700">
+                                    <a href="{% url 'noiseAnalysis-view' reports.id %}" class="text-blue-500 hover:text-blue-700" target="_blank" rel="noopener">
                                         <i class="fa-solid fa-file text-2xl"></i>
                                     </a>
                                     {% endif %}
