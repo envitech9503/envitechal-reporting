@@ -21,16 +21,17 @@ def _list_filter(request, model):
     qs=model.objects.all()
     if name:
         q=Q()
-        for f in ('report_to','attention','lab_report_no','invoice_bill_no','invoice_no'):
+        for f in ('report_to','attention','lab_report_no','invoice_bill_no','invoice_no','client_name','customer_name','company_name','name','project_name','client','sample_source'):
             if f in names: q|=Q(**{f+'__icontains':name})
         if q.children: qs=qs.filter(q)
     if loc and 'location' in names: qs=qs.filter(location__icontains=loc)
     if samp and 'sample_id' in names: qs=qs.filter(sample_id__icontains=samp)
-    if (fd or td) and 'reporting_date' in names:
+    datef=next((x for x in ('reporting_date','sampling_date','date_of_sampling','logging_date','date') if x in names),None)
+    if (fd or td) and datef:
         f1=_parse_date(fd); t1=_parse_date(td)
         ids=[]
-        for r in qs.values('id','reporting_date'):
-            d=_parse_date(r['reporting_date'])
+        for r in qs.values('id',datef):
+            d=_parse_date(str(r[datef] or ''))
             if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
         qs=qs.filter(id__in=ids)
     return qs.order_by('-id'), True

@@ -787,8 +787,8 @@ def loggingSheet(request):
 
 
 def loggingList(request):
-     log = LoggingSheet.objects.all()
-     context = {'data':log}
+     log, _srch = _list_filter(request, LoggingSheet)
+     context = {'searched':_srch, 'data':log}
      return render(request,"loggingList.html",context)
 
 def loggingEdit(request,pk):
@@ -1220,8 +1220,8 @@ def sample_main(request):
 
 
 def sample_list(request):
-     sample = Sample_registration.objects.all()
-     context = {'data':sample}
+     sample, _srch = _list_filter(request, Sample_registration)
+     context = {'searched':_srch, 'data':sample}
      return render(request,"sample_list.html",context)
 
 def sample_view(request,pk):
