@@ -45,3 +45,37 @@ def _list_filter(request, model):
             if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
         qs=qs.filter(id__in=ids)
     return qs.order_by('-id'), True
+
+def _sampling_filter(request, model):
+    g=request.GET
+    ss=g.get('sampleSearch','').strip(); an=g.get('analysisSearch','').strip()
+    sb=g.get('samplingBySearch','').strip(); tp=g.get('typeSearch','').strip()
+    cl=g.get('clientSearch','').strip()
+    fd=g.get('from_date','').strip(); td=g.get('to_date','').strip()
+    if not (ss or an or sb or tp or cl or fd or td):
+        return model.objects.none(), False
+    qs=model.objects.all()
+    if ss: qs=qs.filter(sample_id__icontains=ss)
+    if model.__name__=='Sample_registration':
+        if an:
+            a=an.lower(); q=Q()
+            if 'chem' in a: q|=Q(checkinp_chemical=True)
+            if 'bact' in a or 'micro' in a or 'bio' in a: q|=Q(checkinp_bacteria=True)
+            if q.children: qs=qs.filter(q)
+        if sb: qs=qs.filter(Q(inp2__icontains=sb)|Q(inp1__icontains=sb))
+        if tp: qs=qs.filter(inp4__icontains=tp)
+        datef='inp3'
+    else:
+        if cl: qs=qs.filter(Q(client_name__icontains=cl)|Q(att_person__icontains=cl))
+        if sb: qs=qs.filter(rec_by__icontains=sb)
+        if tp: qs=qs.filter(sample_nature__icontains=tp)
+        datef='rec_date'
+    if fd or td:
+        f1=_parse_date(fd) if fd else None
+        t1=_parse_date(td) if td else None
+        ids=[]
+        for r in qs.values('id',datef):
+            d=_parse_date(str(r[datef] or ''))
+            if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
+        qs=qs.filter(id__in=ids)
+    return qs.order_by('-id'), True

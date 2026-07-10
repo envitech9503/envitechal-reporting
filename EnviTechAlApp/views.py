@@ -1,4 +1,4 @@
-from EnviTechAlApp.listfilter import _list_filter
+from EnviTechAlApp.listfilter import _list_filter, _sampling_filter
 import tempfile
 from urllib import response
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect,FileResponse,JsonResponse,HttpResponseServerError
@@ -787,7 +787,7 @@ def loggingSheet(request):
 
 
 def loggingList(request):
-     log, _srch = _list_filter(request, LoggingSheet)
+     log, _srch = _sampling_filter(request, LoggingSheet)
      context = {'searched':_srch, 'data':log}
      return render(request,"loggingList.html",context)
 
@@ -1220,7 +1220,7 @@ def sample_main(request):
 
 
 def sample_list(request):
-     sample, _srch = _list_filter(request, Sample_registration)
+     sample, _srch = _sampling_filter(request, Sample_registration)
      context = {'searched':_srch, 'data':sample}
      return render(request,"sample_list.html",context)
 
