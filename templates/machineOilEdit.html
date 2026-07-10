@@ -65,7 +65,7 @@
 <body>
     
 <section id="header"  class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
-    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+    <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a><nav class="hdrnav flex flex-wrap items-center gap-x-5 gap-y-1 text-gray-300 text-sm font-semibold"><a class="hover:text-green-400 hq" href="{% url 'nav' %}">Home</a><a class="hover:text-green-400 hq" href="{% url 'home' %}">Reports</a><a class="hover:text-green-400 hq" href="{% url 'certificate' %}">Certificates</a><a class="hover:text-green-400 hq" href="{% url 'sample_main' %}">Samples</a><a class="hover:text-green-400 hq" href="{% url 'qc_main' %}">QC</a><a class="hover:text-green-400 hq" href="/dashboard/dashboard/">Dashboard</a><a class="hover:text-green-400 hq" href="{% url 'job_main' %}">Work</a></nav><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.hq").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.style.color="#34d399";}});});</script>
         <div id="profile" class="flex space-x-10 mr-10">
             <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
             <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
