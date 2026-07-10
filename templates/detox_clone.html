@@ -22,7 +22,7 @@
             const menuButton = document.getElementById('menu-button');
             const sidebar = document.getElementById('sidebar');
             
-            menuButton.addEventListener('click', function() {
+            if(menuButton&&sidebar)menuButton.addEventListener('click', function() {
                 sidebar.classdetox.toggle('-translate-x-full');
                 sidebar.classdetox.toggle('transform-none');
             });

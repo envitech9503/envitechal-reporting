@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
     <script src="/static/vendor/jquery-3.6.4.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{%static "style.css" %}">
-    <title>Add Drinking Water Form</title>
+    <title>QC - Envi Tech AL</title>
     <script src="/static/vendor/jquery-3.6.4.min.js"></script>
     <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
     <link href="/static/vendor/select2/select2.min.css" rel="stylesheet" />
@@ -24,7 +24,7 @@
             const menuButton = document.getElementById('menu-button');
             const sidebar = document.getElementById('sidebar');
             
-            menuButton.addEventListener('click', function() {
+            if(menuButton&&sidebar)menuButton.addEventListener('click', function() {
                 sidebar.classList.toggle('-translate-x-full');
                 sidebar.classList.toggle('transform-none');
             });
