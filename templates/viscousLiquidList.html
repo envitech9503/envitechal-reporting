@@ -87,10 +87,10 @@
                                 </ul>
                                 <hr class=" border-blue-200">
                                 <ul>
-                                    <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambienty Air Quality</button>
+                                    <button class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality</button>
                                     <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
-                                    <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambienty Air Qua..</a></li>
-                                    <li><a class="ambientAirList" href="/ambientAirList">List Ambienty Air Qua..</a></li>
+                                    <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambient Air Qua..</a></li>
+                                    <li><a class="ambientAirList" href="/ambientAirList">List Ambient Air Qua..</a></li>
                                 </div>
                                 </ul>
                                 <hr class=" border-blue-200">
@@ -195,7 +195,7 @@
             
             
             <form method="get" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:14px 8px 4px"><input type="text" name="nameInput" value="{{ request.GET.nameInput }}" placeholder="Search by Name / Report No" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px;width:230px"><input type="date" name="from_date" value="{{ request.GET.from_date }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px"><input type="date" name="to_date" value="{{ request.GET.to_date }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px"><input type="text" name="locationSearch" value="{{ request.GET.locationSearch }}" placeholder="Search by Location" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px;width:180px"><input type="text" name="sampleSearch" value="{{ request.GET.sampleSearch }}" placeholder="Search by Sample ID" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px;width:180px"><button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:9px 22px;font-weight:600;cursor:pointer">Search</button></form>{% if not searched %}<p style="text-align:center;color:#64748b;margin:6px 0 14px">Enter a filter above and press Search to load reports.</p>{% else %}<p style="text-align:center;color:#64748b;margin:6px 0 14px">Showing search results (newest first). <a href="?" style="color:#2563eb;text-decoration:underline">Clear search</a></p>{% endif %}
-<style>.dataTables_wrapper,.dt-container{overflow-x:auto;padding-bottom:4px}</style><table id="example" class="Table border border-black" style="width:100%; "cellspacing=10 >
+<style>.dataTables_wrapper,.dt-container{overflow-x:auto;padding-bottom:4px}table.dataTable{width:100% !important;font-size:13px}table.dataTable th,table.dataTable td{padding:6px 8px !important;word-break:break-word;white-space:normal !important}table.dataTable th{font-size:12.5px;word-break:normal;white-space:nowrap !important}</style><table id="example" class="Table border border-black" style="width:100%; "cellspacing=10 >
                 <thead>
                     <tr class="bg-gray-900 text-gray-200 font-mono">
                         
