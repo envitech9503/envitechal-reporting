@@ -5,15 +5,15 @@
   {%load static%}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://kit.fontawesome.com/db212db5f7.js"></script>
+  <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
   <link type="text/css" rel="stylesheet" media="all"
-    href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" />
+    href="/static/vendor/tailwind.min.css" />
   <link type="text/css" rel="stylesheet" media="all"
-    href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    href="/static/vendor/datatables/jquery.dataTables.min.css" />
   <!-- <link rel="stylesheet" href={%static "style.css"%}> -->
 
   <title>List of drinking Water Form</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="/static/vendor/jquery-3.6.4.min.js"></script>
 
 
 
@@ -54,7 +54,7 @@
           <center>
           <img style="   width:100px !important;
           text-align: center;
-          height: 100px !important;" src="http://127.0.0.1:8000/static/assets/0x0-removebg-preview.png" alt=""/>
+          height: 100px !important;" src="/static/assets/0x0-removebg-preview.png" alt=""/>
         </center>
         </td>
         <td>
@@ -68,7 +68,7 @@
           <center>
              <img style="   width:100px !important;
              text-align: center;
-             height: 100px !important;" src="http://127.0.0.1:8000/static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png"
+             height: 100px !important;" src="/static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png"
             alt=""/>
             </center>
         </td>
@@ -78,7 +78,7 @@
     </div>
     <div style="display:inline-flex;flex-direction: row !important;justify-content: space-between;justify-items: center;">
   
-      <!-- <img style="width: 60px;"   src="http://127.0.0.1:8000/static/assets/0x0-removebg-preview.png" alt=""> -->
+      <!-- <img style="width: 60px;"   src="/static/assets/0x0-removebg-preview.png" alt=""> -->
       <!-- </div>
         <div class="text-center">
          
@@ -585,19 +585,19 @@
   
         <div class="flex justify-around mt-6">
           <div class="">
-            <img class="h-16" src="http://127.0.0.1:8000/{{list.analyst_signature.url}}" alt="image" />
+            <img class="h-16" src="{{list.analyst_signature.url}}" alt="image" />
             <hr class="border border-black mt-2" />
             <p><strong>Analyzed By Analyzed By (Analyst)</strong></p>
           </div>
           <div class="">
-            <img class="h-16" src="http://127.0.0.1:8000/{{list.reviewed_by.url}}" alt="image" />
+            <img class="h-16" src="{{list.reviewed_by.url}}" alt="image" />
             <hr class="border border-black mt-2" />
             <p><strong>Reviewed By (Assistant Manager)</strong></p>
           </div>
           <div class="">
             <div class="flex space-x-6">
-              <img class="h-16" src="http://127.0.0.1:8000/{{list.analyzed_by.url}}" alt="image" />
-              <img class="h-16" src="http://127.0.0.1:8000/static/assets/Reserved.ReportViewerWebControl.jpg"
+              <img class="h-16" src="{{list.analyzed_by.url}}" alt="image" />
+              <img class="h-16" src="/static/assets/Reserved.ReportViewerWebControl.jpg"
                 alt="image" />
             </div>
             <hr class="border border-black mt-2" />
@@ -619,7 +619,7 @@
           </div>
           <div class="flex text-center ">
             <div class=" flex items-center flex-col">
-              <img class="h-14" src="http://127.0.0.1:8000/static/assets/ISO-9001_2015 LOGO.png" alt="">
+              <img class="h-14" src="/static/assets/ISO-9001_2015 LOGO.png" alt="">
               {%if list.doc_controll_1%}
               <div class="border border-black text-xs w-28">
   
@@ -628,7 +628,7 @@
               {%endif%}
             </div>
             <div class="text-center flex flex-col items-center">
-              <img class="h-14" src="http://127.0.0.1:8000/static/assets/SEPA-Sindh-LOGO.png" alt="">
+              <img class="h-14" src="/static/assets/SEPA-Sindh-LOGO.png" alt="">
               {%if list.doc_controll_2%}
               <div class="border border-black text-xs">
   
@@ -638,7 +638,7 @@
   
             </div>
             <div class="text-center flex flex-col items-center">
-              <img class="h-14" src="http://127.0.0.1:8000/static/assets/ISO-14001_2015 LOGO.png" alt="">
+              <img class="h-14" src="/static/assets/ISO-14001_2015 LOGO.png" alt="">
               {%if list.doc_controll_3%}
               <div class="border border-black text-xs w-28">
                 <p>{{list.doc_controll_3}}</p>
