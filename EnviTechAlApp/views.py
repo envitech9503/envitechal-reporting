@@ -1,3 +1,4 @@
+from EnviTechAlApp.listfilter import _list_filter
 import tempfile
 from urllib import response
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect,FileResponse,JsonResponse,HttpResponseServerError
@@ -10533,9 +10534,9 @@ def noiseAnalysis(request):
 
 @login_required(login_url="/login")
 def drinkingWaterList(request):
-     drinkingWaterList = DrinkingWaterForm.objects.all()
+     drinkingWaterList, _srch = _list_filter(request, DrinkingWaterForm)
      print("dw count",drinkingWaterList.count())
-     context = {'list':drinkingWaterList}
+     context = {'searched':_srch, 'list':drinkingWaterList}
 
      return render(request,"drinkingWaterList.html",context)
 
@@ -12828,8 +12829,8 @@ def generatePDF_report(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def gaseousEmissionList(request):
-     gaseous_Emission = GaseousEmissionForm.objects.all()
-     context = {'data' : gaseous_Emission}
+     gaseous_Emission, _srch = _list_filter(request, GaseousEmissionForm)
+     context = {'searched':_srch, 'data' : gaseous_Emission}
 
      return render(request,"gaseousEmissionList.html",context)
 
@@ -14474,8 +14475,8 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def ambientAirList(request):
-     ambientAir = AmbientAirForm.objects.all()
-     context = {'data':ambientAir}
+     ambientAir, _srch = _list_filter(request, AmbientAirForm)
+     context = {'searched':_srch, 'data':ambientAir}
      return render(request,"ambientAirList.html",context)
 
 
@@ -15984,8 +15985,8 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def wasteWaterSludgeList(request):
-     wasteWaterForm = WasteWaterSludge.objects.all()
-     context = {'data':wasteWaterForm}
+     wasteWaterForm, _srch = _list_filter(request, WasteWaterSludge)
+     context = {'searched':_srch, 'data':wasteWaterForm}
      return render(request,'wasteWaterSludgeList.html',context)
 
 @login_required(login_url="/login")
@@ -17765,8 +17766,8 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def vehicularEmissionList(request):
-     vel = VehiculEmissionForm.objects.all()
-     context = {'data':vel}
+     vel, _srch = _list_filter(request, VehiculEmissionForm)
+     context = {'searched':_srch, 'data':vel}
      return render(request,'vehicularEmissionList.html',context)
 
 @login_required(login_url="/login")
@@ -19156,8 +19157,8 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def luxAnalysisList(request):
-     luxAnalysis = LuxAnalysisForm.objects.all()
-     context = {'data':luxAnalysis}
+     luxAnalysis, _srch = _list_filter(request, LuxAnalysisForm)
+     context = {'searched':_srch, 'data':luxAnalysis}
      return render(request,"luxAnalysisList.html",context)
 
 @login_required(login_url="/login")
@@ -20662,8 +20663,8 @@ def luxAnalysisReportPdf1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def packingPolyBagList(request):
-     ppb = PackingPolyBagForm.objects.all()
-     context ={'data':ppb}
+     ppb, _srch = _list_filter(request, PackingPolyBagForm)
+     context ={'searched':_srch, 'data':ppb}
      return render(request,"packingPolyBagList.html",context)
 
 @login_required(login_url="/login")
@@ -21905,8 +21906,8 @@ def packingPolyBagReport1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def noiseAnalysisList(request):
-     nA = NoiseAnalysis.objects.all()
-     context = {'data':nA}
+     nA, _srch = _list_filter(request, NoiseAnalysis)
+     context = {'searched':_srch, 'data':nA}
      return render(request,"noiseAnalysisList.html",context)
 
 
@@ -24169,8 +24170,8 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def machineOilList(request):
-     machineOil = MachineOilForm.objects.all()
-     context = {'data':machineOil}
+     machineOil, _srch = _list_filter(request, MachineOilForm)
+     context = {'searched':_srch, 'data':machineOil}
      return render(request,"machineOilList.html",context)
 
 @login_required(login_url="/login")
@@ -25629,8 +25630,8 @@ def machineOilReportPdf1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def microbialList(request):
-     mba = MicrobialAnalysis.objects.all()
-     context ={"data":mba}
+     mba, _srch = _list_filter(request, MicrobialAnalysis)
+     context ={'searched':_srch, "data":mba}
      return render(request,"microbialAnalysisList.html",context)
 
 @login_required(login_url="/login")
@@ -27090,8 +27091,8 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def viscousLiquidList(request):
-     vL = ViscousLiquid.objects.all()
-     context = {'data':vL}
+     vL, _srch = _list_filter(request, ViscousLiquid)
+     context = {'searched':_srch, 'data':vL}
      return render(request,"viscousLiquidList.html",context)
 
 
@@ -28462,8 +28463,8 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def ambientAir2List(request):
-     AA = AmbientAir2.objects.all()
-     context = {"data":AA}
+     AA, _srch = _list_filter(request, AmbientAir2)
+     context = {'searched':_srch, "data":AA}
      return render(request,"ambientAir2List.html",context)
 
 @login_required(login_url="/login")
@@ -30456,8 +30457,8 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def wasteWAter2List(request):
-     ww = WasteWaterForm2.objects.all()
-     context = {'data':ww}
+     ww, _srch = _list_filter(request, WasteWaterForm2)
+     context = {'searched':_srch, 'data':ww}
      return render(request,"wasteWater2List.html",context)
 
 @login_required(login_url="/login")

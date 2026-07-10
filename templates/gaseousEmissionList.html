@@ -195,7 +195,8 @@
             {% block content %}
             
             
-            <table id="example" class="Table border border-black" style="width:100%; "cellspacing=10 >
+            <form method="get" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:14px 8px 4px"><input type="text" name="nameInput" value="{{ request.GET.nameInput }}" placeholder="Search by Name / Report No" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px;width:230px"><input type="date" name="from_date" value="{{ request.GET.from_date }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px"><input type="date" name="to_date" value="{{ request.GET.to_date }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px"><input type="text" name="locationSearch" value="{{ request.GET.locationSearch }}" placeholder="Search by Location" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px;width:180px"><input type="text" name="sampleSearch" value="{{ request.GET.sampleSearch }}" placeholder="Search by Sample ID" style="border:1px solid #cbd5e1;border-radius:6px;padding:8px 12px;width:180px"><button type="submit" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:9px 22px;font-weight:600;cursor:pointer">Search</button></form>{% if not searched %}<p style="text-align:center;color:#64748b;margin:6px 0 14px">Enter a filter above and press Search to load reports.</p>{% else %}<p style="text-align:center;color:#64748b;margin:6px 0 14px">Showing search results (newest first). <a href="?" style="color:#2563eb;text-decoration:underline">Clear search</a></p>{% endif %}
+<table id="example" class="Table border border-black" style="width:100%; "cellspacing=10 >
                 <thead>
                     <tr class="bg-gray-900 text-gray-200 font-mono">
                         
