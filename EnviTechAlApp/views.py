@@ -1,4 +1,4 @@
-from EnviTechAlApp.listfilter import _list_filter, _sampling_filter, _cert_filter, _work_filter
+from EnviTechAlApp.listfilter import _list_filter, _sampling_filter, _cert_filter, _work_filter, _by_date_desc
 import tempfile
 from urllib import response
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect,FileResponse,JsonResponse,HttpResponseServerError
@@ -10537,7 +10537,6 @@ def noiseAnalysis(request):
 @login_required(login_url="/login")
 def drinkingWaterList(request):
      drinkingWaterList, _srch = _list_filter(request, DrinkingWaterForm)
-     print("dw count",drinkingWaterList.count())
      context = {'searched':_srch, 'list':drinkingWaterList}
 
      return render(request,"drinkingWaterList.html",context)
@@ -37450,7 +37449,7 @@ def noiseMonitoring_edit_update(request,pk):
      
 @login_required(login_url="/login")
 def noiseMonitoring_list(request):
-     nA = NoiseMonitoring.objects.all().order_by('-id')
+     nA = _by_date_desc(NoiseMonitoring.objects.all(), ('reporting_date',))
      context = {'data':nA}
      return render(request,"noiseMonitoring_list.html",context)
 

@@ -9,6 +9,22 @@ def _parse_date(s):
         except Exception: pass
     return None
 
+
+def _date_key(o, fields):
+    import datetime as _d2
+    for f in fields:
+        v = getattr(o, f, None)
+        if not v: continue
+        if isinstance(v, _d2.datetime): return (1, v.date(), o.id)
+        if isinstance(v, _d2.date): return (1, v, o.id)
+        d = _parse_date(str(v))
+        if d: return (1, d, o.id)
+    import datetime as _d3
+    return (0, _d3.date.min, o.id)
+
+def _by_date_desc(qs, fields):
+    return sorted(list(qs), key=lambda o: _date_key(o, fields), reverse=True)
+
 MODEL_MAP={
  'Sample_registration':{'name':('inp1','inp2','inp4'),'loc':('city_location',),'date':('inp3',)},
  'LoggingSheet':{'name':('client_name','att_person','sample_nature','rec_by'),'loc':('city_location','address'),'date':('rec_date',)},
@@ -44,7 +60,7 @@ def _list_filter(request, model):
             d=_parse_date(str(r[datef] or ''))
             if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
         qs=qs.filter(id__in=ids)
-    return qs.order_by('-id'), True
+    return _by_date_desc(qs, ('reporting_date','sampling_date','date_of_sampling','logging_date','date')), True
 
 def _sampling_filter(request, model):
     g=request.GET
@@ -78,7 +94,7 @@ def _sampling_filter(request, model):
             d=_parse_date(str(r[datef] or ''))
             if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
         qs=qs.filter(id__in=ids)
-    return qs.order_by('-id'), True
+    return _by_date_desc(qs, ('inp3','rec_date','date')), True
 
 def _cert_filter(request, model):
     g=request.GET
@@ -104,7 +120,7 @@ def _cert_filter(request, model):
             d=_parse_date(str(r['date'] or ''))
             if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
         qs=qs.filter(id__in=ids)
-    return qs.order_by('-id'), True
+    return _by_date_desc(qs, ('date',)), True
 
 def _work_filter(request, model):
     g=request.GET
@@ -131,4 +147,4 @@ def _work_filter(request, model):
     if td:
         d=_parse_date(td)
         if d: qs=qs.filter(created_at__date__lte=d)
-    return qs.order_by('-id'), True
+    return _by_date_desc(qs, ('created_at',)), True
