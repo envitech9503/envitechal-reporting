@@ -1,4 +1,4 @@
-from EnviTechAlApp.listfilter import _list_filter, _sampling_filter
+from EnviTechAlApp.listfilter import _list_filter, _sampling_filter, _cert_filter, _work_filter
 import tempfile
 from urllib import response
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect,FileResponse,JsonResponse,HttpResponseServerError
@@ -3827,8 +3827,8 @@ def calib_view(request,pk):
 
 @login_required(login_url="/login")
 def calib_list(request):
-     calib = Calibration.objects.all()
-     context = {'data':calib}
+     calib, _srch = _cert_filter(request, Calibration)
+     context = {'searched':_srch, 'data':calib}
      return render(request,"calib_list.html",context)
 
 @login_required(login_url="/login")
@@ -5608,8 +5608,8 @@ def inspection(request):
 
 @login_required(login_url="/login")
 def inspection_list(request):
-     inspect = Inspection.objects.all()
-     context = {'data':inspect}
+     inspect, _srch = _cert_filter(request, Inspection)
+     context = {'searched':_srch, 'data':inspect}
      return render(request,"inspect_list.html",context)
 
 @login_required(login_url="/login")
@@ -7250,8 +7250,8 @@ def verif_delete(request,pk):
 
 @login_required(login_url="/login")
 def verification_list(request):
-     verif = Verification.objects.all()
-     context = {'data':verif}          
+     verif, _srch = _cert_filter(request, Verification)
+     context = {'searched':_srch, 'data':verif}          
      return render(request,'verif_list.html',context)
 
 @login_required(login_url="/login")
@@ -42381,9 +42381,8 @@ def get_all_companies(request):
 
 
 def job_completion_list(request):
-     data = JobCompletionForm.objects.all()
-     print('hello')
-     return render(request,'job_completion_list.html',{'data':data})
+     data, _srch = _work_filter(request, JobCompletionForm)
+     return render(request,'job_completion_list.html',{'data':data,'searched':_srch})
 
 def job_completion_edit(request, pk):
     job = get_object_or_404(JobCompletionForm, id=pk)

@@ -79,3 +79,56 @@ def _sampling_filter(request, model):
             if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
         qs=qs.filter(id__in=ids)
     return qs.order_by('-id'), True
+
+def _cert_filter(request, model):
+    g=request.GET
+    cn=g.get('certSearch','').strip(); cl=g.get('clientSearch','').strip()
+    eq=g.get('equipSearch','').strip(); loc=g.get('locationSearch','').strip()
+    fd=g.get('from_date','').strip(); td=g.get('to_date','').strip()
+    if not (cn or cl or eq or loc or fd or td):
+        return model.objects.none(), False
+    names={f.name for f in model._meta.get_fields()}
+    qs=model.objects.all()
+    if cn: qs=qs.filter(cert_num__icontains=cn)
+    if cl: qs=qs.filter(Q(client__icontains=cl)|Q(address__icontains=cl))
+    if eq:
+        q=Q(equipment__icontains=eq)|Q(manufacturer__icontains=eq)
+        if 'equip_id' in names: q|=Q(equip_id__icontains=eq)
+        qs=qs.filter(q)
+    if loc: qs=qs.filter(city_location__icontains=loc)
+    if fd or td:
+        f1=_parse_date(fd) if fd else None
+        t1=_parse_date(td) if td else None
+        ids=[]
+        for r in qs.values('id','date'):
+            d=_parse_date(str(r['date'] or ''))
+            if d and (f1 is None or d>=f1) and (t1 is None or d<=t1): ids.append(r['id'])
+        qs=qs.filter(id__in=ids)
+    return qs.order_by('-id'), True
+
+def _work_filter(request, model):
+    g=request.GET
+    jn=g.get('jobSearch','').strip(); iv=g.get('invoiceSearch','').strip()
+    co=g.get('companySearch','').strip(); loc=g.get('locationSearch','').strip()
+    fd=g.get('from_date','').strip(); td=g.get('to_date','').strip()
+    if not (jn or iv or co or loc or fd or td):
+        return model.objects.none(), False
+    qs=model.objects.all()
+    if jn: qs=qs.filter(job_number__icontains=jn)
+    if iv: qs=qs.filter(Q(invoice_ref__icontains=iv)|Q(po_reference__icontains=iv))
+    if co:
+        q=Q(representative_name__icontains=co)|Q(service_receiver__icontains=co)
+        for f in ('company__company_name','company__name','company__client_name'):
+            try:
+                model.objects.filter(**{f+'__icontains':'x'})
+                q|=Q(**{f+'__icontains':co}); break
+            except Exception: pass
+        qs=qs.filter(q)
+    if loc: qs=qs.filter(location__icontains=loc)
+    if fd:
+        d=_parse_date(fd)
+        if d: qs=qs.filter(created_at__date__gte=d)
+    if td:
+        d=_parse_date(td)
+        if d: qs=qs.filter(created_at__date__lte=d)
+    return qs.order_by('-id'), True
