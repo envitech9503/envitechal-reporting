@@ -101,6 +101,7 @@
         box-sizing: border-box;
     }
     </style>
+<link rel="stylesheet" href="/static/css/etal-theme.css">
 </head>
 <body class="bg-gray-100 font-sans overflow-hidden"><!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}
     <section id="header" class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
@@ -1030,7 +1031,7 @@
         // })
 
                 </script>
-        <script src="{% static '/js/app.js' %}" defer></script>
+        <script src="{% static '/js/app.js' %}?v=20260712" defer></script>
     
 </body>
 </html>

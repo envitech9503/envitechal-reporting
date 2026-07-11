@@ -18,6 +18,7 @@
   <style>
     html { scroll-behavior: smooth; }
   </style>
+<link rel="stylesheet" href="/static/css/etal-theme.css">
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">
@@ -46,7 +47,7 @@
       <img class="h-72 mx-auto opacity-20 select-none" 
            src="/static/assets/0x0-removebg-preview.png" 
            alt="">
-      <h1 class="text-5xl md:text-6xl font-bold text-blue-800 opacity-20 tracking-widest font-serif mt-6">
+      <h1 class="text-5xl md:text-6xl font-bold text-green-900 opacity-20 tracking-widest font-serif mt-6">
         ENVI TECH AL
       </h1>
     </div>
@@ -56,25 +57,25 @@
   <section class="relative" style="margin-top: -13rem;">
     <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-6">
       <a href="{% url 'home' %}" 
-         class="rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+         class="rounded-xl bg-gradient-to-r from-green-600 to-green-500 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
         <i class="fa-solid fa-clipboard-list text-2xl mb-3"></i>
         <h3 class="font-semibold text-lg">Reports</h3>
       </a>
 
       <a href="{% url 'certificate' %}" 
-         class="rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+         class="rounded-xl bg-gradient-to-r from-green-700 to-green-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
         <i class="fa-solid fa-certificate text-2xl mb-3"></i>
         <h3 class="font-semibold text-lg">Certifications</h3>
       </a>
 
       <a href="{% url 'sample_main' %}" 
-         class="rounded-xl bg-gradient-to-r from-blue-400 to-blue-500 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+         class="rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
         <i class="fa-solid fa-flask text-2xl mb-3"></i>
         <h3 class="font-semibold text-lg">Sample Registration</h3>
       </a>
 
       <a href="{% url 'qc_main' %}" 
-         class="rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+         class="rounded-xl bg-gradient-to-r from-gray-800 to-green-700 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
         
         <i class="fa-solid fa-clipboard-list text-2xl mb-3"></i>
         <h3 class="font-semibold text-lg">QC Reports</h3>
@@ -82,14 +83,14 @@
 
       {% if request.user.is_superuser %}
       <a href="/dashboard/dashboard/" 
-         class="rounded-xl bg-gradient-to-r from-pink-500 to-pink-600 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+         class="rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
         <i class="fa-solid fa-chart-line text-2xl mb-3"></i>
         <h3 class="font-semibold text-lg">Dashboard</h3>
       </a>
       {% endif %}
 
       <a href="{% url 'job_main' %}" 
-         class="rounded-xl bg-gradient-to-r from-purple-400 to-purple-500 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
+         class="rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white p-6 text-center shadow-lg transform hover:scale-105 transition">
         
         <i class="fa-solid fa-clipboard-list text-2xl mb-3"></i>
         <h3 class="font-semibold text-lg">Work Completion</h3>
@@ -97,7 +98,7 @@
     </div>
   </section>
 
-  <script src={% static '/js/app.js' %} defer></script>
+  <script src={% static '/js/app.js' %}?v=20260712 defer></script>
   {% else %}
   <script>window.location='/login/'</script>
   {% endif %}

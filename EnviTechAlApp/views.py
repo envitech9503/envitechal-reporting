@@ -774,15 +774,15 @@ def loggingSheet(request):
                 return render(request, 'error_page.html')
 
             # Filter the queryset based on the year and month components
-            log = LoggingSheet.objects.filter(month__year=selected_date.year, month__month=selected_date.month,city_location=selected_location)
+            log = LoggingSheet.objects.filter(month__year=selected_date.year, month__month=selected_date.month,city_location=selected_location).order_by('-id')
             logging = LoggingSheet.objects.first()
             context = {'data': log,"dt":selected_date.month,"yr":selected_date.year,'logging':logging,'selected_location':selected_location}
             
             return render(request, 'loggingSheet.html', context)
         else:
-            log = LoggingSheet.objects.all()
+            log = LoggingSheet.objects.all().order_by('-id')
     else:
-        log = LoggingSheet.objects.all()
+        log = LoggingSheet.objects.all().order_by('-id')
 
     
     return render(request, 'loggingSheet.html',)

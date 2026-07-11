@@ -1,53 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
-    
+<head>
     <meta charset="UTF-8">
-    {% load static  %}
-
+    {% load static %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
-    <title>LOGIN</title>
+    <link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+    <title>Sign in - Envi Tech AL</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b1220;overflow:hidden;position:relative}
+        body::before{content:'';position:absolute;width:60vmax;height:60vmax;border-radius:50%;background:radial-gradient(circle,rgba(0,166,81,.22),transparent 60%);top:-20vmax;left:-15vmax;animation:drift 14s ease-in-out infinite alternate}
+        body::after{content:'';position:absolute;width:55vmax;height:55vmax;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.15),transparent 60%);bottom:-25vmax;right:-15vmax;animation:drift 18s ease-in-out infinite alternate-reverse}
+        @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(6vmax,4vmax) scale(1.15)}}
+        .grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+        .card{position:relative;z-index:2;width:min(420px,92vw);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:42px 40px 30px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px rgba(0,166,81,.08) inset;animation:rise .6s cubic-bezier(.2,.7,.3,1) both}
+        @keyframes rise{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+        .logos{display:flex;justify-content:center;gap:22px;margin-bottom:18px}
+        .logos img{height:84px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+        h1{color:#fff;font-size:26px;text-align:center;letter-spacing:.3px}
+        .sub{color:#34d399;text-align:center;font-size:13.5px;letter-spacing:2.2px;text-transform:uppercase;margin:6px 0 26px}
+        .alert{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.45);color:#fecaca;font-size:13px;border-radius:10px;padding:10px 14px;margin-bottom:16px}
+        label{display:block;color:#9ca3af;font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;margin:0 0 7px 2px}
+        .field{position:relative;margin-bottom:18px}
+        .field svg.icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;stroke:#6ee7b7;opacity:.85}
+        .field input{width:100%;padding:13px 44px 13px 42px;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.14);border-radius:12px;color:#f1f5f9;font-size:15px;outline:none;transition:border .2s,box-shadow .2s,background .2s}
+        .field input::placeholder{color:#64748b}
+        .field input:focus{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.22);background:rgba(15,23,42,.9)}
+        .toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;line-height:0}
+        .toggle svg{width:18px;height:18px;stroke:#94a3b8}
+        .toggle:hover svg{stroke:#34d399}
+        .btn{width:100%;padding:13.5px;margin-top:6px;border:none;border-radius:12px;background:linear-gradient(135deg,#059669,#10b981 60%,#34d399);color:#fff;font-size:15.5px;font-weight:600;letter-spacing:.4px;cursor:pointer;box-shadow:0 8px 22px rgba(16,185,129,.35);transition:transform .15s,box-shadow .2s,filter .2s}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(16,185,129,.5);filter:brightness(1.06)}
+        .btn:active{transform:translateY(0) scale(.985)}
+        .foot{margin-top:24px;text-align:center;color:#64748b;font-size:11.5px;letter-spacing:.4px}
+        .foot span{color:#34d399}
+    </style>
 </head>
-<body class="overflow-hidden">
-   
-    {% block content %}
-    
-    <section class="bg-gray-50 dark:bg-gray-900" style="background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);">
-        <div class="flex h-24 items-center justify-around w-full" style="background-color: rgba(24, 31, 23, 0.5);">
-            <img class="h-20" src="{% static "/assets/EnviTechAL_LOGO-removebg-preview.png" %}" alt="">
-            <div class="text-center">
-                <h1 class="text-2xl font-bold text-gray-300">Envi Tech Al</h1>
-                <h3 class="text-lg text-gray-200 ">Reporting System</h3>  
-            </div>
-            <img class="h-20" src="{% static "/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png" %}" alt="">
-        </div> 
-                               
-        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 " >
-            
-            <div class="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700" style="background-color: rgba(23, 26, 31, 0.5);">
-                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-300 md:text-2xl dark:text-white" >
-                        Sign in to your account
-                    </h1>
-                    <form class="space-y-4 md:space-y-6" action="{% url "login"  %}" method="post">
-                        {% csrf_token %}
-                        <div>
-                            <label for="username" class="block mb-2 text-sm font-medium text-gray-300 dark:text-white">User Name</label>
-                            <input type="text" name="username" id="username" class="bg-gray-50 border border-gray-300 text-gray-800 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" autocomplete="off" placeholder="name@company.com" required="">
-                        </div>
-                        <div>
-                            <label for="password" class="block mb-2 text-sm font-medium text-gray-300 dark:text-white">Password</label>
-                            <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-800 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                        </div>
-                        
-                        <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Sign in</button>
-                        
-                    </form>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="card">
+        <div class="logos">
+            <img src="{% static '/assets/EnviTechAL_LOGO-removebg-preview.png' %}" alt="Envi Tech AL">
+        </div>
+        <h1>Envi Tech AL</h1>
+        <p class="sub">Laboratory Reporting System</p>
+        {% if messages %}{% for m in messages %}<div class="alert">{{ m }}</div>{% endfor %}{% endif %}
+        {% if form.errors %}<div class="alert">Invalid username or password. Please try again.</div>{% endif %}
+        <form action="{% url 'login'  %}" method="post" autocomplete="on">
+            {% csrf_token %}
+            <div class="field">
+                <label for="username">User Name</label>
+                <div style="position:relative">
+                    <svg class="icon" fill="none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <input type="text" name="username" id="username" placeholder="Enter your username" required autofocus>
                 </div>
             </div>
-        </div>
-      </section>
-      {% endblock %}
+            <div class="field">
+                <label for="password">Password</label>
+                <div style="position:relative">
+                    <svg class="icon" fill="none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <input type="password" name="password" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle" onclick="var p=document.getElementById('password');p.type=p.type==='password'?'text':'password';" title="Show / hide password">
+                        <svg fill="none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12C4.3 7.9 8 5 12 5s7.7 2.9 9.5 7c-1.8 4.1-5.5 7-9.5 7s-7.7-2.9-9.5-7z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <button class="btn" type="submit">Sign in</button>
+            <p style="text-align:center;margin-top:14px"><a href="#" onclick="document.getElementById('fpModal').style.display='flex';return false;" style="color:#34d399;font-size:13px;text-decoration:none">Forgot password?</a></p>
+        </form>
+        <p class="foot">&copy; 2026 <span>Envi Tech AL</span> &mdash; Environmental Testing Laboratory</p>
+    </div>
+<div id="fpModal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,.75);z-index:50;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+      <div style="background:#0f172a;border:1px solid rgba(255,255,255,.15);border-radius:16px;max-width:360px;width:90vw;padding:28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+        <h2 style="color:#fff;font-size:18px;margin-bottom:10px">Password Reset</h2>
+        <p style="color:#cbd5e1;font-size:13.5px;line-height:1.6">Please contact the Lab Administrator to have your password reset:</p>
+        <p style="margin:12px 0"><a href="mailto:info@envitechal.com" style="color:#34d399;font-size:14px">info@envitechal.com</a></p>
+        <button onclick="document.getElementById('fpModal').style.display='none'" style="margin-top:8px;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:10px;padding:9px 26px;font-size:14px;cursor:pointer">Close</button>
+      </div>
+    </div>
 </body>
 </html>

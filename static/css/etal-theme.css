@@ -1,0 +1,23 @@
+/* Envi Tech AL global theme layer - 12-07-2026. Visual polish only; no behaviour changes. */
+:root{--etal:#00A651;--etal-dark:#059669;--etal-ink:#1f2937}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+/* Lists: premium table look */
+table.dataTable thead th{background:#111827 !important;color:#f9fafb !important;border-bottom:2px solid var(--etal) !important}
+table.dataTable tbody tr:nth-child(even){background:#f8fafc}
+table.dataTable tbody tr:hover{background:#ecfdf5}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current{background:var(--etal) !important;color:#fff !important;border:none !important;border-radius:6px}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{background:#d1fae5 !important;border-radius:6px}
+/* Inputs */
+input[type=text],input[type=date],input[type=number],input[type=email],input[type=password],select,textarea{border-radius:8px}
+input[type=text]:focus,input[type=date]:focus,input[type=number]:focus,input[type=email]:focus,input[type=password]:focus,select:focus,textarea:focus{outline:none;border-color:var(--etal) !important;box-shadow:0 0 0 3px rgba(0,166,81,.15)}
+/* Buttons: subtle tactile feel */
+button{transition:transform .12s ease, box-shadow .15s ease, filter .15s ease}
+button:active{transform:scale(.98)}
+a{transition:color .15s ease, background .15s ease}
+/* Scrollbars */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#e2e8f0}
+::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:var(--etal)}
+/* Headings colour discipline */
+h1,h2{color:var(--etal-ink)}

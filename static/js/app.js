@@ -3,7 +3,7 @@
 
 $(document).ready(function() {
 
-    new DataTable('#example');
+    new DataTable('#example', { order: [] });
       
     $("#result_type").on("change",function(){
   
