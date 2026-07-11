@@ -194,7 +194,7 @@
     ">
         <div class="">
             <form method="get" action="{% url 'certificate' %}">
-                {% csrf_token %}
+                
                 <div class="w-full flex flex-wrap justify-center gap-3 my-4" style="">
                     <input class="w-48 px-2 py-2 border border-gray-400 outline-none rounded" 
                         type="text" name="nameInput" value="{{ name_input|default:'' }}" 
@@ -220,7 +220,20 @@
             </form>
         </div>
 
-        <form id="merge-cert" class="flex justify-center items-center" method="post" action="{% url 'generate_merged_cert' %}">
+        
+        <div class="mt-10">
+            <div class="mb-4 flex justify-between items-center">
+                <div style="width:100%;text-align:center;margin:4px 0 2px">{% if search_performed %}<h3 class="text-lg font-semibold" style="text-align:center">Found {{ total_results }} results <span style="color:#6b7280;font-weight:400;font-size:13.5px">&mdash; newest first</span> <a href="?clear=1" style="color:#059669;font-size:13.5px;text-decoration:underline;font-weight:400">Clear search</a></h3>{% else %}<p style="text-align:center;color:#6b7280;padding:6px 0">Use the filters above and press <b>Search</b> to load certificates.</p>{% endif %}</div>
+                {% if total_results > 20 %}
+                <div class="text-sm text-gray-600">
+                    Showing page {{ data.number }} of {{ data.paginator.num_pages }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="w-full flex flex-wrap justify-center mt-14">
+            <div style="width:100%;flex-basis:100%;margin:22px 0 12px;display:flex;justify-content:center"><form id="merge-cert" class="flex justify-center items-center" method="post" action="{% url 'generate_merged_cert' %}">
             {% csrf_token %}
             <input class="hidden" type="text" value="[]" name="selected_reports" required />
             <button class="shadow-lg bg-blue-500" style="
@@ -230,20 +243,8 @@
                 cursor: pointer;
                 color: white;
                 " type="submit">Merge Certificates</button>
-        </form>
-        <div class="mt-10">
-            <div class="mb-4 flex justify-between items-center">
-                {% if search_performed %}<h3 class="text-lg font-semibold">Found {{ total_results }} results <span style="color:#6b7280;font-weight:400;font-size:13.5px">&mdash; newest first</span> <a href="?clear=1" style="color:#059669;font-size:13.5px;text-decoration:underline;font-weight:400">Clear search</a></h3>{% else %}<p style="text-align:center;color:#6b7280;padding:6px 0">Use the filters above and press <b>Search</b> to load certificates.</p>{% endif %}
-                {% if total_results > 20 %}
-                <div class="text-sm text-gray-600">
-                    Showing page {{ data.number }} of {{ data.paginator.num_pages }}
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="w-full flex justify-center mt-14">
-            <table id="myTable" width="80%" class="w-full border-collapse mt-4">
+        </form></div>
+<table id="myTable" width="80%" class="w-full border-collapse mt-4">
                 <thead class="bg-gray-100">
                     <tr>
                         <th class="border p-2 text-center">
