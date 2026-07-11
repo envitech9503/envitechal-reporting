@@ -212,7 +212,7 @@ def compress_pdf(pdf_bytes: BytesIO, target_mb: float = 5.0) -> BytesIO:
 def merge_pdfs_cert(
     selected_certs: list,
     request,
-    pdf_password: str = "123",
+    pdf_password: str = "1234",
     compress: bool = True,
     target_size_mb: float = 5.0,
 ) -> BytesIO:
@@ -284,7 +284,7 @@ def merge_pdfs_cert(
 
         enc_writer.encrypt(
             user_password=pdf_password,
-            owner_password="EnviTechAL@!!0",
+            owner_password="karachi123",
             use_128bit=False,
         )
 
