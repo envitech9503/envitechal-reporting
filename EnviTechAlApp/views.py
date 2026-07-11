@@ -37449,8 +37449,8 @@ def noiseMonitoring_edit_update(request,pk):
      
 @login_required(login_url="/login")
 def noiseMonitoring_list(request):
-     nA = _by_date_desc(NoiseMonitoring.objects.all(), ('reporting_date',))
-     context = {'data':nA}
+     nA, _srch = _list_filter(request, NoiseMonitoring)
+     context = {'data':nA, 'searched':_srch}
      return render(request,"noiseMonitoring_list.html",context)
 
 

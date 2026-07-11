@@ -26,6 +26,8 @@ def _by_date_desc(qs, fields):
     return sorted(list(qs), key=lambda o: _date_key(o, fields), reverse=True)
 
 MODEL_MAP={
+ 'Detox':{'name':('report_1','report_2','attention_1','attention_2','lab_report_no','invoice_bill_no','sample_id_1','sample_id_2'),'loc':('location','city_location'),'date':('reporting_date',)},
+ 'NoiseMonitoring':{'name':('report_to','attention','lab_report_no','invoice_bill_no'),'loc':('address',),'date':('reporting_date',)},
  'Sample_registration':{'name':('inp1','inp2','inp4'),'loc':('city_location',),'date':('inp3',)},
  'LoggingSheet':{'name':('client_name','att_person','sample_nature','rec_by'),'loc':('city_location','address'),'date':('rec_date',)},
 }

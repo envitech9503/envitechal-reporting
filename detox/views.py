@@ -307,9 +307,9 @@ def create_detox(request):
         return render(request,'detox.html', {'signs':signs})
     
 def detoxList(request):
-     from EnviTechAlApp.listfilter import _by_date_desc
-     detoxList = _by_date_desc(Detox.objects.all(), ('reporting_date',))
-     context = {'list':detoxList}
+     from EnviTechAlApp.listfilter import _by_date_desc, _list_filter
+     detoxList, _srch = _list_filter(request, Detox)
+     context = {'list':detoxList, 'searched':_srch}
 
      return render(request,"detoxList.html",context)  
  
