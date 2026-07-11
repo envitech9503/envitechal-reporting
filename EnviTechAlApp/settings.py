@@ -23,7 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!899)2iu$@mtjflntj)t+o-wv8&c$l5l!mt7&b+!u+b!&vv_#j'
+import os as _oskey
+if _oskey.environ.get('DJANGO_SECRET_KEY'):
+    SECRET_KEY = _oskey.environ['DJANGO_SECRET_KEY']
+else:
+    with open('/etc/django_secret_key') as _kf:
+        SECRET_KEY = _kf.read().strip()
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -164,14 +170,16 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
         'file': {
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': '/home/django/EnviTechAlApp/django_debug.log',
+            'maxBytes': 10485760,
+            'backupCount': 5,
         },
     },
     
     'root': {
         'handlers': ['console', 'file'],
-        'level': 'DEBUG',
+        'level': 'WARNING',
     },
 }
 
@@ -187,3 +195,14 @@ if _os.environ.get('USE_POSTGRES') == '1':
         'HOST': _os.environ.get('PG_HOST','localhost'),
         'PORT': _os.environ.get('PG_PORT','5432'),
     }
+
+# --- HTTPS enforcement (added 11-07-2026) ---
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 2592000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_CONTENT_TYPE_NOSNIFF = True

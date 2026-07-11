@@ -307,7 +307,7 @@ def create_detox(request):
         return render(request,'detox.html', {'signs':signs})
     
 def detoxList(request):
-     detoxList = Detox.objects.all()
+     detoxList = Detox.objects.all().order_by('-id')
      context = {'list':detoxList}
 
      return render(request,"detoxList.html",context)  

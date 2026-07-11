@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
     <script src="/static/vendor/jquery-3.6.4.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{%static "style.css" %}">
-    <title>RDS Form</title>
+    <title>Add RDS DW</title>
     <script src="/static/vendor/jquery-3.6.4.min.js"></script>
     <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
     <link href="/static/vendor/select2/select2.min.css" rel="stylesheet" />
@@ -99,13 +99,13 @@
     }
     </style>
 </head>
-<body class="bg-gray-100 font-sans overflow-hidden">
+<body class="bg-gray-100 font-sans overflow-hidden"><!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}
     <section id="header" class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
             <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a><nav class="hdrnav" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><style>.hq{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border:1px solid rgba(255,255,255,.28);border-radius:8px;color:#d1d5db;font-size:13px;font-weight:600;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}.hq:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.55);color:#fff}.hq.hqact{background:#059669;border-color:#059669;color:#fff}.hq i{font-size:12px}</style><a class="hq" href="{% url 'nav' %}"><i class="fa-solid fa-house"></i>Home</a><a class="hq" href="{% url 'home' %}"><i class="fa-solid fa-file-lines"></i>Reports</a><a class="hq" href="{% url 'certificate' %}"><i class="fa-solid fa-certificate"></i>Certificates</a><a class="hq" href="{% url 'sample_main' %}"><i class="fa-solid fa-flask"></i>Samples</a><a class="hq" href="{% url 'qc_main' %}"><i class="fa-solid fa-clipboard-check"></i>QC</a><a class="hq" href="/dashboard/dashboard/"><i class="fa-solid fa-chart-line"></i>Dashboard</a><a class="hq" href="{% url 'job_main' %}"><i class="fa-solid fa-list-check"></i>Work</a></nav><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.hq").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.classList.add("hqact");}});});</script>
             
             <div id="profile" class="flex space-x-10 mr-10">
                 <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
-                <a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+                <!-- etal-quick-search --><form method="get" action="/home/" class="hidden md:flex items-center mr-3" style="display:inline-flex"><input type="text" name="nameInput" placeholder="Quick search..." class="px-2 py-1 rounded-l bg-gray-800 text-gray-100 text-xs border border-gray-600" style="width:140px"><button type="submit" class="px-2 py-1 rounded-r bg-green-600 text-white text-xs" title="Search all reports"><i class="fa-solid fa-magnifying-glass"></i></button></form><a href="{% url 'logout'  %}" class="w-24 mt-1  text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
             </div>
         </section>
     <div class="flex h-screen overflow-hidden">
@@ -118,121 +118,8 @@
 
         <!-- Sidebar -->
         <div id="sidebar" class="transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 w-64 h-full bg-gray-900 text-white flex-shrink-0">
-            <div class="p-4 border-b border-gray-700">
-                <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
-            </div>
-            <nav class="p-4">
-                <ul class="w-48 ">
-                    <button type="button" class="sideNavFormBtn mb-2"><i class="fa-regular fa-pen-to-square pr-4"></i>Forms<i class="fa-solid fa-chevron-right pl-20"></i></button>
-                    <div class="formMainDiv hidden">
-                        <hr class=" border-blue-200">
-                        <button type="button" class="DWaterBtn ml-2 pb-2"><i class="fa-solid fa-ellipsis-vertical mr-2"></i>Drinking Water</button>
-                        <div class="DWaterDiv hidden text-blue-100 pl-6 space-y-2">
-                            <li><a class="addDrinkFormBtn" href="/drinkingWaterForm"></i>Add Drinking Water</a></li>
-                            <li><a class="ListDrinkBtn" href="/drinkingWaterList"></i>List Drinking Water</a></li>
-                        </div>  
-                        
-                        <hr class=" border-blue-200">
-                        <ul class="">
-                            <button type="button" class="gasEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Gaseous Emission</button>
-                            <div class="gasEmDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="addGaseousFormBtn" href="/gaseousEmission">Add Gaseous Emis</a></li>
-                                <li><a class="addGaseousListBtn" href="/gaseousEmissionList">List Gaseous Emis</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="ambientBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality</button>
-                            <div class="ambDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="ambientAirFormBtn" href="/ambientAir">Add Ambient Air Qua..</a></li>
-                                <li><a class="ambientAirList" href="/ambientAirList">List Ambient Air Qua..</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                    
-                        <ul>
-                            <button type="button" class="wasteWaterBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water Sludge</button>
-                            <div class="wasteWaterDiv hidden text-blue-100 pl-6 space-y-2 ">
-                                <li><a class="wasteWatewrSludgeBtn" href="/wasteWaterSludge">Add Waste Water Slu.</a></li>
-                                <li><a class="wasteWaterSludgeListBtn" href="/wasteWaterSludgeList">List Waste Water Slu.</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="vehicEmBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Vehicular Emission</button>
-                            <div class="vehicEmDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="vehicularEmisFormBtn" href="/vehicularEmission">Add Vehicular Emission</a></li>
-                                <li><a class="vehicularemisListBtn" href="/vehicularEmissionList">List Vehicular Emission</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="luxBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Lux Analysis</button>
-                            <div class="luxDiv text-blue-100 hidden pl-6 space-y-2">
-                                <li><a class="luxAnalysisFormBtn" href="/luxAnalysis">Add Lux Analysis</a></li>
-                                <li><a class="luxAnalysisListBtn" href="/luxAnalysisList">List Lux Analysis</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="noiseBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Noise Analysis</button>
-                            <div class="noiseDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="noiseAnalysisFormBtn" href="/noiseAnalysis">Add Noise Analysis</a></li>
-                                <li><a class="noiseAnalysisListBtn" href="/noiseAnalysisList">List Noise Analysis</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="ppbagBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Packing Poly Bag</button>
-                            <div class="ppbagDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="packingPolyFormBtn" href="/packingPolyBag">Add Packing Poly Bag</a></li>
-                                <li><a class="packingPolyListBtn" href="/packingPolyBagList">List Packing Poly Bag</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <div class="">
-                            <button type="button" class="machineOilBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Machine Oil</button>
-                            <div class="machineOilDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="machineOilFormBtn" href="/machineOil">Add Machine Oil</a></li>
-                                <li><a class="machineOilListBtn" href="/machineOilList">List Machine Oil</a></li>
-                            </div>
-                        </div>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
-                            <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
-                                <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="viscBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Viscous Liquid</button>
-                            <div class="viscDiv hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="viscousLiquidFormBtn" href="/viscousLiquid">Add Viscous Liquid</a></li>
-                                <li><a class="viscousLiquidListBtn" href="/viscousLiquidList">List Viscous Liquid</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="ambientAirBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Ambient Air Quality 2</button>
-                            <div class="ambientAirDiv hidden text-blue-100 pl-6 space-y-2" >
-                                <li><a class="ambientAir2FormBtn" href="/ambientAirQuality2">Add Ambient Air 2</a></li>
-                                <li><a class="ambientAir2ListBtn" href="/ambientAir2List">List Ambient Air 2</a></li>
-                            </div>
-                        </ul>
-                        <hr class=" border-blue-200">
-                        <ul>
-                            <button type="button" class="waterwastebtn2 pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Waste Water2</button>
-                            <div class="waterwastediv2 hidden text-blue-100 pl-6 space-y-2">
-                                <li><a class="wasteWater2FormBtn" href="/wasteWater2">Add Waste Water2</a></li>
-                                <li><a class="wasteWater2ListBtn" href="/wasteWater2List">List Waste Water2</a></li>
-                            </div>
-                        </ul>
-                    </div>
-                </ul>
-            </nav>
-        </div>
+<div class="p-4"><h2 class="text-base font-bold text-white mb-3 border-b border-gray-700 pb-2">QC FORMS</h2><ul class="space-y-1 text-sm"><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/create_dw_qc/">Add RDS DW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/create_dw_qc_manual/">Add RDS DW (Manual)</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/dw_rds_list/">List RDS DW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/create_ww_qc/">Add RDS WW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/create_ww_qc_manual/">Add RDS WW (Manual)</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/ww_rds_list/">List RDS WW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/dw_testing_results_sample/">Add Testing Results DW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/dw-testing-results-list/">List Testing Results DW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/ww_testing_results_sample/">Add Testing Results WW</a></li><li><a class="qcs block px-3 py-2 rounded hover:bg-gray-800 text-gray-200" href="/qc/ww-testing-results-list/">List Testing Results WW</a></li></ul></div><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.qcs").forEach(function(a){if(a.getAttribute("href")===location.pathname){a.classList.add("bg-green-700","text-white");a.classList.remove("text-gray-200");}});});</script>
+</div>
 
         <!-- Main content -->
         <div class="flex-1 overflow-auto mt-20">

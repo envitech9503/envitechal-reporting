@@ -408,13 +408,15 @@ logger = logging.getLogger(__name__)
 
 @login_required(login_url="/login")     
 def home(request):
+     if request.GET.get('clear'):
+         request.session.pop('search_params', None)
+         return HttpResponseRedirect(request.path)
      if request.GET.get('nameInput') or request.GET.get('from_date') or request.GET.get('locationSearch') or request.GET.get('sampleSearch'):
           name_input = request.GET.get('nameInput', '').strip()
           from_date = request.GET.get('from_date', '')
           to_date = request.GET.get('to_date', '')
           location_search = request.GET.get('locationSearch', '').strip()
           sample_search = request.GET.get('sampleSearch', '').strip()
-          print('name====================>>>>>',name_input)
           # Store in session to persist across pagination
           request.session['search_params'] = {
               'name_input': name_input,
@@ -4871,7 +4873,7 @@ def calib_pdf(request,pk):
      except Exception as e:
           import traceback
           traceback.print_exc()  # prints full stack trace to console
-          return HttpResponse(f"PDF generation error: {e}", status=500)
+          return HttpResponse("PDF generation failed. Please try again or contact the administrator.", status=500)
 
 def calib_pdf1(request,pk):
      from fpdf import FPDF
@@ -37448,7 +37450,7 @@ def noiseMonitoring_edit_update(request,pk):
      
 @login_required(login_url="/login")
 def noiseMonitoring_list(request):
-     nA = NoiseMonitoring.objects.all()
+     nA = NoiseMonitoring.objects.all().order_by('-id')
      context = {'data':nA}
      return render(request,"noiseMonitoring_list.html",context)
 
@@ -41977,7 +41979,7 @@ def job_completion_form(request):
             
             return JsonResponse({
                 'success': False,
-                'error': str(e)
+                'error': 'An internal error occurred. Please try again or contact the administrator.'
             }, status=400)
     
     
@@ -42351,7 +42353,7 @@ def save_client_details(request):
             )
             return JsonResponse({'success': True, 'created': created})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({'success': False, 'error': 'An internal error occurred. Please try again or contact the administrator.'})
 
 
 @csrf_exempt
@@ -42470,7 +42472,7 @@ def update_job_completion(request, pk):
         print(traceback.format_exc())
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': 'An internal error occurred. Please try again or contact the administrator.'
         }, status=400)
         
 
@@ -42564,7 +42566,7 @@ def clone_job_completion(request, pk):
         print(traceback.format_exc())
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': 'An internal error occurred. Please try again or contact the administrator.'
         }, status=400)
         
 @csrf_exempt
@@ -42594,5 +42596,5 @@ def job_completion_delete(request, pk):
     except Exception as e:
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': 'An internal error occurred. Please try again or contact the administrator.'
         }, status=400)

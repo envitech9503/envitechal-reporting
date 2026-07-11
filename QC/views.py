@@ -76,8 +76,8 @@ def create_dw_qc(request):
     
     sample_ids = Sample_registration.objects.all()
     dw_ids = DrinkingWaterForm.objects.all()
-    sample = serializers.serialize('json',sample_ids)
-    dw = serializers.serialize('json',dw_ids)
+    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
+    dw = serializers.serialize('json',dw_ids,fields=('sample_id',))
     context={'sample':sample,'dw':dw,'signs':signs}
     return render(request,"rds_dw.html",context)
 
@@ -3483,8 +3483,8 @@ def create_ww_qc(request):
     
     sample_ids = Sample_registration.objects.all()
     ww_ids = WasteWaterForm2.objects.all()
-    sample = serializers.serialize('json',sample_ids)
-    ww = serializers.serialize('json',ww_ids)
+    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
+    ww = serializers.serialize('json',ww_ids,fields=('sample_id',))
     context={'sample':sample,'ww':ww,'signs':signs}
     return render(request,"rds_ww.html",context)
 
@@ -12162,8 +12162,8 @@ def create_dw_qc_manual(request):
     sample_ids = Sample_registration.objects.all()
     print('sample id---->>>',sample_ids)
     dw_ids = DrinkingWaterForm.objects.all()
-    sample = serializers.serialize('json',sample_ids)
-    dw = serializers.serialize('json',dw_ids)
+    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
+    dw = serializers.serialize('json',dw_ids,fields=('sample_id',))
     signs_list = []
     for sign in signs:
         signs_list.append({
@@ -12214,8 +12214,8 @@ def create_ww_qc_manual(request):
     
     sample_ids = Sample_registration.objects.all()
     ww_ids = WasteWaterForm2.objects.all()
-    sample = serializers.serialize('json',sample_ids)
-    ww = serializers.serialize('json',ww_ids)
+    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
+    ww = serializers.serialize('json',ww_ids,fields=('sample_id',))
     signs_list = []
     for sign in signs:
         signs_list.append({

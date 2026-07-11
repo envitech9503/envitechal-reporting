@@ -9,7 +9,7 @@ click==8.1.7
 colorama==0.4.6
 cryptography==41.0.4
 cssselect2==0.7.0
-Django==4.2.4
+Django==4.2.30
 django-material-admin==1.8.6
 django-pdfkit==0.3.1
 django-renderpdf==4.0.0

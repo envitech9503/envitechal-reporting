@@ -302,5 +302,6 @@
         }, 3000);
     }
 </script>
+<!-- etal-delete-confirm --><script>document.addEventListener("click",function(e){var t=e.target;var a=t&&t.closest?t.closest("a,button"):null;if(!a)return;var h=(a.getAttribute("href")||"")+" "+(a.getAttribute("onclick")||"");var txt=(a.textContent||"").trim();if(/delete/i.test(h)||/^delete$/i.test(txt)){if(!window.confirm("Delete this record permanently? This action cannot be undone.")){e.preventDefault();e.stopImmediatePropagation();}}},true);</script>
 </body>
 </html>
