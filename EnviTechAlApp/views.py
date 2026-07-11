@@ -1,4 +1,4 @@
-from EnviTechAlApp.listfilter import _list_filter, _sampling_filter, _cert_filter, _work_filter, _by_date_desc
+from EnviTechAlApp.listfilter import _list_filter, _sampling_filter, _cert_filter, _work_filter, _by_date_desc, _parse_date
 import tempfile
 from urllib import response
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect,FileResponse,JsonResponse,HttpResponseServerError
@@ -3594,30 +3594,10 @@ def search_all_certificates(name_input, from_date, to_date, location_search, sam
                 q_objects &= name_q
                 has_filters = True
         
-        # Date range filter
+        # Date range applied in Python after collection (text dates)
         if from_date or to_date:
-            date_q = Q()
-            date_fields = config['date_fields']
-        
-            for field in date_fields:
-                if hasattr(config['model'], field):
-                    if from_date and to_date:
-                        date_q |= Q(**{
-                            f"{field}__range": [from_date, to_date]
-                        })
-                    elif from_date:
-                        date_q |= Q(**{
-                            f"{field}__gte": from_date
-                        })
-                    elif to_date:
-                        date_q |= Q(**{
-                            f"{field}__lte": to_date
-                        })
-        
-            if date_q:
-                q_objects &= date_q
-                has_filters = True
-        
+            has_filters = True
+
         # Search by location
         if location_search:
             location_q = Q()
@@ -3650,7 +3630,16 @@ def search_all_certificates(name_input, from_date, to_date, location_search, sam
                 continue
     
     # Sort by date (most recent first)
-    all_results.sort(key=lambda x: getattr(x, 'date', '') or '', reverse=True)
+    if from_date or to_date:
+        _f = _parse_date(from_date) if from_date else None
+        _t = _parse_date(to_date) if to_date else None
+        _kept = []
+        for _o in all_results:
+            _d = _parse_date(str(getattr(_o, 'date', '') or ''))
+            if _d and (_f is None or _d >= _f) and (_t is None or _d <= _t):
+                _kept.append(_o)
+        all_results = _kept
+    all_results = _by_date_desc(all_results, ('date',))
     
     return all_results
 
