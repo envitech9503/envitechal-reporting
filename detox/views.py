@@ -790,8 +790,15 @@ def detox_clone_update(request,pk):
     return render(request,"detox_clone.html")      
 
 
-def detox_delete(request):
-     pass 
+def detox_delete(request, pk):
+     from django.shortcuts import redirect
+     from django.contrib import messages
+     n, _ = Detox.objects.filter(id=pk).delete()
+     if n:
+         messages.success(request, "Detox record deleted successfully.")
+     else:
+         messages.error(request, "Record not found - nothing was deleted.")
+     return redirect("/detox/detoxList") 
     
 def create_view_detox(request,pk):
     detox = Detox.objects.get(id=pk)

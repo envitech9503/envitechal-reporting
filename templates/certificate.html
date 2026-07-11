@@ -130,6 +130,7 @@
     </style>
 
 <link rel="stylesheet" href="/static/css/etal-theme.css">
+<style>/* etal-cert-theme */#myTable thead{background:#111827 !important}#myTable thead th{background:#111827;color:#f9fafb;border-bottom:2px solid #00A651;padding:9px 8px;font-size:13px}#myTable td{padding:7px 8px;border:1px solid #e5e7eb;font-size:13.5px}#myTable tbody tr:nth-child(even){background:#f8fafc}#myTable tbody tr:hover{background:#ecfdf5}form input[type="submit"]{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:8px;padding:9px 26px;font-weight:600;cursor:pointer;transition:filter .15s}form input[type="submit"]:hover{filter:brightness(1.08)}#merge-cert button{background:linear-gradient(135deg,#0f172a,#059669) !important;color:#fff !important;border:none !important;border-radius:8px;padding:9px 22px;font-weight:600}</style>
 </head>
 
 <body class=""><!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}
@@ -180,7 +181,7 @@
                    
                 </div>
                 <div class="flex-1 overflow-auto ">
-    <div class="w-10/12 mt-52" style="
+    <div class="w-10/12 mt-6" style="
         padding-bottom: 56px;
         max-height: 84%;
         overflow-y: auto;
@@ -194,7 +195,7 @@
         <div class="">
             <form method="get" action="{% url 'certificate' %}">
                 {% csrf_token %}
-                <div class="w-full flex justify-center gap-10 my-10" style="">
+                <div class="w-full flex flex-wrap justify-center gap-3 my-4" style="">
                     <input class="w-48 px-2 py-2 border border-gray-400 outline-none rounded" 
                         type="text" name="nameInput" value="{{ name_input|default:'' }}" 
                         placeholder="Search by Client Name">
@@ -214,7 +215,7 @@
                         placeholder="Search by Certificate No">
                     
                     <input class="border border-2 border-blue-500 bg-blue-500 text-gray-200 px-4 py-2 cursor-pointer rounded-md" 
-                        type="submit" value="Search Result" name="search">
+                        type="submit" value="Search" name="search">
                 </div>
             </form>
         </div>
@@ -232,7 +233,7 @@
         </form>
         <div class="mt-10">
             <div class="mb-4 flex justify-between items-center">
-                <h3 class="text-lg font-semibold">Found {{ total_results }} results</h3>
+                {% if search_performed %}<h3 class="text-lg font-semibold">Found {{ total_results }} results <span style="color:#6b7280;font-weight:400;font-size:13.5px">&mdash; newest first</span> <a href="?clear=1" style="color:#059669;font-size:13.5px;text-decoration:underline;font-weight:400">Clear search</a></h3>{% else %}<p style="text-align:center;color:#6b7280;padding:6px 0">Use the filters above and press <b>Search</b> to load certificates.</p>{% endif %}
                 {% if total_results > 20 %}
                 <div class="text-sm text-gray-600">
                     Showing page {{ data.number }} of {{ data.paginator.num_pages }}

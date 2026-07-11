@@ -3459,6 +3459,9 @@ def nav(request):
 
 @login_required(login_url="/login") 
 def certificate(request):
+    if request.GET.get("clear"):
+        request.session.pop("cert_search_params", None)
+        return HttpResponseRedirect(request.path)
     # Check if search parameters are present
     if request.GET.get('nameInput') or request.GET.get('from_date') or request.GET.get('locationSearch') or request.GET.get('sampleSearch'):
         name_input = request.GET.get('nameInput', '').strip()
@@ -3482,6 +3485,7 @@ def certificate(request):
         )
         
         # Paginate results
+        all_certificates = _by_date_desc(all_certificates, ('date',))
         paginator = Paginator(all_certificates, 200)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -3508,6 +3512,7 @@ def certificate(request):
             params.get('location_search', ''),
             params.get('sample_search', '')
         )
+        all_certificates = _by_date_desc(all_certificates, ('date',))
         paginator = Paginator(all_certificates, 200)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -3525,9 +3530,9 @@ def certificate(request):
         return render(request, 'certificate.html', context)
     
     # No search - show all certificates (paginated)
-    calib = Calibration.objects.all()
-    insp = Inspection.objects.all()
-    verif = Verification.objects.all()
+    calib = Calibration.objects.none()
+    insp = Inspection.objects.none()
+    verif = Verification.objects.none()
     
     all_certificates = list(calib) + list(insp) + list(verif)
     
