@@ -600,6 +600,11 @@ def limits_save(request):
     mn, mx = f('min'), f('max')
     if mn is None and mx is None:
         return JsonResponse({'error': 'Provide at least one of min / max limit'}, status=400)
+    import re as _re3
+    _np = _re3.sub(r'[^a-z0-9]+', '', p.lower())
+    for _ex in RegulatoryLimit.objects.filter(active=True, standard=st).exclude(parameter=p):
+        if _re3.sub(r'[^a-z0-9]+', '', _ex.parameter.lower()) == _np:
+            return JsonResponse({'error': 'Near-identical parameter already exists in %s: "%s". Edit that entry or choose a clearly distinct name.' % (st, _ex.parameter)}, status=400)
     obj, _c = RegulatoryLimit.objects.update_or_create(
         parameter=p, standard=st,
         defaults={'limit_min': mn, 'limit_max': mx, 'unit': (g.get('unit') or '')[:40],
