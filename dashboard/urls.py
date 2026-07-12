@@ -5,6 +5,9 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('api/filter/', views.get_reports_data, name='filter'),
     path('audit/', views.audit_page, name='audit'),
+    path('lifecycle/', views.lifecycle_page, name='lifecycle'),
+    path('api/lifecycle/', views.lifecycle_data, name='lifecycle_data'),
+    path('api/lifecycle-set/', views.lifecycle_set, name='lifecycle_set'),
     path('api/audit/', views.audit_data, name='audit_data'),
     path('api/audit-detail/', views.audit_detail, name='audit_detail'),
     

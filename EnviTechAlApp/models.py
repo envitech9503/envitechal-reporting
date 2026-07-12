@@ -2493,3 +2493,14 @@ _etal_wire({DrinkingWaterForm: 'dw', GaseousEmissionForm: 'gae', AmbientAirForm:
             ViscousLiquid: 'vl', AmbientAir2: 'aa2', WasteWaterForm2: 'ww2',
             NoiseAnalysis: 'na', NoiseMonitoring: 'nm',
             Calibration: 'calib', Inspection: 'insp', Verification: 'verif'})
+
+
+# --- Phase 1 sample lifecycle board (12-07-2026) ---
+class SampleLifecycle(models.Model):
+    sample_id = models.CharField(max_length=200, unique=True)
+    status = models.CharField(max_length=30, default='Registered')
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.sample_id}: {self.status}"

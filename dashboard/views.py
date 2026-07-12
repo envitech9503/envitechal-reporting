@@ -406,3 +406,56 @@ def audit_detail(request):
         except Exception:
             return JsonResponse({'changes': [], 'note': 'Detail unavailable'})
     return JsonResponse({'changes': [], 'note': 'Unknown entity'})
+
+
+# --- Sample lifecycle board (12-07-2026) ---
+STATUSES = ['Registered', 'In testing', 'QC review', 'Reported', 'Invoiced']
+
+
+@login_required
+def lifecycle_page(request):
+    return render(request, 'lifecycle.html')
+
+
+@login_required
+def lifecycle_data(request):
+    from EnviTechAlApp.models import SampleLifecycle
+    try: days = min(365, max(7, int(request.GET.get('days', 60))))
+    except Exception: days = 60
+    now = timezone.localtime()
+    since = now - timedelta(days=days)
+    regs = list(Sample_registration.objects.filter(created_at__gte=since)
+                .values('sample_id', 'inp1', 'inp9', 'created_at').order_by('-created_at')[:400])
+    sids = [r['sample_id'] for r in regs if r['sample_id']]
+    reported = set()
+    for model in REPORT_MODELS.values():
+        try: reported.update(model.objects.filter(sample_id__in=sids).values_list('sample_id', flat=True))
+        except Exception: continue
+    overrides = {o.sample_id: o.status for o in SampleLifecycle.objects.filter(sample_id__in=sids)}
+    cols = {st: [] for st in STATUSES}
+    for r in regs:
+        sid = r['sample_id']
+        if not sid: continue
+        auto = 'Reported' if sid in reported else 'Registered'
+        st = overrides.get(sid) or auto
+        if st == 'Registered' and auto == 'Reported': st = 'Reported'
+        if st not in cols: st = 'Registered'
+        cols[st].append({'sample_id': sid, 'client': (r.get('inp1') or '')[:60],
+                         'due': r.get('inp9') or '', 'auto': sid in reported})
+    return JsonResponse({'columns': cols, 'statuses': STATUSES, 'days': days,
+                         'counts': {k: len(v) for k, v in cols.items()}})
+
+
+@login_required
+@csrf_exempt
+def lifecycle_set(request):
+    from EnviTechAlApp.models import SampleLifecycle
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    sid = (request.POST.get('sample_id') or '').strip()
+    st = (request.POST.get('status') or '').strip()
+    if not sid or st not in STATUSES:
+        return JsonResponse({'error': 'Bad request'}, status=400)
+    obj, _c = SampleLifecycle.objects.update_or_create(
+        sample_id=sid, defaults={'status': st, 'updated_by': request.user})
+    return JsonResponse({'ok': True, 'sample_id': sid, 'status': st})
