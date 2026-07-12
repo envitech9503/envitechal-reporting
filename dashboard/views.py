@@ -1,6 +1,6 @@
-"""EnviTechAL management dashboard - rebuilt 12-07-2026 (fast, cached)."""
+"""EnviTechAL management dashboard - v2 12-07-2026 (fast, cached, full indicators)."""
 import json
-from calendar import monthrange
+from collections import Counter
 from datetime import datetime, timedelta
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -37,25 +37,41 @@ def dashboard(request):
     return render(request, 'dashboard.html')
 
 
-def _period(filter_type, now):
+def _start(filter_type, now):
     if filter_type == 'yearly':
-        start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-        end = now
-    elif filter_type == 'quarterly':
+        return now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    if filter_type == 'quarterly':
         qm = 3 * ((now.month - 1) // 3) + 1
-        start = now.replace(month=qm, day=1, hour=0, minute=0, second=0, microsecond=0)
-        end = now
+        return now.replace(month=qm, day=1, hour=0, minute=0, second=0, microsecond=0)
+    return now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+def _prev_range(filter_type, now):
+    cur = _start(filter_type, now)
+    if filter_type == 'yearly':
+        prev = cur.replace(year=cur.year - 1)
+    elif filter_type == 'quarterly':
+        m = cur.month - 3
+        prev = cur.replace(year=cur.year - 1, month=m + 12) if m < 1 else cur.replace(month=m)
     else:
-        start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        end = now
-    return Q(created_at__range=[start, end])
+        m = cur.month - 1
+        prev = cur.replace(year=cur.year - 1, month=12) if m < 1 else cur.replace(month=m)
+    return Q(created_at__range=[prev, cur])
+
+
+def _count_group(models, q):
+    total = 0
+    for model in models:
+        try: total += model.objects.filter(q).count()
+        except Exception: continue
+    return total
 
 
 def _late_reports(date_filter, limit=15):
     sample_map = {}
     for sid, inp9 in Sample_registration.objects.exclude(inp9__isnull=True).exclude(inp9='').values_list('sample_id', 'inp9'):
         sample_map[sid] = inp9
-    out = []
+    out, checked = [], 0
     for name, model in REPORT_MODELS.items():
         try:
             rows = model.objects.filter(date_filter).values('sample_id', 'reporting_date', 'report_to', 'lab_report_no')
@@ -68,6 +84,7 @@ def _late_reports(date_filter, limit=15):
                     continue
                 est = datetime.strptime(est_raw, '%d-%m-%Y').date()
                 act = datetime.strptime(r['reporting_date'].replace('-', ' '), '%d %B %Y').date()
+                checked += 1
                 if act > est:
                     out.append({'type': name, 'sample_id': r.get('sample_id'),
                                 'client': r.get('report_to') or '', 'lab_no': r.get('lab_report_no') or '',
@@ -76,7 +93,7 @@ def _late_reports(date_filter, limit=15):
             except Exception:
                 continue
     out.sort(key=lambda x: -x['days_late'])
-    return out[:limit]
+    return out[:limit], checked, len(out)
 
 
 def _recent_activity(limit=10):
@@ -100,21 +117,19 @@ def get_reports_data(request):
     if not request.user.is_superuser:
         return JsonResponse({'error': 'Administrator access required'}, status=403)
     if request.method == 'POST':
-        try:
-            body = json.loads(request.body.decode('utf-8'))
-        except Exception:
-            body = {}
+        try: body = json.loads(request.body.decode('utf-8'))
+        except Exception: body = {}
     else:
         body = request.GET.dict()
     filter_type = body.get('filter', 'monthly')
     if filter_type not in ('monthly', 'quarterly', 'yearly'):
         filter_type = 'monthly'
-    ck = 'etal_dash_%s' % filter_type
+    ck = 'etal_dash2_%s' % filter_type
     cached = cache.get(ck)
     if cached:
         return JsonResponse(cached)
     now = timezone.localtime()
-    date_filter = _period(filter_type, now)
+    date_filter = Q(created_at__range=[_start(filter_type, now), now])
     reports_data, certs_data = {}, {}
     for name, model in REPORT_MODELS.items():
         try: reports_data[name] = model.objects.filter(date_filter).count()
@@ -131,6 +146,27 @@ def get_reports_data(request):
                     if row['m']: target[row['m'].month - 1] += row['c']
             except Exception:
                 continue
+    industry, clients, office = Counter(), Counter(), Counter()
+    for model in REPORT_MODELS.values():
+        try:
+            for row in model.objects.filter(date_filter).values('industry__name').annotate(c=Count('id')):
+                industry[row['industry__name'] or 'Unspecified'] += row['c']
+        except Exception: pass
+        try:
+            for rt, lno in model.objects.filter(date_filter).values_list('report_to', 'lab_report_no'):
+                if rt: clients[rt.strip()[:48]] += 1
+                l = lno or ''
+                if '-KHI' in l: office['Karachi'] += 1
+                elif '-LHR' in l: office['Lahore'] += 1
+                else: office['Other'] += 1
+        except Exception: pass
+    team = Counter()
+    month_ago = now - timedelta(days=30)
+    for model in list(REPORT_MODELS.values()) + list(CERT_MODELS.values()):
+        try:
+            for row in model.history.filter(history_date__gte=month_ago).values('history_user__username').annotate(c=Count('id')):
+                team[row['history_user__username'] or 'system'] += row['c']
+        except Exception: continue
     try: samples = Sample_registration.objects.filter(date_filter).count()
     except Exception: samples = 0
     try: jobs = JobCompletionForm.objects.filter(date_filter).count()
@@ -140,14 +176,23 @@ def get_reports_data(request):
     for model in list(REPORT_MODELS.values()) + list(CERT_MODELS.values()):
         try: activity_7d += model.history.filter(history_date__gte=week_ago).count()
         except Exception: continue
+    late_list, checked, late_total = _late_reports(date_filter)
+    prev_q = _prev_range(filter_type, now)
     payload = {
         'filter': filter_type,
-        'reports_data': reports_data,
-        'certs_data': certs_data,
+        'reports_data': reports_data, 'certs_data': certs_data,
         'totals': {'reports': sum(reports_data.values()), 'certs': sum(certs_data.values()),
                    'samples': samples, 'jobs': jobs},
+        'prev': {'reports': _count_group(REPORT_MODELS.values(), prev_q),
+                 'certs': _count_group(CERT_MODELS.values(), prev_q)},
         'monthly_reports': monthly_reports, 'monthly_certs': monthly_certs,
-        'late_reports': _late_reports(date_filter),
+        'industry_data': industry.most_common(10),
+        'top_clients': clients.most_common(8),
+        'office': dict(office),
+        'team_30d': team.most_common(8),
+        'ontime': {'checked': checked, 'late': late_total,
+                   'pct': round(100.0 * (checked - late_total) / checked, 1) if checked else None},
+        'late_reports': late_list,
         'approved_total': ApprovalStatus.objects.count(),
         'activity_7d': activity_7d,
         'recent_activity': _recent_activity(),
