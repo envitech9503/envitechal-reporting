@@ -854,5 +854,18 @@
     
     
 </script>
+
+<!-- ETAL-AUTOFLAG machineOil pilot -->
+<style>.etal-exc{border-color:#c00000 !important;background:#fff0f0 !important;color:#c00000 !important;font-weight:700}.etal-msg{color:#c00000;font-size:12px;font-weight:700;display:block;margin-top:2px}</style>
+<script>
+(function(){
+var ETAL_LIMITS={"machine_sr1": {"l": 50.0, "p": "Antimony (Sb)", "u": "mg/kg"}, "machine_sr10": {"l": 1000.0, "p": "Manganese (Mn)", "u": "mg/kg"}, "machine_sr11": {"l": 200.0, "p": "Nickel (Ni)", "u": "mg/kg"}, "machine_sr12": {"l": 4.0, "p": "Mercury (Hg)", "u": "mg/kg"}, "machine_sr13": {"l": 20.0, "p": "Selenium (Se)", "u": "mg/kg"}, "machine_sr14": {"l": 100.0, "p": "Silver (Ag)", "u": "mg/kg"}, "machine_sr15": {"l": 1500.0, "p": "Zinc (Zn)", "u": "mg/kg"}, "machine_sr16": {"l": 250.0, "p": "Tin (Sn)", "u": "mg/kg"}, "machine_sr2": {"l": 50.0, "p": "Arsenic (As)", "u": "mg/kg"}, "machine_sr3": {"l": 100.0, "p": "Barium (Ba)", "u": "mg/kg"}, "machine_sr4": {"l": 20.0, "p": "Cadmium (Cd)", "u": "mg/kg"}, "machine_sr5": {"l": 500.0, "p": "Cobalt (Co)", "u": "mg/kg"}, "machine_sr6": {"l": 250.0, "p": "Copper (Cu)", "u": "mg/kg"}, "machine_sr7": {"l": 100.0, "p": "Chromium (Cr)", "u": "mg/kg"}, "machine_sr8": {"l": 2500.0, "p": "Iron (Fe)", "u": "mg/kg"}, "machine_sr9": {"l": 100.0, "p": "Lead (Pb)", "u": "mg/kg"}};
+function etalNum(s){s=String(s||'').trim().replace(/,/g,'');if(s.charAt(0)==='<')return null;var mm=s.match(/-?\d+(?:\.\d+)?/);return mm?parseFloat(mm[0]):null;}
+function etalChk(el){var d=ETAL_LIMITS[el.name];if(!d)return;var v=etalNum(el.value);var msg=el.parentNode.querySelector('.etal-msg');
+if(v!==null&&v>d.l){el.classList.add('etal-exc');if(!msg){msg=document.createElement('span');msg.className='etal-msg';el.parentNode.appendChild(msg);}msg.textContent='\u26A0 '+d.p+' exceeds limit '+d.l+' '+d.u;}
+else{el.classList.remove('etal-exc');if(msg){msg.parentNode.removeChild(msg);}}}
+Object.keys(ETAL_LIMITS).forEach(function(n){var el=document.querySelector('[name="'+n+'"]');if(el){el.addEventListener('input',function(){etalChk(el);});etalChk(el);}});
+})();
+</script>
 </body>
 </html>
