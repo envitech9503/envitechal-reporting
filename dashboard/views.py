@@ -557,9 +557,16 @@ def limits_page(request):
 @login_required
 def limits_data(request):
     from EnviTechAlApp.models import RegulatoryLimit
+    _q = RegulatoryLimit.objects.filter(active=True)
+    _std = (request.GET.get('std') or '').strip().upper()
+    if _std:
+        _q = _q.filter(standard__istartswith=_std)
+    _t = (request.GET.get('q') or '').strip()
+    if _t:
+        _q = _q.filter(parameter__icontains=_t)
     rows = [{'id': l.id, 'parameter': l.parameter, 'standard': l.standard,
              'min': l.limit_min, 'max': l.limit_max, 'unit': l.unit, 'notes': l.notes}
-            for l in RegulatoryLimit.objects.filter(active=True).order_by('parameter', 'standard')]
+            for l in _q.order_by('parameter', 'standard')]
     return JsonResponse({'rows': rows, 'is_admin': request.user.is_superuser})
 
 
@@ -581,7 +588,7 @@ def limits_save(request):
             return JsonResponse({'error': 'Not found'}, status=404)
     p = (g.get('parameter') or '').strip()[:120]
     st = (g.get('standard') or '').strip().upper()[:20]
-    if not p or st not in ('SEQS', 'PEQS', 'NEQS', 'WHO'):
+    if not p or st.split()[0] not in ('SEQS', 'PEQS', 'NEQS', 'WHO', 'GOTS', 'ZDHC', 'STEP'):
         return JsonResponse({'error': 'Parameter and a valid standard are required'}, status=400)
     def f(k):
         try: return float(g.get(k)) if (g.get(k) or '').strip() != '' else None
@@ -610,4 +617,8 @@ def limits_check(request):
               ('<= %s' % l.limit_max if l.limit_max is not None else '>= %s' % l.limit_min)
         out.append({'standard': l.standard, 'range': rng, 'unit': l.unit,
                     'result': 'EXCEEDS' if exceeds else 'Within limit'})
+    _have = set(x['standard'].split()[0] for x in out)
+    for _s in ('SEQS', 'PEQS', 'NEQS', 'WHO', 'GOTS', 'ZDHC', 'STEP'):
+        if _s not in _have:
+            out.append({'standard': _s, 'range': 'No limit on record', 'unit': '', 'result': 'Not regulated'})
     return JsonResponse({'parameter': p, 'value': v, 'results': out})
