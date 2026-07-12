@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EnviTechAL - Audit Trail</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;background:#f0f4f1;color:#1F2937}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:linear-gradient(120deg,#0d1522,#1F2937 60%,#123527);position:sticky;top:0;z-index:5}
+.brand{color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:#00A651;box-shadow:0 0 12px #00A651}
+.brand small{color:#9ca3af;font-weight:500;font-size:12px;margin-left:6px}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav a{color:#d1d5db;text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+nav a:hover{background:rgba(0,166,81,.18);color:#fff;border-color:#00A651}
+nav a.cur{background:#00A651;color:#fff;border-color:#00A651}
+nav a.out{border-color:rgba(239,68,68,.5);color:#fca5a5}
+main{max-width:1280px;margin:0 auto;padding:22px 24px 48px}
+.filters{display:flex;gap:9px;flex-wrap:wrap;align-items:center;background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(31,41,55,.07);margin-bottom:16px}
+.filters select,.filters input{border:1px solid #d1d5db;border-radius:8px;padding:7px 10px;font-size:13px;color:#374151;background:#fff}
+.filters button{background:#00A651;color:#fff;border:none;border-radius:8px;padding:8px 22px;font-weight:700;font-size:13px;cursor:pointer}
+.filters .meta{margin-left:auto;font-size:12.5px;color:#6B7280}
+.panel{background:#fff;border-radius:14px;padding:6px 16px 14px;box-shadow:0 2px 10px rgba(31,41,55,.07)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#1F2937;color:#fff;text-align:left;padding:8px 10px;font-size:11px;letter-spacing:.5px;position:sticky;top:64px}
+td{padding:8px 10px;border-bottom:1px solid #eef1ee;vertical-align:top}
+tr.main-row:hover td{background:#f2f8f4;cursor:pointer}
+.act{font-weight:700}
+.act.Created{color:#00753a}.act.Edited{color:#92600a}.act.Deleted{color:#b91c1c}.act.Login{color:#1d4ed8}
+.view{color:#00A651;font-weight:700;font-size:11.5px}
+.detail td{background:#f8fbf9;font-size:12px}
+.chg{margin:2px 0;padding:4px 8px;border-left:3px solid #00A651;background:#fff;border-radius:4px}
+.chg b{color:#1F2937}
+.old{color:#b91c1c;text-decoration:line-through;margin-right:6px}
+.new{color:#00753a;font-weight:600}
+.pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding:12px 4px 0;font-size:13px}
+.pager button{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:6px 16px;font-weight:600;cursor:pointer}
+.pager button:disabled{opacity:.4;cursor:default}
+.empty{color:#9ca3af;padding:26px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>ENVI TECH AL<small>Audit Trail — who did what, when</small></div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/certificate/">Certificates</a>
+    <a href="/dashboard/dashboard/">Dashboard</a>
+    <a class="cur" href="/dashboard/audit/">Audit</a>
+    <a class="out" href="/logout/">Logout</a>
+  </nav>
+</header>
+<main>
+  <div class="filters">
+    <select id="fUser"><option value="">All users</option></select>
+    <select id="fEntity"><option value="">All entities</option></select>
+    <select id="fAction"><option value="">All actions</option><option>Created</option><option>Edited</option><option>Deleted</option><option>Login</option></select>
+    <input type="date" id="fFrom"> <input type="date" id="fTo">
+    <button onclick="go(1)">Filter</button>
+    <span class="meta" id="meta"></span>
+  </div>
+  <div class="panel">
+    <table>
+      <thead><tr><th style="width:150px">WHEN</th><th style="width:110px">USER</th><th style="width:90px">ACTION</th><th style="width:150px">ENTITY</th><th>REFERENCE</th><th style="width:80px">CHANGES</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" class="empty">Loading audit trail&hellip;</td></tr></tbody>
+    </table>
+    <div class="pager">
+      <button id="prev" onclick="go(PAGE-1)">&larr; Previous</button>
+      <span id="pinfo"></span>
+      <button id="next" onclick="go(PAGE+1)">Next &rarr;</button>
+    </div>
+  </div>
+</main>
+<script>
+var PAGE=1,BOOT=false;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function q(id){return document.getElementById(id).value;}
+function go(p){
+  PAGE=Math.max(1,p);
+  var u='/dashboard/api/audit/?page='+PAGE+'&user='+encodeURIComponent(q('fUser'))+'&entity='+encodeURIComponent(q('fEntity'))+'&action='+encodeURIComponent(q('fAction'))+'&from='+q('fFrom')+'&to='+q('fTo');
+  fetch(u,{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+    if(!BOOT&&d.users){BOOT=true;
+      d.users.forEach(function(x){var o=document.createElement('option');o.textContent=x;document.getElementById('fUser').appendChild(o);});
+      d.entities.forEach(function(x){var o=document.createElement('option');o.textContent=x;document.getElementById('fEntity').appendChild(o);});}
+    var tb=document.getElementById('rows');tb.innerHTML='';
+    if(!d.rows.length){tb.innerHTML='<tr><td colspan="6" class="empty">No audit entries match these filters. Entries accumulate from 12-07-2026, the day the audit trail went live.</td></tr>';}
+    d.rows.forEach(function(r,i){
+      var tr=document.createElement('tr');tr.className='main-row';
+      tr.innerHTML='<td>'+esc(r.when)+'</td><td><b>'+esc(r.user)+'</b></td><td class="act '+esc(r.action)+'">'+esc(r.action)+'</td><td>'+esc(r.entity)+'</td><td>'+esc(r.ref)+'</td><td>'+(r.hid?'<span class="view">&#9658; view</span>':'')+'</td>';
+      if(r.hid){tr.onclick=function(){toggle(tr,r);};}
+      tb.appendChild(tr);
+    });
+    document.getElementById('meta').textContent=d.total+' entries';
+    document.getElementById('pinfo').textContent='Page '+d.page+' of '+d.pages;
+    document.getElementById('prev').disabled=d.page<=1;
+    document.getElementById('next').disabled=d.page>=d.pages;
+  }).catch(function(e){document.getElementById('rows').innerHTML='<tr><td colspan="6" class="empty">'+esc(e.message)+'</td></tr>';});
+}
+function toggle(tr,r){
+  if(tr.nextSibling&&tr.nextSibling.className==='detail'){tr.parentNode.removeChild(tr.nextSibling);return;}
+  fetch('/dashboard/api/audit-detail/?entity='+encodeURIComponent(r.entity)+'&hid='+r.hid,{credentials:'include'}).then(function(x){return x.json();}).then(function(d){
+    var dr=document.createElement('tr');dr.className='detail';
+    var h='';
+    (d.changes||[]).forEach(function(c){h+='<div class="chg"><b>'+esc(c.field)+':</b> <span class="old">'+esc(c.old||'(empty)')+'</span> <span class="new">'+esc(c.new||'(empty)')+'</span></div>';});
+    if(!h)h='<div class="chg">'+esc(d.note||'No details')+'</div>';
+    dr.innerHTML='<td colspan="6">'+h+'</td>';
+    tr.parentNode.insertBefore(dr,tr.nextSibling);
+  });
+}
+go(1);
+</script>
+</body>
+</html>

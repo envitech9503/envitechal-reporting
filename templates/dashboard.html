@@ -36,11 +36,21 @@ main{max-width:1320px;margin:0 auto;padding:22px 24px 48px}
 .grid2b{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
 .panel{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(31,41,55,.07)}
 .panel h3{font-size:14px;color:#1F2937;margin-bottom:12px;border-left:4px solid #00A651;padding-left:9px}
+.cbox{position:relative;height:300px}
+.cbox.lg{height:330px}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 th{background:#1F2937;color:#fff;text-align:left;padding:7px 9px;font-size:11px;letter-spacing:.4px}
 td{padding:7px 9px;border-bottom:1px solid #eef1ee}
 tr:nth-child(even) td{background:#f7faf8}
 .chip{display:inline-block;background:#fee2e2;color:#b91c1c;font-weight:700;border-radius:10px;padding:1px 8px;font-size:11px}
+.lb-row{display:flex;align-items:center;gap:10px;padding:6.5px 0;border-bottom:1px solid #f0f3f0}
+.lb-rank{width:22px;height:22px;border-radius:50%;background:#6B7280;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 22px}
+.lb-rank.top{background:#00A651}
+.lb-body{flex:1;min-width:0}
+.lb-name{font-size:12px;font-weight:600;color:#1F2937;line-height:1.3}
+.lb-bar{height:5px;background:#eef1ee;border-radius:3px;margin-top:4px}
+.lb-bar span{display:block;height:5px;border-radius:3px;background:linear-gradient(90deg,#00A651,#34d399)}
+.lb-val{font-weight:800;font-size:13px;color:#111827}
 .feed-item{display:flex;gap:10px;padding:8px 2px;border-bottom:1px solid #eef1ee;font-size:12.5px;align-items:baseline}
 .feed-item .act{font-weight:700;min-width:56px}
 .act.Created{color:#00753a}.act.Edited{color:#92600a}.act.Deleted{color:#b91c1c}
@@ -56,6 +66,7 @@ tr:nth-child(even) td{background:#f7faf8}
     <a href="/">Home</a>
     <a href="/certificate/">Certificates</a>
     <a href="/loggingList/">Logging</a>
+    <a href="/dashboard/audit/">Audit</a>
     <a class="cur" href="/dashboard/dashboard/">Dashboard</a>
     <a class="out" href="/logout/">Logout</a>
   </nav>
@@ -73,16 +84,18 @@ tr:nth-child(even) td{background:#f7faf8}
   <section id="content" style="display:none">
     <div class="cards" id="kpis"></div>
     <div class="grid2">
-      <div class="panel"><h3>Monthly volume &mdash; <span id="yr"></span></h3><canvas id="chMonthly" height="120"></canvas></div>
-      <div class="panel"><h3>Reports by type (period)</h3><canvas id="chTypes" height="230"></canvas></div>
+      <div class="panel"><h3>Monthly volume &mdash; <span id="yr"></span></h3><div class="cbox lg"><canvas id="chMonthly"></canvas></div></div>
+      <div class="panel"><h3>Reports by type (period)</h3><div class="cbox lg"><canvas id="chTypes"></canvas></div></div>
     </div>
     <div class="grid4">
-      <div class="panel"><h3>Reports by industry</h3><canvas id="chIndustry" height="210"></canvas></div>
-      <div class="panel"><h3>Top clients (period)</h3><canvas id="chClients" height="210"></canvas></div>
-      <div class="panel"><h3>Certificates by type</h3><canvas id="chCerts" height="210"></canvas></div>
-      <div class="panel"><h3>Team activity &mdash; last 30 days</h3><canvas id="chTeam" height="210"></canvas></div>
-      <div class="panel"><h3>Reports created by user (period)</h3><canvas id="chUsers" height="210"></canvas></div>
-      <div class="panel"><h3>On-time delivery trend &mdash; <span id="yr2"></span></h3><canvas id="chOntime" height="210"></canvas></div>
+      <div class="panel"><h3>Reports by industry</h3><div class="cbox"><canvas id="chIndustry"></canvas></div></div>
+      <div class="panel"><h3>Top clients (period)</h3><div id="clientsList"></div></div>
+      <div class="panel"><h3>Certificates by type</h3><div class="cbox"><canvas id="chCerts"></canvas></div></div>
+      <div class="panel"><h3>Team activity &mdash; last 30 days</h3><div class="cbox"><canvas id="chTeam"></canvas></div></div>
+      <div class="panel"><h3>Reports created by user (period)</h3><div class="cbox"><canvas id="chUsers"></canvas></div></div>
+      <div class="panel"><h3>On-time delivery trend &mdash; <span id="yr2"></span></h3><div class="cbox"><canvas id="chOntime"></canvas></div></div>
+      <div class="panel"><h3>Sample intake vs reports issued &mdash; <span id="yr3"></span></h3><div class="cbox"><canvas id="chFlow"></canvas></div></div>
+      <div class="panel"><h3>Workload by weekday (year)</h3><div class="cbox"><canvas id="chWeekday"></canvas></div></div>
     </div>
     <div class="grid2b">
       <div class="panel"><h3>Late reports vs committed date</h3><div id="late"></div></div>
@@ -101,6 +114,12 @@ function mk(id,cfg){if(CH[id])CH[id].destroy();CH[id]=new Chart(document.getElem
 function hbar(id,pairs,color){
   mk(id,{type:'bar',data:{labels:pairs.map(function(p){return p[0];}),datasets:[{data:pairs.map(function(p){return p[1];}),backgroundColor:color,borderRadius:4}]},
     options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{ticks:{font:{size:10.5},autoSkip:false}}}}});}
+function leaderboard(el,pairs){
+  var m=pairs.length?pairs[0][1]:1,h='';
+  pairs.forEach(function(p,i){var w=Math.max(4,Math.round(100*p[1]/m));
+    h+='<div class="lb-row"><span class="lb-rank'+(i<3?' top':'')+'">'+(i+1)+'</span><div class="lb-body"><div class="lb-name">'+esc(p[0])+'</div><div class="lb-bar"><span style="width:'+w+'%"></span></div></div><span class="lb-val">'+p[1]+'</span></div>';});
+  document.getElementById(el).innerHTML=h||'<div class="empty">No client data in this period.</div>';
+}
 function pct(cur,prev){if(!prev)return null;return Math.round(1000.0*(cur-prev)/prev)/10;}
 function load(f){
   document.getElementById('loader').style.display='block';
@@ -131,23 +150,30 @@ function load(f){
     mk('chMonthly',{type:'bar',data:{labels:months,datasets:[
       {label:'Reports',data:d.monthly_reports,backgroundColor:'#00A651',borderRadius:5},
       {label:'Certificates',data:d.monthly_certs,backgroundColor:'#1F2937',borderRadius:5}]},
-      options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
     var entries=Object.keys(d.reports_data).map(function(k){return [k,d.reports_data[k]];}).filter(function(e){return e[1]>0;});
     entries.sort(function(a,b){return b[1]-a[1];});
     if(entries.length){mk('chTypes',{type:'doughnut',data:{labels:entries.map(function(e){return e[0];}),
       datasets:[{data:entries.map(function(e){return e[1];}),backgroundColor:PAL,borderWidth:1}]},
-      options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10.5}}}}}});}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10.5}}}}}});}
     hbar('chIndustry',d.industry_data||[],'#00A651');
-    hbar('chClients',d.top_clients||[],'#1F2937');
+    leaderboard('clientsList',d.top_clients||[]);
     var cd=d.certs_data||{};
     mk('chCerts',{type:'bar',data:{labels:Object.keys(cd),datasets:[{data:Object.keys(cd).map(function(k){return cd[k];}),
       backgroundColor:['#00A651','#1F2937','#0e9f8f'],borderRadius:6}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
     hbar('chTeam',d.team_30d||[],'#0e9f8f');
     document.getElementById('yr2').textContent=d.year;
+    document.getElementById('yr3').textContent=d.year;
     hbar('chUsers',d.user_created||[],'#84cc16');
     mk('chOntime',{type:'line',data:{labels:months,datasets:[{label:'On-time %',data:d.ontime_monthly||[],borderColor:'#00A651',backgroundColor:'rgba(0,166,81,.12)',fill:true,spanGaps:true,tension:.3,pointRadius:3,pointBackgroundColor:'#00A651'}]},
-      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';}}}}}});
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';}}}}}});
+    mk('chFlow',{type:'line',data:{labels:months,datasets:[
+      {label:'Samples received',data:d.monthly_samples||[],borderColor:'#1F2937',backgroundColor:'rgba(31,41,55,.10)',fill:true,tension:.3,pointRadius:3},
+      {label:'Reports issued',data:d.monthly_reports||[],borderColor:'#00A651',backgroundColor:'rgba(0,166,81,.10)',fill:true,tension:.3,pointRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+    mk('chWeekday',{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:d.weekday_load||[],backgroundColor:['#1F2937','#1F2937','#1F2937','#1F2937','#1F2937','#00A651','#00A651'],borderRadius:5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
     var lt=d.late_reports||[];
     if(!lt.length){document.getElementById('late').innerHTML='<div class="empty">No late reports in this period. Well done.</div>';}
     else{
