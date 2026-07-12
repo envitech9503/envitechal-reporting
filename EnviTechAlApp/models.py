@@ -2549,3 +2549,68 @@ class RegulatoryLimit(models.Model):
         return f"{self.parameter} [{self.standard}]"
 
 _sh_register(RegulatoryLimit)
+
+
+# --- Phase 2: chemical & consumable inventory (13-07-2026) ---
+class ChemicalItem(models.Model):
+    name = models.CharField(max_length=200)
+    category = models.CharField(max_length=40, default='Reagent')
+    grade = models.CharField(max_length=80, blank=True, default='')
+    cas_no = models.CharField(max_length=40, blank=True, default='')
+    unit = models.CharField(max_length=30, default='g')
+    storage = models.CharField(max_length=120, blank=True, default='')
+    hazard = models.CharField(max_length=120, blank=True, default='')
+    reorder_level = models.FloatField(null=True, blank=True)
+    notes = models.CharField(max_length=300, blank=True, default='')
+    active = models.BooleanField(default=True)
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class ChemicalLot(models.Model):
+    item = models.ForeignKey(ChemicalItem, on_delete=models.CASCADE, related_name='lots')
+    location = models.CharField(max_length=20, default='Karachi')
+    lot_no = models.CharField(max_length=80, blank=True, default='')
+    supplier = models.CharField(max_length=150, blank=True, default='')
+    po_ref = models.CharField(max_length=60, blank=True, default='')
+    received = models.DateField(null=True, blank=True)
+    expiry = models.DateField(null=True, blank=True)
+    opened = models.DateField(null=True, blank=True)
+    qty_received = models.FloatField(default=0)
+    coa = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, default='In use')
+    remarks = models.CharField(max_length=200, blank=True, default='')
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '%s [%s] %s' % (self.item.name, self.location, self.lot_no)
+
+
+class ChemicalMovement(models.Model):
+    lot = models.ForeignKey(ChemicalLot, on_delete=models.CASCADE, related_name='moves')
+    mtype = models.CharField(max_length=10)
+    qty = models.FloatField()
+    on_date = models.DateField(null=True, blank=True)
+    remarks = models.CharField(max_length=200, blank=True, default='')
+    by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    at = models.DateTimeField(auto_now_add=True)
+
+
+class InventoryDocControl(models.Model):
+    location = models.CharField(max_length=20, unique=True)
+    doc_no = models.CharField(max_length=60, blank=True, default='')
+    issue_date = models.CharField(max_length=20, blank=True, default='')
+    issue_no = models.CharField(max_length=10, blank=True, default='01')
+    rev_no = models.CharField(max_length=10, blank=True, default='00')
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+_sh_register(ChemicalItem)
+_sh_register(ChemicalLot)
+_sh_register(InventoryDocControl)

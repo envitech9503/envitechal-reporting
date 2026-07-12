@@ -773,3 +773,403 @@ def equipment_report_pdf(request):
     resp = HttpResponse(b, content_type='application/pdf')
     resp['Content-Disposition'] = 'inline; filename="ETAL-LAB-604-FF-15 Master Equipment List.pdf"'
     return resp
+
+
+# --- Phase 2: chemical & consumable inventory (13-07-2026) ---
+CHEM_LOCS = ('Karachi', 'Lahore')
+CHEM_CATS = ('Reagent', 'Reference standard', 'Solvent', 'Culture media', 'Glassware', 'Consumable', 'PPE', 'Gas', 'Other')
+
+
+@login_required
+def chemicals_page(request):
+    return render(request, 'chemicals.html')
+
+
+def _chem_lot_balance(lot):
+    b = 0.0
+    for mv in lot.moves.all():
+        if mv.mtype == 'IN':
+            b += mv.qty
+        elif mv.mtype == 'OUT':
+            b -= mv.qty
+        else:
+            b += mv.qty
+    return round(b, 4)
+
+
+def _chem_exp_state(lot, today):
+    if not lot.expiry:
+        return ('', None)
+    days = (lot.expiry - today).days
+    if days < 0:
+        return ('Expired', days)
+    if days <= 90:
+        return ('Expiring', days)
+    return ('OK', days)
+
+
+@login_required
+def chemicals_data(request):
+    from EnviTechAlApp.models import ChemicalItem, ChemicalLot, InventoryDocControl
+    loc = (request.GET.get('location') or 'Karachi').strip()
+    if loc not in CHEM_LOCS:
+        loc = 'Karachi'
+    lot_id = request.GET.get('lot')
+    if lot_id:
+        try:
+            lot = ChemicalLot.objects.get(id=int(lot_id))
+        except Exception:
+            return JsonResponse({'error': 'Lot not found'}, status=404)
+        moves = [{'type': mv.mtype, 'qty': mv.qty,
+                  'date': mv.on_date.strftime('%d-%m-%Y') if mv.on_date else mv.at.strftime('%d-%m-%Y'),
+                  'by': (mv.by.username if mv.by else ''), 'remarks': mv.remarks}
+                 for mv in lot.moves.order_by('at', 'id')]
+        return JsonResponse({'lot': {'id': lot.id, 'item': lot.item.name, 'lot_no': lot.lot_no,
+                                     'balance': _chem_lot_balance(lot), 'unit': lot.item.unit}, 'moves': moves})
+    q = (request.GET.get('q') or '').strip()
+    today = timezone.localdate()
+    items_qs = ChemicalItem.objects.filter(active=True)
+    if q:
+        exact = list(items_qs.filter(name__iexact=q))
+        if exact:
+            items = exact
+        else:
+            ids = set(items_qs.filter(name__icontains=q).values_list('id', flat=True))
+            ids |= set(items_qs.filter(cas_no__iexact=q).values_list('id', flat=True))
+            ids |= set(items_qs.filter(grade__icontains=q).values_list('id', flat=True))
+            ids |= set(items_qs.filter(category__icontains=q).values_list('id', flat=True))
+            items = list(items_qs.filter(id__in=ids))
+    else:
+        items = list(items_qs)
+    items.sort(key=lambda i: i.name.lower())
+    rows = []
+    n_low = n_exp = n_expiring = n_stock = 0
+    for it in items:
+        lots_out = []
+        total = 0.0
+        for lot in it.lots.filter(location=loc).exclude(status='Discarded').prefetch_related('moves').order_by('received', 'id'):
+            bal = _chem_lot_balance(lot)
+            if bal <= 0 and lot.status != 'Quarantine':
+                continue
+            state, days = _chem_exp_state(lot, today)
+            total += max(bal, 0)
+            lots_out.append({'id': lot.id, 'lot_no': lot.lot_no, 'supplier': lot.supplier, 'po_ref': lot.po_ref,
+                             'received': lot.received.strftime('%d-%m-%Y') if lot.received else '',
+                             'expiry': lot.expiry.strftime('%d-%m-%Y') if lot.expiry else '',
+                             'opened': lot.opened.strftime('%d-%m-%Y') if lot.opened else '',
+                             'exp_state': state, 'exp_days': days, 'balance': bal,
+                             'qty_received': lot.qty_received, 'coa': lot.coa,
+                             'status': lot.status, 'remarks': lot.remarks})
+            if state == 'Expired':
+                n_exp += 1
+            elif state == 'Expiring':
+                n_expiring += 1
+        low = (it.reorder_level is not None and total < it.reorder_level)
+        if low:
+            n_low += 1
+        if total > 0:
+            n_stock += 1
+        rows.append({'id': it.id, 'name': it.name, 'category': it.category, 'grade': it.grade,
+                     'cas': it.cas_no, 'unit': it.unit, 'storage': it.storage, 'hazard': it.hazard,
+                     'reorder': it.reorder_level, 'notes': it.notes, 'total': round(total, 4),
+                     'low': low, 'lots': lots_out})
+    dc = InventoryDocControl.objects.filter(location=loc).values('doc_no', 'issue_date', 'issue_no', 'rev_no').first() or {}
+    return JsonResponse({'rows': rows, 'location': loc, 'is_admin': request.user.is_superuser, 'doc': dc,
+                         'summary': {'stocked': n_stock, 'low': n_low, 'expiring': n_expiring, 'expired': n_exp}})
+
+
+@login_required
+@csrf_exempt
+def chemicals_save(request):
+    from EnviTechAlApp.models import ChemicalItem, ChemicalLot, ChemicalMovement, InventoryDocControl
+    from datetime import datetime as _dt
+    import re as _re
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    g = request.POST
+    act = (g.get('act') or '').strip()
+
+    def _d(key):
+        v = (g.get(key) or '').strip()
+        if not v:
+            return None
+        try:
+            return _dt.strptime(v, '%Y-%m-%d').date()
+        except Exception:
+            return None
+
+    def _f(key):
+        v = (g.get(key) or '').strip().replace(',', '')
+        if not v:
+            return None
+        try:
+            return float(v)
+        except Exception:
+            return None
+
+    if act == 'doc':
+        if not request.user.is_superuser:
+            return JsonResponse({'error': 'Administrator access required'}, status=403)
+        loc = (g.get('location') or '').strip()
+        if loc not in CHEM_LOCS:
+            return JsonResponse({'error': 'Unknown location'}, status=400)
+        d, _c = InventoryDocControl.objects.get_or_create(location=loc)
+        d.doc_no = (g.get('doc_no') or '')[:60]
+        d.issue_date = (g.get('issue_date') or '')[:20]
+        d.issue_no = (g.get('issue_no') or '01')[:10]
+        d.rev_no = (g.get('rev_no') or '00')[:10]
+        d.updated_by = request.user
+        d.save()
+        return JsonResponse({'ok': True})
+
+    if act == 'item':
+        name = (g.get('name') or '').strip()
+        if not name:
+            return JsonResponse({'error': 'Item name is required'}, status=400)
+        norm = _re.sub(r'[^a-z0-9]+', '', name.lower())
+        iid = (g.get('id') or '').strip()
+        for other in ChemicalItem.objects.filter(active=True):
+            if iid and str(other.id) == iid:
+                continue
+            if _re.sub(r'[^a-z0-9]+', '', other.name.lower()) == norm:
+                return JsonResponse({'error': 'An item named "%s" already exists in the catalogue. Edit that entry instead of adding a near-duplicate.' % other.name}, status=400)
+        vals = dict(name=name[:200], category=(g.get('category') or 'Reagent')[:40], grade=(g.get('grade') or '')[:80],
+                    cas_no=(g.get('cas') or '')[:40], unit=(g.get('unit') or 'g')[:30], storage=(g.get('storage') or '')[:120],
+                    hazard=(g.get('hazard') or '')[:120], reorder_level=_f('reorder'), notes=(g.get('notes') or '')[:300],
+                    updated_by=request.user)
+        if iid:
+            try:
+                it = ChemicalItem.objects.get(id=int(iid))
+            except Exception:
+                return JsonResponse({'error': 'Item not found'}, status=404)
+            for k, v in vals.items():
+                setattr(it, k, v)
+            it.save()
+        else:
+            it = ChemicalItem.objects.create(**vals)
+        return JsonResponse({'ok': True, 'id': it.id})
+
+    if act == 'retire':
+        if not request.user.is_superuser:
+            return JsonResponse({'error': 'Administrator access required'}, status=403)
+        try:
+            it = ChemicalItem.objects.get(id=int(g.get('id')))
+        except Exception:
+            return JsonResponse({'error': 'Item not found'}, status=404)
+        it.active = False
+        it.updated_by = request.user
+        it.save()
+        return JsonResponse({'ok': True})
+
+    if act == 'receive':
+        try:
+            it = ChemicalItem.objects.get(id=int(g.get('item')))
+        except Exception:
+            return JsonResponse({'error': 'Item not found'}, status=404)
+        loc = (g.get('location') or '').strip()
+        if loc not in CHEM_LOCS:
+            return JsonResponse({'error': 'Unknown location'}, status=400)
+        qty = _f('qty')
+        if not qty or qty <= 0:
+            return JsonResponse({'error': 'Received quantity must be a positive number'}, status=400)
+        lot = ChemicalLot.objects.create(item=it, location=loc, lot_no=(g.get('lot_no') or '')[:80],
+                                         supplier=(g.get('supplier') or '')[:150], po_ref=(g.get('po_ref') or '')[:60],
+                                         received=_d('received') or timezone.localdate(), expiry=_d('expiry'),
+                                         qty_received=qty, coa=(g.get('coa') == '1'),
+                                         remarks=(g.get('remarks') or '')[:200], created_by=request.user)
+        ChemicalMovement.objects.create(lot=lot, mtype='IN', qty=qty, on_date=lot.received,
+                                        remarks=('Received' + ((' | PO ' + lot.po_ref) if lot.po_ref else ''))[:200], by=request.user)
+        return JsonResponse({'ok': True, 'id': lot.id})
+
+    if act == 'move':
+        try:
+            lot = ChemicalLot.objects.get(id=int(g.get('lot')))
+        except Exception:
+            return JsonResponse({'error': 'Lot not found'}, status=404)
+        mtype = (g.get('mtype') or '').strip().upper()
+        if mtype not in ('IN', 'OUT', 'ADJ'):
+            return JsonResponse({'error': 'Unknown movement type'}, status=400)
+        qty = _f('qty')
+        if qty is None or qty == 0:
+            return JsonResponse({'error': 'Quantity must be a non-zero number'}, status=400)
+        if mtype in ('IN', 'OUT') and qty < 0:
+            return JsonResponse({'error': 'Use a positive quantity; use Adjust for corrections'}, status=400)
+        bal = _chem_lot_balance(lot)
+        if mtype == 'OUT' and qty > bal + 1e-9:
+            return JsonResponse({'error': 'Only %g %s left in this lot - cannot issue %g' % (bal, lot.item.unit, qty)}, status=400)
+        if mtype == 'ADJ' and bal + qty < -1e-9:
+            return JsonResponse({'error': 'Adjustment would make the balance negative (current %g)' % bal}, status=400)
+        ChemicalMovement.objects.create(lot=lot, mtype=mtype, qty=qty, on_date=_d('date') or timezone.localdate(),
+                                        remarks=(g.get('remarks') or '')[:200], by=request.user)
+        if lot.opened is None and mtype == 'OUT':
+            lot.opened = timezone.localdate()
+        nb = _chem_lot_balance(lot)
+        if nb <= 0 and lot.status == 'In use':
+            lot.status = 'Finished'
+        elif nb > 0 and lot.status == 'Finished':
+            lot.status = 'In use'
+        lot.save()
+        return JsonResponse({'ok': True, 'balance': nb})
+
+    if act == 'lotstatus':
+        try:
+            lot = ChemicalLot.objects.get(id=int(g.get('lot')))
+        except Exception:
+            return JsonResponse({'error': 'Lot not found'}, status=404)
+        st = (g.get('status') or '').strip()
+        if st not in ('In use', 'Quarantine', 'Finished', 'Discarded'):
+            return JsonResponse({'error': 'Unknown status'}, status=400)
+        lot.status = st
+        lot.save()
+        return JsonResponse({'ok': True})
+
+    return JsonResponse({'error': 'Unknown action'}, status=400)
+
+
+def _chem_report_data(loc):
+    from EnviTechAlApp.models import ChemicalItem
+    today = timezone.localdate()
+    groups = {c: [] for c in CHEM_CATS}
+    for it in ChemicalItem.objects.filter(active=True).order_by('name'):
+        cat = it.category if it.category in CHEM_CATS else 'Other'
+        for lot in it.lots.filter(location=loc).exclude(status='Discarded').prefetch_related('moves').order_by('received', 'id'):
+            bal = _chem_lot_balance(lot)
+            if bal <= 0:
+                continue
+            state, days = _chem_exp_state(lot, today)
+            groups[cat].append({'name': it.name, 'grade': it.grade, 'cas': it.cas_no,
+                                'lot_no': lot.lot_no, 'supplier': lot.supplier, 'po_ref': lot.po_ref,
+                                'received': lot.received.strftime('%d-%m-%Y') if lot.received else '',
+                                'expiry': lot.expiry.strftime('%d-%m-%Y') if lot.expiry else '',
+                                'exp_state': state, 'balance': bal, 'unit': it.unit,
+                                'storage': it.storage, 'status': lot.status})
+    return [(c, groups[c]) for c in CHEM_CATS if groups[c]]
+
+
+@login_required
+def chemicals_report(request):
+    from EnviTechAlApp.models import InventoryDocControl
+    loc = (request.GET.get('location') or 'Karachi').strip()
+    if loc not in CHEM_LOCS:
+        loc = 'Karachi'
+    dc = InventoryDocControl.objects.filter(location=loc).first()
+    groups = _chem_report_data(loc)
+    total = sum(len(g[1]) for g in groups)
+    return render(request, 'chemicals_report.html',
+                  {'groups': groups, 'loc': loc, 'dc': dc, 'total': total,
+                   'today': timezone.localdate().strftime('%d-%m-%Y')})
+
+
+@login_required
+def chemicals_report_pdf(request):
+    from EnviTechAlApp.models import InventoryDocControl
+    from fpdf import FPDF
+    from django.http import HttpResponse
+    import datetime as _dt
+    loc = (request.GET.get('location') or 'Karachi').strip()
+    if loc not in CHEM_LOCS:
+        loc = 'Karachi'
+    dc = InventoryDocControl.objects.filter(location=loc).first()
+    doc_no = (dc.doc_no if dc and dc.doc_no else 'TBA')
+    issue_date = (dc.issue_date if dc and dc.issue_date else 'TBA')
+    issue_no = (dc.issue_no if dc and dc.issue_no else '01')
+    rev_no = (dc.rev_no if dc and dc.rev_no else '00')
+    groups = _chem_report_data(loc)
+    total = sum(len(g[1]) for g in groups)
+    today = _dt.date.today().strftime('%d-%m-%Y')
+    class _P(FPDF):
+        def header(self):
+            try:
+                self.image('/home/django/EnviTechAlApp/static/assets/EnviTechAL_LOGO-removebg-preview.png', 12, 6.5, 20, 20)
+            except Exception:
+                pass
+            self.set_font('Arial', 'B', 15)
+            self.set_y(8)
+            self.cell(0, 7, 'Envi Tech AL', 0, 1, 'C')
+            self.set_font('Arial', 'B', 11)
+            self.cell(0, 6, 'CHEMICAL & CONSUMABLE INVENTORY - %s LABORATORY' % loc.upper(), 0, 1, 'C')
+            self.set_font('Arial', 'I', 7.5)
+            self.set_text_color(90, 90, 90)
+            self.cell(0, 4, 'Environmental Analytical Laboratory', 0, 1, 'C')
+            self.set_text_color(0, 0, 0)
+            self.set_font('Arial', '', 7.5)
+            self.set_xy(216, 8)
+            self.multi_cell(70, 4.6, 'Doc. No: %s\nIssue Date: %s\nIssue No. %s    Rev. No. %s\nPage No: %d of {nb}' % (doc_no, issue_date, issue_no, rev_no, self.page_no()), 1, 'L')
+            self.set_font('Arial', 'B', 8.5)
+            self.set_y(29)
+            self.cell(0, 5, 'Location: %s Laboratory    |    Lots in stock: %d    |    Stock position as generated on %s' % (loc, total, today), 0, 1, 'L')
+            self.set_draw_color(170, 170, 170)
+            self.line(10, 35, 287, 35)
+            self.set_draw_color(0, 0, 0)
+            self.set_y(37)
+        def footer(self):
+            self.set_y(-11)
+            self.set_font('Arial', 'I', 7)
+            self.set_text_color(120, 120, 120)
+            self.cell(0, 5, '%s  |  Issue %s Rev. %s  |  %s laboratory controlled document - generated from the live inventory on %s' % (doc_no, issue_no, rev_no, loc, today), 0, 0, 'C')
+            self.set_text_color(0, 0, 0)
+    W = [9, 46, 20, 20, 22, 28, 17, 18, 18, 17, 12, 28, 22]
+    HD = ['S.NO', 'Item / Chemical', 'Grade', 'CAS No', 'Lot / Batch', 'Supplier', 'PO Ref', 'Received', 'Expiry', 'Balance', 'Unit', 'Storage', 'Status']
+    AL = ['C', 'L', 'L', 'C', 'L', 'L', 'C', 'C', 'C', 'C', 'C', 'L', 'C']
+    pdf = _P('L', 'mm', 'A4')
+    pdf.alias_nb_pages('{nb}')
+    pdf.set_auto_page_break(False)
+    pdf.add_page()
+    def fit(s, w):
+        s = str(s)
+        if pdf.get_string_width(s) <= w - 2.2:
+            return s
+        while s and pdf.get_string_width(s + '...') > w - 2.2:
+            s = s[:-1]
+        return s + '...'
+    def head_row():
+        pdf.set_font('Arial', 'B', 6.6)
+        pdf.set_fill_color(229, 231, 235)
+        for w, h in zip(W, HD):
+            pdf.cell(w, 6, h, 1, 0, 'C', True)
+        pdf.ln()
+    def band(title):
+        pdf.set_font('Arial', 'B', 8.5)
+        pdf.set_fill_color(31, 41, 55)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(sum(W), 6.5, ' ' + title, 1, 1, 'L', True)
+        pdf.set_text_color(0, 0, 0)
+    if not groups:
+        pdf.set_font('Arial', 'I', 10)
+        pdf.cell(0, 10, 'No stock recorded yet for the %s laboratory.' % loc, 0, 1, 'C')
+    sr = 0
+    for title, rows in groups:
+        if pdf.get_y() > 165:
+            pdf.add_page()
+        band(title.upper())
+        head_row()
+        pdf.set_font('Arial', '', 7)
+        odd = False
+        for r in rows:
+            if pdf.get_y() > 186:
+                pdf.add_page()
+                band(title.upper() + ' (continued)')
+                head_row()
+                pdf.set_font('Arial', '', 7)
+            sr += 1
+            vals = [str(sr), r['name'], r['grade'], r['cas'], r['lot_no'], r['supplier'], r['po_ref'],
+                    r['received'], r['expiry'], ('%g' % r['balance']), r['unit'], r['storage'], r['status']]
+            if odd:
+                pdf.set_fill_color(245, 247, 249)
+            for i, (w, v) in enumerate(zip(W, vals)):
+                if i == 8 and r['exp_state'] == 'Expired':
+                    pdf.set_text_color(190, 0, 0)
+                    pdf.set_font('Arial', 'B', 7)
+                    pdf.cell(w, 5.5, fit(v, w), 1, 0, AL[i], odd)
+                    pdf.set_text_color(0, 0, 0)
+                    pdf.set_font('Arial', '', 7)
+                else:
+                    pdf.cell(w, 5.5, fit(v, w), 1, 0, AL[i], odd)
+            pdf.ln()
+            odd = not odd
+        pdf.ln(3)
+    out = pdf.output(dest='S')
+    b = bytes(out) if isinstance(out, (bytes, bytearray)) else out.encode('latin-1')
+    resp = HttpResponse(b, content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="%s Chemical Inventory %s.pdf"' % (doc_no, loc)
+    return resp

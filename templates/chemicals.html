@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EnviTechAL - Chemical &amp; Consumable Inventory</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;background:#f0f4f1;color:#1F2937}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:linear-gradient(120deg,#0d1522,#1F2937 60%,#123527);position:sticky;top:0;z-index:5}
+.brand{color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:#00A651;box-shadow:0 0 12px #00A651}
+.brand small{color:#9ca3af;font-weight:500;font-size:12px;margin-left:6px}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav a{color:#d1d5db;text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+nav a:hover{background:rgba(0,166,81,.18);color:#fff;border-color:#00A651}
+nav a.cur{background:#00A651;color:#fff;border-color:#00A651}
+nav a.out{border-color:rgba(239,68,68,.5);color:#fca5a5}
+main{width:min(100%,1360px);margin-inline:auto;padding:20px clamp(14px,2vw,30px) 44px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e7ece8}
+.card .num{font-size:24px;font-weight:800}.card .lbl{font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.6px}
+.card.red .num{color:#b91c1c}.card.amber .num{color:#d97706}.card.green .num{color:#00753a}
+.panel{background:#fff;border-radius:14px;padding:16px 18px;border:1px solid #e7ece8}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#1F2937;color:#fff;text-align:left;padding:8px 10px;font-size:11px}
+td{padding:8px 10px;border-bottom:1px solid #eef1ee}
+tr.lotrow td{background:#f8faf9;font-size:12px}
+.st{font-weight:700;border-radius:10px;padding:1px 9px;font-size:11px;white-space:nowrap}
+.st.Expired{background:#fee2e2;color:#b91c1c}.st.Expiring{background:#fef3c7;color:#92600a}
+.st.OK{background:#e6f7ee;color:#00753a}.st.none{background:#eef1f4;color:#6B7280}
+.st.Quarantine{background:#ede9fe;color:#6d28d9}.st.Inuse{background:#e6f7ee;color:#00753a}
+.st.Finished{background:#eef1f4;color:#6B7280}
+button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer}
+.btn-g{background:#00A651;color:#fff}.btn-s{background:#1F2937;color:#fff}.btn-r{background:#fee2e2;color:#b91c1c}
+.btn-o{background:#fff;color:#1F2937;border:1px solid #d1d5db}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.tools input,.tools select,.addbar input,.addbar select,.modal input,.modal select{border:1px solid #d1d5db;border-radius:7px;padding:6px 9px;font-size:12.5px}
+.loc{font-weight:800;border-radius:20px;padding:7px 18px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:13px}
+.loc.cur{background:#00A651;color:#fff;border-color:#00A651}
+.addbar{display:none;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:12px;margin-bottom:12px}
+.docbox{display:none;gap:8px;flex-wrap:wrap;align-items:center;background:#fffbe8;border:1px solid #f0e0a0;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12.5px}
+.empty{color:#9ca3af;text-align:center;padding:26px}
+.low{color:#b91c1c;font-weight:800}
+.muted{color:#6B7280;font-size:11px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:20}
+.modal{display:none;position:fixed;top:8vh;left:50%;transform:translateX(-50%);width:min(94vw,560px);background:#fff;border-radius:14px;padding:18px 20px;z-index:21;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+.modal h3{font-size:15px;margin-bottom:10px}
+.modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal label{font-size:11px;font-weight:700;color:#6B7280;display:block;margin-bottom:2px}
+.modal .full{grid-column:1/-1}
+.modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.ledger{max-height:46vh;overflow:auto;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>ENVI TECH AL<small>Chemical &amp; Consumable Inventory</small></div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/dashboard/dashboard/">Dashboard</a>
+    <a href="/dashboard/audit/">Audit</a>
+    <a href="/dashboard/lifecycle/">Lifecycle</a>
+    <a href="/dashboard/equipment/">Equipment</a>
+    <a class="cur" href="/dashboard/chemicals/">Chemicals</a>
+    <a class="out" href="/logout/">Logout</a>
+  </nav>
+</header>
+<main>
+  <div class="tools">
+    <button class="loc cur" id="locK" onclick="setLoc('Karachi')">Karachi Lab</button>
+    <button class="loc" id="locL" onclick="setLoc('Lahore')">Lahore Lab</button>
+    <input id="q" placeholder="Search item, CAS, grade..." style="min-width:230px" onkeydown="if(event.key==='Enter')load()">
+    <button class="btn-s" onclick="load()">Search</button>
+    <button class="btn-o" onclick="document.getElementById('q').value='';load()">Clear</button>
+    <span id="cnt" class="muted"></span>
+    <span style="flex:1"></span>
+    <button class="btn-g" onclick="toggleAdd()">+ New item</button>
+    <a id="repH" href="#" target="_blank"><button class="btn-o">Controlled report</button></a>
+    <a id="repP" href="#" target="_blank"><button class="btn-s">Download PDF</button></a>
+  </div>
+  <div class="docbox" id="docbox">
+    <b id="doclbl">Doc control:</b>
+    <span id="docro"></span>
+    <span id="docedit" style="display:none">
+      Doc No <input id="d_no" style="width:170px">
+      Issue Date <input id="d_date" placeholder="dd-mm-yyyy" style="width:100px">
+      Issue No <input id="d_iss" style="width:50px">
+      Rev No <input id="d_rev" style="width:50px">
+      <button class="btn-g" onclick="saveDoc()">Save</button>
+    </span>
+  </div>
+  <div class="cards" id="sum"></div>
+  <div class="addbar" id="addbar">
+    <input type="hidden" id="f_id">
+    <input id="f_name" placeholder="Item / chemical name *" style="min-width:220px">
+    <select id="f_category"><option>Reagent</option><option>Reference standard</option><option>Solvent</option><option>Culture media</option><option>Glassware</option><option>Consumable</option><option>PPE</option><option>Gas</option><option>Other</option></select>
+    <input id="f_grade" placeholder="Grade (AR/GR/HPLC...)" style="width:150px">
+    <input id="f_cas" placeholder="CAS No" style="width:110px">
+    <input id="f_unit" placeholder="Unit (g, mL, pcs)" style="width:110px">
+    <input id="f_storage" placeholder="Storage location/condition" style="width:190px">
+    <input id="f_hazard" placeholder="Hazard class" style="width:130px">
+    <input id="f_reorder" placeholder="Reorder level" style="width:105px">
+    <input id="f_notes" placeholder="Notes" style="min-width:170px">
+    <button class="btn-g" onclick="saveItem()" id="itembtn">Save item</button>
+    <button class="btn-o" onclick="toggleAdd(true)">Cancel</button>
+  </div>
+  <div class="panel">
+    <table>
+      <thead><tr><th style="width:26px"></th><th>Item / Chemical</th><th>Category</th><th>Grade</th><th>CAS</th><th id="stockth">Stock</th><th>Reorder</th><th>Storage</th><th>Lots</th><th></th></tr></thead>
+      <tbody id="rows"><tr><td colspan="10" class="empty">Loading&hellip;</td></tr></tbody>
+    </table>
+  </div>
+</main>
+<div class="modal-bg" id="mbg" onclick="closeModals()"></div>
+<div class="modal" id="recv">
+  <h3 id="recvT">Receive stock</h3>
+  <div class="grid">
+    <div><label>Lot / Batch No</label><input id="r_lot"></div>
+    <div><label>Supplier</label><input id="r_sup"></div>
+    <div><label>PO Reference (e.g. PO-ETAL-1236)</label><input id="r_po"></div>
+    <div><label>Received date</label><input id="r_rec" type="date"></div>
+    <div><label>Expiry date</label><input id="r_exp" type="date"></div>
+    <div><label>Quantity received *</label><input id="r_qty"></div>
+    <div><label>CoA on file?</label><select id="r_coa"><option value="0">No</option><option value="1">Yes</option></select></div>
+    <div class="full"><label>Remarks</label><input id="r_rem"></div>
+  </div>
+  <div class="foot"><button class="btn-o" onclick="closeModals()">Cancel</button><button class="btn-g" onclick="saveRecv()">Receive into <span id="recvLoc"></span></button></div>
+</div>
+<div class="modal" id="ledg">
+  <h3 id="ledgT">Lot ledger</h3>
+  <div class="ledger"><table><thead><tr><th>Date</th><th>Type</th><th>Qty</th><th>By</th><th>Remarks</th></tr></thead><tbody id="ledrows"></tbody></table></div>
+  <div class="foot"><button class="btn-o" onclick="closeModals()">Close</button></div>
+</div>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var LOC='Karachi', ADMIN=false, DATA=[], OPEN={}, RITEM=null;
+function setLoc(l){LOC=l;document.getElementById('locK').className='loc'+(l==='Karachi'?' cur':'');document.getElementById('locL').className='loc'+(l==='Lahore'?' cur':'');load();}
+function load(){
+  var q=document.getElementById('q').value.trim();
+  fetch('/dashboard/api/chemicals/?location='+encodeURIComponent(LOC)+'&q='+encodeURIComponent(q),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+    ADMIN=!!d.is_admin;DATA=d.rows||[];
+    document.getElementById('stockth').textContent='Stock ('+LOC+')';
+    document.getElementById('repH').href='/dashboard/chemicals/report/?location='+LOC;
+    document.getElementById('repP').href='/dashboard/chemicals/report/pdf/?location='+LOC;
+    var s=d.summary||{};
+    document.getElementById('sum').innerHTML=
+      '<div class="card green"><div class="num">'+(s.stocked||0)+'</div><div class="lbl">Items in stock</div></div>'+
+      '<div class="card red"><div class="num">'+(s.low||0)+'</div><div class="lbl">Below reorder level</div></div>'+
+      '<div class="card amber"><div class="num">'+(s.expiring||0)+'</div><div class="lbl">Lots expiring in 90 days</div></div>'+
+      '<div class="card red"><div class="num">'+(s.expired||0)+'</div><div class="lbl">Expired lots in stock</div></div>';
+    var dc=d.doc||{};
+    document.getElementById('docbox').style.display='flex';
+    document.getElementById('doclbl').textContent=LOC+' controlled document:';
+    document.getElementById('docro').textContent=(dc.doc_no?('Doc. No: '+dc.doc_no+'  |  Issue Date: '+(dc.issue_date||'-')+'  |  Issue '+(dc.issue_no||'01')+' Rev. '+(dc.rev_no||'00')):'Doc. No not set yet - the office should enter the official document number.');
+    if(ADMIN){document.getElementById('docedit').style.display='inline';document.getElementById('d_no').value=dc.doc_no||'';document.getElementById('d_date').value=dc.issue_date||'';document.getElementById('d_iss').value=dc.issue_no||'01';document.getElementById('d_rev').value=dc.rev_no||'00';}
+    document.getElementById('cnt').textContent=DATA.length+' item(s)';
+    render();
+  });
+}
+function render(){
+  var tb=document.getElementById('rows');tb.innerHTML='';
+  if(!DATA.length){tb.innerHTML='<tr><td colspan="10" class="empty">No items found. Add the first item with "+ New item".</td></tr>';return;}
+  DATA.forEach(function(r){
+    var tr=document.createElement('tr');
+    var stock=(r.total||0)+' '+esc(r.unit);
+    var act='<button class="btn-g" onclick="openRecv('+r.id+')">Receive</button> <button class="btn-o" onclick="editItem('+r.id+')">Edit</button>';
+    if(ADMIN){act+=' <button class="btn-r" onclick="retire('+r.id+')">Retire</button>';}
+    tr.innerHTML='<td>'+(r.lots.length?('<button class="btn-o" style="padding:2px 8px" onclick="tog('+r.id+')">'+(OPEN[r.id]?'&#9660;':'&#9654;')+'</button>'):'')+'</td>'+
+      '<td><b>'+esc(r.name)+'</b>'+(r.hazard?'<div class="muted">Hazard: '+esc(r.hazard)+'</div>':'')+(r.notes?'<div class="muted">'+esc(r.notes)+'</div>':'')+'</td>'+
+      '<td>'+esc(r.category)+'</td><td>'+esc(r.grade)+'</td><td>'+esc(r.cas)+'</td>'+
+      '<td class="'+(r.low?'low':'')+'"><b>'+stock+'</b>'+(r.low?' &#9888;':'')+'</td>'+
+      '<td>'+(r.reorder!=null?r.reorder+' '+esc(r.unit):'')+'</td>'+
+      '<td>'+esc(r.storage)+'</td><td>'+r.lots.length+'</td><td style="white-space:nowrap">'+act+'</td>';
+    tb.appendChild(tr);
+    if(OPEN[r.id]&&r.lots.length){
+      var h=document.createElement('tr');h.className='lotrow';
+      h.innerHTML='<td></td><td colspan="9"><table style="font-size:12px"><thead><tr><th>Lot/Batch</th><th>Supplier</th><th>PO Ref</th><th>Received</th><th>Expiry</th><th>Opened</th><th>Balance</th><th>CoA</th><th>Status</th><th></th></tr></thead><tbody>'+r.lots.map(function(l){
+        var ex=l.expiry?('<span class="st '+(l.exp_state||'none')+'">'+esc(l.expiry)+(l.exp_state==='Expiring'?' ('+l.exp_days+'d)':'')+'</span>'):'';
+        return '<tr><td>'+esc(l.lot_no)+'</td><td>'+esc(l.supplier)+'</td><td>'+esc(l.po_ref)+'</td><td>'+esc(l.received)+'</td><td>'+ex+'</td><td>'+esc(l.opened)+'</td><td><b>'+l.balance+' '+esc(r.unit)+'</b></td><td>'+(l.coa?'Yes':'No')+'</td><td><span class="st '+(l.status==='In use'?'Inuse':esc(l.status))+'">'+esc(l.status)+'</span></td>'+
+          '<td style="white-space:nowrap"><button class="btn-s" onclick="issue('+l.id+',\''+esc(r.unit)+'\')">Issue</button> <button class="btn-o" onclick="adjust('+l.id+',\''+esc(r.unit)+'\')">Adjust</button> <button class="btn-o" onclick="ledger('+l.id+')">Ledger</button> <button class="btn-o" onclick="lotStatus('+l.id+',\''+esc(l.status)+'\')">Status</button></td></tr>';
+      }).join('')+'</tbody></table></td>';
+      tb.appendChild(h);
+    }
+  });
+}
+function tog(id){OPEN[id]=!OPEN[id];render();}
+function toggleAdd(hide){var b=document.getElementById('addbar');b.style.display=(hide||b.style.display==='flex')?'none':'flex';if(!hide){document.getElementById('f_id').value='';document.getElementById('itembtn').textContent='Save item';}}
+function post(fd,cb){fetch('/dashboard/api/chemicals-save/',{method:'POST',body:fd,credentials:'include'}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){if(cb)cb(j);load();}else{alert((j&&j.error)||'Failed');}});}
+function saveItem(){var fd=new FormData();fd.append('act','item');fd.append('id',document.getElementById('f_id').value);['name','category','grade','cas','unit','storage','hazard','reorder','notes'].forEach(function(k){fd.append(k,document.getElementById('f_'+k).value);});post(fd,function(){toggleAdd(true);['name','grade','cas','storage','hazard','reorder','notes'].forEach(function(k){document.getElementById('f_'+k).value='';});});}
+function editItem(id){var r=DATA.filter(function(x){return x.id===id;})[0];if(!r)return;document.getElementById('addbar').style.display='flex';document.getElementById('f_id').value=id;document.getElementById('f_name').value=r.name;document.getElementById('f_category').value=r.category;document.getElementById('f_grade').value=r.grade;document.getElementById('f_cas').value=r.cas;document.getElementById('f_unit').value=r.unit;document.getElementById('f_storage').value=r.storage;document.getElementById('f_hazard').value=r.hazard;document.getElementById('f_reorder').value=(r.reorder!=null?r.reorder:'');document.getElementById('f_notes').value=r.notes;document.getElementById('itembtn').textContent='Update item';window.scrollTo(0,0);}
+function retire(id){if(!confirm('Retire this item from the catalogue? Its history is kept.'))return;var fd=new FormData();fd.append('act','retire');fd.append('id',id);post(fd);}
+function openRecv(id){RITEM=id;var r=DATA.filter(function(x){return x.id===id;})[0];document.getElementById('recvT').textContent='Receive stock - '+(r?r.name:'');document.getElementById('recvLoc').textContent=LOC;document.getElementById('mbg').style.display='block';document.getElementById('recv').style.display='block';}
+function saveRecv(){var fd=new FormData();fd.append('act','receive');fd.append('item',RITEM);fd.append('location',LOC);fd.append('lot_no',document.getElementById('r_lot').value);fd.append('supplier',document.getElementById('r_sup').value);fd.append('po_ref',document.getElementById('r_po').value);fd.append('received',document.getElementById('r_rec').value);fd.append('expiry',document.getElementById('r_exp').value);fd.append('qty',document.getElementById('r_qty').value);fd.append('coa',document.getElementById('r_coa').value);fd.append('remarks',document.getElementById('r_rem').value);post(fd,function(){closeModals();['r_lot','r_sup','r_po','r_qty','r_rem'].forEach(function(k){document.getElementById(k).value='';});});}
+function issue(lot,unit){var q=prompt('Quantity to issue / consume ('+unit+'):','');if(q==null||q==='')return;var rem=prompt('Purpose / remarks (optional):','')||'';var fd=new FormData();fd.append('act','move');fd.append('lot',lot);fd.append('mtype','OUT');fd.append('qty',q);fd.append('remarks',rem);post(fd);}
+function adjust(lot,unit){var q=prompt('Adjustment in '+unit+' (use minus for losses, e.g. -25 for spillage; positive to correct upwards):','');if(q==null||q==='')return;var rem=prompt('Reason for adjustment (required):','');if(!rem){alert('A reason is required for stock adjustments.');return;}var fd=new FormData();fd.append('act','move');fd.append('lot',lot);fd.append('mtype','ADJ');fd.append('qty',q);fd.append('remarks',rem);post(fd);}
+function lotStatus(lot,cur){var st=prompt('Set lot status: In use / Quarantine / Finished / Discarded',cur);if(!st)return;var fd=new FormData();fd.append('act','lotstatus');fd.append('lot',lot);fd.append('status',st.trim());post(fd);}
+function ledger(lot){fetch('/dashboard/api/chemicals/?lot='+lot,{credentials:'include'}).then(function(r){return r.json();}).then(function(d){if(!d.lot){alert('Not found');return;}document.getElementById('ledgT').textContent='Ledger - '+d.lot.item+(d.lot.lot_no?' (Lot '+d.lot.lot_no+')':'')+' - balance '+d.lot.balance+' '+d.lot.unit;document.getElementById('ledrows').innerHTML=(d.moves||[]).map(function(m){return '<tr><td>'+esc(m.date)+'</td><td>'+esc(m.type)+'</td><td>'+m.qty+'</td><td>'+esc(m.by)+'</td><td>'+esc(m.remarks)+'</td></tr>';}).join('')||'<tr><td colspan="5" class="empty">No movements</td></tr>';document.getElementById('mbg').style.display='block';document.getElementById('ledg').style.display='block';});}
+function closeModals(){['mbg','recv','ledg'].forEach(function(i){document.getElementById(i).style.display='none';});}
+function saveDoc(){var fd=new FormData();fd.append('act','doc');fd.append('location',LOC);fd.append('doc_no',document.getElementById('d_no').value);fd.append('issue_date',document.getElementById('d_date').value);fd.append('issue_no',document.getElementById('d_iss').value);fd.append('rev_no',document.getElementById('d_rev').value);post(fd);}
+load();
+</script>
+</body>
+</html>

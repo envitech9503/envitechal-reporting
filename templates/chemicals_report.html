@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><title>Chemical Inventory - {{ loc }}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Calibri,'Segoe UI',Arial,sans-serif;color:#111827;background:#e5e7eb;padding:18px}
+.sheet{background:#fff;max-width:1150px;margin:0 auto;padding:26px 30px;border:1px solid #d1d5db}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:2px solid #1F2937;padding-bottom:10px}
+.hd img{height:58px}
+.hd .mid{text-align:center;flex:1}
+.hd h1{font-size:22px;letter-spacing:.5px}
+.hd h2{font-size:14px;margin-top:2px}
+.hd .sub{font-size:11px;color:#4b5563;font-style:italic}
+.ctrl{border:1px solid #1F2937;font-size:11px;padding:6px 10px;line-height:1.55;min-width:210px}
+.meta{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin:10px 0 4px}
+table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+th,td{border:1px solid #9ca3af;padding:4px 6px;text-align:left}
+th{background:#e5e7eb;font-size:10.5px}
+.band td{background:#1F2937;color:#fff;font-weight:700;font-size:12px}
+tr:nth-child(even) td{background:#f8fafc}
+.exp{color:#b91c1c;font-weight:700}
+.ft{margin-top:14px;font-size:10.5px;color:#6b7280;text-align:center;font-style:italic}
+.bar{max-width:1150px;margin:0 auto 12px;display:flex;gap:8px;justify-content:flex-end}
+.bar a,.bar button{border:none;border-radius:7px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none}
+.pr{background:#1F2937;color:#fff}.pdf{background:#00A651;color:#fff}
+@media print{body{background:#fff;padding:0}.bar{display:none}.sheet{border:none;max-width:none;padding:6px}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="pdf" href="/dashboard/chemicals/report/pdf/?location={{ loc }}">Download PDF</a>
+  <button class="pr" onclick="window.print()">Browser print</button>
+</div>
+<div class="sheet">
+  <div class="hd">
+    <img src="/static/assets/EnviTechAL_LOGO-removebg-preview.png" alt="logo">
+    <div class="mid">
+      <h1>Envi Tech AL</h1>
+      <h2>CHEMICAL &amp; CONSUMABLE INVENTORY - {{ loc|upper }} LABORATORY</h2>
+      <div class="sub">Environmental Analytical Laboratory</div>
+    </div>
+    <div class="ctrl">
+      Doc. No: {{ dc.doc_no|default:"TBA" }}<br>
+      Issue Date: {{ dc.issue_date|default:"TBA" }}<br>
+      Issue No. {{ dc.issue_no|default:"01" }} &nbsp; Rev. No. {{ dc.rev_no|default:"00" }}<br>
+      Location: {{ loc }}
+    </div>
+  </div>
+  <div class="meta"><span>Location: {{ loc }} Laboratory</span><span>Lots in stock: {{ total }}</span><span>Stock position as on {{ today }}</span></div>
+  {% if not groups %}<p style="text-align:center;color:#6b7280;padding:30px">No stock recorded yet for the {{ loc }} laboratory.</p>{% endif %}
+  {% for cat, rows in groups %}
+  <table>
+    <tr class="band"><td colspan="13">{{ cat|upper }}</td></tr>
+    <tr><th>S.NO</th><th>Item / Chemical</th><th>Grade</th><th>CAS No</th><th>Lot / Batch</th><th>Supplier</th><th>PO Ref</th><th>Received</th><th>Expiry</th><th>Balance</th><th>Unit</th><th>Storage</th><th>Status</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ forloop.counter }}</td><td>{{ r.name }}</td><td>{{ r.grade }}</td><td>{{ r.cas }}</td>
+      <td>{{ r.lot_no }}</td><td>{{ r.supplier }}</td><td>{{ r.po_ref }}</td><td>{{ r.received }}</td>
+      <td class="{% if r.exp_state == 'Expired' %}exp{% endif %}">{{ r.expiry }}</td>
+      <td>{{ r.balance }}</td><td>{{ r.unit }}</td><td>{{ r.storage }}</td><td>{{ r.status }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endfor %}
+  <div class="ft">{{ dc.doc_no|default:"TBA" }} | Issue {{ dc.issue_no|default:"01" }} Rev. {{ dc.rev_no|default:"00" }} | Controlled document - generated from the live {{ loc }} inventory on {{ today }}</div>
+</div>
+</body>
+</html>
