@@ -12,6 +12,10 @@ urlpatterns = [
     path('api/equipment/', views.equipment_data, name='equipment_data'),
     path('api/equipment-save/', views.equipment_save, name='equipment_save'),
     path('label/', views.sample_label, name='sample_label'),
+    path('limits/', views.limits_page, name='limits'),
+    path('api/limits/', views.limits_data, name='limits_data'),
+    path('api/limits-save/', views.limits_save, name='limits_save'),
+    path('api/limits-check/', views.limits_check, name='limits_check'),
     path('api/audit/', views.audit_data, name='audit_data'),
     path('api/audit-detail/', views.audit_detail, name='audit_detail'),
     

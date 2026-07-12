@@ -2528,3 +2528,24 @@ class Equipment(models.Model):
         return f"{self.name} ({self.serial_no})"
 
 _sh_register(Equipment)
+
+
+# --- Phase 2: regulatory limits library (12-07-2026) ---
+class RegulatoryLimit(models.Model):
+    parameter = models.CharField(max_length=120)
+    standard = models.CharField(max_length=20)  # SEQS / PEQS / NEQS / WHO
+    limit_min = models.FloatField(null=True, blank=True)
+    limit_max = models.FloatField(null=True, blank=True)
+    unit = models.CharField(max_length=40, blank=True, default='')
+    notes = models.CharField(max_length=200, blank=True, default='')
+    active = models.BooleanField(default=True)
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('parameter', 'standard')
+
+    def __str__(self):
+        return f"{self.parameter} [{self.standard}]"
+
+_sh_register(RegulatoryLimit)

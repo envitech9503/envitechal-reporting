@@ -546,3 +546,68 @@ def sample_label(request):
     reg = Sample_registration.objects.filter(sample_id=sid).values('sample_id', 'inp1', 'inp3', 'inp9').first() or {}
     return render(request, 'label.html', {'sid': sid, 'client': (reg.get('inp1') or '')[:60],
                                           'rec': (reg.get('inp3') or '')[:24], 'due': reg.get('inp9') or ''})
+
+
+# --- Phase 2: regulatory limits library + checker (12-07-2026) ---
+@login_required
+def limits_page(request):
+    return render(request, 'limits.html')
+
+
+@login_required
+def limits_data(request):
+    from EnviTechAlApp.models import RegulatoryLimit
+    rows = [{'id': l.id, 'parameter': l.parameter, 'standard': l.standard,
+             'min': l.limit_min, 'max': l.limit_max, 'unit': l.unit, 'notes': l.notes}
+            for l in RegulatoryLimit.objects.filter(active=True).order_by('parameter', 'standard')]
+    return JsonResponse({'rows': rows, 'is_admin': request.user.is_superuser})
+
+
+@login_required
+@csrf_exempt
+def limits_save(request):
+    from EnviTechAlApp.models import RegulatoryLimit
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'Administrator access required'}, status=403)
+    g = request.POST
+    if (g.get('act') or '') == 'remove':
+        try:
+            l = RegulatoryLimit.objects.get(id=int(g.get('id')))
+            l.active = False; l.updated_by = request.user; l.save()
+            return JsonResponse({'ok': True})
+        except Exception:
+            return JsonResponse({'error': 'Not found'}, status=404)
+    p = (g.get('parameter') or '').strip()[:120]
+    st = (g.get('standard') or '').strip().upper()[:20]
+    if not p or st not in ('SEQS', 'PEQS', 'NEQS', 'WHO'):
+        return JsonResponse({'error': 'Parameter and a valid standard are required'}, status=400)
+    def f(k):
+        try: return float(g.get(k)) if (g.get(k) or '').strip() != '' else None
+        except Exception: return None
+    mn, mx = f('min'), f('max')
+    if mn is None and mx is None:
+        return JsonResponse({'error': 'Provide at least one of min / max limit'}, status=400)
+    obj, _c = RegulatoryLimit.objects.update_or_create(
+        parameter=p, standard=st,
+        defaults={'limit_min': mn, 'limit_max': mx, 'unit': (g.get('unit') or '')[:40],
+                  'notes': (g.get('notes') or '')[:200], 'active': True, 'updated_by': request.user})
+    return JsonResponse({'ok': True})
+
+
+@login_required
+def limits_check(request):
+    from EnviTechAlApp.models import RegulatoryLimit
+    p = (request.GET.get('parameter') or '').strip()
+    try: v = float(request.GET.get('value'))
+    except Exception:
+        return JsonResponse({'error': 'Numeric value required'}, status=400)
+    out = []
+    for l in RegulatoryLimit.objects.filter(active=True, parameter=p):
+        exceeds = (l.limit_max is not None and v > l.limit_max) or (l.limit_min is not None and v < l.limit_min)
+        rng = ('%s - %s' % (l.limit_min, l.limit_max)) if (l.limit_min is not None and l.limit_max is not None) else \
+              ('<= %s' % l.limit_max if l.limit_max is not None else '>= %s' % l.limit_min)
+        out.append({'standard': l.standard, 'range': rng, 'unit': l.unit,
+                    'result': 'EXCEEDS' if exceeds else 'Within limit'})
+    return JsonResponse({'parameter': p, 'value': v, 'results': out})
