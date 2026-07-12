@@ -97,3 +97,11 @@ class Detox(models.Model):
 
     def __str__(self):
         return f"{self.lab_report_no} - {self.reporting_date}"
+
+# --- Phase 1 audit trail (12-07-2026) ---
+from simple_history import register as _sh_register
+_ex = [f.name for f in Detox._meta.fields if 'image' in f.name.lower()]
+if _ex:
+    _sh_register(Detox, excluded_fields=_ex)
+else:
+    _sh_register(Detox)

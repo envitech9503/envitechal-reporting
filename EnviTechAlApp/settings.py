@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'EnviTechAlApp',
     'detox',
     'QC',
-    'dashboard'
+    'dashboard',
+    'simple_history',
 ]
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
@@ -65,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'EnviTechAlApp.urls'

@@ -2453,3 +2453,20 @@ class JobCompletionForm(models.Model):
         return f"{self.job_number} - {self.company.company_name}"
     
     
+
+# --- Phase 1 audit trail: field-level history (django-simple-history) 12-07-2026 ---
+from simple_history import register as _sh_register
+
+def _etal_register_history(model):
+    excluded = [f.name for f in model._meta.fields if 'image' in f.name.lower()]
+    if excluded:
+        _sh_register(model, excluded_fields=excluded)
+    else:
+        _sh_register(model)
+
+for _m in (DrinkingWaterForm, GaseousEmissionForm, AmbientAirForm, WasteWaterSludge,
+           VehiculEmissionForm, LuxAnalysisForm, PackingPolyBagForm, MachineOilForm,
+           MicrobialAnalysis, ViscousLiquid, AmbientAir2, WasteWaterForm2, NoiseAnalysis,
+           NoiseMonitoring, Calibration, Inspection, Verification,
+           Sample_registration, LoggingSheet, JobCompletionForm):
+    _etal_register_history(_m)

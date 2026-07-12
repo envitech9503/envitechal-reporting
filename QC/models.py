@@ -53,3 +53,12 @@ class TestingResultsOfWWSamples(models.Model):
     results = models.JSONField(default=dict)
     location = models.CharField(max_length=500,null=True)
     
+
+# --- Phase 1 audit trail (12-07-2026) ---
+from simple_history import register as _sh_register
+for _m in (Dw_rds, Ww_rds, TestingResultsOfDWSamples, TestingResultsOfWWSamples):
+    _ex = [f.name for f in _m._meta.fields if 'image' in f.name.lower()]
+    if _ex:
+        _sh_register(_m, excluded_fields=_ex)
+    else:
+        _sh_register(_m)
