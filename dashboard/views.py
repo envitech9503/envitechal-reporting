@@ -311,7 +311,7 @@ def audit_data(request):
             qs = model.history.all()
             if user: qs = qs.filter(history_user__username=user)
             if action in amap: qs = qs.filter(history_type=amap[action])
-            elif action == 'Login': continue
+            elif action in ('Login', 'Saved'): continue
             if dfrom: qs = qs.filter(history_date__date__gte=dfrom)
             if dto: qs = qs.filter(history_date__date__lte=dto)
             total += qs.count()
@@ -325,7 +325,7 @@ def audit_data(request):
                              'hid': h.history_id})
         except Exception:
             continue
-    if (not entity or entity == 'Login') and action in ('', 'Login'):
+    if (not entity or entity == 'Login') and action in ('', 'Login', 'Saved'):
         try:
             from EnviTechAlApp.models import AuditLog
             lq = AuditLog.objects.all()
@@ -334,10 +334,15 @@ def audit_data(request):
                 except Exception:
                     try: lq = lq.filter(user=user)
                     except Exception: pass
-            if dfrom: lq = lq.filter(timestamp__date__gte=dfrom)
-            if dto: lq = lq.filter(timestamp__date__lte=dto)
+            from django.db.models import F as _F
+            try: lq = lq.select_related('user')
+            except Exception: pass
+            if dfrom: lq = lq.filter(created_at__date__gte=dfrom)
+            if dto: lq = lq.filter(created_at__date__lte=dto)
+            if action == 'Login': lq = lq.filter(action__icontains='log')
+            elif action == 'Saved': lq = lq.exclude(action__icontains='log')
             total += lq.count()
-            for a in lq.order_by('-timestamp')[:off + per]:
+            for a in lq.order_by(_F('created_at').desc(nulls_last=True))[:off + per]:
                 try:
                     import re as _re
                     raw = str(a.timestamp)
