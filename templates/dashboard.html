@@ -81,6 +81,8 @@ tr:nth-child(even) td{background:#f7faf8}
       <div class="panel"><h3>Top clients (period)</h3><canvas id="chClients" height="210"></canvas></div>
       <div class="panel"><h3>Certificates by type</h3><canvas id="chCerts" height="210"></canvas></div>
       <div class="panel"><h3>Team activity &mdash; last 30 days</h3><canvas id="chTeam" height="210"></canvas></div>
+      <div class="panel"><h3>Reports created by user (period)</h3><canvas id="chUsers" height="210"></canvas></div>
+      <div class="panel"><h3>On-time delivery trend &mdash; <span id="yr2"></span></h3><canvas id="chOntime" height="210"></canvas></div>
     </div>
     <div class="grid2b">
       <div class="panel"><h3>Late reports vs committed date</h3><div id="late"></div></div>
@@ -119,6 +121,8 @@ function load(f){
       card(d.totals.certs,'Certificates '+period,'',pct(d.totals.certs,d.prev.certs))+
       card(d.totals.samples,'Samples registered')+
       card(d.totals.jobs,'Job completions')+
+      card(d.avg_tat==null?'\u2014':d.avg_tat+'<small> days</small>','Avg turnaround '+period)+
+      card(d.pending_samples==null?'\u2014':d.pending_samples,'Samples awaiting report',d.pending_samples>0?'amber':'')+
       card(ot===null?'—':ot+'<small>%</small>','On-time delivery '+period,ot!==null&&ot<90?'amber':'')+
       card((off.Karachi||0)+' <small>/</small> '+(off.Lahore||0),'Karachi / Lahore reports','slate')+
       card(d.approved_total,'Approved records','slate')+
@@ -140,6 +144,10 @@ function load(f){
       backgroundColor:['#00A651','#1F2937','#0e9f8f'],borderRadius:6}]},
       options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
     hbar('chTeam',d.team_30d||[],'#0e9f8f');
+    document.getElementById('yr2').textContent=d.year;
+    hbar('chUsers',d.user_created||[],'#84cc16');
+    mk('chOntime',{type:'line',data:{labels:months,datasets:[{label:'On-time %',data:d.ontime_monthly||[],borderColor:'#00A651',backgroundColor:'rgba(0,166,81,.12)',fill:true,spanGaps:true,tension:.3,pointRadius:3,pointBackgroundColor:'#00A651'}]},
+      options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';}}}}}});
     var lt=d.late_reports||[];
     if(!lt.length){document.getElementById('late').innerHTML='<div class="empty">No late reports in this period. Well done.</div>';}
     else{
