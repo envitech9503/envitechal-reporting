@@ -2509,3 +2509,22 @@ class SampleLifecycle(models.Model):
 # --- Audit the audit controls (12-07-2026) ---
 _sh_register(ApprovalStatus)
 _sh_register(SampleLifecycle)
+
+
+# --- Phase 2: equipment & calibration register (12-07-2026) ---
+class Equipment(models.Model):
+    name = models.CharField(max_length=200)
+    serial_no = models.CharField(max_length=120, blank=True, default='')
+    location = models.CharField(max_length=60, default='Karachi')
+    frequency_months = models.IntegerField(default=12)
+    last_calibrated = models.DateField(null=True, blank=True)
+    cert_ref = models.CharField(max_length=120, blank=True, default='')
+    notes = models.CharField(max_length=300, blank=True, default='')
+    active = models.BooleanField(default=True)
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.serial_no})"
+
+_sh_register(Equipment)

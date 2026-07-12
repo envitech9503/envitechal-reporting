@@ -459,3 +459,90 @@ def lifecycle_set(request):
     obj, _c = SampleLifecycle.objects.update_or_create(
         sample_id=sid, defaults={'status': st, 'updated_by': request.user})
     return JsonResponse({'ok': True, 'sample_id': sid, 'status': st})
+
+
+# --- Phase 2: equipment register + QR labels (12-07-2026) ---
+@login_required
+def equipment_page(request):
+    return render(request, 'equipment.html')
+
+
+def _eq_row(e, today):
+    due = None
+    state = 'No date'
+    days = None
+    if e.last_calibrated:
+        m = e.frequency_months or 12
+        y, mo = e.last_calibrated.year, e.last_calibrated.month + m
+        y += (mo - 1) // 12; mo = (mo - 1) % 12 + 1
+        dd = min(e.last_calibrated.day, 28)
+        from datetime import date as _date
+        due = _date(y, mo, dd)
+        days = (due - today).days
+        state = 'Overdue' if days < 0 else ('Due soon' if days <= 30 else 'OK')
+    return {'id': e.id, 'name': e.name, 'serial': e.serial_no, 'location': e.location,
+            'freq': e.frequency_months, 'last': e.last_calibrated.strftime('%d-%m-%Y') if e.last_calibrated else '',
+            'due': due.strftime('%d-%m-%Y') if due else '', 'days': days, 'state': state,
+            'cert': e.cert_ref, 'notes': e.notes}
+
+
+@login_required
+def equipment_data(request):
+    from EnviTechAlApp.models import Equipment
+    today = timezone.localdate()
+    rows = [_eq_row(e, today) for e in Equipment.objects.filter(active=True).order_by('name')]
+    order = {'Overdue': 0, 'Due soon': 1, 'No date': 2, 'OK': 3}
+    rows.sort(key=lambda r: (order.get(r['state'], 9), r['days'] if r['days'] is not None else 9999))
+    return JsonResponse({'rows': rows, 'is_admin': request.user.is_superuser,
+                         'summary': {k: sum(1 for r in rows if r['state'] == k) for k in order}})
+
+
+@login_required
+@csrf_exempt
+def equipment_save(request):
+    from EnviTechAlApp.models import Equipment
+    from datetime import datetime as _dt
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'Administrator access required'}, status=403)
+    g = request.POST
+    act = (g.get('act') or 'save').strip()
+    if act == 'calibrated':
+        try:
+            e = Equipment.objects.get(id=int(g.get('id')))
+            e.last_calibrated = timezone.localdate()
+            if g.get('cert'): e.cert_ref = g.get('cert')[:120]
+            e.updated_by = request.user; e.save()
+            return JsonResponse({'ok': True})
+        except Exception:
+            return JsonResponse({'error': 'Not found'}, status=404)
+    if act == 'remove':
+        try:
+            e = Equipment.objects.get(id=int(g.get('id')))
+            e.active = False; e.updated_by = request.user; e.save()
+            return JsonResponse({'ok': True})
+        except Exception:
+            return JsonResponse({'error': 'Not found'}, status=404)
+    name = (g.get('name') or '').strip()
+    if not name:
+        return JsonResponse({'error': 'Name is required'}, status=400)
+    last = None
+    if g.get('last'):
+        try: last = _dt.strptime(g.get('last'), '%Y-%m-%d').date()
+        except Exception: pass
+    try: freq = max(1, min(120, int(g.get('freq') or 12)))
+    except Exception: freq = 12
+    Equipment.objects.create(name=name[:200], serial_no=(g.get('serial') or '')[:120],
+                             location=(g.get('location') or 'Karachi')[:60], frequency_months=freq,
+                             last_calibrated=last, cert_ref=(g.get('cert') or '')[:120],
+                             notes=(g.get('notes') or '')[:300], updated_by=request.user)
+    return JsonResponse({'ok': True})
+
+
+@login_required
+def sample_label(request):
+    sid = (request.GET.get('sid') or '').strip()[:100]
+    reg = Sample_registration.objects.filter(sample_id=sid).values('sample_id', 'inp1', 'inp3', 'inp9').first() or {}
+    return render(request, 'label.html', {'sid': sid, 'client': (reg.get('inp1') or '')[:60],
+                                          'rec': (reg.get('inp3') or '')[:24], 'due': reg.get('inp9') or ''})

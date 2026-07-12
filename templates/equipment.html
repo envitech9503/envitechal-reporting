@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EnviTechAL - Equipment & Calibration</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;background:#f0f4f1;color:#1F2937}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:linear-gradient(120deg,#0d1522,#1F2937 60%,#123527);position:sticky;top:0;z-index:5}
+.brand{color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:#00A651;box-shadow:0 0 12px #00A651}
+.brand small{color:#9ca3af;font-weight:500;font-size:12px;margin-left:6px}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav a{color:#d1d5db;text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+nav a:hover{background:rgba(0,166,81,.18);color:#fff;border-color:#00A651}
+nav a.cur{background:#00A651;color:#fff;border-color:#00A651}
+nav a.out{border-color:rgba(239,68,68,.5);color:#fca5a5}
+main{width:min(100%,1300px);margin-inline:auto;padding:20px clamp(14px,2vw,30px) 44px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e7ece8}
+.card .num{font-size:24px;font-weight:800}.card .lbl{font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.6px}
+.card.red .num{color:#b91c1c}.card.amber .num{color:#d97706}.card.green .num{color:#00753a}
+.panel{background:#fff;border-radius:14px;padding:16px 18px;border:1px solid #e7ece8}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#1F2937;color:#fff;text-align:left;padding:8px 10px;font-size:11px}
+td{padding:8px 10px;border-bottom:1px solid #eef1ee}
+.st{font-weight:700;border-radius:10px;padding:1px 9px;font-size:11px;white-space:nowrap}
+.st.Overdue{background:#fee2e2;color:#b91c1c}.st.Duesoon{background:#fef3c7;color:#92600a}
+.st.OK{background:#e6f7ee;color:#00753a}.st.Nodate{background:#eef1f4;color:#6B7280}
+button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer}
+.btn-g{background:#00A651;color:#fff}.btn-s{background:#1F2937;color:#fff}.btn-r{background:#fee2e2;color:#b91c1c}
+.addbar{display:none;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:12px;margin-bottom:14px}
+.addbar input,.addbar select{border:1px solid #d1d5db;border-radius:7px;padding:6px 9px;font-size:12.5px}
+.empty{color:#9ca3af;text-align:center;padding:26px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>ENVI TECH AL<small>Equipment &amp; Calibration Register</small></div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/dashboard/dashboard/">Dashboard</a>
+    <a href="/dashboard/audit/">Audit</a>
+    <a href="/dashboard/lifecycle/">Lifecycle</a>
+    <a class="cur" href="/dashboard/equipment/">Equipment</a>
+    <a class="out" href="/logout/">Logout</a>
+  </nav>
+</header>
+<main>
+  <div class="cards" id="sum"></div>
+  <div class="addbar" id="addbar">
+    <input id="f_name" placeholder="Instrument name *" style="min-width:220px">
+    <input id="f_serial" placeholder="Serial no">
+    <select id="f_loc"><option>Karachi</option><option>Lahore</option><option>Field</option></select>
+    <input id="f_freq" type="number" value="12" min="1" max="120" style="width:88px" title="Calibration frequency (months)">
+    <input id="f_last" type="date" title="Last calibrated">
+    <input id="f_cert" placeholder="Certificate ref">
+    <input id="f_notes" placeholder="Notes" style="min-width:180px">
+    <button class="btn-g" onclick="save()">Add instrument</button>
+  </div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Instrument</th><th>Serial</th><th>Location</th><th>Every</th><th>Last calibrated</th><th>Next due</th><th>Status</th><th>Certificate</th><th id="actth"></th></tr></thead>
+      <tbody id="rows"><tr><td colspan="9" class="empty">Loading&hellip;</td></tr></tbody>
+    </table>
+  </div>
+</main>
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+var ADMIN=false;
+function load(){
+  fetch('/dashboard/api/equipment/',{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+    ADMIN=!!d.is_admin;
+    document.getElementById('addbar').style.display=ADMIN?'flex':'none';
+    var s=d.summary||{};
+    document.getElementById('sum').innerHTML=
+      '<div class="card red"><div class="num">'+(s['Overdue']||0)+'</div><div class="lbl">Overdue</div></div>'+
+      '<div class="card amber"><div class="num">'+(s['Due soon']||0)+'</div><div class="lbl">Due within 30 days</div></div>'+
+      '<div class="card green"><div class="num">'+(s['OK']||0)+'</div><div class="lbl">In calibration</div></div>'+
+      '<div class="card"><div class="num">'+(s['No date']||0)+'</div><div class="lbl">No date recorded</div></div>';
+    var tb=document.getElementById('rows');tb.innerHTML='';
+    if(!(d.rows||[]).length){tb.innerHTML='<tr><td colspan="9" class="empty">No instruments yet. '+(ADMIN?'Add the first one above.':'')+'</td></tr>';return;}
+    d.rows.forEach(function(r){
+      var tr=document.createElement('tr');
+      var act='';
+      if(ADMIN){act='<button class="btn-s" onclick="cal('+r.id+')">Calibrated today</button> <button class="btn-r" onclick="rem('+r.id+')">Retire</button>';}
+      tr.innerHTML='<td><b>'+esc(r.name)+'</b>'+(r.notes?'<div style="font-size:11px;color:#6B7280">'+esc(r.notes)+'</div>':'')+'</td><td>'+esc(r.serial)+'</td><td>'+esc(r.location)+'</td><td>'+r.freq+' mo</td><td>'+esc(r.last)+'</td><td>'+esc(r.due)+(r.days!==null?' <span style="color:#6B7280;font-size:11px">('+r.days+' d)</span>':'')+'</td><td><span class="st '+r.state.replace(/ /g,'')+'">'+esc(r.state)+'</span></td><td>'+esc(r.cert)+'</td><td>'+act+'</td>';
+      tb.appendChild(tr);
+    });
+  });
+}
+function post(fd){fetch('/dashboard/api/equipment-save/',{method:'POST',body:fd,credentials:'include'}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){load();}else{alert((j&&j.error)||'Failed');}});}
+function save(){var fd=new FormData();['name','serial','loc','freq','last','cert','notes'].forEach(function(k){fd.append(k==='loc'?'location':k,document.getElementById('f_'+k).value);});post(fd);document.getElementById('f_name').value='';}
+function cal(id){var c=prompt('New calibration certificate reference (optional):','');var fd=new FormData();fd.append('act','calibrated');fd.append('id',id);if(c)fd.append('cert',c);post(fd);}
+function rem(id){if(!confirm('Retire this instrument from the register?'))return;var fd=new FormData();fd.append('act','remove');fd.append('id',id);post(fd);}
+load();
+</script>
+</body>
+</html>

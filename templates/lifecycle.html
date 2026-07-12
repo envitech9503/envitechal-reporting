@@ -46,6 +46,7 @@ main{width:min(100%,1500px);margin-inline:auto;padding:20px clamp(14px,2vw,30px)
     <a href="/dashboard/dashboard/">Dashboard</a>
     <a href="/dashboard/audit/">Audit</a>
     <a class="cur" href="/dashboard/lifecycle/">Lifecycle</a>
+    <a href="/dashboard/equipment/">Equipment</a>
     <a class="out" href="/logout/">Logout</a>
   </nav>
 </header>
@@ -78,6 +79,7 @@ function load(){
         h+='<div class="card"><div class="sid">'+esc(c.sample_id)+(c.auto?'<span class="badge">auto</span>':'')+'</div>'+
            (c.client?'<div class="cl">'+esc(c.client)+'</div>':'')+
            (c.due?'<div class="due">Committed: '+esc(c.due)+'</div>':'')+
+           '<div style="margin-top:4px"><a style="font-size:10.5px;color:#00753a;font-weight:700" target="_blank" href="/dashboard/label/?sid='+encodeURIComponent(c.sample_id)+'">QR label</a></div>'+
            '<select onchange="move(\''+esc(c.sample_id).replace(/'/g,"\\'")+'\',this.value)">'+opts+'</select></div>';
       });
       col.innerHTML=h;b.appendChild(col);

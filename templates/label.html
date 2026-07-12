@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><title>Label {{ sid }}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+body{font-family:'Segoe UI',Calibri,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;padding:24px;color:#111827}
+.label{border:2px solid #1F2937;border-radius:10px;padding:14px 18px;display:flex;gap:16px;align-items:center;width:360px}
+.meta .co{font-weight:800;font-size:13px;color:#00753a}
+.meta .sid{font-weight:800;font-size:15px;margin:4px 0}
+.meta div{font-size:11.5px}
+.hint{margin-top:18px;color:#6B7280;font-size:13px}
+@media print{.hint,button{display:none}body{padding:0}}
+button{margin-top:14px;background:#00A651;color:#fff;border:none;border-radius:8px;padding:9px 26px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="label">
+  <div id="qr"></div>
+  <div class="meta">
+    <div class="co">ENVI TECH AL</div>
+    <div class="sid">{{ sid }}</div>
+    {% if client %}<div>{{ client }}</div>{% endif %}
+    {% if due %}<div>Committed: {{ due }}</div>{% endif %}
+  </div>
+</div>
+<button onclick="window.print()">Print label</button>
+<div class="hint">Scanning the code opens this sample on the lifecycle board.</div>
+<script>
+new QRCode(document.getElementById('qr'),{text:'https://report.envitechal.com/dashboard/lifecycle/?sid={{ sid|urlencode }}',width:96,height:96,correctLevel:QRCode.CorrectLevel.M});
+</script>
+</body>
+</html>
