@@ -2504,3 +2504,8 @@ class SampleLifecycle(models.Model):
 
     def __str__(self):
         return f"{self.sample_id}: {self.status}"
+
+
+# --- Audit the audit controls (12-07-2026) ---
+_sh_register(ApprovalStatus)
+_sh_register(SampleLifecycle)

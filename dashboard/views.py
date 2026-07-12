@@ -409,7 +409,7 @@ def audit_detail(request):
 
 
 # --- Sample lifecycle board (12-07-2026) ---
-STATUSES = ['Registered', 'In testing', 'QC review', 'Reported', 'Invoiced']
+STATUSES = ['Invoiced', 'Registered', 'In testing', 'QC review', 'Reported']
 
 
 @login_required
