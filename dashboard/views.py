@@ -696,7 +696,7 @@ def equipment_report_pdf(request):
             self.set_y(8)
             self.cell(0, 7, 'Envi Tech AL', 0, 1, 'C')
             self.set_font('Arial', 'B', 11)
-            self.cell(0, 6, 'MASTERLIST OF LAB EQUIPMENT', 0, 1, 'C')
+            self.cell(0, 6, 'MASTER LIST OF LAB EQUIPMENT', 0, 1, 'C')
             self.set_font('Arial', 'I', 7.5)
             self.set_text_color(90, 90, 90)
             self.cell(0, 4, 'Environmental Analytical Laboratory', 0, 1, 'C')
