@@ -689,54 +689,79 @@ def equipment_report_pdf(request):
     class _P(FPDF):
         def header(self):
             try:
-                self.image('/home/django/EnviTechAlApp/static/assets/EnviTechAL_LOGO-removebg-preview.png', 11, 7, 19, 19)
+                self.image('/home/django/EnviTechAlApp/static/assets/EnviTechAL_LOGO-removebg-preview.png', 12, 6.5, 20, 20)
             except Exception:
                 pass
-            self.set_font('Arial', 'B', 14)
-            self.set_y(9)
+            self.set_font('Arial', 'B', 15)
+            self.set_y(8)
             self.cell(0, 7, 'Envi Tech AL', 0, 1, 'C')
             self.set_font('Arial', 'B', 11)
             self.cell(0, 6, 'MASTERLIST OF LAB EQUIPMENT', 0, 1, 'C')
+            self.set_font('Arial', 'I', 7.5)
+            self.set_text_color(90, 90, 90)
+            self.cell(0, 4, 'Environmental Analytical Laboratory', 0, 1, 'C')
+            self.set_text_color(0, 0, 0)
             self.set_font('Arial', '', 7.5)
             self.set_xy(216, 8)
-            self.multi_cell(70, 4.4, 'Doc. No: ETAL-LAB-604-FF-15\nIssue Date: 18-01-2022\nIssue No. 01    Rev. No. 00\nPage No: %d' % self.page_no(), 1, 'L')
+            self.multi_cell(70, 4.6, 'Doc. No: ETAL-LAB-604-FF-15\nIssue Date: 18-01-2022\nIssue No. 01    Rev. No. 00\nPage No: %d of {nb}' % self.page_no(), 1, 'L')
             self.set_font('Arial', 'B', 8.5)
-            self.set_y(27)
+            self.set_y(29)
             self.cell(0, 5, 'Calibration Status Year: 2025 - 2026', 0, 1, 'L')
-            self.ln(1)
+            self.set_draw_color(170, 170, 170)
+            self.line(10, 35, 287, 35)
+            self.set_draw_color(0, 0, 0)
+            self.set_y(37)
         def footer(self):
             self.set_y(-11)
             self.set_font('Arial', 'I', 7)
-            self.cell(0, 5, 'ETAL-LAB-604-FF-15  |  Issue 01 Rev. 00  |  Generated from the live register on %s  |  Page %d' % (today, self.page_no()), 0, 0, 'C')
+            self.set_text_color(120, 120, 120)
+            self.cell(0, 5, 'ETAL-LAB-604-FF-15  |  Issue 01 Rev. 00  |  Controlled document - generated from the live register on %s' % today, 0, 0, 'C')
+            self.set_text_color(0, 0, 0)
     W = [9, 50, 26, 36, 20, 16, 38, 19, 19, 20, 22]
-    HD = ['S.NO', 'Name', 'Make/Type', 'Model', 'Equipment ID', 'Location', 'Calibration Provider', 'Calib. Date', 'Due on', 'Traceability', 'Remarks']
+    HD = ['S.NO', 'Name', 'Make/Type', 'Model', 'Equipment ID', 'Location', 'Calibration Provider', 'Calibration Date', 'Due on', 'Traceability', 'Remarks']
+    AL = ['C', 'L', 'L', 'L', 'C', 'C', 'L', 'C', 'C', 'C', 'C']
     pdf = _P('L', 'mm', 'A4')
+    pdf.alias_nb_pages('{nb}')
     pdf.set_auto_page_break(False)
     pdf.add_page()
+    def fit(s, w):
+        s = str(s)
+        if pdf.get_string_width(s) <= w - 2.2:
+            return s
+        while s and pdf.get_string_width(s + '...') > w - 2.2:
+            s = s[:-1]
+        return s + '...'
     def head_row():
-        pdf.set_font('Arial', 'B', 7)
+        pdf.set_font('Arial', 'B', 6.6)
         pdf.set_fill_color(229, 231, 235)
         for w, h in zip(W, HD):
             pdf.cell(w, 6, h, 1, 0, 'C', True)
         pdf.ln()
-    for gi, title in enumerate(order):
-        if pdf.get_y() > 170:
-            pdf.add_page()
+    def band(title):
         pdf.set_font('Arial', 'B', 8.5)
         pdf.set_fill_color(31, 41, 55)
         pdf.set_text_color(255, 255, 255)
         pdf.cell(sum(W), 6.5, ' ' + title, 1, 1, 'L', True)
         pdf.set_text_color(0, 0, 0)
+    for gi, title in enumerate(order):
+        if pdf.get_y() > 165:
+            pdf.add_page()
+        band(title)
         head_row()
         pdf.set_font('Arial', '', 7)
+        odd = False
         for row in data[gi]:
             if pdf.get_y() > 186:
                 pdf.add_page()
+                band(title + ' (continued)')
                 head_row()
                 pdf.set_font('Arial', '', 7)
-            for w, v in zip(W, row):
-                pdf.cell(w, 5.5, str(v)[:46], 1, 0, 'L')
+            if odd:
+                pdf.set_fill_color(245, 247, 249)
+            for i, (w, v) in enumerate(zip(W, row)):
+                pdf.cell(w, 5.5, fit(v, w), 1, 0, AL[i], odd)
             pdf.ln()
+            odd = not odd
         pdf.ln(3)
     out = pdf.output(dest='S')
     b = bytes(out) if isinstance(out, (bytes, bytearray)) else out.encode('latin-1')
