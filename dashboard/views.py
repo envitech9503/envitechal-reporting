@@ -592,7 +592,7 @@ def limits_save(request):
             return JsonResponse({'error': 'Not found'}, status=404)
     p = (g.get('parameter') or '').strip()[:120]
     st = (g.get('standard') or '').strip().upper()[:20]
-    if not p or st.split()[0] not in ('SEQS', 'PEQS', 'NEQS', 'WHO', 'GOTS', 'ZDHC', 'STEP'):
+    if not p or st.split()[0] not in ('SEQS', 'PEQS', 'NEQS', 'WHO', 'GOTS', 'ZDHC', 'STEP', 'PPWR'):
         return JsonResponse({'error': 'Parameter and a valid standard are required'}, status=400)
     def f(k):
         try: return float(g.get(k)) if (g.get(k) or '').strip() != '' else None
@@ -627,7 +627,7 @@ def limits_check(request):
         out.append({'standard': l.standard, 'range': rng, 'unit': l.unit,
                     'result': 'EXCEEDS' if exceeds else 'Within limit'})
     _have = set(x['standard'].split()[0] for x in out)
-    for _s in ('SEQS', 'PEQS', 'NEQS', 'WHO', 'GOTS', 'ZDHC', 'STEP'):
+    for _s in ('SEQS', 'PEQS', 'NEQS', 'WHO', 'GOTS', 'ZDHC', 'STEP', 'PPWR'):
         if _s not in _have:
             out.append({'standard': _s, 'range': 'No limit on record', 'unit': '', 'result': 'Not regulated'})
     return JsonResponse({'parameter': p, 'value': v, 'results': out})
