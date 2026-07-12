@@ -195,6 +195,7 @@ urlpatterns = [
     path('wasteWater2Report-pdfPrint/<str:pk>/',views.wasteWater2Pdf,name="wasteWater2Report-pdfPrint"),
     path('wasteWater2Report-pdfReport/<str:pk>/',views.wasteWater2Pdf1,name="wasteWater2Report-pdfReport"),
     path('generate_merged_pdf/', views.generate_merged_pdf, name='generate_merged_pdf'),
+    path('etal-bulk-pdf/', views.etal_bulk_pdf, name='etal_bulk_pdf'),
     path('generate_merged_cert/', views.generate_merged_pdf_certificate, name='generate_merged_cert'),
     path('sample_main/', views.sample_main, name="sample_main"),
     path('sample_reg/', views.sample_reg, name="sample_reg"),

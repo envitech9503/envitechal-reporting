@@ -42591,3 +42591,87 @@ def job_completion_delete(request, pk):
             'success': False,
             'error': 'An internal error occurred. Please try again or contact the administrator.'
         }, status=400)
+
+# --- etal bulk PDF download (added 12-07-2026) ---
+@csrf_exempt
+@login_required(login_url="/login")
+def etal_bulk_pdf(request):
+    """Merge the selected list records into one downloadable PDF."""
+    import json as _json
+    from django.http import JsonResponse as _JR, HttpResponse as _HR
+    if request.method != 'POST':
+        return _JR({'error': 'POST required'}, status=405)
+    try:
+        model_key = (request.POST.get('model') or '').strip()
+        ids = [int(i) for i in _json.loads(request.POST.get('ids') or '[]')][:60]
+    except Exception:
+        return _JR({'error': 'Bad request'}, status=400)
+    if not ids:
+        return _JR({'error': 'No records selected'}, status=400)
+    try:
+        if model_key in ('calib', 'insp', 'verif'):
+            from EnviTechAlApp.merger_cert import get_certificate_mapping, merge_pdfs_cert
+            model = get_certificate_mapping()[model_key][0]
+            objs = {o.id: o for o in model.objects.filter(id__in=ids)}
+            nums = [getattr(objs[i], 'cert_num', None) for i in ids if i in objs]
+            nums = [n for n in nums if n]
+            if not nums:
+                return _JR({'error': 'No matching certificates found'}, status=404)
+            merged = merge_pdfs_cert(nums, request)
+        elif model_key in ('dtx', 'nm'):
+            # etal-dtx-direct: id-based merge (lab_report_no not unique here)
+            from io import BytesIO as _BIO
+            from PyPDF2 import PdfReader as _PR, PdfWriter as _PW
+            from EnviTechAlApp.merger_pdf import compress_pdf as _cmp
+            if model_key == 'dtx':
+                from detox.models import Detox as _M
+                from detox.views import detox_pdf as _fn
+            else:
+                _M, _fn = NoiseMonitoring, noiseMonitoring_print
+            writer = _PW(); added = 0
+            for i in ids:
+                obj = _M.objects.filter(id=i).first()
+                if not obj:
+                    continue
+                try:
+                    resp = _fn(request, obj.id)
+                    content = getattr(resp, 'content', b'')
+                    if not content.startswith(b'%PDF'):
+                        continue
+                    reader = _PR(_BIO(content))
+                    if reader.is_encrypted:
+                        reader.decrypt('1234')
+                    for pg in reader.pages:
+                        writer.add_page(pg)
+                    added += 1
+                except Exception:
+                    continue
+            if not added:
+                return _JR({'error': 'No PDFs could be generated for the selected records'}, status=500)
+            raw = _BIO(); writer.write(raw); raw.seek(0)
+            buf = _cmp(raw, target_mb=5.0); buf.seek(0)
+            er = _PR(buf); ew = _PW()
+            for pg in er.pages:
+                ew.add_page(pg)
+            ew.encrypt(user_password='1234', owner_password='karachi123', use_128bit=False)
+            merged = _BIO(); ew.write(merged); merged.seek(0)
+        else:
+            from EnviTechAlApp.merger_pdf import get_report_mapping, merge_pdfs
+            mapping = get_report_mapping()
+            if model_key not in mapping:
+                return _JR({'error': 'Bulk PDF is not available for this list'}, status=400)
+            model = mapping[model_key][0]
+            objs = {o.id: o for o in model.objects.filter(id__in=ids)}
+            nos = [getattr(objs[i], 'lab_report_no', None) for i in ids if i in objs]
+            nos = [n for n in nos if n]
+            if not nos:
+                return _JR({'error': 'Selected records have no report numbers'}, status=404)
+            merged = merge_pdfs(nos, request)
+        data = merged.read()
+        if not data.startswith(b'%PDF'):
+            return _JR({'error': 'PDF generation failed'}, status=500)
+        response = _HR(data, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="EnviTechAL_merged.pdf"'
+        return response
+    except Exception:
+        return _JR({'error': 'PDF generation failed for one or more selected records'}, status=500)

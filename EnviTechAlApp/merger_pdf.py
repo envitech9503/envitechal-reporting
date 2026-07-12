@@ -27,6 +27,10 @@ def get_report_mapping():
         ambientAir2Pdf1,
         wasteWater2Pdf1,
     )
+    # etal-bulkpdf lazy imports (12-07-2026)
+    from detox.models import Detox as _EtalDetox
+    from detox.views import detox_pdf as _etal_detox_pdf
+    from .views import noiseMonitoring_print as _etal_nm_print
     return {
         'dw':  (DrinkingWaterForm,   generatePDF_report,           'Drinking Water'),
         'gae': (GaseousEmissionForm, gaseousReportgeneratePDF1,    'Gaseous Emission'),
@@ -41,6 +45,8 @@ def get_report_mapping():
         'vl':  (ViscousLiquid,       viscousLiquidPdf1,            'Viscous Liquid'),
         'aa2': (AmbientAir2,         ambientAir2Pdf1,              'Ambient Air 2'),
         'ww2': (WasteWaterForm2,     wasteWater2Pdf1,              'Waste Water 2'),
+        'dtx':  (_EtalDetox,        _etal_detox_pdf,   'Detox'),
+        'nm':   (NoiseMonitoring,   _etal_nm_print,    'Noise Monitoring (LAeq)'),
     }
 
 
