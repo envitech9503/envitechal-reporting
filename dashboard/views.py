@@ -564,7 +564,9 @@ def limits_data(request):
     _t = (request.GET.get('q') or '').strip()
     if _t:
         import re as _re2
-        _qq = _q.filter(parameter__iregex=r'\m' + _re2.escape(_t))
+        _qq = _q.filter(parameter__iexact=_t)
+        if not _qq.exists():
+            _qq = _q.filter(parameter__iregex=r'\m' + _re2.escape(_t))
         _q = _qq if _qq.exists() else _q.filter(parameter__icontains=_t)
     rows = [{'id': l.id, 'parameter': l.parameter, 'standard': l.standard,
              'min': l.limit_min, 'max': l.limit_max, 'unit': l.unit, 'notes': l.notes}
@@ -656,3 +658,88 @@ def equipment_report(request):
             rem='Satisfactory'))
     ctx = {'groups': [(k, groups[k]) for k in order], 'today': _dt.date.today().strftime('%d-%m-%Y')}
     return render(request, 'equipment_report.html', ctx)
+
+
+@login_required
+def equipment_report_pdf(request):
+    from EnviTechAlApp.models import Equipment
+    from fpdf import FPDF
+    from django.http import HttpResponse
+    import re as _re, datetime as _dt
+    def tok(n, k):
+        m = _re.search(k + r':\s*([^|]+)', n or '')
+        return m.group(1).strip() if m else ''
+    key = {'Lab Equipment': 0, 'Field Equipment': 1, 'Calibration Instrument': 2}
+    order = ['LAB EQUIPMENTS', 'FIELD EQUIPMENTS', 'CALIBRATION INSTRUMENTS']
+    data = [[], [], []]
+    for e in Equipment.objects.filter(active=True).order_by('id'):
+        gi = key.get(tok(e.notes, 'Group'), 0)
+        cal = e.last_calibrated
+        due = ''
+        if cal:
+            t = cal.month + (e.frequency_months or 12)
+            due = (_dt.date(cal.year + (t - 1) // 12, (t - 1) % 12 + 1, min(cal.day, 28)) - _dt.timedelta(days=1)).strftime('%d-%m-%Y')
+        nr = 'Not Required' in (e.notes or '')
+        nrv = 'Not Required' if nr else ''
+        data[gi].append([str(len(data[gi]) + 1), e.name, tok(e.notes, 'Make'), tok(e.notes, 'Model'),
+            e.serial_no or nrv, e.location, e.cert_ref or nrv,
+            cal.strftime('%d-%m-%Y') if cal else nrv, due or nrv,
+            tok(e.notes, 'Traceability') or ('Not Required' if nr else 'N/A'), 'Satisfactory'])
+    today = _dt.date.today().strftime('%d-%m-%Y')
+    class _P(FPDF):
+        def header(self):
+            try:
+                self.image('/home/django/EnviTechAlApp/static/assets/EnviTechAL_LOGO-removebg-preview.png', 11, 7, 19, 19)
+            except Exception:
+                pass
+            self.set_font('Arial', 'B', 14)
+            self.set_y(9)
+            self.cell(0, 7, 'Envi Tech AL', 0, 1, 'C')
+            self.set_font('Arial', 'B', 11)
+            self.cell(0, 6, 'MASTERLIST OF LAB EQUIPMENT', 0, 1, 'C')
+            self.set_font('Arial', '', 7.5)
+            self.set_xy(216, 8)
+            self.multi_cell(70, 4.4, 'Doc. No: ETAL-LAB-604-FF-15\nIssue Date: 18-01-2022\nIssue No. 01    Rev. No. 00\nPage No: %d' % self.page_no(), 1, 'L')
+            self.set_font('Arial', 'B', 8.5)
+            self.set_y(27)
+            self.cell(0, 5, 'Calibration Status Year: 2025 - 2026', 0, 1, 'L')
+            self.ln(1)
+        def footer(self):
+            self.set_y(-11)
+            self.set_font('Arial', 'I', 7)
+            self.cell(0, 5, 'ETAL-LAB-604-FF-15  |  Issue 01 Rev. 00  |  Generated from the live register on %s  |  Page %d' % (today, self.page_no()), 0, 0, 'C')
+    W = [9, 50, 26, 36, 20, 16, 38, 19, 19, 20, 22]
+    HD = ['S.NO', 'Name', 'Make/Type', 'Model', 'Equipment ID', 'Location', 'Calibration Provider', 'Calib. Date', 'Due on', 'Traceability', 'Remarks']
+    pdf = _P('L', 'mm', 'A4')
+    pdf.set_auto_page_break(False)
+    pdf.add_page()
+    def head_row():
+        pdf.set_font('Arial', 'B', 7)
+        pdf.set_fill_color(229, 231, 235)
+        for w, h in zip(W, HD):
+            pdf.cell(w, 6, h, 1, 0, 'C', True)
+        pdf.ln()
+    for gi, title in enumerate(order):
+        if pdf.get_y() > 170:
+            pdf.add_page()
+        pdf.set_font('Arial', 'B', 8.5)
+        pdf.set_fill_color(31, 41, 55)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(sum(W), 6.5, ' ' + title, 1, 1, 'L', True)
+        pdf.set_text_color(0, 0, 0)
+        head_row()
+        pdf.set_font('Arial', '', 7)
+        for row in data[gi]:
+            if pdf.get_y() > 186:
+                pdf.add_page()
+                head_row()
+                pdf.set_font('Arial', '', 7)
+            for w, v in zip(W, row):
+                pdf.cell(w, 5.5, str(v)[:46], 1, 0, 'L')
+            pdf.ln()
+        pdf.ln(3)
+    out = pdf.output(dest='S')
+    b = bytes(out) if isinstance(out, (bytes, bytearray)) else out.encode('latin-1')
+    resp = HttpResponse(b, content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="ETAL-LAB-604-FF-15 Master Equipment List.pdf"'
+    return resp
