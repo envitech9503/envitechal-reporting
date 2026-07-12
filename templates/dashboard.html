@@ -34,16 +34,18 @@ main{max-width:1320px;margin:0 auto;padding:22px 24px 48px}
 .grid2{display:grid;grid-template-columns:1.7fr 1fr;gap:14px;margin-bottom:18px}
 .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-bottom:18px}
 .grid2b{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
-.panel{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(31,41,55,.07)}
+.panel{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(31,41,55,.07);display:flex;flex-direction:column}
+.panel h3{flex:0 0 auto}
+#clientsList{height:340px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
 .panel h3{font-size:14px;color:#1F2937;margin-bottom:12px;border-left:4px solid #00A651;padding-left:9px}
-.cbox{position:relative;height:300px}
-.cbox.lg{height:330px}
+.cbox{position:relative;height:340px}
+.cbox.lg{height:340px}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 th{background:#1F2937;color:#fff;text-align:left;padding:7px 9px;font-size:11px;letter-spacing:.4px}
 td{padding:7px 9px;border-bottom:1px solid #eef1ee}
 tr:nth-child(even) td{background:#f7faf8}
 .chip{display:inline-block;background:#fee2e2;color:#b91c1c;font-weight:700;border-radius:10px;padding:1px 8px;font-size:11px}
-.lb-row{display:flex;align-items:center;gap:10px;padding:6.5px 0;border-bottom:1px solid #f0f3f0}
+.lb-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f3f0}
 .lb-rank{width:22px;height:22px;border-radius:50%;background:#6B7280;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 22px}
 .lb-rank.top{background:#00A651}
 .lb-body{flex:1;min-width:0}
@@ -115,6 +117,7 @@ function hbar(id,pairs,color){
   mk(id,{type:'bar',data:{labels:pairs.map(function(p){return p[0];}),datasets:[{data:pairs.map(function(p){return p[1];}),backgroundColor:color,borderRadius:4}]},
     options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}},y:{ticks:{font:{size:10.5},autoSkip:false}}}}});}
 function leaderboard(el,pairs){
+  pairs=pairs.slice(0,6);
   var m=pairs.length?pairs[0][1]:1,h='';
   pairs.forEach(function(p,i){var w=Math.max(4,Math.round(100*p[1]/m));
     h+='<div class="lb-row"><span class="lb-rank'+(i<3?' top':'')+'">'+(i+1)+'</span><div class="lb-body"><div class="lb-name">'+esc(p[0])+'</div><div class="lb-bar"><span style="width:'+w+'%"></span></div></div><span class="lb-val">'+p[1]+'</span></div>';});
