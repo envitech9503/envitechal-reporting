@@ -299,5 +299,33 @@
  setInterval(ensure,800);
 })();
 </script>
+
+<!-- etal-approve -->
+<script>
+(function(){
+ var KEY='la';
+ function idOf(tr){var a=tr.querySelector('a[href*="delete" i]');if(!a)return null;var m=(a.getAttribute('href')||'').match(/(\d+)\/?$/);return m?parseInt(m[1],10):null;}
+ function refresh(){var map={},all=[];document.querySelectorAll('tr').forEach(function(tr){if(!tr.querySelector('.etal-row-sel'))return;var i=idOf(tr);if(i){map[i]=tr;all.push(i);}});
+  if(!all.length)return;
+  fetch('/etal-approval-state/?model='+KEY+'&ids='+encodeURIComponent(JSON.stringify(all)),{credentials:'include'}).then(function(r){return r.ok?r.json():{approved:[]};}).then(function(j){
+   var ap=j.approved||[];all.forEach(function(i){var tr=map[i],cell=tr.cells[0];if(!cell)return;var b=cell.querySelector('.etal-appr');
+    if(ap.indexOf(i)>=0){if(!b){b=document.createElement('span');b.className='etal-appr';b.textContent='✔ Approved';b.style.cssText='display:inline-block;margin-left:6px;padding:1px 7px;border-radius:10px;background:#e6f7ee;color:#00753a;font-size:11px;font-weight:700;white-space:nowrap';cell.appendChild(b);}}
+    else if(b){b.remove();}});}).catch(function(){});}
+ function selIds(){var out=[];document.querySelectorAll('.etal-row-sel:checked').forEach(function(cb){var tr=cb.closest('tr');var i=tr&&idOf(tr);if(i)out.push(i);});return out;}
+ function act(action){var sel=selIds();if(!sel.length){alert('Please select at least one record.');return;}
+  if(action==='approve'&&!confirm('Approve '+sel.length+' record(s)? Approved records become locked for non-admin users.'))return;
+  var fd=new FormData();fd.append('model',KEY);fd.append('ids',JSON.stringify(sel));fd.append('action',action);
+  fetch('/etal-bulk-approve/',{method:'POST',body:fd,credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+   if(j&&j.ok){refresh();}else{alert((j&&j.error)||'Action failed');}}).catch(function(e){alert('Action failed: '+e.message);});}
+ function ensure(){var bar=document.getElementById('etalBulkBar');if(!bar||document.getElementById('etalApproveBtn'))return;
+  function mk(id,txt,bg){var b=document.createElement('button');b.id=id;b.type='button';b.textContent=txt;b.style.cssText='margin-left:10px;background:'+bg+';color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer;font-size:13px';return b;}
+  var a=mk('etalApproveBtn','Approve','#1F2937');a.onclick=function(){act('approve');};
+  var u=mk('etalUnapproveBtn','Unapprove','#6B7280');u.onclick=function(){act('unapprove');};
+  bar.appendChild(a);bar.appendChild(u);}
+ var t=0;setInterval(function(){ensure();if(++t%6===0)refresh();},900);
+ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh,800);});}
+ else{setTimeout(refresh,800);}
+})();
+</script>
 </body>
 </html>

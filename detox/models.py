@@ -105,3 +105,8 @@ if _ex:
     _sh_register(Detox, excluded_fields=_ex)
 else:
     _sh_register(Detox)
+
+
+# --- Phase 1 approval workflow (12-07-2026) ---
+from EnviTechAlApp.approval import wire_guards as _etal_wire
+_etal_wire({Detox: 'dtx'})

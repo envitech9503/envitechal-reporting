@@ -42675,3 +42675,47 @@ def etal_bulk_pdf(request):
         return response
     except Exception:
         return _JR({'error': 'PDF generation failed for one or more selected records'}, status=500)
+
+
+# --- Phase 1 approval endpoints (12-07-2026) ---
+@csrf_exempt
+@login_required(login_url="/login")
+def etal_bulk_approve(request):
+    """Approve or unapprove selected records (superuser only)."""
+    import json as _json
+    from django.http import JsonResponse as _JR
+    if request.method != 'POST':
+        return _JR({'error': 'POST required'}, status=405)
+    if not request.user.is_superuser:
+        return _JR({'error': 'Only an administrator can approve or unapprove records'}, status=403)
+    try:
+        model_key = (request.POST.get('model') or '').strip()
+        action = (request.POST.get('action') or 'approve').strip()
+        ids = [int(i) for i in _json.loads(request.POST.get('ids') or '[]')][:200]
+    except Exception:
+        return _JR({'error': 'Bad request'}, status=400)
+    from EnviTechAlApp.approval import MODEL_KEYS
+    from EnviTechAlApp.models import ApprovalStatus
+    if model_key not in set(MODEL_KEYS.values()) or not ids:
+        return _JR({'error': 'Approval is not available for this list'}, status=400)
+    if action == 'approve':
+        for i in ids:
+            ApprovalStatus.objects.get_or_create(model_key=model_key, record_id=i,
+                                                 defaults={'approved_by': request.user})
+        return _JR({'ok': True, 'approved': len(ids)})
+    n, _d = ApprovalStatus.objects.filter(model_key=model_key, record_id__in=ids).delete()
+    return _JR({'ok': True, 'unapproved': n})
+
+
+@login_required(login_url="/login")
+def etal_approval_state(request):
+    import json as _json
+    from django.http import JsonResponse as _JR
+    from EnviTechAlApp.models import ApprovalStatus
+    model_key = (request.GET.get('model') or '').strip()
+    try:
+        ids = [int(i) for i in _json.loads(request.GET.get('ids') or '[]')][:500]
+    except Exception:
+        return _JR({'approved': []})
+    rows = ApprovalStatus.objects.filter(model_key=model_key, record_id__in=ids).values_list('record_id', flat=True)
+    return _JR({'approved': list(rows)})

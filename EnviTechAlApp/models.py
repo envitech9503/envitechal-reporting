@@ -2470,3 +2470,26 @@ for _m in (DrinkingWaterForm, GaseousEmissionForm, AmbientAirForm, WasteWaterSlu
            NoiseMonitoring, Calibration, Inspection, Verification,
            Sample_registration, LoggingSheet, JobCompletionForm):
     _etal_register_history(_m)
+
+
+# --- Phase 1 approval workflow (12-07-2026) ---
+class ApprovalStatus(models.Model):
+    model_key = models.CharField(max_length=20)
+    record_id = models.IntegerField()
+    approved_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+    approved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('model_key', 'record_id')
+
+    def __str__(self):
+        return f"{self.model_key}#{self.record_id} approved"
+
+
+from EnviTechAlApp.approval import wire_guards as _etal_wire
+_etal_wire({DrinkingWaterForm: 'dw', GaseousEmissionForm: 'gae', AmbientAirForm: 'aa',
+            WasteWaterSludge: 'ww', VehiculEmissionForm: 've', LuxAnalysisForm: 'la',
+            PackingPolyBagForm: 'pp', MachineOilForm: 'mo', MicrobialAnalysis: 'ma',
+            ViscousLiquid: 'vl', AmbientAir2: 'aa2', WasteWaterForm2: 'ww2',
+            NoiseAnalysis: 'na', NoiseMonitoring: 'nm',
+            Calibration: 'calib', Inspection: 'insp', Verification: 'verif'})
