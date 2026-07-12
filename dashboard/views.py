@@ -563,7 +563,9 @@ def limits_data(request):
         _q = _q.filter(standard__istartswith=_std)
     _t = (request.GET.get('q') or '').strip()
     if _t:
-        _q = _q.filter(parameter__icontains=_t)
+        import re as _re2
+        _qq = _q.filter(parameter__iregex=r'\m' + _re2.escape(_t))
+        _q = _qq if _qq.exists() else _q.filter(parameter__icontains=_t)
     rows = [{'id': l.id, 'parameter': l.parameter, 'standard': l.standard,
              'min': l.limit_min, 'max': l.limit_max, 'unit': l.unit, 'notes': l.notes}
             for l in _q.order_by('parameter', 'standard')]
