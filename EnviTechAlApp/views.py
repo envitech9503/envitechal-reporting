@@ -24628,10 +24628,15 @@ def machineOilReportPdf(request,pk):
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
                row = table.row()
+               _exc = False
+               if k > 0 and len(data_row) >= 6:
+                   _exc = _etal_mo_exceeds(data_row[4], data_row[5])
                for i in range(0,len(data_row)):
                     datum = data_row[i]
-
-                    row.cell(datum)
+                    if _exc and i == 4:
+                        row.cell(datum, style=_etal_red_style())
+                    else:
+                        row.cell(datum)
 
      # data after Table
 
@@ -25288,10 +25293,15 @@ def machineOilReportPdf1(request,pk,return_bytes=False):
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
                row = table.row()
+               _exc = False
+               if k > 0 and len(data_row) >= 6:
+                   _exc = _etal_mo_exceeds(data_row[4], data_row[5])
                for i in range(0,len(data_row)):
                     datum = data_row[i]
-
-                    row.cell(datum)
+                    if _exc and i == 4:
+                        row.cell(datum, style=_etal_red_style())
+                    else:
+                        row.cell(datum)
 
      # data after Table
 
@@ -42719,3 +42729,24 @@ def etal_approval_state(request):
         return _JR({'approved': []})
     rows = ApprovalStatus.objects.filter(model_key=model_key, record_id__in=ids).values_list('record_id', flat=True)
     return _JR({'approved': list(rows)})
+
+
+def _etal_mo_exceeds(res, lim):
+    import re as _re
+    try:
+        rs = str(res).strip().replace(",", "")
+        ls = str(lim).strip().replace(",", "")
+        if rs.startswith("<"):
+            return False
+        rm = _re.search(r"-?\d+(?:\.\d+)?", rs)
+        lm = _re.search(r"-?\d+(?:\.\d+)?", ls)
+        if not rm or not lm:
+            return False
+        return float(rm.group()) > float(lm.group())
+    except Exception:
+        return False
+
+
+def _etal_red_style():
+    from fpdf.fonts import FontFace
+    return FontFace(color=(190, 0, 0), emphasis="BOLD")
