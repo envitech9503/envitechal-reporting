@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Master Equipment List - Envi Tech AL</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#111}
+table{border-collapse:collapse;width:100%}
+.hdr td{border:1px solid #000;padding:6px 8px;font-size:12px}
+.hdr .t{font-size:16px;font-weight:bold;text-align:center}
+h2{font-size:13px;background:#1F2937;color:#fff;padding:6px 8px;margin:14px 0 0}
+.tb th{border:1px solid #000;background:#E5E7EB;font-size:11px;padding:5px}
+.tb td{border:1px solid #000;font-size:11px;padding:4px 6px}
+.bar{margin:0 0 12px}
+.btn{background:#00A651;color:#fff;border:0;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:600}
+@media print{.bar{display:none}body{margin:6mm}h2{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="bar"><button class="btn" onclick="window.print()">Print / Save as PDF</button>
+<a href="/dashboard/equipment/" style="margin-left:12px">Back to register</a></div>
+<table class="hdr">
+<tr><td rowspan="3" style="width:22%;font-weight:bold;font-size:15px">ENVI TECH AL<br><span style="font-weight:normal;font-size:10px">Environmental Analytical Laboratory</span></td>
+<td rowspan="3" class="t">MASTERLIST OF LAB EQUIPMENT</td>
+<td style="width:22%">Doc. No: ETAL-LAB-604-FF-15</td></tr>
+<tr><td>Issue Date: 18-01-2022</td></tr>
+<tr><td>Issue No. 01 &nbsp;&nbsp; Rev. No. 00</td></tr>
+</table>
+<div style="font-size:12px;margin-top:8px"><b>Calibration Status Year: 2025 - 2026</b> &nbsp;|&nbsp; Generated from live register on {{ today }}</div>
+{% for g in groups %}
+<h2>{{ g.0|upper }}S</h2>
+<table class="tb"><tr><th>S.NO</th><th>Name</th><th>Make/Type</th><th>Model</th><th>Equipment ID</th><th>Location</th><th>Calibration services Provider</th><th>Calibration Date</th><th>Due on</th><th>Traceability to SI unit</th><th>Remarks</th></tr>
+{% for r in g.1 %}<tr><td>{{ r.sno }}</td><td>{{ r.name }}</td><td>{{ r.make }}</td><td>{{ r.model }}</td><td>{{ r.eid }}</td><td>{{ r.loc }}</td><td>{{ r.prov }}</td><td>{{ r.cal }}</td><td>{{ r.due }}</td><td>{{ r.trace }}</td><td>{{ r.rem }}</td></tr>
+{% endfor %}</table>
+{% endfor %}
+</body></html>

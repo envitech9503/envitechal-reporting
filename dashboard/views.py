@@ -622,3 +622,35 @@ def limits_check(request):
         if _s not in _have:
             out.append({'standard': _s, 'range': 'No limit on record', 'unit': '', 'result': 'Not regulated'})
     return JsonResponse({'parameter': p, 'value': v, 'results': out})
+
+
+# --- Phase 2: controlled master equipment list report (12-07-2026) ---
+@login_required
+def equipment_report(request):
+    from EnviTechAlApp.models import Equipment
+    import re as _re, datetime as _dt
+    def tok(n, k):
+        m = _re.search(k + r':\s*([^|]+)', n or '')
+        return m.group(1).strip() if m else ''
+    order = ['Lab Equipment', 'Field Equipment', 'Calibration Instrument']
+    groups = {k: [] for k in order}
+    for e in Equipment.objects.filter(active=True).order_by('id'):
+        g = tok(e.notes, 'Group')
+        if g not in groups:
+            g = 'Lab Equipment'
+        cal = e.last_calibrated
+        due = ''
+        if cal:
+            t = cal.month + (e.frequency_months or 12)
+            due = (_dt.date(cal.year + (t - 1) // 12, (t - 1) % 12 + 1, min(cal.day, 28)) - _dt.timedelta(days=1)).strftime('%d-%m-%Y')
+        nr = 'Not Required' in (e.notes or '')
+        rows = groups[g]
+        rows.append(dict(sno=len(rows) + 1, name=e.name, make=tok(e.notes, 'Make'), model=tok(e.notes, 'Model'),
+            eid=e.serial_no or 'Not Required', loc=e.location,
+            prov=e.cert_ref or ('Not Required' if nr else ''),
+            cal=cal.strftime('%d-%m-%Y') if cal else ('Not Required' if nr else ''),
+            due=due or ('Not Required' if nr else ''),
+            trace=tok(e.notes, 'Traceability') or ('Not Required' if nr else 'N/A'),
+            rem='Satisfactory'))
+    ctx = {'groups': [(k, groups[k]) for k in order], 'today': _dt.date.today().strftime('%d-%m-%Y')}
+    return render(request, 'equipment_report.html', ctx)
