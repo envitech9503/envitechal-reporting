@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/static/js/csrf.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Envi Tech AL{% endblock %}</title>
+  {% block page_css %}<link rel="stylesheet" href="/static/css/dashboard.css">{% endblock %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>ENVI TECH AL<small>{% block brand_sub %}{% endblock %}</small></div>
+  <nav>
+      <a href="/" {% if request.path == '/' %}class="cur"{% endif %}>Home</a>
+      <a href="/certificate/" {% if request.path == '/certificate/' %}class="cur"{% endif %}>Certificates</a>
+      <a href="/dashboard/dashboard/" {% if request.path == '/dashboard/dashboard/' %}class="cur"{% endif %}>Dashboard</a>
+      <a href="/dashboard/audit/" {% if request.path == '/dashboard/audit/' %}class="cur"{% endif %}>Audit</a>
+      <a href="/dashboard/lifecycle/" {% if request.path == '/dashboard/lifecycle/' %}class="cur"{% endif %}>Lifecycle</a>
+      <a href="/dashboard/equipment/" {% if request.path == '/dashboard/equipment/' %}class="cur"{% endif %}>Equipment</a>
+      <a href="/dashboard/chemicals/" {% if request.path == '/dashboard/chemicals/' %}class="cur"{% endif %}>Chemicals</a>
+      <a href="/dashboard/limits/" {% if request.path == '/dashboard/limits/' %}class="cur"{% endif %}>Limits</a>
+      <a class="out" href="/logout/">Logout</a>
+    </nav>
+</header>
+{% block content %}{% endblock %}
+</body>
+</html>

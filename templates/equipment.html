@@ -1,60 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <script src="/static/js/csrf.js"></script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EnviTechAL - Equipment &amp; Calibration</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Calibri,Arial,sans-serif;background:#f0f4f1;color:#1F2937}
-header{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:linear-gradient(120deg,#0d1522,#1F2937 60%,#123527);position:sticky;top:0;z-index:5}
-.brand{color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px}
-.brand .dot{width:12px;height:12px;border-radius:50%;background:#00A651;box-shadow:0 0 12px #00A651}
-.brand small{color:#9ca3af;font-weight:500;font-size:12px;margin-left:6px}
-nav{display:flex;gap:8px;flex-wrap:wrap}
-nav a{color:#d1d5db;text-decoration:none;font-size:13px;font-weight:600;padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
-nav a:hover{background:rgba(0,166,81,.18);color:#fff;border-color:#00A651}
-nav a.cur{background:#00A651;color:#fff;border-color:#00A651}
-nav a.out{border-color:rgba(239,68,68,.5);color:#fca5a5}
-main{width:min(100%,1300px);margin-inline:auto;padding:20px clamp(14px,2vw,30px) 44px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
-.card{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #e7ece8}
-.card .num{font-size:24px;font-weight:800}.card .lbl{font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.6px}
-.card.red .num{color:#b91c1c}.card.amber .num{color:#d97706}.card.green .num{color:#00753a}
-.panel{background:#fff;border-radius:14px;padding:16px 18px;border:1px solid #e7ece8}
-table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{background:#1F2937;color:#fff;text-align:left;padding:8px 10px;font-size:11px}
-td{padding:8px 10px;border-bottom:1px solid #eef1ee}
-.st{font-weight:700;border-radius:10px;padding:1px 9px;font-size:11px;white-space:nowrap}
-.st.Overdue{background:#fee2e2;color:#b91c1c}.st.Duesoon{background:#fef3c7;color:#92600a}
-.st.OK{background:#e6f7ee;color:#00753a}.st.Nodate{background:#eef1f4;color:#6B7280}
-.lb{font-weight:700;border-radius:10px;padding:1px 9px;font-size:11px;background:#e0f2fe;color:#0369a1;white-space:nowrap}
-button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer}
-.btn-g{background:#00A651;color:#fff}.btn-s{background:#1F2937;color:#fff}.btn-r{background:#fee2e2;color:#b91c1c}
-.btn-o{background:#fff;color:#1F2937;border:1px solid #d1d5db}
-.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.loc{font-weight:800;border-radius:20px;padding:7px 18px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:13px}
-.loc.cur{background:#00A651;color:#fff;border-color:#00A651}
-.docbox{display:none;gap:8px;flex-wrap:wrap;align-items:center;background:#fffbe8;border:1px solid #f0e0a0;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12.5px}
-.docbox input{border:1px solid #d1d5db;border-radius:7px;padding:6px 9px;font-size:12.5px}
-.addbar{display:none;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:12px;margin-bottom:14px}
-.addbar input,.addbar select{border:1px solid #d1d5db;border-radius:7px;padding:6px 9px;font-size:12.5px}
-.empty{color:#9ca3af;text-align:center;padding:26px}
-</style>
-</head>
-<body>
-<header>
-  <div class="brand"><span class="dot"></span>ENVI TECH AL<small>Equipment &amp; Calibration Register</small></div>
-  <nav>
-    <a href="/">Home</a>
-    <a href="/dashboard/dashboard/">Dashboard</a>
-    <a href="/dashboard/audit/">Audit</a>
-    <a href="/dashboard/lifecycle/">Lifecycle</a>
-    <a class="cur" href="/dashboard/equipment/">Equipment</a>
-    <a href="/dashboard/chemicals/">Chemicals</a>
-    <a class="out" href="/logout/">Logout</a>
-  </nav>
-</header>
+{% extends "base_app.html" %}
+{% block title %}EnviTechAL - Equipment &amp; Calibration{% endblock %}
+{% block brand_sub %}Equipment &amp; Calibration Register{% endblock %}
+{% block content %}
 <main>
   <div class="tools">
     <button class="loc cur" id="locA" onclick="setLoc('All')">All labs</button>
@@ -147,5 +94,4 @@ function editRow(id){var r=null,i;for(i=0;i<EQROWS.length;i++){if(EQROWS[i].id==
 function cancelEdit(){document.getElementById('f_id').value='';['name','serial','loc','cert','notes'].forEach(function(k){document.getElementById('f_'+k).value='';});document.getElementById('f_freq').value=12;document.getElementById('f_last').value='';document.getElementById('f_lab').value='Karachi';document.getElementById('eqbtn').textContent='Add instrument';document.getElementById('eqcancel').style.display='none';}
 load();
 </script>
-</body>
-</html>
+{% endblock %}
