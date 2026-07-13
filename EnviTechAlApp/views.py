@@ -10290,10 +10290,10 @@ def wasteWater2(request):
           extra_field_str = request.POST.get('extra_field', '[]')
           try:
                extra_field_data = json.loads(extra_field_str)
-          except:
+          except Exception:
                try:
                     extra_field_data = ast.literal_eval(extra_field_str)
-               except:
+               except Exception:
                     extra_field_data = []
           
           # Convert extra field data to structured format
@@ -14490,7 +14490,7 @@ def ambientAirEdit(request,pk):
      ambientEdit = AmbientAirForm.objects.get(id=pk)
      try:
         ambientEdit.extra_field = json.loads(ambientEdit.extra_field) if ambientEdit.extra_field else []
-     except:
+     except Exception:
           ambientEdit.extra_field = []
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
@@ -42018,7 +42018,7 @@ def generate_job_completion_pdf(job):
                
                try:
                     self.image("static/assets/EnviTechAL LOGO.png", 16, 5, 22, 24)
-               except:
+               except Exception:
                     pass
                     
                self.set_line_width(0.5)
@@ -42187,7 +42187,7 @@ def generate_job_completion_pdf(job):
                               # Try to parse the date if it's in YYYY-MM-DD format (from input)
                               date_obj = datetime.strptime(date_value, '%Y-%m-%d')
                               formatted_date = date_obj.strftime('%d-%m-%Y')
-                         except:
+                         except Exception:
                               # If already in different format or error, keep original
                               formatted_date = date_value
                     
