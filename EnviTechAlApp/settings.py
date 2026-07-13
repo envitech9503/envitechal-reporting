@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'EnviTechAlApp.middleware.GlobalLoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
@@ -208,3 +209,5 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_HSTS_PRELOAD = False
 SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+LOGIN_URL = '/login/'

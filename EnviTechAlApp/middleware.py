@@ -23,3 +23,20 @@ class CustomExceptionHandlerMiddleware:
             'error': 'An unexpected error occurred. Please try again or contact the lab administrator. Reference: %s' % ref,
         }
         return render(request, 'error.html', context, status=500)
+
+
+class GlobalLoginRequiredMiddleware:
+    """Require authentication for every request except an explicit public allowlist."""
+    PUBLIC_PREFIXES = ('/login', '/logout', '/static/', '/media/', '/admin/login', '/admin/logout', '/favicon')
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        u = getattr(request, 'user', None)
+        if u is None or not u.is_authenticated:
+            path = request.path
+            if not any(path.startswith(p) for p in self.PUBLIC_PREFIXES):
+                from django.shortcuts import redirect
+                return redirect('/login/?next=' + request.path)
+        return self.get_response(request)
