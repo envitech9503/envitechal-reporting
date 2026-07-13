@@ -462,6 +462,27 @@ def lifecycle_set(request):
 
 
 # --- Phase 2: equipment register + QR labels (12-07-2026) ---
+
+def _eq_scope(request):
+    from EnviTechAlApp.models import Equipment
+    loc = (request.GET.get('location') or 'All').strip()
+    qs = Equipment.objects.filter(active=True)
+    if loc in ('Karachi', 'Lahore'):
+        qs = qs.filter(lab__iexact=loc)
+    return qs
+
+
+def _eq_doc(request):
+    from EnviTechAlApp.models import InventoryDocControl
+    loc = (request.GET.get('location') or 'All').strip()
+    if loc not in ('Karachi', 'Lahore'):
+        loc = ''
+    dc = InventoryDocControl.objects.filter(module='equipment', location=(loc or 'Karachi')).first()
+    return loc, dict(doc_no=(dc.doc_no if dc and dc.doc_no else 'TBA'),
+                     issue_date=(dc.issue_date if dc and dc.issue_date else 'TBA'),
+                     issue_no=(dc.issue_no if dc and dc.issue_no else '01'),
+                     rev_no=(dc.rev_no if dc and dc.rev_no else '00'))
+
 @login_required
 def equipment_page(request):
     return render(request, 'equipment.html')
@@ -483,17 +504,22 @@ def _eq_row(e, today):
     return {'id': e.id, 'name': e.name, 'serial': e.serial_no, 'location': e.location,
             'freq': e.frequency_months, 'last': e.last_calibrated.strftime('%d-%m-%Y') if e.last_calibrated else '',
             'due': due.strftime('%d-%m-%Y') if due else '', 'days': days, 'state': state,
-            'cert': e.cert_ref, 'notes': e.notes}
+            'cert': e.cert_ref, 'notes': e.notes, 'lab': e.lab}
 
 
 @login_required
 def equipment_data(request):
     from EnviTechAlApp.models import Equipment
     today = timezone.localdate()
-    rows = [_eq_row(e, today) for e in Equipment.objects.filter(active=True).order_by('name')]
+    loc = (request.GET.get('location') or 'All').strip()
+    rows = [_eq_row(e, today) for e in _eq_scope(request).order_by('name')]
     order = {'Overdue': 0, 'Due soon': 1, 'No date': 2, 'OK': 3}
     rows.sort(key=lambda r: (order.get(r['state'], 9), r['days'] if r['days'] is not None else 9999))
-    return JsonResponse({'rows': rows, 'is_admin': request.user.is_superuser,
+    dc = {}
+    if loc in ('Karachi', 'Lahore'):
+        from EnviTechAlApp.models import InventoryDocControl
+        dc = InventoryDocControl.objects.filter(module='equipment', location=loc).values('doc_no', 'issue_date', 'issue_no', 'rev_no').first() or {}
+    return JsonResponse({'rows': rows, 'is_admin': request.user.is_superuser, 'location': loc, 'doc': dc,
                          'summary': {k: sum(1 for r in rows if r['state'] == k) for k in order}})
 
 
@@ -508,6 +534,31 @@ def equipment_save(request):
         return JsonResponse({'error': 'Administrator access required'}, status=403)
     g = request.POST
     act = (g.get('act') or 'save').strip()
+    if act == 'doc':
+        from EnviTechAlApp.models import InventoryDocControl
+        dloc = (g.get('location') or '').strip()
+        if dloc not in ('Karachi', 'Lahore'):
+            return JsonResponse({'error': 'Unknown location'}, status=400)
+        d, _c = InventoryDocControl.objects.get_or_create(module='equipment', location=dloc)
+        d.doc_no = (g.get('doc_no') or '')[:60]
+        d.issue_date = (g.get('issue_date') or '')[:20]
+        d.issue_no = (g.get('issue_no') or '01')[:10]
+        d.rev_no = (g.get('rev_no') or '00')[:10]
+        d.updated_by = request.user
+        d.save()
+        return JsonResponse({'ok': True})
+    if act == 'setlab':
+        lb = (g.get('lab') or '').strip()
+        if lb not in ('Karachi', 'Lahore'):
+            return JsonResponse({'error': 'Unknown lab'}, status=400)
+        try:
+            e = Equipment.objects.get(id=int(g.get('id')))
+        except Exception:
+            return JsonResponse({'error': 'Not found'}, status=404)
+        e.lab = lb
+        e.updated_by = request.user
+        e.save()
+        return JsonResponse({'ok': True})
     if act == 'calibrated':
         try:
             e = Equipment.objects.get(id=int(g.get('id')))
@@ -533,7 +584,7 @@ def equipment_save(request):
         except Exception: pass
     try: freq = max(1, min(120, int(g.get('freq') or 12)))
     except Exception: freq = 12
-    Equipment.objects.create(name=name[:200], serial_no=(g.get('serial') or '')[:120],
+    Equipment.objects.create(name=name[:200], lab=(g.get('lab') or 'Karachi')[:20], serial_no=(g.get('serial') or '')[:120],
                              location=(g.get('location') or 'Karachi')[:60], frequency_months=freq,
                              last_calibrated=last, cert_ref=(g.get('cert') or '')[:120],
                              notes=(g.get('notes') or '')[:300], updated_by=request.user)
@@ -643,7 +694,7 @@ def equipment_report(request):
         return m.group(1).strip() if m else ''
     order = ['Lab Equipment', 'Field Equipment', 'Calibration Instrument']
     groups = {k: [] for k in order}
-    for e in Equipment.objects.filter(active=True).order_by('id'):
+    for e in _eq_scope(request).order_by('id'):
         g = tok(e.notes, 'Group')
         if g not in groups:
             g = 'Lab Equipment'
@@ -661,7 +712,8 @@ def equipment_report(request):
             due=due or ('Not Required' if nr else ''),
             trace=tok(e.notes, 'Traceability') or ('Not Required' if nr else 'N/A'),
             rem='Satisfactory'))
-    ctx = {'groups': [(k, groups[k]) for k in order], 'today': _dt.date.today().strftime('%d-%m-%Y')}
+    _loc, _dc = _eq_doc(request)
+    ctx = {'groups': [(k, groups[k]) for k in order], 'today': _dt.date.today().strftime('%d-%m-%Y'), 'loc': _loc, 'dc': _dc}
     return render(request, 'equipment_report.html', ctx)
 
 
@@ -677,7 +729,7 @@ def equipment_report_pdf(request):
     key = {'Lab Equipment': 0, 'Field Equipment': 1, 'Calibration Instrument': 2}
     order = ['LAB EQUIPMENTS', 'FIELD EQUIPMENTS', 'CALIBRATION INSTRUMENTS']
     data = [[], [], []]
-    for e in Equipment.objects.filter(active=True).order_by('id'):
+    for e in _eq_scope(request).order_by('id'):
         gi = key.get(tok(e.notes, 'Group'), 0)
         cal = e.last_calibrated
         due = ''
@@ -691,6 +743,7 @@ def equipment_report_pdf(request):
             cal.strftime('%d-%m-%Y') if cal else nrv, due or nrv,
             tok(e.notes, 'Traceability') or ('Not Required' if nr else 'N/A'), 'Satisfactory'])
     today = _dt.date.today().strftime('%d-%m-%Y')
+    _loc, _dc = _eq_doc(request)
     class _P(FPDF):
         def header(self):
             try:
@@ -701,14 +754,14 @@ def equipment_report_pdf(request):
             self.set_y(8)
             self.cell(0, 7, 'Envi Tech AL', 0, 1, 'C')
             self.set_font('Arial', 'B', 11)
-            self.cell(0, 6, 'MASTER LIST OF LAB EQUIPMENT', 0, 1, 'C')
+            self.cell(0, 6, 'MASTER LIST OF LAB EQUIPMENT' + ((' - %s LABORATORY' % _loc.upper()) if _loc else ''), 0, 1, 'C')
             self.set_font('Arial', 'I', 7.5)
             self.set_text_color(90, 90, 90)
             self.cell(0, 4, 'Environmental Analytical Laboratory', 0, 1, 'C')
             self.set_text_color(0, 0, 0)
             self.set_font('Arial', '', 7.5)
             self.set_xy(216, 8)
-            self.multi_cell(70, 4.6, 'Doc. No: ETAL-LAB-604-FF-15\nIssue Date: 18-01-2022\nIssue No. 01    Rev. No. 00\nPage No: %d of {nb}' % self.page_no(), 1, 'L')
+            self.multi_cell(70, 4.6, 'Doc. No: %s\nIssue Date: %s\nIssue No. %s    Rev. No. %s\nPage No: %d of {nb}' % (_dc['doc_no'], _dc['issue_date'], _dc['issue_no'], _dc['rev_no'], self.page_no()), 1, 'L')
             self.set_font('Arial', 'B', 8.5)
             self.set_y(29)
             self.cell(0, 5, 'Calibration Status Year: 2025 - 2026', 0, 1, 'L')
@@ -720,7 +773,7 @@ def equipment_report_pdf(request):
             self.set_y(-11)
             self.set_font('Arial', 'I', 7)
             self.set_text_color(120, 120, 120)
-            self.cell(0, 5, 'ETAL-LAB-604-FF-15  |  Issue 01 Rev. 00  |  Controlled document - generated from the live register on %s' % today, 0, 0, 'C')
+            self.cell(0, 5, '%s  |  Issue %s Rev. %s  |  Controlled document - generated from the live register on %s' % (_dc['doc_no'], _dc['issue_no'], _dc['rev_no'], today), 0, 0, 'C')
             self.set_text_color(0, 0, 0)
     W = [9, 50, 26, 36, 20, 16, 38, 19, 19, 20, 22]
     HD = ['S.NO', 'Name', 'Make/Type', 'Model', 'Equipment ID', 'Location', 'Calibration Provider', 'Calibration Date', 'Due on', 'Traceability', 'Remarks']
@@ -771,7 +824,7 @@ def equipment_report_pdf(request):
     out = pdf.output(dest='S')
     b = bytes(out) if isinstance(out, (bytes, bytearray)) else out.encode('latin-1')
     resp = HttpResponse(b, content_type='application/pdf')
-    resp['Content-Disposition'] = 'inline; filename="ETAL-LAB-604-FF-15 Master Equipment List.pdf"'
+    resp['Content-Disposition'] = 'inline; filename="%s Master Equipment List%s.pdf"' % (_dc['doc_no'], ((' - ' + _loc) if _loc else ''))
     return resp
 
 
@@ -873,7 +926,7 @@ def chemicals_data(request):
                      'cas': it.cas_no, 'unit': it.unit, 'storage': it.storage, 'hazard': it.hazard,
                      'reorder': it.reorder_level, 'notes': it.notes, 'total': round(total, 4),
                      'low': low, 'lots': lots_out})
-    dc = InventoryDocControl.objects.filter(location=loc).values('doc_no', 'issue_date', 'issue_no', 'rev_no').first() or {}
+    dc = InventoryDocControl.objects.filter(module='chemicals', location=loc).values('doc_no', 'issue_date', 'issue_no', 'rev_no').first() or {}
     return JsonResponse({'rows': rows, 'location': loc, 'is_admin': request.user.is_superuser, 'doc': dc,
                          'summary': {'stocked': n_stock, 'low': n_low, 'expiring': n_expiring, 'expired': n_exp}})
 
@@ -913,7 +966,7 @@ def chemicals_save(request):
         loc = (g.get('location') or '').strip()
         if loc not in CHEM_LOCS:
             return JsonResponse({'error': 'Unknown location'}, status=400)
-        d, _c = InventoryDocControl.objects.get_or_create(location=loc)
+        d, _c = InventoryDocControl.objects.get_or_create(module='chemicals', location=loc)
         d.doc_no = (g.get('doc_no') or '')[:60]
         d.issue_date = (g.get('issue_date') or '')[:20]
         d.issue_no = (g.get('issue_no') or '01')[:10]
@@ -1052,7 +1105,7 @@ def chemicals_report(request):
     loc = (request.GET.get('location') or 'Karachi').strip()
     if loc not in CHEM_LOCS:
         loc = 'Karachi'
-    dc = InventoryDocControl.objects.filter(location=loc).first()
+    dc = InventoryDocControl.objects.filter(module='chemicals', location=loc).first()
     groups = _chem_report_data(loc)
     total = sum(len(g[1]) for g in groups)
     return render(request, 'chemicals_report.html',
@@ -1069,7 +1122,7 @@ def chemicals_report_pdf(request):
     loc = (request.GET.get('location') or 'Karachi').strip()
     if loc not in CHEM_LOCS:
         loc = 'Karachi'
-    dc = InventoryDocControl.objects.filter(location=loc).first()
+    dc = InventoryDocControl.objects.filter(module='chemicals', location=loc).first()
     doc_no = (dc.doc_no if dc and dc.doc_no else 'TBA')
     issue_date = (dc.issue_date if dc and dc.issue_date else 'TBA')
     issue_no = (dc.issue_no if dc and dc.issue_no else '01')

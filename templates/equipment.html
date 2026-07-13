@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EnviTechAL - Equipment & Calibration</title>
+<title>EnviTechAL - Equipment &amp; Calibration</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Calibri,Arial,sans-serif;background:#f0f4f1;color:#1F2937}
@@ -27,8 +27,15 @@ td{padding:8px 10px;border-bottom:1px solid #eef1ee}
 .st{font-weight:700;border-radius:10px;padding:1px 9px;font-size:11px;white-space:nowrap}
 .st.Overdue{background:#fee2e2;color:#b91c1c}.st.Duesoon{background:#fef3c7;color:#92600a}
 .st.OK{background:#e6f7ee;color:#00753a}.st.Nodate{background:#eef1f4;color:#6B7280}
+.lb{font-weight:700;border-radius:10px;padding:1px 9px;font-size:11px;background:#e0f2fe;color:#0369a1;white-space:nowrap}
 button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer}
 .btn-g{background:#00A651;color:#fff}.btn-s{background:#1F2937;color:#fff}.btn-r{background:#fee2e2;color:#b91c1c}
+.btn-o{background:#fff;color:#1F2937;border:1px solid #d1d5db}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.loc{font-weight:800;border-radius:20px;padding:7px 18px;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:13px}
+.loc.cur{background:#00A651;color:#fff;border-color:#00A651}
+.docbox{display:none;gap:8px;flex-wrap:wrap;align-items:center;background:#fffbe8;border:1px solid #f0e0a0;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12.5px}
+.docbox input{border:1px solid #d1d5db;border-radius:7px;padding:6px 9px;font-size:12.5px}
 .addbar{display:none;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid #e7ece8;border-radius:12px;padding:12px;margin-bottom:14px}
 .addbar input,.addbar select{border:1px solid #d1d5db;border-radius:7px;padding:6px 9px;font-size:12.5px}
 .empty{color:#9ca3af;text-align:center;padding:26px}
@@ -44,57 +51,97 @@ button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:
     <a href="/dashboard/lifecycle/">Lifecycle</a>
     <a class="cur" href="/dashboard/equipment/">Equipment</a>
     <a href="/dashboard/chemicals/">Chemicals</a>
-    <a href="/dashboard/limits/">Limits</a>
     <a class="out" href="/logout/">Logout</a>
   </nav>
 </header>
 <main>
+  <div class="tools">
+    <button class="loc cur" id="locA" onclick="setLoc('All')">All labs</button>
+    <button class="loc" id="locK" onclick="setLoc('Karachi')">Karachi Lab</button>
+    <button class="loc" id="locL" onclick="setLoc('Lahore')">Lahore Lab</button>
+    <span id="cnt" style="color:#6B7280;font-size:12px"></span>
+    <span style="flex:1"></span>
+    <a id="repH" href="/dashboard/equipment/report/" target="_blank"><button class="btn-o">Master list (controlled)</button></a>
+    <a id="repP" href="/dashboard/equipment/report/pdf/" target="_blank"><button class="btn-s">Download PDF</button></a>
+  </div>
+  <div class="docbox" id="docbox">
+    <b id="doclbl">Doc control:</b>
+    <span id="docro"></span>
+    <span id="docedit" style="display:none">
+      Doc No <input id="d_no" style="width:170px">
+      Issue Date <input id="d_date" placeholder="dd-mm-yyyy" style="width:100px">
+      Issue No <input id="d_iss" style="width:50px">
+      Rev No <input id="d_rev" style="width:50px">
+      <button class="btn-g" onclick="saveDoc()">Save</button>
+    </span>
+  </div>
   <div class="cards" id="sum"></div>
   <div class="addbar" id="addbar">
     <input id="f_name" placeholder="Instrument name *" style="min-width:220px">
     <input id="f_serial" placeholder="Serial no">
-    <select id="f_loc"><option>Karachi</option><option>Lahore</option><option>Field</option></select>
+    <select id="f_lab" title="Laboratory"><option>Karachi</option><option>Lahore</option></select>
+    <input id="f_loc" placeholder="Placement (Lab / Store / Field)" style="width:180px">
     <input id="f_freq" type="number" value="12" min="1" max="120" style="width:88px" title="Calibration frequency (months)">
     <input id="f_last" type="date" title="Last calibrated">
     <input id="f_cert" placeholder="Certificate ref">
     <input id="f_notes" placeholder="Notes" style="min-width:180px">
-    <button class="btn-g" onclick="save()">Add instrument</button> <a href="/dashboard/equipment/report/" class="btn-g" style="text-decoration:none;padding:8px 14px;border-radius:8px;background:#00A651;color:#fff;font-weight:600">Master list (controlled)</a>
+    <button class="btn-g" onclick="save()">Add instrument</button>
   </div>
   <div class="panel">
     <table>
-      <thead><tr><th>Instrument</th><th>Serial</th><th>Location</th><th>Every</th><th>Last calibrated</th><th>Next due</th><th>Status</th><th>Certificate</th><th id="actth"></th></tr></thead>
-      <tbody id="rows"><tr><td colspan="9" class="empty">Loading&hellip;</td></tr></tbody>
+      <thead><tr><th>Instrument</th><th>Serial</th><th>Lab</th><th>Placement</th><th>Every</th><th>Last calibrated</th><th>Next due</th><th>Status</th><th>Certificate</th><th id="actth"></th></tr></thead>
+      <tbody id="rows"><tr><td colspan="10" class="empty">Loading&hellip;</td></tr></tbody>
     </table>
   </div>
 </main>
 <script>
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var ADMIN=false;
+var ADMIN=false, LOC='All';
+function setLoc(l){LOC=l;['A','K','L'].forEach(function(k){document.getElementById('loc'+k).className='loc';});
+  document.getElementById('loc'+(l==='All'?'A':(l==='Karachi'?'K':'L'))).className='loc cur';load();}
 function load(){
-  fetch('/dashboard/api/equipment/',{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+  var qp=(LOC==='All')?'':('?location='+LOC);
+  document.getElementById('repH').href='/dashboard/equipment/report/'+qp;
+  document.getElementById('repP').href='/dashboard/equipment/report/pdf/'+qp;
+  fetch('/dashboard/api/equipment/'+qp,{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
     ADMIN=!!d.is_admin;
     document.getElementById('addbar').style.display=ADMIN?'flex':'none';
+    var db=document.getElementById('docbox');
+    if(LOC==='All'){db.style.display='none';}
+    else{
+      db.style.display='flex';
+      var dc=d.doc||{};
+      document.getElementById('doclbl').textContent=LOC+' equipment controlled document:';
+      document.getElementById('docro').textContent=(dc.doc_no?('Doc. No: '+dc.doc_no+'  |  Issue Date: '+(dc.issue_date||'-')+'  |  Issue '+(dc.issue_no||'01')+' Rev. '+(dc.rev_no||'00')):'Doc. No not set yet - the office should enter the official document number.');
+      if(ADMIN){document.getElementById('docedit').style.display='inline';document.getElementById('d_no').value=dc.doc_no||'';document.getElementById('d_date').value=dc.issue_date||'';document.getElementById('d_iss').value=dc.issue_no||'01';document.getElementById('d_rev').value=dc.rev_no||'00';}
+    }
     var s=d.summary||{};
     document.getElementById('sum').innerHTML=
       '<div class="card red"><div class="num">'+(s['Overdue']||0)+'</div><div class="lbl">Overdue</div></div>'+
       '<div class="card amber"><div class="num">'+(s['Due soon']||0)+'</div><div class="lbl">Due within 30 days</div></div>'+
       '<div class="card green"><div class="num">'+(s['OK']||0)+'</div><div class="lbl">In calibration</div></div>'+
       '<div class="card"><div class="num">'+(s['No date']||0)+'</div><div class="lbl">No date recorded</div></div>';
+    document.getElementById('cnt').textContent=(d.rows||[]).length+' instrument(s)'+(LOC==='All'?'':' in '+LOC);
     var tb=document.getElementById('rows');tb.innerHTML='';
-    if(!(d.rows||[]).length){tb.innerHTML='<tr><td colspan="9" class="empty">No instruments yet. '+(ADMIN?'Add the first one above.':'')+'</td></tr>';return;}
+    if(!(d.rows||[]).length){tb.innerHTML='<tr><td colspan="10" class="empty">No instruments'+(LOC==='All'?' yet.':' recorded for the '+LOC+' lab yet.')+(ADMIN?' Add the first one above.':'')+'</td></tr>';return;}
     d.rows.forEach(function(r){
       var tr=document.createElement('tr');
       var act='';
-      if(ADMIN){act='<button class="btn-s" onclick="cal('+r.id+')">Calibrated today</button> <button class="btn-r" onclick="rem('+r.id+')">Retire</button>';}
-      tr.innerHTML='<td><b>'+esc(r.name)+'</b>'+(r.notes?'<div style="font-size:11px;color:#6B7280">'+esc(r.notes)+'</div>':'')+'</td><td>'+esc(r.serial)+'</td><td>'+esc(r.location)+'</td><td>'+r.freq+' mo</td><td>'+esc(r.last)+'</td><td>'+esc(r.due)+(r.days!==null?' <span style="color:#6B7280;font-size:11px">('+r.days+' d)</span>':'')+'</td><td><span class="st '+r.state.replace(/ /g,'')+'">'+esc(r.state)+'</span></td><td>'+esc(r.cert)+'</td><td>'+act+'</td>';
+      if(ADMIN){
+        var other=(r.lab==='Lahore')?'Karachi':'Lahore';
+        act='<button class="btn-s" onclick="cal('+r.id+')">Calibrated today</button> <button class="btn-o" onclick="setlab('+r.id+',\''+other+'\')">To '+other+'</button> <button class="btn-r" onclick="rem('+r.id+')">Retire</button>';
+      }
+      tr.innerHTML='<td><b>'+esc(r.name)+'</b>'+(r.notes?'<div style="font-size:11px;color:#6B7280">'+esc(r.notes)+'</div>':'')+'</td><td>'+esc(r.serial)+'</td><td><span class="lb">'+esc(r.lab||'Karachi')+'</span></td><td>'+esc(r.location)+'</td><td>'+r.freq+' mo</td><td>'+esc(r.last)+'</td><td>'+esc(r.due)+(r.days!==null?' <span style="color:#6B7280;font-size:11px">('+r.days+' d)</span>':'')+'</td><td><span class="st '+r.state.replace(/ /g,'')+'">'+esc(r.state)+'</span></td><td>'+esc(r.cert)+'</td><td style="white-space:nowrap">'+act+'</td>';
       tb.appendChild(tr);
     });
   });
 }
 function post(fd){fetch('/dashboard/api/equipment-save/',{method:'POST',body:fd,credentials:'include'}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){load();}else{alert((j&&j.error)||'Failed');}});}
-function save(){var fd=new FormData();['name','serial','loc','freq','last','cert','notes'].forEach(function(k){fd.append(k==='loc'?'location':k,document.getElementById('f_'+k).value);});post(fd);document.getElementById('f_name').value='';}
+function save(){var fd=new FormData();['name','serial','lab','loc','freq','last','cert','notes'].forEach(function(k){fd.append(k==='loc'?'location':k,document.getElementById('f_'+k).value);});post(fd);document.getElementById('f_name').value='';}
 function cal(id){var c=prompt('New calibration certificate reference (optional):','');var fd=new FormData();fd.append('act','calibrated');fd.append('id',id);if(c)fd.append('cert',c);post(fd);}
+function setlab(id,lb){if(!confirm('Move this instrument to the '+lb+' laboratory register?'))return;var fd=new FormData();fd.append('act','setlab');fd.append('id',id);fd.append('lab',lb);post(fd);}
 function rem(id){if(!confirm('Retire this instrument from the register?'))return;var fd=new FormData();fd.append('act','remove');fd.append('id',id);post(fd);}
+function saveDoc(){var fd=new FormData();fd.append('act','doc');fd.append('location',LOC);fd.append('doc_no',document.getElementById('d_no').value);fd.append('issue_date',document.getElementById('d_date').value);fd.append('issue_no',document.getElementById('d_iss').value);fd.append('rev_no',document.getElementById('d_rev').value);post(fd);}
 load();
 </script>
 </body>
