@@ -1,4 +1,5 @@
 from EnviTechAlApp.listfilter import _list_filter, _sampling_filter, _cert_filter, _work_filter, _by_date_desc, _parse_date
+from EnviTechAlApp.view_helpers import _etal_mo_exceeds, _etal_red_style
 import tempfile
 from urllib import response
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect,FileResponse,JsonResponse,HttpResponseServerError
@@ -42720,22 +42721,5 @@ def etal_approval_state(request):
     return _JR({'approved': list(rows)})
 
 
-def _etal_mo_exceeds(res, lim):
-    import re as _re
-    try:
-        rs = str(res).strip().replace(",", "")
-        ls = str(lim).strip().replace(",", "")
-        if rs.startswith("<"):
-            return False
-        rm = _re.search(r"-?\d+(?:\.\d+)?", rs)
-        lm = _re.search(r"-?\d+(?:\.\d+)?", ls)
-        if not rm or not lm:
-            return False
-        return float(rm.group()) > float(lm.group())
-    except Exception:
-        return False
 
 
-def _etal_red_style():
-    from fpdf.fonts import FontFace
-    return FontFace(color=(190, 0, 0), emphasis="BOLD")
