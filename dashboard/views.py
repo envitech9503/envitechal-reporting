@@ -149,7 +149,6 @@ def _recent_activity(limit=10):
 
 
 @login_required
-@csrf_exempt
 def get_reports_data(request):
     if not request.user.is_superuser:
         return JsonResponse({'error': 'Administrator access required'}, status=403)
@@ -447,7 +446,6 @@ def lifecycle_data(request):
 
 
 @login_required
-@csrf_exempt
 def lifecycle_set(request):
     from EnviTechAlApp.models import SampleLifecycle
     if request.method != 'POST':
@@ -524,7 +522,6 @@ def equipment_data(request):
 
 
 @login_required
-@csrf_exempt
 def equipment_save(request):
     from EnviTechAlApp.models import Equipment
     from datetime import datetime as _dt
@@ -643,7 +640,6 @@ def limits_data(request):
 
 
 @login_required
-@csrf_exempt
 def limits_save(request):
     from EnviTechAlApp.models import RegulatoryLimit
     if request.method != 'POST':
@@ -949,7 +945,6 @@ def chemicals_data(request):
 
 
 @login_required
-@csrf_exempt
 def chemicals_save(request):
     from EnviTechAlApp.models import ChemicalItem, ChemicalLot, ChemicalMovement, InventoryDocControl
     from datetime import datetime as _dt

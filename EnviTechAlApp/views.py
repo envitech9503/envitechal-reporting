@@ -671,7 +671,6 @@ def search_all_reports(name_input, from_date, to_date, location_search, sample_s
      
      return all_results
      
-@csrf_exempt
 @login_required(login_url="/login")
 def generate_merged_pdf(request):
      
@@ -36815,7 +36814,6 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
 
 
-@csrf_exempt
 @login_required(login_url="/login")
 def noisemonitoring(request):
      print('request----------->>',request)
@@ -41906,7 +41904,6 @@ def wasteWatercloneSave(request,pk):
      return render(request, "WasteWaterSludgeClone.html")
 
 
-@csrf_exempt
 def job_completion_form(request):
     if request.method == 'POST':
         try:
@@ -42337,7 +42334,6 @@ def generate_job_completion_pdf(job):
      return response
 
 
-@csrf_exempt
 def save_client_details(request):
     if request.method == 'POST':
         try:
@@ -42359,7 +42355,6 @@ def save_client_details(request):
             return JsonResponse({'success': False, 'error': 'An internal error occurred. Please try again or contact the administrator.'})
 
 
-@csrf_exempt
 def get_client_details(request):
     if request.method == 'GET':
         company_name = request.GET.get('company_name')
@@ -42402,7 +42397,6 @@ def job_completion_edit(request, pk):
         'service_details': json.dumps(service_details)
     })
      
-@csrf_exempt
 def update_job_completion(request, pk):
     try:
         # Get the existing job
@@ -42494,7 +42488,6 @@ def job_completion_clone(request, pk):
     })
 
 
-@csrf_exempt
 def clone_job_completion(request, pk):
     """Clone existing job completion - POST request"""
     try:
@@ -42572,7 +42565,6 @@ def clone_job_completion(request, pk):
             'error': 'An internal error occurred. Please try again or contact the administrator.'
         }, status=400)
         
-@csrf_exempt
 def job_completion_pdf(request, pk):
     job = get_object_or_404(JobCompletionForm, id=pk)
     return generate_job_completion_pdf(job)
@@ -42581,7 +42573,6 @@ def job_main(request):
      return render(request,'job_completion_main.html')
 
 from django.views.decorators.http import require_http_methods
-@csrf_exempt
 @require_http_methods(["DELETE", "POST"])
 def job_completion_delete(request, pk):
     """Delete job completion record"""
@@ -42603,7 +42594,6 @@ def job_completion_delete(request, pk):
         }, status=400)
 
 # --- etal bulk PDF download (added 12-07-2026) ---
-@csrf_exempt
 @login_required(login_url="/login")
 def etal_bulk_pdf(request):
     """Merge the selected list records into one downloadable PDF."""
@@ -42688,7 +42678,6 @@ def etal_bulk_pdf(request):
 
 
 # --- Phase 1 approval endpoints (12-07-2026) ---
-@csrf_exempt
 @login_required(login_url="/login")
 def etal_bulk_approve(request):
     """Approve or unapprove selected records (superuser only)."""
