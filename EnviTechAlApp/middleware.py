@@ -15,8 +15,11 @@ class CustomExceptionHandlerMiddleware:
         return response
 
     def handle_exception(self, request, exception):
-        # Customize this function to handle the exception as needed
+        # Log full detail server-side; show users a generic message + reference id
+        import logging, uuid
+        ref = uuid.uuid4().hex[:8]
+        logging.getLogger('etal.errors').error('ref=%s path=%s: %s', ref, getattr(request, 'path', '?'), exception, exc_info=True)
         context = {
-            'error': str(exception),
+            'error': 'An unexpected error occurred. Please try again or contact the lab administrator. Reference: %s' % ref,
         }
         return render(request, 'error.html', context, status=500)
