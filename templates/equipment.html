@@ -76,7 +76,7 @@ button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:
     </span>
   </div>
   <div class="cards" id="sum"></div>
-  <div class="addbar" id="addbar">
+  <div class="addbar" id="addbar"><input type="hidden" id="f_id">
     <input id="f_name" placeholder="Instrument name *" style="min-width:220px">
     <input id="f_serial" placeholder="Serial no">
     <select id="f_lab" title="Laboratory"><option>Karachi</option><option>Lahore</option></select>
@@ -85,7 +85,7 @@ button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:
     <input id="f_last" type="date" title="Last calibrated">
     <input id="f_cert" placeholder="Certificate ref">
     <input id="f_notes" placeholder="Notes" style="min-width:180px">
-    <button class="btn-g" onclick="save()">Add instrument</button>
+    <button class="btn-g" id="eqbtn" onclick="save()">Add instrument</button> <button class="btn-o" id="eqcancel" onclick="cancelEdit()" style="display:none">Cancel</button>
   </div>
   <div class="panel">
     <table>
@@ -96,7 +96,7 @@ button{border:none;border-radius:7px;padding:6px 12px;font-weight:600;font-size:
 </main>
 <script>
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var ADMIN=false, LOC='All';
+var ADMIN=false, LOC='All', EQROWS=[];
 function setLoc(l){LOC=l;['A','K','L'].forEach(function(k){document.getElementById('loc'+k).className='loc';});
   document.getElementById('loc'+(l==='All'?'A':(l==='Karachi'?'K':'L'))).className='loc cur';load();}
 function load(){
@@ -104,7 +104,7 @@ function load(){
   document.getElementById('repH').href='/dashboard/equipment/report/'+qp;
   document.getElementById('repP').href='/dashboard/equipment/report/pdf/'+qp;
   fetch('/dashboard/api/equipment/'+qp,{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
-    ADMIN=!!d.is_admin;
+    ADMIN=!!d.is_admin;EQROWS=d.rows||[];
     document.getElementById('addbar').style.display=ADMIN?'flex':'none';
     var db=document.getElementById('docbox');
     if(LOC==='All'){db.style.display='none';}
@@ -129,7 +129,7 @@ function load(){
       var act='';
       if(ADMIN){
         var other=(r.lab==='Lahore')?'Karachi':'Lahore';
-        act='<button class="btn-s" onclick="cal('+r.id+')">Calibrated today</button> <button class="btn-o" onclick="setlab('+r.id+',\''+other+'\')">To '+other+'</button> <button class="btn-r" onclick="rem('+r.id+')">Retire</button>';
+        act='<button class="btn-o" onclick="editRow('+r.id+')">Edit</button> <button class="btn-s" onclick="cal('+r.id+')">Calibrated today</button> <button class="btn-o" onclick="setlab('+r.id+',\''+other+'\')">To '+other+'</button> <button class="btn-r" onclick="rem('+r.id+')">Retire</button>';
       }
       tr.innerHTML='<td><b>'+esc(r.name)+'</b>'+(r.notes?'<div style="font-size:11px;color:#6B7280">'+esc(r.notes)+'</div>':'')+'</td><td>'+esc(r.serial)+'</td><td><span class="lb">'+esc(r.lab||'Karachi')+'</span></td><td>'+esc(r.location)+'</td><td>'+r.freq+' mo</td><td>'+esc(r.last)+'</td><td>'+esc(r.due)+(r.days!==null?' <span style="color:#6B7280;font-size:11px">('+r.days+' d)</span>':'')+'</td><td><span class="st '+r.state.replace(/ /g,'')+'">'+esc(r.state)+'</span></td><td>'+esc(r.cert)+'</td><td style="white-space:nowrap">'+act+'</td>';
       tb.appendChild(tr);
@@ -137,11 +137,13 @@ function load(){
   });
 }
 function post(fd){fetch('/dashboard/api/equipment-save/',{method:'POST',body:fd,credentials:'include'}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){load();}else{alert((j&&j.error)||'Failed');}});}
-function save(){var fd=new FormData();['name','serial','lab','loc','freq','last','cert','notes'].forEach(function(k){fd.append(k==='loc'?'location':k,document.getElementById('f_'+k).value);});post(fd);document.getElementById('f_name').value='';}
+function save(){var id=document.getElementById('f_id').value;var fd=new FormData();fd.append('act',id?'update':'save');if(id){fd.append('id',id);}['name','serial','lab','loc','freq','last','cert','notes'].forEach(function(k){fd.append(k==='loc'?'location':k,document.getElementById('f_'+k).value);});post(fd);cancelEdit();}
 function cal(id){var c=prompt('New calibration certificate reference (optional):','');var fd=new FormData();fd.append('act','calibrated');fd.append('id',id);if(c)fd.append('cert',c);post(fd);}
 function setlab(id,lb){if(!confirm('Move this instrument to the '+lb+' laboratory register?'))return;var fd=new FormData();fd.append('act','setlab');fd.append('id',id);fd.append('lab',lb);post(fd);}
 function rem(id){if(!confirm('Retire this instrument from the register?'))return;var fd=new FormData();fd.append('act','remove');fd.append('id',id);post(fd);}
 function saveDoc(){var fd=new FormData();fd.append('act','doc');fd.append('location',LOC);fd.append('doc_no',document.getElementById('d_no').value);fd.append('issue_date',document.getElementById('d_date').value);fd.append('issue_no',document.getElementById('d_iss').value);fd.append('rev_no',document.getElementById('d_rev').value);post(fd);}
+function editRow(id){var r=null,i;for(i=0;i<EQROWS.length;i++){if(EQROWS[i].id===id){r=EQROWS[i];break;}}if(!r)return;document.getElementById('f_id').value=id;document.getElementById('f_name').value=r.name||'';document.getElementById('f_serial').value=r.serial||'';document.getElementById('f_lab').value=r.lab||'Karachi';document.getElementById('f_loc').value=r.location||'';document.getElementById('f_freq').value=r.freq||12;document.getElementById('f_last').value=r.last_iso||'';document.getElementById('f_cert').value=r.cert||'';document.getElementById('f_notes').value=r.notes||'';document.getElementById('eqbtn').textContent='Update instrument';document.getElementById('eqcancel').style.display='inline-block';document.getElementById('addbar').style.display='flex';window.scrollTo(0,0);}
+function cancelEdit(){document.getElementById('f_id').value='';['name','serial','loc','cert','notes'].forEach(function(k){document.getElementById('f_'+k).value='';});document.getElementById('f_freq').value=12;document.getElementById('f_last').value='';document.getElementById('f_lab').value='Karachi';document.getElementById('eqbtn').textContent='Add instrument';document.getElementById('eqcancel').style.display='none';}
 load();
 </script>
 </body>

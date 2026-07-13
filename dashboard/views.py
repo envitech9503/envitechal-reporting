@@ -504,7 +504,7 @@ def _eq_row(e, today):
     return {'id': e.id, 'name': e.name, 'serial': e.serial_no, 'location': e.location,
             'freq': e.frequency_months, 'last': e.last_calibrated.strftime('%d-%m-%Y') if e.last_calibrated else '',
             'due': due.strftime('%d-%m-%Y') if due else '', 'days': days, 'state': state,
-            'cert': e.cert_ref, 'notes': e.notes, 'lab': e.lab}
+            'cert': e.cert_ref, 'notes': e.notes, 'lab': e.lab, 'last_iso': e.last_calibrated.strftime('%Y-%m-%d') if e.last_calibrated else ''}
 
 
 @login_required
@@ -584,6 +584,23 @@ def equipment_save(request):
         except Exception: pass
     try: freq = max(1, min(120, int(g.get('freq') or 12)))
     except Exception: freq = 12
+    iid = (g.get('id') or '').strip()
+    if act == 'update' and iid:
+        try:
+            e = Equipment.objects.get(id=int(iid))
+        except Exception:
+            return JsonResponse({'error': 'Not found'}, status=404)
+        e.name = name[:200]
+        e.lab = (g.get('lab') or e.lab or 'Karachi')[:20]
+        e.serial_no = (g.get('serial') or '')[:120]
+        e.location = (g.get('location') or 'Karachi')[:60]
+        e.frequency_months = freq
+        e.last_calibrated = last
+        e.cert_ref = (g.get('cert') or '')[:120]
+        e.notes = (g.get('notes') or '')[:300]
+        e.updated_by = request.user
+        e.save()
+        return JsonResponse({'ok': True})
     Equipment.objects.create(name=name[:200], lab=(g.get('lab') or 'Karachi')[:20], serial_no=(g.get('serial') or '')[:120],
                              location=(g.get('location') or 'Karachi')[:60], frequency_months=freq,
                              last_calibrated=last, cert_ref=(g.get('cert') or '')[:120],
