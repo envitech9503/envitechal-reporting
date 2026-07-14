@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/static/js/csrf.js"></script><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
+    <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>List of Detox Reports</title>
+    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+    <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menu-button');
+            const sidebar = document.getElementById('sidebar');
+            
+            if(menuButton&&sidebar)menuButton.addEventListener('click', function() {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebar.classList.toggle('transform-none');
+            });
+        });
+    </script>
+    <style>
+        .NEQS,
+        .PEQS {
+            display: none;
+        }
+        
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            .side-nav {
+                width: 100%;
+                left: -100%;
+                transition: left 0.3s ease;
+                font-size:15px;
+            }
+
+            .side-nav.show {
+                left: 0;
+            }
+        }
+
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .menu-toggle a {
+                cursor: pointer;
+            }
+        }
+
+        .menu-toggle i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            .sub-menu.show {
+                display: block;
+            }
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            min-width: 800px;
+        }
+        .water-form-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        .water-form-table td, .water-form-table th {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            padding: 8px;
+        }
+        
+        .water-form-table input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans overflow-hidden">{% block body %}{% endblock %}</body>
+</html>
