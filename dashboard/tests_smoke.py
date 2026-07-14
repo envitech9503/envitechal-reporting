@@ -104,3 +104,32 @@ class NavigationSmokeTests(TestCase):
             with self.subTest(page=name):
                 resp = c.get(reverse(name), secure=True)
                 self.assertEqual(resp.status_code, 200)
+
+
+class OfficeIPTests(TestCase):
+    """The login office-IP gate uses the spoof-proof X-Real-IP: office IPs pass,
+    non-office IPs are blocked, and a forged X-Forwarded-For header is ignored."""
+
+    def _login_post(self, real_ip, xff=None):
+        extra = {"HTTP_X_REAL_IP": real_ip}
+        if xff:
+            extra["HTTP_X_FORWARDED_FOR"] = xff
+        return Client().post(
+            "/login/", {"username": "nobody", "password": "wrong-pass"},
+            secure=True, **extra
+        )
+
+    def test_office_ip_passes_gate(self):
+        resp = self._login_post("110.93.247.168")
+        self.assertNotEqual(resp.status_code, 403)
+        self.assertNotIn(b"Your IP is not allowed", resp.content)
+
+    def test_non_office_ip_blocked(self):
+        resp = self._login_post("8.8.8.8")
+        self.assertEqual(resp.status_code, 403)
+        self.assertIn(b"Your IP is not allowed", resp.content)
+
+    def test_spoofed_forwarded_for_is_ignored(self):
+        resp = self._login_post("8.8.8.8", xff="110.93.247.168")
+        self.assertEqual(resp.status_code, 403)
+        self.assertIn(b"Your IP is not allowed", resp.content)

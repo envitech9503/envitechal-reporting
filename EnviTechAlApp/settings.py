@@ -211,3 +211,9 @@ SECURE_REFERRER_POLICY = 'same-origin'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 LOGIN_URL = '/login/'
+
+# Office networks permitted to log in (non-superusers). Kept here so IPs
+# can change without editing view code. 110.93.247.168 and 124.29.208.36
+# are the two office egress IPs. The ex-developer's private 192.168.18.1
+# entry was removed (stale; only worked via a spoofable header).
+OFFICE_ALLOWED_IPS = ['110.93.247.168', '124.29.208.36']

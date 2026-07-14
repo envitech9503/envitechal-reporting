@@ -342,12 +342,11 @@ local_time_str_pakistan = current_datetime_pakistan.strftime("%H:%M:%S")
 local_date = f"Date: {local_date_pakistan}, Time: {local_time_str_pakistan}"
 
 def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]  # first IP in list is client
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+    # Trust X-Real-IP set by our nginx reverse proxy (the real peer
+    # address). X-Forwarded-For is deliberately NOT used: a client can
+    # forge it, which would let an attacker spoof an allowed office IP.
+    ip = request.META.get('HTTP_X_REAL_IP') or request.META.get('REMOTE_ADDR') or ''
+    return ip.strip()
 
 def userlogin(request):
      if request.method == "POST":
@@ -355,7 +354,8 @@ def userlogin(request):
           password = request.POST['password']
 
           user = authenticate(request,username=userName,password=password)
-          allowed_ip = ['110.93.247.168','124.29.208.36','192.168.18.1']
+          from django.conf import settings as _dj_settings
+          allowed_ip = getattr(_dj_settings, 'OFFICE_ALLOWED_IPS', ['110.93.247.168', '124.29.208.36'])
           
           user_ip = get_client_ip(request)
           print('ip--------->>>>',user_ip)
