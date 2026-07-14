@@ -20,9 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 
-active_users = User.objects.filter(is_active=True)
-signs = Signatures.objects.filter(user__in=active_users)
-print('signs-->>>>',signs)
 
 
 def filter_sign(sign):

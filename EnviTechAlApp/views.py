@@ -288,9 +288,6 @@ logo = '/static/assets/approvedby-removebg-preview.png'
 
 
 
-active_users = User.objects.filter(is_active=True)
-signs = Signatures.objects.filter(user__in=active_users)
-print('signs--------->>>>',signs)
 
 # karachi_office_signs = signs.filter(office='Karachi')
 # lahore_office_signs = signs.filter(office='Lahore')
