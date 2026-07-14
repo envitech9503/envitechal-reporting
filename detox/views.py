@@ -61,6 +61,8 @@ def compress_image(uploaded_file, max_size_kb=500):
 
 envitech_logo = '/home/django/EnviTechAlApp/static/assets/approvedby-removebg-preview.png'
 logo = '/static/assets/approvedby-removebg-preview.png'
+active_users = User.objects.filter(is_active=True)
+signs = Signatures.objects.filter(user__in=active_users)
 
 
 
