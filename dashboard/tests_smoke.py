@@ -77,3 +77,30 @@ class SmokeSecurityTests(TestCase):
             len(ctx.captured_queries), 50,
             msg="equipment list used %d queries (budget 50)" % len(ctx.captured_queries),
         )
+
+
+class NavigationSmokeTests(TestCase):
+    """Every main navigation page loads (HTTP 200) for an authenticated
+    superuser -- a broad guardrail across all apps that catches import errors,
+    template breaks and crashes on the primary pages (empty test DB)."""
+
+    NAV_URL_NAMES = [
+        "home", "nav", "sample_main", "qc_main",
+        "certificate", "job_main", "loggingList", "audit",
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_superuser(
+            username="nav_tester", email="nav@example.com",
+            password="Nav-Test-Pass-2026",
+        )
+
+    def test_main_nav_pages_load(self):
+        from django.urls import reverse
+        c = Client()
+        c.force_login(self.user)
+        for name in self.NAV_URL_NAMES:
+            with self.subTest(page=name):
+                resp = c.get(reverse(name), secure=True)
+                self.assertEqual(resp.status_code, 200)
