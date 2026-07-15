@@ -1,0 +1,39 @@
+{% extends 'base_app.html' %}
+{% load static %}
+{% block title %}Costing — Envi Tech AL{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'costing/costing.css' %}">{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div><h1>Test-Parameter Costing</h1>
+    <div class="sub">Full-absorption cost per parameter — rates pulled live from your chemical inventory, loaded labour and utilities</div></div>
+  <div><a class="btn ghost" href="/admin/costing/costingconfig/">Settings</a>
+       <a class="btn" href="/admin/costing/costparameter/add/">+ New parameter</a></div>
+</div>
+<div class="kpis">
+  <div class="kpi accent"><div class="l">Parameters costed</div><div class="v">{{ count }}</div></div>
+  <div class="kpi gold"><div class="l">Target margin</div><div class="v">{{ avg_margin }}<small>%</small></div></div>
+  <div class="kpi"><div class="l">Electricity tariff</div><div class="v" style="font-size:22px">{{ currency }} {{ config.electricity_tariff|floatformat:2 }}<small>/kWh</small></div></div>
+  <div class="kpi"><div class="l">Productive hrs / month</div><div class="v" style="font-size:22px">{{ config.productive_hours_month|floatformat:1 }}</div></div>
+</div>
+<div class="card">
+  <div class="ch"><span>Price catalogue</span><span class="tag">{{ currency }}</span></div>
+  <table class="tbl">
+    <thead><tr><th>Code</th><th>Parameter</th><th>Matrix</th><th>Method</th>
+      <th class="r">Batch</th><th class="r">Cost / test</th><th class="r">Recommended price</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+      <tr>
+        <td><a href="{% url 'costing:detail' row.p.pk %}">{{ row.p.code }}</a></td>
+        <td>{{ row.p.name }}</td><td>{{ row.p.matrix }}</td><td>{{ row.p.method }}</td>
+        <td class="r">{{ row.p.batch_size }}</td>
+        <td class="r">{{ currency }} {{ row.cost|floatformat:2 }}</td>
+        <td class="r price">{{ currency }} {{ row.price|floatformat:2 }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="7" class="note">No parameters yet — add one to begin.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="note">Computed from live chemical rates, loaded labour, utilities and overhead — ready to publish to the finance / quotation system.</div>
+</div>
+{% endblock %}

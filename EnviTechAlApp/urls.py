@@ -25,6 +25,7 @@ from django.views.static import serve
 handler500 = 'EnviTechAlApp.views.custom_500'
 
 urlpatterns = [
+    path('dashboard/costing/', include('costing.urls')),
     path('admin/', admin.site.urls),
     path('detox/', include('detox.urls')),
     path('dashboard/', include('dashboard.urls')),

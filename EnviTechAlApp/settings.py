@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'QC',
     'dashboard',
     'simple_history',
+    'costing',
 ]
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
@@ -217,3 +218,7 @@ LOGIN_URL = '/login/'
 # are the two office egress IPs. The ex-developer's private 192.168.18.1
 # entry was removed (stale; only worked via a spoofable header).
 OFFICE_ALLOWED_IPS = ['110.93.247.168', '124.29.208.36']
+
+# --- Costing module ---
+COSTING_CHEMICAL_MODEL = 'EnviTechAlApp.ChemicalItem'
+COSTING_CURRENCY = 'PKR'

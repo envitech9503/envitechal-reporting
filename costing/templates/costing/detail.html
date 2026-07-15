@@ -1,0 +1,63 @@
+{% extends 'base_app.html' %}
+{% load static %}
+{% block title %}{{ p.code }} — Costing{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'costing/costing.css' %}"><script src="{% static 'costing/costing.js' %}" defer></script>{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div>
+    <div class="sub"><a href="{% url 'costing:list' %}" style="color:var(--mut);text-decoration:none">← Costing</a></div>
+    <h1>{{ p.name }}</h1>
+    <div class="sub">{{ p.code }} · {{ p.matrix }} · {{ p.method }} &nbsp; <span class="tag">{{ p.tax_category }}</span></div>
+  </div>
+  <div><a class="btn ghost" href="/admin/costing/costparameter/{{ p.pk }}/change/">Edit recipe</a></div>
+</div>
+
+<div class="controls">
+  <label>Batch size (B)</label>
+  <input type="range" id="batch" min="1" max="50" value="{{ r.batch_size }}" data-pk="{{ p.pk }}">
+  <span class="bnum" id="bval">{{ r.batch_size }}</span>
+  <span class="hint">Annual volume V = {{ r.annual_volume }} — cost per test falls as the batch grows (shared calibration &amp; QC)</span>
+</div>
+
+{% if r.missing_rates %}<div class="warn">⚠ {{ r.missing_rates }} reagent(s) in this recipe have no purchase rate yet — set them in <a href="/admin/costing/reagentrate/">Costing → Reagent rates</a>. The cost below excludes them until priced.</div>{% endif %}
+
+<div class="kpis">
+  <div class="kpi accent"><div class="l">Fully-loaded cost / test</div><div class="v">{{ currency }} <span data-f="cost">{{ r.cost|floatformat:2 }}</span></div></div>
+  <div class="kpi gold"><div class="l">Recommended price / test</div><div class="v">{{ currency }} <span data-f="price">{{ r.price|floatformat:2 }}</span></div></div>
+  <div class="kpi"><div class="l">Per-sample direct</div><div class="v" style="font-size:21px">{{ currency }} <span data-f="per_sample">{{ r.per_sample|floatformat:2 }}</span></div></div>
+  <div class="kpi"><div class="l">Batch-shared / test</div><div class="v" style="font-size:21px">{{ currency }} <span data-f="batch_shared">{{ r.batch_shared|floatformat:2 }}</span></div></div>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <div class="ch"><span>Cost build-up → recommended price</span><span class="tag">live</span></div>
+    <div class="wf">
+      <div class="row"><div class="lab">Per-sample direct</div><div class="track"><div class="bar" data-bar="per_sample"></div></div><div class="val"><span data-f="per_sample">{{ r.per_sample|floatformat:2 }}</span></div></div>
+      <div class="row"><div class="lab">Batch-shared ÷ B</div><div class="track"><div class="bar" data-bar="batch_shared"></div></div><div class="val"><span data-f="batch_shared">{{ r.batch_shared|floatformat:2 }}</span></div></div>
+      <div class="row"><div class="lab">Volume-allocated</div><div class="track"><div class="bar" data-bar="vol_alloc"></div></div><div class="val"><span data-f="vol_alloc">{{ r.vol_alloc|floatformat:2 }}</span></div></div>
+      <div class="row total"><div class="lab b">Pre-overhead cost</div><div class="track"><div class="bar tot" data-bar="pre_overhead"></div></div><div class="val"><span data-f="pre_overhead">{{ r.pre_overhead|floatformat:2 }}</span></div></div>
+      <div class="row"><div class="lab">Repeat-rework (+)</div><div class="track"><div class="bar" data-bar="rework"></div></div><div class="val"><span data-f="rework">{{ r.rework|floatformat:2 }}</span></div></div>
+      <div class="row"><div class="lab">Overhead — lab + G&amp;A (+)</div><div class="track"><div class="bar" data-bar="overhead"></div></div><div class="val"><span data-f="overhead">{{ r.overhead|floatformat:2 }}</span></div></div>
+      <div class="row total"><div class="lab b">Fully-loaded cost</div><div class="track"><div class="bar tot" data-bar="cost"></div></div><div class="val"><span data-f="cost">{{ r.cost|floatformat:2 }}</span></div></div>
+      <div class="row"><div class="lab">Margin (+)</div><div class="track"><div class="bar gold" data-bar="margin"></div></div><div class="val"><span data-f="margin">{{ r.margin|floatformat:2 }}</span></div></div>
+      <div class="row price"><div class="lab b">Recommended price</div><div class="track"><div class="bar gold" data-bar="price"></div></div><div class="val"><span data-f="price">{{ r.price|floatformat:2 }}</span></div></div>
+    </div>
+    <div class="note">All amounts in {{ currency }} per test. Tax (SST/FBR) is applied downstream in the finance system.</div>
+  </div>
+
+  <div class="card">
+    <div class="ch">Recipe — chemicals <span class="tag">from inventory</span></div>
+    <table class="mini"><thead><tr><th>Chemical</th><th class="r">Rate</th><th class="r">Qty/s</th><th class="r">Qty/b</th><th class="r">Cost/s</th></tr></thead>
+    <tbody>
+    {% for l in r.chem_lines %}<tr><td>{{ l.name }}</td><td class="r">{% if l.missing %}<span class="miss">⚠ set rate</span>{% else %}{{ l.rate|floatformat:2 }}{% endif %}</td><td class="r">{{ l.qty_sample }}</td><td class="r">{{ l.qty_batch }}</td><td class="r">{{ l.cost_sample|floatformat:2 }}</td></tr>
+    {% empty %}<tr><td colspan="5" class="note">No chemicals in recipe.</td></tr>{% endfor %}
+    </tbody></table>
+    <div class="ch" style="border-top:1px solid var(--line)">Recipe — labour <span class="tag">loaded rate</span></div>
+    <table class="mini"><thead><tr><th>Grade</th><th class="r">Loaded/hr</th><th class="r">Min/s</th><th class="r">Cost/s</th></tr></thead>
+    <tbody>
+    {% for l in r.lab_lines %}<tr><td>{{ l.grade }}</td><td class="r">{{ l.rate|floatformat:2 }}</td><td class="r">{{ l.minutes }}</td><td class="r">{{ l.cost_sample|floatformat:2 }}</td></tr>
+    {% empty %}<tr><td colspan="4" class="note">No labour in recipe.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}
