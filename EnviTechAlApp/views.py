@@ -16912,7 +16912,7 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
                self.ww_sample_type = ww_sample_type
                self.ww_sample_desc = ww_sample_desc
                self.ww_test_desc = ww_test_desc
-               self.ww_date_of_analysis = ww_date_of_analy_from + " to " + ww_date_of_analy_to
+               self.ww_date_of_analysis = (ww_date_of_analy_from or "") + " to " + (ww_date_of_analy_to or "")
 
 
 
@@ -17376,6 +17376,20 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
 
      #      pdf.add_page()
 
+     if 'pdf' not in locals():
+         pdf = PDFWithPageNumbers(lab_report_no=vem.lab_report_no,invoice_bill_no=vem.invoice_bill_no,reporting_date=vem.reporting_date,report_to=vem.report_to,
+                                  address=vem.address,attention=vem.attention,email=vem.email,sample_id=vem.sample_id,ww_sample_colec_Date=vem.ww_sample_colec_Date,
+                                  ww_sample_desc=vem.ww_sample_desc,ww_sample_type=vem.ww_sample_type,ww_sample_colec_by=vem.ww_sample_colec_by,ww_date_of_analy_from=vem.ww_date_of_analy_from,
+                                  ww_date_of_analy_to=vem.ww_date_of_analy_to,ww_test_desc=vem.ww_test_desc
+
+                                  )
+         pdf.add_page()
+         font_path = "static/fonts/calibri.ttf"
+         font_path_bold = "static/fonts/calibrib.ttf"
+         pdf.add_font("Calibri","",font_path,uni=True)
+         pdf.add_font("Calibri","B",font_path_bold,uni=True)
+         pdf.set_font("Calibri","", 9)
+         pdf.set_auto_page_break(auto=True,margin=5)
      if num_rows >=16:
                pdf.add_page()
      
@@ -17457,16 +17471,19 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
                     pdf.cell(190, 4, datum, border=0, ln=True, align='L') 
 
 
-     pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),256)
-     pdf.text(26,259,f"Analyzed By ({vem.analyst_signature.role})")
-     pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
-     pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),256)
-     pdf.text(87.5,259,f"Reviewed By ({vem.assistant_manager_signature.role})")
+     if vem.analyst_signature:
+         pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
+         pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),256)
+         pdf.text(26,259,f"Analyzed By ({vem.analyst_signature.role})")
+     if vem.assistant_manager_signature:
+         pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
+         pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),256)
+         pdf.text(87.5,259,f"Reviewed By ({vem.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
-     pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),256)
-     pdf.text(160,259,f"Approved By ({vem.lab_manager_signature.role})")
+     if vem.lab_manager_signature:
+         pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
+         pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),256)
+         pdf.text(160,259,f"Approved By ({vem.lab_manager_signature.role})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -17504,13 +17521,13 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
      # pdf.text(182,280,txt="(Certificate # 080177424-EMS)")
      
      
-     if vem.location == "NEQS" and vem.city_location.lower() == "karachi":
+     if vem.location == "NEQS" and (vem.city_location or "").lower() == "karachi":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 263, 19, 15)
           pdf.text(152,280,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,266,txt="Disclaimer:")
 
-     elif vem.location == "NEQS" and vem.city_location.lower() == "lahore":
+     elif vem.location == "NEQS" and (vem.city_location or "").lower() == "lahore":
           pdf.image('static/assets/EPA_updated.png', 153, 262, 25, 16)
           pdf.text(155,280,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)
