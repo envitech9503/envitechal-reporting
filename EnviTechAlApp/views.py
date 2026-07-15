@@ -4398,7 +4398,7 @@ def calib_pdf(request,pk):
 
           pdf.rect(55,60,55,6)
           pdf.set_font("Calibri","", 11)
-          pdf.text(57,64, txt=calib.client)
+          pdf.text(57,64, txt=(calib.client or ""))
 
           pdf.rect(110,60,35,6)
           pdf.set_font("Calibri","B", 11)
@@ -4956,7 +4956,7 @@ def calib_pdf1(request,pk):
 
      pdf.rect(55,60,55,6)
      pdf.set_font("Calibri","", 11)
-     pdf.text(57,64, txt=calib.client)
+     pdf.text(57,64, txt=(calib.client or ""))
 
      pdf.rect(110,60,35,6)
      pdf.set_font("Calibri","B", 11)
@@ -6099,7 +6099,7 @@ def inspect_pdf(request,pk):
                self.text(10,60,txt='Certificate Number:')
                self.line(42,61.5,60,61.5)
                self.set_font("Calibri","", 11)
-               self.text(43,60,txt=inspect.cert_num)
+               self.text(43,60,txt=(inspect.cert_num or ""))
 
                target_url = request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': pk}))
           
@@ -6221,7 +6221,7 @@ def inspect_pdf(request,pk):
      # pdf.text(10,60,txt='Certificate Number:')
      # pdf.line(42,61.5,60,61.5)
      # pdf.set_font("Calibri","", 11)
-     # pdf.text(43,60,txt=inspect.cert_num)
+     # pdf.text(43,60,txt=(inspect.cert_num or ""))
 
      # target_url = request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': pk}))
     
@@ -6651,7 +6651,7 @@ def inspect_pdf1(request,pk):
                self.text(10,60,txt='Certificate Number:')
                self.line(42,61.5,60,61.5)
                self.set_font("Calibri","", 11)
-               self.text(43,60,txt=inspect.cert_num)
+               self.text(43,60,txt=(inspect.cert_num or ""))
 
                target_url = request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': pk}))
           
@@ -11548,12 +11548,12 @@ def generatePDF(request,pk):
          pdf.image(waterForm.lab_manager_signature.signature,176,228,20.32,20.32)
      
      
-     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({waterForm.analyst_signature.role})"),250)
-     pdf.text(26,253,f"Analyzed By ({waterForm.analyst_signature.role})")
-     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({waterForm.assistant_manager_signature.role})"),250)
-     pdf.text(87.5,253,f"Reviewed By ({waterForm.assistant_manager_signature.role})")
-     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({waterForm.lab_manager_signature.role})"),250)
-     pdf.text(160,253,f"Approved By ({waterForm.lab_manager_signature.role})")
+     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(waterForm.analyst_signature.role if waterForm.analyst_signature else '')})"),250)
+     pdf.text(26,253,f"Analyzed By ({(waterForm.analyst_signature.role if waterForm.analyst_signature else '')})")
+     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({(waterForm.assistant_manager_signature.role if waterForm.assistant_manager_signature else '')})"),250)
+     pdf.text(87.5,253,f"Reviewed By ({(waterForm.assistant_manager_signature.role if waterForm.assistant_manager_signature else '')})")
+     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(waterForm.lab_manager_signature.role if waterForm.lab_manager_signature else '')})"),250)
+     pdf.text(160,253,f"Approved By ({(waterForm.lab_manager_signature.role if waterForm.lab_manager_signature else '')})")
 
 
      
@@ -12530,17 +12530,17 @@ def generatePDF_report(request,pk,return_bytes=False):
 
      if waterForm.analyst_signature:
          pdf.image(waterForm.analyst_signature.signature,30,231,20.32,20.32)
-     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({waterForm.analyst_signature.role})"),250)
-     pdf.text(26,253,f"Analyzed By ({waterForm.analyst_signature.role})")
+     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(waterForm.analyst_signature.role if waterForm.analyst_signature else '')})"),250)
+     pdf.text(26,253,f"Analyzed By ({(waterForm.analyst_signature.role if waterForm.analyst_signature else '')})")
      if waterForm.assistant_manager_signature:
          pdf.image(waterForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      pdf.line(126,250,47.5+pdf.get_string_width("Reviewed By (Assistant Manager)"),250)
-     pdf.text(87.5,253,f"Reviewed By ({waterForm.assistant_manager_signature.role})")
+     pdf.text(87.5,253,f"Reviewed By ({(waterForm.assistant_manager_signature.role if waterForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if waterForm.lab_manager_signature:
          pdf.image(waterForm.lab_manager_signature.signature,176,228,20.32,20.32)
-     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({waterForm.lab_manager_signature.role})"),250)
-     pdf.text(160,253,f"Approved By ({waterForm.lab_manager_signature.role})")
+     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(waterForm.lab_manager_signature.role if waterForm.lab_manager_signature else '')})"),250)
+     pdf.text(160,253,f"Approved By ({(waterForm.lab_manager_signature.role if waterForm.lab_manager_signature else '')})")
 
 
      
@@ -13465,17 +13465,17 @@ def gaseousReportgeneratePDF(request,pk):
 
      if gaseousForm.analyst_signature:
          pdf.image(gaseousForm.analyst_signature.signature,30,231,20.32,20.32)
-     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({gaseousForm.analyst_signature.role})"),250)
-     pdf.text(26,253,f"Analyzed By ({gaseousForm.analyst_signature.role})")
+     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(gaseousForm.analyst_signature.role if gaseousForm.analyst_signature else '')})"),250)
+     pdf.text(26,253,f"Analyzed By ({(gaseousForm.analyst_signature.role if gaseousForm.analyst_signature else '')})")
      if gaseousForm.assistant_manager_signature:
          pdf.image(gaseousForm.assistant_manager_signature.signature,100,232,20.32,20.32)
-     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({gaseousForm.assistant_manager_signature.role})"),250)
-     pdf.text(87.5,253,f"Reviewed By ({gaseousForm.assistant_manager_signature.role})")
+     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({(gaseousForm.assistant_manager_signature.role if gaseousForm.assistant_manager_signature else '')})"),250)
+     pdf.text(87.5,253,f"Reviewed By ({(gaseousForm.assistant_manager_signature.role if gaseousForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if gaseousForm.lab_manager_signature:
          pdf.image(gaseousForm.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({gaseousForm.lab_manager_signature.role})"),250)
-     pdf.text(160,253,f"Approved By ({gaseousForm.lab_manager_signature.role})")
+     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(gaseousForm.lab_manager_signature.role if gaseousForm.lab_manager_signature else '')})"),250)
+     pdf.text(160,253,f"Approved By ({(gaseousForm.lab_manager_signature.role if gaseousForm.lab_manager_signature else '')})")
 
 
      pdf.line(10,255,-10+pdf.w,255)
@@ -14187,17 +14187,17 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
 
      if gaseousForm.analyst_signature:
          pdf.image(gaseousForm.analyst_signature.signature,30,231,20.32,20.32)
-     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({gaseousForm.analyst_signature.role})"),250)
-     pdf.text(26,253,f"Analyzed By ({gaseousForm.analyst_signature.role})")
+     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(gaseousForm.analyst_signature.role if gaseousForm.analyst_signature else '')})"),250)
+     pdf.text(26,253,f"Analyzed By ({(gaseousForm.analyst_signature.role if gaseousForm.analyst_signature else '')})")
      if gaseousForm.assistant_manager_signature:
          pdf.image(gaseousForm.assistant_manager_signature.signature,100,232,20.32,20.32)
-     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({gaseousForm.assistant_manager_signature.role})"),250)
-     pdf.text(87.5,253,f"Reviewed By ({gaseousForm.assistant_manager_signature.role})")
+     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({(gaseousForm.assistant_manager_signature.role if gaseousForm.assistant_manager_signature else '')})"),250)
+     pdf.text(87.5,253,f"Reviewed By ({(gaseousForm.assistant_manager_signature.role if gaseousForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if gaseousForm.lab_manager_signature:
          pdf.image(gaseousForm.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({gaseousForm.lab_manager_signature.role})"),250)
-     pdf.text(160,253,f"Approved By ({gaseousForm.lab_manager_signature.role})")
+     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(gaseousForm.lab_manager_signature.role if gaseousForm.lab_manager_signature else '')})"),250)
+     pdf.text(160,253,f"Approved By ({(gaseousForm.lab_manager_signature.role if gaseousForm.lab_manager_signature else '')})")
 
 
 
@@ -15013,17 +15013,17 @@ def ambientAirGeneratePDF(request,pk):
 
      if ambientAirForm.analyst_signature:
          pdf.image(ambientAirForm.analyst_signature.signature,30,231,20.32,20.32)
-     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({ambientAirForm.analyst_signature.role})"),250)
-     pdf.text(26,253,f"Analyzed By ({ambientAirForm.analyst_signature.role})")
+     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(ambientAirForm.analyst_signature.role if ambientAirForm.analyst_signature else '')})"),250)
+     pdf.text(26,253,f"Analyzed By ({(ambientAirForm.analyst_signature.role if ambientAirForm.analyst_signature else '')})")
      if ambientAirForm.assistant_manager_signature:
          pdf.image(ambientAirForm.assistant_manager_signature.signature,100,232,20.32,20.32)
-     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})"),250)
-     pdf.text(87.5,253,f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})")
+     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({(ambientAirForm.assistant_manager_signature.role if ambientAirForm.assistant_manager_signature else '')})"),250)
+     pdf.text(87.5,253,f"Reviewed By ({(ambientAirForm.assistant_manager_signature.role if ambientAirForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if ambientAirForm.lab_manager_signature:
          pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({ambientAirForm.lab_manager_signature.role})"),250)
-     pdf.text(160,253,f"Approved By ({ambientAirForm.lab_manager_signature.role})")
+     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})"),250)
+     pdf.text(160,253,f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})")
 
 
 
@@ -15696,17 +15696,17 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
 
      if ambientAirForm.analyst_signature:
          pdf.image(ambientAirForm.analyst_signature.signature,30,231,20.32,20.32)
-     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({ambientAirForm.analyst_signature.role})"),250)
-     pdf.text(26,253,f"Analyzed By ({ambientAirForm.analyst_signature.role})")
+     pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(ambientAirForm.analyst_signature.role if ambientAirForm.analyst_signature else '')})"),250)
+     pdf.text(26,253,f"Analyzed By ({(ambientAirForm.analyst_signature.role if ambientAirForm.analyst_signature else '')})")
      if ambientAirForm.assistant_manager_signature:
          pdf.image(ambientAirForm.assistant_manager_signature.signature,100,232,20.32,20.32)
-     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})"),250)
-     pdf.text(87.5,253,f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})")
+     pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({(ambientAirForm.assistant_manager_signature.role if ambientAirForm.assistant_manager_signature else '')})"),250)
+     pdf.text(87.5,253,f"Reviewed By ({(ambientAirForm.assistant_manager_signature.role if ambientAirForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if ambientAirForm.lab_manager_signature:
          pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({ambientAirForm.lab_manager_signature.role})"),250)
-     pdf.text(160,253,f"Approved By ({ambientAirForm.lab_manager_signature.role})")
+     pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})"),250)
+     pdf.text(160,253,f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})")
 
 
 
@@ -16669,17 +16669,17 @@ def wasteWaterPdf0(request,pk):
      
      if vem.analyst_signature:
          pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
-         pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),256)
-         pdf.text(26,259,f"Analyzed By ({vem.analyst_signature.role})")
+         pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})"),256)
+         pdf.text(26,259,f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})")
      if vem.assistant_manager_signature:
          pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
-         pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),256)
-         pdf.text(87.5,259,f"Reviewed By ({vem.assistant_manager_signature.role})")
+         pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})"),256)
+         pdf.text(87.5,259,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vem.lab_manager_signature:
          pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
-         pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),256)
-         pdf.text(160,259,f"Approved By ({vem.lab_manager_signature.role})")
+         pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),256)
+         pdf.text(160,259,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
      
      
@@ -17506,17 +17506,17 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
 
      if vem.analyst_signature:
          pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
-         pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),256)
-         pdf.text(26,259,f"Analyzed By ({vem.analyst_signature.role})")
+         pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})"),256)
+         pdf.text(26,259,f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})")
      if vem.assistant_manager_signature:
          pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
-         pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),256)
-         pdf.text(87.5,259,f"Reviewed By ({vem.assistant_manager_signature.role})")
+         pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})"),256)
+         pdf.text(87.5,259,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vem.lab_manager_signature:
          pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
-         pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),256)
-         pdf.text(160,259,f"Approved By ({vem.lab_manager_signature.role})")
+         pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),256)
+         pdf.text(160,259,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -18286,17 +18286,17 @@ def vehicularEmissionReport(request,pk):
 
      if vem.analyst_signature:
          pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),256)
-     pdf.text(26,259,f"Analyzed By ({vem.analyst_signature.role})")
+     pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})"),256)
+     pdf.text(26,259,f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})")
      if vem.assistant_manager_signature:
          pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
-     pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),256)
-     pdf.text(87.5,259,f"Reviewed By ({vem.assistant_manager_signature.role})")
+     pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})"),256)
+     pdf.text(87.5,259,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vem.lab_manager_signature:
          pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
-     pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),256)
-     pdf.text(160,259,f"Approved By ({vem.lab_manager_signature.role})")
+     pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),256)
+     pdf.text(160,259,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
 
      pdf.line(10,262,-10+pdf.w,262)
@@ -18912,17 +18912,17 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
      
      if vem.analyst_signature:
          pdf.image(vem.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,251,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),251)
-     pdf.text(26,254,f"Analyzed By ({vem.analyst_signature.role})")
+     pdf.line(19,251,36+pdf.get_string_width(f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})"),251)
+     pdf.text(26,254,f"Analyzed By ({(vem.analyst_signature.role if vem.analyst_signature else '')})")
      if vem.assistant_manager_signature:
          pdf.image(vem.assistant_manager_signature.signature,100,233,20.32,20.32)
-     pdf.line(126,251,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),251)
-     pdf.text(87.5,254,f"Reviewed By ({vem.assistant_manager_signature.role})")
+     pdf.line(126,251,47.5+pdf.get_string_width(f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})"),251)
+     pdf.text(87.5,254,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if vem.lab_manager_signature:
          pdf.image(vem.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,251,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),251)
-     pdf.text(160,254,f"Approved By ({vem.lab_manager_signature.role})")
+     pdf.line(155,251,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),251)
+     pdf.text(160,254,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
 
 
@@ -19748,17 +19748,17 @@ def luxAnalysisReportPdf(request,pk):
      
      if lux.analyst_signature:
          pdf.image(lux.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({lux.analyst_signature.role})"),257)
-     pdf.text(26,259.3,f"Analyzed By ({lux.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(lux.analyst_signature.role if lux.analyst_signature else '')})"),257)
+     pdf.text(26,259.3,f"Analyzed By ({(lux.analyst_signature.role if lux.analyst_signature else '')})")
      if lux.assistant_manager_signature:
          pdf.image(lux.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({lux.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.3,f"Reviewed By ({lux.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(lux.assistant_manager_signature.role if lux.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.3,f"Reviewed By ({(lux.assistant_manager_signature.role if lux.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if lux.lab_manager_signature:
          pdf.image(lux.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({lux.lab_manager_signature.role})"),257)
-     pdf.text(160,259.3,f"Approved By ({lux.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.3,f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})")
 
 
 
@@ -20429,17 +20429,17 @@ def luxAnalysisReportPdf1(request,pk,return_bytes=False):
      
      if lux.analyst_signature:
          pdf.image(lux.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({lux.analyst_signature.role})"),252)
-     pdf.text(26,253.9,f"Analyzed By ({lux.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(lux.analyst_signature.role if lux.analyst_signature else '')})"),252)
+     pdf.text(26,253.9,f"Analyzed By ({(lux.analyst_signature.role if lux.analyst_signature else '')})")
      if lux.assistant_manager_signature:
          pdf.image(lux.assistant_manager_signature.signature,100,234,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({lux.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,253.9,f"Reviewed By ({lux.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(lux.assistant_manager_signature.role if lux.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,253.9,f"Reviewed By ({(lux.assistant_manager_signature.role if lux.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if lux.lab_manager_signature:
          pdf.image(lux.lab_manager_signature.signature,178,234,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({lux.lab_manager_signature.role})"),252)
-     pdf.text(160,253.9,f"Approved By ({lux.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})"),252)
+     pdf.text(160,253.9,f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})")
 
 
      
@@ -21093,17 +21093,17 @@ def packingPolyBagReport(request,pk):
      
      if pack.analyst_signature:
          pdf.image(pack.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({pack.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({pack.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(pack.analyst_signature.role if pack.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(pack.analyst_signature.role if pack.analyst_signature else '')})")
      if pack.assistant_manager_signature:
          pdf.image(pack.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({pack.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({pack.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(pack.assistant_manager_signature.role if pack.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(pack.assistant_manager_signature.role if pack.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if pack.lab_manager_signature:
          pdf.image(pack.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({pack.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({pack.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(pack.lab_manager_signature.role if pack.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(pack.lab_manager_signature.role if pack.lab_manager_signature else '')})")
      
 
 
@@ -21665,17 +21665,17 @@ def packingPolyBagReport1(request,pk,return_bytes=False):
      
      if pack.analyst_signature:
          pdf.image(pack.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({pack.analyst_signature.role})"),252)
-     pdf.text(26,254.5,f"Analyzed By ({pack.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(pack.analyst_signature.role if pack.analyst_signature else '')})"),252)
+     pdf.text(26,254.5,f"Analyzed By ({(pack.analyst_signature.role if pack.analyst_signature else '')})")
      if pack.assistant_manager_signature:
          pdf.image(pack.assistant_manager_signature.signature,100,234,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({pack.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,254.5,f"Reviewed By ({pack.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(pack.assistant_manager_signature.role if pack.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,254.5,f"Reviewed By ({(pack.assistant_manager_signature.role if pack.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,229,22,22)
      if pack.lab_manager_signature:
          pdf.image(pack.lab_manager_signature.signature,178,234,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({pack.lab_manager_signature.role})"),252)
-     pdf.text(160,254.5,f"Approved By ({pack.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(pack.lab_manager_signature.role if pack.lab_manager_signature else '')})"),252)
+     pdf.text(160,254.5,f"Approved By ({(pack.lab_manager_signature.role if pack.lab_manager_signature else '')})")
 
 
      
@@ -22887,17 +22887,17 @@ def noiseAnalysisReport(request,pk):
      
      if nA.analyst_signature:
          pdf.image(nA.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({nA.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})")
      if nA.assistant_manager_signature:
          pdf.image(nA.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({nA.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,233,22,22)
      if nA.lab_manager_signature:
          pdf.image(nA.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({nA.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -23936,17 +23936,17 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
      
      if nA.analyst_signature:
          pdf.image(nA.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),252)
-     pdf.text(26,254.5,f"Analyzed By ({nA.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})"),252)
+     pdf.text(26,254.5,f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})")
      if nA.assistant_manager_signature:
          pdf.image(nA.assistant_manager_signature.signature,100,233,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,254.5,f"Reviewed By ({nA.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,254.5,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if nA.lab_manager_signature:
          pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),252)
-     pdf.text(160,254.5,f"Approved By ({nA.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),252)
+     pdf.text(160,254.5,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -24738,17 +24738,17 @@ def machineOilReportPdf(request,pk):
      
      if machine.analyst_signature:
          pdf.image(machine.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({machine.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({machine.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(machine.analyst_signature.role if machine.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(machine.analyst_signature.role if machine.analyst_signature else '')})")
      if machine.assistant_manager_signature:
          pdf.image(machine.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({machine.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({machine.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(machine.assistant_manager_signature.role if machine.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(machine.assistant_manager_signature.role if machine.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if machine.lab_manager_signature:
          pdf.image(machine.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({machine.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({machine.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -25411,17 +25411,17 @@ def machineOilReportPdf1(request,pk,return_bytes=False):
      
      if machine.analyst_signature:
          pdf.image(machine.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({machine.analyst_signature.role})"),252)
-     pdf.text(26,254.5,f"Analyzed By ({machine.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(machine.analyst_signature.role if machine.analyst_signature else '')})"),252)
+     pdf.text(26,254.5,f"Analyzed By ({(machine.analyst_signature.role if machine.analyst_signature else '')})")
      if machine.assistant_manager_signature:
          pdf.image(machine.assistant_manager_signature.signature,100,234,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({machine.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,254.5,f"Reviewed By ({machine.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(machine.assistant_manager_signature.role if machine.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,254.5,f"Reviewed By ({(machine.assistant_manager_signature.role if machine.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,230,22,22)
      if machine.lab_manager_signature:
          pdf.image(machine.lab_manager_signature.signature,178,234,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({machine.lab_manager_signature.role})"),252)
-     pdf.text(160,254.5,f"Approved By ({machine.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})"),252)
+     pdf.text(160,254.5,f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -26229,17 +26229,17 @@ def microbialAnalysisPdf(request,pk):
 
      if micro.analyst_signature:
          pdf.image(micro.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({micro.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({micro.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(micro.analyst_signature.role if micro.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(micro.analyst_signature.role if micro.analyst_signature else '')})")
      if micro.assistant_manager_signature:
          pdf.image(micro.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({micro.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({micro.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(micro.assistant_manager_signature.role if micro.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(micro.assistant_manager_signature.role if micro.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if micro.lab_manager_signature:
          pdf.image(micro.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({micro.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({micro.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})")
 
      pdf.set_font("Calibri","B", 9)
      pdf.line(10,261,-10+pdf.w,261)
@@ -26876,17 +26876,17 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
      
      if micro.analyst_signature:
          pdf.image(micro.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({micro.analyst_signature.role})"),252)
-     pdf.text(26,254.5,f"Analyzed By ({micro.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(micro.analyst_signature.role if micro.analyst_signature else '')})"),252)
+     pdf.text(26,254.5,f"Analyzed By ({(micro.analyst_signature.role if micro.analyst_signature else '')})")
      if micro.assistant_manager_signature:
          pdf.image(micro.assistant_manager_signature.signature,100,234,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({micro.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,254.5,f"Reviewed By ({micro.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(micro.assistant_manager_signature.role if micro.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,254.5,f"Reviewed By ({(micro.assistant_manager_signature.role if micro.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,230,22,22)
      if micro.lab_manager_signature:
          pdf.image(micro.lab_manager_signature.signature,178,234,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({micro.lab_manager_signature.role})"),252)
-     pdf.text(160,254.5,f"Approved By ({micro.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})"),252)
+     pdf.text(160,254.5,f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -27314,7 +27314,7 @@ def viscousLiquidPdf(request,pk):
                self.test_desc = test_desc
                self.date_of_analysis_from = date_of_analysis_from
                self.date_of_analysis_to = date_of_analysis_to
-               self.date_of_analysis = date_of_analysis_from +" to "+ date_of_analysis_to
+               self.date_of_analysis = (date_of_analysis_from or "") +" to "+ (date_of_analysis_to or "")
 
 
 
@@ -27627,17 +27627,17 @@ def viscousLiquidPdf(request,pk):
      
      if vL.analyst_signature:
          pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({vL.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({vL.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})")
      if vL.assistant_manager_signature:
          pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({vL.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({vL.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vL.lab_manager_signature:
          pdf.image(vL.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({vL.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({vL.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -27895,7 +27895,7 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
                self.test_desc = test_desc
                self.date_of_analysis_from = date_of_analysis_from
                self.date_of_analysis_to = date_of_analysis_to
-               self.date_of_analysis = date_of_analysis_from +" to "+ date_of_analysis_to
+               self.date_of_analysis = (date_of_analysis_from or "") +" to "+ (date_of_analysis_to or "")
 
 
 
@@ -28254,17 +28254,17 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
      
      if vL.analyst_signature:
          pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({vL.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({vL.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})")
      if vL.assistant_manager_signature:
          pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({vL.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({vL.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vL.lab_manager_signature:
          pdf.image(vL.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({vL.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({vL.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -29421,17 +29421,17 @@ def ambientAir2Pdf(request,pk):
      
      if AA2.analyst_signature:
          pdf.image(AA2.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({AA2.analyst_signature.role})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({AA2.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(AA2.analyst_signature.role if AA2.analyst_signature else '')})"),257)
+     pdf.text(26,259.5,f"Analyzed By ({(AA2.analyst_signature.role if AA2.analyst_signature else '')})")
      if AA2.assistant_manager_signature:
          pdf.image(AA2.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({AA2.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({AA2.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(AA2.assistant_manager_signature.role if AA2.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,259.5,f"Reviewed By ({(AA2.assistant_manager_signature.role if AA2.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if AA2.lab_manager_signature:
          pdf.image(AA2.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({AA2.lab_manager_signature.role})"),257)
-     pdf.text(160,259.5,f"Approved By ({AA2.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})"),257)
+     pdf.text(160,259.5,f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -30257,17 +30257,17 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
      
      if AA2.analyst_signature:
          pdf.image(AA2.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({AA2.analyst_signature.role})"),252)
-     pdf.text(26,254.5,f"Analyzed By ({AA2.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(AA2.analyst_signature.role if AA2.analyst_signature else '')})"),252)
+     pdf.text(26,254.5,f"Analyzed By ({(AA2.analyst_signature.role if AA2.analyst_signature else '')})")
      if AA2.assistant_manager_signature:
          pdf.image(AA2.assistant_manager_signature.signature,100,234,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({AA2.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,254.5,f"Reviewed By ({AA2.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(AA2.assistant_manager_signature.role if AA2.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,254.5,f"Reviewed By ({(AA2.assistant_manager_signature.role if AA2.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,230,22,22)
      if AA2.lab_manager_signature:
          pdf.image(AA2.lab_manager_signature.signature,178,234,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({AA2.lab_manager_signature.role})"),252)
-     pdf.text(160,254.5,f"Approved By ({AA2.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})"),252)
+     pdf.text(160,254.5,f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -30903,7 +30903,7 @@ def wasteWater2Pdf(request,pk):
                self.sampling_method = sampling_method
                self.report_to = report_to
                self.test_description = test_description
-               self.date_of_analysis = date_of_analysis_from +" to "+ date_of_analysis_to
+               self.date_of_analysis = (date_of_analysis_from or "") +" to "+ (date_of_analysis_to or "")
 
 
 
@@ -33614,17 +33614,17 @@ def wasteWater2Pdf(request,pk):
      
      if ww.analyst_signature:
          pdf.image(ww.analyst_signature.signature,30,235,20.32,20.32)
-     pdf.line(19,253,36+pdf.get_string_width(f"Analyzed By ({ww.analyst_signature.role})"),253)
-     pdf.text(26,257,f"Analyzed By ({ww.analyst_signature.role})")
+     pdf.line(19,253,36+pdf.get_string_width(f"Analyzed By ({(ww.analyst_signature.role if ww.analyst_signature else '')})"),253)
+     pdf.text(26,257,f"Analyzed By ({(ww.analyst_signature.role if ww.analyst_signature else '')})")
      if ww.assistant_manager_signature:
          pdf.image(ww.assistant_manager_signature.signature,100,235,20.32,20.32)
-     pdf.line(126,253,47.5+pdf.get_string_width(f"Reviewed By ({ww.assistant_manager_signature.role})"),253)
-     pdf.text(87.5,257,f"Reviewed By ({ww.assistant_manager_signature.role})")
+     pdf.line(126,253,47.5+pdf.get_string_width(f"Reviewed By ({(ww.assistant_manager_signature.role if ww.assistant_manager_signature else '')})"),253)
+     pdf.text(87.5,257,f"Reviewed By ({(ww.assistant_manager_signature.role if ww.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,231,22,22)
      if ww.lab_manager_signature:
          pdf.image(ww.lab_manager_signature.signature,178,235,20.32,20.32)
-     pdf.line(155,253,165+pdf.get_string_width(f"Approved By ({ww.lab_manager_signature.role})"),253)
-     pdf.text(160,257,f"Approved By ({ww.lab_manager_signature.role})")
+     pdf.line(155,253,165+pdf.get_string_width(f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})"),253)
+     pdf.text(160,257,f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})")
 
     
 
@@ -33873,7 +33873,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                self.sampling_method = sampling_method
                self.report_to = report_to
                self.test_description = test_description
-               self.date_of_analysis = date_of_analysis_from +" to "+ date_of_analysis_to
+               self.date_of_analysis = (date_of_analysis_from or "") +" to "+ (date_of_analysis_to or "")
 
 
 
@@ -36625,17 +36625,17 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      
      if ww.analyst_signature:
          pdf.image(ww.analyst_signature.signature,30,234,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({ww.analyst_signature.role})"),252)
-     pdf.text(26,256,f"Analyzed By ({ww.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(ww.analyst_signature.role if ww.analyst_signature else '')})"),252)
+     pdf.text(26,256,f"Analyzed By ({(ww.analyst_signature.role if ww.analyst_signature else '')})")
      if ww.assistant_manager_signature:
          pdf.image(ww.assistant_manager_signature.signature,100,234,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({ww.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,256,f"Reviewed By ({ww.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(ww.assistant_manager_signature.role if ww.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,256,f"Reviewed By ({(ww.assistant_manager_signature.role if ww.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,229,22,22)
      if ww.lab_manager_signature:
          pdf.image(ww.lab_manager_signature.signature,178,234,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({ww.lab_manager_signature.role})"),252)
-     pdf.text(160,256,f"Approved By ({ww.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})"),252)
+     pdf.text(160,256,f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})")
 
     
 
@@ -38310,17 +38310,17 @@ def noiseMonitoring_print(request,pk):
      pdf.set_font("Calibri", "B", 10)
      if nA.analyst_signature:
          pdf.image(nA.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),257)
-     pdf.text(26,261,f"Analyzed By ({nA.analyst_signature.role})")
+     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})"),257)
+     pdf.text(26,261,f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})")
      if nA.assistant_manager_signature:
          pdf.image(nA.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),257)
-     pdf.text(87.5,261,f"Reviewed By ({nA.assistant_manager_signature.role})")
+     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})"),257)
+     pdf.text(87.5,261,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,233,22,22)
      if nA.lab_manager_signature:
          pdf.image(nA.lab_manager_signature.signature,178,239,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),257)
-     pdf.text(160,261,f"Approved By ({nA.lab_manager_signature.role})")
+     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),257)
+     pdf.text(160,261,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
@@ -39127,17 +39127,17 @@ def noiseMonitoring_report(request,pk):
      
      if nA.analyst_signature:
          pdf.image(nA.analyst_signature.signature,30,233,20.32,20.32)
-     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),252)
-     pdf.text(26,256,f"Analyzed By ({nA.analyst_signature.role})")
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})"),252)
+     pdf.text(26,256,f"Analyzed By ({(nA.analyst_signature.role if nA.analyst_signature else '')})")
      if nA.assistant_manager_signature:
          pdf.image(nA.assistant_manager_signature.signature,100,233,20.32,20.32)
-     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),252)
-     pdf.text(87.5,256,f"Reviewed By ({nA.assistant_manager_signature.role})")
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,256,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if nA.lab_manager_signature:
          pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
-     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),252)
-     pdf.text(160,256,f"Approved By ({nA.lab_manager_signature.role})")
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),252)
+     pdf.text(160,256,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
