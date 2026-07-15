@@ -3302,7 +3302,8 @@ def samplePdf(request,pk):
      pdf.text(102,277.5,txt="Lab Manager/Deputy Manager Lab")
      pdf.line(135,274,170,274)
      
-     pdf.image(sample.auth_signature.signature,142,261,15,15)
+     if sample.auth_signature:
+         pdf.image(sample.auth_signature.signature,142,261,15,15)
 
 
 
@@ -3435,11 +3436,13 @@ def samplePdf1(request,pk):
      pdf.set_x(30)
      pdf.cell(40,7,txt="Received By/Sign",border=1)
      pdf.rect(70,55,40,7)
-     pdf.image(sample.auth_signature.signature,80,56,6,5)
+     if sample.auth_signature:
+         pdf.image(sample.auth_signature.signature,80,56,6,5)
      pdf.set_x(110)
      pdf.cell(40,7,txt="Sampling By/Sign",border=1)
      pdf.rect(150,55,40,7)
-     pdf.image(sample.sampling_by_signature.signature,160,56,6,5)
+     if sample.sampling_by_signature:
+         pdf.image(sample.sampling_by_signature.signature,160,56,6,5)
 
      
      response = HttpResponse(content_type='application/pdf')
@@ -4815,7 +4818,8 @@ def calib_pdf(request,pk):
           pdf.multi_cell(190, 4, txt=calib.text, border=0, ln=True, align='L')
 
           pdf.set_font("Calibri","", 7)
-          pdf.image(calib.calib_by_signature.signature,20,248,18,18)
+          if calib.calib_by_signature:
+              pdf.image(calib.calib_by_signature.signature,20,248,18,18)
           pdf.line(19,269,30+pdf.get_string_width("Calibrated By"),269)
           pdf.text(26,271,"Calibrated By")
 
@@ -4830,7 +4834,8 @@ def calib_pdf(request,pk):
           pdf.text(116,270,"(Certificate # 080177424-EMS)")
 
           pdf.image(envitech_logo,150,248,18,18)
-          pdf.image(calib.checked1_signature.signature,170,248,18,18)
+          if calib.checked1_signature:
+              pdf.image(calib.checked1_signature.signature,170,248,18,18)
           pdf.line(190,269,140+pdf.get_string_width("Checked By"),269)
           pdf.text(165,271,"Checked By")
 
@@ -5385,7 +5390,8 @@ def calib_pdf1(request,pk):
      pdf.multi_cell(190, 4, txt=calib.text, border=0, ln=True, align='L')
 
      pdf.set_font("Calibri","", 7)
-     pdf.image(calib.calib_by_signature.signature,20,248,18,18)
+     if calib.calib_by_signature:
+         pdf.image(calib.calib_by_signature.signature,20,248,18,18)
      pdf.line(19,269,30+pdf.get_string_width("Calibrated By"),269)
      pdf.text(26,271,"Calibrated By")
 
@@ -5400,7 +5406,8 @@ def calib_pdf1(request,pk):
      pdf.text(116,270,"(Certificate # 080177424-EMS)")
 
      pdf.image(envitech_logo,150,248,18,18)
-     pdf.image(calib.checked1_signature.signature,170,248,18,18)
+     if calib.checked1_signature:
+         pdf.image(calib.checked1_signature.signature,170,248,18,18)
      pdf.line(190,269,140+pdf.get_string_width("Checked By"),269)
      pdf.text(165,271,"Checked By")
 
@@ -6147,7 +6154,8 @@ def inspect_pdf(request,pk):
                self.add_font("Calibri","B",font_path_bold,uni=True)
                self.set_y(-15)
                self.set_font("Calibri","B", 9)
-               self.image(inspect.ispect_by_signature.signature,20,252,18,18)
+               if inspect.ispect_by_signature:
+                   self.image(inspect.ispect_by_signature.signature,20,252,18,18)
                self.line(19,273,30+self.get_string_width("inspected By"),273)
                self.text(26,275,"inspected By")
                self.image('static/assets/SEPA-Sindh-LOGO-removebg-preview.png',54,252,20,18)
@@ -6159,7 +6167,8 @@ def inspect_pdf(request,pk):
                self.image('static/assets/ISO-14001_2015 LOGO.png',117,252,23,18)
                self.text(112,273,"(Certificate # 080177424-EMS)")
                self.image(envitech_logo,150,252,18,18)
-               self.image(inspect.check1_signature.signature,170,252,18,18)
+               if inspect.check1_signature:
+                   self.image(inspect.check1_signature.signature,170,252,18,18)
                self.set_font("Calibri","B", 9)
                self.line(190,273,140+self.get_string_width("Checked By"),273)
                self.text(165,275,"Checked By")
@@ -6670,7 +6679,8 @@ def inspect_pdf1(request,pk):
           def footer(self):
                self.set_y(-15)
                self.set_font("Calibri","B", 9)
-               self.image(inspect.ispect_by_signature.signature,20,250,18,18)
+               if inspect.ispect_by_signature:
+                   self.image(inspect.ispect_by_signature.signature,20,250,18,18)
                self.line(19,273,30+self.get_string_width("inspected By"),273)
                self.text(26,271,"inspected By")
                self.image('static/assets/SEPA-Sindh-LOGO-removebg-preview.png',54,250,20,18)
@@ -6682,7 +6692,8 @@ def inspect_pdf1(request,pk):
                self.image('static/assets/ISO-14001_2015 LOGO.png',117,250,23,18)
                self.text(116,271,"(Certificate # 080177424-EMS)")
                self.image(envitech_logo,150,250,18,18)
-               self.image(inspect.check1_signature.signature,170,250,18,18)
+               if inspect.check1_signature:
+                   self.image(inspect.check1_signature.signature,170,250,18,18)
                self.set_font("Calibri","B", 9)
                self.line(190,273,140+self.get_string_width("Checked By"),273)
                self.text(165,271,"Checked By")
@@ -7782,7 +7793,8 @@ def verif_pdf(request,pk):
 
 
      pdf.set_font("Calibri","B", 9)
-     pdf.image(verif.verif_by_signature.signature,20,248,18,18)
+     if verif.verif_by_signature:
+         pdf.image(verif.verif_by_signature.signature,20,248,18,18)
      pdf.line(19,269,30+pdf.get_string_width("verifed By"),269)
      pdf.text(26,271,"verifed By")
      pdf.image('static/assets/SEPA-Sindh-LOGO-removebg-preview.png',54,248,20,18)
@@ -7794,7 +7806,8 @@ def verif_pdf(request,pk):
      pdf.image('static/assets/ISO-14001_2015 LOGO.png',117,248,23,18)
      pdf.text(116,268,"(Certificate # 080177424-EMS)")
      pdf.image(envitech_logo,150,248,18,18)
-     pdf.image(verif.check1_signature.signature,170,248,18,18)
+     if verif.check1_signature:
+         pdf.image(verif.check1_signature.signature,170,248,18,18)
      pdf.set_font("Calibri","B", 9)
      pdf.line(190,269,140+pdf.get_string_width("Checked By"),269)
      pdf.text(165,271,"Checked By")
@@ -8047,7 +8060,8 @@ def verif_pdf1(request,pk):
 
 
      pdf.set_font("Calibri","B", 9)
-     pdf.image(verif.verif_by_signature.signature,20,248,18,18)
+     if verif.verif_by_signature:
+         pdf.image(verif.verif_by_signature.signature,20,248,18,18)
      pdf.line(19,269,30+pdf.get_string_width("verifed By"),269)
      pdf.text(26,271,"verifed By")
      pdf.image('static/assets/SEPA-Sindh-LOGO-removebg-preview.png',54,248,20,18)
@@ -8059,7 +8073,8 @@ def verif_pdf1(request,pk):
      pdf.image('static/assets/ISO-14001_2015 LOGO.png',117,248,23,18)
      pdf.text(116,268,"(Certificate # 080177424-EMS)")
      pdf.image(envitech_logo,150,248,18,18)
-     pdf.image(verif.check1_signature.signature,170,248,18,18)
+     if verif.check1_signature:
+         pdf.image(verif.check1_signature.signature,170,248,18,18)
      pdf.set_font("Calibri","B", 9)
      pdf.line(190,269,140+pdf.get_string_width("Checked By"),269)
      pdf.text(165,271,"Checked By")
@@ -11522,12 +11537,15 @@ def generatePDF(request,pk):
      #      pdf.line(155,250,165+pdf.get_string_width("Approved By (Lab Manager)"),250)
      #      pdf.text(160,253,"Approved By (Lab Manager)")  
      
-     pdf.image(waterForm.analyst_signature.signature,30,231,20.32,20.32)
+     if waterForm.analyst_signature:
+         pdf.image(waterForm.analyst_signature.signature,30,231,20.32,20.32)
      
-     pdf.image(waterForm.assistant_manager_signature.signature,100,232,20.32,20.32)
+     if waterForm.assistant_manager_signature:
+         pdf.image(waterForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(waterForm.lab_manager_signature.signature,176,228,20.32,20.32)
+     if waterForm.lab_manager_signature:
+         pdf.image(waterForm.lab_manager_signature.signature,176,228,20.32,20.32)
      
      
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({waterForm.analyst_signature.role})"),250)
@@ -12510,14 +12528,17 @@ def generatePDF_report(request,pk,return_bytes=False):
      
      
 
-     pdf.image(waterForm.analyst_signature.signature,30,231,20.32,20.32)
+     if waterForm.analyst_signature:
+         pdf.image(waterForm.analyst_signature.signature,30,231,20.32,20.32)
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({waterForm.analyst_signature.role})"),250)
      pdf.text(26,253,f"Analyzed By ({waterForm.analyst_signature.role})")
-     pdf.image(waterForm.assistant_manager_signature.signature,100,232,20.32,20.32)
+     if waterForm.assistant_manager_signature:
+         pdf.image(waterForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      pdf.line(126,250,47.5+pdf.get_string_width("Reviewed By (Assistant Manager)"),250)
      pdf.text(87.5,253,f"Reviewed By ({waterForm.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(waterForm.lab_manager_signature.signature,176,228,20.32,20.32)
+     if waterForm.lab_manager_signature:
+         pdf.image(waterForm.lab_manager_signature.signature,176,228,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({waterForm.lab_manager_signature.role})"),250)
      pdf.text(160,253,f"Approved By ({waterForm.lab_manager_signature.role})")
 
@@ -13442,14 +13463,17 @@ def gaseousReportgeneratePDF(request,pk):
                     pdf.cell(190, 4, datum, border=0, ln=True, align='L')
 
 
-     pdf.image(gaseousForm.analyst_signature.signature,30,231,20.32,20.32)
+     if gaseousForm.analyst_signature:
+         pdf.image(gaseousForm.analyst_signature.signature,30,231,20.32,20.32)
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({gaseousForm.analyst_signature.role})"),250)
      pdf.text(26,253,f"Analyzed By ({gaseousForm.analyst_signature.role})")
-     pdf.image(gaseousForm.assistant_manager_signature.signature,100,232,20.32,20.32)
+     if gaseousForm.assistant_manager_signature:
+         pdf.image(gaseousForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({gaseousForm.assistant_manager_signature.role})"),250)
      pdf.text(87.5,253,f"Reviewed By ({gaseousForm.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(gaseousForm.lab_manager_signature.signature,178,233,20.32,20.32)
+     if gaseousForm.lab_manager_signature:
+         pdf.image(gaseousForm.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({gaseousForm.lab_manager_signature.role})"),250)
      pdf.text(160,253,f"Approved By ({gaseousForm.lab_manager_signature.role})")
 
@@ -14161,14 +14185,17 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
     
 
 
-     pdf.image(gaseousForm.analyst_signature.signature,30,231,20.32,20.32)
+     if gaseousForm.analyst_signature:
+         pdf.image(gaseousForm.analyst_signature.signature,30,231,20.32,20.32)
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({gaseousForm.analyst_signature.role})"),250)
      pdf.text(26,253,f"Analyzed By ({gaseousForm.analyst_signature.role})")
-     pdf.image(gaseousForm.assistant_manager_signature.signature,100,232,20.32,20.32)
+     if gaseousForm.assistant_manager_signature:
+         pdf.image(gaseousForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({gaseousForm.assistant_manager_signature.role})"),250)
      pdf.text(87.5,253,f"Reviewed By ({gaseousForm.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(gaseousForm.lab_manager_signature.signature,178,233,20.32,20.32)
+     if gaseousForm.lab_manager_signature:
+         pdf.image(gaseousForm.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({gaseousForm.lab_manager_signature.role})"),250)
      pdf.text(160,253,f"Approved By ({gaseousForm.lab_manager_signature.role})")
 
@@ -14984,14 +15011,17 @@ def ambientAirGeneratePDF(request,pk):
 
 
 
-     pdf.image(ambientAirForm.analyst_signature.signature,30,231,20.32,20.32)
+     if ambientAirForm.analyst_signature:
+         pdf.image(ambientAirForm.analyst_signature.signature,30,231,20.32,20.32)
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({ambientAirForm.analyst_signature.role})"),250)
      pdf.text(26,253,f"Analyzed By ({ambientAirForm.analyst_signature.role})")
-     pdf.image(ambientAirForm.assistant_manager_signature.signature,100,232,20.32,20.32)
+     if ambientAirForm.assistant_manager_signature:
+         pdf.image(ambientAirForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})"),250)
      pdf.text(87.5,253,f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
+     if ambientAirForm.lab_manager_signature:
+         pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({ambientAirForm.lab_manager_signature.role})"),250)
      pdf.text(160,253,f"Approved By ({ambientAirForm.lab_manager_signature.role})")
 
@@ -15664,14 +15694,17 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
      #      pdf.text(10,y,txt=ambientAirForm.ambientAir_legend_6)
 
 
-     pdf.image(ambientAirForm.analyst_signature.signature,30,231,20.32,20.32)
+     if ambientAirForm.analyst_signature:
+         pdf.image(ambientAirForm.analyst_signature.signature,30,231,20.32,20.32)
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({ambientAirForm.analyst_signature.role})"),250)
      pdf.text(26,253,f"Analyzed By ({ambientAirForm.analyst_signature.role})")
-     pdf.image(ambientAirForm.assistant_manager_signature.signature,100,232,20.32,20.32)
+     if ambientAirForm.assistant_manager_signature:
+         pdf.image(ambientAirForm.assistant_manager_signature.signature,100,232,20.32,20.32)
      pdf.line(126,250,47.5+pdf.get_string_width(f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})"),250)
      pdf.text(87.5,253,f"Reviewed By ({ambientAirForm.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
+     if ambientAirForm.lab_manager_signature:
+         pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({ambientAirForm.lab_manager_signature.role})"),250)
      pdf.text(160,253,f"Approved By ({ambientAirForm.lab_manager_signature.role})")
 
@@ -18251,14 +18284,17 @@ def vehicularEmissionReport(request,pk):
      
 
 
-     pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
+     if vem.analyst_signature:
+         pdf.image(vem.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,256,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),256)
      pdf.text(26,259,f"Analyzed By ({vem.analyst_signature.role})")
-     pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
+     if vem.assistant_manager_signature:
+         pdf.image(vem.assistant_manager_signature.signature,100,238,20.32,20.32)
      pdf.line(126,256,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),256)
      pdf.text(87.5,259,f"Reviewed By ({vem.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
+     if vem.lab_manager_signature:
+         pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
      pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),256)
      pdf.text(160,259,f"Approved By ({vem.lab_manager_signature.role})")
 
@@ -18281,13 +18317,13 @@ def vehicularEmissionReport(request,pk):
      pdf.set_font("Calibri","B", 5)
 
      pdf.image('static/assets/ISO-9001_2015 LOGO.png',128,263,19,15)
-     if vem.location == "NEQS" and vem.city_location.lower() == "karachi":
+     if vem.location == "NEQS" and (vem.city_location or "").lower() == "karachi":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 263, 19, 15)
           pdf.text(152,280,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,266,txt="Disclaimer:")
 
-     elif vem.location == "NEQS" and vem.city_location.lower() == "lahore":
+     elif vem.location == "NEQS" and (vem.city_location or "").lower() == "lahore":
           pdf.image('static/assets/EPA_updated.png', 155, 263, 21, 16)
           pdf.text(155,280,txt="(227/Dir/(ML&I)/EPA/12/2025)")
           pdf.set_font("Calibri","B", 9)
@@ -18874,14 +18910,17 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
      # pdf.text(160,254,"Approved By (Lab Manager)")
      
      
-     pdf.image(vem.analyst_signature.signature,30,233,20.32,20.32)
+     if vem.analyst_signature:
+         pdf.image(vem.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,251,36+pdf.get_string_width(f"Analyzed By ({vem.analyst_signature.role})"),251)
      pdf.text(26,254,f"Analyzed By ({vem.analyst_signature.role})")
-     pdf.image(vem.assistant_manager_signature.signature,100,233,20.32,20.32)
+     if vem.assistant_manager_signature:
+         pdf.image(vem.assistant_manager_signature.signature,100,233,20.32,20.32)
      pdf.line(126,251,47.5+pdf.get_string_width(f"Reviewed By ({vem.assistant_manager_signature.role})"),251)
      pdf.text(87.5,254,f"Reviewed By ({vem.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(vem.lab_manager_signature.signature,178,233,20.32,20.32)
+     if vem.lab_manager_signature:
+         pdf.image(vem.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,251,165+pdf.get_string_width(f"Approved By ({vem.lab_manager_signature.role})"),251)
      pdf.text(160,254,f"Approved By ({vem.lab_manager_signature.role})")
 
@@ -18905,13 +18944,13 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
      pdf.set_font("Calibri","B", 5)
 
      pdf.image('static/assets/ISO-9001_2015 LOGO.png',128,259,19,15)
-     if vem.location == "NEQS" and vem.city_location.lower() == "karachi":
+     if vem.location == "NEQS" and (vem.city_location or "").lower() == "karachi":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 259, 19, 15)
           pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,262,txt="Disclaimer:")
 
-     elif vem.location == "NEQS" and vem.city_location.lower() == "lahore":
+     elif vem.location == "NEQS" and (vem.city_location or "").lower() == "lahore":
           pdf.image('static/assets/EPA_updated.png', 153, 258, 25, 16.5)
           pdf.text(155,275.5,txt="(227/Dir/(ML&I)/EPA/12/2025)")
           pdf.set_font("Calibri","B", 9)
@@ -19707,14 +19746,17 @@ def luxAnalysisReportPdf(request,pk):
      # pdf.line(155,257,165+pdf.get_string_width("Approved By (Lab Manager)"),257)
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
-     pdf.image(lux.analyst_signature.signature,30,238,20.32,20.32)
+     if lux.analyst_signature:
+         pdf.image(lux.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({lux.analyst_signature.role})"),257)
      pdf.text(26,259.3,f"Analyzed By ({lux.analyst_signature.role})")
-     pdf.image(lux.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if lux.assistant_manager_signature:
+         pdf.image(lux.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({lux.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.3,f"Reviewed By ({lux.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(lux.lab_manager_signature.signature,178,239,20.32,20.32)
+     if lux.lab_manager_signature:
+         pdf.image(lux.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({lux.lab_manager_signature.role})"),257)
      pdf.text(160,259.3,f"Approved By ({lux.lab_manager_signature.role})")
 
@@ -20385,14 +20427,17 @@ def luxAnalysisReportPdf1(request,pk,return_bytes=False):
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
      
-     pdf.image(lux.analyst_signature.signature,30,233,20.32,20.32)
+     if lux.analyst_signature:
+         pdf.image(lux.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({lux.analyst_signature.role})"),252)
      pdf.text(26,253.9,f"Analyzed By ({lux.analyst_signature.role})")
-     pdf.image(lux.assistant_manager_signature.signature,100,234,20.32,20.32)
+     if lux.assistant_manager_signature:
+         pdf.image(lux.assistant_manager_signature.signature,100,234,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({lux.assistant_manager_signature.role})"),252)
      pdf.text(87.5,253.9,f"Reviewed By ({lux.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(lux.lab_manager_signature.signature,178,234,20.32,20.32)
+     if lux.lab_manager_signature:
+         pdf.image(lux.lab_manager_signature.signature,178,234,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({lux.lab_manager_signature.role})"),252)
      pdf.text(160,253.9,f"Approved By ({lux.lab_manager_signature.role})")
 
@@ -21046,14 +21091,17 @@ def packingPolyBagReport(request,pk):
      # pdf.line(155,257,165+pdf.get_string_width("Approved By (Lab Manager)"),257)
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
-     pdf.image(pack.analyst_signature.signature,30,238,20.32,20.32)
+     if pack.analyst_signature:
+         pdf.image(pack.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({pack.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({pack.analyst_signature.role})")
-     pdf.image(pack.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if pack.assistant_manager_signature:
+         pdf.image(pack.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({pack.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({pack.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(pack.lab_manager_signature.signature,178,239,20.32,20.32)
+     if pack.lab_manager_signature:
+         pdf.image(pack.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({pack.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({pack.lab_manager_signature.role})")
      
@@ -21615,14 +21663,17 @@ def packingPolyBagReport1(request,pk,return_bytes=False):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
-     pdf.image(pack.analyst_signature.signature,30,233,20.32,20.32)
+     if pack.analyst_signature:
+         pdf.image(pack.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({pack.analyst_signature.role})"),252)
      pdf.text(26,254.5,f"Analyzed By ({pack.analyst_signature.role})")
-     pdf.image(pack.assistant_manager_signature.signature,100,234,20.32,20.32)
+     if pack.assistant_manager_signature:
+         pdf.image(pack.assistant_manager_signature.signature,100,234,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({pack.assistant_manager_signature.role})"),252)
      pdf.text(87.5,254.5,f"Reviewed By ({pack.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,229,22,22)
-     pdf.image(pack.lab_manager_signature.signature,178,234,20.32,20.32)
+     if pack.lab_manager_signature:
+         pdf.image(pack.lab_manager_signature.signature,178,234,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({pack.lab_manager_signature.role})"),252)
      pdf.text(160,254.5,f"Approved By ({pack.lab_manager_signature.role})")
 
@@ -22834,14 +22885,17 @@ def noiseAnalysisReport(request,pk):
      # pdf.line(155,257,165+pdf.get_string_width("Approved By (Lab Manager)"),257)
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
-     pdf.image(nA.analyst_signature.signature,30,238,20.32,20.32)
+     if nA.analyst_signature:
+         pdf.image(nA.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({nA.analyst_signature.role})")
-     pdf.image(nA.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if nA.assistant_manager_signature:
+         pdf.image(nA.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({nA.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,233,22,22)
-     pdf.image(nA.lab_manager_signature.signature,178,239,20.32,20.32)
+     if nA.lab_manager_signature:
+         pdf.image(nA.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({nA.lab_manager_signature.role})")
 
@@ -23880,14 +23934,17 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
-     pdf.image(nA.analyst_signature.signature,30,233,20.32,20.32)
+     if nA.analyst_signature:
+         pdf.image(nA.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),252)
      pdf.text(26,254.5,f"Analyzed By ({nA.analyst_signature.role})")
-     pdf.image(nA.assistant_manager_signature.signature,100,233,20.32,20.32)
+     if nA.assistant_manager_signature:
+         pdf.image(nA.assistant_manager_signature.signature,100,233,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),252)
      pdf.text(87.5,254.5,f"Reviewed By ({nA.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
+     if nA.lab_manager_signature:
+         pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),252)
      pdf.text(160,254.5,f"Approved By ({nA.lab_manager_signature.role})")
 
@@ -24679,14 +24736,17 @@ def machineOilReportPdf(request,pk):
      # pdf.line(155,257,165+pdf.get_string_width("Approved By (Lab Manager)"),257)
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
-     pdf.image(machine.analyst_signature.signature,30,238,20.32,20.32)
+     if machine.analyst_signature:
+         pdf.image(machine.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({machine.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({machine.analyst_signature.role})")
-     pdf.image(machine.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if machine.assistant_manager_signature:
+         pdf.image(machine.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({machine.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({machine.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(machine.lab_manager_signature.signature,178,239,20.32,20.32)
+     if machine.lab_manager_signature:
+         pdf.image(machine.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({machine.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({machine.lab_manager_signature.role})")
 
@@ -25349,14 +25409,17 @@ def machineOilReportPdf1(request,pk,return_bytes=False):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
-     pdf.image(machine.analyst_signature.signature,30,233,20.32,20.32)
+     if machine.analyst_signature:
+         pdf.image(machine.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({machine.analyst_signature.role})"),252)
      pdf.text(26,254.5,f"Analyzed By ({machine.analyst_signature.role})")
-     pdf.image(machine.assistant_manager_signature.signature,100,234,20.32,20.32)
+     if machine.assistant_manager_signature:
+         pdf.image(machine.assistant_manager_signature.signature,100,234,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({machine.assistant_manager_signature.role})"),252)
      pdf.text(87.5,254.5,f"Reviewed By ({machine.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,230,22,22)
-     pdf.image(machine.lab_manager_signature.signature,178,234,20.32,20.32)
+     if machine.lab_manager_signature:
+         pdf.image(machine.lab_manager_signature.signature,178,234,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({machine.lab_manager_signature.role})"),252)
      pdf.text(160,254.5,f"Approved By ({machine.lab_manager_signature.role})")
 
@@ -26164,14 +26227,17 @@ def microbialAnalysisPdf(request,pk):
      # pdf.text(160,261,"Approved By (Lab Manager)")
 
 
-     pdf.image(micro.analyst_signature.signature,30,238,20.32,20.32)
+     if micro.analyst_signature:
+         pdf.image(micro.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({micro.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({micro.analyst_signature.role})")
-     pdf.image(micro.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if micro.assistant_manager_signature:
+         pdf.image(micro.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({micro.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({micro.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(micro.lab_manager_signature.signature,178,239,20.32,20.32)
+     if micro.lab_manager_signature:
+         pdf.image(micro.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({micro.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({micro.lab_manager_signature.role})")
 
@@ -26808,14 +26874,17 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
      
-     pdf.image(micro.analyst_signature.signature,30,233,20.32,20.32)
+     if micro.analyst_signature:
+         pdf.image(micro.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({micro.analyst_signature.role})"),252)
      pdf.text(26,254.5,f"Analyzed By ({micro.analyst_signature.role})")
-     pdf.image(micro.assistant_manager_signature.signature,100,234,20.32,20.32)
+     if micro.assistant_manager_signature:
+         pdf.image(micro.assistant_manager_signature.signature,100,234,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({micro.assistant_manager_signature.role})"),252)
      pdf.text(87.5,254.5,f"Reviewed By ({micro.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,230,22,22)
-     pdf.image(micro.lab_manager_signature.signature,178,234,20.32,20.32)
+     if micro.lab_manager_signature:
+         pdf.image(micro.lab_manager_signature.signature,178,234,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({micro.lab_manager_signature.role})"),252)
      pdf.text(160,254.5,f"Approved By ({micro.lab_manager_signature.role})")
 
@@ -27556,14 +27625,17 @@ def viscousLiquidPdf(request,pk):
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
      
-     pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
+     if vL.analyst_signature:
+         pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({vL.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({vL.analyst_signature.role})")
-     pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if vL.assistant_manager_signature:
+         pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({vL.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({vL.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(vL.lab_manager_signature.signature,178,239,20.32,20.32)
+     if vL.lab_manager_signature:
+         pdf.image(vL.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({vL.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({vL.lab_manager_signature.role})")
 
@@ -28180,14 +28252,17 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
      
-     pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
+     if vL.analyst_signature:
+         pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({vL.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({vL.analyst_signature.role})")
-     pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if vL.assistant_manager_signature:
+         pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({vL.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({vL.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(vL.lab_manager_signature.signature,178,239,20.32,20.32)
+     if vL.lab_manager_signature:
+         pdf.image(vL.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({vL.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({vL.lab_manager_signature.role})")
 
@@ -29344,14 +29419,17 @@ def ambientAir2Pdf(request,pk):
      # pdf.text(160,261,"Approved By (Lab Manager)")
      
      
-     pdf.image(AA2.analyst_signature.signature,30,238,20.32,20.32)
+     if AA2.analyst_signature:
+         pdf.image(AA2.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({AA2.analyst_signature.role})"),257)
      pdf.text(26,259.5,f"Analyzed By ({AA2.analyst_signature.role})")
-     pdf.image(AA2.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if AA2.assistant_manager_signature:
+         pdf.image(AA2.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({AA2.assistant_manager_signature.role})"),257)
      pdf.text(87.5,259.5,f"Reviewed By ({AA2.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,235,22,22)
-     pdf.image(AA2.lab_manager_signature.signature,178,239,20.32,20.32)
+     if AA2.lab_manager_signature:
+         pdf.image(AA2.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({AA2.lab_manager_signature.role})"),257)
      pdf.text(160,259.5,f"Approved By ({AA2.lab_manager_signature.role})")
 
@@ -30177,14 +30255,17 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
-     pdf.image(AA2.analyst_signature.signature,30,233,20.32,20.32)
+     if AA2.analyst_signature:
+         pdf.image(AA2.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({AA2.analyst_signature.role})"),252)
      pdf.text(26,254.5,f"Analyzed By ({AA2.analyst_signature.role})")
-     pdf.image(AA2.assistant_manager_signature.signature,100,234,20.32,20.32)
+     if AA2.assistant_manager_signature:
+         pdf.image(AA2.assistant_manager_signature.signature,100,234,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({AA2.assistant_manager_signature.role})"),252)
      pdf.text(87.5,254.5,f"Reviewed By ({AA2.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,230,22,22)
-     pdf.image(AA2.lab_manager_signature.signature,178,234,20.32,20.32)
+     if AA2.lab_manager_signature:
+         pdf.image(AA2.lab_manager_signature.signature,178,234,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({AA2.lab_manager_signature.role})"),252)
      pdf.text(160,254.5,f"Approved By ({AA2.lab_manager_signature.role})")
 
@@ -33531,14 +33612,17 @@ def wasteWater2Pdf(request,pk):
      # pdf.text(160,257,"Approved By (Lab Manager)")
      
      
-     pdf.image(ww.analyst_signature.signature,30,235,20.32,20.32)
+     if ww.analyst_signature:
+         pdf.image(ww.analyst_signature.signature,30,235,20.32,20.32)
      pdf.line(19,253,36+pdf.get_string_width(f"Analyzed By ({ww.analyst_signature.role})"),253)
      pdf.text(26,257,f"Analyzed By ({ww.analyst_signature.role})")
-     pdf.image(ww.assistant_manager_signature.signature,100,235,20.32,20.32)
+     if ww.assistant_manager_signature:
+         pdf.image(ww.assistant_manager_signature.signature,100,235,20.32,20.32)
      pdf.line(126,253,47.5+pdf.get_string_width(f"Reviewed By ({ww.assistant_manager_signature.role})"),253)
      pdf.text(87.5,257,f"Reviewed By ({ww.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,231,22,22)
-     pdf.image(ww.lab_manager_signature.signature,178,235,20.32,20.32)
+     if ww.lab_manager_signature:
+         pdf.image(ww.lab_manager_signature.signature,178,235,20.32,20.32)
      pdf.line(155,253,165+pdf.get_string_width(f"Approved By ({ww.lab_manager_signature.role})"),253)
      pdf.text(160,257,f"Approved By ({ww.lab_manager_signature.role})")
 
@@ -36539,14 +36623,17 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
-     pdf.image(ww.analyst_signature.signature,30,234,20.32,20.32)
+     if ww.analyst_signature:
+         pdf.image(ww.analyst_signature.signature,30,234,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({ww.analyst_signature.role})"),252)
      pdf.text(26,256,f"Analyzed By ({ww.analyst_signature.role})")
-     pdf.image(ww.assistant_manager_signature.signature,100,234,20.32,20.32)
+     if ww.assistant_manager_signature:
+         pdf.image(ww.assistant_manager_signature.signature,100,234,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({ww.assistant_manager_signature.role})"),252)
      pdf.text(87.5,256,f"Reviewed By ({ww.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,229,22,22)
-     pdf.image(ww.lab_manager_signature.signature,178,234,20.32,20.32)
+     if ww.lab_manager_signature:
+         pdf.image(ww.lab_manager_signature.signature,178,234,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({ww.lab_manager_signature.role})"),252)
      pdf.text(160,256,f"Approved By ({ww.lab_manager_signature.role})")
 
@@ -38221,14 +38308,17 @@ def noiseMonitoring_print(request,pk):
      # pdf.line(155,257,165+pdf.get_string_width("Approved By (Lab Manager)"),257)
      # pdf.text(160,261,"Approved By (Lab Manager)")
      pdf.set_font("Calibri", "B", 10)
-     pdf.image(nA.analyst_signature.signature,30,238,20.32,20.32)
+     if nA.analyst_signature:
+         pdf.image(nA.analyst_signature.signature,30,238,20.32,20.32)
      pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),257)
      pdf.text(26,261,f"Analyzed By ({nA.analyst_signature.role})")
-     pdf.image(nA.assistant_manager_signature.signature,100,239,20.32,20.32)
+     if nA.assistant_manager_signature:
+         pdf.image(nA.assistant_manager_signature.signature,100,239,20.32,20.32)
      pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),257)
      pdf.text(87.5,261,f"Reviewed By ({nA.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,233,22,22)
-     pdf.image(nA.lab_manager_signature.signature,178,239,20.32,20.32)
+     if nA.lab_manager_signature:
+         pdf.image(nA.lab_manager_signature.signature,178,239,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),257)
      pdf.text(160,261,f"Approved By ({nA.lab_manager_signature.role})")
 
@@ -39035,14 +39125,17 @@ def noiseMonitoring_report(request,pk):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
-     pdf.image(nA.analyst_signature.signature,30,233,20.32,20.32)
+     if nA.analyst_signature:
+         pdf.image(nA.analyst_signature.signature,30,233,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({nA.analyst_signature.role})"),252)
      pdf.text(26,256,f"Analyzed By ({nA.analyst_signature.role})")
-     pdf.image(nA.assistant_manager_signature.signature,100,233,20.32,20.32)
+     if nA.assistant_manager_signature:
+         pdf.image(nA.assistant_manager_signature.signature,100,233,20.32,20.32)
      pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({nA.assistant_manager_signature.role})"),252)
      pdf.text(87.5,256,f"Reviewed By ({nA.assistant_manager_signature.role})")
      pdf.image(envitech_logo,154,228,22,22)
-     pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
+     if nA.lab_manager_signature:
+         pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({nA.lab_manager_signature.role})"),252)
      pdf.text(160,256,f"Approved By ({nA.lab_manager_signature.role})")
 
