@@ -1442,110 +1442,7 @@ def sample_clone_update(request,pk):
 def samplePdf(request,pk):
      from fpdf import FPDF
      
-     class PDFWithPageNumbers(FPDF):
-
-          def header(self):
-               self.set_y(0)
-               self.set_x(0)
-               # self.image("static/assets/header.PNG",0,0,self.w,22.5)
-
-               
-               self.image("static/assets/EnviTechAL LOGO.png",16,5,26,28)
-               self.set_line_width(0.5)
-               self.set_draw_color(26, 84, 26)
-               self.line(0,35,self.w,35)
-               font_path_alger = "static/fonts/ALGER.TTF"
-               self.add_font("Algerian","",font_path_alger)
-               self.set_font("Algerian","", 16)
-               self.set_text_color(13, 46, 145)
-               self.text(85,20,txt="ENVI TECH AL")
-               font_path = "static/fonts/calibri.ttf"
-               font_path_bold = "static/fonts/calibrib.ttf"
-               self.add_font("Calibri","B",font_path_bold,uni=True)
-               self.set_font("Calibri","B", 19)
-               self.set_text_color(25, 27, 28)
-               self.text(70,28,txt="Sample Registration Form")
-
-               x = 148
-               y = 0
-               width = 64
-               height = 8
-               skew_width = 7  # Adjusted width for the sloped side
-               skew_angle = 50
-               color = (12, 168, 74)  # RGB color for #0CA84A
-               
-
-               # Draw the main rectangle
-               pdf.set_fill_color(*color)
-               pdf.rect(x, y, width, height, 'F',)
-
-               # Draw the sloped side
-               pdf.set_draw_color(12, 168, 74)
-               pdf.polygon([(x - skew_width, y), (x, y), (x, y + height)], 'DF')
-               
-               self.set_font("Calibri","B", 10)
-               pdf.set_draw_color(25, 27, 2)
-               self.rect(158,12,40,20,"D")
-               pdf.text(160,17,txt=sample.lab_no)
-               pdf.text(160,21,txt=sample.issue_date)
-               pdf.text(160,25,txt=sample.issue_no)
-               pdf.set_text_color(0, 0, 0)
-               self.alias_nb_pages()
-               old_x = self.get_x()
-               old_y = self.get_y()
-               self.set_x(100)
-               self.set_y(28)
-               font_path = "static/fonts/calibri.ttf"
-               font_path_bold = "static/fonts/calibrib.ttf"
-               pdf.add_font("Calibri","",font_path,uni=True)
-               pdf.add_font("Calibri","B",font_path_bold,uni=True)
-               page_number = f"{self.page_no()}s: of {{nb}}"
-               self.set_font("Calibri","B", 10)
-               self.text(160,29,txt="Page No:")
-               self.set_font("Calibri","B", 10)
-               # self.line(175,41,178+self.get_string_width(page_number),41)
-               self.cell(self.w - 33, 0, f'{self.page_no()} of {{nb}}',border=False, align='R')
-               self.set_x(old_x)
-               self.set_y(old_y)
-
-
-               self.image('static/assets/report water mark.png',0,35,self.w,self.h)
-               
-
-               self.set_line_width(0.2)
-               self.set_draw_color(0,0,0)
-               
-               
-
-
-                
-               self.set_text_color(10, 10, 10)
-               self.add_font("Calibri","",font_path,uni=True)
-               self.add_font("Calibri","B",font_path_bold,uni=True)
-               self.set_font("Calibri","", 9)
-
-               
-               self.set_y(-10)
-               self.set_x(0)
-
-               self.image('static/assets/phone.PNG',10,self.h-15,7,7)
-               self.image('static/assets/office.PNG',50,self.h-16,9,9)
-               self.set_font("Calibri","", 10)
-               if sample.city_location == 'Karachi':
-                     pdf.text(18,self.h-10,txt="+92 310 2288801")
-                     pdf.text(60,self.h-12,txt="Head Office:345,First Floor, Street-15,Block-3")
-                     pdf.text(60,self.h-8,txt="Bahadurabad, Karachi, 75900, Pakistan")
-                     
-               if sample.city_location == 'Lahore':
-                     pdf.text(18,self.h-10,txt="+92 42 32296099")
-                     pdf.text(60,self.h-12,txt="Lahore Office: 87-E Madina Height, Office # A/30 & ")
-                     pdf.text(60,self.h-8,txt=" A/31 8th Floor,Johar Town, Lahore")
-
-               pdf.image('static/assets/polyPNG-removebg-preview.png',130,275,90,23)
-
-               pdf.set_draw_color(12, 168, 74)
-               pdf.set_fill_color(*color)
-               pdf.rect(0,self.h-4,self.w,5,'DF')
+     from EnviTechAlApp.pdf_common import PDF_samplePdf as PDFWithPageNumbers
                
                # # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
                # self.set_fill_color(40, 25, 105)    
@@ -1564,6 +1461,7 @@ def samplePdf(request,pk):
      sample = Sample_registration.objects.get(id=pk)
 
      pdf = PDFWithPageNumbers()
+     pdf._rq_sample = sample
      pdf.add_page()
      
      font_path = "static/fonts/calibri.ttf"
@@ -4253,106 +4151,7 @@ def calib_clone_update(request,pk):
 def calib_pdf(request,pk):
      from fpdf import FPDF
      
-     class PDFWithPageNumbers(FPDF):
-          
-               
-
-
-          def header(self):
-               self.set_y(0)
-               self.set_x(0)
-               # self.image("static/assets/header.PNG",0,0,self.w,22.5)
-
-               self.image("static/assets/Header watermark.jpg",0,0,self.w,35)
-               self.image("static/assets/EnviTechAL LOGO.png",16,5,26,28)
-               self.set_line_width(0.5)
-               self.set_draw_color(26, 84, 26)
-               self.line(0,35,self.w,35)
-               font_path_alger = "static/fonts/ALGER.TTF"
-               self.add_font("Algerian","",font_path_alger)
-               self.set_font("Algerian","", 16)
-               self.set_text_color(13, 46, 145)
-               self.text(85,20,txt="ENVI TECH AL")
-               font_path = "static/fonts/calibri.ttf"
-               font_path_bold = "static/fonts/calibrib.ttf"
-               self.add_font("Calibri","B",font_path_bold,uni=True)
-               self.set_font("Calibri","B", 11)
-               self.set_text_color(26, 84, 26)
-               self.text(55,28,txt="We strive for Pragmatic approach to achieve quality Excellence")
-               self.image('static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png',168,5,27,28)
-
-
-               #body watermark
-
-               self.image('static/assets/report water mark.png',0,35,self.w,self.h)
-               
-
-               self.set_line_width(0.2)
-               self.set_draw_color(0,0,0)
-               
-               
-
-
-                #water mark
-               # with pdf.local_context(fill_opacity=0.5):
-               #      self.set_font("Arial", "B", 50)
-               #      self.set_text_color(192, 192, 180) # Light gray text
-               #      # self.set_xy(50, 260)
-               #      self.rotate(45)
-               #      self.text(-120, 180,txt="test")
-             
-               #      self.rotate(0)
-               self.set_text_color(10, 10, 10)
-               self.add_font("Calibri","",font_path,uni=True)
-               self.add_font("Calibri","B",font_path_bold,uni=True)
-               self.set_font("Calibri","", 9)
-               pdf.add_font('ScriptMT', '', 'static/fonts/SCRIPTBL.TTF', uni=True)
-               pdf.set_font('ScriptMT', '', 25)
-               pdf.text(56,43,txt='Certificate of Calibration')
-               pdf.set_font("Calibri","B", 11)
-               pdf.text(10,52,txt='Certificate Number:')
-               pdf.line(42,53.5,60,53.5)
-               pdf.set_font("Calibri","", 11)
-               pdf.text(43,52,txt=calib.cert_num)
-
-
-               target_url = request.build_absolute_uri(reverse('calib_view', kwargs={'pk': pk}))
-    
-               # Generate the QR code for the target URL
-               qr_filename = f"qr_{pk}.png"
-               qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
-     
-               qr = qrcode.QRCode(
-                    version=1,
-                    error_correction=qrcode.constants.ERROR_CORRECT_L,
-                    box_size=10,
-                    border=6,
-               )
-               qr.add_data(target_url)  # Add the dynamically generated URL
-               qr.make(fit=True)
-               img = qr.make_image(fill_color="black", back_color="white")
-               img.save(qr_file_path)
-
-
-               pdf.image(qr_file_path,"R",y=36,w=20,h=20)
-               self.set_y(-10)
-               self.set_x(0)
-               # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-               self.set_fill_color(40, 25, 105)    
-               self.rect(0,self.h-14,self.w,12,"F")
-               self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-               self.set_text_color(255, 255, 255)
-               self.set_font("Calibri","", 9)
-               self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-               self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-               self.set_fill_color(255, 255, 255)   
-               self.image("static/assets/earth.png",165,self.h-12,7,7)
-               self.text(175,self.h-7,txt="info@envitechal.com")
-               self.text(175,self.h-10,txt="www.envitechal.com")
-
-          def add_page(self, *args, **kwargs):
-               super().add_page(*args, **kwargs)
-               self.set_top_margin(40)
+     from EnviTechAlApp.pdf_common import PDF_calib_pdf as PDFWithPageNumbers
                
 
 
@@ -4372,6 +4171,7 @@ def calib_pdf(request,pk):
           calib.extra_field2 = calib.extra_field2.replace("'", "\"")
           calib.extra_field2 = json.loads(calib.extra_field2)
           pdf = PDFWithPageNumbers()
+          pdf._rq_calib, pdf._rq_pk, pdf._rq_request = calib, pk, request
           pdf.add_page()
           
           font_path = "static/fonts/calibri.ttf"
@@ -4867,50 +4667,7 @@ def calib_pdf(request,pk):
 def calib_pdf1(request,pk):
      from fpdf import FPDF
      
-     class PDFWithPageNumbers(FPDF):
-          
-               
-
-
-          def header(self):
-               self.set_y(0)
-               self.set_x(0)
-               
-               font_path = "static/fonts/calibri.ttf"
-               font_path_bold = "static/fonts/calibrib.ttf"
-               pdf.add_font("Calibri","",font_path,uni=True)
-               pdf.add_font("Calibri","B",font_path_bold,uni=True)
-               pdf.add_font('ScriptMT', '', 'static/fonts/SCRIPTBL.TTF', uni=True)
-               pdf.set_font('ScriptMT', '', 25)
-               pdf.text(56,43,txt='Certificate of Calibration')
-               pdf.set_font("Calibri","B", 11)
-               pdf.text(10,52,txt='Certificate Number:')
-               pdf.line(42,53.5,60,53.5)
-               pdf.set_font("Calibri","", 11)
-               pdf.text(43,52,txt=calib.cert_num)
-
-               target_url = request.build_absolute_uri(reverse('calib_view', kwargs={'pk': pk}))
-    
-               # Generate the QR code for the target URL
-               qr_filename = f"qr_{pk}.png"
-               qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
-     
-               qr = qrcode.QRCode(
-                    version=1,
-                    error_correction=qrcode.constants.ERROR_CORRECT_L,
-                    box_size=10,
-                    border=6,
-               )
-               qr.add_data(target_url)  # Add the dynamically generated URL
-               qr.make(fit=True)
-               img = qr.make_image(fill_color="black", back_color="white")
-               img.save(qr_file_path)
-               pdf.image(qr_file_path,"R",y=34,w=20,h=20)
-               
-               
-          def add_page(self):
-               super().add_page()
-               self.set_top_margin(40)     
+     from EnviTechAlApp.pdf_common import PDF_calib_pdf1 as PDFWithPageNumbers
           
                
           
@@ -4930,6 +4687,7 @@ def calib_pdf1(request,pk):
      calib.extra_field2 = json.loads(calib.extra_field2)
      
      pdf = PDFWithPageNumbers()
+     pdf._rq_calib, pdf._rq_pk, pdf._rq_request = calib, pk, request
      pdf.add_page()
      
      font_path = "static/fonts/calibri.ttf"
