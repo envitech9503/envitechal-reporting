@@ -3326,15 +3326,7 @@ def samplePdf(request,pk):
 
 def samplePdf1(request,pk):
      from fpdf import FPDF
-     class PDFWithPageNumbers(FPDF):
-          
-               
-
-
-
-          def header(self):
-               self.set_y(0)
-               self.set_x(0)
+     from EnviTechAlApp.pdf_common import PDF_samplePdf1 as PDFWithPageNumbers
                # self.image("static/assets/header.PNG",0,0,self.w,22.5)
 
 
@@ -7842,14 +7834,7 @@ def verif_pdf(request,pk):
 
 def verif_pdf1(request,pk):
      from fpdf import FPDF
-     class PDFWithPageNumbers(FPDF):
-          def header(self):
-               self.set_y(0)
-               self.set_x(0)
-               
-          def add_page(self):
-               super().add_page()
-               self.set_top_margin(40) 
+     from EnviTechAlApp.pdf_common import PDF_verif_pdf1 as PDFWithPageNumbers
 
                
 

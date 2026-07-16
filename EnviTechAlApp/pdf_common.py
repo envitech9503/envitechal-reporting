@@ -69,3 +69,23 @@ class EtalReportPDF(FPDF):
      def add_page(self):
           super().add_page()
           self.set_top_margin(40) 
+
+
+class PDF_samplePdf1(FPDF):
+
+
+
+
+
+     def header(self):
+          self.set_y(0)
+          self.set_x(0)
+
+class PDF_verif_pdf1(FPDF):
+     def header(self):
+          self.set_y(0)
+          self.set_x(0)
+
+     def add_page(self):
+          super().add_page()
+          self.set_top_margin(40) 
