@@ -5963,3 +5963,302 @@ class PDF_calib_pdf1(FPDF):
      def add_page(self):
           super().add_page()
           self.set_top_margin(40)     
+
+
+class PDF_logPdf(FPDF):
+    def header(self):
+
+        self.set_y(0)
+        self.set_x(0)
+        self.image("static/assets/EnviTechAL LOGO.png", 16, 8, 16, 18)
+        self.line(34,7,34,26.5)
+      #   self.set_line_width(0.5)
+      #   self.set_draw_color(26, 84, 26)
+      #   self.line(0, 35, self.w, 35)
+        font_path_alger = "static/fonts/ALGER.TTF"
+        self.add_font("Algerian","",font_path_alger)
+        self.set_font("Algerian","", 16)
+        self.set_text_color(13, 46, 145)
+        self.text(85,14,txt="ENVI TECH AL")
+        font_path = "static/fonts/calibri.ttf"
+        font_path_bold = "static/fonts/calibrib.ttf"
+        self.add_font("Calibri", "B", "static/fonts/calibrib.ttf", uni=True)
+        self.set_font("Calibri", "B", 15)
+        self.set_text_color(25, 27, 28)
+        self.text(76, 22, txt="SAMPLE LOGGING SHEET")
+        self.set_font("Calibri", "B", 8)
+        self.rect(170, 7, 30, 20, "D")
+        self.text(172, 12, txt=self._rq_logging.lab)  
+        if self._rq_logging.city_location == 'Lahore' or self._rq_logging.city_location == 'lahore':                                                                                                                         
+           self.text(172, 16, txt="Issue Date: 05-01-2023")
+        elif self._rq_logging.city_location == 'Karachi' or self._rq_logging.city_location == 'karachi': 
+             self.text(172, 16, txt="Issue Date: 05-01-2023")
+        self.text(172, 20, txt=self._rq_logging.issue_no)
+
+        self.set_text_color(0, 0, 0)
+        self.alias_nb_pages()
+        old_x = self.get_x()
+        old_y = self.get_y()
+        self.set_x(135)
+        self.set_y(23)
+        font_path = "static/fonts/calibri.ttf"
+        font_path_bold = "static/fonts/calibrib.ttf"
+        self.add_font("Calibri","",font_path,uni=True)
+        self.add_font("Calibri","B",font_path_bold,uni=True)
+        page_number = f"{self.page_no()}s: of {{nb}}"
+        self.set_font("Calibri","B", 8)
+        self.text(172,24,txt="Page No:")
+        self.set_font("Calibri","B", 8)
+      #   self.line(175,41,178+self.get_string_width(page_number),41)
+        self.cell(self.w - 25, 0, f'{self.page_no()} of {{nb}}',border=False, align='R')
+        self.set_x(old_x)
+        self.set_y(old_y)
+        self.rect(10,7,190,20)
+
+        self.rect(10,27,190,6)
+        self.text(12,31,txt="Month:")
+        for i in self._rq_data:
+           month = i.month.strftime("%B")
+
+           if month == 'January':
+                self.text(22, 31, txt="January")
+           elif month == 'February':
+                self.text(22, 31, txt="February")
+           elif month == 'March':
+                self.text(22, 31, txt="March")
+           elif month == 'April':
+                self.text(22, 31, txt="April")
+           elif month == 'May':
+                self.text(22, 31, txt="May")
+           elif month == 'June':
+                self.text(22, 31, txt="June")
+           elif month == 'July':
+                self.text(22, 31, txt="July")
+           elif month == 'August':
+                self.text(22, 31, txt="August")
+           elif month == 'September':
+                self.text(22, 31, txt="September")
+           elif month == 'October':
+                self.text(22, 31, txt="October")
+           elif month == 'November':
+                self.text(22, 31, txt="November")
+           elif month == 'December':
+                self.text(22, 31, txt="December")
+           break
+        self.set_y(33)
+
+class PDF_inspect_pdf(FPDF):
+
+     def header(self):
+          self.set_y(0)
+          self.set_x(0)
+          # self.image("static/assets/header.PNG",0,0,self.w,22.5)
+
+          self.image("static/assets/Header watermark.jpg",0,0,self.w,35)
+          self.image("static/assets/EnviTechAL LOGO.png",16,5,26,28)
+          self.set_line_width(0.5)
+          self.set_draw_color(26, 84, 26)
+          self.line(0,35,self.w,35)
+          font_path_alger = "static/fonts/ALGER.TTF"
+          self.add_font("Algerian","",font_path_alger)
+          self.set_font("Algerian","", 16)
+          self.set_text_color(13, 46, 145)
+          self.text(85,20,txt="ENVI TECH AL")
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","B", 11)
+          self.set_text_color(26, 84, 26)
+          self.text(55,28,txt="We strive for Pragmatic approach to achieve quality Excellence")
+          self.image('static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png',168,5,27,28)
+
+
+          self.set_text_color(0, 0, 0)
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","", 9)
+          self.set_auto_page_break(auto=True, margin=5)
+
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.add_font('ScriptMT', '', 'static/fonts/SCRIPTBL.TTF', uni=True)
+          self.set_font('ScriptMT', '', 25)
+          self.text(60,43,txt='Certificate of Inspection')
+          self.set_font("Calibri","B", 11)
+          self.text(10,60,txt='Certificate Number:')
+          self.line(42,61.5,60,61.5)
+          self.set_font("Calibri","", 11)
+          self.text(43,60,txt=(self._rq_inspect.cert_num or ""))
+
+          target_url = self._rq_request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': self._rq_pk}))
+
+          # Generate the QR code for the target URL
+          qr_filename = f"qr_{self._rq_pk}.png"
+          qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
+
+          qr = qrcode.QRCode(
+               version=1,
+               error_correction=qrcode.constants.ERROR_CORRECT_L,
+               box_size=10,
+               border=6,
+          )
+          qr.add_data(target_url)  # Add the dynamically generated URL
+          qr.make(fit=True)
+          img = qr.make_image(fill_color="black", back_color="white")
+          img.save(qr_file_path)
+
+
+          self.image(qr_file_path,"R",y=46,w=20,h=20)
+
+          self.set_y(70)
+          #body watermark
+
+          self.image('static/assets/report water mark.png',0,35,self.w,self.h)
+
+
+
+          # if self.pages_count == 1:     
+          #      page_number = f" {self.page_no()}"+" of "+ f"{self.page_no()}"
+          # elif self.pages_count > 1:
+          #      page_number = f" {self.page_no() -1 }"+" of "+ f"{self.page_no() }"
+          # self.set_text_color(255, 255, 255)
+          # self.text(165,270,txt="Page Number"+page_number)
+
+
+
+
+     # def add_page(self):
+     #      super().add_page()
+     #      self.set_top_margin(40)     
+
+     # def add_page(self):
+     #      super().add_page()
+     #      self.set_top_margin(40)     
+     def footer(self):
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.set_text_color(0, 0, 0)    
+
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_y(-15)
+          self.set_font("Calibri","B", 9)
+          if self._rq_inspect.ispect_by_signature:
+              self.image(self._rq_inspect.ispect_by_signature.signature,20,252,18,18)
+          self.line(19,273,30+self.get_string_width("inspected By"),273)
+          self.text(26,275,"inspected By")
+          self.image('static/assets/SEPA-Sindh-LOGO-removebg-preview.png',54,252,20,18)
+          self.set_font("Calibri","B", 7)
+          self.text(56,273,"(License # R-K\242)")
+          self.image('static/assets/ISO-9001_2015 LOGO.png',82,252,23,18)
+          self.text(77,273,"(Certificate # 080177324-QMS)")
+
+          self.image('static/assets/ISO-14001_2015 LOGO.png',117,252,23,18)
+          self.text(112,273,"(Certificate # 080177424-EMS)")
+          self.image(self._rq_envitech_logo,150,252,18,18)
+          if self._rq_inspect.check1_signature:
+              self.image(self._rq_inspect.check1_signature.signature,170,252,18,18)
+          self.set_font("Calibri","B", 9)
+          self.line(190,273,140+self.get_string_width("Checked By"),273)
+          self.text(165,275,"Checked By")
+          self.set_line_width(0.2)
+          self.set_draw_color(0,0,0)
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","", 9)
+          self.set_y(-10)
+          self.set_x(0)
+          # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
+          self.set_fill_color(40, 25, 105)    
+          self.rect(0,self.h-14,self.w,12,"F")
+          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
+          self.set_text_color(255, 255, 255)
+          # self.set_font("Calibri","", 9)
+          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
+          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
+          self.set_fill_color(255, 255, 255)   
+          self.image("static/assets/earth.png",165,self.h-12,7,7)
+          self.text(175,self.h-7,txt="info@envitechal.com")
+          self.text(175,self.h-10,txt="www.envitechal.com")
+
+class PDF_inspect_pdf1(FPDF):
+
+
+
+
+     def header(self):
+          self.set_y(0)
+          self.set_x(0)
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","", 9)
+          self.set_auto_page_break(auto=True, margin=5)
+
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.add_font('ScriptMT', '', 'static/fonts/SCRIPTBL.TTF', uni=True)
+          self.set_font('ScriptMT', '', 25)
+          self.text(60,43,txt='Certificate of Inspection')
+          self.set_font("Calibri","B", 11)
+          self.text(10,60,txt='Certificate Number:')
+          self.line(42,61.5,60,61.5)
+          self.set_font("Calibri","", 11)
+          self.text(43,60,txt=(self._rq_inspect.cert_num or ""))
+
+          target_url = self._rq_request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': self._rq_pk}))
+
+          # Generate the QR code for the target URL
+          qr_filename = f"qr_{self._rq_pk}.png"
+          qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
+
+          qr = qrcode.QRCode(
+               version=1,
+               error_correction=qrcode.constants.ERROR_CORRECT_L,
+               box_size=10,
+               border=6,
+          )
+          qr.add_data(target_url)  # Add the dynamically generated URL
+          qr.make(fit=True)
+          img = qr.make_image(fill_color="black", back_color="white")
+          img.save(qr_file_path)
+
+
+          self.image(qr_file_path,"R",y=46,w=20,h=20)
+
+          self.set_y(70)
+
+
+     def footer(self):
+          self.set_y(-15)
+          self.set_font("Calibri","B", 9)
+          if self._rq_inspect.ispect_by_signature:
+              self.image(self._rq_inspect.ispect_by_signature.signature,20,250,18,18)
+          self.line(19,273,30+self.get_string_width("inspected By"),273)
+          self.text(26,271,"inspected By")
+          self.image('static/assets/SEPA-Sindh-LOGO-removebg-preview.png',54,250,20,18)
+          self.set_font("Calibri","B", 7)
+          self.text(56,271,"(License # R-K\242)")
+          self.image('static/assets/ISO-9001_2015 LOGO.png',82,250,23,18)
+          self.text(81,271,"(Certificate # 080177324-QMS)")
+
+          self.image('static/assets/ISO-14001_2015 LOGO.png',117,250,23,18)
+          self.text(116,271,"(Certificate # 080177424-EMS)")
+          self.image(self._rq_envitech_logo,150,250,18,18)
+          if self._rq_inspect.check1_signature:
+              self.image(self._rq_inspect.check1_signature.signature,170,250,18,18)
+          self.set_font("Calibri","B", 9)
+          self.line(190,273,140+self.get_string_width("Checked By"),273)
+          self.text(165,271,"Checked By")
+
+
+
+
+
+          self.set_font("Calibri","", 9)
+          self.set_y(274)
+          self.set_fill_color(10, 41, 120) 
+          self.rect(10,275,190,6,"F")
+          self.set_text_color(255, 255, 255)
+          self.text(12,278.5,txt=self._rq_inspect.disc)
