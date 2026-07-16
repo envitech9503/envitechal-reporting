@@ -44,7 +44,6 @@ import logging
 from django.db.models import Q
 from fpdf import FPDF
 
-print('mat---------------->>>>',matplotlib._version)
 
 
 def generate_leq_chart(results, limit_value, method_limit, leq_value, time_labels=None):
