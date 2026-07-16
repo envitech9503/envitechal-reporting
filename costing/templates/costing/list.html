@@ -6,9 +6,12 @@
 <div class="page-h">
   <div><h1>Test-Parameter Costing</h1>
     <div class="sub">Full-absorption cost per parameter — rates pulled live from your chemical inventory, loaded labour and utilities</div></div>
-  <div><a class="btn ghost" href="/admin/costing/costingconfig/">Settings</a>
-       <a class="btn" href="/admin/costing/costparameter/add/">+ New parameter</a></div>
+  <div>
+    {% if can_manage %}<a class="btn ghost" href="/admin/costing/costingconfig/">Settings</a>
+       <a class="btn" href="{% url 'costing:add' %}">+ New parameter</a>{% endif %}
+  </div>
 </div>
+{% if messages %}<div class="msgs">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
 <div class="kpis">
   <div class="kpi accent"><div class="l">Parameters costed</div><div class="v">{{ count }}</div></div>
   <div class="kpi gold"><div class="l">Target margin</div><div class="v">{{ avg_margin }}<small>%</small></div></div>
@@ -19,18 +22,25 @@
   <div class="ch"><span>Price catalogue</span><span class="tag">{{ currency }}</span></div>
   <table class="tbl">
     <thead><tr><th>Code</th><th>Parameter</th><th>Matrix</th><th>Method</th>
-      <th class="r">Batch</th><th class="r">Cost / test</th><th class="r">Recommended price</th></tr></thead>
+      <th class="r">Batch</th><th class="r">Cost / test</th><th class="r">Recommended price</th>
+      {% if can_manage %}<th class="r">Actions</th>{% endif %}</tr></thead>
     <tbody>
     {% for row in rows %}
-      <tr>
+      <tr{% if not row.p.active %} class="inactive"{% endif %}>
         <td><a href="{% url 'costing:detail' row.p.pk %}">{{ row.p.code }}</a></td>
-        <td>{{ row.p.name }}</td><td>{{ row.p.matrix }}</td><td>{{ row.p.method }}</td>
+        <td>{{ row.p.name }}{% if not row.p.active %} <span class="tag">inactive</span>{% endif %}</td>
+        <td>{{ row.p.matrix }}</td><td>{{ row.p.method }}</td>
         <td class="r">{{ row.p.batch_size }}</td>
         <td class="r">{{ currency }} {{ row.cost|floatformat:2 }}</td>
         <td class="r price">{{ currency }} {{ row.price|floatformat:2 }}</td>
+        {% if can_manage %}<td class="r nowrap">
+          <a class="lnk" href="{% url 'costing:edit' row.p.pk %}">Edit</a>
+          <form method="post" action="{% url 'costing:clone' row.p.pk %}" style="display:inline">{% csrf_token %}<button class="lnk" type="submit">Clone</button></form>
+          <a class="lnk del" href="{% url 'costing:delete' row.p.pk %}">Delete</a>
+        </td>{% endif %}
       </tr>
     {% empty %}
-      <tr><td colspan="7" class="note">No parameters yet — add one to begin.</td></tr>
+      <tr><td colspan="{% if can_manage %}8{% else %}7{% endif %}" class="note">No parameters yet{% if can_manage %} — <a href="{% url 'costing:add' %}">add one</a> to begin{% endif %}.</td></tr>
     {% endfor %}
     </tbody>
   </table>

@@ -1,0 +1,87 @@
+{% extends 'base_app.html' %}
+{% load static %}
+{% block title %}{{ mode }} parameter — Costing{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'costing/costing.css' %}">{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div>
+    <div class="sub"><a href="{% if p %}{% url 'costing:detail' p.pk %}{% else %}{% url 'costing:list' %}{% endif %}" style="color:var(--mut);text-decoration:none">← Back</a></div>
+    <h1>{{ mode }} test parameter</h1>
+    <div class="sub">Define the parameter, its recipe (chemicals &amp; labour) and cost drivers. Cost and price recompute automatically.</div>
+  </div>
+</div>
+{% if messages %}<div class="msgs">{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+
+<form method="post" novalidate>{% csrf_token %}
+  <div class="card">
+    <div class="ch"><span>Parameter</span></div>
+    <div class="fgrid">
+      {% for field in form %}
+        <div class="fld{% if field.name == 'name' or field.name == 'method' %} wide{% endif %}">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="fhint">{{ field.help_text }}</div>{% endif %}
+          {% if field.errors %}<div class="ferr">{{ field.errors|striptags }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="ch"><span>Recipe — chemicals</span><span class="tag">rate from inventory</span></div>
+      {{ chem_fs.management_form }}
+      <table class="mini fs"><thead><tr><th>Chemical</th><th>Qty / sample</th><th>Qty / batch</th><th class="r">Remove</th></tr></thead>
+      <tbody id="chem-rows">
+      {% for f in chem_fs %}
+        <tr class="frow">{{ f.id }}
+          <td>{{ f.chemical }}{% if f.chemical.errors %}<div class="ferr">{{ f.chemical.errors|striptags }}</div>{% endif %}</td>
+          <td>{{ f.qty_sample }}</td><td>{{ f.qty_batch }}</td>
+          <td class="r">{{ f.DELETE }}</td>
+        </tr>
+      {% endfor %}
+      </tbody></table>
+      <template id="chem-empty"><tr class="frow">{{ chem_fs.empty_form.id }}
+          <td>{{ chem_fs.empty_form.chemical }}</td><td>{{ chem_fs.empty_form.qty_sample }}</td>
+          <td>{{ chem_fs.empty_form.qty_batch }}</td><td class="r">{{ chem_fs.empty_form.DELETE }}</td></tr></template>
+      <button type="button" class="btn ghost sm" onclick="addRow('chem')">+ Add chemical</button>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span>Recipe — labour</span><span class="tag">loaded rate</span></div>
+      {{ lab_fs.management_form }}
+      <table class="mini fs"><thead><tr><th>Grade</th><th>Minutes / sample</th><th class="r">Remove</th></tr></thead>
+      <tbody id="lab-rows">
+      {% for f in lab_fs %}
+        <tr class="frow">{{ f.id }}
+          <td>{{ f.grade }}{% if f.grade.errors %}<div class="ferr">{{ f.grade.errors|striptags }}</div>{% endif %}</td>
+          <td>{{ f.minutes_sample }}</td><td class="r">{{ f.DELETE }}</td>
+        </tr>
+      {% endfor %}
+      </tbody></table>
+      <template id="lab-empty"><tr class="frow">{{ lab_fs.empty_form.id }}
+          <td>{{ lab_fs.empty_form.grade }}</td><td>{{ lab_fs.empty_form.minutes_sample }}</td>
+          <td class="r">{{ lab_fs.empty_form.DELETE }}</td></tr></template>
+      <button type="button" class="btn ghost sm" onclick="addRow('lab')">+ Add labour</button>
+    </div>
+  </div>
+
+  <div class="formbar">
+    <a class="btn ghost" href="{% if p %}{% url 'costing:detail' p.pk %}{% else %}{% url 'costing:list' %}{% endif %}">Cancel</a>
+    <button class="btn" type="submit">Save parameter</button>
+  </div>
+</form>
+
+<script>
+function addRow(prefix){
+  var body=document.getElementById(prefix+'-rows');
+  var tpl=document.getElementById(prefix+'-empty').innerHTML;
+  var total=document.getElementById('id_'+prefix+'-TOTAL_FORMS');
+  var i=parseInt(total.value,10);
+  var html=tpl.replace(/__prefix__/g, i);
+  var tmp=document.createElement('tbody'); tmp.innerHTML=html;
+  body.appendChild(tmp.firstElementChild);
+  total.value=i+1;
+}
+</script>
+{% endblock %}

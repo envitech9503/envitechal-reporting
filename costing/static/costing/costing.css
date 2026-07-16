@@ -46,3 +46,30 @@ table.tbl a{color:var(--greenD);font-weight:700;text-decoration:none}
 .warn{background:#fdf3e7;border:1px solid #f0c992;color:#8a5a12;border-radius:12px;padding:11px 16px;margin-bottom:16px;font-size:13px;font-weight:600}
 .warn a{color:#8a5a12;text-decoration:underline}
 .miss{color:#c0392b;font-weight:800;white-space:nowrap}
+/* --- CRUD / forms / actions --- */
+.acts{display:flex;gap:8px;align-items:center}
+.btn.del,.lnk.del{color:#c0392b}
+.btn.danger{background:#c0392b}
+.btn.sm{padding:6px 11px;font-size:12px;margin:10px 0 4px 14px;display:inline-block}
+.nowrap{white-space:nowrap}
+.lnk{background:none;border:none;color:var(--greenD);font-weight:700;font-size:12.5px;cursor:pointer;text-decoration:none;padding:0 6px;font-family:inherit}
+.lnk:hover{text-decoration:underline}
+tr.inactive td{opacity:.55}
+.msgs{margin-bottom:14px;display:flex;flex-direction:column;gap:8px}
+.msg{border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;border:1px solid}
+.msg.success{background:#eaf7ef;border-color:#bfe4cd;color:#1c7a44}
+.msg.error{background:#fdecea;border-color:#f2c3bc;color:#b0341f}
+.msg.warning{background:#fdf3e7;border-color:#f0c992;color:#8a5a12}
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 14px;padding:16px 18px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld.wide{grid-column:span 2}
+.fld label{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut);font-weight:700}
+.inp{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;box-sizing:border-box}
+.inp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(23,166,115,.12)}
+select.inp{min-width:150px}
+.fhint{font-size:11px;color:var(--mut)}
+.ferr{font-size:11.5px;color:#c0392b;font-weight:700}
+.mini.fs td{padding:6px 8px;vertical-align:top}
+.mini.fs .inp{padding:6px 8px}
+.formbar{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+@media(max-width:900px){.fgrid{grid-template-columns:repeat(2,1fr)}.fld.wide{grid-column:span 2}}

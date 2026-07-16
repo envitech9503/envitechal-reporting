@@ -1,0 +1,19 @@
+{% extends 'base_app.html' %}
+{% load static %}
+{% block title %}Delete {{ p.code }} — Costing{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'costing/costing.css' %}">{% endblock %}
+{% block content %}
+<div class="page-h"><div><h1>Delete parameter</h1>
+  <div class="sub">This permanently removes the parameter and its recipe.</div></div></div>
+<div class="card" style="max-width:560px">
+  <div class="ch"><span>Confirm deletion</span></div>
+  <p style="padding:6px 2px 14px">You are about to delete <b>{{ p.code }} — {{ p.name }}</b>
+     ({{ p.matrix }}{% if p.method %} · {{ p.method }}{% endif %}). This cannot be undone.</p>
+  <form method="post" action="{% url 'costing:delete' p.pk %}">{% csrf_token %}
+    <div class="formbar" style="justify-content:flex-start">
+      <a class="btn ghost" href="{% url 'costing:detail' p.pk %}">Cancel</a>
+      <button class="btn danger" type="submit">Delete permanently</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
