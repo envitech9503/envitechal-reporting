@@ -16,23 +16,39 @@
   <div class="kpi accent"><div class="l">Parameters costed</div><div class="v">{{ count }}</div></div>
   <div class="kpi gold"><div class="l">Target margin</div><div class="v">{{ avg_margin }}<small>%</small></div></div>
   <div class="kpi"><div class="l">Electricity tariff</div><div class="v" style="font-size:22px">{{ currency }} {{ config.electricity_tariff|floatformat:2 }}<small>/kWh</small></div></div>
-  <div class="kpi"><div class="l">Productive hrs / month</div><div class="v" style="font-size:22px">{{ config.productive_hours_month|floatformat:1 }}</div></div>
+  <div class="kpi {% if flagged %}flag{% endif %}"><div class="l">Price flags</div><div class="v" style="font-size:22px">{{ flagged }}<small> below-cost / thin</small></div></div>
 </div>
+<form class="filterbar" method="get">
+  <input class="inp" type="search" name="q" value="{{ q }}" placeholder="Search code, name or method…">
+  <select class="inp" name="matrix" onchange="this.form.submit()">
+    <option value="">All matrices</option>
+    {% for m in matrices %}<option value="{{ m }}"{% if m == matrix %} selected{% endif %}>{{ m }}</option>{% endfor %}
+  </select>
+  <input type="hidden" name="sort" value="{{ sort }}">
+  <button class="btn" type="submit">Search</button>
+  {% if q or matrix %}<a class="btn ghost" href="{% url 'costing:list' %}">Clear</a>{% endif %}
+</form>
 <div class="card">
-  <div class="ch"><span>Price catalogue</span><span class="tag">{{ currency }}</span></div>
+  <div class="ch"><span>Price catalogue</span><span class="tag">showing {{ shown }} of {{ total }}</span></div>
   <table class="tbl">
-    <thead><tr><th>Code</th><th>Parameter</th><th>Matrix</th><th>Method</th>
-      <th class="r">Batch</th><th class="r">Cost / test</th><th class="r">Recommended price</th>
+    <thead><tr>
+      <th><a class="sh" href="?sort={% if sort == 'code' %}-code{% else %}code{% endif %}&q={{ q|urlencode }}&matrix={{ matrix|urlencode }}">Code</a></th>
+      <th><a class="sh" href="?sort={% if sort == 'name' %}-name{% else %}name{% endif %}&q={{ q|urlencode }}&matrix={{ matrix|urlencode }}">Parameter</a></th>
+      <th><a class="sh" href="?sort={% if sort == 'matrix' %}-matrix{% else %}matrix{% endif %}&q={{ q|urlencode }}&matrix={{ matrix|urlencode }}">Matrix</a></th>
+      <th>Method</th>
+      <th class="r"><a class="sh" href="?sort={% if sort == 'cost' %}-cost{% else %}cost{% endif %}&q={{ q|urlencode }}&matrix={{ matrix|urlencode }}">Cost / test</a></th>
+      <th class="r"><a class="sh" href="?sort={% if sort == 'price' %}-price{% else %}price{% endif %}&q={{ q|urlencode }}&matrix={{ matrix|urlencode }}">Rec. price</a></th>
+      <th class="r"><a class="sh" href="?sort={% if sort == 'margin' %}-margin{% else %}margin{% endif %}&q={{ q|urlencode }}&matrix={{ matrix|urlencode }}">Margin</a></th>
       {% if can_manage %}<th class="r">Actions</th>{% endif %}</tr></thead>
     <tbody>
     {% for row in rows %}
       <tr{% if not row.p.active %} class="inactive"{% endif %}>
         <td><a href="{% url 'costing:detail' row.p.pk %}">{{ row.p.code }}</a></td>
-        <td>{{ row.p.name }}{% if not row.p.active %} <span class="tag">inactive</span>{% endif %}</td>
+        <td>{{ row.p.name }}{% if not row.p.active %} <span class="tag">inactive</span>{% endif %}{% if row.missing %} <span class="miss" title="reagent(s) with no rate">⚠</span>{% endif %}</td>
         <td>{{ row.p.matrix }}</td><td>{{ row.p.method }}</td>
-        <td class="r">{{ row.p.batch_size }}</td>
         <td class="r">{{ currency }} {{ row.cost|floatformat:2 }}</td>
         <td class="r price">{{ currency }} {{ row.price|floatformat:2 }}</td>
+        <td class="r">{% if row.flag == 'below' %}<span class="mflag below">below cost</span>{% elif row.flag == 'thin' %}<span class="mflag thin">{{ row.margin_pct }}%</span>{% else %}{{ row.margin_pct }}%{% endif %}</td>
         {% if can_manage %}<td class="r nowrap">
           <a class="lnk" href="{% url 'costing:edit' row.p.pk %}">Edit</a>
           <form method="post" action="{% url 'costing:clone' row.p.pk %}" style="display:inline">{% csrf_token %}<button class="lnk" type="submit">Clone</button></form>
@@ -40,10 +56,10 @@
         </td>{% endif %}
       </tr>
     {% empty %}
-      <tr><td colspan="{% if can_manage %}8{% else %}7{% endif %}" class="note">No parameters yet{% if can_manage %} — <a href="{% url 'costing:add' %}">add one</a> to begin{% endif %}.</td></tr>
+      <tr><td colspan="{% if can_manage %}8{% else %}7{% endif %}" class="note">No parameters match{% if q or matrix %} your filter — <a href="{% url 'costing:list' %}">clear</a>{% elif can_manage %} — <a href="{% url 'costing:add' %}">add one</a>{% endif %}.</td></tr>
     {% endfor %}
     </tbody>
   </table>
-  <div class="note">Computed from live chemical rates, loaded labour, utilities and overhead — ready to publish to the finance / quotation system.</div>
+  <div class="note">Margin is gross on price ((price − cost) ÷ price). <span class="mflag below">below cost</span> = price under cost; <span class="mflag thin">thin</span> = under {{ 15 }}% margin. Computed from live rates, loaded labour, utilities and overhead.</div>
 </div>
 {% endblock %}

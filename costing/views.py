@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -10,19 +11,54 @@ from .forms import CostParameterForm, RecipeChemicalFormSet, RecipeLabourFormSet
 from .permissions import can_manage_costing, manage_required
 
 CUR = lambda: getattr(settings, 'COSTING_CURRENCY', 'PKR')
+THIN_MARGIN = 15.0  # % gross margin below which a price is flagged "thin"
+
+SORT_KEYS = {
+    'code': lambda x: x['p'].code,
+    'name': lambda x: (x['p'].name or '').lower(),
+    'matrix': lambda x: (x['p'].matrix or ''),
+    'cost': lambda x: x['cost'],
+    'price': lambda x: x['price'],
+    'margin': lambda x: x['margin_pct'],
+}
 
 
 def costing_list(request):
     config = CostingConfig.current()
+    q = (request.GET.get('q') or '').strip()
+    matrix = (request.GET.get('matrix') or '').strip()
+    sort = request.GET.get('sort') or 'code'
+
+    qs = CostParameter.objects.all()
+    if q:
+        qs = qs.filter(Q(code__icontains=q) | Q(name__icontains=q) | Q(method__icontains=q))
+    if matrix:
+        qs = qs.filter(matrix=matrix)
+
     rows = []
-    for p in CostParameter.objects.all():
+    for p in qs:
         r = p.compute(config=config)
-        rows.append({'p': p, 'cost': r['cost'], 'price': r['price']})
+        cost, price = r['cost'], r['price']
+        margin_pct = round((price - cost) / price * 100, 1) if price else 0.0
+        flag = 'below' if price < cost else ('thin' if margin_pct < THIN_MARGIN else '')
+        rows.append({'p': p, 'cost': cost, 'price': price,
+                     'margin_pct': margin_pct, 'flag': flag,
+                     'missing': r['missing_rates']})
+
+    rev = sort.startswith('-')
+    keyfn = SORT_KEYS.get(sort.lstrip('-'), SORT_KEYS['code'])
+    rows.sort(key=keyfn, reverse=rev)
+
+    matrices = sorted({(p.matrix or '').strip() for p in CostParameter.objects.all() if (p.matrix or '').strip()})
     ctx = {
         'rows': rows, 'config': config, 'currency': CUR(),
-        'count': len([r for r in rows if r['p'].active]),
+        'count': CostParameter.objects.filter(active=True).count(),
+        'total': CostParameter.objects.count(),
         'avg_margin': round(config.target_margin * 100, 1),
         'can_manage': can_manage_costing(request.user),
+        'q': q, 'matrix': matrix, 'sort': sort, 'matrices': matrices,
+        'flagged': sum(1 for r in rows if r['flag']),
+        'shown': len(rows),
     }
     return render(request, 'costing/list.html', ctx)
 
@@ -110,6 +146,27 @@ def costing_delete(request, pk):
         messages.success(request, 'Parameter "%s" deleted.' % code)
         return redirect('costing:list')
     return render(request, 'costing/confirm_delete.html', {'p': p, 'currency': CUR()})
+
+
+@manage_required
+def costing_history(request, pk):
+    p = get_object_or_404(CostParameter, pk=pk)
+    records = list(p.history.all()[:60])
+    tmap = {'+': 'Created', '~': 'Changed', '-': 'Deleted'}
+    entries = []
+    for i, rec in enumerate(records):
+        changes = []
+        if rec.history_type == '~' and i + 1 < len(records):
+            try:
+                for ch in rec.diff_against(records[i + 1]).changes:
+                    changes.append({'field': ch.field, 'old': ch.old, 'new': ch.new})
+            except Exception:
+                pass
+        entries.append({'when': rec.history_date, 'user': rec.history_user,
+                        'type': tmap.get(rec.history_type, rec.history_type),
+                        'changes': changes})
+    return render(request, 'costing/history.html',
+                  {'p': p, 'entries': entries, 'currency': CUR()})
 
 
 def api_recompute(request, pk):

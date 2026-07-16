@@ -12,6 +12,7 @@
   {% if can_manage %}<div class="acts">
     <a class="btn ghost" href="{% url 'costing:edit' p.pk %}">Edit</a>
     <form method="post" action="{% url 'costing:clone' p.pk %}" style="display:inline">{% csrf_token %}<button class="btn ghost" type="submit">Clone</button></form>
+    <a class="btn ghost" href="{% url 'costing:history' p.pk %}">History</a>
     <a class="btn ghost del" href="{% url 'costing:delete' p.pk %}">Delete</a>
   </div>{% endif %}
 </div>

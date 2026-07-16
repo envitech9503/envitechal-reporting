@@ -1,0 +1,39 @@
+{% extends 'base_app.html' %}
+{% load static %}
+{% block title %}History — {{ p.code }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'costing/costing.css' %}">{% endblock %}
+{% block content %}
+<div class="page-h">
+  <div>
+    <div class="sub"><a href="{% url 'costing:detail' p.pk %}" style="color:var(--mut);text-decoration:none">← {{ p.code }}</a></div>
+    <h1>Change history — {{ p.name }}</h1>
+    <div class="sub">Who changed this parameter and its costing, when, and what changed.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span>Audit trail</span><span class="tag">{{ entries|length }} record{{ entries|length|pluralize }}</span></div>
+  <div class="hist">
+  {% for e in entries %}
+    <div class="hrow">
+      <div class="hmeta">
+        <b>{{ e.when|date:"d-m-Y H:i" }}</b>
+        {{ e.user|default:"system" }}
+        <span class="htype {{ e.type }}">{{ e.type }}</span>
+      </div>
+      <div class="hchg">
+        {% if e.changes %}
+          <table>{% for c in e.changes %}<tr>
+            <td class="fld-n">{{ c.field }}</td>
+            <td><span class="old">{{ c.old|default:"—" }}</span> → <span class="new">{{ c.new|default:"—" }}</span></td>
+          </tr>{% endfor %}</table>
+        {% elif e.type == 'Created' %}<span class="hmeta">Parameter created.</span>
+        {% elif e.type == 'Deleted' %}<span class="hmeta">Parameter deleted.</span>
+        {% else %}<span class="hmeta">No field-level differences recorded.</span>{% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="note">No history yet — changes will appear here from now on.</div>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}

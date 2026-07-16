@@ -9,6 +9,7 @@ quantities as before."""
 from django.conf import settings
 from django.db import models
 from decimal import Decimal
+from simple_history.models import HistoricalRecords
 
 CHEM_MODEL = getattr(settings, 'COSTING_CHEMICAL_MODEL', 'dashboard.Chemical')
 
@@ -28,6 +29,7 @@ class CostingConfig(models.Model):
     target_margin = models.DecimalField('Target margin (markup)', max_digits=5, decimal_places=3, default=Decimal('0.30'))
     price_rounding = models.DecimalField('Price rounding (PKR)', max_digits=8, decimal_places=2, default=Decimal('10'))
     updated = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Costing configuration'
@@ -56,6 +58,7 @@ class ReagentRate(models.Model):
     effective_from = models.DateField(null=True, blank=True)
     source = models.CharField(max_length=128, blank=True, help_text='e.g. Stock valuation 31-07-2026 / PO ref')
     updated = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Reagent rate'
@@ -71,6 +74,7 @@ class LabourGrade(models.Model):
     office = models.CharField(max_length=32, blank=True)
     gross_month = models.DecimalField('Gross salary / month (PKR)', max_digits=12, decimal_places=2, default=0)
     is_direct = models.BooleanField('Direct (chargeable) staff', default=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['name']
@@ -101,6 +105,7 @@ class CostParameter(models.Model):
     tax_category = models.CharField(max_length=64, default='SST - services')
     active = models.BooleanField(default=True)
     updated = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ['code']
@@ -118,6 +123,7 @@ class RecipeChemical(models.Model):
     chemical = models.ForeignKey(CHEM_MODEL, on_delete=models.PROTECT, related_name='+')
     qty_sample = models.DecimalField('Qty / sample', max_digits=12, decimal_places=4, default=0)
     qty_batch = models.DecimalField('Qty / batch', max_digits=12, decimal_places=4, default=0)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Recipe — chemical'
@@ -131,6 +137,7 @@ class RecipeLabour(models.Model):
     parameter = models.ForeignKey(CostParameter, related_name='labour', on_delete=models.CASCADE)
     grade = models.ForeignKey(LabourGrade, on_delete=models.PROTECT)
     minutes_sample = models.DecimalField('Minutes / sample', max_digits=8, decimal_places=2, default=0)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Recipe — labour'
