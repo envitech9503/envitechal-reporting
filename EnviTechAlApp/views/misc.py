@@ -1113,7 +1113,14 @@ def calculate_leq(start_time, end_time, interval, table_data):
         ti = 60
 
     # Extract Li values
-    li_values = [float(row["result"]) for row in table_data if row.get("result")]
+    li_values = []
+    for _row in table_data:
+        if not _row.get("result"):
+            continue
+        try:
+            li_values.append(float(_row["result"]))
+        except (TypeError, ValueError):
+            continue
     n = len(li_values)
 
     if not li_values:

@@ -81,6 +81,8 @@ def generate_leq_chart(results, limit_value, method_limit, leq_value, time_label
         )
 
     # Labels, title, etc.
+    if time_labels and len(time_labels) != len(x):
+        time_labels = (list(time_labels) + [''] * len(x))[:len(x)]
     if time_labels:
         plt.xticks(x, time_labels, rotation=45, ha='right', fontsize=8)
     else:
@@ -133,6 +135,8 @@ def generate_leq_line_chart(results, limit_value, leq_result, method_limit, time
                 label=f'Leq ({leq_result:.1f} dB)')
 
     # Axes labels and title
+    if time_labels and len(time_labels) != len(x):
+        time_labels = (list(time_labels) + [''] * len(x))[:len(x)]
     if time_labels:
         plt.xticks(x, time_labels, rotation=45, ha='right', fontsize=6)
     else:
@@ -834,8 +838,8 @@ def generatePDF(request,pk):
 
           images = []
           for i in range(1, 7):
-               base64_str = getattr(waterForm, f'pdf_image_{i}')
-               desc = getattr(waterForm, f'pdf_desc_{i}')
+               base64_str = getattr(waterForm, f'pdf_image_{i}', None)
+               desc = getattr(waterForm, f'pdf_desc_{i}', '')
                if base64_str:
                     try:
                          image_bytes = base64.b64decode(base64_str)
@@ -1599,8 +1603,8 @@ def generatePDF_report(request,pk,return_bytes=False):
 
           images = []
           for i in range(1, 7):
-               base64_str = getattr(waterForm, f'pdf_image_{i}')
-               desc = getattr(waterForm, f'pdf_desc_{i}')
+               base64_str = getattr(waterForm, f'pdf_image_{i}', None)
+               desc = getattr(waterForm, f'pdf_desc_{i}', '')
                if base64_str:
                     try:
                          image_bytes = base64.b64decode(base64_str)

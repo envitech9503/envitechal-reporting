@@ -2810,8 +2810,15 @@ def noiseMonitoring_print(request,pk):
          graph_start_y = pdf.y
 
      # Generate chart data
-     result = [float(row.get("result", 0)) for row in nA.table_data if row.get("result")]
-     time_labels = [str(row.get("time", "")) for row in nA.table_data if row.get("time")]
+     _rows = [r for r in nA.table_data if r.get("result")]
+     result = []
+     time_labels = []
+     for _r in _rows:
+         try:
+             result.append(float(_r.get("result", 0)))
+         except (TypeError, ValueError):
+             continue
+         time_labels.append(str(_r.get("time", "")))
      method_limit = nA.select
 
      
@@ -3653,8 +3660,15 @@ def noiseMonitoring_report(request,pk):
          graph_start_y = pdf.y
 
      # Generate chart data
-     result = [float(row.get("result", 0)) for row in nA.table_data if row.get("result")]
-     time_labels = [str(row.get("time", "")) for row in nA.table_data if row.get("time")]
+     _rows = [r for r in nA.table_data if r.get("result")]
+     result = []
+     time_labels = []
+     for _r in _rows:
+         try:
+             result.append(float(_r.get("result", 0)))
+         except (TypeError, ValueError):
+             continue
+         time_labels.append(str(_r.get("time", "")))
      method_limit = nA.select
 
      
