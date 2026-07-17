@@ -27,6 +27,7 @@
   <input type="hidden" name="sort" value="{{ sort }}">
   <button class="btn" type="submit">Search</button>
   {% if q or matrix %}<a class="btn ghost" href="{% url 'costing:list' %}">Clear</a>{% endif %}
+  <a class="btn ghost" href="{% url 'costing:export_csv' %}">Export CSV</a>
 </form>
 <div class="card">
   <div class="ch"><span>Price catalogue</span><span class="tag">showing {{ shown }} of {{ total }}</span></div>
@@ -52,7 +53,7 @@
         {% if can_manage %}<td class="r nowrap">
           <a class="lnk" href="{% url 'costing:edit' row.p.pk %}">Edit</a>
           <form method="post" action="{% url 'costing:clone' row.p.pk %}" style="display:inline">{% csrf_token %}<button class="lnk" type="submit">Clone</button></form>
-          <a class="lnk del" href="{% url 'costing:delete' row.p.pk %}">Delete</a>
+          <form method="post" action="{% url 'costing:archive' row.p.pk %}" style="display:inline">{% csrf_token %}<button class="lnk {% if row.p.active %}del{% endif %}" type="submit">{% if row.p.active %}Archive{% else %}Restore{% endif %}</button></form>
         </td>{% endif %}
       </tr>
     {% empty %}
@@ -60,6 +61,6 @@
     {% endfor %}
     </tbody>
   </table>
-  <div class="note">Margin is gross on price ((price − cost) ÷ price). <span class="mflag below">below cost</span> = price under cost; <span class="mflag thin">thin</span> = under {{ 15 }}% margin. Computed from live rates, loaded labour, utilities and overhead.</div>
+  <div class="note">Margin is gross on price ((price − cost) ÷ price). <span class="mflag below">below cost</span> = price under cost; <span class="mflag thin">thin</span> = under {{ thin }}% margin (set in Settings). Computed from live rates, loaded labour, utilities and overhead.</div>
 </div>
 {% endblock %}

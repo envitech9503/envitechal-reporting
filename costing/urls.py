@@ -10,5 +10,7 @@ urlpatterns = [
     path('<int:pk>/clone/', views.costing_clone, name='clone'),
     path('<int:pk>/delete/', views.costing_delete, name='delete'),
     path('<int:pk>/history/', views.costing_history, name='history'),
+    path('<int:pk>/archive/', views.costing_archive, name='archive'),
+    path('export.csv', views.costing_export_csv, name='export_csv'),
     path('api/<int:pk>/recompute/', views.api_recompute, name='api_recompute'),
 ]

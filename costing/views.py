@@ -11,7 +11,13 @@ from .forms import CostParameterForm, RecipeChemicalFormSet, RecipeLabourFormSet
 from .permissions import can_manage_costing, manage_required
 
 CUR = lambda: getattr(settings, 'COSTING_CURRENCY', 'PKR')
-THIN_MARGIN = 15.0  # % gross margin below which a price is flagged "thin"
+
+
+def thin_margin(config):
+    try:
+        return float(config.thin_margin_pct)
+    except (TypeError, ValueError):
+        return 15.0
 
 SORT_KEYS = {
     'code': lambda x: x['p'].code,
@@ -35,12 +41,13 @@ def costing_list(request):
     if matrix:
         qs = qs.filter(matrix=matrix)
 
+    thin = thin_margin(config)
     rows = []
-    for p in qs:
+    for p in qs.prefetch_related('chemicals__chemical', 'labour__grade'):
         r = p.compute(config=config)
         cost, price = r['cost'], r['price']
         margin_pct = round((price - cost) / price * 100, 1) if price else 0.0
-        flag = 'below' if price < cost else ('thin' if margin_pct < THIN_MARGIN else '')
+        flag = 'below' if price < cost else ('thin' if margin_pct < thin else '')
         rows.append({'p': p, 'cost': cost, 'price': price,
                      'margin_pct': margin_pct, 'flag': flag,
                      'missing': r['missing_rates']})
@@ -58,9 +65,42 @@ def costing_list(request):
         'can_manage': can_manage_costing(request.user),
         'q': q, 'matrix': matrix, 'sort': sort, 'matrices': matrices,
         'flagged': sum(1 for r in rows if r['flag']),
-        'shown': len(rows),
+        'shown': len(rows), 'thin': thin,
     }
     return render(request, 'costing/list.html', ctx)
+
+
+def costing_export_csv(request):
+    import csv
+    from django.http import HttpResponse
+    config = CostingConfig.current()
+    thin = thin_margin(config)
+    resp = HttpResponse(content_type='text/csv')
+    resp['Content-Disposition'] = 'attachment; filename="costing_catalogue.csv"'
+    w = csv.writer(resp)
+    w.writerow(['Code', 'Parameter', 'Matrix', 'Method', 'Batch size',
+                'Cost per test (%s)' % CUR(), 'Recommended price (%s)' % CUR(),
+                'Gross margin %', 'Flag', 'Active'])
+    for p in CostParameter.objects.prefetch_related('chemicals__chemical', 'labour__grade'):
+        r = p.compute(config=config)
+        cost, price = r['cost'], r['price']
+        m = round((price - cost) / price * 100, 1) if price else 0.0
+        flag = 'BELOW COST' if price < cost else ('THIN' if m < thin else '')
+        w.writerow([p.code, p.name, p.matrix, p.method, p.batch_size,
+                    '%.2f' % cost, '%.2f' % price, m, flag,
+                    'yes' if p.active else 'no'])
+    return resp
+
+
+@manage_required
+def costing_archive(request, pk):
+    p = get_object_or_404(CostParameter, pk=pk)
+    if request.method == 'POST':
+        p.active = not p.active
+        p.save()
+        messages.success(request, 'Parameter "%s" %s.' %
+                         (p.code, 'restored' if p.active else 'archived'))
+    return redirect('costing:list')
 
 
 def costing_detail(request, pk):
@@ -150,9 +190,10 @@ def costing_delete(request, pk):
 
 @manage_required
 def costing_history(request, pk):
+    from .models import RecipeChemical, RecipeLabour
     p = get_object_or_404(CostParameter, pk=pk)
-    records = list(p.history.all()[:60])
     tmap = {'+': 'Created', '~': 'Changed', '-': 'Deleted'}
+    records = list(p.history.all()[:60])
     entries = []
     for i, rec in enumerate(records):
         changes = []
@@ -164,9 +205,21 @@ def costing_history(request, pk):
                 pass
         entries.append({'when': rec.history_date, 'user': rec.history_user,
                         'type': tmap.get(rec.history_type, rec.history_type),
-                        'changes': changes})
+                        'label': 'Parameter', 'changes': changes})
+    for rec in RecipeChemical.history.filter(parameter_id=pk)[:40]:
+        entries.append({'when': rec.history_date, 'user': rec.history_user,
+                        'type': tmap.get(rec.history_type, rec.history_type),
+                        'label': 'Recipe chemical #%s' % rec.id,
+                        'changes': [{'field': 'qty/sample', 'old': '', 'new': rec.qty_sample},
+                                    {'field': 'qty/batch', 'old': '', 'new': rec.qty_batch}]})
+    for rec in RecipeLabour.history.filter(parameter_id=pk)[:40]:
+        entries.append({'when': rec.history_date, 'user': rec.history_user,
+                        'type': tmap.get(rec.history_type, rec.history_type),
+                        'label': 'Recipe labour #%s' % rec.id,
+                        'changes': [{'field': 'minutes/sample', 'old': '', 'new': rec.minutes_sample}]})
+    entries.sort(key=lambda e: e['when'], reverse=True)
     return render(request, 'costing/history.html',
-                  {'p': p, 'entries': entries, 'currency': CUR()})
+                  {'p': p, 'entries': entries[:80], 'currency': CUR()})
 
 
 def api_recompute(request, pk):

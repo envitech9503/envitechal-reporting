@@ -1,6 +1,8 @@
 """Role-based authorisation for the Costing module.
 
-Management functions (add / edit / clone / delete) are restricted to
+Visibility policy (decided by Imran, 17-07-2026): costs, margins and the
+catalogue are VISIBLE to every logged-in staff member; management functions
+are restricted as below. Management functions (add / edit / clone / delete) are restricted to
 administrators (Django superusers) and management-grade roles. The allowed
 role set is configurable via settings.COSTING_MANAGE_ROLES (a list of
 case-insensitive substrings matched against the user's role name); it

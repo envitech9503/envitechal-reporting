@@ -7,9 +7,12 @@ module OWNS reagent rates in its own ReagentRate table (linked to the host
 Chemical). Finance maintains these rates; the lab keeps maintaining inventory
 quantities as before."""
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 from decimal import Decimal
 from simple_history.models import HistoricalRecords
+
+NONNEG = [MinValueValidator(Decimal('0'))]
 
 CHEM_MODEL = getattr(settings, 'COSTING_CHEMICAL_MODEL', 'dashboard.Chemical')
 
@@ -28,6 +31,8 @@ class CostingConfig(models.Model):
     ga_overhead = models.DecimalField('G&A overhead', max_digits=5, decimal_places=3, default=Decimal('0.07'))
     target_margin = models.DecimalField('Target margin (markup)', max_digits=5, decimal_places=3, default=Decimal('0.30'))
     price_rounding = models.DecimalField('Price rounding (PKR)', max_digits=8, decimal_places=2, default=Decimal('10'))
+    thin_margin_pct = models.DecimalField('Thin-margin flag threshold (%)', max_digits=5,
+                                          decimal_places=1, default=Decimal('15'), validators=NONNEG)
     updated = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 
@@ -44,7 +49,11 @@ class CostingConfig(models.Model):
 
     @classmethod
     def current(cls):
-        return cls.objects.first() or cls.objects.create()
+        """Single deterministic config row; race-safe via pk=1 get_or_create."""
+        obj = cls.objects.order_by('pk').first()
+        if obj is not None:
+            return obj
+        return cls.objects.get_or_create(pk=1)[0]
 
 
 class ReagentRate(models.Model):
@@ -54,7 +63,7 @@ class ReagentRate(models.Model):
     chemical = models.ForeignKey(CHEM_MODEL, on_delete=models.CASCADE, related_name='+')
     location = models.CharField(max_length=32, blank=True, default='',
                                 help_text='Blank = applies to all labs; else Karachi / Lahore')
-    unit_cost = models.DecimalField('Unit cost (PKR / base unit)', max_digits=14, decimal_places=4, default=0)
+    unit_cost = models.DecimalField('Unit cost (PKR / base unit)', max_digits=14, decimal_places=4, default=0, validators=NONNEG)
     effective_from = models.DateField(null=True, blank=True)
     source = models.CharField(max_length=128, blank=True, help_text='e.g. Stock valuation 31-07-2026 / PO ref')
     updated = models.DateTimeField(auto_now=True)
@@ -63,6 +72,8 @@ class ReagentRate(models.Model):
     class Meta:
         verbose_name = 'Reagent rate'
         ordering = ['-effective_from', '-id']
+        constraints = [models.UniqueConstraint(fields=['chemical', 'location'],
+                                               name='uniq_rate_chemical_location')]
 
     def __str__(self):
         loc = f' @ {self.location}' if self.location else ''
@@ -72,7 +83,7 @@ class ReagentRate(models.Model):
 class LabourGrade(models.Model):
     name = models.CharField(max_length=128)
     office = models.CharField(max_length=32, blank=True)
-    gross_month = models.DecimalField('Gross salary / month (PKR)', max_digits=12, decimal_places=2, default=0)
+    gross_month = models.DecimalField('Gross salary / month (PKR)', max_digits=12, decimal_places=2, default=0, validators=NONNEG)
     is_direct = models.BooleanField('Direct (chargeable) staff', default=True)
     history = HistoricalRecords()
 
@@ -96,12 +107,12 @@ class CostParameter(models.Model):
     location = models.CharField(max_length=32, default='Karachi')
     batch_size = models.PositiveIntegerField(default=10)
     annual_volume = models.PositiveIntegerField(default=1000)
-    electricity_kwh = models.DecimalField('Electricity kWh / sample', max_digits=10, decimal_places=3, default=0)
-    di_water_ml = models.DecimalField('DI water mL / sample', max_digits=10, decimal_places=2, default=0)
-    instrument_cost = models.DecimalField('Instrument PKR / sample', max_digits=12, decimal_places=2, default=0)
-    waste_cost = models.DecimalField('Waste PKR / sample', max_digits=12, decimal_places=2, default=0)
-    qc_batch_cost = models.DecimalField('QC & calibration PKR / batch', max_digits=12, decimal_places=2, default=0)
-    annual_pool = models.DecimalField('Accreditation/PT/LIMS PKR / year', max_digits=14, decimal_places=2, default=0)
+    electricity_kwh = models.DecimalField('Electricity kWh / sample', max_digits=10, decimal_places=3, default=0, validators=NONNEG)
+    di_water_ml = models.DecimalField('DI water mL / sample', max_digits=10, decimal_places=2, default=0, validators=NONNEG)
+    instrument_cost = models.DecimalField('Instrument PKR / sample', max_digits=12, decimal_places=2, default=0, validators=NONNEG)
+    waste_cost = models.DecimalField('Waste PKR / sample', max_digits=12, decimal_places=2, default=0, validators=NONNEG)
+    qc_batch_cost = models.DecimalField('QC & calibration PKR / batch', max_digits=12, decimal_places=2, default=0, validators=NONNEG)
+    annual_pool = models.DecimalField('Accreditation/PT/LIMS PKR / year', max_digits=14, decimal_places=2, default=0, validators=NONNEG)
     tax_category = models.CharField(max_length=64, default='SST - services')
     active = models.BooleanField(default=True)
     updated = models.DateTimeField(auto_now=True)
@@ -121,8 +132,8 @@ class CostParameter(models.Model):
 class RecipeChemical(models.Model):
     parameter = models.ForeignKey(CostParameter, related_name='chemicals', on_delete=models.CASCADE)
     chemical = models.ForeignKey(CHEM_MODEL, on_delete=models.PROTECT, related_name='+')
-    qty_sample = models.DecimalField('Qty / sample', max_digits=12, decimal_places=4, default=0)
-    qty_batch = models.DecimalField('Qty / batch', max_digits=12, decimal_places=4, default=0)
+    qty_sample = models.DecimalField('Qty / sample', max_digits=12, decimal_places=4, default=0, validators=NONNEG)
+    qty_batch = models.DecimalField('Qty / batch', max_digits=12, decimal_places=4, default=0, validators=NONNEG)
     history = HistoricalRecords()
 
     class Meta:
@@ -136,7 +147,7 @@ class RecipeChemical(models.Model):
 class RecipeLabour(models.Model):
     parameter = models.ForeignKey(CostParameter, related_name='labour', on_delete=models.CASCADE)
     grade = models.ForeignKey(LabourGrade, on_delete=models.PROTECT)
-    minutes_sample = models.DecimalField('Minutes / sample', max_digits=8, decimal_places=2, default=0)
+    minutes_sample = models.DecimalField('Minutes / sample', max_digits=8, decimal_places=2, default=0, validators=NONNEG)
     history = HistoricalRecords()
 
     class Meta:
