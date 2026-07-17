@@ -11,15 +11,13 @@ def create_dw_qc(request):
             
            
             for k in body.keys():
-                print(f"Key: {repr(k)}")
+                pass
 
             sample_id = body.get('sample_id')
-            print(f"Sample ID: {sample_id}")
             data = body.copy()
             if 'sample_id' in data:
                 del data['sample_id']
 
-            print(f"Data to store: {data}")
             report = Dw_rds.objects.create(
                 sample_id=sample_id,
                 rds=data
@@ -68,7 +66,6 @@ def generate_dw_qc_pdf_response(report, pk):
 
     data = report.rds or {}
     
-    print('data--------------->>>>',data)
 
     # Margins
     pdf.set_left_margin(10)
@@ -160,7 +157,6 @@ def generate_dw_qc_pdf_response(report, pk):
             or data.get(f'performed_{row_key}')
             or ''
         )
-        print('performed by------------------>>>>>>>>>>>>>>',performed_id)
         if performed_id:
             try:
                 sign = Signatures.objects.get(id=int(performed_id))
@@ -247,9 +243,6 @@ def generate_dw_qc_pdf_response(report, pk):
             # Build formula content
             formula_parts = []
             
-            print(f"\n=== DEBUGGING {section_title} ===")
-            print(f"check_key: {check_key}")
-            print(f"value_suffix: '{value_suffix}', df_suffix: '{df_suffix}'")
             
             for i in range(1, 4):
                 # Try ALL possible patterns
@@ -301,7 +294,6 @@ def generate_dw_qc_pdf_response(report, pk):
                 for val_pattern, df_pattern, pattern_name in possible_patterns:
                     val_exists = val_pattern in data
                     df_exists = df_pattern in data
-                    print(f"  i={i}: {pattern_name} -> val: '{val_pattern}' ({val_exists}), df: '{df_pattern}' ({df_exists})")
                     
                     if val_exists and df_exists:
                         found_val = data[val_pattern]
@@ -311,25 +303,20 @@ def generate_dw_qc_pdf_response(report, pk):
                 
                 if found_val and found_df:
                     formula_parts.append(f"({found_val} X {found_df})")
-                    print(f"  ✓ FOUND: Using {found_pattern}")
                 else:
-                    print(f"  ✗ NOT FOUND for i={i}")
+                    pass
             
             if formula_parts:
                 formula_content = " + ".join(formula_parts)
                 result_text = f"{data.get(ans_key, '')} {data.get(param_key, '')}"
                 divisor = data.get(div_key) if div_key else None
-                print(f"SUCCESS: Formula = {formula_content}")
-                print(f"SUCCESS: Result = {result_text}")
                 add_formula_with_line(formula_content, result_text, divisor, start_x)
             else:
-                print(f"FAILED: No formula parts created for {section_title}")
-                print("ALL AVAILABLE KEYS (filtered):")
                 # Show all keys that might be relevant
                 search_terms = [check_key, section_title.lower(), head_key]
                 for key in sorted(data.keys()):
                     if any(term in key.lower() for term in search_terms):
-                        print(f"  '{key}': '{data[key]}'")
+                        pass
 
     def add_average_formula_section_crm(check_key, section_title, head_key, ans_key, param_key, 
                                 div_key=None, start_x=30):
@@ -461,12 +448,10 @@ def generate_dw_qc_pdf_response(report, pk):
                 df_key = f"{check_key[:-1]}1_{i}_df"
                 if data.get(val_key) and data.get(df_key):
                     formula_parts.append(f"({data[val_key]} X {data[df_key]})")
-                    print('formula---------------->>>>>>',formula_parts)
                 # formula_parts.append(f"()")
 
             if formula_parts:
                 formula_content = " + ".join(formula_parts)
-                print('content---------------->>>>>>',formula_content)
                 color_text_width = pdf.get_string_width(formula_content)
                 color_line_start_x = start_x
                 color_line_end_x = start_x + color_text_width
@@ -2406,7 +2391,6 @@ def generate_dw_qc_pdf_response(report, pk):
             )
     
 
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!------------------->>>',data.get('for_magnesium1_1'))
         
     # MAGNESIUM CALCULATION
     if data.get('for_magnesium1_1') or data.get('r1_final'):
@@ -2505,7 +2489,6 @@ def generate_dw_qc_pdf_response(report, pk):
                         pdf.cell(0, 3, f"{data.get(th_key, '')} X {data.get(df_key, '')} = {data.get(th1_key, '')} {data.get(th_param_key, 'mg/L')}", align="L", ln=True)
                     pdf.ln(3)
                     # Calcium Hardness
-                    print('======================>>>>>>>>>>>>>',data.get(ch_head))
                     pdf.set_x(10)
                     pdf.set_font("Calibri", '', 10)
                     pdf.cell(40, 6, f"{data.get(ch_head, 'Calcium Hardness')} = ", border=False, align="L")
@@ -2904,7 +2887,6 @@ def get_dw(request):
                     })
                     processed_parameters.add(normalized_name)
 
-            print('Final QC Data-------->>>', qc_results)
             signatures_data = [{
                 'id': sign.id,
                 'name': f"{sign.user.username} ({sign.role})"
@@ -2938,15 +2920,13 @@ def create_dw_qc_manual(request):
             
            
             for k in body.keys():
-                print(f"Key: {repr(k)}")
+                pass
 
             sample_id = body.get('sample_id')
-            print(f"Sample ID: {sample_id}")
             data = body.copy()
             if 'sample_id' in data:
                 del data['sample_id']
 
-            print(f"Data to store: {data}")
             report = Dw_rds.objects.create(
                 sample_id=sample_id,
                 rds=data
@@ -2965,7 +2945,6 @@ def create_dw_qc_manual(request):
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     
     sample_ids = Sample_registration.objects.all()
-    print('sample id---->>>',sample_ids)
     dw_ids = DrinkingWaterForm.objects.all()
     sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
     dw = serializers.serialize('json',dw_ids,fields=('sample_id',))
@@ -2986,14 +2965,12 @@ def create_dw_qc_manual(request):
 def dw_testing_results_sample(request):
     if request.method == 'POST':
         sample_id = request.POST.get('sample_id')
-        print('sample id=========>>>>', sample_id)
         
         if not sample_id:
             return JsonResponse({'error': 'sample_id is required'}, status=400)
         
         try:
             dw_data = Dw_rds.objects.get(sample_id=sample_id)
-            print('data==========>>>', dw_data)
             
             # Convert model to dictionary
             dw_data_dict = {
@@ -3011,7 +2988,6 @@ def dw_testing_results_sample(request):
         except Dw_rds.DoesNotExist:
             return JsonResponse({'error': f'Sample ID {sample_id} not found'}, status=404)
         except Exception as e:
-            print(e)
             return JsonResponse({'error': str(e)}, status=500)
     
     # For GET requests
@@ -3025,10 +3001,7 @@ def dw_testing_results_sample(request):
 def dw_testing_results_sample_save(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        print(data.get('sample_id'))
-        print('legend==============================>>>>>>>>>>>>>>>',data.get('legend'))
         
-        print('data===========>>>>>', dict(data))
         results = {
             'legend': data.get('legend', ''),
             # Store editable header values
@@ -3050,7 +3023,6 @@ def dw_testing_results_sample_save(request):
                     continue
         
         row_indices.sort()  # Will give [1,2,3,...,31,33,34,35,36,37,38]
-        print('Found indices:', row_indices)
         
         def get_value(name, default="-"):
             v = data.get(name)
@@ -3083,8 +3055,6 @@ def dw_testing_results_sample_save(request):
                 "status": get_value(f'status_{idx}'),
             }
             
-            print(f'Row {idx}: {results[f"row_{idx}"]}')
-            print(f'CRM result for {idx}: {crm_text}')
 
         # Get title and sample_id
         sample_id = data.get('sample_id', 'N/A')
@@ -3116,7 +3086,6 @@ def generate_pdf_for_dw_testing_results(obj):
                 self.add_font("Calibri", "B", font_path_bold, uni=True)
                 self.add_font("Algerian", "", font_path_alger, uni=True)
             except Exception as e:
-                print(f"Font loading error: {e}")
                 pass
 
         def get_signature_image(self, sign_id):
@@ -3129,7 +3098,6 @@ def generate_pdf_for_dw_testing_results(obj):
                     return sign.signature.path
                 return None
             except (Signatures.DoesNotExist, ValueError, Exception) as e:
-                print(f"Error getting signature for ID {sign_id}: {e}")
                 return None
 
         def draw_signature_in_cell(self, x, y, w, h, signature_id):
@@ -3158,7 +3126,7 @@ def generate_pdf_for_dw_testing_results(obj):
                     self.image(signature_path, x_pos, y_pos, final_w, final_h)
                     return True
                 except Exception as e:
-                    print(f"Error drawing signature: {e}")
+                    pass
             return False
 
         def draw_text_centered(self, x, y, w, h, text, font_size=8, font_style=""):
@@ -3220,7 +3188,6 @@ def generate_pdf_for_dw_testing_results(obj):
             self.rect(250, 8, 40, 20, "D")
             
             self.location = obj.location.lower() if obj.location else ''
-            print(f"Location found: {self.location}")
             if self.location == 'lahore':
                 self.text(252, 13, txt="ETAL-LAB-704-FF-07")
                 self.text(252, 17, txt="Issue Date: 05-01-2023")
@@ -3384,8 +3351,6 @@ def generate_pdf_for_dw_testing_results(obj):
     
     # Process sorted rows
     for row_key, row, date_obj, date_str in rows_with_dates:
-        print(f'Processing row: {row_key}')
-        print(f'Row data: {row}')
         
         # Get CRM result
         crm_text = str(row.get("crm_results", "-"))
