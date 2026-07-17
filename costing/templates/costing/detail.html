@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-h">
   <div>
-    <div class="sub"><a href="{% url 'costing:list' %}" style="color:var(--mut);text-decoration:none">← Costing</a></div>
+    <div><a class="btn ghost back" href="{% url 'costing:list' %}">← Back to Costing</a></div>
     <h1>{{ p.name }}</h1>
     <div class="sub">{{ p.code }} · {{ p.matrix }} · {{ p.method }} &nbsp; <span class="tag">{{ p.tax_category }}</span></div>
   </div>

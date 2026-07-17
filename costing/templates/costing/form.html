@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-h">
   <div>
-    <div class="sub"><a href="{% if p %}{% url 'costing:detail' p.pk %}{% else %}{% url 'costing:list' %}{% endif %}" style="color:var(--mut);text-decoration:none">← Back</a></div>
+    <div><a class="btn ghost back" href="{% if p %}{% url 'costing:detail' p.pk %}{% else %}{% url 'costing:list' %}{% endif %}">← Back</a></div>
     <h1>{{ mode }} test parameter</h1>
     <div class="sub">Define the parameter, its recipe (chemicals &amp; labour) and cost drivers. Cost and price recompute automatically.</div>
   </div>

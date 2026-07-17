@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-h">
   <div>
-    <div class="sub"><a href="{% url 'costing:detail' p.pk %}" style="color:var(--mut);text-decoration:none">← {{ p.code }}</a></div>
+    <div><a class="btn ghost back" href="{% url 'costing:detail' p.pk %}">← Back to {{ p.code }}</a></div>
     <h1>Change history — {{ p.name }}</h1>
     <div class="sub">Who changed this parameter and its costing, when, and what changed.</div>
   </div>
