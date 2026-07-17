@@ -91,7 +91,6 @@ def microbialAnalysis(request):
                if uploaded_file:
                     try:
                          original_size_kb = uploaded_file.size / 1024
-                         print(f"Processing {image_key} - Original: {original_size_kb:.2f}KB")
                          
                          if uploaded_file.size > 500 * 1024:
                               uploaded_file.seek(0)
@@ -99,23 +98,20 @@ def microbialAnalysis(request):
                               
                               if compressed_image:
                                    compressed_size_kb = len(compressed_image) / 1024
-                                   print(f"Compressed to: {compressed_size_kb:.2f}KB")
                                    base64_encoded = base64.b64encode(compressed_image).decode('utf-8')
                               else:
-                                   print("Compression failed, using original")
                                    uploaded_file.seek(0)
                                    file_bytes = uploaded_file.read()
                                    base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          else:
                               file_bytes = uploaded_file.read()
                               base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
-                              print("No compression needed")
 
                          image_data[image_key] = base64_encoded
                          image_data[desc_key] = description or ''
 
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
           
           microbialForm = MicrobialAnalysis(lab_report_no=lab_report_no,invoice_bill_no=invoice_bill_no,reporting_date=reporting_date,
                                             report_to=report_to,address=address,attention=attention,email=email,
@@ -303,10 +299,8 @@ def microbialUpdate(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(mba, image_key, '')
                     setattr(mba, desc_key, '')
                elif uploaded_file:
@@ -315,13 +309,11 @@ def microbialUpdate(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(mba, image_key, base64_encoded)
                          setattr(mba, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(mba, desc_key, description)
-                         print(f"Updated description {i}")
 
           mba.save()
           user = request.user
@@ -649,7 +641,7 @@ def microbialAnalysisPdf(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -1074,7 +1066,7 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -1356,10 +1348,8 @@ def microbialcloneSave(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(existing_Form, image_key, '')
                     setattr(existing_Form, desc_key, '')
                elif uploaded_file:
@@ -1368,13 +1358,11 @@ def microbialcloneSave(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(existing_Form, image_key, base64_encoded)
                          setattr(existing_Form, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(existing_Form, desc_key, description)
-                         print(f"Updated description {i}")
 
           existing_Form.id = None
           existing_Form.save()

@@ -39,7 +39,6 @@ def compress_image(uploaded_file, max_size_kb=500):
         return output_buffer.getvalue()
         
     except Exception as e:
-        print(f"Error compressing image: {e}")
         return None
 
 def get_client_ip(request):
@@ -59,7 +58,6 @@ def userlogin(request):
           allowed_ip = getattr(_dj_settings, 'OFFICE_ALLOWED_IPS', ['110.93.247.168', '124.29.208.36'])
           
           user_ip = get_client_ip(request)
-          print('ip--------->>>>',user_ip)
 
         # Check if the user is a superuser (admin) and allow access
           if user is not None and user.is_superuser:
@@ -86,7 +84,6 @@ def userlogin(request):
 
 def custom_500(request):
      import django
-     print("DJANGO VERSION ",django.get_version())
      try:
           import sys
           excep = sys.exc_info()
@@ -821,10 +818,8 @@ def editDrinkingWaterListRecord(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(updatedata, image_key, '')
                     setattr(updatedata, desc_key, '')
                elif uploaded_file:
@@ -833,13 +828,11 @@ def editDrinkingWaterListRecord(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(updatedata, image_key, base64_encoded)
                          setattr(updatedata, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(updatedata, desc_key, description)
-                         print(f"Updated description {i}")
 
           
           
@@ -1061,10 +1054,8 @@ def updateGaseousRecord(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(update_data, image_key, '')
                     setattr(update_data, desc_key, '')
                elif uploaded_file:
@@ -1073,13 +1064,11 @@ def updateGaseousRecord(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(update_data, image_key, base64_encoded)
                          setattr(update_data, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(update_data, desc_key, description)
-                         print(f"Updated description {i}")
 
           update_data.save()
           user = request.user
@@ -1144,7 +1133,6 @@ def save_client_details(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print(data)
             client, created = ClientDetails.objects.update_or_create(
                 company_name=data.get('company_name'),
                 defaults={
@@ -1254,7 +1242,6 @@ def update_job_completion(request, pk):
         
     except Exception as e:
         import traceback
-        print(traceback.format_exc())
         return JsonResponse({
             'success': False,
             'error': 'An internal error occurred. Please try again or contact the administrator.'
@@ -1332,7 +1319,6 @@ def clone_job_completion(request, pk):
         
     except Exception as e:
         import traceback
-        print(traceback.format_exc())
         return JsonResponse({
             'success': False,
             'error': 'An internal error occurred. Please try again or contact the administrator.'

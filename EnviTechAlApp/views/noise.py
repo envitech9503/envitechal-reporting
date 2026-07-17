@@ -92,7 +92,6 @@ def noiseAnalysis(request):
                if uploaded_file:
                     try:
                          original_size_kb = uploaded_file.size / 1024
-                         print(f"Processing {image_key} - Original: {original_size_kb:.2f}KB")
                          
                          if uploaded_file.size > 500 * 1024:
                               uploaded_file.seek(0)
@@ -100,23 +99,20 @@ def noiseAnalysis(request):
                               
                               if compressed_image:
                                    compressed_size_kb = len(compressed_image) / 1024
-                                   print(f"Compressed to: {compressed_size_kb:.2f}KB")
                                    base64_encoded = base64.b64encode(compressed_image).decode('utf-8')
                               else:
-                                   print("Compression failed, using original")
                                    uploaded_file.seek(0)
                                    file_bytes = uploaded_file.read()
                                    base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          else:
                               file_bytes = uploaded_file.read()
                               base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
-                              print("No compression needed")
 
                          image_data[image_key] = base64_encoded
                          image_data[desc_key] = description or ''
 
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
           noiseForm = NoiseAnalysis(lab_report_no=lab_report_no,invoice_bill_no=invoice_bill_no,reporting_date=reporting_date,report_to=report_to,
                                     address=address,attention=attention,email=email,sample_id=sample_id,test_perf_date=test_perf_date,
                                     test_type=test_type,test_perf_by=test_perf_by,test_desc=test_desc,select=select,select1=select1,r1=r1,r1_1=r1_1,
@@ -303,10 +299,8 @@ def noiseAnalysisUpdate(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(nA, image_key, '')
                     setattr(nA, desc_key, '')
                elif uploaded_file:
@@ -315,13 +309,11 @@ def noiseAnalysisUpdate(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(nA, image_key, base64_encoded)
                          setattr(nA, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(nA, desc_key, description)
-                         print(f"Updated description {i}")
 
 
           nA.save()
@@ -1064,7 +1056,7 @@ def noiseAnalysisReport(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -1904,7 +1896,7 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -2047,12 +2039,10 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
 
 @login_required(login_url="/login")
 def noisemonitoring(request):
-     print('request----------->>',request)
      if request.method == 'POST':
           
         try:
             # Extract form data
-            print('keys------------------>>>',list(request.POST))
             
             location = request.POST.get('location')
             industry_id = request.POST.get('industry')
@@ -2158,7 +2148,7 @@ def noisemonitoring(request):
                         image_data[desc_key] = description
 
                     except Exception as e:
-                        print(f"Error processing image {i}: {e}")
+                        pass
                         # Continue with other images even if one fails
 
             # Create NoiseMonitoring instance
@@ -2240,7 +2230,6 @@ def noisemonitoring(request):
                  return JsonResponse({"message": "Form saved successfully! else"})
                 
         except Exception as e:
-            print(f"Error saving form: {e}")
             return JsonResponse({"error": str(e)}, status=400)      
     
      else:
@@ -2256,7 +2245,6 @@ def noisemonitoring(request):
 def noiseMonitoring_view(request,pk):
      nM =NoiseMonitoring.objects.get(id=pk)
      leq_value = calculate_leq(nM.start_time, nM.end_time, nM.interval, nM.table_data)
-     print(leq_value)
      current_url = request.build_absolute_uri()
      qr_filename = f"qr_{nM.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
@@ -2276,7 +2264,6 @@ def noiseMonitoring_view(request,pk):
      
      table_data = nM.table_data or []
      table_data.append(leq_value)
-     print(table_data)
      return render(request,'noiseMonitoring_view.html',context = {'data':nM,'qr':qr_relative_path,"table_data": table_data,'logo':logo,'leq_value':leq_value})
      
 @login_required(login_url="/login")
@@ -2420,10 +2407,8 @@ def noiseMonitoring_clone_update(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(nA, image_key, '')
                     setattr(nA, desc_key, '')
                elif uploaded_file:
@@ -2432,13 +2417,11 @@ def noiseMonitoring_clone_update(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(nA, image_key, base64_encoded)
                          setattr(nA, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(nA, desc_key, description)
-                         print(f"Updated description {i}")
 
           nA.pk = None
           nA.save()
@@ -2597,10 +2580,8 @@ def noiseMonitoring_edit_update(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(nA, image_key, '')
                     setattr(nA, desc_key, '')
                elif uploaded_file:
@@ -2609,13 +2590,11 @@ def noiseMonitoring_edit_update(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(nA, image_key, base64_encoded)
                          setattr(nA, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(nA, desc_key, description)
-                         print(f"Updated description {i}")
 
 
           nA.save()
@@ -2650,7 +2629,6 @@ def noiseMonitoring_print(request,pk):
      # nA.extra_field = json.loads(nA.extra_field)
      
      leq_value = calculate_leq(nA.start_time, nA.end_time, nA.interval, nA.table_data)
-     print("Leq:", leq_value)
      
      limit_mapping = {
      "Residential Day": 55,
@@ -3352,7 +3330,7 @@ def noiseMonitoring_print(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -3507,7 +3485,6 @@ def noiseMonitoring_report(request,pk):
      # nA.extra_field = json.loads(nA.extra_field)
      
      leq_value = calculate_leq(nA.start_time, nA.end_time, nA.interval, nA.table_data)
-     print("Leq:", leq_value)
      
      limit_mapping = {
      "Residential Day": 55,
@@ -3947,7 +3924,7 @@ def noiseMonitoring_report(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -4219,10 +4196,8 @@ def noiseAnalysiscloneSave(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(existing_Form, image_key, '')
                     setattr(existing_Form, desc_key, '')
                elif uploaded_file:
@@ -4231,13 +4206,11 @@ def noiseAnalysiscloneSave(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(existing_Form, image_key, base64_encoded)
                          setattr(existing_Form, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(existing_Form, desc_key, description)
-                         print(f"Updated description {i}")
           
           existing_Form.id = None
           existing_Form.save()

@@ -168,7 +168,6 @@ def drinkingWaterForm(request):
                if uploaded_file:
                     try:
                          original_size_kb = uploaded_file.size / 1024
-                         print(f"Processing {image_key} - Original: {original_size_kb:.2f}KB")
                          
                          if uploaded_file.size > 500 * 1024:
                               uploaded_file.seek(0)
@@ -176,23 +175,20 @@ def drinkingWaterForm(request):
                               
                               if compressed_image:
                                    compressed_size_kb = len(compressed_image) / 1024
-                                   print(f"Compressed to: {compressed_size_kb:.2f}KB")
                                    base64_encoded = base64.b64encode(compressed_image).decode('utf-8')
                               else:
-                                   print("Compression failed, using original")
                                    uploaded_file.seek(0)
                                    file_bytes = uploaded_file.read()
                                    base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          else:
                               file_bytes = uploaded_file.read()
                               base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
-                              print("No compression needed")
 
                          image_data[image_key] = base64_encoded
                          image_data[desc_key] = description or ''
 
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
           
           
           
@@ -424,10 +420,8 @@ def drinkingWaterCloneSave(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(existing_dw, image_key, '')
                     setattr(existing_dw, desc_key, '')
                elif uploaded_file:
@@ -436,13 +430,11 @@ def drinkingWaterCloneSave(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(existing_dw, image_key, base64_encoded)
                          setattr(existing_dw, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(existing_dw, desc_key, description)
-                         print(f"Updated description {i}")
      
           
           if existing_dw.in_out == 'customLimits':

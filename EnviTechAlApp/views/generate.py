@@ -157,7 +157,6 @@ def generate_merged_pdf(request):
      
      if request.method == 'POST':
           selected_reports = json.loads(request.POST['selected_reports'])
-          print('Selected lab_report_nos:', selected_reports)
           selected_reports = [r for r in selected_reports if r]
 
           if selected_reports:
@@ -180,7 +179,6 @@ def generate_merged_pdf_certificate(request):
         
         # Filter out empty strings from selected_reports
         selected_cert = [cert_id for cert_id in selected_cert if cert_id]
-        print("SELECTED REPORTS", selected_cert)
         
         if selected_cert:
             # Merge selected PDFs
@@ -846,7 +844,7 @@ def generatePDF(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -1611,7 +1609,7 @@ def generatePDF_report(request,pk,return_bytes=False):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -1772,7 +1770,6 @@ def generate_job_completion_pdf(job):
                     self.add_font("Calibri", "B", font_path_bold, uni=True)
                     self.add_font("Algerian", "", font_path_alger, uni=True)
                except Exception as e:
-                    print(f"Font loading error: {e}")
                     pass
 
           def header(self):
@@ -2007,7 +2004,6 @@ def generate_job_completion_pdf(job):
                self.cell(49, 10, "Signature of Envi Tech AL Representative", border=True, align="C")
 
                
-               print(sign,"===========>>>>")
                current_y = self.get_y()
 
                self.cell(46, 10, "", border=True, ln=True)

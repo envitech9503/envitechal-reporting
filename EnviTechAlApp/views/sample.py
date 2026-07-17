@@ -159,8 +159,6 @@ def sample_reg(request):
                key = f"ww_other_param_{i}"   # your checkbox input id/name
                field = f"ww_other_param_{i}"  # model field
                ww_other_params[field] = request.POST.get(key) == "on"
-          print('other param------------->>>',other_params)
-          print('ww other param------------->>>',ww_other_params)
           user = request.user
           
 

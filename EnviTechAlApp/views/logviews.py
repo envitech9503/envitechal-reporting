@@ -15,7 +15,6 @@ def loggingSheet(request):
     if request.method == 'POST':
         selected_month = request.POST.get('selected_month')
         selected_location = request.POST.get('selected_location')
-        print(selected_location)
         if selected_month:
             try:
                 # Parse the date input with a custom format

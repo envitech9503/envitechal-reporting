@@ -75,7 +75,6 @@ def job_completion_form(request):
             
         except Exception as e:
             import traceback
-            print(traceback.format_exc())
             
             return JsonResponse({
                 'success': False,
@@ -97,7 +96,6 @@ def job_completion_list(request):
 
 def job_completion_edit(request, pk):
     job = get_object_or_404(JobCompletionForm, id=pk)
-    print('Job======>>>>',job)
     
     # Parse service details
     service_details = job.service_details if isinstance(job.service_details, list) else json.loads(job.service_details)

@@ -83,7 +83,6 @@ def wasteWaterSludge(request):
                if uploaded_file:
                     try:
                          original_size_kb = uploaded_file.size / 1024
-                         print(f"Processing {image_key} - Original: {original_size_kb:.2f}KB")
                          
                          if uploaded_file.size > 500 * 1024:
                               uploaded_file.seek(0)
@@ -91,23 +90,20 @@ def wasteWaterSludge(request):
                               
                               if compressed_image:
                                    compressed_size_kb = len(compressed_image) / 1024
-                                   print(f"Compressed to: {compressed_size_kb:.2f}KB")
                                    base64_encoded = base64.b64encode(compressed_image).decode('utf-8')
                               else:
-                                   print("Compression failed, using original")
                                    uploaded_file.seek(0)
                                    file_bytes = uploaded_file.read()
                                    base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          else:
                               file_bytes = uploaded_file.read()
                               base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
-                              print("No compression needed")
 
                          image_data[image_key] = base64_encoded
                          image_data[desc_key] = description or ''
 
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
             
             wasteWaterForm = WasteWaterSludge(lab_report_no=lab_report_no,invoice_bill_no=invoice_bill_no,reporting_date=reporting_date,
                                               report_to=report_to,address=address,attention=attention,email=email,
@@ -309,7 +305,6 @@ def wasteWater2(request):
                if uploaded_file:
                     try:
                          original_size_kb = uploaded_file.size / 1024
-                         print(f"Processing {image_key} - Original: {original_size_kb:.2f}KB")
                          
                          if uploaded_file.size > 500 * 1024:
                               uploaded_file.seek(0)
@@ -317,23 +312,20 @@ def wasteWater2(request):
                               
                               if compressed_image:
                                    compressed_size_kb = len(compressed_image) / 1024
-                                   print(f"Compressed to: {compressed_size_kb:.2f}KB")
                                    base64_encoded = base64.b64encode(compressed_image).decode('utf-8')
                               else:
-                                   print("Compression failed, using original")
                                    uploaded_file.seek(0)
                                    file_bytes = uploaded_file.read()
                                    base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          else:
                               file_bytes = uploaded_file.read()
                               base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
-                              print("No compression needed")
 
                          image_data[image_key] = base64_encoded
                          image_data[desc_key] = description or ''
 
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
 
           
           structured_data = {
@@ -597,10 +589,8 @@ def wasteWaterUpdate(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(wasterWaterForm, image_key, '')
                     setattr(wasterWaterForm, desc_key, '')
                elif uploaded_file:
@@ -609,13 +599,11 @@ def wasteWaterUpdate(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(wasterWaterForm, image_key, base64_encoded)
                          setattr(wasterWaterForm, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(wasterWaterForm, desc_key, description)
-                         print(f"Updated description {i}")
           
           
           
@@ -1143,7 +1131,7 @@ def wasteWaterPdf0(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -1755,7 +1743,7 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -2211,10 +2199,8 @@ def wasteWAter2Update(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(ww, image_key, '')
                     setattr(ww, desc_key, '')
                elif uploaded_file:
@@ -2223,13 +2209,11 @@ def wasteWAter2Update(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(ww, image_key, base64_encoded)
                          setattr(ww, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(ww, desc_key, description)
-                         print(f"Updated description {i}")
 
           ww.save()
           user = request.user
@@ -4443,7 +4427,6 @@ def wasteWater2Pdf(request,pk):
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
-          print(ww.result_20)
           if (ww.result_20 or ww.result_20_20) and ww.select =="SEQS":
                a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","1"]
                sr_no = sr_no+1
@@ -4917,7 +4900,7 @@ def wasteWater2Pdf(request,pk):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -7694,7 +7677,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                               image_path = tmp_file.name
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
-                         print(f"Failed to decode image {i}:", e)
+                         pass
 
           count = len(images)
           pdf.show_full_header = False
@@ -8138,10 +8121,8 @@ def wasteWater2cloneSave(request,pk):
                description = request.POST.get(desc_key)
                remove_requested = request.POST.get(remove_key)
 
-               print(f"Image {i} remove_requested: {remove_requested}")  # Debug
 
                if remove_requested == "on":
-                    print(f"Removing image {i}")
                     setattr(existing_Form, image_key, '')
                     setattr(existing_Form, desc_key, '')
                elif uploaded_file:
@@ -8150,13 +8131,11 @@ def wasteWater2cloneSave(request,pk):
                          base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                          setattr(existing_Form, image_key, base64_encoded)
                          setattr(existing_Form, desc_key, description or '')
-                         print(f"Updated image {i}")
                     except Exception as e:
-                         print(f"Error processing image {i}: {e}")
+                         pass
                else:
                     if description is not None:
                          setattr(existing_Form, desc_key, description)
-                         print(f"Updated description {i}")
 
 
 
@@ -8290,10 +8269,8 @@ def wasteWatercloneSave(request,pk):
                  description = request.POST.get(desc_key)
                  remove_requested = request.POST.get(remove_key)
   
-                 print(f"Image {i} remove_requested: {remove_requested}")  # Debug
   
                  if remove_requested == "on":
-                      print(f"Removing image {i}")
                       setattr(existing_Form, image_key, '')
                       setattr(existing_Form, desc_key, '')
                  elif uploaded_file:
@@ -8302,13 +8279,11 @@ def wasteWatercloneSave(request,pk):
                            base64_encoded = base64.b64encode(file_bytes).decode('utf-8')
                            setattr(existing_Form, image_key, base64_encoded)
                            setattr(existing_Form, desc_key, description or '')
-                           print(f"Updated image {i}")
                       except Exception as e:
-                           print(f"Error processing image {i}: {e}")
+                           pass
                  else:
                       if description is not None:
                            setattr(existing_Form, desc_key, description)
-                           print(f"Updated description {i}")
 
             existing_Form.id = None
             existing_Form.save()
