@@ -2,6 +2,16 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def noise_distance_legend(location):
+    _m = {'PEQS': 'Punjab', 'SEQS': 'Sindh', 'NEQS': 'National'}
+    _std = (location or '').strip().upper()
+    _name = _m.get(_std)
+    if not _name:
+        return None
+    return ('Noise measurements were conducted at a distance of 7.5 metres from the source, '
+            'in accordance with the %s Environmental Quality Standards (%s).' % (_name, _std))
+
+
 
 
 @login_required(login_url="/login")
@@ -922,6 +932,9 @@ def noiseAnalysisReport(request,pk):
      if nA.customlegend:
           a = [nA.customlegend]
           Table_data_legend.append(a)
+     _dl = noise_distance_legend(nA.location)
+     if _dl and not any('from the source' in str(_r) for _r in Table_data_legend):
+         Table_data_legend.append([_dl])
      for k in range(0,len(Table_data_legend)):
                data_row = Table_data_legend[k]
                row = table.row()
@@ -1764,6 +1777,9 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
      if nA.customlegend:
           a = [nA.customlegend]
           Table_data_legend.append(a)
+     _dl = noise_distance_legend(nA.location)
+     if _dl and not any('from the source' in str(_r) for _r in Table_data_legend):
+         Table_data_legend.append([_dl])
      for k in range(0,len(Table_data_legend)):
                data_row = Table_data_legend[k]
                row = table.row()
@@ -2892,6 +2908,9 @@ def noiseMonitoring_print(request,pk):
      if nA.customlegend:
           a = [nA.customlegend]
           Table_data_legend.append(a)
+     _dl = noise_distance_legend(nA.location)
+     if _dl and not any('from the source' in str(_r) for _r in Table_data_legend):
+         Table_data_legend.append([_dl])
      for k in range(0,len(Table_data_legend)):
                data_row = Table_data_legend[k]
                row = table.row()
@@ -3742,6 +3761,9 @@ def noiseMonitoring_report(request,pk):
      if nA.customlegend:
           a = [nA.customlegend]
           Table_data_legend.append(a)
+     _dl = noise_distance_legend(nA.location)
+     if _dl and not any('from the source' in str(_r) for _r in Table_data_legend):
+         Table_data_legend.append([_dl])
      for k in range(0,len(Table_data_legend)):
                data_row = Table_data_legend[k]
                row = table.row()
