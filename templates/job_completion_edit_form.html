@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
-<head>
+<head>{% endblock %}{% block w2_head %}
   <script src="/static/js/csrf.js"></script><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -84,8 +85,8 @@
             border-radius: 8px;
         }
     </style>
-</head>
-<body class="bg-gray-50">
+{% endblock %}{% block w2_mid %}</head>
+<body class="bg-gray-50">{% endblock %}{% block w2_content %}
 
     <h1 class="text-lg lg:text-3xl md:text-3xl text-gray-900 text-center mt-6 mb-2">Edit Work Completion Form</h1>
     <!-- <p class="text-center text-gray-600 mb-4">Job Number: {{ job.job_number }}</p> -->
@@ -700,5 +701,4 @@
             });
         }
     </script>
-</body>
-</html>
+{% endblock %}

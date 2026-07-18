@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}<!DOCTYPE html>
 <html>
 
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
   {%load static%}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -43,9 +44,9 @@
     }
 
   </style>
-</head>
+{% endblock %}{% block w2_mid %}</head>
 
-<body>
+<body>{% endblock %}{% block w2_content %}
   {%block content%} {% if list %}
 
 
@@ -693,6 +694,6 @@
 
   <!-- <script src={% static '/js/app.js'%}?v=20260712 defer > -->
   </script>
-</body>
+{% endblock %}{% block w2_tail %}</body>
 
-</html>
+</html>{% endblock %}

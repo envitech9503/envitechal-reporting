@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
   {% load static %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
   <script src="/static/vendor/jquery-3.6.4.min.js"></script>
   <title>Lab Report - Envi Tech AL</title>
-</head>
+{% endblock %}{% block w2_mid %}</head>
 
 <style>
   body {
@@ -75,7 +76,7 @@
 </style>
 
 
-<body class=""><a href="javascript:history.back()" class="noprint" style="position:fixed;top:8px;left:8px;z-index:1000;background:#1f2937;color:#fff;padding:6px 14px;border-radius:6px;font-family:sans-serif;font-size:14px;text-decoration:none">&#8592; Back</a><style>@media print{.noprint{display:none}}</style>
+<body class="">{% endblock %}{% block w2_content %}<a href="javascript:history.back()" class="noprint" style="position:fixed;top:8px;left:8px;z-index:1000;background:#1f2937;color:#fff;padding:6px 14px;border-radius:6px;font-family:sans-serif;font-size:14px;text-decoration:none">&#8592; Back</a><style>@media print{.noprint{display:none}}</style>
 
   {%block content%} {% if data %}
 
@@ -666,6 +667,6 @@ window.addEventListener('dragstart', function (e) {
   </script>
 
 
-</body>
+{% endblock %}{% block w2_tail %}</body>
 
-</html>
+</html>{% endblock %}

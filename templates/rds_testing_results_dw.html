@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}<!DOCTYPE html>
 {% load static %}
 <html lang="en">
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
@@ -19,8 +20,8 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="/static/css/etal-theme.css">
-</head>
-<body class="bg-gray-100"><!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}{% include "_unified_nav.html" %}<div class="flex" style="align-items:stretch"><div class="w-64 flex-shrink-0 bg-gray-900 text-white p-4" style="min-height:calc(100vh - 5rem)"><p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">QC Forms</p><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/create_dw_qc/">Add RDS DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/dw_rds_list/">List RDS DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/create_ww_qc/">Add RDS WW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/ww_rds_list/">List RDS WW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/dw_testing_results_sample/">Add Testing Results DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/dw-testing-results-list/">List Testing Results DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/ww_testing_results_sample/">Add Testing Results WW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/ww-testing-results-list/">List Testing Results WW</a></div><div class="flex-1 min-w-0 p-6" style="background:#f3f4f6">
+{% endblock %}{% block w2_mid %}</head>
+<body class="bg-gray-100">{% endblock %}{% block w2_content %}<!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}{% include "_unified_nav.html" %}<div class="flex" style="align-items:stretch"><div class="w-64 flex-shrink-0 bg-gray-900 text-white p-4" style="min-height:calc(100vh - 5rem)"><p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">QC Forms</p><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/create_dw_qc/">Add RDS DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/dw_rds_list/">List RDS DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/create_ww_qc/">Add RDS WW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/ww_rds_list/">List RDS WW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/dw_testing_results_sample/">Add Testing Results DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/dw-testing-results-list/">List Testing Results DW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/ww_testing_results_sample/">Add Testing Results WW</a><a class="qcs block py-2 px-2 rounded hover:bg-gray-800 text-sm" href="/qc/ww-testing-results-list/">List Testing Results WW</a></div><div class="flex-1 min-w-0 p-6" style="background:#f3f4f6">
     <div class="container mx-auto p-6">
         <h1 class="text-2xl font-bold mb-4">DW Testing Results</h1>
         
@@ -412,5 +413,4 @@
             }
         });
     </script>
-</div></div><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.qcs").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.style.color="#34d399";a.style.fontWeight="700";}});});</script></body>
-</html>
+</div></div><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.qcs").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.style.color="#34d399";a.style.fontWeight="700";}});});</script>{% endblock %}

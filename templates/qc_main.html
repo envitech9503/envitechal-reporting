@@ -1,9 +1,10 @@
-
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}
 
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
@@ -99,8 +100,8 @@
     }
     </style>
 <link rel="stylesheet" href="/static/css/etal-theme.css">
-</head>
-<body class="bg-gray-100 font-sans overflow-hidden"><!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}
+{% endblock %}{% block w2_mid %}</head>
+<body class="bg-gray-100 font-sans overflow-hidden">{% endblock %}{% block w2_content %}<!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}
     {% include "_unified_nav.html" with fixed=1 %}
     <div class="flex h-screen overflow-hidden">
         <!-- Mobile menu button -->
@@ -185,5 +186,4 @@
 
    
     <script src="{% static '/js/app.js' %}?v=20260712"></script>
-</body>
-</html>
+{% endblock %}

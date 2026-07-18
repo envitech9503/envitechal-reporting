@@ -1,15 +1,16 @@
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
     <title>Lab Report - Envi Tech AL</title>
-</head>
+{% endblock %}{% block w2_mid %}</head>
 {% load static %}
 
-<body><a href="javascript:history.back()" class="noprint" style="position:fixed;top:8px;left:8px;z-index:1000;background:#1f2937;color:#fff;padding:6px 14px;border-radius:6px;font-family:sans-serif;font-size:14px;text-decoration:none">&#8592; Back</a><style>@media print{.noprint{display:none}}</style>
+<body>{% endblock %}{% block w2_content %}<a href="javascript:history.back()" class="noprint" style="position:fixed;top:8px;left:8px;z-index:1000;background:#1f2937;color:#fff;padding:6px 14px;border-radius:6px;font-family:sans-serif;font-size:14px;text-decoration:none">&#8592; Back</a><style>@media print{.noprint{display:none}}</style>
     {% if messages %}
     <div class="w-full flex justify-center items-center">
         <ul class="messages w-full bg-green-100 text-center rounded-lg p-2"> 
@@ -167,7 +168,7 @@
     </div>
 </div>
 </form>
-</body>
+{% endblock %}{% block w2_tail %}</body>
 <script src="/static/vendor/jquery-3.6.4.min.js"></script>
 <script>
     $(document).ready(async () => {
@@ -262,4 +263,4 @@ neqs_value.addEventListener("change",()=>{
 
 
 </script>
-</html>
+</html>{% endblock %}

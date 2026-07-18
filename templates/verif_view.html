@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
-<head><link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
@@ -10,8 +11,7 @@
     <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
     <title>Verification</title>
     {% load static %}
-</head>
-<body>
+{% endblock %}{% block w2_content %}
     <style>
         table {
           font-family: arial, sans-serif;
@@ -264,7 +264,7 @@
         </div>
     </section>
     {% endif %}
-</body>
+{% endblock %}{% block w2_tail %}</body>
 <script src="/static/vendor/jquery-3.6.4.min.js"></script>
 <script>
     document.getElementById("textArea").value = "The certificate is a true record of the measurement made and the value reflected on this certificate were correct at the time of calibration. And this certificate is valid for current equipment only. Re-calibration is recommended at the mentioned date, however, should be performed earlier in case of any repairs, services, or relocation of the equipment.";
@@ -320,4 +320,4 @@ currentNumber++;
 
 </script>
 
-</html>
+</html>{% endblock %}
