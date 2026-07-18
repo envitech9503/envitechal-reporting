@@ -811,7 +811,7 @@ def ambientAirGeneratePDF(request,pk):
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if ambientAirForm.ambientAir_sr6:
-          a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",ambientAirForm.ambientAir_sr6,"10"]
+          a = [str(sr_no),"Carbon Monoxide (CO)","mg/m³",ambientAirForm.ambientAir_sr6,"10"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if ambientAirForm.ambientAir_sr7:
@@ -1252,7 +1252,7 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if ambientAirForm.ambientAir_sr6:
-          a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",ambientAirForm.ambientAir_sr6,"10"]
+          a = [str(sr_no),"Carbon Monoxide (CO)","mg/m³",ambientAirForm.ambientAir_sr6,"10"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if ambientAirForm.ambientAir_sr7:
