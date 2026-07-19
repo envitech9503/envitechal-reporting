@@ -519,7 +519,7 @@ def machineOilReportPdf(request,pk):
      pdf.text(87.5,259.5,f"Reviewed By ({(machine.assistant_manager_signature.role if machine.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if machine.lab_manager_signature:
-         pdf.image(machine.lab_manager_signature.signature,178,239,20.32,20.32)
+         pdf.image(machine.lab_manager_signature.signature,178,235,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})"),257)
      pdf.text(160,259.5,f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})")
 
@@ -982,7 +982,7 @@ def machineOilReportPdf1(request,pk,return_bytes=False):
      pdf.text(87.5,254.5,f"Reviewed By ({(machine.assistant_manager_signature.role if machine.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,230,22,22)
      if machine.lab_manager_signature:
-         pdf.image(machine.lab_manager_signature.signature,178,234,20.32,20.32)
+         pdf.image(machine.lab_manager_signature.signature,178,230,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})"),252)
      pdf.text(160,254.5,f"Approved By ({(machine.lab_manager_signature.role if machine.lab_manager_signature else '')})")
 

@@ -490,7 +490,7 @@ def vehicularEmissionReport(request,pk):
      pdf.text(87.5,259,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vem.lab_manager_signature:
-         pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
+         pdf.image(vem.lab_manager_signature.signature,178,235,20.32,20.32)
      pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),256)
      pdf.text(160,259,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
@@ -903,7 +903,7 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
      pdf.text(87.5,254,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if vem.lab_manager_signature:
-         pdf.image(vem.lab_manager_signature.signature,178,233,20.32,20.32)
+         pdf.image(vem.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,251,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),251)
      pdf.text(160,254,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 

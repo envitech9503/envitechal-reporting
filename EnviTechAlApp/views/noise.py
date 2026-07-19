@@ -965,7 +965,7 @@ def noiseAnalysisReport(request,pk):
      pdf.text(87.5,259.5,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,233,22,22)
      if nA.lab_manager_signature:
-         pdf.image(nA.lab_manager_signature.signature,178,235,20.32,20.32)
+         pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),257)
      pdf.text(160,259.5,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
@@ -3265,7 +3265,7 @@ def noiseMonitoring_print(request,pk):
      pdf.text(87.5,261,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,233,22,22)
      if nA.lab_manager_signature:
-         pdf.image(nA.lab_manager_signature.signature,178,235,20.32,20.32)
+         pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),257)
      pdf.text(160,261,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 

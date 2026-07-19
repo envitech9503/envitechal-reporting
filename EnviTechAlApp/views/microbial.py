@@ -540,7 +540,7 @@ def microbialAnalysisPdf(request,pk):
      pdf.text(87.5,259.5,f"Reviewed By ({(micro.assistant_manager_signature.role if micro.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if micro.lab_manager_signature:
-         pdf.image(micro.lab_manager_signature.signature,178,239,20.32,20.32)
+         pdf.image(micro.lab_manager_signature.signature,178,235,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})"),257)
      pdf.text(160,259.5,f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})")
 
@@ -965,7 +965,7 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
      pdf.text(87.5,254.5,f"Reviewed By ({(micro.assistant_manager_signature.role if micro.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,230,22,22)
      if micro.lab_manager_signature:
-         pdf.image(micro.lab_manager_signature.signature,178,234,20.32,20.32)
+         pdf.image(micro.lab_manager_signature.signature,178,230,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})"),252)
      pdf.text(160,254.5,f"Approved By ({(micro.lab_manager_signature.role if micro.lab_manager_signature else '')})")
 

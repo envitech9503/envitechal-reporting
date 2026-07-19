@@ -979,7 +979,7 @@ def ambientAirGeneratePDF(request,pk):
      pdf.text(87.5,253,f"Reviewed By ({(ambientAirForm.assistant_manager_signature.role if ambientAirForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if ambientAirForm.lab_manager_signature:
-         pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
+         pdf.image(ambientAirForm.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})"),250)
      pdf.text(160,253,f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})")
 
@@ -1448,7 +1448,7 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
      pdf.text(87.5,253,f"Reviewed By ({(ambientAirForm.assistant_manager_signature.role if ambientAirForm.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if ambientAirForm.lab_manager_signature:
-         pdf.image(ambientAirForm.lab_manager_signature.signature,178,233,20.32,20.32)
+         pdf.image(ambientAirForm.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,250,165+pdf.get_string_width(f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})"),250)
      pdf.text(160,253,f"Approved By ({(ambientAirForm.lab_manager_signature.role if ambientAirForm.lab_manager_signature else '')})")
 
@@ -2440,7 +2440,7 @@ def ambientAir2Pdf(request,pk):
      pdf.text(87.5,259.5,f"Reviewed By ({(AA2.assistant_manager_signature.role if AA2.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if AA2.lab_manager_signature:
-         pdf.image(AA2.lab_manager_signature.signature,178,239,20.32,20.32)
+         pdf.image(AA2.lab_manager_signature.signature,178,235,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})"),257)
      pdf.text(160,259.5,f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})")
 
@@ -3066,7 +3066,7 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
      pdf.text(87.5,254.5,f"Reviewed By ({(AA2.assistant_manager_signature.role if AA2.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,230,22,22)
      if AA2.lab_manager_signature:
-         pdf.image(AA2.lab_manager_signature.signature,178,234,20.32,20.32)
+         pdf.image(AA2.lab_manager_signature.signature,178,230,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})"),252)
      pdf.text(160,254.5,f"Approved By ({(AA2.lab_manager_signature.role if AA2.lab_manager_signature else '')})")
 

@@ -584,7 +584,7 @@ def luxAnalysisReportPdf(request,pk):
      pdf.text(87.5,259.3,f"Reviewed By ({(lux.assistant_manager_signature.role if lux.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if lux.lab_manager_signature:
-         pdf.image(lux.lab_manager_signature.signature,178,239,20.32,20.32)
+         pdf.image(lux.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})"),257)
      pdf.text(160,259.3,f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})")
 
@@ -1060,7 +1060,7 @@ def luxAnalysisReportPdf1(request,pk,return_bytes=False):
      pdf.text(87.5,253.9,f"Reviewed By ({(lux.assistant_manager_signature.role if lux.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if lux.lab_manager_signature:
-         pdf.image(lux.lab_manager_signature.signature,178,234,20.32,20.32)
+         pdf.image(lux.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})"),252)
      pdf.text(160,253.9,f"Approved By ({(lux.lab_manager_signature.role if lux.lab_manager_signature else '')})")
 

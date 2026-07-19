@@ -1024,7 +1024,7 @@ def wasteWaterPdf0(request,pk):
          pdf.text(87.5,259,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vem.lab_manager_signature:
-         pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
+         pdf.image(vem.lab_manager_signature.signature,178,235,20.32,20.32)
          pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),256)
          pdf.text(160,259,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
@@ -1642,7 +1642,7 @@ def wasteWaterPdf1(request,pk,return_bytes=False):
          pdf.text(87.5,259,f"Reviewed By ({(vem.assistant_manager_signature.role if vem.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,235,22,22)
      if vem.lab_manager_signature:
-         pdf.image(vem.lab_manager_signature.signature,178,238,20.32,20.32)
+         pdf.image(vem.lab_manager_signature.signature,178,235,20.32,20.32)
          pdf.line(155,256,165+pdf.get_string_width(f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})"),256)
          pdf.text(160,259,f"Approved By ({(vem.lab_manager_signature.role if vem.lab_manager_signature else '')})")
 
@@ -4810,7 +4810,7 @@ def wasteWater2Pdf(request,pk):
      pdf.text(87.5,257,f"Reviewed By ({(ww.assistant_manager_signature.role if ww.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,231,22,22)
      if ww.lab_manager_signature:
-         pdf.image(ww.lab_manager_signature.signature,178,235,20.32,20.32)
+         pdf.image(ww.lab_manager_signature.signature,178,231,20.32,20.32)
      pdf.line(155,253,165+pdf.get_string_width(f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})"),253)
      pdf.text(160,257,f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})")
 
@@ -7587,7 +7587,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      pdf.text(87.5,256,f"Reviewed By ({(ww.assistant_manager_signature.role if ww.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,229,22,22)
      if ww.lab_manager_signature:
-         pdf.image(ww.lab_manager_signature.signature,178,234,20.32,20.32)
+         pdf.image(ww.lab_manager_signature.signature,178,229,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})"),252)
      pdf.text(160,256,f"Approved By ({(ww.lab_manager_signature.role if ww.lab_manager_signature else '')})")
 
