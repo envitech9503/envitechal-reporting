@@ -197,8 +197,15 @@
                                 </select>
                                 
                             </div>
-                        
-    
+                        <div class="mt-4 flex flex-col">
+                            <label class="font-bold text-lg" for="">Customer</label>
+                           <select id="customers" onchange="selectCustomer(this)"  class="border-2 border-black w-96 px-2 py-2 rounded-lg">
+                            <option selected disabled>Select Customer</option>
+
+                           </select>
+                        </div>
+
+
                     </div>
                     <div class="w-52 pt-8 ml-4">
                         <div class="">
@@ -228,6 +235,8 @@
                     <div class="flex flex-col">
                         <label class="font-bold text-lg" for="">Lab Report No</label>
                         <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="lab_rep_no" type="text" value="{{data.lab_report_no}}">
+                        <input class="hidden border-2 border-black p-2 h-10 rounded text-lg" name="customer_id"
+                            style="width: 35rem;" type="text">
                     </div>
                     <div class="flex flex-col">
                         <label class="font-bold text-lg" for="">Invoice Bill No</label>
@@ -1873,6 +1882,30 @@
                             }
                         }
                     }) {% endcomment %}
+
+                    const loadCustomers = async()=>{
+                        const customers = {{log|safe}}
+                        for(customer of customers){
+                            let html =`<option data-id="${customer.pk}" value='${JSON.stringify(customer.fields)}'> ${customer.fields.sample_id} - ${customer.fields.client_name}-
+                                ${customer.fields.sample_nature} </option>`
+                            $("#customers").append(html)
+                        }
+                    }
+                    const selectCustomer = async(t)=>{
+                        const customer = JSON.parse(t.value)
+                        var customer_id = $("#customers option:selected").attr("data-id");
+                        $("input[name='customer_id']").val(customer_id)
+                        $("input[name='address']").val(customer.address)
+                        $("input[name='repo_date']").val(customer.rep_date)
+                        $("input[name='sampleId']").val(customer.sample_id)
+                        $("input[name='lab_rep_no']").val(customer.sample_id)
+                        $("input[name='report_to']").val(customer.client_name)
+                        $("input[name='attention']").val(customer.att_person)
+                        $("input[name='email']").val(customer.email)
+                        $("input[name='sample_Col_date']").val(customer.rec_date)
+                    }
+
+                    loadCustomers()
                 </script>
 <script src={% static '/js/app.js'%}?v=20260712 defer >
     

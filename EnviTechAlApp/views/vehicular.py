@@ -184,7 +184,6 @@ def vehicularEmissionUpdate(request,pk):
           vem.vehEm_test_perf_date = request.POST['vehEm_test_perf_date']
           vem.vehEm_test_type = request.POST['vehEm_test_type']
           vem.vehEm_test_type_extra = request.POST['vehEm_test_type_extra']
-          vem.vehEm_test_type_extra = request.POST['vehEm_test_type']
           vem.vehEm_test_perfBy = request.POST['vehEm_test_perfBy']
           vem.vehEm_test_desc = request.POST['vehEm_test_desc']
           vem.select = request.POST['select']

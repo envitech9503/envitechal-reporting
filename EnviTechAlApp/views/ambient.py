@@ -2674,6 +2674,9 @@ def ambientAir2Pdf(request,pk):
      
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={AA2.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()
@@ -3300,6 +3303,9 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
      # Original HTTP response path (unchanged)
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={AA2.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
      response.write(pdf_output.getvalue())
      return response
 
