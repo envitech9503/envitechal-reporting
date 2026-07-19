@@ -1201,6 +1201,9 @@ def noiseAnalysisReport(request,pk):
      
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={nA.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()
@@ -1805,7 +1808,7 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
      pdf.text(87.5,254.5,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if nA.lab_manager_signature:
-         pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
+         pdf.image(nA.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),252)
      pdf.text(160,254.5,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
@@ -2042,6 +2045,9 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
      # Original HTTP response path (unchanged)
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={nA.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
      response.write(pdf_output.getvalue())
      return response
 
@@ -3482,6 +3488,9 @@ def noiseMonitoring_print(request,pk):
      
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={nA.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()
@@ -3858,7 +3867,7 @@ def noiseMonitoring_report(request,pk):
      pdf.text(87.5,256,f"Reviewed By ({(nA.assistant_manager_signature.role if nA.assistant_manager_signature else '')})")
      pdf.image(envitech_logo,154,228,22,22)
      if nA.lab_manager_signature:
-         pdf.image(nA.lab_manager_signature.signature,178,233,20.32,20.32)
+         pdf.image(nA.lab_manager_signature.signature,178,228,20.32,20.32)
      pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})"),252)
      pdf.text(160,256,f"Approved By ({(nA.lab_manager_signature.role if nA.lab_manager_signature else '')})")
 
@@ -4076,6 +4085,9 @@ def noiseMonitoring_report(request,pk):
      
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={nA.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()
