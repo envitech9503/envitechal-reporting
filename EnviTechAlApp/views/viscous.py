@@ -828,35 +828,35 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
      
      
      if vL.analyst_signature:
-         pdf.image(vL.analyst_signature.signature,30,238,20.32,20.32)
-     pdf.line(19,257,36+pdf.get_string_width(f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})"),257)
-     pdf.text(26,259.5,f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})")
+         pdf.image(vL.analyst_signature.signature,30,233,20.32,20.32)
+     pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})"),252)
+     pdf.text(26,253.9,f"Analyzed By ({(vL.analyst_signature.role if vL.analyst_signature else '')})")
      if vL.assistant_manager_signature:
-         pdf.image(vL.assistant_manager_signature.signature,100,239,20.32,20.32)
-     pdf.line(126,257,47.5+pdf.get_string_width(f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})"),257)
-     pdf.text(87.5,259.5,f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})")
-     pdf.image(envitech_logo,154,235,22,22)
+         pdf.image(vL.assistant_manager_signature.signature,100,234,20.32,20.32)
+     pdf.line(126,252,47.5+pdf.get_string_width(f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})"),252)
+     pdf.text(87.5,253.9,f"Reviewed By ({(vL.assistant_manager_signature.role if vL.assistant_manager_signature else '')})")
+     pdf.image(envitech_logo,154,228,22,22)
      if vL.lab_manager_signature:
-         pdf.image(vL.lab_manager_signature.signature,178,235,20.32,20.32)
-     pdf.line(155,257,165+pdf.get_string_width(f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})"),257)
-     pdf.text(160,259.5,f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})")
+         pdf.image(vL.lab_manager_signature.signature,178,228,20.32,20.32)
+     pdf.line(155,252,165+pdf.get_string_width(f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})"),252)
+     pdf.text(160,253.9,f"Approved By ({(vL.lab_manager_signature.role if vL.lab_manager_signature else '')})")
 
 
      pdf.set_font("Calibri","B", 9)
-     pdf.line(10,261,-10+pdf.w,261)
+     pdf.line(10,256,-10+pdf.w,256)
      pdf.set_font("Calibri","", 8)
-     pdf.text(10,270,txt="• Report is valid for current batch (sample).")
-     pdf.text(10,273.5,txt="• This report is not valid for any publication or judical purpose.")
-     pdf.set_y(274.4)
+     pdf.text(10,265,txt="• Report is valid for current batch (sample).")
+     pdf.text(10,268.5,txt="• This report is not valid for any publication or judical purpose.")
+     pdf.set_y(269.4)
      pdf.set_x(9)
      pdf.multi_cell(110,3,txt="• Envi Tech AL is not responsible for the sample identification and data shared by the client.")
-     pdf.set_y(278)
+     pdf.set_y(273)
      pdf.set_x(9)
      pdf.multi_cell(110,3,txt="• The sample shall be discarded after five working days unless otherwise instructed.")
 
      pdf.set_font("Calibri","B", 5)
 
-     pdf.image('static/assets/ISO-9001_2015 LOGO.png',128,264,19,15)
+     pdf.image('static/assets/ISO-9001_2015 LOGO.png',128,259,19,15)
      # if vL.location == 'SEQS':
      #      pdf.image('static/assets/SEPA-Sindh-LOGO.png',156,264,19,15)
      # if vL.location == 'PEQS':
@@ -874,53 +874,53 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
      
      
      if vL.location == "NEQS" and vL.city_location.lower() == "karachi":
-          pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 263, 19, 15)
-          pdf.text(152,280,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
+          pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 259, 19, 15)
+          pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
-          pdf.text(10,266,txt="Disclaimer:")
+          pdf.text(10,261,txt="Disclaimer:")
 
      elif vL.location == "NEQS" and vL.city_location.lower() == "lahore":
-          pdf.image('static/assets/EPA_updated.png', 153, 264, 25, 16)
-          pdf.text(155,281,txt="(82/Dir/(ML&I)/EPA/03/2025)")
+          pdf.image('static/assets/EPA_updated.png', 153, 259, 25, 16)
+          pdf.text(155,276,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)
-          pdf.text(10,263.5,txt="Disclaimer:")
+          pdf.text(10,259,txt="Disclaimer:")
           pdf.set_font("Calibri","", 8)
-          pdf.text(10,267,txt="• Regulated by EPA Punjab under Certificate No. 82/Dir/(ML&I)/EPA/03/2025.")
+          pdf.text(10,262,txt="• Regulated by EPA Punjab under Certificate No. 82/Dir/(ML&I)/EPA/03/2025.")
 
      elif vL.location == "SEQS":
-          pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 263, 19, 15)
-          pdf.text(152,280,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
+          pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 259, 19, 15)
+          pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
-          pdf.text(10,266,txt="Disclaimer:")
+          pdf.text(10,261,txt="Disclaimer:")
 
      elif vL.location == "PEQS":
-          pdf.image('static/assets/EPA_updated.png', 153, 264, 25, 16)
-          pdf.text(155,281,txt="(82/Dir/(ML&I)/EPA/03/2025)")
+          pdf.image('static/assets/EPA_updated.png', 153, 259, 25, 16)
+          pdf.text(155,276,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)
-          pdf.text(10,263.5,txt="Disclaimer:")
+          pdf.text(10,259,txt="Disclaimer:")
           pdf.set_font("Calibri","", 8)
-          pdf.text(10,267,txt="• Regulated by EPA Punjab under Certificate No. 82/Dir/(ML&I)/EPA/03/2025.")
+          pdf.text(10,262,txt="• Regulated by EPA Punjab under Certificate No. 82/Dir/(ML&I)/EPA/03/2025.")
      # if waterForm.location == "NEQS":
      #      pdf.image('static/assets/SEPA-Sindh-LOGO.png',156,264,19,15)          
-     pdf.image('static/assets/ISO-14001_2015 LOGO.png',182,264,19,15)
+     pdf.image('static/assets/ISO-14001_2015 LOGO.png',182,259,19,15)
      pdf.set_font("Calibri","B", 5)
      # if waterForm.location == 'PEQS':
      #      pdf.text(155,276,txt="(82/Dir/(ML&I)/EPA/03/2025)")
      # else:
      #      pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
                
-     pdf.text(128.5,281,txt="(Certificate # 080177324-QMS)")
+     pdf.text(126,276,txt="(Certificate # 080177324-QMS)")
      
      
-     pdf.text(182,281,txt="(Certificate # 080177424-EMS)")
+     pdf.text(182,276,txt="(Certificate # 080177424-EMS)")
 
      pdf.set_font("Calibri","", 7)
-     pdf.rect(126,282,25,5)
-     pdf.text(128,285,txt=vL.doc1)
-     pdf.rect(151,282,29,5)
-     pdf.text(155,285,txt=vL.doc2)
-     pdf.rect(180,282,25,5)
-     pdf.text(183.5,285,txt=vL.doc3)
+     pdf.rect(126,277,25,5)
+     pdf.text(128,280,txt=vL.doc1)
+     pdf.rect(151,277,29,5)
+     pdf.text(155,280,txt=vL.doc2)
+     pdf.rect(180,277,25,5)
+     pdf.text(183.5,280,txt=vL.doc3)
      
      if vL.pdf_image_1:
 

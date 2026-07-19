@@ -937,8 +937,8 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
           pdf.text(10,262,txt="Disclaimer:")
 
      elif vem.location == "NEQS" and (vem.city_location or "").lower() == "lahore":
-          pdf.image('static/assets/EPA_updated.png', 153, 258, 25, 16.5)
-          pdf.text(155,275.5,txt="(227/Dir/(ML&I)/EPA/12/2025)")
+          pdf.image('static/assets/EPA_updated.png', 153, 259, 25, 16)
+          pdf.text(155,276,txt="(227/Dir/(ML&I)/EPA/12/2025)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,259,txt="Disclaimer:")
           pdf.set_font("Calibri","", 8)
@@ -953,8 +953,8 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
           
           
      elif vem.location == "PEQS":
-          pdf.image('static/assets/EPA_updated.png',153,258,25,16.5)
-          pdf.text(155,275.5,txt="(227/Dir/(ML&I)/EPA/12/2025)")
+          pdf.image('static/assets/EPA_updated.png',153,259,25,16)
+          pdf.text(155,276,txt="(227/Dir/(ML&I)/EPA/12/2025)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,259,txt="Disclaimer:")
           pdf.set_font("Calibri","", 8)
@@ -962,25 +962,25 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
           
      # if waterForm.location == "NEQS":
      #      pdf.image('static/assets/SEPA-Sindh-LOGO.png',156,258,19,15)          
-     pdf.image('static/assets/ISO-14001_2015 LOGO.png',182,258,19,15)
+     pdf.image('static/assets/ISO-14001_2015 LOGO.png',182,259,19,15)
      pdf.set_font("Calibri","B", 5)
      # if waterForm.location == 'PEQS':
      #      pdf.text(155,275,txt="(82/Dir/(ML&I)/EPA/03/2025)")
      # else:
      #      pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
                
-     pdf.text(128.5,275,txt="(Certificate # 080177324-QMS)")
+     pdf.text(126,276,txt="(Certificate # 080177324-QMS)")
      
      
-     pdf.text(182,275,txt="(Certificate # 080177424-EMS)")
+     pdf.text(182,276,txt="(Certificate # 080177424-EMS)")
 
      pdf.set_font("Calibri","", 7)
-     pdf.rect(126,276,25,5)
-     pdf.text(128,279,txt=vem.vehEm_doc_con1)
-     pdf.rect(151,276,29,5)
-     pdf.text(155,279,txt=vem.vehEm_doc_con2)
-     pdf.rect(180,276,25,5)
-     pdf.text(183.5,279,txt=vem.vehEm_doc_con3)
+     pdf.rect(126,277,25,5)
+     pdf.text(128,280,txt=vem.vehEm_doc_con1)
+     pdf.rect(151,277,29,5)
+     pdf.text(155,280,txt=vem.vehEm_doc_con2)
+     pdf.rect(180,277,25,5)
+     pdf.text(183.5,280,txt=vem.vehEm_doc_con3)
      
      if vem.pdf_image_1:
 
