@@ -1121,6 +1121,9 @@ def calib_pdf(request,pk):
           
           response = HttpResponse(content_type='application/pdf')
           response['Content-Disposition'] = f'inline; filename={calib.cert_num}.pdf'
+          response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+          response['Pragma'] = 'no-cache'
+          response['Expires'] = '0'
 
                # Output the PDF to the response
           pdf_output = BytesIO()
@@ -1651,6 +1654,9 @@ def calib_pdf1(request,pk):
 
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={calib.cert_num}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()

@@ -1199,6 +1199,9 @@ def ambientAirGeneratePDF(request,pk):
      
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={ambientAirForm.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()
@@ -1684,6 +1687,9 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
      # Original HTTP response path (unchanged)
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={ambientAirForm.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
      response.write(pdf_output.getvalue())
      return response
 

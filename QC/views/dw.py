@@ -2809,6 +2809,9 @@ def generate_dw_qc_pdf_response(report, pk):
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={sample_id}.pdf'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
 
     # Output the PDF to the response
     pdf_output = BytesIO()
@@ -3424,6 +3427,9 @@ def generate_pdf_for_dw_testing_results(obj):
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={obj.id}.pdf'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
 
     # Output the PDF to the response
     pdf_output = BytesIO()

@@ -2185,6 +2185,9 @@ def samplePdf(request,pk):
      # Create a response object
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={sample.sample_id}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
     # Output the PDF to the response
      pdf_output = BytesIO()
@@ -2308,6 +2311,9 @@ def samplePdf1(request,pk):
      
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={sample.sample_id}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
     # Output the PDF to the response
      pdf_output = BytesIO()

@@ -983,6 +983,9 @@ def generatePDF(request,pk):
      # return response
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={waterForm.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
           # Output the PDF to the response
      pdf_output = BytesIO()
@@ -1755,6 +1758,9 @@ def generatePDF_report(request,pk,return_bytes=False):
      # Original HTTP response path (unchanged)
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={waterForm.lab_report_no}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
      response.write(pdf_output.getvalue())
      return response
     
@@ -2091,6 +2097,9 @@ def generate_job_completion_pdf(job):
      pdf.draw_job_details(job)
      response = HttpResponse(content_type='application/pdf')
      response['Content-Disposition'] = f'inline; filename={job.job_number}.pdf'
+     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+     response['Pragma'] = 'no-cache'
+     response['Expires'] = '0'
 
      # Output the PDF to the response
      pdf_output = BytesIO()

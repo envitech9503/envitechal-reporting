@@ -195,6 +195,9 @@ def logPdf(request):
     # Create a response object
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={logging.lab}.pdf'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
 
     # Output the PDF to the response
     pdf_output = BytesIO()
