@@ -321,6 +321,7 @@
                             <option name="GasEm-gas" {% if data.GaseEm_types == 'gas_fired' %}selected{% endif %} value="gas_fired">Gas Fired</option>
                             <option name="GasEm-oil" {% if data.GaseEm_types == 'oil_fired' %}selected{% endif %} value="oil_fired">Oil Fired</option>
                             <option name="GasEm-coal" {% if data.GaseEm_types == 'coal_fired' %}selected{% endif %} value="coal_fired">Coal Fired</option>
+                            <option name="GasEm-bio" {% if data.GaseEm_types == 'biomass' %}selected{% endif %} value="biomass">Biomass</option>
                             
                        </select>
                     </div>
@@ -417,6 +418,8 @@
                                     <td class=""> 600 </td>
                                 {% elif data.GaseEm_types == 'coal_fired' %}
                                     <td class=""> 1200 </td>
+                                {% elif data.GaseEm_types == 'biomass' %}
+                                    <td class=""> - </td>
                                 {% endif %}
                                 
                             </tr>
@@ -1127,6 +1130,10 @@
                  case "gas_fired":
                      $(".OIL,.COAL").hide()    
                      $(".GAS").show()    
+                 break;
+                 case "biomass":
+                     $(".GAS,.OIL,.COAL").hide()
+                     $(".BIOMASS").show()
                  break;
                 }
              })

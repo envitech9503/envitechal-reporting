@@ -235,6 +235,10 @@ def gaseousReportgeneratePDF(request,pk):
           a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"500"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
+     elif gaseousForm.GaseEm_sr2 and gaseousForm.GaseEm_types == 'biomass':
+          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"-"]
+          sr_no = sr_no+1
+          TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr3:
           a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",gaseousForm.GaseEm_sr3,"800"]
           sr_no = sr_no+1
@@ -258,6 +262,10 @@ def gaseousReportgeneratePDF(request,pk):
 
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "coal_fired":
           a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"1200"]
+          sr_no = sr_no+1
+          TABLE_DATA.append(a)
+     elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "biomass":
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"-"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
 
@@ -325,6 +333,9 @@ def gaseousReportgeneratePDF(request,pk):
           a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,"-"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
+     if gaseousForm.GaseEm_types == 'biomass':
+          for _r in TABLE_DATA[1:]:
+               _r[4] = "-"
      for extra_field in gaseousForm.extra_field:
           parameters = extra_field.get("parameters")
           unit = extra_field.get("unit")
@@ -755,6 +766,10 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
           a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"1200"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
+     elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "biomass":
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"-"]
+          sr_no = sr_no+1
+          TABLE_DATA.append(a)
 
      if gaseousForm.GaseEm_sr7:
           a = [str(sr_no),"Oxygen (O₂)","%",gaseousForm.GaseEm_sr7,"-"]
@@ -820,6 +835,9 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
           a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,"-"]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
+     if gaseousForm.GaseEm_types == 'biomass':
+          for _r in TABLE_DATA[1:]:
+               _r[4] = "-"
      for extra_field in gaseousForm.extra_field:
           parameters = extra_field.get("parameters")
           unit = extra_field.get("unit")

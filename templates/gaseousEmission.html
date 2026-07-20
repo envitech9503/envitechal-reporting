@@ -18,7 +18,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
   <style>
-    .OIL,.COAL{
+    .OIL,.COAL,.BIOMASS{
     display: none;
     }
     .NEQS,.PEQS{
@@ -325,6 +325,7 @@
                                 <option name="GasEm-gas" value="gas_fired">Gas Fired</option>
                                 <option name="GasEm-oil" value="oil_fired">Oil Fired</option>
                                 <option name="GasEm-coal" value="coal_fired">Coal Fired</option>
+                                <option name="GasEm-bio" value="biomass">Biomass</option>
                                                         
                         </select>
                     </div>
@@ -373,6 +374,7 @@
                                 <td class="SEQS GAS"> 300 </td>
                                 <td class="PEQS OIL"> 300 </td>
                                 <td class="NEQS COAL"> 500 </td>
+                                <td class="BIOMASS"> - </td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -417,6 +419,7 @@
                                 <td class="GAS"> 400 </td>
                                 <td class="OIL"> 600 </td>
                                 <td class="COAL"> 1200 </td>
+                                <td class="BIOMASS"> - </td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -1054,6 +1057,10 @@ currentNumber++;
                  case "gas_fired":
                      $(".OIL,.COAL").hide()    
                      $(".GAS").show()    
+                 break;
+                 case "biomass":
+                     $(".GAS,.OIL,.COAL").hide()
+                     $(".BIOMASS").show()
                  break;
                 }
              })
