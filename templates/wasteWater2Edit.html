@@ -359,7 +359,7 @@
                             <tr class="text-center border h-16">
                                 <td>01</td>
                                 <td>Temperature 40 °C</td>
-                                <td>*APHA 2550</td>
+                                <td><input name="method_1" value="{{data.method_1|default:'*APHA 2550'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>°C</td>
                                 <td class="inlet_result"><input name="result_1" class=" border-2 border-black  px-2" value="{{data.result_1}}"  type="text"></td>
                                 <td class="outlet_result"><input name="result_1_1" class="border-2 border-black px-2" value="{{data.result_1_1}}" type="text"></td>
@@ -383,7 +383,7 @@
                             <tr class="text-center border h-16">
                                 <td>02</td>
                                 <td>pH</td>
-                                <td>*APHA 4500 H-B</td>
+                                <td><input name="method_2" value="{{data.method_2|default:'*APHA 4500 H-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>-</td>
                                 <td class="inlet_result"><input name="result_2" class=" border-2 border-black  px-2" value="{{data.result_2}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_2_2" class="border-2 border-black px-2" value="{{data.result_2_2}}" type="text"></td>
@@ -406,7 +406,7 @@
                             <tr class="text-center border h-16">
                                 <td>03</td>
                                 <td>Sulphide</td>
-                                <td>*APHA 4500-S2-D</td>
+                                <td><input name="method_3" value="{{data.method_3|default:'*APHA 4500-S2-D'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_3" class=" border-2 border-black  px-2" value="{{data.result_3}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_3_3" class="border-2 border-black px-2" value="{{data.result_3_3}}" type="text"></td>
@@ -429,7 +429,7 @@
                             <tr class="text-center border h-16">
                                 <td>04</td>
                                 <td>Biological Oxygen Demand(BOD)5</td>
-                                <td>HACH 10099</td>
+                                <td><input name="method_4" value="{{data.method_4|default:'HACH 10099'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td  class="inlet_result"><input name="result_4" class=" border-2 border-black  px-2" value="{{data.result_4}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_4_4" class="border-2 border-black px-2" value="{{data.result_4_4}}" type="text"></td>
@@ -451,7 +451,7 @@
                             <tr class="text-center border h-16">
                                 <td>05</td>
                                 <td>Chemical Oxygen Demand(COD)</td>
-                                <td>*HACH 8000</td>
+                                <td><input name="method_5" value="{{data.method_5|default:'*HACH 8000'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_5" class=" border-2 border-black  px-2" value="{{data.result_5}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_5_5" class="border-2 border-black px-2" value="{{data.result_5_5}}" type="text"></td>
@@ -474,7 +474,7 @@
                             <tr class="text-center border h-16">
                                 <td>06</td>
                                 <td>Total Dissolved Solids (TDS)</td>
-                                <td>*APHA 2540-C</td>
+                                <td><input name="method_6" value="{{data.method_6|default:'*APHA 2540-C'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_6" class=" border-2 border-black  px-2" value="{{data.result_6}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_6_6" class="border-2 border-black px-2" value="{{data.result_6_6}}" type="text"></td>
@@ -497,7 +497,7 @@
                             <tr class="text-center border h-16">
                                 <td>07</td>
                                 <td>Total Suspended Solids (TSS)</td>
-                                <td>*APHA 2540-D</td>
+                                <td><input name="method_7" value="{{data.method_7|default:'*APHA 2540-D'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_7" class=" border-2 border-black  px-2" value="{{data.result_7}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_7_7" class="border-2 border-black px-2" value="{{data.result_7_7}}" type="text"></td>
@@ -521,10 +521,13 @@
                                 <td>08</td>
                                 <td>Oil & Grease</td>
                                 <td><select class="border border-black " name="metho_select" id="">
-                                    <option value="ASTM">ASTM D-3921</option>
-                                    <option value="USEPA">USEPA 1664</option>
-                                    <option value="APHA">APHA 5220-B</option>
-                                </select></td>
+                                    <option value="ASTM" {% if data.metho_select == 'ASTM' %}selected{% endif %}>ASTM D-3921</option>
+                                    <option value="USEPA" {% if data.metho_select == 'USEPA' %}selected{% endif %}>USEPA 1664</option>
+                                    <option value="APHA" {% if data.metho_select == 'APHA' %}selected{% endif %}>APHA 5220-B</option>
+                                    <option value="Custom" {% if data.metho_select == 'Custom' %}selected{% endif %}>Custom</option>
+                                </select>
+                                    <input name="metho_custom" value="{{data.metho_custom|default:''}}" placeholder="Type custom method" class="border border-black metho-custom-inp px-1" style="display:none;margin-top:4px;width:9rem">
+                                    <script>(function(){function t(){var s=document.querySelector('select[name="metho_select"]');var i=document.querySelector(".metho-custom-inp");if(!s||!i)return;i.style.display=(s.value==="Custom")?"inline-block":"none";}var s=document.querySelector('select[name="metho_select"]');if(s){if(window.jQuery){jQuery(s).on("change",t);}else{s.addEventListener("change",t);}}document.addEventListener("DOMContentLoaded",t);t();})();</script></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_8" class=" border-2 border-black  px-2" value="{{data.result_8}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_8_8" class="border-2 border-black px-2" value="{{data.result_8_8}}" type="text"></td>
@@ -547,7 +550,7 @@
                             <tr class="text-center border h-16">
                                 <td>09</td>
                                 <td>Cadmium</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_9" value="{{data.method_9|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_9" class="border-2 border-black  px-2" value="{{data.result_9}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_9_9" class="border-2 border-black px-2" value="{{data.result_9_9}}" type="text"></td>
@@ -570,7 +573,7 @@
                             <tr class="text-center border h-16">
                                 <td>10</td>
                                 <td>Copper</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_10" value="{{data.method_10|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_10" class="inlet_result border-2 border-black  px-2" value="{{data.result_10}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_10_10" class="border-2 border-black px-2" value="{{data.result_10_10}}" type="text"></td>
@@ -593,7 +596,7 @@
                             <tr class="text-center border h-16">
                                 <td>11</td>
                                 <td>Iron</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_11" value="{{data.method_11|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_11" class="inlet_result border-2 border-black  px-2" value="{{data.result_11}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_11_11" class="border-2 border-black px-2" value="{{data.result_11_11}}" type="text"></td>
@@ -616,7 +619,7 @@
                             <tr class="text-center border h-16">
                                 <td>12</td>
                                 <td>Lead</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_12" value="{{data.method_12|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_12" class="inlet_result border-2 border-black  px-2" value="{{data.result_12}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_12_12" class="border-2 border-black px-2" value="{{data.result_12_12}}" type="text"></td>
@@ -639,7 +642,7 @@
                             <tr class="text-center border h-16">
                                 <td>13</td>
                                 <td>Manganese</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_13" value="{{data.method_13|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_13" class="inlet_result border-2 border-black  px-2" value="{{data.result_13}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_13_13" class="border-2 border-black px-2" value="{{data.result_13_13}}" type="text"></td>
@@ -663,7 +666,7 @@
                             <tr class="text-center border h-16">
                                 <td>14</td>
                                 <td>Mercury</td>
-                                <td>*APHA 3112-B</td>
+                                <td><input name="method_14" value="{{data.method_14|default:'*APHA 3112-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_14" class="inlet_result border-2 border-black  px-2" value="{{data.result_14}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_14_14" class="border-2 border-black px-2" value="{{data.result_14_14}}" type="text"></td>
@@ -686,7 +689,7 @@
                             <tr class="text-center border h-16">
                                 <td>15</td>
                                 <td>Nickel</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_15" value="{{data.method_15|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_15" class="inlet_result border-2 border-black  px-2" value="{{data.result_15}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_15_15" class="border-2 border-black px-2" value="{{data.result_15_15}}" type="text"></td>
@@ -709,7 +712,7 @@
                             <tr class="text-center border h-16">
                                 <td>16</td>
                                 <td>Selenium</td>
-                                <td>*APHA 3114-B</td>
+                                <td><input name="method_16" value="{{data.method_16|default:'*APHA 3114-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_16" class="inlet_result border-2 border-black  px-2" value="{{data.result_16}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_16_16" class="border-2 border-black px-2" value="{{data.result_16_16}}" type="text"></td>
@@ -732,7 +735,7 @@
                             <tr class="text-center border h-16">
                                 <td>17</td>
                                 <td>Chromium</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_17" value="{{data.method_17|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_17" class="inlet_result border-2 border-black  px-2" value="{{data.result_17}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_17_17" class="border-2 border-black px-2" value="{{data.result_17_17}}" type="text"></td>
@@ -755,7 +758,7 @@
                             <tr class="text-center border h-16">
                                 <td>18</td>
                                 <td>Zinc</td>
-                                <td>*APHA 3111-B</td>
+                                <td><input name="method_18" value="{{data.method_18|default:'*APHA 3111-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_18" class="inlet_result border-2 border-black  px-2" value="{{data.result_18}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_18_18" class="border-2 border-black px-2" value="{{data.result_18_18}}" type="text"></td>
@@ -778,7 +781,7 @@
                             <tr class="text-center border h-16">
                                 <td>19</td>
                                 <td>Arsenic</td>
-                                <td>*APHA 3114-B</td>
+                                <td><input name="method_19" value="{{data.method_19|default:'*APHA 3114-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_19" class="inlet_result border-2 border-black  px-2" value="{{data.result_19}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_19_19" class="border-2 border-black px-2" value="{{data.result_19_19}}" type="text"></td>
@@ -801,7 +804,7 @@
                             <tr class="text-center border h-16">
                                 <td>20</td>
                                 <td>Chlorine</td>
-                                <td>HACH 10069</td>
+                                <td><input name="method_20" value="{{data.method_20|default:'HACH 10069'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_20" class="inlet_result border-2 border-black  px-2" value="{{data.result_20}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_20_20" class="border-2 border-black px-2" value="{{data.result_20_20}}" type="text"></td>
@@ -824,7 +827,7 @@
                             <tr class="text-center border h-16">
                                 <td>21</td>
                                 <td>Chloride</td>
-                                <td>*APHA 4500 CL-B</td>
+                                <td><input name="method_21" value="{{data.method_21|default:'*APHA 4500 CL-B'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_21" class="inlet_result border-2 border-black  px-2" value="{{data.result_21}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_21_21" class="border-2 border-black px-2" value="{{data.result_21_21}}" type="text"></td>
@@ -847,7 +850,7 @@
                             <tr class="text-center border h-16">
                                 <td>22</td>
                                 <td>Cyanide</td>
-                                <td>HACH 8027</td>
+                                <td><input name="method_22" value="{{data.method_22|default:'HACH 8027'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_22" class="inlet_result border-2 border-black  px-2" value="{{data.result_22}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_22_22" class="border-2 border-black px-2" value="{{data.result_22_22}}" type="text"></td>
@@ -870,7 +873,7 @@
                             <tr class="text-center border h-16">
                                 <td>23</td>
                                 <td>Fluoride</td>
-                                <td>*HACH 8029</td>
+                                <td><input name="method_23" value="{{data.method_23|default:'*HACH 8029'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_23" class="inlet_result border-2 border-black  px-2" value="{{data.result_23}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_23_23" class="border-2 border-black px-2" value="{{data.result_23_23}}" type="text"></td>
@@ -893,7 +896,7 @@
                             <tr class="text-center border h-16">
                                 <td>24</td>
                                 <td>Ammonia</td>
-                                <td>*HACH 8038</td>
+                                <td><input name="method_24" value="{{data.method_24|default:'*HACH 8038'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_24" class="inlet_result border-2 border-black  px-2" value="{{data.result_24}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_24_24" class="border-2 border-black px-2" value="{{data.result_24_24}}" type="text"></td>
@@ -916,7 +919,7 @@
                             <tr class="text-center border h-16">
                                 <td>25</td>
                                 <td>Total Toxic Metals</td>
-                                <td>	APHA 3111</td>
+                                <td><input name="method_25" value="{{data.method_25|default:'APHA 3111'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_25" class="inlet_result border-2 border-black  px-2" value="{{data.result_25}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_25_25" class="border-2 border-black px-2" value="{{data.result_25_25}}" type="text"></td>
@@ -939,7 +942,7 @@
                             <tr class="text-center border h-16">
                                 <td>26</td>
                                 <td>Sulphate</td>
-                                <td>HACH 8051</td>
+                                <td><input name="method_26" value="{{data.method_26|default:'HACH 8051'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_26" class="inlet_result border-2 border-black  px-2" value="{{data.result_26}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_26_26" class="border-2 border-black px-2" value="{{data.result_26_26}}" type="text"></td>
@@ -962,7 +965,7 @@
                             <tr class="text-center border h-16">
                                 <td>27</td>
                                 <td>An Ionic Detergent As MBAs</td>
-                                <td>*APHA 5540 C</td>
+                                <td><input name="method_27" value="{{data.method_27|default:'*APHA 5540 C'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_27" class="inlet_result border-2 border-black  px-2" value="{{data.result_27}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_27_27" class="border-2 border-black px-2" value="{{data.result_27_27}}" type="text"></td>
@@ -985,7 +988,7 @@
                             <tr class="text-center border h-16">
                                 <td>28</td>
                                 <td>Pesticides</td>
-                                <td>USEPA-614.1</td>
+                                <td><input name="method_28" value="{{data.method_28|default:'USEPA-614.1'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td> 
                                 <td class="inlet_result"><input name="result_28" class="inlet_result border-2 border-black  px-2" value="{{data.result_28}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_28_28" class="border-2 border-black px-2" value="{{data.result_28_28}}" type="text"></td>
@@ -1008,7 +1011,7 @@
                             <tr class="text-center border h-16">
                                 <td>29</td>
                                 <td>Phenolic Compounds(as Phenol)</td>
-                                <td>HACH 8047</td>
+                                <td><input name="method_29" value="{{data.method_29|default:'HACH 8047'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_29" class="inlet_result border-2 border-black  px-2" value="{{data.result_29}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_29_29" class="border-2 border-black px-2" value="{{data.result_29_29}}" type="text"></td>
@@ -1031,7 +1034,7 @@
                             <tr class="text-center border h-16">
                                 <td>30</td>
                                 <td>Boron</td>
-                                <td>HACH 8015</td>
+                                <td><input name="method_30" value="{{data.method_30|default:'HACH 8015'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_30" class="inlet_result border-2 border-black  px-2" value="{{data.result_30}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_30_30" class="border-2 border-black px-2" value="{{data.result_30_30}}" type="text"></td>
@@ -1055,7 +1058,7 @@
                             <tr class="text-center border h-16">
                                 <td>31</td>
                                 <td>Barium</td>
-                                <td>HACH 8014</td>
+                                <td><input name="method_31" value="{{data.method_31|default:'HACH 8014'}}" class="border-2 border-black px-1" style="width:6.5rem"></td>
                                 <td>mg/L</td>
                                 <td class="inlet_result"><input name="result_31" class="inlet_result border-2 border-black  px-2" value="{{data.result_31}}" type="text"></td>
                                 <td class="outlet_result"><input name="result_31_31" class="border-2 border-black px-2" value="{{data.result_31_31}}" type="text"></td>

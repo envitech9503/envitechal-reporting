@@ -328,7 +328,7 @@
           <tr class=" border">
             <td class="text-center">01</td>
             <td class="pl-2">Temperature 40°C</td>
-            <td class="text-center">*APHA 2550</td>
+            <td class="text-center">{{data.method_1|default:"*APHA 2550"}}</td>
             <td class="text-center">°C</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_1}}</td>
@@ -401,7 +401,7 @@
           <tr class=" border">
             <td class="text-center">02</td>
             <td class="pl-2">pH</td>
-            <td class="text-center">*APHA 4500 H-B</td>
+            <td class="text-center">{{data.method_2|default:"*APHA 4500 H-B"}}</td>
             <td class="text-center">-</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_2}}</td>
@@ -475,7 +475,7 @@
           <tr class=" border">
             <td class="text-center">03</td>
             <td class="pl-2">Sulphide</td>
-            <td class="text-center">*APHA 4500-S2-D</td>
+            <td class="text-center">{{data.method_3|default:"*APHA 4500-S2-D"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_3}}</td>
@@ -549,7 +549,7 @@
           <tr class=" border">
             <td class="text-center">04</td>
             <td class="pl-2">Biological Oxygen Demand(BOD)5</td>
-            <td class="text-center">HACH 10099</td>
+            <td class="text-center">{{data.method_4|default:"HACH 10099"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_4}}</td>
@@ -623,7 +623,7 @@
           <tr class=" border">
             <td class="text-center">05</td>
             <td class="pl-2">Chemical Oxygen Demand(COD)</td>
-            <td class="text-center">*HACH 8000</td>
+            <td class="text-center">{{data.method_5|default:"*HACH 8000"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_5}}</td>
@@ -697,7 +697,7 @@
           <tr class=" border">
             <td class="text-center">06</td>
             <td class="pl-2">Total Dissolved Solids (TDS)</td>
-            <td class="text-center">*APHA 2540-C</td>
+            <td class="text-center">{{data.method_6|default:"*APHA 2540-C"}}</td>
             <td class="text-center">mg/L	</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_6}}</td>
@@ -771,7 +771,7 @@
           <tr class=" border">
             <td class="text-center">07</td>
             <td class="pl-2">Total Suspended Solids (TSS)</td>
-            <td class="text-center">*APHA 2540-D</td>
+            <td class="text-center">{{data.method_7|default:"*APHA 2540-D"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_7}}</td>
@@ -927,7 +927,7 @@
           <tr class=" border">
             <td class="text-center">09</td>
             <td class="pl-2">Cadmium</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_9|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L	</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_9}}</td>
@@ -1001,7 +1001,7 @@
           <tr class=" border">
             <td class="text-center">10</td>
             <td class="pl-2">Copper</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_10|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_10}}</td>
@@ -1075,7 +1075,7 @@
           <tr class=" border">
             <td class="text-center">11</td>
             <td class="pl-2">Iron</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_11|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_11}}</td>
@@ -1149,7 +1149,7 @@
           <tr class=" border">
             <td class="text-center">12</td>
             <td class="pl-2">Lead</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_12|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_12}}</td>
@@ -1223,7 +1223,7 @@
           <tr class=" border">
             <td class="text-center">13</td>
             <td class="pl-2">Manganese</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_13|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_13}}</td>
@@ -1297,7 +1297,7 @@
           <tr class=" border">
             <td class="text-center">14</td>
             <td class="pl-2">Mercury</td>
-            <td class="text-center">*APHA 3112-B</td>
+            <td class="text-center">{{data.method_14|default:"*APHA 3112-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_14}}</td>
@@ -1371,7 +1371,7 @@
           <tr class=" border">
             <td class="text-center">15</td>
             <td class="pl-2">Nickel</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_15|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_15}}</td>
@@ -1445,7 +1445,7 @@
           <tr class=" border">
             <td class="text-center">16</td>
             <td class="pl-2">Selenium</td>
-            <td class="text-center">*APHA 3114-B</td>
+            <td class="text-center">{{data.method_16|default:"*APHA 3114-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_16}}</td>
@@ -1519,7 +1519,7 @@
           <tr class=" border">
             <td class="text-center">17</td>
             <td class="pl-2">Chromium</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_17|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_17}}</td>
@@ -1593,7 +1593,7 @@
           <tr class=" border">
             <td class="text-center">18</td>
             <td class="pl-2">Zinc</td>
-            <td class="text-center">*APHA 3111-B</td>
+            <td class="text-center">{{data.method_18|default:"*APHA 3111-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_18}}</td>
@@ -1667,7 +1667,7 @@
           <tr class=" border">
             <td class="text-center">19</td>
             <td class="pl-2">Arsenic</td>
-            <td class="text-center">*APHA 3114-B</td>
+            <td class="text-center">{{data.method_19|default:"*APHA 3114-B"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_19}}</td>
@@ -1741,7 +1741,7 @@
           <tr class=" border">
             <td class="text-center">20</td>
             <td class="pl-2">Chlorine</td>
-            <td class="text-center">HACH 10069</td>
+            <td class="text-center">{{data.method_20|default:"HACH 10069"}}</td>
             <td class="text-center">mg/L	</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_20}}</td>
@@ -1815,7 +1815,7 @@
           <tr class=" border">
             <td class="text-center">21</td>
             <td class="pl-2">Chloride</td>
-            <td class="text-center">*APHA 4500 CL-B</td>
+            <td class="text-center">{{data.method_21|default:"*APHA 4500 CL-B"}}</td>
             <td class="text-center">°C</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_21}}</td>
@@ -1889,7 +1889,7 @@
           <tr class=" border">
             <td class="text-center">22</td>
             <td class="pl-2">Cyanide</td>
-            <td class="text-center">HACH 8027</td>
+            <td class="text-center">{{data.method_22|default:"HACH 8027"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_22}}</td>
@@ -1963,7 +1963,7 @@
           <tr class=" border">
             <td class="text-center">23</td>
             <td class="pl-2">Fluoride</td>
-            <td class="text-center">*HACH 8029</td>
+            <td class="text-center">{{data.method_23|default:"*HACH 8029"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_23}}</td>
@@ -2035,7 +2035,7 @@
           <tr class=" border">
             <td class="text-center">24</td>
             <td class="pl-2">Ammonia</td>
-            <td class="text-center">*HACH 8038</td>
+            <td class="text-center">{{data.method_24|default:"*HACH 8038"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_24}}</td>
@@ -2109,7 +2109,7 @@
           <tr class=" border">
             <td class="text-center">25</td>
             <td class="pl-2">Total Toxic Metals</td>
-            <td class="text-center">APHA 3111</td>
+            <td class="text-center">{{data.method_25|default:"APHA 3111"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_25}}</td>
@@ -2183,7 +2183,7 @@
           <tr class=" border">
             <td class="text-center">26</td>
             <td class="pl-2">Sulphate</td>
-            <td class="text-center">HACH 8051</td>
+            <td class="text-center">{{data.method_26|default:"HACH 8051"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_26}}</td>
@@ -2257,7 +2257,7 @@
           <tr class=" border">
             <td class="text-center">27</td>
             <td class="pl-2">An Ionic Detergent As MBAs</td>
-            <td class="text-center">*APHA 5540 C</td>
+            <td class="text-center">{{data.method_27|default:"*APHA 5540 C"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_27}}</td>
@@ -2331,7 +2331,7 @@
           <tr class=" border">
             <td class="text-center">28</td>
             <td class="pl-2">Pesticides</td>
-            <td class="text-center">USEPA-614.1</td>
+            <td class="text-center">{{data.method_28|default:"USEPA-614.1"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_28}}</td>
@@ -2405,7 +2405,7 @@
           <tr class=" border">
             <td class="text-center">29</td>
             <td class="pl-2">Phenolic Compounds(as Phenol)</td>
-            <td class="text-center">HACH 8047</td>
+            <td class="text-center">{{data.method_29|default:"HACH 8047"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_29}}</td>
@@ -2479,7 +2479,7 @@
           <tr class=" border">
             <td class="text-center">30</td>
             <td class="pl-2">Boron</td>
-            <td class="text-center">HACH 8015</td>
+            <td class="text-center">{{data.method_30|default:"HACH 8015"}}</td>
             <td class="text-center">mg/L</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_30}}</td>
@@ -2553,7 +2553,7 @@
           <tr class=" border">
             <td class="text-center">31</td>
             <td class="pl-2">Barium</td>
-            <td class="text-center">HACH 8014</td>
+            <td class="text-center">{{data.method_31|default:"HACH 8014"}}</td>
             <td class="text-center">mg/L	</td>
             {% if data.in_out == 'in-out' %}
             <td class="text-center">{{data.result_31}}</td>

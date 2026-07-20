@@ -178,6 +178,37 @@ def wasteWater2(request):
           result_7 = request.POST['result_7']
           result_7_7 = request.POST['result_7_7']
           metho_select = request.POST.get('metho_select')
+          metho_custom = request.POST.get('metho_custom')
+          method_1 = request.POST.get('method_1')
+          method_2 = request.POST.get('method_2')
+          method_3 = request.POST.get('method_3')
+          method_4 = request.POST.get('method_4')
+          method_5 = request.POST.get('method_5')
+          method_6 = request.POST.get('method_6')
+          method_7 = request.POST.get('method_7')
+          method_9 = request.POST.get('method_9')
+          method_10 = request.POST.get('method_10')
+          method_11 = request.POST.get('method_11')
+          method_12 = request.POST.get('method_12')
+          method_13 = request.POST.get('method_13')
+          method_14 = request.POST.get('method_14')
+          method_15 = request.POST.get('method_15')
+          method_16 = request.POST.get('method_16')
+          method_17 = request.POST.get('method_17')
+          method_18 = request.POST.get('method_18')
+          method_19 = request.POST.get('method_19')
+          method_20 = request.POST.get('method_20')
+          method_21 = request.POST.get('method_21')
+          method_22 = request.POST.get('method_22')
+          method_23 = request.POST.get('method_23')
+          method_24 = request.POST.get('method_24')
+          method_25 = request.POST.get('method_25')
+          method_26 = request.POST.get('method_26')
+          method_27 = request.POST.get('method_27')
+          method_28 = request.POST.get('method_28')
+          method_29 = request.POST.get('method_29')
+          method_30 = request.POST.get('method_30')
+          method_31 = request.POST.get('method_31')
           result_8 = request.POST['result_8']
           result_8_8 = request.POST['result_8_8']
           result_9 = request.POST['result_9']
@@ -421,7 +452,7 @@ def wasteWater2(request):
                                              date_of_analysis_from=date_of_analysis_from,date_of_analysis_to=date_of_analysis_to,test_description=test_description,select=select,result_1=result_1,
                                              result_1_1=result_1_1,result_2=result_2,result_2_2=result_2_2,result_3=result_3,result_3_3=result_3_3,
                                              result_4=result_4,result_4_4=result_4_4,result_5=result_5,result_5_5=result_5_5,result_6=result_6,result_6_6 =result_6_6,result_7 = result_7,
-                                             result_7_7=result_7_7,metho_select=metho_select,result_8=result_8,result_8_8=result_8_8,result_9=result_9,
+                                             result_7_7=result_7_7,metho_select=metho_select,metho_custom=metho_custom,method_1=method_1,method_2=method_2,method_3=method_3,method_4=method_4,method_5=method_5,method_6=method_6,method_7=method_7,method_9=method_9,method_10=method_10,method_11=method_11,method_12=method_12,method_13=method_13,method_14=method_14,method_15=method_15,method_16=method_16,method_17=method_17,method_18=method_18,method_19=method_19,method_20=method_20,method_21=method_21,method_22=method_22,method_23=method_23,method_24=method_24,method_25=method_25,method_26=method_26,method_27=method_27,method_28=method_28,method_29=method_29,method_30=method_30,method_31=method_31,result_8=result_8,result_8_8=result_8_8,result_9=result_9,
                                              result_9_9=result_9_9,result_10=result_10,result_10_10=result_10_10,result_11=result_11,result_11_11=result_11_11,
                                              result_12=result_12,result_12_12=result_12_12,result_13=result_13,result_13_13=result_13_13,result_14=result_14,
                                              result_14_14=result_14_14,result_15=result_15,result_15_15=result_15_15,result_16=result_16,result_16_16=result_16_16,
@@ -1970,6 +2001,37 @@ def wasteWAter2Update(request,pk):
           ww.result_7 = request.POST['result_7']
           ww.result_7_7 = request.POST['result_7_7']
           ww.metho_select = request.POST.get('metho_select')
+          ww.metho_custom = request.POST.get('metho_custom')
+          ww.method_1 = request.POST.get('method_1')
+          ww.method_2 = request.POST.get('method_2')
+          ww.method_3 = request.POST.get('method_3')
+          ww.method_4 = request.POST.get('method_4')
+          ww.method_5 = request.POST.get('method_5')
+          ww.method_6 = request.POST.get('method_6')
+          ww.method_7 = request.POST.get('method_7')
+          ww.method_9 = request.POST.get('method_9')
+          ww.method_10 = request.POST.get('method_10')
+          ww.method_11 = request.POST.get('method_11')
+          ww.method_12 = request.POST.get('method_12')
+          ww.method_13 = request.POST.get('method_13')
+          ww.method_14 = request.POST.get('method_14')
+          ww.method_15 = request.POST.get('method_15')
+          ww.method_16 = request.POST.get('method_16')
+          ww.method_17 = request.POST.get('method_17')
+          ww.method_18 = request.POST.get('method_18')
+          ww.method_19 = request.POST.get('method_19')
+          ww.method_20 = request.POST.get('method_20')
+          ww.method_21 = request.POST.get('method_21')
+          ww.method_22 = request.POST.get('method_22')
+          ww.method_23 = request.POST.get('method_23')
+          ww.method_24 = request.POST.get('method_24')
+          ww.method_25 = request.POST.get('method_25')
+          ww.method_26 = request.POST.get('method_26')
+          ww.method_27 = request.POST.get('method_27')
+          ww.method_28 = request.POST.get('method_28')
+          ww.method_29 = request.POST.get('method_29')
+          ww.method_30 = request.POST.get('method_30')
+          ww.method_31 = request.POST.get('method_31')
           ww.result_8 = request.POST['result_8']
           ww.result_8_8 = request.POST['result_8_8']
           ww.result_9 = request.POST['result_9']
@@ -2293,115 +2355,115 @@ def wasteWater2Pdf(request,pk):
 
           if ww.result_1:
                if ww.select =="SEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,"≤ 3C","≤ 3C","≤ 3C"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,"≤ 3C","≤ 3C","≤ 3C"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="PEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="NEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2 and ww.select =="SEQS":
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2,"6-9","6-9","6-9"]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,"6-9","6-9","6-9"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2 and ww.select =="PEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2 and ww.select =="NEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,"1","1","1"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_3 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif  ww.result_3 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_4 and ww.select =="SEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,"80","250","80"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,"80","250","80"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4 and ww.select =="PEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4 and ww.select =="NEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5 and ww.select =="SEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,"150","400","400"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,"150","400","400"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5 and ww.select =="PEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5 and ww.select =="NEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_6 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,"3500","3500","3500"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,"3500","3500","3500"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,"200","400","200"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,"200","400","200"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -2448,10 +2510,18 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,"10","10","10"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,"10","10","10"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           elif ww.result_8 and ww.select =="PEQS":
                if ww.metho_select == "APHA":
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
@@ -2460,375 +2530,379 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9 and ww.select =="SEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,"0.1","0.1","0.1"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,"0.1","0.1","0.1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9 and ww.select =="PEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9 and ww.select =="NEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_10 and ww.select =="SEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,"1","1","1"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10 and ww.select =="PEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10 and ww.select =="NEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_11 and ww.select =="SEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,"8","8","8"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,"8","8","8"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11 and ww.select =="PEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11 and ww.select =="NEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_12 and ww.select =="SEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12 and ww.select =="PEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12 and ww.select =="NEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_13 and ww.select =="SEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13 and ww.select =="PEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13 and ww.select =="NEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_14 and ww.select =="SEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,"0.01","0.01","0.01"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,"0.01","0.01","0.01"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14 and ww.select =="PEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14 and ww.select =="NEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_15 and ww.select =="SEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,"1","1","1"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15 and ww.select =="PEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15 and ww.select =="NEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16 and ww.select =="SEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16 and ww.select =="PEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16 and ww.select =="NEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17 and ww.select =="SEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,"1","1","1"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17 and ww.select =="PEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17 and ww.select =="NEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18 and ww.select =="SEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,"5","5","5"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,"5","5","5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18 and ww.select =="PEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18 and ww.select =="NEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_19 and ww.select =="SEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,"1","1","1"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19 and ww.select =="PEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19 and ww.select =="NEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20 and ww.select =="SEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,"1","1","1"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20 and ww.select =="PEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20 and ww.select =="NEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_21 and ww.select =="SEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,"1000","1000","**SC"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,"1000","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21 and ww.select =="PEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21 and ww.select =="NEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22 and ww.select =="SEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,"1","1","1"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22 and ww.select =="PEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22 and ww.select =="NEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23 and ww.select =="SEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,"10","10","10"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,"10","10","10"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23 and ww.select =="PEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23 and ww.select =="NEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_24 and ww.select =="SEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,"40","40","40"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,"40","40","40"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24 and ww.select =="PEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24 and ww.select =="NEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,"2","2","2"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,"2","2","2"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_26 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,"600","1000","**SC"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,"600","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27 and ww.select =="SEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,"20","20","20"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,"20","20","20"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27 and ww.select =="PEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27 and ww.select =="NEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_28 and ww.select =="SEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,"0.15","0.15","0.15"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,"0.15","0.15","0.15"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28 and ww.select =="PEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28 and ww.select =="NEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_29 and ww.select =="SEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,"0.1","0.3","0.3"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,"0.1","0.3","0.3"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29 and ww.select =="PEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29 and ww.select =="NEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30 and ww.select =="SEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,"6","6","6"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,"6","6","6"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30 and ww.select =="PEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30 and ww.select =="NEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31 and ww.select =="SEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31 and ww.select =="PEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31 and ww.select =="NEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -2918,115 +2992,115 @@ def wasteWater2Pdf(request,pk):
 
           if ww.result_1_1:
                if ww.select =="SEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="PEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="NEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2_2 and ww.select =="SEQS":
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2_2,"6-9","6-9","6-9"]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2_2,"6-9","6-9","6-9"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2_2 and ww.select =="PEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2_2 and ww.select =="NEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3_3 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,"1","1","1"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_3_3 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif  ww.result_3_3 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_4_4 and ww.select =="SEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,"80","250","80"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,"80","250","80"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4_4 and ww.select =="PEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4_4 and ww.select =="NEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5_5 and ww.select =="SEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,"150","400","400"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,"150","400","400"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5_5 and ww.select =="PEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5_5 and ww.select =="NEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_6_6 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,"3500","3500","3500"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,"3500","3500","3500"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6_6 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6_6 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7_7 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,"200","400","200"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,"200","400","200"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7_7 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7_7 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -3073,10 +3147,18 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,"10","10","10"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,"10","10","10"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           elif ww.result_8_8 and ww.select =="PEQS":
                if ww.metho_select == "APHA":
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
@@ -3085,375 +3167,379 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9_9 and ww.select =="SEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,"0.1","0.1","0.1"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,"0.1","0.1","0.1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9_9 and ww.select =="PEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9_9 and ww.select =="NEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_10_10 and ww.select =="SEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,"1","1","1"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10_10 and ww.select =="PEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10_10 and ww.select =="NEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_11_11 and ww.select =="SEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,"8","8","8"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,"8","8","8"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11_11 and ww.select =="PEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11_11 and ww.select =="NEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_12_12 and ww.select =="SEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12_12 and ww.select =="PEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12_12 and ww.select =="NEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_13_13 and ww.select =="SEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13_13 and ww.select =="PEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13_13 and ww.select =="NEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_14_14 and ww.select =="SEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,"0.01","0.01","0.01"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,"0.01","0.01","0.01"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14_14 and ww.select =="PEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14_14 and ww.select =="NEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_15_15 and ww.select =="SEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,"1","1","1"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15_15 and ww.select =="PEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15_15 and ww.select =="NEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16_16 and ww.select =="SEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16_16 and ww.select =="PEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16_16 and ww.select =="NEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17_17 and ww.select =="SEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,"1","1","1"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17_17 and ww.select =="PEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17_17 and ww.select =="NEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18_18 and ww.select =="SEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,"5","5","5"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,"5","5","5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18_18 and ww.select =="PEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18_18 and ww.select =="NEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_19_19 and ww.select =="SEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,"1","1","1"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19_19 and ww.select =="PEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19_19 and ww.select =="NEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20_20 and ww.select =="SEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,"1","1","1"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20_20 and ww.select =="PEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20_20 and ww.select =="NEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_21_21 and ww.select =="SEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,"1000","1000","**SC"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,"1000","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21_21 and ww.select =="PEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21_21 and ww.select =="NEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22_22 and ww.select =="SEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,"1","1","1"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22_22 and ww.select =="PEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22_22 and ww.select =="NEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23_23 and ww.select =="SEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,"10","10","10"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,"10","10","10"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23_23 and ww.select =="PEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23_23 and ww.select =="NEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_24_24 and ww.select =="SEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,"40","40","40"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,"40","40","40"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24_24 and ww.select =="PEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24_24 and ww.select =="NEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25_25 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,"2","2","2"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,"2","2","2"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25_25 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25_25 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_26_26 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,"600","1000","**SC"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,"600","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26_26 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26_26 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27_27 and ww.select =="SEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,"20","20","20"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,"20","20","20"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27_27 and ww.select =="PEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27_27 and ww.select =="NEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_28_28 and ww.select =="SEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,"0.15","0.15","0.15"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,"0.15","0.15","0.15"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28_28 and ww.select =="PEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28_28 and ww.select =="NEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_29_29 and ww.select =="SEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,"0.1","0.3","0.3"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,"0.1","0.3","0.3"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29_29 and ww.select =="PEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29_29 and ww.select =="NEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30_30 and ww.select =="SEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,"6","6","6"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,"6","6","6"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30_30 and ww.select =="PEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30_30 and ww.select =="NEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31_31 and ww.select =="SEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31_31 and ww.select =="PEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31_31 and ww.select =="NEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -3543,47 +3629,47 @@ def wasteWater2Pdf(request,pk):
           sr_no = 1
 
           if ww.result_1_1:
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,ww.cutomLimit2]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,ww.cutomLimit2]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2_2:
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2_2,ww.cutomLimit3]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2_2,ww.cutomLimit3]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3_3:
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,ww.cutomLimit4]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,ww.cutomLimit4]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_4_4:
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,ww.cutomLimit5]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,ww.cutomLimit5]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5_5:
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,ww.cutomLimit6]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,ww.cutomLimit6]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_6_6:
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,ww.cutomLimit7]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,ww.cutomLimit7]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7_7:
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,ww.cutomLimit8]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,ww.cutomLimit8]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -3606,137 +3692,141 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,ww.cutomLimit9]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9_9:
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,ww.cutomLimit10]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,ww.cutomLimit10]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
      
 
           if ww.result_10_10:
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,ww.cutomLimit11]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,ww.cutomLimit11]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_11_11:
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,ww.cutomLimit12]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,ww.cutomLimit12]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
          
           if ww.result_12_12:
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,ww.cutomLimit13]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,ww.cutomLimit13]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
           if ww.result_13_13:
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,ww.cutomLimit14]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,ww.cutomLimit14]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_14_14:
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,ww.cutomLimit15]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,ww.cutomLimit15]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
 
           if ww.result_15_15:
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,ww.cutomLimit16]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,ww.cutomLimit16]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16_16:
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,ww.cutomLimit17]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,ww.cutomLimit17]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17_17:
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,ww.cutomLimit18]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,ww.cutomLimit18]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18_18:
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,ww.cutomLimit19]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,ww.cutomLimit19]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_19_19:
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,ww.cutomLimit20]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,ww.cutomLimit20]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20_20:
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,ww.cutomLimit21]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,ww.cutomLimit21]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_21_21:
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,ww.cutomLimit22]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,ww.cutomLimit22]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22_22:
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,ww.cutomLimit23]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,ww.cutomLimit23]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23_23:
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,ww.cutomLimit24]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,ww.cutomLimit24]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_24_24:
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,ww.cutomLimit25]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,ww.cutomLimit25]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25_25:
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,ww.cutomLimit26]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,ww.cutomLimit26]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_26_26:
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,ww.cutomLimit27]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,ww.cutomLimit27]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27_27:
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,ww.cutomLimit28]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,ww.cutomLimit28]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_28_28:
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,ww.cutomLimit29]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,ww.cutomLimit29]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_29_29:
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,ww.cutomLimit30]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,ww.cutomLimit30]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30_30:
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,ww.cutomLimit31]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,ww.cutomLimit31]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31_31:
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,ww.cutomLimit32]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,ww.cutomLimit32]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -3815,47 +3905,47 @@ def wasteWater2Pdf(request,pk):
           sr_no = 1
 
           if ww.result_1:
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.cutomLimit2]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.cutomLimit2]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2:
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2,ww.cutomLimit3]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,ww.cutomLimit3]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3:
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.cutomLimit4]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.cutomLimit4]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_4:
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.cutomLimit5]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.cutomLimit5]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5:
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.cutomLimit6]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.cutomLimit6]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_6:
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.cutomLimit7]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.cutomLimit7]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7:
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.cutomLimit8]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.cutomLimit8]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -3878,137 +3968,141 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.cutomLimit9]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9:
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.cutomLimit10]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.cutomLimit10]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
      
 
           if ww.result_10:
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.cutomLimit11]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.cutomLimit11]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_11:
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.cutomLimit12]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.cutomLimit12]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
          
           if ww.result_12:
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.cutomLimit13]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.cutomLimit13]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
           if ww.result_13:
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.cutomLimit14]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.cutomLimit14]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_14:
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.cutomLimit15]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.cutomLimit15]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
 
           if ww.result_15:
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.cutomLimit16]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.cutomLimit16]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16:
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.cutomLimit17]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.cutomLimit17]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17:
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.cutomLimit18]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.cutomLimit18]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18:
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.cutomLimit19]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.cutomLimit19]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_19:
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.cutomLimit20]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.cutomLimit20]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20:
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.cutomLimit21]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.cutomLimit21]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_21:
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.cutomLimit22]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.cutomLimit22]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22:
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.cutomLimit23]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.cutomLimit23]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23:
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.cutomLimit24]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.cutomLimit24]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_24:
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.cutomLimit25]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.cutomLimit25]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25:
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.cutomLimit26]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.cutomLimit26]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_26:
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.cutomLimit27]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.cutomLimit27]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27:
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.cutomLimit28]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.cutomLimit28]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_28:
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.cutomLimit29]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.cutomLimit29]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_29:
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.cutomLimit30]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.cutomLimit30]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30:
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.cutomLimit31]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.cutomLimit31]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31:
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.cutomLimit32]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.cutomLimit32]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -4088,115 +4182,115 @@ def wasteWater2Pdf(request,pk):
 
           if ww.result_1 or ww.result_1_1:
                if ww.select =="SEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="PEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="NEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if (ww.result_2 or ww.result_2_2) and ww.select =="SEQS":
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2,ww.result_2_2,"6-9","6-9","6-9"]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,"6-9","6-9","6-9"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_2 or ww.result_2_2) and ww.select =="PEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_2 or ww.result_2_2) and ww.select =="NEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if (ww.result_3 or ww.result_3_3) and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.result_3_3,"1","1","1"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_3 or ww.result_3_3) and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_3 or ww.result_3_3) and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if (ww.result_4 or ww.result_4_4) and ww.select =="SEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.result_4_4,"80","250","80"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,"80","250","80"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_4 or ww.result_4_4) and ww.select =="PEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_4 or ww.result_4_4) and ww.select =="NEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if (ww.result_5 or ww.result_5_5) and ww.select =="SEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.result_5_5,"150","400","400"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,"150","400","400"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_5 or ww.result_5_5) and ww.select =="PEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif(ww.result_5 or ww.result_5_5) and ww.select =="NEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if (ww.result_6 or ww.result_6_6) and ww.select =="SEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.result_6_6,"3500","3500","3500"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,"3500","3500","3500"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_6 or ww.result_6_6) and ww.select =="PEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_6 or ww.result_6_6) and ww.select =="NEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if (ww.result_7 or ww.result_7_7) and ww.select =="SEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.result_7_7,"200","400","200"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,"200","400","200"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_7 or ww.result_7_7) and ww.select =="PEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_7 or ww.result_7_7) and ww.select =="NEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -4243,10 +4337,18 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,"10","10","10"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,"10","10","10"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           elif (ww.result_8 or ww.result_8_8) and ww.select =="PEQS":
                if ww.metho_select == "APHA":
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
@@ -4255,374 +4357,378 @@ def wasteWater2Pdf(request,pk):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if (ww.result_9 or ww.result_9_9) and ww.select =="SEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","0.1"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","0.1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_9 or ww.result_9_9) and ww.select =="PEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_9 or ww.result_9_9) and ww.select =="NEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if (ww.result_10 or ww.result_10_10) and ww.select =="SEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.result_10_10,"1","1","1"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_10 or ww.result_10_10) and ww.select =="PEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_10 or ww.result_10_10) and ww.select =="NEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if (ww.result_11 or ww.result_11_11) and ww.select =="SEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.result_11_11,"8","8","8"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,"8","8","8"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_11 or ww.result_11_11) and ww.select =="PEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_11 or ww.result_11_11) and ww.select =="NEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_12 or ww.result_12_12) and ww.select =="SEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_12 or ww.result_12_12) and ww.select =="PEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_12 or ww.result_12_12) and ww.select =="NEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_13 or ww.result_13_13) and ww.select =="SEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_13 or ww.result_13_13) and ww.select =="PEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_13 or ww.result_13_13) and ww.select =="NEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_14 or ww.result_14_14) and ww.select =="SEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","0.01"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","0.01"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_14 or ww.result_14_14) and ww.select =="PEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_14 or ww.result_14_14) and ww.select =="NEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_15 or ww.result_15_15) and ww.select =="SEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.result_15_15,"1","1","1"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_15 or ww.result_15_15) and ww.select =="PEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_15 or ww.result_15_15) and ww.select =="NEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_16 or ww.result_16_16) and ww.select =="SEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_16 or ww.result_16_16) and ww.select =="PEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_16 or ww.result_16_16) and ww.select =="NEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_17 or ww.result_17_17) and ww.select =="SEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.result_17_17,"1","1","1"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_17 or ww.result_17_17) and ww.select =="PEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_17 or ww.result_17_17) and ww.select =="NEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_18 or ww.result_18_18) and ww.select =="SEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.result_18_18,"5","5","5"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,"5","5","5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_18 or ww.result_18_18) and ww.select =="PEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_18 or ww.result_18_18) and ww.select =="NEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_19 or ww.result_19_19) and ww.select =="SEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.result_19_19,"1","1","1"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_19 or ww.result_19_19) and ww.select =="PEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_19 or ww.result_19_19) and ww.select =="NEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if (ww.result_20 or ww.result_20_20) and ww.select =="SEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","1"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_20 or ww.result_20_20) and ww.select =="PEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
           elif (ww.result_20 or ww.result_20_20) and ww.select =="NEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_21 or ww.result_21_21) and ww.select =="SEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.result_21_21,"1000","1000","**SC"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,"1000","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_21 or ww.result_21_21) and ww.select =="PEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_21 or ww.result_21_21) and ww.select =="NEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_22 or ww.result_22_22) and ww.select =="SEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.result_22_22,"1","1","1"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_22 or ww.result_22_22) and ww.select =="PEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_22 or ww.result_22_22) and ww.select =="NEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_23 or ww.result_23_23) and ww.select =="SEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.result_23_23,"10","10","10"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,"10","10","10"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_23 or ww.result_23_23) and ww.select =="PEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_23 or ww.result_23_23) and ww.select =="NEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_24 or ww.result_24_24) and ww.select =="SEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.result_24_24,"40","40","40"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,"40","40","40"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_24 or ww.result_24_24) and ww.select =="PEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_24 or ww.result_24_24) and ww.select =="NEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_25 or ww.result_25_25) and ww.select =="SEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.result_25_25,"2","2","2"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,"2","2","2"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_26 or ww.result_26_26) and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.result_26_26,"600","1000","**SC"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,"600","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_26 or ww.result_26_26) and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_26 or ww.result_26_26) and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_27 or ww.result_27_27) and ww.select =="SEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.result_27_27,"20","20","20"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,"20","20","20"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_27 or ww.result_27_27) and ww.select =="PEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_27 or ww.result_27_27) and ww.select =="NEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_28 or ww.result_28_28) and ww.select =="SEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","0.15"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","0.15"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_28 or ww.result_28_28) and ww.select =="PEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_28 or ww.result_28_28) and ww.select =="NEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_29 or ww.result_29_29) and ww.select =="SEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","0.3"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","0.3"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_29 or ww.result_29_29) and ww.select =="PEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_29 or ww.result_29_29) and ww.select =="NEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_30 or ww.result_30_30) and ww.select =="SEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.result_30_30,"6","6","6"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,"6","6","6"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_30 or ww.result_30_30) and ww.select =="PEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_30 or ww.result_30_30) and ww.select =="NEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_31 or ww.result_31_31) and ww.select =="SEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_31 or ww.result_31_31) and ww.select =="PEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_31 or ww.result_31_31) and ww.select =="NEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -5078,115 +5184,115 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
           if ww.result_1:
                if ww.select =="SEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,"≤ 3C","≤ 3C","≤ 3C"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,"≤ 3C","≤ 3C","≤ 3C"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="PEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="NEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2 and ww.select =="SEQS":
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2,"6-9","6-9","6-9"]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,"6-9","6-9","6-9"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2 and ww.select =="PEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2 and ww.select =="NEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,"1","1","1"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_3 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif  ww.result_3 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_4 and ww.select =="SEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,"80","250","80"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,"80","250","80"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4 and ww.select =="PEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4 and ww.select =="NEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5 and ww.select =="SEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,"150","400","400"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,"150","400","400"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5 and ww.select =="PEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5 and ww.select =="NEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_6 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,"3500","3500","3500"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,"3500","3500","3500"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,"200","400","200"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,"200","400","200"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -5233,10 +5339,18 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,"10","10","10"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,"10","10","10"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           elif ww.result_8 and ww.select =="PEQS":
                if ww.metho_select == "APHA":
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
@@ -5245,375 +5359,379 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9 and ww.select =="SEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,"0.1","0.1","0.1"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,"0.1","0.1","0.1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9 and ww.select =="PEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9 and ww.select =="NEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_10 and ww.select =="SEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,"1","1","1"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10 and ww.select =="PEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10 and ww.select =="NEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_11 and ww.select =="SEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,"8","8","8"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,"8","8","8"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11 and ww.select =="PEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11 and ww.select =="NEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_12 and ww.select =="SEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12 and ww.select =="PEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12 and ww.select =="NEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_13 and ww.select =="SEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13 and ww.select =="PEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13 and ww.select =="NEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_14 and ww.select =="SEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,"0.01","0.01","0.01"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,"0.01","0.01","0.01"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14 and ww.select =="PEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14 and ww.select =="NEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_15 and ww.select =="SEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,"1","1","1"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15 and ww.select =="PEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15 and ww.select =="NEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16 and ww.select =="SEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16 and ww.select =="PEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16 and ww.select =="NEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17 and ww.select =="SEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,"1","1","1"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17 and ww.select =="PEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17 and ww.select =="NEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18 and ww.select =="SEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,"5","5","5"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,"5","5","5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18 and ww.select =="PEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18 and ww.select =="NEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_19 and ww.select =="SEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,"1","1","1"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19 and ww.select =="PEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19 and ww.select =="NEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20 and ww.select =="SEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,"1","1","1"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20 and ww.select =="PEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20 and ww.select =="NEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_21 and ww.select =="SEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,"1000","1000","**SC"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,"1000","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21 and ww.select =="PEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21 and ww.select =="NEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22 and ww.select =="SEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,"1","1","1"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22 and ww.select =="PEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22 and ww.select =="NEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23 and ww.select =="SEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,"10","10","10"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,"10","10","10"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23 and ww.select =="PEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23 and ww.select =="NEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_24 and ww.select =="SEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,"40","40","40"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,"40","40","40"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24 and ww.select =="PEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24 and ww.select =="NEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,"2","2","2"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,"2","2","2"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_26 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,"600","1000","**SC"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,"600","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27 and ww.select =="SEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,"20","20","20"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,"20","20","20"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27 and ww.select =="PEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27 and ww.select =="NEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_28 and ww.select =="SEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,"0.15","0.15","0.15"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,"0.15","0.15","0.15"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28 and ww.select =="PEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28 and ww.select =="NEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_29 and ww.select =="SEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,"0.1","0.3","0.3"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,"0.1","0.3","0.3"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29 and ww.select =="PEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29 and ww.select =="NEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30 and ww.select =="SEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,"6","6","6"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,"6","6","6"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30 and ww.select =="PEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30 and ww.select =="NEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31 and ww.select =="SEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31 and ww.select =="PEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31 and ww.select =="NEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -5703,115 +5821,115 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
           if ww.result_1_1:
                if ww.select =="SEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="PEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="NEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2_2 and ww.select =="SEQS":
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2_2,"6-9","6-9","6-9"]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2_2,"6-9","6-9","6-9"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2_2 and ww.select =="PEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_2_2 and ww.select =="NEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3_3 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,"1","1","1"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_3_3 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif  ww.result_3_3 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_4_4 and ww.select =="SEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,"80","250","80"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,"80","250","80"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4_4 and ww.select =="PEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_4_4 and ww.select =="NEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5_5 and ww.select =="SEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,"150","400","400"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,"150","400","400"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5_5 and ww.select =="PEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_5_5 and ww.select =="NEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_6_6 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,"3500","3500","3500"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,"3500","3500","3500"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6_6 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_6_6 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7_7 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,"200","400","200"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,"200","400","200"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7_7 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_7_7 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -5858,10 +5976,18 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,"10","10","10"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,"10","10","10"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           elif ww.result_8_8 and ww.select =="PEQS":
                if ww.metho_select == "APHA":
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
@@ -5870,375 +5996,379 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9_9 and ww.select =="SEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,"0.1","0.1","0.1"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,"0.1","0.1","0.1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9_9 and ww.select =="PEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_9_9 and ww.select =="NEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_10_10 and ww.select =="SEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,"1","1","1"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10_10 and ww.select =="PEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_10_10 and ww.select =="NEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_11_11 and ww.select =="SEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,"8","8","8"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,"8","8","8"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11_11 and ww.select =="PEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_11_11 and ww.select =="NEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_12_12 and ww.select =="SEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12_12 and ww.select =="PEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_12_12 and ww.select =="NEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_13_13 and ww.select =="SEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13_13 and ww.select =="PEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_13_13 and ww.select =="NEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_14_14 and ww.select =="SEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,"0.01","0.01","0.01"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,"0.01","0.01","0.01"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14_14 and ww.select =="PEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_14_14 and ww.select =="NEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_15_15 and ww.select =="SEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,"1","1","1"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15_15 and ww.select =="PEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_15_15 and ww.select =="NEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16_16 and ww.select =="SEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16_16 and ww.select =="PEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_16_16 and ww.select =="NEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17_17 and ww.select =="SEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,"1","1","1"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17_17 and ww.select =="PEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_17_17 and ww.select =="NEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18_18 and ww.select =="SEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,"5","5","5"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,"5","5","5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18_18 and ww.select =="PEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_18_18 and ww.select =="NEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_19_19 and ww.select =="SEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,"1","1","1"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19_19 and ww.select =="PEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_19_19 and ww.select =="NEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20_20 and ww.select =="SEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,"1","1","1"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20_20 and ww.select =="PEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_20_20 and ww.select =="NEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_21_21 and ww.select =="SEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,"1000","1000","**SC"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,"1000","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21_21 and ww.select =="PEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_21_21 and ww.select =="NEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22_22 and ww.select =="SEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,"1","1","1"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22_22 and ww.select =="PEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_22_22 and ww.select =="NEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23_23 and ww.select =="SEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,"10","10","10"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,"10","10","10"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23_23 and ww.select =="PEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_23_23 and ww.select =="NEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_24_24 and ww.select =="SEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,"40","40","40"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,"40","40","40"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24_24 and ww.select =="PEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_24_24 and ww.select =="NEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25_25 and ww.select =="SEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,"2","2","2"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,"2","2","2"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25_25 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25_25 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_26_26 and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,"600","1000","**SC"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,"600","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26_26 and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_26_26 and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27_27 and ww.select =="SEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,"20","20","20"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,"20","20","20"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27_27 and ww.select =="PEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_27_27 and ww.select =="NEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_28_28 and ww.select =="SEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,"0.15","0.15","0.15"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,"0.15","0.15","0.15"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28_28 and ww.select =="PEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_28_28 and ww.select =="NEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_29_29 and ww.select =="SEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,"0.1","0.3","0.3"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,"0.1","0.3","0.3"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29_29 and ww.select =="PEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_29_29 and ww.select =="NEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30_30 and ww.select =="SEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,"6","6","6"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,"6","6","6"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30_30 and ww.select =="PEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_30_30 and ww.select =="NEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31_31 and ww.select =="SEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31_31 and ww.select =="PEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_31_31 and ww.select =="NEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -6328,47 +6458,47 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
           sr_no = 1
 
           if ww.result_1_1:
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1_1,ww.cutomLimit2]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1_1,ww.cutomLimit2]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2_2:
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2_2,ww.cutomLimit3]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2_2,ww.cutomLimit3]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3_3:
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3_3,ww.cutomLimit4]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3_3,ww.cutomLimit4]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_4_4:
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4_4,ww.cutomLimit5]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4_4,ww.cutomLimit5]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5_5:
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5_5,ww.cutomLimit6]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5_5,ww.cutomLimit6]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_6_6:
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6_6,ww.cutomLimit7]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6_6,ww.cutomLimit7]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7_7:
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7_7,ww.cutomLimit8]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7_7,ww.cutomLimit8]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -6391,137 +6521,141 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8_8,ww.cutomLimit9]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9_9:
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9_9,ww.cutomLimit10]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9_9,ww.cutomLimit10]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
      
 
           if ww.result_10_10:
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10_10,ww.cutomLimit11]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10_10,ww.cutomLimit11]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_11_11:
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11_11,ww.cutomLimit12]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11_11,ww.cutomLimit12]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
          
           if ww.result_12_12:
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12_12,ww.cutomLimit13]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12_12,ww.cutomLimit13]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
           if ww.result_13_13:
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13_13,ww.cutomLimit14]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13_13,ww.cutomLimit14]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_14_14:
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14_14,ww.cutomLimit15]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14_14,ww.cutomLimit15]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
 
           if ww.result_15_15:
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15_15,ww.cutomLimit16]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15_15,ww.cutomLimit16]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16_16:
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16_16,ww.cutomLimit17]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16_16,ww.cutomLimit17]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17_17:
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17_17,ww.cutomLimit18]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17_17,ww.cutomLimit18]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18_18:
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18_18,ww.cutomLimit19]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18_18,ww.cutomLimit19]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_19_19:
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19_19,ww.cutomLimit20]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19_19,ww.cutomLimit20]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20_20:
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20_20,ww.cutomLimit21]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20_20,ww.cutomLimit21]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_21_21:
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21_21,ww.cutomLimit22]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21_21,ww.cutomLimit22]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22_22:
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22_22,ww.cutomLimit23]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22_22,ww.cutomLimit23]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23_23:
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23_23,ww.cutomLimit24]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23_23,ww.cutomLimit24]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_24_24:
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24_24,ww.cutomLimit25]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24_24,ww.cutomLimit25]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25_25:
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25_25,ww.cutomLimit26]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25_25,ww.cutomLimit26]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_26_26:
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26_26,ww.cutomLimit27]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26_26,ww.cutomLimit27]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27_27:
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27_27,ww.cutomLimit28]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27_27,ww.cutomLimit28]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_28_28:
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28_28,ww.cutomLimit29]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28_28,ww.cutomLimit29]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_29_29:
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29_29,ww.cutomLimit30]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29_29,ww.cutomLimit30]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30_30:
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30_30,ww.cutomLimit31]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30_30,ww.cutomLimit31]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31_31:
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31_31,ww.cutomLimit32]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31_31,ww.cutomLimit32]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -6600,47 +6734,47 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
           sr_no = 1
 
           if ww.result_1:
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.cutomLimit2]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.cutomLimit2]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if ww.result_2:
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2,ww.cutomLimit3]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,ww.cutomLimit3]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_3:
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.cutomLimit4]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.cutomLimit4]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if ww.result_4:
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.cutomLimit5]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.cutomLimit5]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_5:
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.cutomLimit6]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.cutomLimit6]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_6:
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.cutomLimit7]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.cutomLimit7]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if ww.result_7:
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.cutomLimit8]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.cutomLimit8]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -6663,137 +6797,141 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.cutomLimit9]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if ww.result_9:
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.cutomLimit10]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.cutomLimit10]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
      
 
           if ww.result_10:
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.cutomLimit11]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.cutomLimit11]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if ww.result_11:
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.cutomLimit12]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.cutomLimit12]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
          
           if ww.result_12:
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.cutomLimit13]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.cutomLimit13]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
           if ww.result_13:
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.cutomLimit14]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.cutomLimit14]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_14:
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.cutomLimit15]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.cutomLimit15]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
 
           if ww.result_15:
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.cutomLimit16]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.cutomLimit16]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_16:
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.cutomLimit17]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.cutomLimit17]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_17:
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.cutomLimit18]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.cutomLimit18]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_18:
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.cutomLimit19]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.cutomLimit19]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_19:
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.cutomLimit20]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.cutomLimit20]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_20:
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.cutomLimit21]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.cutomLimit21]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_21:
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.cutomLimit22]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.cutomLimit22]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_22:
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.cutomLimit23]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.cutomLimit23]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_23:
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.cutomLimit24]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.cutomLimit24]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_24:
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.cutomLimit25]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.cutomLimit25]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_25:
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.cutomLimit26]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.cutomLimit26]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_26:
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.cutomLimit27]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.cutomLimit27]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_27:
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.cutomLimit28]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.cutomLimit28]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_28:
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.cutomLimit29]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.cutomLimit29]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           if ww.result_29:
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.cutomLimit30]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.cutomLimit30]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_30:
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.cutomLimit31]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.cutomLimit31]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if ww.result_31:
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.cutomLimit32]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.cutomLimit32]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -6873,115 +7011,115 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
           if ww.result_1 or ww.result_1_1:
                if ww.select =="SEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","≤ 3C"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="PEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
                elif ww.select =="NEQS":
-                    a = [str(sr_no),"Temperature 40°C","*APHA 2550","°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,"≤ 3C","≤ 3C","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
           
 
           if (ww.result_2 or ww.result_2_2) and ww.select =="SEQS":
-               a = [str(sr_no),"pH","*APHA 4500 H-B","-",ww.result_2,ww.result_2_2,"6-9","6-9","6-9"]
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,"6-9","6-9","6-9"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_2 or ww.result_2_2) and ww.select =="PEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_2 or ww.result_2_2) and ww.select =="NEQS":
-               a = [str(sr_no),"pH","APHA 4500 H-B","-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
+               a = [str(sr_no),"pH",(ww.method_2 or "APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,"6-9","6-9","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if (ww.result_3 or ww.result_3_3) and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.result_3_3,"1","1","1"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_3 or ww.result_3_3) and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_3 or ww.result_3_3) and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphide","*APHA 4500-S2-D","mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if (ww.result_4 or ww.result_4_4) and ww.select =="SEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.result_4_4,"80","250","80"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,"80","250","80"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_4 or ww.result_4_4) and ww.select =="PEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_4 or ww.result_4_4) and ww.select =="NEQS":
-               a = [str(sr_no),"Biological Oxygen Demand(BOD)5","HACH 10099","mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,"80","250","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if (ww.result_5 or ww.result_5_5) and ww.select =="SEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.result_5_5,"150","400","400"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,"150","400","400"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_5 or ww.result_5_5) and ww.select =="PEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif(ww.result_5 or ww.result_5_5) and ww.select =="NEQS":
-               a = [str(sr_no),"Chemical Oxygen Demand(COD)","*HACH 8000","mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,"150","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           
 
           if (ww.result_6 or ww.result_6_6) and ww.select =="SEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.result_6_6,"3500","3500","3500"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,"3500","3500","3500"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_6 or ww.result_6_6) and ww.select =="PEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_6 or ww.result_6_6) and ww.select =="NEQS":
-               a = [str(sr_no),"Total Dissolved Solids (TDS)","*APHA 2540-C","mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,"3500","3500","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if (ww.result_7 or ww.result_7_7) and ww.select =="SEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.result_7_7,"200","400","200"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,"200","400","200"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_7 or ww.result_7_7) and ww.select =="PEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_7 or ww.result_7_7) and ww.select =="NEQS":
-               a = [str(sr_no),"Total Suspended Solids (TSS)","*APHA 2540-D","mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,"200","400","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -7028,10 +7166,18 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,"10","10","10"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,"10","10","10"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           elif (ww.result_8 or ww.result_8_8) and ww.select =="PEQS":
                if ww.metho_select == "APHA":
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
 
@@ -7040,375 +7186,379 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                     a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
                     sr_no = sr_no+1
                     TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,"10","10","-"]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
 
           
 
           if (ww.result_9 or ww.result_9_9) and ww.select =="SEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","0.1"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","0.1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_9 or ww.result_9_9) and ww.select =="PEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_9 or ww.result_9_9) and ww.select =="NEQS":
-               a = [str(sr_no),"Cadmium","*APHA 3111-B","mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,"0.1","0.1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
      
 
           if (ww.result_10 or ww.result_10_10) and ww.select =="SEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.result_10_10,"1","1","1"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_10 or ww.result_10_10) and ww.select =="PEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_10 or ww.result_10_10) and ww.select =="NEQS":
-               a = [str(sr_no),"Copper","*APHA 3111-B","mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           
 
           if (ww.result_11 or ww.result_11_11) and ww.select =="SEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.result_11_11,"8","8","8"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,"8","8","8"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_11 or ww.result_11_11) and ww.select =="PEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_11 or ww.result_11_11) and ww.select =="NEQS":
-               a = [str(sr_no),"Iron","*APHA 3111-B","mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,"8","8","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_12 or ww.result_12_12) and ww.select =="SEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_12 or ww.result_12_12) and ww.select =="PEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_12 or ww.result_12_12) and ww.select =="NEQS":
-               a = [str(sr_no),"Lead","*APHA 3111-B","mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_13 or ww.result_13_13) and ww.select =="SEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_13 or ww.result_13_13) and ww.select =="PEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_13 or ww.result_13_13) and ww.select =="NEQS":
-               a = [str(sr_no),"Manganese","*APHA 3111-B","mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_14 or ww.result_14_14) and ww.select =="SEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","0.01"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","0.01"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_14 or ww.result_14_14) and ww.select =="PEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_14 or ww.result_14_14) and ww.select =="NEQS":
-               a = [str(sr_no),"Mercury","*APHA 3112-B","mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,"0.01","0.01","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_15 or ww.result_15_15) and ww.select =="SEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.result_15_15,"1","1","1"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_15 or ww.result_15_15) and ww.select =="PEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_15 or ww.result_15_15) and ww.select =="NEQS":
-               a = [str(sr_no),"Nickel","*APHA 3111-B","mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_16 or ww.result_16_16) and ww.select =="SEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","0.5"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","0.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_16 or ww.result_16_16) and ww.select =="PEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_16 or ww.result_16_16) and ww.select =="NEQS":
-               a = [str(sr_no),"Selenium","*APHA 3114-B","mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,"0.5","0.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_17 or ww.result_17_17) and ww.select =="SEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.result_17_17,"1","1","1"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_17 or ww.result_17_17) and ww.select =="PEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_17 or ww.result_17_17) and ww.select =="NEQS":
-               a = [str(sr_no),"Chromium","*APHA 3111-B","mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_18 or ww.result_18_18) and ww.select =="SEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.result_18_18,"5","5","5"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,"5","5","5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_18 or ww.result_18_18) and ww.select =="PEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_18 or ww.result_18_18) and ww.select =="NEQS":
-               a = [str(sr_no),"Zinc","*APHA 3111-B","mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,"5","5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_19 or ww.result_19_19) and ww.select =="SEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.result_19_19,"1","1","1"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_19 or ww.result_19_19) and ww.select =="PEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_19 or ww.result_19_19) and ww.select =="NEQS":
-               a = [str(sr_no),"Arsenic","*APHA 3114-B","mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_20 or ww.result_20_20) and ww.select =="SEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","1"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_20 or ww.result_20_20) and ww.select =="PEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_20 or ww.result_20_20) and ww.select =="NEQS":
-               a = [str(sr_no),"Chlorine","HACH 10069","mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_21 or ww.result_21_21) and ww.select =="SEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.result_21_21,"1000","1000","**SC"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,"1000","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_21 or ww.result_21_21) and ww.select =="PEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_21 or ww.result_21_21) and ww.select =="NEQS":
-               a = [str(sr_no),"Chloride","*APHA 4500 CL-B","mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,"1000","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_22 or ww.result_22_22) and ww.select =="SEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.result_22_22,"1","1","1"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,"1","1","1"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_22 or ww.result_22_22) and ww.select =="PEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_22 or ww.result_22_22) and ww.select =="NEQS":
-               a = [str(sr_no),"Cyanide","HACH 8027","mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,"1","1","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_23 or ww.result_23_23) and ww.select =="SEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.result_23_23,"10","10","10"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,"10","10","10"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_23 or ww.result_23_23) and ww.select =="PEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_23 or ww.result_23_23) and ww.select =="NEQS":
-               a = [str(sr_no),"Fluoride","*HACH 8029","mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,"10","10","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_24 or ww.result_24_24) and ww.select =="SEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.result_24_24,"40","40","40"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,"40","40","40"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_24 or ww.result_24_24) and ww.select =="PEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_24 or ww.result_24_24) and ww.select =="NEQS":
-               a = [str(sr_no),"Ammonia","*HACH 8038","mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,"40","40","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_25 or ww.result_25_25) and ww.select =="SEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.result_25_25,"2","2","2"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,"2","2","2"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="PEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif ww.result_25 and ww.select =="NEQS":
-               a = [str(sr_no),"Total Toxic Metals","APHA 3111","mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,"2","2","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_26 or ww.result_26_26) and ww.select =="SEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.result_26_26,"600","1000","**SC"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,"600","1000","**SC"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_26 or ww.result_26_26) and ww.select =="PEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_26 or ww.result_26_26) and ww.select =="NEQS":
-               a = [str(sr_no),"Sulphate","HACH 8051","mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,"600","1000","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_27 or ww.result_27_27) and ww.select =="SEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.result_27_27,"20","20","20"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,"20","20","20"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_27 or ww.result_27_27) and ww.select =="PEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_27 or ww.result_27_27) and ww.select =="NEQS":
-               a = [str(sr_no),"An Ionic Detergent As MBAs","*APHA 5540 C","mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,"20","20","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_28 or ww.result_28_28) and ww.select =="SEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","0.15"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","0.15"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_28 or ww.result_28_28) and ww.select =="PEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_28 or ww.result_28_28) and ww.select =="NEQS":
-               a = [str(sr_no),"Pesticides","USEPA-614.1","mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,"0.15","0.15","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_29 or ww.result_29_29) and ww.select =="SEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","0.3"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","0.3"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_29 or ww.result_29_29) and ww.select =="PEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_29 or ww.result_29_29) and ww.select =="NEQS":
-               a = [str(sr_no),"Phenolic Compounds(as Phenol)","HACH 8047","mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,"0.1","0.3","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_30 or ww.result_30_30) and ww.select =="SEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.result_30_30,"6","6","6"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,"6","6","6"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_30 or ww.result_30_30) and ww.select =="PEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_30 or ww.result_30_30) and ww.select =="NEQS":
-               a = [str(sr_no),"Boron","HACH 8015","mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,"6","6","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
 
           if (ww.result_31 or ww.result_31_31) and ww.select =="SEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","1.5"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","1.5"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_31 or ww.result_31_31) and ww.select =="PEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
           elif (ww.result_31 or ww.result_31_31) and ww.select =="NEQS":
-               a = [str(sr_no),"Barium","HACH 8014","mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,"1.5","1.5","-"]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -7899,6 +8049,37 @@ def wasteWater2cloneSave(request,pk):
           existing_Form.result_7 = request.POST['result_7']
           existing_Form.result_7_7 = request.POST['result_7_7']
           existing_Form.metho_select = request.POST.get('metho_select')
+          existing_Form.metho_custom = request.POST.get('metho_custom')
+          existing_Form.method_1 = request.POST.get('method_1')
+          existing_Form.method_2 = request.POST.get('method_2')
+          existing_Form.method_3 = request.POST.get('method_3')
+          existing_Form.method_4 = request.POST.get('method_4')
+          existing_Form.method_5 = request.POST.get('method_5')
+          existing_Form.method_6 = request.POST.get('method_6')
+          existing_Form.method_7 = request.POST.get('method_7')
+          existing_Form.method_9 = request.POST.get('method_9')
+          existing_Form.method_10 = request.POST.get('method_10')
+          existing_Form.method_11 = request.POST.get('method_11')
+          existing_Form.method_12 = request.POST.get('method_12')
+          existing_Form.method_13 = request.POST.get('method_13')
+          existing_Form.method_14 = request.POST.get('method_14')
+          existing_Form.method_15 = request.POST.get('method_15')
+          existing_Form.method_16 = request.POST.get('method_16')
+          existing_Form.method_17 = request.POST.get('method_17')
+          existing_Form.method_18 = request.POST.get('method_18')
+          existing_Form.method_19 = request.POST.get('method_19')
+          existing_Form.method_20 = request.POST.get('method_20')
+          existing_Form.method_21 = request.POST.get('method_21')
+          existing_Form.method_22 = request.POST.get('method_22')
+          existing_Form.method_23 = request.POST.get('method_23')
+          existing_Form.method_24 = request.POST.get('method_24')
+          existing_Form.method_25 = request.POST.get('method_25')
+          existing_Form.method_26 = request.POST.get('method_26')
+          existing_Form.method_27 = request.POST.get('method_27')
+          existing_Form.method_28 = request.POST.get('method_28')
+          existing_Form.method_29 = request.POST.get('method_29')
+          existing_Form.method_30 = request.POST.get('method_30')
+          existing_Form.method_31 = request.POST.get('method_31')
           existing_Form.result_8 = request.POST['result_8']
           existing_Form.result_8_8 = request.POST['result_8_8']
           existing_Form.result_9 = request.POST['result_9']
