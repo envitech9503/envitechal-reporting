@@ -289,7 +289,21 @@
                             <option class="" {% if data.select1 == 'Industrial Night' %} selected {% endif %} value="Industrial Night">Industrial (Night)</option>
                             <option class="" {% if data.select1 == 'Silence Day' %} selected {% endif %} value="Silence Day">Silence Zone (Day)</option>
                             <option class="" {% if data.select1 == 'Silence Night' %} selected {% endif %} value="Silence Night">Silence Zone (Night)</option>
+                            <option class="" {% if data.select1 == 'Custom' %}selected{% endif %} value="Custom">Custom</option>
                         </select>
+                        <div id="custom_limit_wrap" style="display:none;margin-top:10px">
+                          <label class="font-bold text-lg" for="custom_limit">Custom Limit (dB)</label>
+                          <input id="custom_limit" name="custom_limit" type="text" value="{{data.custom_limit}}" placeholder="e.g. 60" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" style="width:24rem">
+                        </div>
+                        <script>
+                        (function(){
+                          function tog(){ var s=document.getElementById("result_type_1"), w=document.getElementById("custom_limit_wrap"); if(!s||!w)return;
+                            var c=(s.value==="Custom"); w.style.display=c?"block":"none";
+                            document.querySelectorAll("td.res_day").forEach(function(td){ td.style.visibility=c?"hidden":"visible"; }); }
+                          if(window.jQuery){ jQuery("#result_type_1").on("change",tog); } else { var s=document.getElementById("result_type_1"); if(s)s.addEventListener("change",tog); }
+                          document.addEventListener("DOMContentLoaded",tog); tog();
+                        })();
+                        </script>
                     </div>
                 </div>
     
@@ -342,6 +356,10 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -371,6 +389,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -399,6 +419,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -427,6 +449,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -455,6 +479,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -483,6 +509,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -511,6 +539,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -539,6 +569,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -567,6 +599,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -595,6 +629,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -623,6 +659,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -651,6 +689,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}
@@ -679,6 +719,8 @@
                                         50
                                     {% elif data.select1 == 'Silence Night' %}
                                         45
+                                    {% elif data.select1 == 'Custom' %}
+                                        {{ data.custom_limit }}
                                     {% else %}
                                         55
                                     {% endif %}

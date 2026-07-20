@@ -35,6 +35,7 @@ def noiseAnalysis(request):
           test_desc = request.POST['test_desc']
           select = request.POST.get('select')
           select1 = request.POST.get('select1')
+          custom_limit = request.POST.get('custom_limit')
           r1 = request.POST['r1']
           r1_1 = request.POST['r1_1']
           r2 = request.POST['r2']
@@ -125,7 +126,7 @@ def noiseAnalysis(request):
                          pass
           noiseForm = NoiseAnalysis(lab_report_no=lab_report_no,invoice_bill_no=invoice_bill_no,reporting_date=reporting_date,report_to=report_to,
                                     address=address,attention=attention,email=email,sample_id=sample_id,test_perf_date=test_perf_date,
-                                    test_type=test_type,test_perf_by=test_perf_by,test_desc=test_desc,select=select,select1=select1,r1=r1,r1_1=r1_1,
+                                    test_type=test_type,test_perf_by=test_perf_by,test_desc=test_desc,select=select,select1=select1,custom_limit=custom_limit,r1=r1,r1_1=r1_1,
                                     r2=r2,r2_2=r2_2,r3=r3,r3_3=r3_3,r4=r4,r4_4=r4_4,r5=r5,r5_5=r5_5,r6=r6,r6_6=r6_6,r7=r7,r7_7=r7_7,
                                     r8=r8,r8_8=r8_8,r9=r9,r9_9=r9_9,r10=r10,r10_10=r10_10,r11=r11,r11_11=r11_11,r12=r12,r12_12=r12_12,
                                     r13=r13,r13_13=r13_13,legend_1=legend_1,legend_2=legend_2,legend_3=legend_3,legend_4=legend_4,
@@ -220,6 +221,7 @@ def noiseAnalysisUpdate(request,pk):
           nA.test_desc = request.POST['test_desc']
           nA.select = request.POST.get('select')
           nA.select1 = request.POST.get('select1')
+          nA.custom_limit = request.POST.get('custom_limit')
           nA.r1 = request.POST['r1']
           nA.r1_1 = request.POST['r1_1']
           nA.r2 = request.POST['r2']
@@ -801,6 +803,12 @@ def noiseAnalysisReport(request,pk):
           sr_no = sr_no+1
           TABLE_DATA.append(a)
 
+     if nA.select1 == "Custom":
+          _na_pairs = [(nA.r1,nA.r1_1),(nA.r2,nA.r2_2),(nA.r3,nA.r3_3),(nA.r4,nA.r4_4),(nA.r5,nA.r5_5),(nA.r6,nA.r6_6),(nA.r7,nA.r7_7),(nA.r8,nA.r8_8),(nA.r9,nA.r9_9),(nA.r10,nA.r10_10),(nA.r11,nA.r11_11),(nA.r12,nA.r12_12),(nA.r13,nA.r13_13)]
+          for _loc,_res in _na_pairs:
+               if _loc:
+                    TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,(nA.custom_limit or "-")])
+                    sr_no = sr_no+1
      for extra_field in nA.extra_field:
           areas = extra_field.get("areas")
           methods = extra_field.get("methods")
@@ -1647,6 +1655,12 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
           TABLE_DATA.append(a)
 
 
+     if nA.select1 == "Custom":
+          _na_pairs = [(nA.r1,nA.r1_1),(nA.r2,nA.r2_2),(nA.r3,nA.r3_3),(nA.r4,nA.r4_4),(nA.r5,nA.r5_5),(nA.r6,nA.r6_6),(nA.r7,nA.r7_7),(nA.r8,nA.r8_8),(nA.r9,nA.r9_9),(nA.r10,nA.r10_10),(nA.r11,nA.r11_11),(nA.r12,nA.r12_12),(nA.r13,nA.r13_13)]
+          for _loc,_res in _na_pairs:
+               if _loc:
+                    TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,(nA.custom_limit or "-")])
+                    sr_no = sr_no+1
      for extra_field in nA.extra_field:
           areas = extra_field.get("areas")
           methods = extra_field.get("methods")
@@ -4142,6 +4156,7 @@ def noiseAnalysiscloneSave(request,pk):
           existing_Form.test_desc = request.POST['test_desc']
           existing_Form.select = request.POST.get('select')
           existing_Form.select1 = request.POST.get('select1')
+          existing_Form.custom_limit = request.POST.get('custom_limit')
           existing_Form.r1 = request.POST['r1']
           existing_Form.r1_1 = request.POST['r1_1']
           existing_Form.r2 = request.POST['r2']

@@ -1543,6 +1543,7 @@ class NoiseAnalysis(models.Model):
     test_desc = models.CharField(max_length=500)
     select1 = models.CharField(max_length=500,null=True)
     select = models.CharField(max_length=500,null=True)
+    custom_limit = models.CharField(max_length=500,null=True,blank=True)
     r1 = models.CharField(max_length=500)
     r1_1 = models.CharField(max_length=500)
     r2 = models.CharField(max_length=500)
