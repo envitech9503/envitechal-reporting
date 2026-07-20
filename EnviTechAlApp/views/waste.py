@@ -250,6 +250,7 @@ def wasteWater2(request):
           # approvedby1 = request.FILES['approvedby1']
           in_out = request.POST['in_out']
           inlet_result = request.POST['inlet_result'] 
+          outlet_result = request.POST.get('outlet_result')
           extra_field = request.POST['extra_field']
           cutomLimit1 = request.POST['cutomLimit1'] 
           cutomLimit2 = request.POST['cutomLimit2'] 
@@ -432,7 +433,7 @@ def wasteWater2(request):
                                              result_29_29=result_29_29,result_30=result_30,result_30_30=result_30_30,result_31=result_31,result_31_31=result_31_31,
                                              result_32=result_32,result_32_32=result_32_32,legend_1=legend_1,legend_2=legend_2,legend_3=legend_3,extra_field=extra_field,
                                              legend_4=legend_4,legend_5=legend_5,legend_6=legend_6,legend_7=legend_7,legend_8=legend_8,legend_9=legend_9,
-                                             legend_10=legend_10,legend_11=legend_11,editNote=editNote,location=location,in_out=in_out,inlet_result=inlet_result,cutomLimit1=cutomLimit1,cutomLimit2=cutomLimit2,
+                                             legend_10=legend_10,legend_11=legend_11,editNote=editNote,location=location,in_out=in_out,inlet_result=inlet_result,outlet_result=outlet_result,cutomLimit1=cutomLimit1,cutomLimit2=cutomLimit2,
                                              cutomLimit3=cutomLimit3,cutomLimit4=cutomLimit4,cutomLimit5=cutomLimit5,cutomLimit6=cutomLimit6,cutomLimit7=cutomLimit7,cutomLimit8=cutomLimit8,
                                              cutomLimit9=cutomLimit9,cutomLimit10=cutomLimit10,cutomLimit11=cutomLimit11,cutomLimit12=cutomLimit12,cutomLimit13=cutomLimit13,cutomLimit14=cutomLimit14,
                                              cutomLimit15=cutomLimit15,cutomLimit16=cutomLimit16,cutomLimit17=cutomLimit17,cutomLimit18=cutomLimit18,cutomLimit19=cutomLimit19,
@@ -2042,6 +2043,7 @@ def wasteWAter2Update(request,pk):
           # ww.approvedby1 = request.FILES['approvedby1']
           ww.in_out = request.POST['in_out']
           ww.inlet_result = request.POST['inlet_result']
+          ww.outlet_result = request.POST.get('outlet_result')
           ww.extra_field = json.loads(request.POST['extra_field'])
           if ww.in_out == 'in-out':
                for i in range(len(request.POST.getlist('sr[]'))):
@@ -2910,7 +2912,7 @@ def wasteWater2Pdf(request,pk):
      
      elif ww.in_out == 'out':
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Outlet Results","","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.outlet_result or "Outlet Results"),"","",""],
      ]
           sr_no = 1
 
@@ -3536,7 +3538,7 @@ def wasteWater2Pdf(request,pk):
 
      elif ww.in_out == 'outlet_customLimits':
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Outlet Results",ww.cutomLimit1],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.outlet_result or "Outlet Results"),ww.cutomLimit1],
      ]
           sr_no = 1
 
@@ -4080,7 +4082,7 @@ def wasteWater2Pdf(request,pk):
      
      else:
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Inlet Results","Outlet Result","","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Inlet Results",(ww.outlet_result or "Outlet Result"),"","",""],
      ]
           sr_no = 1
 
@@ -5695,7 +5697,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      
      elif ww.in_out == 'out':
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Outlet Results","","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.outlet_result or "Outlet Results"),"","",""],
      ]
           sr_no = 1
 
@@ -6321,7 +6323,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
      elif ww.in_out == 'outlet_customLimits':
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Outlet Results",ww.cutomLimit1],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.outlet_result or "Outlet Results"),ww.cutomLimit1],
      ]
           sr_no = 1
 
@@ -6865,7 +6867,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      
      else:
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Inlet Results","Outlet Result","","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Inlet Results",(ww.outlet_result or "Outlet Result"),"","",""],
      ]
           sr_no = 1
 
@@ -7970,6 +7972,7 @@ def wasteWater2cloneSave(request,pk):
           # existing_Form.approvedby1 = request.FILES['approvedby1']
           existing_Form.in_out = request.POST['in_out']
           existing_Form.inlet_result = request.POST['inlet_result']
+          existing_Form.outlet_result = request.POST.get('outlet_result')
           existing_Form.extra_field = json.loads(request.POST['extra_field'])
           if existing_Form.in_out == 'in-out':
                for i in range(len(request.POST.getlist('sr[]'))):

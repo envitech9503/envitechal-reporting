@@ -301,20 +301,20 @@
             <th class="border border-black">Units</th>
             {% if data.in_out == 'in-out' %}
             <th class="border border-black">{{data.inlet_result}}</th>
-            <th class="border border-black">Outlet Results</th>
+            <th class="border border-black">{{data.outlet_result|default:"Outlet Results"}}</th>
             {% endif %}
             {% if data.in_out == 'in' %}
             <th class="border border-black">{{data.inlet_result}}</th>
             {%endif%}
             {% if data.in_out == 'out' %}
-            <th class="border border-black">Outlet Results</th>
+            <th class="border border-black">{{data.outlet_result|default:"Outlet Results"}}</th>
             {%endif%}
             {% if data.in_out == 'inlet_customlimits' %}
             <th class="border border-black">{{data.inlet_result}}</th>
             <th class="border border-black">{{data.cutomLimit1}}</th>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
-            <th class="border border-black">Outlet Results</th>
+            <th class="border border-black">{{data.outlet_result|default:"Outlet Results"}}</th>
             <th class="border border-black">{{data.cutomLimit1}}</th>
             {%endif%}
             {% if data.in_out == 'in-out' or data.in_out == 'in' or data.in_out == 'out' %}

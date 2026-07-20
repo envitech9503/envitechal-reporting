@@ -1315,6 +1315,15 @@ class AmbientAir2(models.Model):
     city_location =models.CharField(max_length=500,null=True)
     customer_id =models.CharField(max_length=500,null=True)
     pdf_heading = models.CharField(max_length=200,null=True)
+    col_head_1 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_2 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_3 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_4 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_5 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_6 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_7 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_8 = models.CharField(max_length=200,null=True,blank=True)
+    col_head_9 = models.CharField(max_length=200,null=True,blank=True)
     pdf_image_1 = models.TextField(null=True,blank=True)  # base64 string
     pdf_desc_1 = models.TextField(null=True,blank=True)
     pdf_image_2 = models.TextField(null=True,blank=True)  # base64 string
@@ -1455,6 +1464,7 @@ class WasteWaterForm2(models.Model):
     location =models.CharField(max_length=500,null=True)
     in_out =models.CharField(max_length=500,null=True)
     inlet_result = models.CharField(max_length=500,null=True)
+    outlet_result = models.CharField(max_length=500,null=True,blank=True)
     extra_field = models.TextField(default=[])
     structured_data = models.TextField(default=[])
     cutomLimit1 = models.CharField(max_length=500,null=True)
