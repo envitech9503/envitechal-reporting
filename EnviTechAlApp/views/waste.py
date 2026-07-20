@@ -8335,8 +8335,14 @@ def wasteWater2cloneSave(request,pk):
 
 
 
+          # keep the customer selection + LoggingSheet report-date in sync on clone (mirrors create/update)
+          _clone_customer_id = request.POST.get('customer_id')
+          if _clone_customer_id:
+               existing_Form.customer_id = _clone_customer_id
           existing_Form.id = None
           existing_Form.save()
+          if _clone_customer_id:
+               LoggingSheet.objects.filter(id=_clone_customer_id).update(rep_date=existing_Form.reporting_date)
           user = request.user
           action = f'Waste Water 2 Form {existing_Form.lab_report_no} cloned by {user.username}'
           AuditLog.objects.create(user=user, action=action, timestamp=local_date)

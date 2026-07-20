@@ -1303,25 +1303,24 @@ def microbialcloneSave(request,pk):
           existing_Form.unit_4 = request.POST.get('unit_4')
           existing_Form.unit_5 = request.POST.get('unit_5')
           existing_Form.unit_6 = request.POST.get('unit_6')
-          # existing_Form.extra_field = json.loads(request.POST["extra_field"])
-          # for i in range(len(request.POST.getlist('sr[]'))):
-          #      sr = request.POST.getlist('sr[]')[i]
-          #      parameters = request.POST.getlist('parameters[]')[i]
-          #      units = request.POST.getlist('units[]')[i]
-          #      ex_1 = request.POST.getlist('ex_1[]')[i]
-          #      result = request.POST.getlist('result[]')[i]
-          #      ex_2 = request.POST.getlist('ex_2[]')[i]
-
-          #      existing_Form.extra_field.append({
-          #           "sr": sr,
-          #           "parameters": parameters,
-          #           "units": units,
-          #           "ex_1": ex_1,
-          #           "result": result,
-          #           "ex_2": ex_2,
-          #      })
-          
-          # existing_Form.extra_field = json.dumps(existing_Form.extra_field)
+          # extra (dynamic) result rows — rebuilt from the clone form's array inputs
+          _sr  = request.POST.getlist('sr[]')
+          _par = request.POST.getlist('parameters[]')
+          _un  = request.POST.getlist('units[]')
+          _e1  = request.POST.getlist('ex_1[]')
+          _res = request.POST.getlist('result[]')
+          _e2  = request.POST.getlist('ex_2[]')
+          _rows = []
+          for _i in range(len(_sr)):
+               _rows.append({
+                    "sr": _sr[_i],
+                    "parameters": _par[_i] if _i < len(_par) else "",
+                    "units": _un[_i] if _i < len(_un) else "",
+                    "ex_1": _e1[_i] if _i < len(_e1) else "",
+                    "result": _res[_i] if _i < len(_res) else "",
+                    "ex_2": _e2[_i] if _i < len(_e2) else "",
+               })
+          existing_Form.extra_field = json.dumps(_rows)
           # existing_Form.micro_analyzedby = request.FILES['micro_analyzedby']
           # existing_Form.micro_reviewedby = request.FILES['micro_reviewedby']
           # existing_Form.micro_approvedby = request.FILES['micro_approvedby']
