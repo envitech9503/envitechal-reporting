@@ -1687,6 +1687,7 @@ class NoiseMonitoring(models.Model):
     test_desc = models.CharField(max_length=500)
     select1 = models.CharField(max_length=500,null=True)
     select = models.CharField(max_length=500,null=True)
+    custom_limit = models.CharField(max_length=500,null=True,blank=True)
     test_method = models.CharField(max_length=500,null=True)
     test_location = models.CharField(max_length=500,null=True)
     GRAPH_CHOICES = [

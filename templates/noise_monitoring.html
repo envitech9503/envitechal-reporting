@@ -404,8 +404,22 @@
                             <option class="" value="Industrial Night">Industrial (Night)---- 65</option>
                             <option class="" value="Silence Day">Silence Zone (Day)---- 50</option>
                             <option class="" value="Silence Night">Silence Zone (Night)---- 45</option>
+                            <option class="" value="Custom">Custom ---- (enter dB)</option>
                         </select>
                     </div>
+                    <div id="custom_limit_wrap" class="flex flex-col" style="display:none">
+                        <label class="font-bold text-lg" for="custom_limit">Custom Limit (dB)</label>
+                        <input id="custom_limit" name="custom_limit" type="text" placeholder="e.g. 58" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" style="width: 24rem;">
+                    </div>
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var sel = document.getElementById("result_type_1");
+                        var wrap = document.getElementById("custom_limit_wrap");
+                        function tg(){ if(!sel||!wrap) return; wrap.style.display = (sel.value === "Custom") ? "flex" : "none"; }
+                        if (window.jQuery) { jQuery("#result_type_1").on("change", tg); } else if (sel) { sel.addEventListener("change", tg); }
+                        tg();
+                    });
+                    </script>
                 </div>
 
                 <div class="flex justify-between mt-4">

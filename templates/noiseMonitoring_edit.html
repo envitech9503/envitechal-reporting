@@ -320,7 +320,12 @@
                             <option class="" {% if data.select1 == 'Industrial Night' %} selected {% endif %} value="Industrial Night">Industrial (Night)</option>
                             <option class="" {% if data.select1 == 'Silence Day' %} selected {% endif %} value="Silence Day">Silence Zone (Day)</option>
                             <option class="" {% if data.select1 == 'Silence Night' %} selected {% endif %} value="Silence Night">Silence Zone (Night)</option>
+                            <option class="" {% if data.select1 == 'Custom' %} selected {% endif %} value="Custom">Custom</option>
                         </select>
+                    </div>
+                    <div id="custom_limit_wrap" class="flex flex-col" style="display:none">
+                        <label class="font-bold text-lg" for="custom_limit">Custom Limit (dB)</label>
+                        <input id="custom_limit" name="custom_limit" type="text" value="{{data.custom_limit}}" placeholder="e.g. 58" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" style="width: 24rem;">
                     </div>
                 </div>
 
@@ -661,8 +666,17 @@
                         "Silence Night": 45,
                     };
             
-                    $(".range_value").text(threshold[value] || "55"); // Default value
+                    if (value === "Custom") {
+                        $("#custom_limit_wrap").show();
+                        $(".range_value").text($("#custom_limit").val() || "-");
+                    } else {
+                        $("#custom_limit_wrap").hide();
+                        $(".range_value").text(threshold[value] || "55"); // Default value
+                    }
                 }
+                $("#custom_limit").on("input", function () {
+                    if ($("#result_type_1").val() === "Custom") { $(".range_value").text($(this).val() || "-"); }
+                });
             
                 // On Page Load: Set initial value based on Django-rendered selection
                 let initialSelection = $("#result_type_1").val();

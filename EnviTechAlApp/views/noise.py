@@ -2094,6 +2094,7 @@ def noisemonitoring(request):
             test_desc = request.POST.get('test_desc')
             select = request.POST.get('select')
             select1 = request.POST.get('select1')
+            custom_limit = request.POST.get('custom_limit')
             start_time = request.POST.get("start_time")
             end_time = request.POST.get("end_time")
             interval = request.POST.get("time_interval")
@@ -2197,6 +2198,7 @@ def noisemonitoring(request):
                 test_desc=test_desc,
                 select=select,
                 select1=select1,
+                custom_limit=custom_limit,
                 legend_1=legend_1,
                 legend_2=legend_2,
                 legend_3=legend_3,
@@ -2312,7 +2314,7 @@ def noiseMonitoring_clone(request,pk):
         "Silence Day": 50,
         "Silence Night": 45,
      }
-     limit_value = limit_values.get(nM.select1, "-")
+     limit_value = (nM.custom_limit or "-") if nM.select1 == "Custom" else limit_values.get(nM.select1, "-")
      image_previews = {}
      for i in range(1, 7):
          image_key = f'pdf_image_{i}'
@@ -2351,6 +2353,7 @@ def noiseMonitoring_clone_update(request,pk):
           nA.test_desc = request.POST['test_desc']
           nA.select = request.POST.get('select')
           nA.select1 = request.POST.get('select1')
+          nA.custom_limit = request.POST.get('custom_limit')
           nA.test_method = request.POST.get("test_method")
           nA.test_location = request.POST.get("test_location")
           table_data = []
@@ -2485,7 +2488,7 @@ def noiseMonitoring_edit(request,pk):
         "Silence Day": 50,
         "Silence Night": 45,
      }
-     limit_value = limit_values.get(nM.select1, "-")
+     limit_value = (nM.custom_limit or "-") if nM.select1 == "Custom" else limit_values.get(nM.select1, "-")
      image_previews = {}
      for i in range(1, 7):
          image_key = f'pdf_image_{i}'
@@ -2524,6 +2527,7 @@ def noiseMonitoring_edit_update(request,pk):
           nA.test_desc = request.POST['test_desc']
           nA.select = request.POST.get('select')
           nA.select1 = request.POST.get('select1')
+          nA.custom_limit = request.POST.get('custom_limit')
           nA.test_method = request.POST.get("test_method")
           nA.test_location = request.POST.get("test_location")
           table_data = []
@@ -2671,8 +2675,17 @@ def noiseMonitoring_print(request,pk):
      "Silence Night": 45,
      }
 
-     # Get the selected limit dynamically (default to 55 if no match)
-     limit_value = limit_mapping.get(nA.select1, 55)
+     # Get the selected limit dynamically (default to 55 if no match).
+     # "Custom" zone -> analyst-entered dB value, kept numeric for the chart threshold.
+     if nA.select1 == "Custom":
+          try:
+               limit_value = float(nA.custom_limit)
+               if limit_value == int(limit_value):
+                    limit_value = int(limit_value)
+          except (TypeError, ValueError):
+               limit_value = 55
+     else:
+          limit_value = limit_mapping.get(nA.select1, 55)
 
      # TABLE_DATA = [
      #       ["Sr.#","Time","Unit","Results","Results -* dB(A) Leq",""],
@@ -3537,8 +3550,17 @@ def noiseMonitoring_report(request,pk):
      "Silence Night": 45,
      }
 
-     # Get the selected limit dynamically (default to 55 if no match)
-     limit_value = limit_mapping.get(nA.select1, 55)
+     # Get the selected limit dynamically (default to 55 if no match).
+     # "Custom" zone -> analyst-entered dB value, kept numeric for the chart threshold.
+     if nA.select1 == "Custom":
+          try:
+               limit_value = float(nA.custom_limit)
+               if limit_value == int(limit_value):
+                    limit_value = int(limit_value)
+          except (TypeError, ValueError):
+               limit_value = 55
+     else:
+          limit_value = limit_mapping.get(nA.select1, 55)
 
 
 
