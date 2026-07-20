@@ -303,7 +303,7 @@
                                     
                                     
                                                 <div class="w-full flex flex-col justify-center">
-                                                    <table id="" class=" water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
+                                                    <table id="table" class=" water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
                                                         <thead>
                                                             <tr>
                                                                 <th>Sr.#</th>
@@ -392,6 +392,25 @@
                                                             
                                                         </tbody>
                                                     </table>
+                                                    <div class="w-full flex justify-end mt-4">
+                                                        <button type="button" id="add_rows" class="bg-blue-600 text-white px-4 py-2 rounded shadow cursor-pointer hover:bg-blue-500">+ Add Row</button>
+                                                    </div>
+                                                    <script>
+                                                    (function(){
+                                                      var _b=document.getElementById("add_rows");
+                                                      if(_b){_b.addEventListener("click",function(){
+                                                        var tb=document.querySelector("#table tbody"); if(!tb)return;
+                                                        var tr=document.createElement("tr"); tr.className="border";
+                                                        tr.innerHTML='<td class="text-center"><input type="text" name="sr[]" class="border-2 border-black w-20 h-10 rounded p-2"></td>'+
+                                                          '<td class="pl-2"><input type="text" name="parameters[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
+                                                          '<td class="text-center"><input type="text" name="units[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
+                                                          '<td class="text-center"><input type="text" name="ex_1[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
+                                                          '<td class="text-center"><input type="text" name="result[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
+                                                          '<td class="text-center"><input type="text" name="ex_2[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>';
+                                                        tb.appendChild(tr);
+                                                      });}
+                                                    })();
+                                                    </script>
                                     
                                                     <hr class="broder border-black mt-10">
                                     

@@ -292,7 +292,7 @@
       <table id="" class="water-report-table border border-black mt-2 w-8/12" cellspacing="15">
         <thead>
           <tr>
-            <th class="font-semibold" style="font-size: 15px;" colspan="{% if data.in_out == 'in' %}8{% else %}9{% endif %}">Analyyical Test Report</th>
+            <th class="font-semibold" style="font-size: 15px;" colspan="{% if data.in_out == 'in-out' %}9{% elif data.in_out == 'inlet_customlimits' or data.in_out == 'outlet_customLimits' %}6{% else %}8{% endif %}">Analyyical Test Report</th>
           </tr>
           <tr class="">
             <th class="border border-black">Sr.#</th>
