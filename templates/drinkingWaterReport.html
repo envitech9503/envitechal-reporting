@@ -110,8 +110,8 @@
   {%block content%} {% if list %}
 
   <section class="sticky top-60 w-32 text-xl flex flex-col left-9 px relative z-50 flex gap-8">
-    <a target="_blank" href="{% url 'drinkingwaterReport-pdf' pk=list.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Print</a>
-    <a target="_blank" href="{% url 'drinkingwaterReport-pdf1' pk=list.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Pdf-Report</a>
+    <a target="_blank" href="{% url 'drinkingwaterReport-pdf' pk=list.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Print</a>
+    <a target="_blank" href="{% url 'drinkingwaterReport-pdf1' pk=list.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Report</a>
     <a  href="{% url "nav" %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
     </svg ></a>
@@ -885,19 +885,19 @@
     <div class="w-full flex flex-col items-center">
       <div class="w-8/12 flex justify-around mt-6">
         <div class="">
-          <img class="h-16 w-20" src="{{list.analyst_signature.signature.url}}" alt="image" />
+          <img class="h-16 w-20" src="{{list.analyst_signature.signature.url}}" alt="" onerror="this.style.display='none'" />
           <hr class="border border-black mt-2" />
           <p><strong>Analyzed By (Analyst)</strong></p>
         </div>
         <div class="">
-          <img class="h-16 w-20" src="{{list.assistant_manager_signature.signature.url}}" alt="image" />
+          <img class="h-16 w-20" src="{{list.assistant_manager_signature.signature.url}}" alt="" onerror="this.style.display='none'" />
           <hr class="border border-black mt-2" />
           <p><strong>Reviewed By (Assistant Manager)</strong></p>
         </div>
         <div class="">
           <div class="flex space-x-6">
             <img class="h-20 w-20" src="{{logo}}" alt="image" />
-            <img class="h-16 w-20" src="{{list.lab_manager_signature.signature.url}}" alt="image" />
+            <img class="h-16 w-20" src="{{list.lab_manager_signature.signature.url}}" alt="" onerror="this.style.display='none'" />
           </div>
           <hr class="border border-black mt-2" />
           <p><strong>Approved By (Lab Manager)</strong></p>

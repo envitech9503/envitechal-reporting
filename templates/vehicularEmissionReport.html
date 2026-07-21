@@ -148,14 +148,14 @@
           <div class="">
             <td><Strong>Lab Report No:</Strong></td>
             <td><span
-                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 30%; text-align: center;">{{data.lab_report_no}}</span>
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.lab_report_no}}</span>
             </td>
 
           </div>
           <div class="w-80">
             <td><Strong>Invoice Bill No:</Strong></td>
             <td><span
-                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 30%; text-align: center;">{{data.invoice_bill_no}}</span>
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.invoice_bill_no}}</span>
             </td>
           </div>
         </div>
@@ -167,14 +167,14 @@
           <div class="ml-16">
             <td class="page"><Strong>Page:</Strong></td>
             <td><span
-                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 20%; text-align: center;">1
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">1
                 of 1</span></td>
 
           </div>
           <div class="w-80">
             <td><Strong>Reporting Date:</Strong></td>
             <td><span
-                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 25%; text-align: center;">{{data.reporting_date}}</span>
+                style="border-bottom: 1px solid black; padding-bottom: 4px; display: inline-block; width: 36%; text-align: center;">{{data.reporting_date}}</span>
             </td>
           </div>
         </div>
@@ -411,19 +411,19 @@
     <div class="w-full flex flex-col items-center">
       <div class="w-8/12 flex justify-around mt-6">
         <div class="">
-          <img class="h-14" src="{{data.analyst_signature.signature.url}}" alt="image" />
+          <img class="h-14" src="{{data.analyst_signature.signature.url}}" alt="" onerror="this.style.display='none'" />
           <hr class="border border-black mt-2" />
           <p><strong>Analyzed By (Analyst)</strong></p>
         </div>
         <div class="">
-          <img class="h-14" src="{{data.assistant_manager_signature.signature.url}}" alt="image" />
+          <img class="h-14" src="{{data.assistant_manager_signature.signature.url}}" alt="" onerror="this.style.display='none'" />
           <hr class="border border-black mt-2" />
           <p><strong>Reviewed By (Assistant Manager)</strong></p>
         </div>
         <div class="">
           <div class="flex space-x-6">
             <img class="h-14" src="{{logo}}" alt="image" />
-            <img class="h-14" src="{{data.lab_manager_signature.signature.url}}" alt="image" />
+            <img class="h-14" src="{{data.lab_manager_signature.signature.url}}" alt="" onerror="this.style.display='none'" />
           </div>
           <hr class="border border-black mt-2" />
           <p><strong>Approved By (Lab Manager)</strong></p>
