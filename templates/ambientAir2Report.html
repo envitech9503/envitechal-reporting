@@ -1,4 +1,4 @@
-{% extends "report_base.html" %}{% load static %}
+{% extends "report_base.html" %}{% load static %}{% load report_extras %}
 {% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
@@ -642,15 +642,15 @@
         <tr class="text-center border h-16">
             <td colspan="2">Average</td>
             
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_0" value="{{data.sr25_0}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_1" value="{{data.sr25_1}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_2" value="{{data.sr25_2}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_3" value="{{data.sr25_3}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_4" value="{{data.sr25_4}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_5" value="{{data.sr25_5}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_6" value="{{data.sr25_6}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_7" value="{{data.sr25_7}}" type="text"></td>
-            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_8" value="{{data.sr25_8}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_0" value="{{data.sr25_0|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_1" value="{{data.sr25_1|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_2" value="{{data.sr25_2|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_3" value="{{data.sr25_3|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_4" value="{{data.sr25_4|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_5" value="{{data.sr25_5|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_6" value="{{data.sr25_6|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_7" value="{{data.sr25_7|strip_zeros}}" type="text"></td>
+            <td><input class="h-10 w-20 px-2 py-3 border-2 border-black" name="sr25_8" value="{{data.sr25_8|strip_zeros}}" type="text"></td>
         </tr>
         {% endif %}
         <tr class="airbamibient2tr text-center border h-16">
