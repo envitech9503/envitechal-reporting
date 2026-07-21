@@ -89,7 +89,7 @@
     <a class="text-lg" target="_blank" href="{% url 'AmbientAirReport-pdfPrint' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Print</a>
     <a class="text-lg" target="_blank" href="{% url 'AmbientAirReport-pdfReport' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Report</a>
     <a  href="{% url 'nav' %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M₃ 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
     </svg ></a>
   </section>
 
@@ -126,7 +126,7 @@
   </div>
   <section id="img1">
     <div id="" class=" w-full flex justify-center items-center ">
-      <div class="w-10/12 flex justify-between items-center space-x-10">
+      <div class="w-8/12 flex justify-between items-center space-x-10">
         <div class="space-y-2 ">
           <div class="">
             <td><Strong>Lab Report No:</Strong></td>
@@ -143,7 +143,7 @@
           </div>
         </div>
         <div class="">
-          <img style="width:80px;height:80px" class=" float-right mr-20 items-center text-center" src="/{{qr}}" alt="">
+          <img style="width:80px;height:80px" class=" float-right mr-20 items-center text-center" src="{{qr}}" alt="">
         </div>
 
         <div class="space-y-2 ">
