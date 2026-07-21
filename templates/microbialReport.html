@@ -135,10 +135,10 @@
 
   {%block content%} {% if data %}
 
-  <section class="sticky top-60 w-32 text-xl  left-9 px relative z-50 flex flex-col gap-8">
+  <section class="sticky top-60 w-32 text-xl flex flex-col left-9 px relative z-50 gap-8">
     <a class="text-lg" target="_blank" href="{% url 'microbialAnalysisReport-pdfPrint' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Print</a>
     <a class="text-lg" target="_blank" href="{% url 'microbialAnalysisReport-pdfReport' pk=data.id %}"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>Report</a>
-    <a  href="{% url "nav" %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
+    <a  href="{% url 'nav' %}"><svg class="w-8 h-8  text-gray-800 dark:text-white " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20" style="box-shadow: 4px 8px 12px -2px">
       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9" />
     </svg ></a>
   </section>
