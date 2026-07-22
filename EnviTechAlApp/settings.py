@@ -222,3 +222,9 @@ OFFICE_ALLOWED_IPS = ['110.93.247.168', '124.29.208.36']
 # --- Costing module ---
 COSTING_CHEMICAL_MODEL = 'EnviTechAlApp.ChemicalItem'
 COSTING_CURRENCY = 'PKR'
+
+# PDF non-editable pilot (Viscous/Polybag/MachineOil)
+try:
+    MIDDLEWARE = list(MIDDLEWARE) + ["EnviTechAlApp.noneditable_mw.NonEditableReportMiddleware"]
+except NameError:
+    pass

@@ -35,3 +35,4 @@ logging_sheet_backup.json
 # OS
 .DS_Store
 *.log.*
+.pdf_owner_pw
