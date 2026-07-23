@@ -1,0 +1,200 @@
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>Reagent &amp; Standards Preparation</title>
+    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+    <style>
+      body{background:#f4f6f8;font-family:Calibri,Arial,sans-serif;color:#1f2937;margin:0}
+      .wrap{max-width:1180px;margin:20px auto;padding:0 16px}
+      .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
+      .hd{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid #eef2f6}
+      .title{font-size:19px;font-weight:700;color:#0f5132}
+      .sec{padding:16px 18px}
+      .sec h3{margin:0 0 12px;font-size:14px;color:#0f5132;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+      .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+      .fld{display:flex;flex-direction:column;gap:4px}
+      .fld.wide{grid-column:span 2}
+      label{font-size:12px;font-weight:600;color:#475569}
+      input,select,textarea{border:1px solid #cbd5e1;border-radius:7px;padding:7px 9px;font-size:13px;font-family:inherit;background:#fff}
+      textarea{min-height:70px;resize:vertical}
+      .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:7px 13px;border-radius:7px;font-size:13px;text-decoration:none;cursor:pointer}
+      .btn-p{background:#0f5132;border-color:#0f5132;color:#fff}
+      .btn-d{color:#b91c1c;border-color:#fecaca}
+      .btn-s{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
+      table.chem{width:100%;border-collapse:collapse;font-size:13px}
+      table.chem th,table.chem td{border:1px solid #e2e8f0;padding:5px 6px;text-align:left}
+      table.chem th{background:#f1f5f9;font-weight:700;color:#334155;font-size:12px}
+      table.chem input{width:100%;box-sizing:border-box;border:1px solid #e5e7eb;padding:5px 6px}
+      .ctrlbox{font-size:12px;color:#334155;border:1px solid #cbd5e1;border-radius:7px;padding:8px 10px;background:#f8fafc;min-width:220px}
+      .ctrlbox b{color:#0f5132}
+      .note{font-size:12px;color:#64748b;margin-top:6px}
+      .calcbar{display:flex;align-items:center;justify-content:space-between}
+      iframe#calc{width:100%;height:640px;border:1px solid #e2e8f0;border-radius:8px;margin-top:10px;display:none;background:#fff}
+      .hidden{display:none}
+      .flash{padding:9px 14px;border-radius:7px;font-size:13px;margin:0 18px 12px}
+      .flash.ok{background:#dcfce7;color:#166534}.flash.err{background:#fee2e2;color:#b91c1c}
+      @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}.fld.wide{grid-column:span 2}}
+    </style>
+{% endblock %}{% block w2_content %}
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="hd">
+      <div class="title"><i class="fa-solid fa-flask-vial"></i> Reagent &amp; Standards Preparation <span id="modeTag" style="font-size:13px;color:#64748b;font-weight:500"></span></div>
+      <div>
+        <a class="btn" href="/qc/reagent-prep-list/"><i class="fa-solid fa-list"></i> List</a>
+        <button class="btn btn-s" type="button" onclick="toggleCalc()"><i class="fa-solid fa-calculator"></i> <span id="calcLbl">Open Calculator</span></button>
+        <button class="btn btn-p" type="button" onclick="save()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      </div>
+    </div>
+    <div id="flash" class="flash hidden"></div>
+
+    <div class="sec">
+      <h3>Preparation Details</h3>
+      <div class="grid">
+        <div class="fld"><label>Location</label><select id="location" onchange="onLoc()"></select></div>
+        <div class="fld"><label>Month</label><input id="month" placeholder="e.g. July 2026"></div>
+        <div class="fld"><label>Type</label><select id="rtype" onchange="onType()">
+          <option>Reagent</option><option>Standard</option><option>Standardised titrant</option><option>Buffer</option><option>% solution</option>
+        </select></div>
+        <div class="fld"><label>Control No. (this lab)</label><div class="ctrlbox">Doc No.: <b id="ctrlNo">-</b></div></div>
+        <div class="fld wide"><label>Reagent / Standard Name</label><input id="reagent_name" placeholder="e.g. EDTA 0.01 M"></div>
+        <div class="fld"><label>Reagent No.</label><input id="reagent_no" placeholder="e.g. RG-12 / AD-03"></div>
+        <div class="fld"><label>Final Volume</label><input id="final_volume" placeholder="e.g. 1000 mL"></div>
+        <div class="fld"><label>Concentration value</label><input id="conc_value" placeholder="e.g. 0.01"></div>
+        <div class="fld"><label>Concentration unit</label><input id="conc_unit" placeholder="M / N / %w/v / mg/L"></div>
+        <div class="fld"><label>D.O.P. (Prepared)</label><input id="dop" type="date"></div>
+        <div class="fld"><label>D.O.E. (Expiry)</label><input id="doe" type="date"></div>
+      </div>
+    </div>
+
+    <div class="sec" style="border-top:1px solid #eef2f6">
+      <h3>Chemicals Used</h3>
+      <table class="chem">
+        <thead><tr>
+          <th style="width:34px">S.#</th><th>Chemical Name</th><th style="width:110px">CAT No.</th>
+          <th style="width:110px">LOT No.</th><th style="width:90px">Quantity</th><th style="width:120px">Make</th>
+          <th style="width:100px">Expiry</th><th style="width:40px"></th>
+        </tr></thead>
+        <tbody id="chemBody"></tbody>
+      </table>
+      <div style="margin-top:10px">
+        <button class="btn" type="button" onclick="addChem()"><i class="fa-solid fa-plus"></i> Add Row</button>
+        <span class="note">Type a chemical name to recall CAT/LOT/Make/Expiry from live inventory; you can still edit any field.</span>
+      </div>
+      <datalist id="invList"></datalist>
+    </div>
+
+    <div class="sec hidden" id="stdPanel" style="border-top:1px solid #eef2f6">
+      <h3>Standardisation &amp; Correction Factor (per location)</h3>
+      <div class="grid">
+        <div class="fld"><label>Primary standard</label><input id="s_primary_std" placeholder="e.g. CaCO3 / KHP / K2Cr2O7"></div>
+        <div class="fld"><label>PS mass (g)</label><input id="s_ps_mass" oninput="calcStd()"></div>
+        <div class="fld"><label>PS purity (%)</label><input id="s_ps_purity" value="100" oninput="calcStd()"></div>
+        <div class="fld"><label>PS eq/mol wt</label><input id="s_ps_eqwt" oninput="calcStd()"></div>
+        <div class="fld"><label>Titrant used (mL)</label><input id="s_titrant_ml" oninput="calcStd()"></div>
+        <div class="fld"><label>Nominal strength</label><input id="s_nominal_N" oninput="calcStd()"></div>
+        <div class="fld"><label>Unit</label><select id="s_unit" onchange="calcStd()"><option>N</option><option>M</option></select></div>
+        <div class="fld"><label>True strength (computed)</label><input id="s_true_N" readonly style="background:#f1f5f9;font-weight:700"></div>
+        <div class="fld"><label>Correction factor</label><input id="s_factor" readonly style="background:#f1f5f9;font-weight:700"></div>
+        <div class="fld"><label>Std date</label><input id="s_std_date" type="date"></div>
+        <div class="fld"><label>Next due</label><input id="s_next_due" type="date"></div>
+      </div>
+      <div class="note">True strength = (mass x purity/100) / (eq.wt x titrant_L); factor = true / nominal. Stored per selected location.</div>
+    </div>
+
+    <div class="sec" style="border-top:1px solid #eef2f6">
+      <h3>Description / Method of Preparation</h3>
+      <textarea id="description" placeholder="Describe the preparation steps, dilutions, standardisation, storage..."></textarea>
+      <div class="grid" style="margin-top:12px">
+        <div class="fld"><label>Prepared By</label><input id="prepared_by"></div>
+        <div class="fld"><label>Verified By</label><input id="verified_by"></div>
+        <div class="fld wide"><label>Remarks</label><input id="remarks"></div>
+      </div>
+    </div>
+
+    <div class="sec" style="border-top:1px solid #eef2f6">
+      <div class="calcbar">
+        <h3 style="margin:0"><i class="fa-solid fa-calculator"></i> Fully-Loaded Preparation Calculator</h3>
+        <span class="note">All scenarios: weigh &amp; dissolve, dilute, calibration series, standardisation, % solutions, converters, reagent library.</span>
+      </div>
+      <iframe id="calc" src="about:blank" title="Reagent calculator"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+var RECORD = {{ record_json|safe }};
+var INV = {{ inventory_json|safe }};
+var CTRL = {{ control_json|safe }};
+var LOCS = {{ locations|safe }};
+var calcLoaded = false;
+
+function el(id){return document.getElementById(id);}
+function flash(msg, ok){var f=el('flash');f.textContent=msg;f.className='flash '+(ok?'ok':'err');f.classList.remove('hidden');if(ok)setTimeout(function(){f.classList.add('hidden');},4000);}
+
+function initLoc(){var s=el('location');s.innerHTML='';LOCS.forEach(function(l){var o=document.createElement('option');o.value=l;o.textContent=l;s.appendChild(o);});}
+function onLoc(){el('ctrlNo').textContent=(CTRL[el('location').value]||'-')||'-';}
+function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');}
+
+function buildInvList(){var dl=el('invList');dl.innerHTML='';var seen={};INV.forEach(function(r){if(r.name&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}});}
+function invByName(n){n=(n||'').trim().toLowerCase();for(var i=0;i<INV.length;i++){if((INV[i].name||'').toLowerCase()===n)return INV[i];}return null;}
+
+function chemRowHTML(r){r=r||{};return ''+
+  '<td class="sno"></td>'+
+  '<td><input class="c_name" list="invList" value="'+esc(r.chemical_name)+'" oninput="onChemName(this)"></td>'+
+  '<td><input class="c_cat" value="'+esc(r.cat_no)+'"></td>'+
+  '<td><input class="c_lot" value="'+esc(r.lot_no)+'"></td>'+
+  '<td><input class="c_qty" value="'+esc(r.quantity)+'"></td>'+
+  '<td><input class="c_make" value="'+esc(r.make)+'"></td>'+
+  '<td><input class="c_exp" value="'+esc(r.expiry)+'"></td>'+
+  '<td style="text-align:center"><button class="btn btn-d" type="button" onclick="delChem(this)" title="Remove">&times;</button></td>';}
+function esc(v){return (v==null?'':String(v)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+function addChem(r){var tr=document.createElement('tr');tr.dataset.lot=(r&&r.chemical_lot)||'';tr.innerHTML=chemRowHTML(r);el('chemBody').appendChild(tr);renumber();}
+function delChem(b){b.closest('tr').remove();renumber();}
+function renumber(){var rows=el('chemBody').querySelectorAll('tr');rows.forEach(function(tr,i){tr.querySelector('.sno').textContent=i+1;});}
+function onChemName(inp){var tr=inp.closest('tr');var hit=invByName(inp.value);if(hit){if(!tr.querySelector('.c_cat').value)tr.querySelector('.c_cat').value=hit.cat||'';if(!tr.querySelector('.c_lot').value)tr.querySelector('.c_lot').value=hit.lot||'';if(!tr.querySelector('.c_make').value)tr.querySelector('.c_make').value=hit.make||'';if(!tr.querySelector('.c_exp').value)tr.querySelector('.c_exp').value=hit.expiry||'';tr.dataset.lot=hit.id||'';}}
+
+function calcStd(){var m=parseFloat(el('s_ps_mass').value),p=parseFloat(el('s_ps_purity').value),e=parseFloat(el('s_ps_eqwt').value),v=parseFloat(el('s_titrant_ml').value),nom=parseFloat(el('s_nominal_N').value);if(m>0&&e>0&&v>0){var pur=(p>0?p:100)/100;var trueN=(m*pur)/(e*(v/1000));el('s_true_N').value=trueN.toFixed(4);if(nom>0)el('s_factor').value=(trueN/nom).toFixed(4);}else{el('s_true_N').value='';el('s_factor').value='';}}
+
+function toggleCalc(){var f=el('calc');if(f.style.display==='block'){f.style.display='none';el('calcLbl').textContent='Open Calculator';}else{if(!calcLoaded){f.src='/qc/reagent_prep_calculator/';calcLoaded=true;}f.style.display='block';el('calcLbl').textContent='Hide Calculator';f.scrollIntoView({behavior:'smooth'});}}
+
+function collect(){
+  var chems=[];el('chemBody').querySelectorAll('tr').forEach(function(tr,i){var n=tr.querySelector('.c_name').value.trim();if(!n)return;chems.push({s_no:i+1,chemical_name:n,cat_no:tr.querySelector('.c_cat').value,lot_no:tr.querySelector('.c_lot').value,quantity:tr.querySelector('.c_qty').value,make:tr.querySelector('.c_make').value,expiry:tr.querySelector('.c_exp').value,chemical_lot:tr.dataset.lot||null});});
+  var payload={id:RECORD?RECORD.id:null,location:el('location').value,month:el('month').value,reagent_name:el('reagent_name').value,reagent_no:el('reagent_no').value,rtype:el('rtype').value,description:el('description').value,final_volume:el('final_volume').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,prepared_by:el('prepared_by').value,verified_by:el('verified_by').value,dop:el('dop').value,doe:el('doe').value,remarks:el('remarks').value,chemicals:chems};
+  if(el('rtype').value==='Standardised titrant'){payload.standardisation={location:el('location').value,primary_std:el('s_primary_std').value,ps_mass:el('s_ps_mass').value,ps_purity:el('s_ps_purity').value,ps_eqwt:el('s_ps_eqwt').value,titrant_ml:el('s_titrant_ml').value,nominal_N:el('s_nominal_N').value,true_N:el('s_true_N').value,factor:el('s_factor').value,unit:el('s_unit').value,std_date:el('s_std_date').value,next_due:el('s_next_due').value};}
+  return payload;
+}
+
+function save(){
+  var p=collect();
+  if(!p.reagent_name.trim()){flash('Reagent name is required.',false);return;}
+  fetch('/qc/reagent_prep_save/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(p)})
+    .then(function(r){return r.json();})
+    .then(function(j){if(j&&j.ok){flash('Saved. Record #'+j.id+'.',true);if(!RECORD)RECORD={id:j.id};else RECORD.id=j.id;el('modeTag').textContent='(editing #'+j.id+')';}else{flash((j&&j.error)||'Save failed.',false);}})
+    .catch(function(){flash('Network error while saving.',false);});
+}
+
+function prefill(){
+  if(!RECORD){addChem();addChem();return;}
+  el('location').value=RECORD.location||'Karachi';el('month').value=RECORD.month||'';el('rtype').value=RECORD.rtype||'Reagent';
+  el('reagent_name').value=RECORD.reagent_name||'';el('reagent_no').value=RECORD.reagent_no||'';el('final_volume').value=RECORD.final_volume||'';
+  el('conc_value').value=RECORD.conc_value||'';el('conc_unit').value=RECORD.conc_unit||'';el('dop').value=RECORD.dop||'';el('doe').value=RECORD.doe||'';
+  el('description').value=RECORD.description||'';el('prepared_by').value=RECORD.prepared_by||'';el('verified_by').value=RECORD.verified_by||'';el('remarks').value=RECORD.remarks||'';
+  (RECORD.chemicals||[]).forEach(function(c){addChem(c);});if(!(RECORD.chemicals||[]).length){addChem();}
+  var s=RECORD.standardisation;if(s){el('s_primary_std').value=s.primary_std||'';el('s_ps_mass').value=s.ps_mass||'';el('s_ps_purity').value=s.ps_purity||'100';el('s_ps_eqwt').value=s.ps_eqwt||'';el('s_titrant_ml').value=s.titrant_ml||'';el('s_nominal_N').value=s.nominal_N||'';el('s_unit').value=s.unit||'N';el('s_true_N').value=s.true_N||'';el('s_factor').value=s.factor||'';el('s_std_date').value=s.std_date||'';el('s_next_due').value=s.next_due||'';}
+  el('modeTag').textContent=RECORD.id?('(editing #'+RECORD.id+')'):'(clone - new record)';
+}
+
+initLoc();buildInvList();prefill();onLoc();onType();
+</script>
+</body>
+{% endblock %}

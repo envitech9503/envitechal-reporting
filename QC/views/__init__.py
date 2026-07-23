@@ -10,8 +10,9 @@ from .shared import *  # noqa: F401,F403
 from .dw import *  # noqa: F401,F403
 from .ww import *  # noqa: F401,F403
 from .core import *  # noqa: F401,F403
+from .reagent_prep import *  # noqa: F401,F403
 
-_FAMILY_MODULES = ['dw', 'ww', 'core']
+_FAMILY_MODULES = ['dw', 'ww', 'core', 'reagent_prep']
 
 
 def _link():

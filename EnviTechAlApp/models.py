@@ -2662,3 +2662,82 @@ class InventoryDocControl(models.Model):
 _sh_register(ChemicalItem)
 _sh_register(ChemicalLot)
 _sh_register(InventoryDocControl)
+
+
+# ============================================================================
+# Reagent & Standards Preparation — QC module (additive; 23-07-2026)
+# One prepared reagent/standard per ReagentPrep, with child chemical rows and
+# an optional standardisation record (per-location factor). Reuses the existing
+# InventoryDocControl (module='reagent_prep') for the per-lab control number.
+# ============================================================================
+class ReagentPrep(models.Model):
+    LOCATIONS = (('Karachi', 'Karachi'), ('Lahore', 'Lahore'))
+    RTYPES = (
+        ('Reagent', 'Reagent'),
+        ('Standard', 'Standard'),
+        ('Standardised titrant', 'Standardised titrant'),
+        ('Buffer', 'Buffer'),
+        ('% solution', '% solution'),
+    )
+    location = models.CharField(max_length=20, choices=LOCATIONS, default='Karachi')
+    month = models.CharField(max_length=30, blank=True, default='')
+    reagent_name = models.CharField(max_length=200)
+    reagent_no = models.CharField(max_length=40, blank=True, default='')
+    rtype = models.CharField(max_length=30, choices=RTYPES, default='Reagent')
+    description = models.TextField(blank=True, default='')
+    final_volume = models.CharField(max_length=40, blank=True, default='')
+    conc_value = models.CharField(max_length=40, blank=True, default='')
+    conc_unit = models.CharField(max_length=20, blank=True, default='')
+    prepared_by = models.CharField(max_length=120, blank=True, default='')
+    verified_by = models.CharField(max_length=120, blank=True, default='')
+    dop = models.DateField(null=True, blank=True)
+    doe = models.DateField(null=True, blank=True)
+    remarks = models.CharField(max_length=300, blank=True, default='')
+    created_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return "%s / %s (%s)" % (self.reagent_no or '-', self.reagent_name, self.location)
+
+
+class ReagentPrepChemical(models.Model):
+    prep = models.ForeignKey(ReagentPrep, on_delete=models.CASCADE, related_name='chemicals')
+    s_no = models.IntegerField(default=1)
+    chemical_name = models.CharField(max_length=200)
+    cat_no = models.CharField(max_length=80, blank=True, default='')
+    lot_no = models.CharField(max_length=80, blank=True, default='')
+    quantity = models.CharField(max_length=60, blank=True, default='')
+    make = models.CharField(max_length=120, blank=True, default='')
+    expiry = models.CharField(max_length=40, blank=True, default='')
+    chemical_lot = models.ForeignKey('ChemicalLot', null=True, blank=True,
+                                     on_delete=models.SET_NULL, related_name='+')
+
+    class Meta:
+        ordering = ['s_no', 'id']
+
+    def __str__(self):
+        return "%s. %s" % (self.s_no, self.chemical_name)
+
+
+class ReagentStandardisation(models.Model):
+    prep = models.OneToOneField(ReagentPrep, on_delete=models.CASCADE, related_name='standardisation')
+    location = models.CharField(max_length=20, default='Karachi')
+    primary_std = models.CharField(max_length=120, blank=True, default='')
+    ps_mass = models.FloatField(null=True, blank=True)
+    ps_purity = models.FloatField(null=True, blank=True)
+    ps_eqwt = models.FloatField(null=True, blank=True)
+    titrant_ml = models.FloatField(null=True, blank=True)
+    nominal_N = models.FloatField(null=True, blank=True)
+    true_N = models.FloatField(null=True, blank=True)
+    factor = models.FloatField(null=True, blank=True)
+    unit = models.CharField(max_length=10, blank=True, default='N')
+    std_date = models.DateField(null=True, blank=True)
+    next_due = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return "Std %s @ %s (F=%s)" % (self.prep_id, self.location, self.factor)

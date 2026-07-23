@@ -26,4 +26,9 @@ urlpatterns = [
     path('ww_testing_results_sample_save/',views.ww_testing_results_sample_save, name='ww_testing_results_sample_save'),   
     path('ww-testing-results-list/', views.ww_testing_results_sample_list, name='ww_testing_results_sample_list'),
     path('ww_testing_results_sample_pdf_from_list/<int:pk>/',views.ww_testing_results_sample_pdf_from_list, name='ww_testing_results_sample_pdf_from_list'),   
+    path('reagent_prep/', views.reagent_prep, name='reagent_prep'),
+    path('reagent_prep_save/', views.reagent_prep_save, name='reagent_prep_save'),
+    path('reagent-prep-list/', views.reagent_prep_list, name='reagent_prep_list'),
+    path('reagent_prep_calculator/', views.reagent_prep_calculator, name='reagent_prep_calculator'),
+    path('reagent_prep_pdf_from_list/<int:pk>/', views.reagent_prep_pdf_from_list, name='reagent_prep_pdf_from_list'),
 ]

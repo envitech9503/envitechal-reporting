@@ -35,6 +35,9 @@ admin.site.site_header= 'Envi Tech AL'
 admin.site.site_title= 'Envi Tech AL'
 admin.site.index_title= 'Administration'
 
-
-
-
+# Reagent & Standards Preparation (additive)
+for _m in (ReagentPrep, ReagentPrepChemical, ReagentStandardisation):
+    try:
+        admin.site.register(_m)
+    except admin.sites.AlreadyRegistered:
+        pass

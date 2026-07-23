@@ -1,0 +1,80 @@
+{% extends "report_base.html" %}{% load static %}
+{% block w2_prefix %}{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" type="image/png" href="/static/assets/logo-light.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>Reagent &amp; Standards Preparation - List</title>
+    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+    <style>
+      body{background:#f4f6f8;font-family:Calibri,Arial,sans-serif;color:#1f2937;margin:0}
+      .wrap{max-width:1200px;margin:22px auto;padding:0 16px}
+      .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+      .hd{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f6}
+      .title{font-size:19px;font-weight:700;color:#0f5132}
+      .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:6px 12px;border-radius:7px;font-size:13px;text-decoration:none;cursor:pointer}
+      .btn-p{background:#0f5132;border-color:#0f5132;color:#fff}
+      .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 18px;border-bottom:1px solid #eef2f6}
+      .toolbar input,.toolbar select{border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px}
+      table{width:100%;border-collapse:collapse;font-size:13px}
+      th,td{padding:9px 10px;border-bottom:1px solid #eef2f6;text-align:left}
+      th{background:#f1f5f9;font-weight:700;color:#334155}
+      tr:hover td{background:#fafcff}
+      .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+      .ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#b91c1c}
+      .loc{font-size:11px;color:#64748b}
+      .empty{padding:30px;text-align:center;color:#94a3b8}
+      .acts a{margin-right:8px;color:#0f5132;text-decoration:none;font-size:12px}
+      .acts a:hover{text-decoration:underline}
+    </style>
+{% endblock %}{% block w2_content %}
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="hd">
+      <div class="title"><i class="fa-solid fa-flask-vial"></i> Reagent &amp; Standards Preparation</div>
+      <div>
+        <a class="btn" href="/qc/qc_main/"><i class="fa-solid fa-arrow-left"></i> QC Home</a>
+        <a class="btn btn-p" href="/qc/reagent_prep/"><i class="fa-solid fa-plus"></i> New Preparation</a>
+      </div>
+    </div>
+    <form class="toolbar" method="get" action="/qc/reagent-prep-list/">
+      <select name="location">
+        <option value="All"{% if location == 'All' %} selected{% endif %}>All locations</option>
+        {% for l in locations %}<option value="{{ l }}"{% if location == l %} selected{% endif %}>{{ l }}</option>{% endfor %}
+      </select>
+      <input type="text" name="q" value="{{ q }}" placeholder="Search reagent name / no. / chemical">
+      <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </form>
+    <table>
+      <thead>
+        <tr><th>Reagent No.</th><th>Reagent Name</th><th>Type</th><th>Location</th><th>D.O.P.</th><th>D.O.E.</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for r in list %}
+        <tr>
+          <td>{{ r.o.reagent_no|default:'-' }}</td>
+          <td>{{ r.o.reagent_name }}</td>
+          <td>{{ r.o.rtype }}</td>
+          <td><span class="loc">{{ r.o.location }}</span></td>
+          <td>{{ r.o.dop|date:'d-m-Y'|default:'-' }}</td>
+          <td>{% if r.o.doe %}<span class="pill {% if r.expired %}bad{% else %}ok{% endif %}">{{ r.o.doe|date:'d-m-Y' }}</span>{% else %}-{% endif %}</td>
+          <td class="acts">
+            <a href="/qc/reagent_prep/?id={{ r.o.id }}"><i class="fa-solid fa-pen"></i> Edit</a>
+            <a href="/qc/reagent_prep/?clone={{ r.o.id }}"><i class="fa-solid fa-copy"></i> Clone</a>
+            <a href="/qc/reagent_prep_pdf_from_list/{{ r.o.id }}/" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty">No preparation records yet. Click <b>New Preparation</b> to add one.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+{% endblock %}
