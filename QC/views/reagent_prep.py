@@ -1,5 +1,5 @@
 """
-Reagent & Standards Preparation — QC views (additive, 23-07-2026).
+Reagent & Standards Preparation — QC views (additive, 23-07-2026; QA-hardened).
 Mirrors the QC form + list + controlled-PDF pattern (see dw.py). Registered by
 QC/views/__init__.py via `from .reagent_prep import *` + _FAMILY_MODULES.
 """
@@ -9,9 +9,22 @@ import os as _os
 import json as _json
 from datetime import datetime as _dt, date as _date
 from django.db.models import Q as _Q
+from django.db import transaction as _tx
+from django.utils.safestring import mark_safe as _mark_safe
 
 _LOGO = "static/assets/EnviTechAL LOGO.png"
+_CALIBRI = "static/fonts/calibri.ttf"
+_CALIBRIB = "static/fonts/calibrib.ttf"
 _LOCS = ['Karachi', 'Lahore']
+
+
+def _safe_json(obj):
+    """JSON for inline <script> injection — escape chars that could break out of
+    the script element (prevents stored XSS from user-entered names/descriptions)."""
+    s = _json.dumps(obj)
+    s = (s.replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
+          .replace(' ', '\\u2028').replace(' ', '\\u2029'))
+    return _mark_safe(s)
 
 
 def _parse_date(v):
@@ -107,10 +120,10 @@ def reagent_prep(request):
         record['reagent_no'] = ''
     ctrl = {loc: _docctrl(loc).doc_no for loc in _LOCS}
     context = {
-        'record_json': _json.dumps(record),
-        'inventory_json': _json.dumps(_inventory_for_autocomplete()),
-        'control_json': _json.dumps(ctrl),
-        'locations': _LOCS,
+        'record_json': _safe_json(record),
+        'inventory_json': _safe_json(_inventory_for_autocomplete()),
+        'control_json': _safe_json(ctrl),
+        'locations': _safe_json(_LOCS),
     }
     return render(request, 'reagent_prep_form.html', context)
 
@@ -140,63 +153,66 @@ def reagent_prep_save(request):
         if getattr(request, 'user', None) and request.user.is_authenticated:
             obj.created_by = request.user
 
-    obj.location = location
-    obj.month = (data.get('month') or '').strip()[:30]
-    obj.reagent_name = name[:200]
-    obj.reagent_no = (data.get('reagent_no') or '').strip()[:40]
-    obj.rtype = (data.get('rtype') or 'Reagent').strip()[:30]
-    obj.description = (data.get('description') or '').strip()
-    obj.final_volume = (data.get('final_volume') or '').strip()[:40]
-    obj.conc_value = (data.get('conc_value') or '').strip()[:40]
-    obj.conc_unit = (data.get('conc_unit') or '').strip()[:20]
-    obj.prepared_by = (data.get('prepared_by') or '').strip()[:120]
-    obj.verified_by = (data.get('verified_by') or '').strip()[:120]
-    obj.dop = _parse_date(data.get('dop'))
-    obj.doe = _parse_date(data.get('doe'))
-    obj.remarks = (data.get('remarks') or '').strip()[:300]
-    obj.save()
+    # All mutations atomic — an edit never leaves the record with its old child
+    # rows deleted but new ones un-written.
+    with _tx.atomic():
+        obj.location = location
+        obj.month = (data.get('month') or '').strip()[:30]
+        obj.reagent_name = name[:200]
+        obj.reagent_no = (data.get('reagent_no') or '').strip()[:40]
+        obj.rtype = (data.get('rtype') or 'Reagent').strip()[:30]
+        obj.description = (data.get('description') or '').strip()
+        obj.final_volume = (data.get('final_volume') or '').strip()[:40]
+        obj.conc_value = (data.get('conc_value') or '').strip()[:40]
+        obj.conc_unit = (data.get('conc_unit') or '').strip()[:20]
+        obj.prepared_by = (data.get('prepared_by') or '').strip()[:120]
+        obj.verified_by = (data.get('verified_by') or '').strip()[:120]
+        obj.dop = _parse_date(data.get('dop'))
+        obj.doe = _parse_date(data.get('doe'))
+        obj.remarks = (data.get('remarks') or '').strip()[:300]
+        obj.save()
 
-    # replace child chemical rows
-    obj.chemicals.all().delete()
-    for i, row in enumerate(data.get('chemicals') or [], start=1):
-        cname = (row.get('chemical_name') or '').strip()
-        if not cname:
-            continue
-        lot_id = row.get('chemical_lot')
-        lot_obj = None
-        if lot_id:
-            try:
-                lot_obj = ChemicalLot.objects.get(id=int(lot_id))
-            except Exception:
-                lot_obj = None
-        ReagentPrepChemical.objects.create(
-            prep=obj, s_no=row.get('s_no') or i, chemical_name=cname[:200],
-            cat_no=(row.get('cat_no') or '').strip()[:80],
-            lot_no=(row.get('lot_no') or '').strip()[:80],
-            quantity=(row.get('quantity') or '').strip()[:60],
-            make=(row.get('make') or '').strip()[:120],
-            expiry=(row.get('expiry') or '').strip()[:40],
-            chemical_lot=lot_obj)
+        # replace child chemical rows
+        obj.chemicals.all().delete()
+        for i, row in enumerate(data.get('chemicals') or [], start=1):
+            cname = (row.get('chemical_name') or '').strip()
+            if not cname:
+                continue
+            lot_id = row.get('chemical_lot')
+            lot_obj = None
+            if lot_id:
+                try:
+                    lot_obj = ChemicalLot.objects.get(id=int(lot_id))
+                except Exception:
+                    lot_obj = None
+            ReagentPrepChemical.objects.create(
+                prep=obj, s_no=row.get('s_no') or i, chemical_name=cname[:200],
+                cat_no=(row.get('cat_no') or '').strip()[:80],
+                lot_no=(row.get('lot_no') or '').strip()[:80],
+                quantity=(row.get('quantity') or '').strip()[:60],
+                make=(row.get('make') or '').strip()[:120],
+                expiry=(row.get('expiry') or '').strip()[:40],
+                chemical_lot=lot_obj)
 
-    # standardisation (only for standardised titrants that carry a payload)
-    std = data.get('standardisation')
-    if std and (std.get('factor') not in (None, '') or std.get('true_N') not in (None, '')):
-        s, _c = ReagentStandardisation.objects.get_or_create(prep=obj)
-        s.location = location
-        s.primary_std = (std.get('primary_std') or '').strip()[:120]
-        s.ps_mass = _f(std.get('ps_mass'))
-        s.ps_purity = _f(std.get('ps_purity'))
-        s.ps_eqwt = _f(std.get('ps_eqwt'))
-        s.titrant_ml = _f(std.get('titrant_ml'))
-        s.nominal_N = _f(std.get('nominal_N'))
-        s.true_N = _f(std.get('true_N'))
-        s.factor = _f(std.get('factor'))
-        s.unit = (std.get('unit') or 'N').strip()[:10]
-        s.std_date = _parse_date(std.get('std_date'))
-        s.next_due = _parse_date(std.get('next_due'))
-        s.save()
-    else:
-        ReagentStandardisation.objects.filter(prep=obj).delete()
+        # standardisation (only for standardised titrants that carry a payload)
+        std = data.get('standardisation')
+        if std and (std.get('factor') not in (None, '') or std.get('true_N') not in (None, '')):
+            s, _c = ReagentStandardisation.objects.get_or_create(prep=obj)
+            s.location = location
+            s.primary_std = (std.get('primary_std') or '').strip()[:120]
+            s.ps_mass = _f(std.get('ps_mass'))
+            s.ps_purity = _f(std.get('ps_purity'))
+            s.ps_eqwt = _f(std.get('ps_eqwt'))
+            s.titrant_ml = _f(std.get('titrant_ml'))
+            s.nominal_N = _f(std.get('nominal_N'))
+            s.true_N = _f(std.get('true_N'))
+            s.factor = _f(std.get('factor'))
+            s.unit = (std.get('unit') or 'N').strip()[:10]
+            s.std_date = _parse_date(std.get('std_date'))
+            s.next_due = _parse_date(std.get('next_due'))
+            s.save()
+        else:
+            ReagentStandardisation.objects.filter(prep=obj).delete()
 
     return JsonResponse({'ok': True, 'id': obj.id})
 
@@ -242,6 +258,27 @@ def generate_pdf_for_reagent_prep(obj):
     today = _date.today()
 
     class CustomPDF(FPDF):
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            # House brand font is Calibri (unicode TTF) — supports subscripts (H2SO4),
+            # micro sign, etc. Fall back to Helvetica (+ latin-1 sanitising) only if
+            # the TTF is unavailable, so the report can never crash on chemistry text.
+            self.fam = 'Helvetica'
+            try:
+                if _os.path.exists(_CALIBRI):
+                    self.add_font('Calibri', '', _CALIBRI, uni=True)
+                    self.add_font('Calibri', 'B',
+                                  _CALIBRIB if _os.path.exists(_CALIBRIB) else _CALIBRI, uni=True)
+                    self.fam = 'Calibri'
+            except Exception:
+                self.fam = 'Helvetica'
+
+        def t(self, s):
+            s = '' if s is None else str(s)
+            if self.fam == 'Calibri':
+                return s
+            return s.encode('latin-1', 'replace').decode('latin-1')
+
         def header(self):
             if _os.path.exists(_LOGO):
                 try:
@@ -249,17 +286,17 @@ def generate_pdf_for_reagent_prep(obj):
                 except Exception:
                     pass
             self.set_xy(32, 9)
-            self.set_font('Helvetica', 'B', 15)
+            self.set_font(self.fam, 'B', 15)
             self.cell(120, 7, 'ENVI TECH AL', ln=1)
             self.set_xy(32, 16)
-            self.set_font('Helvetica', '', 8)
-            self.cell(120, 5, 'Analytical Laboratory - Environmental & Water Testing', ln=1)
+            self.set_font(self.fam, '', 8)
+            self.cell(120, 5, self.t('Analytical Laboratory - Environmental & Water Testing'), ln=1)
             self.set_xy(32, 21)
-            self.set_font('Helvetica', 'B', 11)
+            self.set_font(self.fam, 'B', 11)
             self.cell(120, 6, 'REAGENT PREPARATION RECORD', ln=1)
             # control box (top-right)
             bx, by, bw = 150, 8, 52
-            self.set_font('Helvetica', '', 7)
+            self.set_font(self.fam, '', 7)
             self.set_xy(bx, by)
             rows = [
                 ('Doc No.', ctrl.doc_no or '-'),
@@ -271,10 +308,10 @@ def generate_pdf_for_reagent_prep(obj):
             y = by
             for k, v in rows:
                 self.set_xy(bx, y)
-                self.set_font('Helvetica', 'B', 7)
+                self.set_font(self.fam, 'B', 7)
                 self.cell(22, 5, k, border=1)
-                self.set_font('Helvetica', '', 7)
-                self.cell(bw - 22, 5, ' ' + str(v), border=1, ln=1)
+                self.set_font(self.fam, '', 7)
+                self.cell(bw - 22, 5, self.t(' ' + str(v)), border=1, ln=1)
                 y += 5
             self.set_draw_color(0, 0, 0)
             self.line(10, 33, 202, 33)
@@ -282,11 +319,11 @@ def generate_pdf_for_reagent_prep(obj):
 
         def footer(self):
             self.set_y(-14)
-            self.set_font('Helvetica', 'I', 7)
+            self.set_font(self.fam, 'I' if self.fam == 'Helvetica' else '', 7)
             self.cell(0, 4,
                       'ENVI TECH AL  -  Controlled document.  Uncontrolled when printed.',
                       align='C', ln=1)
-            self.set_font('Helvetica', '', 7)
+            self.set_font(self.fam, '', 7)
             self.cell(0, 4, 'Page %s of {nb}' % self.page_no(), align='R')
 
     pdf = CustomPDF(orientation='P', unit='mm', format='A4')
@@ -295,10 +332,10 @@ def generate_pdf_for_reagent_prep(obj):
     pdf.add_page()
 
     def kv(label, value, w1=32, w2=64):
-        pdf.set_font('Helvetica', 'B', 9)
+        pdf.set_font(pdf.fam, 'B', 9)
         pdf.cell(w1, 6, label, border=0)
-        pdf.set_font('Helvetica', '', 9)
-        pdf.cell(w2, 6, str(value or '-'), border=0)
+        pdf.set_font(pdf.fam, '', 9)
+        pdf.cell(w2, 6, pdf.t(value or '-'), border=0)
 
     kv('Month:', obj.month)
     kv('Type:', obj.rtype, 24, 60)
@@ -314,12 +351,20 @@ def generate_pdf_for_reagent_prep(obj):
     # chemicals table
     headers = [('S.#', 12), ('Chemical Name', 52), ('CAT No.', 26), ('LOT No.', 26),
                ('Quantity', 24), ('Make', 28), ('Expiry', 24)]
-    pdf.set_font('Helvetica', 'B', 8)
+    pdf.set_font(pdf.fam, 'B', 8)
     pdf.set_fill_color(225, 232, 237)
     for h, w in headers:
         pdf.cell(w, 7, h, border=1, align='C', fill=True)
     pdf.ln(7)
-    pdf.set_font('Helvetica', '', 8)
+    pdf.set_font(pdf.fam, '', 8)
+
+    def _fit(txt, w):
+        # Trim to the column width so a long value never overflows the cell.
+        txt = pdf.t(txt)
+        while txt and pdf.get_string_width(txt) > (w - 2):
+            txt = txt[:-1]
+        return txt
+
     for c in obj.chemicals.all():
         exp_dt = _parse_date(c.expiry)
         cells = [(str(c.s_no), 12, 'C'), (c.chemical_name, 52, 'L'), (c.cat_no or '-', 26, 'C'),
@@ -328,7 +373,7 @@ def generate_pdf_for_reagent_prep(obj):
         for i, (txt, w, al) in enumerate(cells):
             if i == 6 and exp_dt and exp_dt < today:
                 pdf.set_text_color(200, 0, 0)
-            pdf.cell(w, 6, (str(txt)[:34]), border=1, align=al)
+            pdf.cell(w, 6, _fit(txt, w), border=1, align=al)
             pdf.set_text_color(0, 0, 0)
         pdf.ln(6)
     if not obj.chemicals.exists():
@@ -337,18 +382,18 @@ def generate_pdf_for_reagent_prep(obj):
     pdf.ln(4)
 
     # description
-    pdf.set_font('Helvetica', 'B', 9)
+    pdf.set_font(pdf.fam, 'B', 9)
     pdf.cell(0, 6, 'Description / Method of Preparation:', ln=1)
-    pdf.set_font('Helvetica', '', 9)
-    pdf.multi_cell(0, 5, obj.description or '-')
+    pdf.set_font(pdf.fam, '', 9)
+    pdf.multi_cell(0, 5, pdf.t(obj.description or '-'))
     pdf.ln(2)
 
     # standardisation
     try:
         s = obj.standardisation
-        pdf.set_font('Helvetica', 'B', 9)
-        pdf.cell(0, 6, 'Standardisation (%s):' % (s.location or obj.location), ln=1)
-        pdf.set_font('Helvetica', '', 9)
+        pdf.set_font(pdf.fam, 'B', 9)
+        pdf.cell(0, 6, pdf.t('Standardisation (%s):' % (s.location or obj.location)), ln=1)
+        pdf.set_font(pdf.fam, '', 9)
         u = s.unit or 'N'
         line = ('Primary std: %s  |  nominal %s %s -> true %s %s  |  factor %s  |  date %s  |  next due %s' % (
             s.primary_std or '-',
@@ -357,17 +402,17 @@ def generate_pdf_for_reagent_prep(obj):
             ('%.4f' % s.factor) if s.factor is not None else '-',
             s.std_date.strftime('%d-%m-%Y') if s.std_date else '-',
             s.next_due.strftime('%d-%m-%Y') if s.next_due else '-'))
-        pdf.multi_cell(0, 5, line)
+        pdf.multi_cell(0, 5, pdf.t(line))
         pdf.ln(2)
     except ReagentStandardisation.DoesNotExist:
         pass
 
     pdf.ln(4)
-    pdf.set_font('Helvetica', 'B', 9)
+    pdf.set_font(pdf.fam, 'B', 9)
     dop = obj.dop.strftime('%d-%m-%Y') if obj.dop else '-'
     doe = obj.doe.strftime('%d-%m-%Y') if obj.doe else '-'
-    pdf.cell(48, 6, 'Prepared By: ' + (obj.prepared_by or '-'))
-    pdf.cell(48, 6, 'Verified By: ' + (obj.verified_by or '-'))
+    pdf.cell(48, 6, pdf.t('Prepared By: ' + (obj.prepared_by or '-')))
+    pdf.cell(48, 6, pdf.t('Verified By: ' + (obj.verified_by or '-')))
     pdf.ln(6)
     pdf.cell(48, 6, 'D.O.P.: ' + dop)
     if obj.doe and obj.doe < today:
@@ -380,8 +425,9 @@ def generate_pdf_for_reagent_prep(obj):
     if isinstance(out, str):
         out = out.encode('latin-1')
     resp = HttpResponse(bytes(out), content_type='application/pdf')
-    fname = 'ReagentPrep_%s_%s.pdf' % (obj.reagent_no or obj.id, obj.location)
-    resp['Content-Disposition'] = 'inline; filename="%s"' % fname.replace(' ', '_')
+    safe_no = ''.join(ch for ch in str(obj.reagent_no or obj.id) if ch.isalnum() or ch in '-_') or str(obj.id)
+    fname = 'ReagentPrep_%s_%s.pdf' % (safe_no, obj.location)
+    resp['Content-Disposition'] = 'inline; filename="%s"' % fname
     return resp
 
 
@@ -389,8 +435,8 @@ def reagent_prep_pdf_from_list(request, pk=None):
     if pk:
         obj = get_object_or_404(ReagentPrep, id=pk)
         return generate_pdf_for_reagent_prep(obj)
-    data = ReagentPrep.objects.all().order_by('-created_at')
-    return render(request, 'reagent_prep_list.html', {'list': [{'o': o, 'expired': False} for o in data]})
+    # No pk: fall back to the list view (full context) rather than a bare render.
+    return reagent_prep_list(request)
 
 
 __all__ = [
