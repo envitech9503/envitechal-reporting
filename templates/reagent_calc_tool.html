@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Envi Tech AL — Reagent &amp; Standards Preparation Calculator</title>
+<style>
+  :root{
+    --etal:#0b3d6e; --etal2:#12579e; --accent:#1f9d55; --danger:#c0392b;
+    --ink:#1b2733; --muted:#5b6b7b; --line:#d8e0e8; --bg:#f4f7fb; --card:#ffffff;
+    --chip:#eaf2fb; --warn:#b8860b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Calibri,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14.5px;line-height:1.5}
+  header.app{background:linear-gradient(90deg,var(--etal),var(--etal2));color:#fff;padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header.app .logo{width:48px;height:48px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;padding:4px}
+  header.app h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px}
+  header.app .sub{font-size:11.5px;opacity:.85;margin-top:2px}
+  header.app .loc{margin-left:auto;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);padding:6px 10px;border-radius:8px}
+  header.app select{font:inherit;border:none;border-radius:6px;padding:5px 8px}
+  .ctrlno{font-size:11.5px;opacity:.9}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tabs button{border:1px solid var(--line);background:#fff;color:var(--etal);padding:9px 14px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}
+  .tabs button.active{background:var(--etal);color:#fff;border-color:var(--etal)}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:0 1px 3px rgba(16,42,67,.05)}
+  .card h2{margin:0 0 4px;font-size:16px;color:var(--etal)}
+  .card p.note{margin:0 0 12px;color:var(--muted);font-size:12.5px}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 3px;font-weight:600}
+  input,select.f{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  input:focus,select.f:focus{outline:2px solid #cfe0f3;border-color:var(--etal2)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:3px}
+  .out{background:#f0f7ff;border:1px solid #cfe0f3;border-radius:10px;padding:14px 16px;margin-top:6px}
+  .out .big{font-size:26px;font-weight:800;color:var(--etal)}
+  .out .big small{font-size:14px;font-weight:600;color:var(--muted)}
+  .out .formula{font-family:"Cascadia Code",Consolas,monospace;font-size:12px;background:#fff;border:1px dashed #cbd8e6;border-radius:8px;padding:8px 10px;margin-top:10px;color:#33475b;white-space:pre-wrap}
+  .out ul{margin:8px 0 0;padding-left:18px}
+  .out li{margin:2px 0}
+  table.lib{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.lib th,table.lib td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+  table.lib th{background:var(--etal);color:#fff;position:sticky;top:0}
+  table.lib tr:nth-child(even){background:#f7fafd}
+  table.lib button{font:inherit;font-size:11.5px;padding:3px 8px;border:1px solid var(--etal);color:var(--etal);background:#fff;border-radius:6px;cursor:pointer}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer}
+  .btn.sec{background:#fff;color:var(--etal);border:1px solid var(--etal)}
+  .btn.blue{background:var(--etal)}
+  .flex{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pill{display:inline-block;background:var(--chip);color:var(--etal);border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:600;margin:2px 4px 2px 0}
+  .warnbox{background:#fff8e6;border:1px solid #f0d488;color:#7a5b00;border-radius:8px;padding:8px 10px;font-size:12px;margin-top:10px}
+  /* record preview */
+  .rec{font-size:12.5px}
+  .rec .rechead{display:flex;justify-content:space-between;border-bottom:2px solid var(--etal);padding-bottom:6px;margin-bottom:8px}
+  .rec .rechead b{color:var(--etal);font-size:14px}
+  .rec table{width:100%;border-collapse:collapse;margin:6px 0}
+  .rec th,.rec td{border:1px solid #b9c6d4;padding:4px 6px;font-size:11.5px}
+  .rec th{background:#eef4fb}
+  .rec .line{border-bottom:1px solid #98a8b8;min-height:18px;padding:2px 0}
+  .rec .sig{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  .foot{font-size:11px;color:var(--muted);text-align:center;margin-top:18px;padding:10px}
+  .search{margin-bottom:8px}
+  .kv{display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding:3px 0}
+  .kv span:first-child{color:var(--muted)}
+  .tag{font-size:10.5px;background:#eef4fb;color:var(--etal);border-radius:5px;padding:1px 6px;margin-left:6px}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="logo"><img src="/static/assets/EnviTechAL%20LOGO.png" alt="Envi Tech AL" style="width:100%;height:100%;object-fit:contain"/></div>
+  <div>
+    <h1>Reagent &amp; Standards Preparation — Calculator</h1>
+    <div class="sub">Envi Tech AL · Water &amp; Environmental Testing Laboratory · Calculation workbench for the Reagent Preparation Record</div>
+  </div>
+  <div class="loc">
+    <div>
+      <div style="font-size:11px;opacity:.85">Location</div>
+      <select id="loc" onchange="updLoc()">
+        <option value="Karachi">Karachi (Head Office)</option>
+        <option value="Lahore">Lahore</option>
+      </select>
+    </div>
+    <div class="ctrlno">Control No:<br/><b id="ctrlNo">ETAL-LAB-###-FF-##</b></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div class="grid">
+    <div id="panel" class="card"></div>
+
+    <!-- RECORD PREVIEW -->
+    <div class="card">
+      <h2>Preparation Record (live preview)</h2>
+      <p class="note">Auto-filled from the calculation. This mirrors the controlled <b>Reagent Preparation Record</b> and feeds the QC form.</p>
+      <div class="rec" id="rec">
+        <div class="rechead">
+          <div><b>REAGENT PREPARATION RECORD</b><br/><span style="font-size:11px;color:var(--muted)">Envi Tech AL — <span id="recLoc">Karachi</span></span></div>
+          <div style="text-align:right;font-size:11px;color:var(--muted)">Doc: <b id="recCtrl">ETAL-LAB-###-FF-##</b><br/>Month: <span id="recMonth"></span></div>
+        </div>
+        <div class="row">
+          <div><label style="margin:2px 0">Reagent Name</label><div class="line" id="recName">—</div></div>
+          <div><label style="margin:2px 0">Reagent No.</label><div class="line" id="recNo">—</div></div>
+        </div>
+        <table id="recTable">
+          <thead><tr><th>S.#</th><th>Chemical Name</th><th>CAT No.</th><th>LOT No.</th><th>Qty</th><th>Make</th><th>Expiry</th><th></th></tr></thead>
+          <tbody id="recRows"></tbody>
+        </table>
+        <button class="btn sec" style="padding:4px 10px;font-size:11.5px;margin-top:2px" onclick="addChemRow()">+ Add row</button>
+        <datalist id="invList"></datalist>
+        <div class="hint" style="margin-top:3px">Type a chemical name — it matches your Chemicals inventory and auto-fills CAT / LOT / Make / Expiry (live build queries the <b>ChemicalLot</b> table).</div>
+        <label style="margin:2px 0">Description / Method</label>
+        <div class="line" id="recDesc" style="min-height:34px">—</div>
+        <div class="sig">
+          <div><label style="margin:2px 0">Prepared By</label><div class="line">&nbsp;</div><div style="font-size:11px;color:var(--muted)">D.O.P.: <span id="recDop">____</span></div></div>
+          <div><label style="margin:2px 0">Verified By</label><div class="line">&nbsp;</div><div style="font-size:11px;color:var(--muted)">D.O.E.: <span id="recDoe">____</span></div></div>
+        </div>
+        <div id="recFactor" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Envi Tech AL — Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi 75900, Pakistan · info@envitechal.com · Calculation aid; always verify against the method and record on the controlled form.</div>
+</div>
+
+<script>
+/* ---------- location control numbers (office-editable in the real module via InventoryDocControl) ---------- */
+const CTRL = { Karachi:"ETAL-LAB-708-RP-01", Lahore:"ETAL-LAB-709-RP-01" }; // placeholders; office sets real per-lab numbers
+function updLoc(){const l=document.getElementById('loc').value;document.getElementById('ctrlNo').textContent=CTRL[l];document.getElementById('recCtrl').textContent=CTRL[l];document.getElementById('recLoc').textContent=l;}
+function num(id){const v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
+function val(id){return document.getElementById(id).value;}
+function fmt(x,d=4){if(x===null||!isFinite(x))return'—';let s=Math.abs(x)>=1000?x.toFixed(2):x.toPrecision(d);return parseFloat(s).toString();}
+function today(){return new Date().toISOString().slice(0,10);}
+
+/* ---------- reagent library (water-lab essentials) ---------- */
+const LIB=[
+ {n:"Oxalic acid dihydrate",f:"H₂C₂O₄·2H₂O",mw:126.07,eq:63.035,cat:"Primary std (acid–base)",recipe:"Weigh 6.303 g → 1 L for 0.1 N. Std for NaOH/KMnO₄."},
+ {n:"Potassium hydrogen phthalate (KHP)",f:"KHC₈H₄O₄",mw:204.22,eq:204.22,cat:"Primary std for NaOH",recipe:"Dry 120 °C. 20.422 g → 1 L for 0.1 N."},
+ {n:"Sodium carbonate (anhydrous)",f:"Na₂CO₃",mw:105.99,eq:52.994,cat:"Primary std for acids",recipe:"Dry 250–270 °C. 5.299 g → 1 L for 0.1 N."},
+ {n:"Sodium hydroxide",f:"NaOH",mw:40.00,eq:40.00,cat:"Titrant (standardise)",recipe:"4 g → 1 L ≈0.1 N; standardise vs KHP/oxalic."},
+ {n:"Hydrochloric acid (conc.)",f:"HCl",mw:36.46,eq:36.46,liquid:true,assay:37,sg:1.19,cat:"Conc. acid",recipe:"≈12.1 M. 8.3 mL → 1 L ≈0.1 N; standardise vs Na₂CO₃."},
+ {n:"Sulphuric acid (conc.)",f:"H₂SO₄",mw:98.08,eq:49.04,liquid:true,assay:98,sg:1.84,cat:"Conc. acid",recipe:"≈18.4 M / 36.8 N. 2.8 mL → 1 L ≈0.1 N."},
+ {n:"EDTA disodium dihydrate",f:"C₁₀H₁₄N₂O₈Na₂·2H₂O",mw:372.24,eq:372.24,cat:"Hardness titrant",recipe:"3.723 g → 1 L = 0.01 M; standardise vs std Ca/CaCO₃."},
+ {n:"Silver nitrate",f:"AgNO₃",mw:169.87,eq:169.87,cat:"Chloride (Mohr)",recipe:"2.395 g → 1 L = 0.0141 N (1 mL ≡ 0.5 mg Cl⁻)."},
+ {n:"Sodium chloride",f:"NaCl",mw:58.44,eq:58.44,cat:"Chloride std / saline",recipe:"0.824 g → 1 L = 0.0141 N. 0.9 % = 9 g/L."},
+ {n:"Sodium thiosulphate 5-hydrate",f:"Na₂S₂O₃·5H₂O",mw:248.18,eq:248.18,cat:"Iodometry / DO titrant",recipe:"24.82 g → 1 L = 0.1 N; standardise vs KIO₃/K₂Cr₂O₇."},
+ {n:"Potassium dichromate",f:"K₂Cr₂O₇",mw:294.18,eq:49.03,cat:"Primary std / COD",recipe:"Dry 105 °C. 4.903 g → 1 L = 0.1 N."},
+ {n:"Ferrous ammonium sulphate (FAS)",f:"Fe(NH₄)₂(SO₄)₂·6H₂O",mw:392.14,eq:392.14,cat:"COD titrant",recipe:"39.2 g + 20 mL H₂SO₄ → 1 L ≈0.1 M; standardise daily vs K₂Cr₂O₇."},
+ {n:"Potassium permanganate",f:"KMnO₄",mw:158.03,eq:31.606,cat:"Oxidant titrant",recipe:"3.16 g → 1 L ≈0.1 N; standardise vs Na₂C₂O₄."},
+ {n:"Sodium oxalate",f:"Na₂C₂O₄",mw:134.00,eq:67.00,cat:"Primary std for KMnO₄",recipe:"Dry 105 °C. 6.700 g → 1 L = 0.1 N."},
+ {n:"Calcium carbonate",f:"CaCO₃",mw:100.09,eq:50.045,cat:"Hardness std (as CaCO₃)",recipe:"1.000 g in min. HCl → 1 L = 1000 mg/L as CaCO₃."},
+ {n:"Potassium nitrate",f:"KNO₃",mw:101.10,el:"N",elmw:14.007,cat:"Nitrate-N standard",recipe:"7.218 g → 1 L = 1000 mg/L NO₃-N (factor 7.218)."},
+ {n:"Potassium dihydrogen phosphate",f:"KH₂PO₄",mw:136.09,el:"P",elmw:30.974,cat:"Phosphate-P standard",recipe:"4.394 g → 1 L = 1000 mg/L PO₄-P (factor 4.394)."},
+ {n:"Ammonium chloride",f:"NH₄Cl",mw:53.49,el:"N",elmw:14.007,cat:"Ammonia-N standard",recipe:"3.819 g → 1 L = 1000 mg/L NH₃-N (factor 3.819)."},
+];
+
+/* ---------- tabs ---------- */
+const TABS=[
+ {id:"solid",t:"Weigh &amp; Dissolve (solid)"},
+ {id:"dilute",t:"Dilute a Liquid (C₁V₁=C₂V₂)"},
+ {id:"series",t:"Calibration Standard Series"},
+ {id:"stand",t:"Standardisation / Factor"},
+ {id:"pct",t:"% Solution"},
+ {id:"conv",t:"Converters &amp; as-CaCO₃"},
+ {id:"lib",t:"Reagent Library"},
+];
+let cur="solid";
+function drawTabs(){const c=document.getElementById('tabs');c.innerHTML=TABS.map(x=>`<button class="${x.id===cur?'active':''}" onclick="go('${x.id}')">${x.t}</button>`).join('');}
+function go(id){cur=id;drawTabs();PANELS[id]();}
+
+/* ---------- record helpers ---------- */
+function setRec(o){
+  document.getElementById('recMonth').textContent=o.month||new Date().toLocaleString('en-GB',{month:'short',year:'2-digit'});
+  document.getElementById('recName').textContent=o.name||'—';
+  document.getElementById('recNo').textContent=o.no||'—';
+  document.getElementById('recDesc').textContent=o.desc||'—';
+  document.getElementById('recDop').textContent=o.dop||today();
+  document.getElementById('recDoe').textContent=o.doe||'—';
+  if(o.chem){clearChemRows();o.chem.forEach(c=>addChemRow(c));}
+  document.getElementById('recFactor').innerHTML=o.factor?`<div class="warnbox"><b>Standardisation factor (${document.getElementById('loc').value}):</b> ${o.factor}</div>`:'';
+}
+
+/* ======================= PANELS ======================= */
+const PANELS={};
+
+PANELS.solid=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>Weigh &amp; Dissolve — solid reagent / standard</h2>
+  <p class="note">Mass to weigh for a target concentration &amp; volume. Handles Molar, Normal, %w/v, g/L, ppm (mg/L), and "expressed-as-element" standards — with assay/purity and hydrate correction.</p>
+  <label>Load from library (optional)</label>
+  <select class="f" id="s_lib" onchange="loadSolid()"><option value="">— choose a reagent —</option>${LIB.filter(x=>!x.liquid).map((x,i)=>`<option value="${i}">${x.n} (${x.f})</option>`).join('')}</select>
+  <div class="row">
+    <div><label>Reagent name</label><input id="s_name" placeholder="e.g. Oxalic acid 0.1 N"/></div>
+    <div><label>Reagent No.</label><input id="s_no" placeholder="e.g. AD-01 / RG-16"/></div>
+  </div>
+  <div class="row3">
+    <div><label>Target concentration</label><input id="s_conc" type="number" step="any" oninput="calcSolid()" placeholder="e.g. 0.1"/></div>
+    <div><label>Unit</label>
+      <select class="f" id="s_unit" onchange="calcSolid()">
+        <option value="N">Normality (N)</option>
+        <option value="M">Molarity (M)</option>
+        <option value="pw">% w/v</option>
+        <option value="gL">g/L</option>
+        <option value="ppm">ppm (mg/L)</option>
+        <option value="ppmEl">ppm as element/ion</option>
+      </select>
+    </div>
+    <div><label>Final volume</label><div class="flex"><input id="s_vol" type="number" step="any" oninput="calcSolid()" placeholder="e.g. 1000" style="flex:1"/><select class="f" id="s_volu" onchange="calcSolid()" style="width:78px"><option value="1000">mL</option><option value="1">L</option></select></div></div>
+  </div>
+  <div class="row3">
+    <div><label>Molar mass (g/mol)</label><input id="s_mw" type="number" step="any" oninput="calcSolid()"/></div>
+    <div><label>Equiv. weight (for N)</label><input id="s_eq" type="number" step="any" oninput="calcSolid()"/><div class="hint">= MW ÷ n (H⁺/OH⁻/e⁻/charge)</div></div>
+    <div><label>Assay / purity (%)</label><input id="s_pur" type="number" step="any" value="100" oninput="calcSolid()"/></div>
+  </div>
+  <div class="row">
+    <div><label>Salt MW (for "as element")</label><input id="s_saltmw" type="number" step="any" oninput="calcSolid()" placeholder="salt formula wt"/></div>
+    <div><label>Element/ion MW</label><input id="s_elmw" type="number" step="any" oninput="calcSolid()" placeholder="e.g. N=14.007"/></div>
+  </div>
+  <div class="out" id="s_out"></div>
+  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_solid()">➜ Fill preparation record</button></div>`;
+ calcSolid();
+};
+function loadSolid(){const i=val('s_lib');if(i==='')return;const x=LIB.filter(y=>!y.liquid)[i];
+ document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';
+ if(x.el){document.getElementById('s_saltmw').value=x.mw;document.getElementById('s_elmw').value=x.elmw;}
+ calcSolid();}
+function calcSolid(){
+ const conc=num('s_conc'),vol=num('s_vol'),volu=parseFloat(val('s_volu')),mw=num('s_mw'),eq=num('s_eq'),pur=num('s_pur')||100,unit=val('s_unit');
+ const VL=(vol!==null)?vol/volu:null; let mass=null,formula='',expl=[];
+ if(conc!==null&&VL!==null){
+   if(unit==='N'&&eq){mass=conc*eq*VL;formula=`mass = N × Eq.wt × V(L) = ${conc} × ${eq} × ${fmt(VL)}`;}
+   else if(unit==='M'&&mw){mass=conc*mw*VL;formula=`mass = M × MW × V(L) = ${conc} × ${mw} × ${fmt(VL)}`;}
+   else if(unit==='pw'){mass=conc/100*VL*1000;formula=`mass = (% ÷ 100) × V(mL) = (${conc}/100) × ${fmt(VL*1000)}`;}
+   else if(unit==='gL'){mass=conc*VL;formula=`mass = g/L × V(L) = ${conc} × ${fmt(VL)}`;}
+   else if(unit==='ppm'){mass=conc*VL/1000;formula=`mass = ppm × V(L) ÷ 1000 = ${conc} × ${fmt(VL)} / 1000`;}
+   else if(unit==='ppmEl'){const smw=num('s_saltmw'),elmw=num('s_elmw');if(smw&&elmw){const gf=smw/elmw;mass=conc*VL/1000*gf;formula=`gravimetric factor = salt MW / element MW = ${smw}/${elmw} = ${fmt(gf)}\nmass = ppm × V(L)/1000 × factor`;expl.push(`Gravimetric factor ${fmt(gf)} (weigh this much salt to deliver the ion).`);}}
+ }
+ let massP=(mass!==null&&pur)?mass*100/pur:mass;
+ if(pur&&pur!==100&&mass!==null)expl.push(`Assay ${pur}% → weigh ${fmt(massP)} g of reagent to get ${fmt(mass)} g pure.`);
+ const o=document.getElementById('s_out');
+ if(massP===null){o.innerHTML='<span style="color:var(--muted)">Enter concentration, volume and MW/Eq.wt…</span>';return;}
+ const g=massP, mg=massP*1000;
+ o.innerHTML=`<div class="big">${fmt(g)} <small>g</small> ${g<1?`<span class="tag">= ${fmt(mg)} mg</span>`:''}</div>
+   <div class="formula">${formula}${pur&&pur!==100?`\n→ ÷ (assay/100) = ÷ ${(pur/100)}`:''}</div>
+   ${expl.length?`<ul>${expl.map(e=>`<li>${e}</li>`).join('')}</ul>`:''}
+   <div style="margin-top:8px;font-size:12.5px;color:var(--muted)">Dissolve in DI/DW water and make up to <b>${fmt(vol)} ${volu===1?'L':'mL'}</b>.</div>`;
+ window._solid={g:fmt(g),vol,volu};
+}
+function toRec_solid(){const g=window._solid?window._solid.g:'';const vol=val('s_vol'),volu=val('s_volu')==='1'?'L':'mL';
+ const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
+ setRec({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`,
+   chem:[{name:val('s_name')||'',qty:g+' g'}],dop,doe:d.toISOString().slice(0,10)});
+}
+
+PANELS.dilute=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>Dilute a liquid — C₁V₁ = C₂V₂</h2>
+  <p class="note">Volume of a stock/concentrated liquid needed for a target strength &amp; volume. Works for M, N, %, ppm. Includes a concentrated-acid strength helper.</p>
+  <div class="warnbox">Concentrated-acid strength: N (or M) = (10 × assay% × sp.gr) ÷ Eq.wt (or MW). Always add acid to water.</div>
+  <div class="row"><div><label>Stock strength (C₁)</label><input id="d_c1" type="number" step="any" oninput="calcDil()"/></div>
+    <div><label>Reagent name</label><input id="d_name" placeholder="e.g. H₂SO₄ 0.1 N"/></div></div>
+  <div class="row3">
+    <div><label>Target strength (C₂)</label><input id="d_c2" type="number" step="any" oninput="calcDil()"/></div>
+    <div><label>Target volume (V₂)</label><input id="d_v2" type="number" step="any" oninput="calcDil()" placeholder="mL"/></div>
+    <div><label>Unit (same for C₁,C₂)</label><select class="f" id="d_u"><option>N</option><option>M</option><option>%</option><option>ppm</option></select></div>
+  </div>
+  <div class="out" id="d_out"></div>
+  <hr style="border:none;border-top:1px dashed var(--line);margin:14px 0"/>
+  <h2 style="font-size:14px">Concentrated-acid strength helper</h2>
+  <div class="row3">
+    <div><label>Assay (%)</label><input id="d_as" type="number" step="any" value="98" oninput="calcAcid()"/></div>
+    <div><label>Sp. gravity</label><input id="d_sg" type="number" step="any" value="1.84" oninput="calcAcid()"/></div>
+    <div><label>MW / Eq.wt</label><input id="d_mw" type="number" step="any" value="98.08" oninput="calcAcid()"/></div>
+  </div>
+  <div class="out" id="d_acid"></div>
+  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_dil()">➜ Fill preparation record</button></div>`;
+ calcDil();calcAcid();
+};
+function calcDil(){const c1=num('d_c1'),c2=num('d_c2'),v2=num('d_v2'),o=document.getElementById('d_out');
+ if(c1&&c2&&v2){const v1=c2*v2/c1;window._dil={v1:fmt(v1),v2,name:''};
+   o.innerHTML=`<div class="big">${fmt(v1)} <small>mL of stock</small></div>
+   <div class="formula">V₁ = C₂V₂ / C₁ = (${c2} × ${v2}) / ${c1}</div>
+   <div style="margin-top:8px;color:var(--muted);font-size:12.5px">Take <b>${fmt(v1)} mL</b> of stock, add to water and make up to <b>${v2} mL</b>. Dilution factor ≈ <b>${fmt(c1/c2)}×</b>.</div>`;}
+ else o.innerHTML='<span style="color:var(--muted)">Enter C₁, C₂ and V₂…</span>';}
+function calcAcid(){const a=num('d_as'),sg=num('d_sg'),mw=num('d_mw'),o=document.getElementById('d_acid');
+ if(a&&sg&&mw){const s=10*a*sg/mw;o.innerHTML=`<div class="big">${fmt(s)} <small>N or M</small></div><div class="formula">= (10 × ${a} × ${sg}) / ${mw}</div><div class="hint" style="margin-top:6px">Use this as C₁ above. (Use MW→Molarity, Eq.wt→Normality.)</div>`;}
+ else o.innerHTML='';}
+function toRec_dil(){const v1=window._dil?window._dil.v1:'';const v2=val('d_v2');const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
+ setRec({name:val('d_name'),no:'',desc:`Take ${v1} mL of stock, dilute with DI water and make up to ${v2} mL.`,chem:[{name:val('d_name')||'',qty:v1+' mL'}],dop,doe:d.toISOString().slice(0,10)});}
+
+PANELS.series=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>Calibration standard series</h2>
+  <p class="note">Aliquots of a stock to make each working standard for a calibration curve.</p>
+  <div class="row3">
+    <div><label>Stock conc.</label><input id="se_stock" type="number" step="any" value="1000" oninput="calcSer()"/></div>
+    <div><label>Unit</label><input id="se_unit" value="mg/L" oninput="calcSer()"/></div>
+    <div><label>Final vol. each (mL)</label><input id="se_fv" type="number" step="any" value="100" oninput="calcSer()"/></div>
+  </div>
+  <label>Target points (comma separated)</label>
+  <input id="se_pts" value="0, 5, 10, 25, 50, 100" oninput="calcSer()"/>
+  <div class="out" id="se_out"></div>`;
+ calcSer();
+};
+function calcSer(){const st=num('se_stock'),fv=num('se_fv'),u=val('se_unit');const pts=val('se_pts').split(',').map(x=>parseFloat(x)).filter(x=>!isNaN(x));const o=document.getElementById('se_out');
+ if(st&&fv&&pts.length){let rows=pts.map(p=>{const a=p*fv/st;return `<tr><td>${p} ${u}</td><td><b>${a>fv?'<span style="color:var(--danger)">'+fmt(a)+' (exceeds vol!)</span>':fmt(a)}</b> mL</td><td>${fmt(fv-a)} mL</td></tr>`;}).join('');
+  o.innerHTML=`<table class="lib"><thead><tr><th>Standard</th><th>Stock to take</th><th>+ Water to</th></tr></thead><tbody>${rows}</tbody></table><div class="hint" style="margin-top:6px">aliquot = (target × final vol) ÷ stock conc. Make each up to ${fv} mL with DI water.</div>`;}
+ else o.innerHTML='<span style="color:var(--muted)">Enter stock, volume and points…</span>';}
+
+PANELS.stand=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>Standardisation — normality &amp; correction factor</h2>
+  <p class="note">Compute the true normality of a titrant (and its correction factor) from a titration against a primary standard. Presets for common water-lab titrants. Factor is stored <b>per location</b>.</p>
+  <label>Preset (optional)</label>
+  <select class="f" id="st_p" onchange="presetStd()">
+    <option value="">— custom —</option>
+    <option value="naoh">NaOH vs Oxalic acid / KHP</option>
+    <option value="hcl">HCl / H₂SO₄ vs Na₂CO₃</option>
+    <option value="edta">EDTA vs CaCO₃ standard</option>
+    <option value="agno3">AgNO₃ vs NaCl</option>
+    <option value="thio">Na₂S₂O₃ vs K₂Cr₂O₇ / KIO₃</option>
+    <option value="kmno4">KMnO₄ vs Na₂C₂O₄</option>
+  </select>
+  <div class="row3">
+    <div><label>Mass of primary std (g)</label><input id="st_m" type="number" step="any" oninput="calcStd()"/></div>
+    <div><label>Purity (%)</label><input id="st_pur" type="number" step="any" value="100" oninput="calcStd()"/></div>
+    <div><label>Eq. wt of primary std</label><input id="st_eq" type="number" step="any" oninput="calcStd()"/></div>
+  </div>
+  <div class="row3">
+    <div><label>Std made up to (mL)</label><input id="st_vol" type="number" step="any" oninput="calcStd()" placeholder="if using a dilution"/></div>
+    <div><label>Aliquot titrated (mL)</label><input id="st_ali" type="number" step="any" oninput="calcStd()" placeholder="blank = whole"/></div>
+    <div><label>Titrant used (mL)</label><input id="st_tit" type="number" step="any" oninput="calcStd()"/></div>
+  </div>
+  <label>Nominal (label) normality — for factor</label>
+  <input id="st_nom" type="number" step="any" placeholder="e.g. 0.1" oninput="calcStd()"/>
+  <div class="out" id="st_out"></div>
+  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_std()">➜ Fill preparation record (with factor)</button></div>`;
+ calcStd();
+};
+const STDP={naoh:{eq:63.035,nom:0.1},hcl:{eq:52.994,nom:0.1},edta:{eq:100.09,nom:0.01},agno3:{eq:58.44,nom:0.0141},thio:{eq:49.03,nom:0.1},kmno4:{eq:67.00,nom:0.1}};
+function presetStd(){const p=STDP[val('st_p')];if(p){document.getElementById('st_eq').value=p.eq;document.getElementById('st_nom').value=p.nom;}calcStd();}
+function calcStd(){const m=num('st_m'),pur=num('st_pur')||100,eq=num('st_eq'),vol=num('st_vol'),ali=num('st_ali'),tit=num('st_tit'),nom=num('st_nom');const o=document.getElementById('st_out');const U=(val('st_p')==='edta')?'M':'N';
+ if(m&&eq&&tit){let meq=m*(pur/100)/eq*1000; // meq in the mass weighed
+   if(vol&&ali)meq=meq*ali/vol; // fraction titrated
+   const N=meq/tit; const factor=nom?N/nom:null;
+   window._std={N:fmt(N,5),factor:factor?fmt(factor,5):'',nom,U};
+   o.innerHTML=`<div class="big">${fmt(N,5)} <small>${U} (true)</small> ${factor?`<span class="tag">factor ${fmt(factor,5)}</span>`:''}</div>
+   <div class="formula">meq of std = mass × purity/Eq.wt × 1000${vol&&ali?` × (aliquot/volume)`:''}\nN(titrant) = meq / titrant mL${nom?`\nfactor = N / nominal = ${fmt(N,5)} / ${nom}`:''}</div>
+   <div class="hint" style="margin-top:6px">Record the true ${U==='M'?'molarity':'normality'} and factor on the standardisation log for <b>${document.getElementById('loc').value}</b>. Re-standardise per method frequency.</div>`;}
+ else o.innerHTML='<span style="color:var(--muted)">Enter mass, Eq.wt and titrant volume…</span>';}
+function toRec_std(){const s=window._std||{};const dop=today();const d=new Date();d.setDate(d.getDate()+ (val('st_p')==='thio'?7:30));
+ setRec({name:(document.querySelector('#st_p option:checked')?document.querySelector('#st_p option:checked').text:'Titrant')+' — standardised',no:'',
+  desc:`Standardised against primary standard. True ${(s.U==='M')?'molarity':'normality'} ${s.N||'—'} ${s.U||'N'}; correction factor ${s.factor||'—'}.`,
+  chem:[{name:'Primary standard',qty:num('st_m')?num('st_m')+' g':''}],dop,doe:d.toISOString().slice(0,10),factor:`${s.factor||'—'} (nominal ${s.nom||'—'} ${s.U||'N'} → true ${s.N||'—'} ${s.U||'N'})`});}
+
+PANELS.pct=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>% Solution</h2>
+  <p class="note">w/v, v/v and w/w. Examples from your records: NaCl 0.9 %, Oxalic acid 7.5 %.</p>
+  <div class="row3">
+    <div><label>Type</label><select class="f" id="p_t" onchange="calcPct()"><option value="wv">% w/v (g/100 mL)</option><option value="vv">% v/v (mL/100 mL)</option><option value="ww">% w/w (g/100 g)</option></select></div>
+    <div><label>Target %</label><input id="p_pct" type="number" step="any" value="0.9" oninput="calcPct()"/></div>
+    <div><label>Final volume/mass</label><input id="p_v" type="number" step="any" value="250" oninput="calcPct()"/></div>
+  </div>
+  <div class="out" id="p_out"></div>`;
+ calcPct();
+};
+function calcPct(){const t=val('p_t'),pc=num('p_pct'),v=num('p_v'),o=document.getElementById('p_out');
+ if(pc!==null&&v!==null){const q=pc/100*v;const un=t==='vv'?'mL':'g';
+  o.innerHTML=`<div class="big">${fmt(q)} <small>${un}</small></div><div class="formula">= (% ÷ 100) × ${v} = ${pc/100} × ${v}</div><div class="hint" style="margin-top:6px">${t==='ww'?'Weigh solute + solvent to total mass.':'Dissolve and make up to '+v+' mL.'}</div>`;}
+ else o.innerHTML='';}
+
+PANELS.conv=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>Converters &amp; "as CaCO₃"</h2>
+  <p class="note">Everyday water-lab conversions.</p>
+  <div class="card" style="box-shadow:none;padding:12px">
+   <b style="color:var(--etal)">mg/L ⇌ meq/L ⇌ mmol/L</b>
+   <div class="row3"><div><label>Value</label><input id="c_val" type="number" step="any" value="100" oninput="calcConv()"/></div>
+   <div><label>From</label><select class="f" id="c_from" onchange="calcConv()"><option value="mgL">mg/L</option><option value="meqL">meq/L</option><option value="mmolL">mmol/L</option></select></div>
+   <div><label>Species</label><input id="c_sp" value="CaCO₃" oninput="0"/></div></div>
+   <div class="row"><div><label>Molar mass (MW)</label><input id="c_mw" type="number" step="any" value="100.09" oninput="calcConv()"/></div>
+   <div><label>Equivalent weight</label><input id="c_eq" type="number" step="any" value="50.045" oninput="calcConv()"/></div></div>
+   <div class="out" id="c_out"></div>
+  </div>
+  <div class="card" style="box-shadow:none;padding:12px;margin-top:12px">
+   <b style="color:var(--etal)">Express hardness / alkalinity as CaCO₃</b>
+   <div class="row3"><div><label>Species conc (mg/L)</label><input id="cc_v" type="number" step="any" value="40" oninput="calcCaCO3()"/></div>
+   <div><label>Species Eq.wt</label><input id="cc_eq" type="number" step="any" value="20.04" oninput="calcCaCO3()"/><div class="hint">Ca=20.04, Mg=12.15</div></div>
+   <div><label>&nbsp;</label><div class="hint">as-CaCO₃ Eq.wt = 50.045</div></div></div>
+   <div class="out" id="cc_out"></div>
+  </div>`;
+ calcConv();calcCaCO3();
+};
+function calcConv(){const v=num('c_val'),f=val('c_from'),mw=num('c_mw'),eq=num('c_eq'),o=document.getElementById('c_out');if(!(v!==null&&mw&&eq))return;
+ let mgL;if(f==='mgL')mgL=v;else if(f==='meqL')mgL=v*eq;else mgL=v*mw;
+ o.innerHTML=`<div class="kv"><span>mg/L</span><b>${fmt(mgL)}</b></div><div class="kv"><span>meq/L (= mg/L ÷ Eq.wt)</span><b>${fmt(mgL/eq)}</b></div><div class="kv"><span>mmol/L (= mg/L ÷ MW)</span><b>${fmt(mgL/mw)}</b></div>`;}
+function calcCaCO3(){const v=num('cc_v'),eq=num('cc_eq'),o=document.getElementById('cc_out');if(!(v!==null&&eq))return;const asC=v*50.045/eq;
+ o.innerHTML=`<div class="big">${fmt(asC)} <small>mg/L as CaCO₃</small></div><div class="formula">= conc × 50.045 / Eq.wt = ${v} × 50.045 / ${eq}</div>`;}
+
+PANELS.lib=function(){
+ document.getElementById('panel').innerHTML=`
+  <h2>Reagent library — water testing lab</h2>
+  <p class="note">Molar/equivalent weights + standard recipes. Click "Use" to load into the Weigh &amp; Dissolve calculator.</p>
+  <input class="search f" id="lib_s" placeholder="Search reagent, formula or use…" oninput="drawLib()"/>
+  <div style="max-height:520px;overflow:auto"><table class="lib" id="lib_t"></table></div>`;
+ drawLib();
+};
+function drawLib(){const q=(val('lib_s')||'').toLowerCase();const rows=LIB.map((x,i)=>({x,i})).filter(({x})=>(x.n+x.f+x.cat).toLowerCase().includes(q));
+ document.getElementById('lib_t').innerHTML=`<thead><tr><th>Reagent</th><th>Formula</th><th>MW</th><th>Eq.wt</th><th>Use / basis</th><th>Standard recipe</th><th></th></tr></thead><tbody>${rows.map(({x,i})=>`<tr><td>${x.n}</td><td>${x.f}</td><td>${x.mw}</td><td>${x.eq||(x.el?'—':'')}</td><td>${x.cat}</td><td>${x.recipe}</td><td><button onclick="useLib(${i})">Use ▸</button></td></tr>`).join('')}</tbody>`;}
+function useLib(i){cur='solid';drawTabs();PANELS.solid();const li=LIB.filter(x=>!x.liquid).findIndex(x=>x.n===LIB[i].n);
+ if(li>=0){document.getElementById('s_lib').value=li;loadSolid();}else{const x=LIB[i];document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';calcSolid();}}
+
+/* ---- editable chemical rows + inventory autocomplete (live build queries ChemicalItem/ChemicalLot) ---- */
+const INV={
+ "Oxalic acid dihydrate":{cat:"00376",make:"Sigma",lots:[{lot:"SLCN5391",exp:"Jun 2027"}]},
+ "Silver nitrate":{cat:"7520-4125",make:"Daejung",lots:[{lot:"90BS42C1",exp:"2030"}]},
+ "EDTA disodium dihydrate":{cat:"E1644",make:"Sigma",lots:[{lot:"SLCDS217",exp:"Aug 2027"}]},
+ "Potassium dichromate":{cat:"207802",make:"Sigma-Aldrich",lots:[{lot:"MKCS3074",exp:"Sep 2027"}]},
+ "Sulphuric acid":{cat:"258105",make:"Sigma-Aldrich",lots:[{lot:"MKCW4009",exp:"Jul 2029"}]},
+ "Mercuric sulphate":{cat:"83565-180",make:"VWR",lots:[{lot:"B385712110",exp:"Sep 2026"}]},
+ "Sodium chloride":{cat:"746398",make:"Sigma",lots:[{lot:"SLCM3356",exp:"Jan 2028"}]},
+ "Ferric chloride hexahydrate":{cat:"1.03943",make:"Merck",lots:[{lot:"K52130343",exp:"Oct 2027"}]},
+ "Sodium phosphate monobasic":{cat:"S9638",make:"Sigma",lots:[{lot:"BCCK5996",exp:"Jun 2026"}]},
+};
+function fillInvList(){document.getElementById('invList').innerHTML=Object.keys(INV).map(n=>`<option value="${n}">`).join('');}
+function addChemRow(d){d=d||{};const tb=document.getElementById('recRows');const tr=document.createElement('tr');
+ tr.innerHTML=`<td class="sn"></td>
+  <td><input list="invList" class="cr" style="width:100%;border:none;font:inherit;font-size:11.5px" value="${(d.name||'').replace(/"/g,'&quot;')}" oninput="chemPick(this)"/></td>
+  <td><input class="cr ccat" style="width:62px;border:none;font:inherit;font-size:11.5px" value="${d.cat||''}"/></td>
+  <td><input class="cr clot" style="width:72px;border:none;font:inherit;font-size:11.5px" value="${d.lot||''}"/></td>
+  <td><input class="cr" style="width:54px;border:none;font:inherit;font-size:11.5px" value="${d.qty||''}"/></td>
+  <td><input class="cr cmake" style="width:64px;border:none;font:inherit;font-size:11.5px" value="${d.make||''}"/></td>
+  <td><input class="cr cexp" style="width:58px;border:none;font:inherit;font-size:11.5px" value="${d.exp||''}"/></td>
+  <td style="text-align:center"><button title="delete row" onclick="this.closest('tr').remove();renumber()" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:14px">&times;</button></td>`;
+ tb.appendChild(tr);renumber();}
+function chemPick(inp){const rec=INV[inp.value.trim()];if(!rec)return;const tr=inp.closest('tr');const lot=(rec.lots&&rec.lots[0])||{};
+ tr.querySelector('.ccat').value=rec.cat||'';tr.querySelector('.cmake').value=rec.make||'';tr.querySelector('.clot').value=lot.lot||'';tr.querySelector('.cexp').value=lot.exp||'';}
+function renumber(){document.querySelectorAll('#recRows tr').forEach((tr,i)=>{tr.querySelector('.sn').textContent=i+1;});}
+function clearChemRows(){document.getElementById('recRows').innerHTML='';}
+
+/* init */
+fillInvList();drawTabs();go('solid');updLoc();setRec({});addChemRow();
+</script>
+</body>
+</html>

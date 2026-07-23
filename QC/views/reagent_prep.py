@@ -6,11 +6,13 @@ QC/views/__init__.py via `from .reagent_prep import *` + _FAMILY_MODULES.
 from .shared import *  # noqa: F401,F403  (FPDF, models, render, JsonResponse, csrf_exempt, get_object_or_404, os, json, datetime...)
 
 import os as _os
+import re as _re
 import json as _json
 from datetime import datetime as _dt, date as _date
 from django.db.models import Q as _Q
 from django.db import transaction as _tx
 from django.utils.safestring import mark_safe as _mark_safe
+from django.views.decorators.clickjacking import xframe_options_sameorigin as _xframe_sameorigin
 
 _LOGO = "static/assets/EnviTechAL LOGO.png"
 _CALIBRI = "static/fonts/calibri.ttf"
@@ -54,6 +56,29 @@ def _docctrl(location):
     return obj
 
 
+def _split_cat_lot(raw):
+    """Inventory has no dedicated CAT field — the lab records both in one lot_no
+    string, e.g. 'CAT NO. C532.1000  LOT NO: E1078375'. Split into (cat, lot)."""
+    raw = (raw or '').strip()
+    if not raw:
+        return '', ''
+    up = raw.upper()
+    ci, li = up.find('CAT'), up.find('LOT')
+
+    def _clean(x):
+        return _re.sub(r'^\s*(NO\.?|NUMBER)?\s*[:.\-]?\s*', '', x, flags=_re.I).strip()
+
+    if ci != -1 and li != -1:
+        if ci < li:
+            return _clean(raw[ci + 3:li]), _clean(raw[li + 3:])
+        return _clean(raw[ci + 3:]), _clean(raw[li + 3:ci])
+    if li != -1:
+        return '', _clean(raw[li + 3:])
+    if ci != -1:
+        return _clean(raw[ci + 3:]), ''
+    return '', raw
+
+
 def _inventory_for_autocomplete():
     rows = []
     try:
@@ -62,17 +87,28 @@ def _inventory_for_autocomplete():
                     .select_related('item')
                     .order_by('item__name', 'id')[:800]):
             it = lot.item
+            cat, lotno = _split_cat_lot(lot.lot_no)
             rows.append({
                 'id': lot.id,
                 'name': it.name if it else '',
-                'cat': getattr(it, 'cat_no', '') or getattr(it, 'catalogue_no', '') or '',
-                'lot': lot.lot_no or '',
+                'cat': cat,
+                'lot': lotno,
                 'make': lot.supplier or '',
                 'expiry': lot.expiry.strftime('%d-%m-%Y') if lot.expiry else '',
             })
     except Exception:
         rows = []
     return rows
+
+
+def _docctrl_data(location):
+    c = _docctrl(location)
+    return {
+        'doc_no': c.doc_no or '',
+        'issue_date': getattr(c, 'issue_date', '') or '',
+        'issue_no': c.issue_no or '01',
+        'rev_no': c.rev_no or '00',
+    }
 
 
 def _record_json(obj):
@@ -118,14 +154,40 @@ def reagent_prep(request):
         record = _record_json(obj)
         record['id'] = None
         record['reagent_no'] = ''
-    ctrl = {loc: _docctrl(loc).doc_no for loc in _LOCS}
+    docctrl = {loc: _docctrl_data(loc) for loc in _LOCS}
+    is_admin = bool(getattr(request, 'user', None) and request.user.is_superuser)
     context = {
         'record_json': _safe_json(record),
         'inventory_json': _safe_json(_inventory_for_autocomplete()),
-        'control_json': _safe_json(ctrl),
+        'docctrl_json': _safe_json(docctrl),
+        'is_admin_json': _safe_json(is_admin),
         'locations': _safe_json(_LOCS),
     }
     return render(request, 'reagent_prep_form.html', context)
+
+
+@csrf_exempt
+def reagent_prep_doc_save(request):
+    """Save the per-lab control document number (superuser only), mirroring the
+    Chemicals module's doc-control edit."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not (getattr(request, 'user', None) and request.user.is_superuser):
+        return JsonResponse({'error': 'Only an administrator can edit the control number.'}, status=403)
+    g = request.POST
+    location = g.get('location') if g.get('location') in _LOCS else 'Karachi'
+    c = _docctrl(location)
+    c.doc_no = (g.get('doc_no') or '').strip()[:60]
+    c.issue_date = (g.get('issue_date') or '').strip()[:30]
+    c.issue_no = (g.get('issue_no') or '').strip()[:10] or '01'
+    c.rev_no = (g.get('rev_no') or '').strip()[:10] or '00'
+    if getattr(request, 'user', None) and request.user.is_authenticated:
+        try:
+            c.updated_by = request.user
+        except Exception:
+            pass
+    c.save()
+    return JsonResponse({'ok': True, 'location': location, 'doc': _docctrl_data(location)})
 
 
 @csrf_exempt
@@ -238,10 +300,12 @@ def reagent_prep_list(request):
                   {'list': rows, 'location': loc, 'q': q, 'locations': _LOCS})
 
 
+@_xframe_sameorigin
 def reagent_prep_calculator(request):
     """Standalone fully-loaded calculator, embedded in the form via iframe.
     Served raw (not through the template engine) so the calculator's own JS
-    braces are never parsed as Django template tags."""
+    braces are never parsed as Django template tags. xframe_sameorigin lets the
+    same-origin iframe render it (site default is X-Frame-Options: DENY)."""
     for p in ('templates/reagent_calc_tool.html',
               _os.path.join(_os.path.dirname(__file__), '..', '..', 'templates', 'reagent_calc_tool.html')):
         try:
@@ -440,7 +504,7 @@ def reagent_prep_pdf_from_list(request, pk=None):
 
 
 __all__ = [
-    'reagent_prep', 'reagent_prep_save', 'reagent_prep_list',
+    'reagent_prep', 'reagent_prep_save', 'reagent_prep_doc_save', 'reagent_prep_list',
     'reagent_prep_calculator', 'reagent_prep_pdf_from_list',
     'generate_pdf_for_reagent_prep',
 ]

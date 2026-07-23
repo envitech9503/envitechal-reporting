@@ -64,7 +64,18 @@
         <div class="fld"><label>Type</label><select id="rtype" onchange="onType()">
           <option>Reagent</option><option>Standard</option><option>Standardised titrant</option><option>Buffer</option><option>% solution</option>
         </select></div>
-        <div class="fld"><label>Control No. (this lab)</label><div class="ctrlbox">Doc No.: <b id="ctrlNo">-</b></div></div>
+        <div class="fld wide"><label>Control No. (this lab) <a id="ctrlEditLink" class="hidden" href="javascript:void(0)" onclick="toggleDocEdit()" style="font-weight:500;font-size:11px;color:#0ea5e9">edit</a></label>
+          <div class="ctrlbox">
+            <div id="ctrlDisp">Doc No.: <b id="ctrlNo">-</b></div>
+            <div id="ctrlEdit" class="hidden" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+              <input id="d_no" placeholder="Doc No. (e.g. ETAL-LAB-709-RP-01)" style="width:220px;font-size:12px">
+              <input id="d_date" placeholder="Issue date" style="width:100px;font-size:12px">
+              <input id="d_iss" placeholder="Iss" style="width:44px;font-size:12px">
+              <input id="d_rev" placeholder="Rev" style="width:44px;font-size:12px">
+              <button class="btn btn-p" type="button" onclick="saveDoc()" style="padding:5px 12px">Save No.</button>
+            </div>
+          </div>
+        </div>
         <div class="fld wide"><label>Reagent / Standard Name</label><input id="reagent_name" placeholder="e.g. EDTA 0.01 M"></div>
         <div class="fld"><label>Reagent No.</label><input id="reagent_no" placeholder="e.g. RG-12 / AD-03"></div>
         <div class="fld"><label>Final Volume</label><input id="final_volume" placeholder="e.g. 1000 mL"></div>
@@ -133,7 +144,8 @@
 <script>
 var RECORD = {{ record_json|safe }};
 var INV = {{ inventory_json|safe }};
-var CTRL = {{ control_json|safe }};
+var DOCCTRL = {{ docctrl_json|safe }};
+var IS_ADMIN = {{ is_admin_json|safe }};
 var LOCS = {{ locations|safe }};
 var calcLoaded = false;
 
@@ -141,7 +153,10 @@ function el(id){return document.getElementById(id);}
 function flash(msg, ok){var f=el('flash');f.textContent=msg;f.className='flash '+(ok?'ok':'err');f.classList.remove('hidden');if(ok)setTimeout(function(){f.classList.add('hidden');},4000);}
 
 function initLoc(){var s=el('location');s.innerHTML='';LOCS.forEach(function(l){var o=document.createElement('option');o.value=l;o.textContent=l;s.appendChild(o);});}
-function onLoc(){el('ctrlNo').textContent=(CTRL[el('location').value]||'-')||'-';}
+function curDoc(){return DOCCTRL[el('location').value]||{doc_no:'',issue_date:'',issue_no:'01',rev_no:'00'};}
+function onLoc(){var d=curDoc();el('ctrlNo').textContent=d.doc_no?(d.doc_no+'  |  Issue '+(d.issue_no||'01')+'  Rev '+(d.rev_no||'00')+(d.issue_date?('  |  '+d.issue_date):'')):'not set yet - office to enter';if(IS_ADMIN){el('ctrlEditLink').classList.remove('hidden');el('d_no').value=d.doc_no||'';el('d_date').value=d.issue_date||'';el('d_iss').value=d.issue_no||'01';el('d_rev').value=d.rev_no||'00';}}
+function toggleDocEdit(){el('ctrlEdit').classList.toggle('hidden');}
+function saveDoc(){var loc=el('location').value;var fd=new FormData();fd.append('location',loc);fd.append('doc_no',el('d_no').value);fd.append('issue_date',el('d_date').value);fd.append('issue_no',el('d_iss').value);fd.append('rev_no',el('d_rev').value);fetch('/qc/reagent_prep_doc_save/',{method:'POST',credentials:'include',body:fd}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){DOCCTRL[j.location]=j.doc;onLoc();el('ctrlEdit').classList.add('hidden');flash('Control number saved for '+j.location+'.',true);}else{flash((j&&j.error)||'Could not save control number.',false);}}).catch(function(){flash('Network error saving control number.',false);});}
 function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');}
 
 function buildInvList(){var dl=el('invList');dl.innerHTML='';var seen={};INV.forEach(function(r){if(r.name&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}});}
