@@ -290,9 +290,12 @@ def reagent_prep_save(request):
 def reagent_prep_list(request):
     loc = request.GET.get('location') or 'All'
     q = (request.GET.get('q') or '').strip()
+    month = (request.GET.get('month') or '').strip()
     qs = ReagentPrep.objects.all()
     if loc in _LOCS:
         qs = qs.filter(location=loc)
+    if month:
+        qs = qs.filter(month__icontains=month)
     if q:
         qs = qs.filter(
             _Q(reagent_name__icontains=q) |
@@ -305,7 +308,7 @@ def reagent_prep_list(request):
         expired = bool(o.doe and o.doe < today)
         rows.append({'o': o, 'expired': expired})
     return render(request, 'reagent_prep_list.html',
-                  {'list': rows, 'location': loc, 'q': q, 'locations': _LOCS})
+                  {'list': rows, 'location': loc, 'q': q, 'month': month, 'locations': _LOCS})
 
 
 @_xframe_sameorigin
@@ -325,8 +328,11 @@ def reagent_prep_calculator(request):
 
 
 # ---------------------------------------------------------------- controlled PDF
-def generate_pdf_for_reagent_prep(obj):
-    ctrl = _docctrl(obj.location)
+def _make_reagent_pdf(location, records):
+    """Build one controlled PDF for `records`, all belonging to `location`.
+    Single source of truth for both the per-record PDF and the monthly/batch PDF
+    (entries stack 2-3 per page like the original paper log)."""
+    ctrl = _docctrl(location)
     today = _date.today()
 
     class CustomPDF(FPDF):
@@ -378,7 +384,7 @@ def generate_pdf_for_reagent_prep(obj):
                 ('Issue Date', getattr(ctrl, 'issue_date', '') or '-'),
                 ('Issue No.', ctrl.issue_no or '-'),
                 ('Rev No.', ctrl.rev_no or '-'),
-                ('Location', obj.location),
+                ('Location', location),
             ]
             y = by
             for k, v in rows:
@@ -426,12 +432,18 @@ def generate_pdf_for_reagent_prep(obj):
     # margin reserves room for the branded footer band (Section 4).
     pdf.set_auto_page_break(auto=True, margin=24)
 
-    def _render_entry(pdf, obj):
-        """Draw one reagent block and advance the cursor. Reusable so a monthly
-        PDF (if enabled later) can stack 2-3 entries per page like the paper log.
-        Adds a page break first if the header row would not fit."""
-        if pdf.get_y() > 250:
+    def _render_entry(pdf, obj, sep=False):
+        """Draw one reagent block and advance the cursor. Multiple entries stack
+        on a page (like the paper log); a fresh page starts when too little room
+        remains for a full block, so an entry never spills into the footer."""
+        if pdf.get_y() > 185:
             pdf.add_page()
+        elif sep:
+            # light separator between stacked entries on the same page
+            pdf.set_draw_color(200, 208, 216)
+            pdf.line(10, pdf.get_y(), 202, pdf.get_y())
+            pdf.set_draw_color(0, 0, 0)
+            pdf.ln(3)
 
         def kv(label, value, w1=32, w2=64):
             pdf.set_font(pdf.fam, 'B', 9)
@@ -533,16 +545,25 @@ def generate_pdf_for_reagent_prep(obj):
         pdf.ln(10)
 
     pdf.add_page()
-    _render_entry(pdf, obj)
+    for i, obj in enumerate(records):
+        _render_entry(pdf, obj, sep=(i > 0))
+    return pdf
 
+
+def _pdf_response(pdf, fname):
     out = pdf.output(dest='S')
     if isinstance(out, str):
         out = out.encode('latin-1')
     resp = HttpResponse(bytes(out), content_type='application/pdf')
-    safe_no = ''.join(ch for ch in str(obj.reagent_no or obj.id) if ch.isalnum() or ch in '-_') or str(obj.id)
-    fname = 'ReagentPrep_%s_%s.pdf' % (safe_no, obj.location)
     resp['Content-Disposition'] = 'inline; filename="%s"' % fname
     return resp
+
+
+def generate_pdf_for_reagent_prep(obj):
+    """Single-record controlled PDF (unchanged output; now via the shared builder)."""
+    pdf = _make_reagent_pdf(obj.location, [obj])
+    safe_no = ''.join(ch for ch in str(obj.reagent_no or obj.id) if ch.isalnum() or ch in '-_') or str(obj.id)
+    return _pdf_response(pdf, 'ReagentPrep_%s_%s.pdf' % (safe_no, obj.location))
 
 
 def reagent_prep_pdf_from_list(request, pk=None):
@@ -553,8 +574,33 @@ def reagent_prep_pdf_from_list(request, pk=None):
     return reagent_prep_list(request)
 
 
+def reagent_prep_month_pdf(request):
+    """Monthly / batch controlled PDF: many records of ONE lab stacked 2-3 per
+    page, matching the paper reagent-preparation log. Requires a specific
+    location (the control box is per-lab); optional month/search filters."""
+    loc = request.GET.get('location')
+    if loc not in _LOCS:
+        return HttpResponse('Select Karachi or Lahore to print the monthly record.', status=400)
+    month = (request.GET.get('month') or '').strip()
+    q = (request.GET.get('q') or '').strip()
+    qs = ReagentPrep.objects.filter(location=loc)
+    if month:
+        qs = qs.filter(month__icontains=month)
+    if q:
+        qs = qs.filter(
+            _Q(reagent_name__icontains=q) |
+            _Q(reagent_no__icontains=q) |
+            _Q(chemicals__chemical_name__icontains=q)).distinct()
+    records = list(qs.order_by('reagent_no', 'created_at')[:500])
+    if not records:
+        return HttpResponse('No preparation records match for %s.' % loc, status=404)
+    pdf = _make_reagent_pdf(loc, records)
+    safe_m = ''.join(ch for ch in month if ch.isalnum()) or 'all'
+    return _pdf_response(pdf, 'ReagentPrep_%s_%s.pdf' % (loc, safe_m))
+
+
 __all__ = [
     'reagent_prep', 'reagent_prep_save', 'reagent_prep_doc_save', 'reagent_prep_list',
-    'reagent_prep_calculator', 'reagent_prep_pdf_from_list',
+    'reagent_prep_calculator', 'reagent_prep_pdf_from_list', 'reagent_prep_month_pdf',
     'generate_pdf_for_reagent_prep',
 ]

@@ -31,5 +31,7 @@ urlpatterns = [
     path('reagent-prep-list/', views.reagent_prep_list, name='reagent_prep_list'),
     path('reagent_prep_calculator/', views.reagent_prep_calculator, name='reagent_prep_calculator'),
     path('reagent_prep_pdf_from_list/<int:pk>/', views.reagent_prep_pdf_from_list, name='reagent_prep_pdf_from_list'),
+    path('reagent_prep_month_pdf/', views.reagent_prep_month_pdf, name='reagent_prep_month_pdf'),
+
     path('reagent_prep_doc_save/', views.reagent_prep_doc_save, name='reagent_prep_doc_save'),
 ]

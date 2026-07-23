@@ -48,7 +48,11 @@
         {% for l in locations %}<option value="{{ l }}"{% if location == l %} selected{% endif %}>{{ l }}</option>{% endfor %}
       </select>
       <input type="text" name="q" value="{{ q }}" placeholder="Search reagent name / no. / chemical">
+      <input type="text" name="month" value="{{ month }}" placeholder="Month e.g. July 2026" style="width:150px">
       <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+      <button class="btn btn-p" type="submit" formaction="/qc/reagent_prep_month_pdf/" formtarget="_blank"
+              title="Print all matching records for one lab, stacked like the paper log"><i class="fa-solid fa-file-pdf"></i> Print month</button>
+      <span class="loc">Choose Karachi or Lahore (not &ldquo;All&rdquo;) for the monthly print.</span>
     </form>
     <table>
       <thead>
