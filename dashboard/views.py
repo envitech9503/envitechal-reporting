@@ -1088,6 +1088,28 @@ def chemicals_save(request):
         lot.save()
         return JsonResponse({'ok': True})
 
+    if act == 'retest':
+        try:
+            lot = ChemicalLot.objects.get(id=int(g.get('lot')))
+        except Exception:
+            return JsonResponse({'error': 'Lot not found'}, status=404)
+        ne = _d('new_expiry')
+        if ne is None:
+            return JsonResponse({'error': 'A valid new expiry date is required (YYYY-MM-DD)'}, status=400)
+        rd = _d('retest_date') or timezone.localdate()
+        reason = (g.get('remarks') or '').strip()
+        old = lot.expiry
+        lot.expiry = ne
+        note = '[Retest %s: expiry %s -> %s%s]' % (
+            rd.strftime('%d-%m-%Y'),
+            old.strftime('%d-%m-%Y') if old else '-',
+            ne.strftime('%d-%m-%Y'),
+            (' | ' + reason) if reason else '')
+        combined = ((lot.remarks + ' ') if lot.remarks else '') + note
+        lot.remarks = combined[-200:]
+        lot.save()
+        return JsonResponse({'ok': True, 'expiry': ne.strftime('%d-%m-%Y')})
+
     return JsonResponse({'error': 'Unknown action'}, status=400)
 
 
