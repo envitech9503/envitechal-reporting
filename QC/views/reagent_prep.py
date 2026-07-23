@@ -247,10 +247,18 @@ def reagent_prep_save(request):
                     lot_obj = ChemicalLot.objects.get(id=int(lot_id))
                 except Exception:
                     lot_obj = None
+            _cat = (row.get('cat_no') or '').strip()
+            _lot = (row.get('lot_no') or '').strip()
+            # if CAT was left blank but the combined string landed in LOT, split it
+            # so the two columns are stored (and later printed) correctly.
+            if (not _cat) and _lot and 'CAT' in _lot.upper():
+                _sc, _sl = _split_cat_lot(_lot)
+                _cat = _sc or _cat
+                _lot = _sl
             ReagentPrepChemical.objects.create(
                 prep=obj, s_no=row.get('s_no') or i, chemical_name=cname[:200],
-                cat_no=(row.get('cat_no') or '').strip()[:80],
-                lot_no=(row.get('lot_no') or '').strip()[:80],
+                cat_no=_cat[:80],
+                lot_no=_lot[:80],
                 quantity=(row.get('quantity') or '').strip()[:60],
                 make=(row.get('make') or '').strip()[:120],
                 expiry=(row.get('expiry') or '').strip()[:40],
@@ -349,16 +357,19 @@ def generate_pdf_for_reagent_prep(obj):
                     self.image(_LOGO, 10, 8, 20, 22)
                 except Exception:
                     pass
-            self.set_xy(32, 9)
+            # Centred title block (matches the original controlled record). The logo
+            # sits far left and the control box far right (x>=150); the centred text
+            # (centre ~105) clears both. Sub-line retained as a brand line (Decision D2).
+            self.set_xy(10, 10)
             self.set_font(self.fam, 'B', 15)
-            self.cell(120, 7, 'ENVI TECH AL', ln=1)
-            self.set_xy(32, 16)
+            self.cell(0, 7, 'ENVI TECH AL', align='C', ln=1)
+            self.set_x(10)
             self.set_font(self.fam, '', 8)
-            self.cell(120, 5, self.t('Analytical Laboratory - Environmental & Water Testing'), ln=1)
-            self.set_xy(32, 21)
+            self.cell(0, 5, self.t('Analytical Laboratory - Environmental & Water Testing'), align='C', ln=1)
+            self.set_x(10)
             self.set_font(self.fam, 'B', 11)
-            self.cell(120, 6, 'REAGENT PREPARATION RECORD', ln=1)
-            # control box (top-right)
+            self.cell(0, 6, 'REAGENT PREPARATION RECORD', align='C', ln=1)
+            # control box (top-right) — Decision D1: retained on the digital record
             bx, by, bw = 150, 8, 52
             self.set_font(self.fam, '', 7)
             self.set_xy(bx, by)
@@ -382,108 +393,147 @@ def generate_pdf_for_reagent_prep(obj):
             self.set_y(37)
 
         def footer(self):
-            self.set_y(-14)
-            self.set_font(self.fam, 'I' if self.fam == 'Helvetica' else '', 7)
+            # Controlled-document line, then the branded contact band (matches the
+            # original controlled record: phone left, head office centre, email/web right).
+            self.set_y(-20)
+            self.set_font(self.fam, 'I' if self.fam == 'Helvetica' else '', 6.5)
+            self.set_text_color(90, 90, 90)
             self.cell(0, 4,
                       'ENVI TECH AL  -  Controlled document.  Uncontrolled when printed.',
                       align='C', ln=1)
-            self.set_font(self.fam, '', 7)
-            self.cell(0, 4, 'Page %s of {nb}' % self.page_no(), align='R')
+            self.set_text_color(0, 0, 0)
+            self.set_draw_color(15, 81, 50)
+            self.set_line_width(0.4)
+            yb = self.get_y() + 0.6
+            self.line(10, yb, 200, yb)
+            self.set_line_width(0.2)
+            self.set_draw_color(0, 0, 0)
+            y0 = yb + 1.2
+            self.set_font(self.fam, '', 6.5)
+            self.set_xy(10, y0)
+            self.cell(90, 3.6, self.t('Tel: +92 310 2288801'), align='L')
+            self.set_xy(110, y0)
+            self.cell(90, 3.6, self.t('info@envitechal.com   -   www.envitechal.com'), align='R')
+            self.set_xy(10, y0 + 3.6)
+            self.cell(0, 3.6, self.t(
+                'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan.'),
+                align='C', ln=1)
+            self.set_xy(10, y0 + 7.2)
+            self.cell(0, 3.6, 'Page %s of {nb}' % self.page_no(), align='R')
 
     pdf = CustomPDF(orientation='P', unit='mm', format='A4')
     pdf.alias_nb_pages()
-    pdf.set_auto_page_break(auto=True, margin=18)
-    pdf.add_page()
+    # margin reserves room for the branded footer band (Section 4).
+    pdf.set_auto_page_break(auto=True, margin=24)
 
-    def kv(label, value, w1=32, w2=64):
-        pdf.set_font(pdf.fam, 'B', 9)
-        pdf.cell(w1, 6, label, border=0)
-        pdf.set_font(pdf.fam, '', 9)
-        pdf.cell(w2, 6, pdf.t(value or '-'), border=0)
+    def _render_entry(pdf, obj):
+        """Draw one reagent block and advance the cursor. Reusable so a monthly
+        PDF (if enabled later) can stack 2-3 entries per page like the paper log.
+        Adds a page break first if the header row would not fit."""
+        if pdf.get_y() > 250:
+            pdf.add_page()
 
-    kv('Month:', obj.month)
-    kv('Type:', obj.rtype, 24, 60)
-    pdf.ln(6)
-    kv('Reagent Name:', obj.reagent_name, 32, 92)
-    kv('Reagent No.:', obj.reagent_no, 26, 34)
-    pdf.ln(6)
-    conc = ((obj.conc_value + ' ' + obj.conc_unit).strip()) if (obj.conc_value or obj.conc_unit) else '-'
-    kv('Concentration:', conc, 32, 60)
-    kv('Final Volume:', obj.final_volume, 26, 40)
-    pdf.ln(9)
+        def kv(label, value, w1=32, w2=64):
+            pdf.set_font(pdf.fam, 'B', 9)
+            pdf.cell(w1, 6, label, border=0)
+            pdf.set_font(pdf.fam, '', 9)
+            pdf.cell(w2, 6, pdf.t(value or '-'), border=0)
 
-    # chemicals table
-    headers = [('S.#', 12), ('Chemical Name', 52), ('CAT No.', 26), ('LOT No.', 26),
-               ('Quantity', 24), ('Make', 28), ('Expiry', 24)]
-    pdf.set_font(pdf.fam, 'B', 8)
-    pdf.set_fill_color(225, 232, 237)
-    for h, w in headers:
-        pdf.cell(w, 7, h, border=1, align='C', fill=True)
-    pdf.ln(7)
-    pdf.set_font(pdf.fam, '', 8)
-
-    def _fit(txt, w):
-        # Trim to the column width so a long value never overflows the cell.
-        txt = pdf.t(txt)
-        while txt and pdf.get_string_width(txt) > (w - 2):
-            txt = txt[:-1]
-        return txt
-
-    for c in obj.chemicals.all():
-        exp_dt = _parse_date(c.expiry)
-        cells = [(str(c.s_no), 12, 'C'), (c.chemical_name, 52, 'L'), (c.cat_no or '-', 26, 'C'),
-                 (c.lot_no or '-', 26, 'C'), (c.quantity or '-', 24, 'C'),
-                 (c.make or '-', 28, 'C'), (c.expiry or '-', 24, 'C')]
-        for i, (txt, w, al) in enumerate(cells):
-            if i == 6 and exp_dt and exp_dt < today:
-                pdf.set_text_color(200, 0, 0)
-            pdf.cell(w, 6, _fit(txt, w), border=1, align=al)
-            pdf.set_text_color(0, 0, 0)
+        kv('Month:', obj.month)
+        kv('Type:', obj.rtype, 24, 60)
         pdf.ln(6)
-    if not obj.chemicals.exists():
-        pdf.cell(sum(w for _h, w in headers), 6, 'No chemicals recorded', border=1, align='C')
-        pdf.ln(6)
-    pdf.ln(4)
-
-    # description
-    pdf.set_font(pdf.fam, 'B', 9)
-    pdf.cell(0, 6, 'Description / Method of Preparation:', ln=1)
-    pdf.set_font(pdf.fam, '', 9)
-    pdf.multi_cell(0, 5, pdf.t(obj.description or '-'))
-    pdf.ln(2)
-
-    # standardisation
-    try:
-        s = obj.standardisation
+        # bulleted reagent line (matches the original controlled record)
         pdf.set_font(pdf.fam, 'B', 9)
-        pdf.cell(0, 6, pdf.t('Standardisation (%s):' % (s.location or obj.location)), ln=1)
+        pdf.cell(5, 6, '•' if pdf.fam == 'Calibri' else '-')
+        kv('Reagent Name:', obj.reagent_name, 30, 87)
+        kv('Reagent No.:', obj.reagent_no, 26, 34)
+        pdf.ln(6)
+        conc = ((obj.conc_value + ' ' + obj.conc_unit).strip()) if (obj.conc_value or obj.conc_unit) else '-'
+        kv('Concentration:', conc, 32, 60)
+        kv('Final Volume:', obj.final_volume, 26, 40)
+        pdf.ln(9)
+
+        # chemicals table — column labels match the original record exactly
+        headers = [('S.#', 12), ('Chemical Name', 52), ('CAT Number', 26), ('LOT Number', 26),
+                   ('Quantity', 24), ('Make', 28), ('Expiry Date', 24)]
+        pdf.set_font(pdf.fam, 'B', 8)
+        pdf.set_fill_color(225, 232, 237)
+        for h, w in headers:
+            pdf.cell(w, 7, h, border=1, align='C', fill=True)
+        pdf.ln(7)
+        pdf.set_font(pdf.fam, '', 8)
+
+        def _fit(txt, w):
+            txt = pdf.t(txt)
+            while txt and pdf.get_string_width(txt) > (w - 2):
+                txt = txt[:-1]
+            return txt
+
+        for c in obj.chemicals.all():
+            exp_dt = _parse_date(c.expiry)
+            # defensive CAT/LOT split — a row saved with the combined string in
+            # lot_no (and empty cat_no) must still print in the correct columns.
+            cat, lot = c.cat_no, c.lot_no
+            if (not cat) and lot and 'CAT' in lot.upper():
+                scat, slot = _split_cat_lot(lot)
+                cat = scat or cat
+                lot = slot
+            cells = [(str(c.s_no), 12, 'C'), (c.chemical_name, 52, 'L'), (cat or '-', 26, 'C'),
+                     (lot or '-', 26, 'C'), (c.quantity or '-', 24, 'C'),
+                     (c.make or '-', 28, 'C'), (c.expiry or '-', 24, 'C')]
+            for i, (txt, w, al) in enumerate(cells):
+                if i == 6 and exp_dt and exp_dt < today:
+                    pdf.set_text_color(200, 0, 0)
+                pdf.cell(w, 6, _fit(txt, w), border=1, align=al)
+                pdf.set_text_color(0, 0, 0)
+            pdf.ln(6)
+        if not obj.chemicals.exists():
+            pdf.cell(sum(w for _h, w in headers), 6, 'No chemicals recorded', border=1, align='C')
+            pdf.ln(6)
+        pdf.ln(4)
+
+        # description — label matches the original ("Description:")
+        pdf.set_font(pdf.fam, 'B', 9)
+        pdf.cell(0, 6, 'Description:', ln=1)
         pdf.set_font(pdf.fam, '', 9)
-        u = s.unit or 'N'
-        line = ('Primary std: %s  |  nominal %s %s -> true %s %s  |  factor %s  |  date %s  |  next due %s' % (
-            s.primary_std or '-',
-            ('%.4f' % s.nominal_N) if s.nominal_N is not None else '-', u,
-            ('%.4f' % s.true_N) if s.true_N is not None else '-', u,
-            ('%.4f' % s.factor) if s.factor is not None else '-',
-            s.std_date.strftime('%d-%m-%Y') if s.std_date else '-',
-            s.next_due.strftime('%d-%m-%Y') if s.next_due else '-'))
-        pdf.multi_cell(0, 5, pdf.t(line))
+        pdf.multi_cell(0, 5, pdf.t(obj.description or '-'))
         pdf.ln(2)
-    except ReagentStandardisation.DoesNotExist:
-        pass
 
-    pdf.ln(4)
-    pdf.set_font(pdf.fam, 'B', 9)
-    dop = obj.dop.strftime('%d-%m-%Y') if obj.dop else '-'
-    doe = obj.doe.strftime('%d-%m-%Y') if obj.doe else '-'
-    pdf.cell(48, 6, pdf.t('Prepared By: ' + (obj.prepared_by or '-')))
-    pdf.cell(48, 6, pdf.t('Verified By: ' + (obj.verified_by or '-')))
-    pdf.ln(6)
-    pdf.cell(48, 6, 'D.O.P.: ' + dop)
-    if obj.doe and obj.doe < today:
-        pdf.set_text_color(200, 0, 0)
-    pdf.cell(48, 6, 'D.O.E.: ' + doe)
-    pdf.set_text_color(0, 0, 0)
-    pdf.ln(8)
+        # standardisation
+        try:
+            s = obj.standardisation
+            pdf.set_font(pdf.fam, 'B', 9)
+            pdf.cell(0, 6, pdf.t('Standardisation (%s):' % (s.location or obj.location)), ln=1)
+            pdf.set_font(pdf.fam, '', 9)
+            u = s.unit or 'N'
+            line = ('Primary std: %s  |  nominal %s %s -> true %s %s  |  factor %s  |  date %s  |  next due %s' % (
+                s.primary_std or '-',
+                ('%.4f' % s.nominal_N) if s.nominal_N is not None else '-', u,
+                ('%.4f' % s.true_N) if s.true_N is not None else '-', u,
+                ('%.4f' % s.factor) if s.factor is not None else '-',
+                s.std_date.strftime('%d-%m-%Y') if s.std_date else '-',
+                s.next_due.strftime('%d-%m-%Y') if s.next_due else '-'))
+            pdf.multi_cell(0, 5, pdf.t(line))
+            pdf.ln(2)
+        except ReagentStandardisation.DoesNotExist:
+            pass
+
+        pdf.ln(2)
+        pdf.set_font(pdf.fam, 'B', 9)
+        dop = obj.dop.strftime('%d-%m-%Y') if obj.dop else '-'
+        doe = obj.doe.strftime('%d-%m-%Y') if obj.doe else '-'
+        pdf.cell(48, 6, pdf.t('Prepared By: ' + (obj.prepared_by or '-')))
+        pdf.cell(48, 6, pdf.t('Verified By: ' + (obj.verified_by or '-')))
+        pdf.ln(6)
+        pdf.cell(48, 6, 'D.O.P.: ' + dop)
+        if obj.doe and obj.doe < today:
+            pdf.set_text_color(200, 0, 0)
+        pdf.cell(48, 6, 'D.O.E.: ' + doe)
+        pdf.set_text_color(0, 0, 0)
+        pdf.ln(10)
+
+    pdf.add_page()
+    _render_entry(pdf, obj)
 
     out = pdf.output(dest='S')
     if isinstance(out, str):

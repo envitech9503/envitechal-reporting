@@ -87,6 +87,10 @@
 </header>
 
 <div class="wrap">
+  <div id="insertBar" style="display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--accent);color:#fff;padding:9px 13px;border-radius:9px;margin-bottom:12px">
+    <span style="font-size:12.5px">Linked to the preparation form — <b id="insLink">record</b>. Compute a value, then insert it.</span>
+    <button class="btn" style="background:#fff;color:var(--accent)" onclick="insertToForm()">➜ Insert result into form</button>
+  </div>
   <div class="tabs" id="tabs"></div>
   <div class="grid">
     <div id="panel" class="card"></div>
@@ -439,6 +443,39 @@ function chemPick(inp){const rec=INV[inp.value.trim()];if(!rec)return;const tr=i
  tr.querySelector('.ccat').value=rec.cat||'';tr.querySelector('.cmake').value=rec.make||'';tr.querySelector('.clot').value=lot.lot||'';tr.querySelector('.cexp').value=lot.exp||'';}
 function renumber(){document.querySelectorAll('#recRows tr').forEach((tr,i)=>{tr.querySelector('.sn').textContent=i+1;});}
 function clearChemRows(){document.getElementById('recRows').innerHTML='';}
+
+/* ---------- bridge to the parent QC preparation form (same-origin iframe) ---------- */
+var ETAL_CTX={targetRow:null,linked:false};
+function _originOK(e){try{return e.origin===window.location.origin;}catch(_){return false;}}
+function mapUnit(u){u=(u||'').toString().trim().toUpperCase();var sel=document.getElementById('s_unit');if(!sel)return;var m={'N':'N','M':'M','%':'pw','%W/V':'pw','G/L':'gL','MG/L':'ppm','PPM':'ppm'};if(m[u])sel.value=m[u];}
+function setVol(fv){var mm=(fv||'').toString().match(/([\d.]+)\s*(mL|ml|L|l)?/);if(!mm)return;var v=document.getElementById('s_vol'),u=document.getElementById('s_volu');if(v)v.value=mm[1];if(u)u.value=((mm[2]||'').toLowerCase()==='l')?'1':'1000';}
+function showInsertBar(label){var b=document.getElementById('insertBar');if(!b)return;b.style.display='flex';document.getElementById('insLink').textContent=label||'record';}
+window.addEventListener('message',function(e){
+  if(!_originOK(e))return;var d=e.data||{};if(d.type!=='etal-calc-context')return;var c=d.ctx||{};
+  ETAL_CTX.targetRow=(c.targetRow!=null)?c.targetRow:null;ETAL_CTX.linked=true;
+  if(c.location){var lc=document.getElementById('loc');if(lc){lc.value=c.location;updLoc();}}
+  var rt=(c.rtype||'').toLowerCase();
+  if(rt.indexOf('standard')>-1&&rt.indexOf('titrant')>-1){go('stand');var n=document.getElementById('st_nom');if(n&&c.conc_value){n.value=c.conc_value;calcStd();}}
+  else if(rt.indexOf('%')>-1||rt.indexOf('solution')>-1){go('pct');}
+  else{go('solid');
+    if(c.conc_value){var el=document.getElementById('s_conc');if(el)el.value=c.conc_value;}
+    if(c.conc_unit)mapUnit(c.conc_unit);
+    if(c.final_volume)setVol(c.final_volume);
+    var nm=document.getElementById('s_name');if(nm&&!nm.value&&(c.chemName||c.reagent_name))nm.value=c.chemName||c.reagent_name;
+    if(c.eqwt){var eq=document.getElementById('s_eq');if(eq)eq.value=c.eqwt;}
+    calcSolid();}
+  showInsertBar(c.targetRow!=null?('Row '+(c.targetRow+1)):'record');
+},false);
+function _big(sel){var q=document.querySelector(sel+' .big');if(!q)return '';return q.textContent.replace(/\s+/g,' ').trim();}
+function insertToForm(){
+  var res=null;
+  if(cur==='solid'&&window._solid){var vv=val('s_vol'),vu=(val('s_volu')==='1'?'L':'mL');res={quantity:window._solid.g+' g',note:'Weigh '+window._solid.g+' g of '+(val('s_name')||'reagent')+' and dissolve in DI water; make up to '+vv+' '+vu+'.'};}
+  else if(cur==='dilute'&&window._dil){res={quantity:window._dil.v1+' mL',note:'Take '+window._dil.v1+' mL of stock; dilute with DI water; make up to '+val('d_v2')+' mL.'};}
+  else if(cur==='pct'){res={quantity:_big('#p_out'),note:'Prepare % solution as computed.'};}
+  else if(cur==='stand'&&window._std){res={quantity:(num('st_m')?num('st_m')+' g':''),note:'Standardised against primary standard; true '+window._std.N+' '+window._std.U+', factor '+window._std.factor+'.',true_N:window._std.N,factor:window._std.factor};}
+  if(!res||(!res.quantity&&!res.note)){alert('Please compute a value first, then insert.');return;}
+  parent.postMessage({type:'etal-calc-result',targetRow:ETAL_CTX.targetRow,quantity:res.quantity||'',note:res.note||'',true_N:res.true_N||null,factor:res.factor||null},window.location.origin);
+}
 
 /* init */
 fillInvList();drawTabs();go('solid');updLoc();setRec({});addChemRow();

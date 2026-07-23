@@ -51,7 +51,9 @@
       <div>
         <a class="btn" href="/qc/reagent-prep-list/"><i class="fa-solid fa-list"></i> List</a>
         <button class="btn btn-s" type="button" onclick="toggleCalc()"><i class="fa-solid fa-calculator"></i> <span id="calcLbl">Open Calculator</span></button>
+        <button class="btn" type="button" onclick="togglePreview()"><i class="fa-solid fa-eye"></i> <span id="pvLbl">Live Preview</span></button>
         <button class="btn btn-p" type="button" onclick="save()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        <button class="btn" id="pdfBtn" type="button" onclick="downloadPdf()" title="Save and download the controlled PDF"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
       </div>
     </div>
     <div id="flash" class="flash hidden"></div>
@@ -92,7 +94,7 @@
         <thead><tr>
           <th style="width:34px">S.#</th><th>Chemical Name</th><th style="width:110px">CAT No.</th>
           <th style="width:110px">LOT No.</th><th style="width:90px">Quantity</th><th style="width:120px">Make</th>
-          <th style="width:100px">Expiry</th><th style="width:40px"></th>
+          <th style="width:100px">Expiry</th><th style="width:78px"></th>
         </tr></thead>
         <tbody id="chemBody"></tbody>
       </table>
@@ -131,6 +133,12 @@
       </div>
     </div>
 
+    <div class="sec hidden" id="previewSec" style="border-top:1px solid #eef2f6">
+      <h3>Preparation Record — Live Preview</h3>
+      <div id="previewBox" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;overflow:auto"></div>
+      <div class="note">Mirrors the controlled PDF and updates as you type. Presentation only — nothing is stored until you click Save.</div>
+    </div>
+
     <div class="sec" style="border-top:1px solid #eef2f6">
       <div class="calcbar">
         <h3 style="margin:0"><i class="fa-solid fa-calculator"></i> Fully-Loaded Preparation Calculator</h3>
@@ -148,6 +156,7 @@ var DOCCTRL = {{ docctrl_json|safe }};
 var IS_ADMIN = {{ is_admin_json|safe }};
 var LOCS = {{ locations|safe }};
 var calcLoaded = false;
+var linkedRow = null;
 
 function el(id){return document.getElementById(id);}
 function flash(msg, ok){var f=el('flash');f.textContent=msg;f.className='flash '+(ok?'ok':'err');f.classList.remove('hidden');if(ok)setTimeout(function(){f.classList.add('hidden');},4000);}
@@ -170,7 +179,7 @@ function chemRowHTML(r){r=r||{};return ''+
   '<td><input class="c_qty" value="'+esc(r.quantity)+'"></td>'+
   '<td><input class="c_make" value="'+esc(r.make)+'"></td>'+
   '<td><input class="c_exp" value="'+esc(r.expiry)+'"></td>'+
-  '<td style="text-align:center"><button class="btn btn-d" type="button" onclick="delChem(this)" title="Remove">&times;</button></td>';}
+  '<td style="text-align:center;white-space:nowrap"><button class="btn" type="button" onclick="calcForRow(this)" title="Calculate quantity for this row" style="padding:4px 7px;font-weight:700">fx</button> <button class="btn btn-d" type="button" onclick="delChem(this)" title="Remove">&times;</button></td>';}
 function esc(v){return (v==null?'':String(v)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
 function addChem(r){var tr=document.createElement('tr');tr.dataset.lot=(r&&r.chemical_lot)||'';tr.innerHTML=chemRowHTML(r);el('chemBody').appendChild(tr);renumber();}
@@ -180,7 +189,48 @@ function onChemName(inp){var tr=inp.closest('tr');var hit=invByName(inp.value);i
 
 function calcStd(){var m=parseFloat(el('s_ps_mass').value),p=parseFloat(el('s_ps_purity').value),e=parseFloat(el('s_ps_eqwt').value),v=parseFloat(el('s_titrant_ml').value),nom=parseFloat(el('s_nominal_N').value);if(m>0&&e>0&&v>0){var pur=(p>0?p:100)/100;var trueN=(m*pur)/(e*(v/1000));el('s_true_N').value=trueN.toFixed(4);if(nom>0)el('s_factor').value=(trueN/nom).toFixed(4);}else{el('s_true_N').value='';el('s_factor').value='';}}
 
-function toggleCalc(){var f=el('calc');if(f.style.display==='block'){f.style.display='none';el('calcLbl').textContent='Open Calculator';}else{if(!calcLoaded){f.src='/qc/reagent_prep_calculator/';calcLoaded=true;}f.style.display='block';el('calcLbl').textContent='Hide Calculator';f.scrollIntoView({behavior:'smooth'});}}
+// ---- Calculator bridge (same-origin postMessage) ----
+function buildCtx(){var nm='';if(linkedRow!=null){var tr=el('chemBody').querySelectorAll('tr')[linkedRow];if(tr)nm=tr.querySelector('.c_name').value;}return {targetRow:linkedRow,chemName:nm,reagent_name:el('reagent_name').value,rtype:el('rtype').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,final_volume:el('final_volume').value,location:el('location').value};}
+function postCtx(){var f=el('calc');if(f&&f.contentWindow){try{f.contentWindow.postMessage({type:'etal-calc-context',ctx:buildCtx()},window.location.origin);}catch(e){}}}
+function showCalc(){var f=el('calc');if(!calcLoaded){f.onload=function(){postCtx();};f.src='/qc/reagent_prep_calculator/';calcLoaded=true;}else{postCtx();}f.style.display='block';el('calcLbl').textContent='Hide Calculator';f.scrollIntoView({behavior:'smooth'});}
+function hideCalc(){var f=el('calc');f.style.display='none';el('calcLbl').textContent='Open Calculator';}
+function toggleCalc(){var f=el('calc');if(f.style.display==='block'){hideCalc();}else{linkedRow=null;showCalc();}}
+function calcForRow(btn){var rows=el('chemBody').querySelectorAll('tr');linkedRow=Array.prototype.indexOf.call(rows,btn.closest('tr'));showCalc();postCtx();}
+// receive a computed result from the calculator and place it in the linked row
+window.addEventListener('message',function(e){if(e.origin!==window.location.origin)return;var d=e.data||{};if(d.type!=='etal-calc-result')return;var rows=el('chemBody').querySelectorAll('tr');var idx=(d.targetRow!=null)?d.targetRow:linkedRow;if(idx!=null&&rows[idx]){var q=rows[idx].querySelector('.c_qty');if(q&&d.quantity)q.value=d.quantity;}if(d.note){var ds=el('description');if(ds&&!ds.value.trim())ds.value=d.note;}if(d.true_N&&el('s_true_N'))el('s_true_N').value=d.true_N;if(d.factor&&el('s_factor'))el('s_factor').value=d.factor;flash('Calculator result inserted'+(idx!=null?(' into row '+(idx+1)):'')+'.',true);renderPreview();},false);
+
+// ---- Live preview ----
+function togglePreview(){var s=el('previewSec');if(s.classList.contains('hidden')){s.classList.remove('hidden');el('pvLbl').textContent='Hide Preview';renderPreview();s.scrollIntoView({behavior:'smooth'});}else{s.classList.add('hidden');el('pvLbl').textContent='Live Preview';}}
+function clientSplitCatLot(cat,lot){cat=(cat||'').trim();lot=(lot||'').trim();if(!cat&&lot&&lot.toUpperCase().indexOf('CAT')>-1){var up=lot.toUpperCase(),ci=up.indexOf('CAT'),li=up.indexOf('LOT');var cl=function(x){return x.replace(/^\s*(NO\.?|NUMBER)?\s*[:.\-]?\s*/i,'').trim();};if(ci>-1&&li>-1){if(ci<li){cat=cl(lot.slice(ci+3,li));lot=cl(lot.slice(li+3));}else{cat=cl(lot.slice(ci+3));lot=cl(lot.slice(li+3,ci));}}else if(ci>-1){cat=cl(lot.slice(ci+3));lot='';}}return {cat:cat,lot:lot};}
+function pvEsc(v){return (v==null?'':String(v)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function isExpired(s){if(!s)return false;var p=String(s).match(/(\d{4})-(\d{2})-(\d{2})/);var d;if(p){d=new Date(+p[1],+p[2]-1,+p[3]);}else{var q=String(s).match(/(\d{2})-(\d{2})-(\d{4})/);if(q)d=new Date(+q[3],+q[2]-1,+q[1]);}if(!d||isNaN(d))return false;return d<new Date(new Date().toDateString());}
+function renderPreview(){var box=el('previewBox');if(!box||el('previewSec').classList.contains('hidden'))return;var p=collect();var dc=DOCCTRL[p.location]||{doc_no:'',issue_date:'',issue_no:'01',rev_no:'00'};
+  var rows=(p.chemicals||[]).map(function(c,i){var sp=clientSplitCatLot(c.cat_no,c.lot_no);var expd=isExpired(c.expiry);return '<tr><td style="text-align:center">'+(i+1)+'</td><td>'+pvEsc(c.chemical_name)+'</td><td style="text-align:center">'+pvEsc(sp.cat||'-')+'</td><td style="text-align:center">'+pvEsc(sp.lot||'-')+'</td><td style="text-align:center">'+pvEsc(c.quantity||'-')+'</td><td style="text-align:center">'+pvEsc(c.make||'-')+'</td><td style="text-align:center'+(expd?';color:#c00;font-weight:700':'')+'">'+pvEsc(c.expiry||'-')+'</td></tr>';}).join('');
+  if(!rows)rows='<tr><td colspan="7" style="text-align:center;color:#94a3b8">No chemicals recorded</td></tr>';
+  var conc=((p.conc_value||'')+' '+(p.conc_unit||'')).trim()||'-';
+  var std='';if(p.standardisation&&(p.standardisation.factor||p.standardisation.true_N)){var s=p.standardisation;std='<div style="margin-top:8px"><b>Standardisation ('+pvEsc(s.location||p.location)+'):</b> Primary std: '+pvEsc(s.primary_std||'-')+' | nominal '+pvEsc(s.nominal_N||'-')+' '+pvEsc(s.unit||'N')+' &rarr; true '+pvEsc(s.true_N||'-')+' '+pvEsc(s.unit||'N')+' | factor '+pvEsc(s.factor||'-')+'</div>';}
+  var doeExp=isExpired(p.doe);
+  box.innerHTML=''+
+   '<div style="text-align:center;border-bottom:1px solid #0f5132;padding-bottom:8px;position:relative">'+
+     '<div style="position:absolute;right:0;top:0;border:1px solid #cbd5e1;font-size:10px;text-align:left;padding:4px 6px;border-radius:4px">Doc No.: <b>'+pvEsc(dc.doc_no||'-')+'</b><br>Issue: '+pvEsc(dc.issue_no||'01')+' &nbsp; Rev: '+pvEsc(dc.rev_no||'00')+'<br>Location: '+pvEsc(p.location)+'</div>'+
+     '<div style="font-size:18px;font-weight:800;color:#0f5132">ENVI TECH AL</div>'+
+     '<div style="font-size:11px;color:#475569">Analytical Laboratory - Environmental &amp; Water Testing</div>'+
+     '<div style="font-size:13px;font-weight:700;letter-spacing:.04em">REAGENT PREPARATION RECORD</div>'+
+   '</div>'+
+   '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:10px"><div><b>Month:</b> '+pvEsc(p.month||'-')+'</div><div><b>Type:</b> '+pvEsc(p.rtype||'-')+'</div></div>'+
+   '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:4px"><div>&bull; <b>Reagent Name:</b> '+pvEsc(p.reagent_name||'-')+'</div><div><b>Reagent No.:</b> '+pvEsc(p.reagent_no||'-')+'</div></div>'+
+   '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:4px"><div><b>Concentration:</b> '+pvEsc(conc)+'</div><div><b>Final Volume:</b> '+pvEsc(p.final_volume||'-')+'</div></div>'+
+   '<table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-top:10px">'+
+     '<thead><tr style="background:#e1e8ed">'+['S.#','Chemical Name','CAT Number','LOT Number','Quantity','Make','Expiry Date'].map(function(h){return '<th style="border:1px solid #b9c6d4;padding:4px 6px">'+h+'</th>';}).join('')+'</tr></thead>'+
+     '<tbody>'+rows+'</tbody></table>'+
+   '<div style="font-size:12.5px;margin-top:10px"><b>Description:</b> '+pvEsc(p.description||'-')+'</div>'+std+
+   '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:10px"><div><b>Prepared By:</b> '+pvEsc(p.prepared_by||'-')+'</div><div><b>Verified By:</b> '+pvEsc(p.verified_by||'-')+'</div></div>'+
+   '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:4px"><div><b>D.O.P.:</b> '+pvEsc(p.dop||'-')+'</div><div style="'+(doeExp?'color:#c00;font-weight:700':'')+'"><b>D.O.E.:</b> '+pvEsc(p.doe||'-')+'</div></div>'+
+   '<div style="border-top:1px solid #0f5132;margin-top:12px;padding-top:6px;font-size:10px;color:#64748b;text-align:center">Tel: +92 310 2288801 &nbsp;|&nbsp; Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan. &nbsp;|&nbsp; info@envitechal.com &nbsp;|&nbsp; www.envitechal.com</div>';
+}
+
+// ---- Download controlled PDF (save first, then stream) ----
+function downloadPdf(){var p=collect();if(!p.reagent_name.trim()){flash('Enter a reagent name to enable the PDF.',false);return;}el('pdfBtn').disabled=true;fetch('/qc/reagent_prep_save/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(p)}).then(function(r){return r.json();}).then(function(j){el('pdfBtn').disabled=false;if(j&&j.ok){if(!RECORD)RECORD={id:j.id};else RECORD.id=j.id;el('modeTag').textContent='(editing #'+j.id+')';window.open('/qc/reagent_prep_pdf_from_list/'+j.id+'/','_blank');}else{flash((j&&j.error)||'Could not generate the PDF.',false);}}).catch(function(){el('pdfBtn').disabled=false;flash('Network error while generating the PDF.',false);});}
 
 function collect(){
   var chems=[];el('chemBody').querySelectorAll('tr').forEach(function(tr,i){var n=tr.querySelector('.c_name').value.trim();if(!n)return;chems.push({s_no:i+1,chemical_name:n,cat_no:tr.querySelector('.c_cat').value,lot_no:tr.querySelector('.c_lot').value,quantity:tr.querySelector('.c_qty').value,make:tr.querySelector('.c_make').value,expiry:tr.querySelector('.c_exp').value,chemical_lot:tr.dataset.lot||null});});
@@ -210,6 +260,8 @@ function prefill(){
 }
 
 initLoc();buildInvList();prefill();onLoc();onType();
+// live-preview updates as any field changes
+document.querySelector('.card').addEventListener('input',function(){renderPreview();},true);
 </script>
 </body>
 {% endblock %}
