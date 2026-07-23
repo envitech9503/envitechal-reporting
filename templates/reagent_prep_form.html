@@ -23,7 +23,7 @@
       .fld.wide{grid-column:span 2}
       label{font-size:12px;font-weight:600;color:#475569}
       input,select,textarea{border:1px solid #cbd5e1;border-radius:7px;padding:7px 9px;font-size:13px;font-family:inherit;background:#fff}
-      textarea{min-height:70px;resize:vertical}
+      textarea{min-height:90px;resize:vertical;width:100%;box-sizing:border-box}
       .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:7px 13px;border-radius:7px;font-size:13px;text-decoration:none;cursor:pointer}
       .btn-p{background:#0f5132;border-color:#0f5132;color:#fff}
       .btn-d{color:#b91c1c;border-color:#fecaca}
@@ -38,6 +38,13 @@
       .calcbar{display:flex;align-items:center;justify-content:space-between}
       iframe#calc{width:100%;height:640px;border:1px solid #e2e8f0;border-radius:8px;margin-top:10px;display:none;background:#fff}
       .hidden{display:none}
+      #ctrlEdit{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+      #ctrlEdit.hidden{display:none}
+      .vbadge{display:inline-flex;align-items:center;gap:6px;background:#dcfce7;color:#166534;border:1px solid #bbf7d0;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+      .histtbl{width:100%;border-collapse:collapse;font-size:12px}
+      .histtbl th,.histtbl td{border:1px solid #eef2f6;padding:5px 8px;text-align:left;vertical-align:top}
+      .histtbl th{background:#f1f5f9;color:#334155;white-space:nowrap}
+      .voban{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;padding:9px 14px;border-radius:8px;font-size:13px;margin:0 18px 12px}
       .flash{padding:9px 14px;border-radius:7px;font-size:13px;margin:0 18px 12px}
       .flash.ok{background:#dcfce7;color:#166534}.flash.err{background:#fee2e2;color:#b91c1c}
       @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}.fld.wide{grid-column:span 2}}
@@ -53,30 +60,33 @@
 <div class="wrap">
   <div class="card">
     <div class="hd">
-      <div class="title"><i class="fa-solid fa-flask-vial"></i> Reagent &amp; Standards Preparation <span id="modeTag" style="font-size:13px;color:#64748b;font-weight:500"></span></div>
+      <div class="title"><i class="fa-solid fa-flask-vial"></i> Reagent &amp; Standards Preparation <span id="modeTag" style="font-size:13px;color:#64748b;font-weight:500"></span> <span id="vBadge"></span></div>
       <div>
         <a class="btn" href="/qc/reagent-prep-list/"><i class="fa-solid fa-list"></i> List</a>
+        <button class="btn" id="histBtn" type="button" onclick="toggleHist()" style="display:none"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
         <button class="btn btn-s" type="button" onclick="toggleCalc()"><i class="fa-solid fa-calculator"></i> <span id="calcLbl">Open Calculator</span></button>
         <button class="btn" type="button" onclick="togglePreview()"><i class="fa-solid fa-eye"></i> <span id="pvLbl">Live Preview</span></button>
+        <button class="btn" id="verifyBtn" type="button" onclick="toggleVerify()" style="display:none"><i class="fa-solid fa-user-check"></i> <span id="verifyLbl">Verify</span></button>
         <button class="btn btn-p" type="button" onclick="save()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
         <button class="btn" type="button" onclick="saveNew()" title="Save this record and start a fresh preparation (keeps Location &amp; Month)"><i class="fa-solid fa-forward"></i> Save &amp; New</button>
         <button class="btn" id="pdfBtn" type="button" onclick="downloadPdf()" title="Save and download the controlled PDF"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
       </div>
     </div>
+    <div id="voBanner" class="voban hidden"><i class="fa-solid fa-eye"></i> View only — this record is open for review. Use <b>Edit</b> from the list to make changes.</div>
     <div id="flash" class="flash hidden"></div>
 
     <div class="sec">
       <h3>Preparation Details</h3>
       <div class="grid">
         <div class="fld"><label>Location</label><select id="location" onchange="onLoc()"></select></div>
-        <div class="fld"><label>Month</label><input id="month" placeholder="e.g. July 2026"></div>
+        <div class="fld"><label>Month <input type="month" id="monthPick" onchange="onMonthPick()" title="Pick a month" style="font-size:11px;padding:1px 3px;margin-left:4px;width:auto"></label><input id="month" placeholder="e.g. July 2026"></div>
         <div class="fld"><label>Type</label><select id="rtype" onchange="onType()">
           <option>Reagent</option><option>Standard</option><option>Standardised titrant</option><option>Buffer</option><option>% solution</option>
         </select></div>
         <div class="fld wide"><label>Control No. (this lab) <a id="ctrlEditLink" class="hidden" href="javascript:void(0)" onclick="toggleDocEdit()" style="font-weight:500;font-size:11px;color:#0ea5e9">edit</a></label>
           <div class="ctrlbox">
             <div id="ctrlDisp">Doc No.: <b id="ctrlNo">-</b></div>
-            <div id="ctrlEdit" class="hidden" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <div id="ctrlEdit" class="hidden">
               <input id="d_no" placeholder="Doc No. (e.g. ETAL-LAB-709-RP-01)" style="width:220px;font-size:12px">
               <input id="d_date" placeholder="Issue date" style="width:100px;font-size:12px">
               <input id="d_iss" placeholder="Iss" style="width:44px;font-size:12px">
@@ -86,7 +96,7 @@
           </div>
         </div>
         <div class="fld wide"><label>Reagent / Standard Name</label><input id="reagent_name" placeholder="e.g. EDTA 0.01 M"></div>
-        <div class="fld"><label>Reagent No.</label><input id="reagent_no" placeholder="e.g. RG-12 / AD-03"></div>
+        <div class="fld"><label>Reagent No. <span id="noHint" class="note" style="margin:0;font-weight:600"></span></label><input id="reagent_no" list="noList" placeholder="e.g. RG-12 / AD-03"><datalist id="noList"></datalist></div>
         <div class="fld"><label>Final Volume</label><input id="final_volume" placeholder="e.g. 1000 mL"></div>
         <div class="fld"><label>Concentration value</label><input id="conc_value" placeholder="e.g. 0.01"></div>
         <div class="fld"><label>Concentration unit</label><input id="conc_unit" placeholder="M / N / %w/v / mg/L"></div>
@@ -146,6 +156,12 @@
       <div class="note">Mirrors the controlled PDF and updates as you type. Presentation only — nothing is stored until you click Save.</div>
     </div>
 
+    <div class="sec hidden" id="histSec" style="border-top:1px solid #eef2f6">
+      <h3>Record History</h3>
+      <div id="histBox" style="overflow:auto"></div>
+      <div class="note">Append-only audit trail: who changed what and when. Read-only.</div>
+    </div>
+
     <div class="sec" style="border-top:1px solid #eef2f6">
       <div class="calcbar">
         <h3 style="margin:0"><i class="fa-solid fa-calculator"></i> Fully-Loaded Preparation Calculator</h3>
@@ -162,15 +178,24 @@ var INV = {{ inventory_json|safe }};
 var DOCCTRL = {{ docctrl_json|safe }};
 var IS_ADMIN = {{ is_admin_json|safe }};
 var LOCS = {{ locations|safe }};
+var NEXTNO = {{ nextno_json|safe }};
+var VIEW_ONLY = {{ view_only_json|safe }};
+var ME = {{ me_json|safe }};
 var calcLoaded = false;
 var linkedRow = null;
+var dirty = false;
+var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function markDirty(){if(!VIEW_ONLY)dirty=true;}
 
 function el(id){return document.getElementById(id);}
 function flash(msg, ok){var f=el('flash');f.textContent=msg;f.className='flash '+(ok?'ok':'err');f.classList.remove('hidden');if(ok)setTimeout(function(){f.classList.add('hidden');},4000);}
 
 function initLoc(){var s=el('location');s.innerHTML='';LOCS.forEach(function(l){var o=document.createElement('option');o.value=l;o.textContent=l;s.appendChild(o);});}
 function curDoc(){return DOCCTRL[el('location').value]||{doc_no:'',issue_date:'',issue_no:'01',rev_no:'00'};}
-function onLoc(){var d=curDoc();el('ctrlNo').textContent=d.doc_no?(d.doc_no+'  |  Issue '+(d.issue_no||'01')+'  Rev '+(d.rev_no||'00')+(d.issue_date?('  |  '+d.issue_date):'')):'not set yet - office to enter';if(IS_ADMIN){el('ctrlEditLink').classList.remove('hidden');el('d_no').value=d.doc_no||'';el('d_date').value=d.issue_date||'';el('d_iss').value=d.issue_no||'01';el('d_rev').value=d.rev_no||'00';}}
+function onLoc(){var d=curDoc();el('ctrlNo').textContent=d.doc_no?(d.doc_no+'  |  Issue '+(d.issue_no||'01')+'  Rev '+(d.rev_no||'00')+(d.issue_date?('  |  '+d.issue_date):'')):'not set yet - office to enter';if(IS_ADMIN){el('ctrlEditLink').classList.remove('hidden');el('d_no').value=d.doc_no||'';el('d_date').value=d.issue_date||'';el('d_iss').value=d.issue_no||'01';el('d_rev').value=d.rev_no||'00';}buildNoList();}
+function buildNoList(){var loc=el('location').value;var arr=(NEXTNO&&NEXTNO[loc])||[];var dl=el('noList');if(dl){dl.innerHTML=arr.map(function(x){return '<option value="'+esc(x)+'">';}).join('');}var hint=el('noHint');if(hint){hint.textContent=arr.length?('· suggested: '+arr.join(', ')):'';}}
+function onMonthPick(){var v=el('monthPick').value;if(!v)return;var m=v.match(/(\d{4})-(\d{2})/);if(m){el('month').value=MONTHS[parseInt(m[2],10)-1]+' '+m[1];markDirty();renderPreview();}}
+function syncMonthPick(){var t=(el('month').value||'').trim();var mp=el('monthPick');if(!mp)return;for(var i=0;i<12;i++){var m=t.match(new RegExp('^'+MONTHS[i]+'\\s+(\\d{4})$','i'));if(m){mp.value=m[1]+'-'+('0'+(i+1)).slice(-2);return;}}}
 function toggleDocEdit(){el('ctrlEdit').classList.toggle('hidden');}
 function saveDoc(){var loc=el('location').value;var fd=new FormData();fd.append('location',loc);fd.append('doc_no',el('d_no').value);fd.append('issue_date',el('d_date').value);fd.append('issue_no',el('d_iss').value);fd.append('rev_no',el('d_rev').value);fetch('/qc/reagent_prep_doc_save/',{method:'POST',credentials:'include',body:fd}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){DOCCTRL[j.location]=j.doc;onLoc();el('ctrlEdit').classList.add('hidden');flash('Control number saved for '+j.location+'.',true);}else{flash((j&&j.error)||'Could not save control number.',false);}}).catch(function(){flash('Network error saving control number.',false);});}
 function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');}
@@ -237,31 +262,76 @@ function renderPreview(){var box=el('previewBox');if(!box||el('previewSec').clas
 }
 
 // ---- Download controlled PDF (save first, then stream) ----
-function downloadPdf(){var p=collect();if(!p.reagent_name.trim()){flash('Enter a reagent name to enable the PDF.',false);return;}el('pdfBtn').disabled=true;fetch('/qc/reagent_prep_save/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(p)}).then(function(r){return r.json();}).then(function(j){el('pdfBtn').disabled=false;if(j&&j.ok){if(!RECORD)RECORD={id:j.id};else RECORD.id=j.id;el('modeTag').textContent='(editing #'+j.id+')';window.open('/qc/reagent_prep_pdf_from_list/'+j.id+'/','_blank');}else{flash((j&&j.error)||'Could not generate the PDF.',false);}}).catch(function(){el('pdfBtn').disabled=false;flash('Network error while generating the PDF.',false);});}
+function downloadPdf(force){var p=collect();if(force)p.force=true;if(!p.reagent_name.trim()){flash('Enter a reagent name to enable the PDF.',false);return;}if(!preSaveChecks(p))return;_postSave(p,function(j){_applySaved(j);el('modeTag').textContent='(editing #'+j.id+')';window.open('/qc/reagent_prep_pdf_from_list/'+j.id+'/','_blank');},function(){downloadPdf(true);});}
+
+// ---- Verification (any user; records who + when) ----
+function renderVerify(){var vb=el('vBadge'),btn=el('verifyBtn'),lbl=el('verifyLbl');if(!RECORD||!RECORD.id){if(vb)vb.innerHTML='';if(btn)btn.style.display='none';return;}
+  if(RECORD.verified){if(vb)vb.innerHTML='<span class="vbadge"><i class="fa-solid fa-circle-check"></i> Verified by '+esc(RECORD.verified_by_name||'-')+' · '+esc(RECORD.verified_at||'')+'</span>';if(lbl)lbl.textContent='Unverify';}
+  else{if(vb)vb.innerHTML='<span class="vbadge" style="background:#fff8e6;color:#7a5b00;border-color:#f0d488"><i class="fa-solid fa-hourglass-half"></i> Not verified</span>';if(lbl)lbl.textContent='Verify';}
+  if(btn&&!VIEW_ONLY)btn.style.display='';}
+function toggleVerify(){if(!RECORD||!RECORD.id){flash('Save the record before verifying.',false);return;}var action=RECORD.verified?'unverify':'verify';
+  fetch('/qc/reagent_prep_verify/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({id:RECORD.id,action:action})})
+   .then(function(r){return r.json();})
+   .then(function(j){if(j&&j.ok){RECORD.verified=j.verified;RECORD.verified_by_name=j.verified_by_name||'';RECORD.verified_at=j.verified_at||'';renderVerify();flash(j.verified?'Record verified.':'Verification removed.',true);}else{flash((j&&j.error)||'Could not update verification.',false);}})
+   .catch(function(){flash('Network error updating verification.',false);});}
+
+// ---- History panel ----
+function renderHist(){var box=el('histBox');if(!box)return;var h=(RECORD&&RECORD.history)||[];if(!h.length){box.innerHTML='<div class="note">No history yet.</div>';return;}
+  box.innerHTML='<table class="histtbl"><thead><tr><th>When</th><th>User</th><th>Action</th><th>Change</th></tr></thead><tbody>'+h.map(function(a){return '<tr><td>'+esc(a.at)+'</td><td>'+esc(a.user)+'</td><td>'+esc(a.action)+'</td><td>'+esc(a.changed)+'</td></tr>';}).join('')+'</tbody></table>';}
+function toggleHist(){var s=el('histSec');if(s.classList.contains('hidden')){s.classList.remove('hidden');renderHist();s.scrollIntoView({behavior:'smooth'});}else{s.classList.add('hidden');}}
+
+// ---- Read-only View mode ----
+function applyViewOnly(){if(!VIEW_ONLY)return;el('voBanner').classList.remove('hidden');if(el('crumbLast'))el('crumbLast').textContent='View #'+((RECORD&&RECORD.id)||'');
+  document.querySelectorAll('.card input,.card select,.card textarea').forEach(function(x){x.disabled=true;});
+  document.querySelectorAll('.hd button').forEach(function(b){var t=(b.textContent||'').trim();if(/Save|Verify|Calculator/i.test(t))b.style.display='none';});
+  document.querySelectorAll('#chemBody .btn, .sec .btn').forEach(function(b){b.style.display='none';});
+  var pb=el('pdfBtn');if(pb){pb.disabled=false;pb.style.display='';pb.onclick=function(){window.open('/qc/reagent_prep_pdf_from_list/'+(RECORD.id)+'/','_blank');};}
+  var hb=el('histBtn');if(hb){hb.disabled=false;hb.style.display='';}}
 
 function collect(){
   var chems=[];el('chemBody').querySelectorAll('tr').forEach(function(tr,i){var n=tr.querySelector('.c_name').value.trim();if(!n)return;chems.push({s_no:i+1,chemical_name:n,cat_no:tr.querySelector('.c_cat').value,lot_no:tr.querySelector('.c_lot').value,quantity:tr.querySelector('.c_qty').value,make:tr.querySelector('.c_make').value,expiry:tr.querySelector('.c_exp').value,chemical_lot:tr.dataset.lot||null});});
-  var payload={id:RECORD?RECORD.id:null,location:el('location').value,month:el('month').value,reagent_name:el('reagent_name').value,reagent_no:el('reagent_no').value,rtype:el('rtype').value,description:el('description').value,final_volume:el('final_volume').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,prepared_by:el('prepared_by').value,verified_by:el('verified_by').value,dop:el('dop').value,doe:el('doe').value,remarks:el('remarks').value,chemicals:chems};
+  var payload={id:RECORD?RECORD.id:null,client_updated_at:(RECORD&&RECORD.updated_at)||'',location:el('location').value,month:el('month').value,reagent_name:el('reagent_name').value,reagent_no:el('reagent_no').value,rtype:el('rtype').value,description:el('description').value,final_volume:el('final_volume').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,prepared_by:el('prepared_by').value,verified_by:el('verified_by').value,dop:el('dop').value,doe:el('doe').value,remarks:el('remarks').value,chemicals:chems};
   if(el('rtype').value==='Standardised titrant'){payload.standardisation={location:el('location').value,primary_std:el('s_primary_std').value,ps_mass:el('s_ps_mass').value,ps_purity:el('s_ps_purity').value,ps_eqwt:el('s_ps_eqwt').value,titrant_ml:el('s_titrant_ml').value,nominal_N:el('s_nominal_N').value,true_N:el('s_true_N').value,factor:el('s_factor').value,unit:el('s_unit').value,std_date:el('s_std_date').value,next_due:el('s_next_due').value};}
   return payload;
 }
 
 function setCrumb(){var c=el('crumbLast');if(!c)return;c.textContent=RECORD?(RECORD.id?('Edit #'+RECORD.id):'Clone (new record)'):'New Preparation';}
-function _postSave(p,onOk){
+function parseDMY(s){if(!s)return null;var m=String(s).match(/(\d{2})-(\d{2})-(\d{4})/);if(m)return m[3]+'-'+m[2]+'-'+m[1];var i=String(s).match(/(\d{4})-(\d{2})-(\d{2})/);if(i)return i[1]+'-'+i[2]+'-'+i[3];return null;}
+function preSaveChecks(p){
+  if(p.dop&&p.doe&&p.doe<p.dop){flash('D.O.E. (expiry) cannot be earlier than D.O.P. (prepared).',false);return false;}
+  var bad=null;(p.chemicals||[]).forEach(function(c){var e=parseDMY(c.expiry);if(e&&p.dop&&e<p.dop){bad=c.chemical_name||'a chemical';}});
+  if(bad&&!window.confirm('Chemical "'+bad+'" appears expired at the date of preparation ('+p.dop+'). Continue anyway?'))return false;
+  return true;
+}
+function _applySaved(j){
+  if(!RECORD)RECORD={};
+  RECORD.id=j.id; RECORD.updated_at=j.updated_at||RECORD.updated_at;
+  if(j.history)RECORD.history=j.history;
+  RECORD.verified=false; RECORD.verified_by_name=''; RECORD.verified_at='';   // edits clear verification server-side
+  dirty=false; setCrumb(); renderVerify(); renderHist();
+  el('histBtn').style.display='';
+}
+function _postSave(p,onOk,retryFn){
   fetch('/qc/reagent_prep_save/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(p)})
-    .then(function(r){return r.json();})
-    .then(function(j){if(j&&j.ok){onOk(j);}else{flash((j&&j.error)||'Save failed.',false);}})
+    .then(function(r){return r.json().then(function(j){return {status:r.status,j:j||{}};});})
+    .then(function(res){var j=res.j;
+      if(res.status===409||j.stale){flash(j.message||'This record changed elsewhere — reload before saving.',false);return;}
+      if(j.warning){if(retryFn&&window.confirm(j.message||'Duplicate reagent number — save anyway?'))retryFn();return;}
+      if(j.ok){onOk(j);}else{flash(j.error||'Save failed.',false);}
+    })
     .catch(function(){flash('Network error while saving.',false);});
 }
-function save(){
-  var p=collect();
+function save(force){
+  var p=collect(); if(force)p.force=true;
   if(!p.reagent_name.trim()){flash('Reagent name is required.',false);return;}
-  _postSave(p,function(j){flash('Saved. Record #'+j.id+'.',true);if(!RECORD)RECORD={id:j.id};else RECORD.id=j.id;el('modeTag').textContent='(editing #'+j.id+')';setCrumb();});
+  if(!preSaveChecks(p))return;
+  _postSave(p,function(j){flash('Saved. Record #'+j.id+'.',true);_applySaved(j);el('modeTag').textContent='(editing #'+j.id+')';},function(){save(true);});
 }
-function saveNew(){
-  var p=collect();
+function saveNew(force){
+  var p=collect(); if(force)p.force=true;
   if(!p.reagent_name.trim()){flash('Reagent name is required.',false);return;}
-  _postSave(p,function(j){flash('Saved record #'+j.id+'. Ready for the next preparation.',true);resetForNew();});
+  if(!preSaveChecks(p))return;
+  _postSave(p,function(j){flash('Saved record #'+j.id+'. Ready for the next preparation.',true);dirty=false;resetForNew();},function(){saveNew(true);});
 }
 function resetForNew(){
   // start a fresh record; keep Location & Month for high-throughput entry
@@ -287,9 +357,13 @@ function prefill(){
   el('modeTag').textContent=RECORD.id?('(editing #'+RECORD.id+')'):'(clone - new record)';
 }
 
-initLoc();buildInvList();prefill();onLoc();onType();setCrumb();
-// live-preview updates as any field changes
-document.querySelector('.card').addEventListener('input',function(){renderPreview();},true);
+initLoc();buildInvList();prefill();onLoc();onType();setCrumb();syncMonthPick();renderVerify();
+if(RECORD&&RECORD.id){el('histBtn').style.display='';}
+if((!RECORD||!RECORD.id)&&!el('prepared_by').value){el('prepared_by').value=ME||'';}
+applyViewOnly();
+// live-preview + dirty tracking as any field changes
+document.querySelector('.card').addEventListener('input',function(){markDirty();renderPreview();},true);
+window.addEventListener('beforeunload',function(e){if(dirty&&!VIEW_ONLY){e.preventDefault();e.returnValue='';}});
 </script>
 </body>
 {% endblock %}

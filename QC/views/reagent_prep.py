@@ -8,9 +8,10 @@ from .shared import *  # noqa: F401,F403  (FPDF, models, render, JsonResponse, c
 import os as _os
 import re as _re
 import json as _json
-from datetime import datetime as _dt, date as _date
+from datetime import datetime as _dt, date as _date, timedelta as _tdelta
 from django.db.models import Q as _Q
 from django.db import transaction as _tx
+from django.utils import timezone as _tz
 from django.utils.safestring import mark_safe as _mark_safe
 from django.views.decorators.clickjacking import xframe_options_sameorigin as _xframe_sameorigin
 
@@ -111,6 +112,99 @@ def _docctrl_data(location):
     }
 
 
+def _user_name(user):
+    try:
+        if not user or not getattr(user, 'is_authenticated', False):
+            return ''
+        return (user.get_full_name() or user.get_username() or '').strip()
+    except Exception:
+        return ''
+
+
+def _next_numbers(location):
+    """Suggest the next reagent number per prefix seen in this lab, e.g. RG-13.
+    Analyst-editable; purely advisory (Decision D3 auto-suggest)."""
+    pat = _re.compile(r'^([A-Za-z]+)[-\s]?0*(\d+)$')
+    best = {}
+    try:
+        for rn in (ReagentPrep.objects.filter(location=location)
+                   .exclude(reagent_no='').values_list('reagent_no', flat=True)):
+            m = pat.match((rn or '').strip())
+            if not m:
+                continue
+            pref = m.group(1).upper()
+            n = int(m.group(2))
+            if n > best.get(pref, 0):
+                best[pref] = n
+    except Exception:
+        return []
+    return ['%s-%02d' % (p, n + 1) for p, n in sorted(best.items())]
+
+
+def _is_verified(obj):
+    return bool(getattr(obj, 'verified_at', None))
+
+
+def _snapshot(obj):
+    try:
+        stdf = obj.standardisation.factor
+    except Exception:
+        stdf = None
+    return {
+        'location': obj.location, 'month': obj.month, 'reagent_name': obj.reagent_name,
+        'reagent_no': obj.reagent_no, 'rtype': obj.rtype, 'description': obj.description,
+        'final_volume': obj.final_volume, 'conc_value': obj.conc_value, 'conc_unit': obj.conc_unit,
+        'prepared_by': obj.prepared_by, 'verified_by': obj.verified_by,
+        'dop': obj.dop.isoformat() if obj.dop else '', 'doe': obj.doe.isoformat() if obj.doe else '',
+        'remarks': obj.remarks, 'chem_count': obj.chemicals.count(), 'std_factor': stdf,
+    }
+
+
+_DIFF_LABELS = [
+    ('reagent_name', 'Name'), ('reagent_no', 'No.'), ('rtype', 'Type'),
+    ('location', 'Location'), ('month', 'Month'), ('conc_value', 'Conc value'),
+    ('conc_unit', 'Conc unit'), ('final_volume', 'Final volume'), ('dop', 'D.O.P.'),
+    ('doe', 'D.O.E.'), ('prepared_by', 'Prepared by'), ('verified_by', 'Verified by'),
+    ('description', 'Description'), ('remarks', 'Remarks'), ('chem_count', 'Chemicals'),
+    ('std_factor', 'Std factor'),
+]
+
+
+def _diff(old, new):
+    def _s(v):
+        return '-' if v in (None, '') else str(v)
+    parts = []
+    for k, lab in _DIFF_LABELS:
+        if old.get(k) != new.get(k):
+            parts.append('%s: %s → %s' % (lab, _s(old.get(k)), _s(new.get(k))))
+    return '; '.join(parts) if parts else 'no field changes'
+
+
+def _audit(prep, user, action, changed=''):
+    try:
+        ReagentPrepAudit.objects.create(
+            prep=prep,
+            user=(user if getattr(user, 'is_authenticated', False) else None),
+            action=str(action)[:30], changed=(changed or '')[:2000])
+    except Exception:
+        pass
+
+
+def _history(obj):
+    rows = []
+    try:
+        for a in obj.audits.all()[:60]:
+            rows.append({
+                'action': a.action,
+                'user': _user_name(a.user) or '-',
+                'at': a.at.strftime('%d-%m-%Y %H:%M') if a.at else '',
+                'changed': a.changed or '',
+            })
+    except Exception:
+        rows = []
+    return rows
+
+
 def _record_json(obj):
     chems = [{
         's_no': c.s_no, 'chemical_name': c.chemical_name, 'cat_no': c.cat_no,
@@ -129,6 +223,8 @@ def _record_json(obj):
         }
     except ReagentStandardisation.DoesNotExist:
         std = None
+    vuser = getattr(obj, 'verified_by_user', None)
+    vat = getattr(obj, 'verified_at', None)
     return {
         'id': obj.id, 'location': obj.location, 'month': obj.month,
         'reagent_name': obj.reagent_name, 'reagent_no': obj.reagent_no, 'rtype': obj.rtype,
@@ -138,15 +234,29 @@ def _record_json(obj):
         'dop': obj.dop.strftime('%Y-%m-%d') if obj.dop else '',
         'doe': obj.doe.strftime('%Y-%m-%d') if obj.doe else '',
         'remarks': obj.remarks, 'chemicals': chems, 'standardisation': std,
+        # round-2 additions
+        'updated_at': obj.updated_at.strftime('%Y-%m-%dT%H:%M:%S') if getattr(obj, 'updated_at', None) else '',
+        'updated_by': _user_name(getattr(obj, 'updated_by', None)),
+        'verified': bool(vat),
+        'verified_by_name': _user_name(vuser),
+        'verified_at': vat.strftime('%d-%m-%Y %H:%M') if vat else '',
+        'created_by_name': _user_name(getattr(obj, 'created_by', None)),
+        'history': _history(obj),
     }
 
 
 def reagent_prep(request):
-    """Create / edit / clone form page."""
+    """Create / edit / clone / view form page."""
     edit_id = request.GET.get('id')
     clone_id = request.GET.get('clone')
+    view_id = request.GET.get('view')
     record = None
-    if edit_id:
+    view_only = False
+    if view_id:
+        obj = get_object_or_404(ReagentPrep, id=view_id)
+        record = _record_json(obj)
+        view_only = True
+    elif edit_id:
         obj = get_object_or_404(ReagentPrep, id=edit_id)
         record = _record_json(obj)
     elif clone_id:
@@ -154,26 +264,32 @@ def reagent_prep(request):
         record = _record_json(obj)
         record['id'] = None
         record['reagent_no'] = ''
+        record['verified'] = False
+        record['verified_by_name'] = ''
+        record['verified_at'] = ''
+        record['history'] = []
+        record['updated_at'] = ''
     docctrl = {loc: _docctrl_data(loc) for loc in _LOCS}
-    is_admin = bool(getattr(request, 'user', None) and request.user.is_superuser)
+    # Full access for all users: control-number editing is open to everyone.
     context = {
         'record_json': _safe_json(record),
         'inventory_json': _safe_json(_inventory_for_autocomplete()),
         'docctrl_json': _safe_json(docctrl),
-        'is_admin_json': _safe_json(is_admin),
+        'is_admin_json': _safe_json(True),
         'locations': _safe_json(_LOCS),
+        'nextno_json': _safe_json({loc: _next_numbers(loc) for loc in _LOCS}),
+        'view_only_json': _safe_json(view_only),
+        'me_json': _safe_json(_user_name(getattr(request, 'user', None))),
     }
     return render(request, 'reagent_prep_form.html', context)
 
 
 @csrf_exempt
 def reagent_prep_doc_save(request):
-    """Save the per-lab control document number (superuser only), mirroring the
-    Chemicals module's doc-control edit."""
+    """Save the per-lab control document number. Open to all logged-in users
+    (full-access policy for this module)."""
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
-    if not (getattr(request, 'user', None) and request.user.is_superuser):
-        return JsonResponse({'error': 'Only an administrator can edit the control number.'}, status=403)
     g = request.POST
     location = g.get('location') if g.get('location') in _LOCS else 'Karachi'
     c = _docctrl(location)
@@ -203,17 +319,50 @@ def reagent_prep_save(request):
     if not name:
         return JsonResponse({'error': 'Reagent name is required'}, status=400)
     location = data.get('location') if data.get('location') in _LOCS else 'Karachi'
+    user = getattr(request, 'user', None)
+
+    # date sanity (G3): expiry cannot precede preparation
+    dop = _parse_date(data.get('dop'))
+    doe = _parse_date(data.get('doe'))
+    if dop and doe and doe < dop:
+        return JsonResponse({'error': 'D.O.E. (expiry) cannot be earlier than D.O.P. (prepared).'}, status=400)
+
+    rtype = (data.get('rtype') or 'Reagent').strip()[:30]
+    reagent_no = (data.get('reagent_no') or '').strip()[:40]
 
     rid = data.get('id')
+    old = None
+    was_verified = False
     if rid:
         try:
             obj = ReagentPrep.objects.get(id=int(rid))
         except Exception:
             return JsonResponse({'error': 'Record not found'}, status=404)
+        # optimistic lock (G5): reject if the DB row moved on since the form loaded
+        client_ts = (data.get('client_updated_at') or '').strip()
+        if client_ts and getattr(obj, 'updated_at', None):
+            if obj.updated_at.strftime('%Y-%m-%dT%H:%M:%S') > client_ts:
+                who = _user_name(getattr(obj, 'updated_by', None)) or 'another user'
+                return JsonResponse({'stale': True, 'message':
+                    'This record was changed by %s while you were editing. Reload to get the latest version before saving.' % who},
+                    status=409)
+        old = _snapshot(obj)
+        was_verified = _is_verified(obj)
     else:
         obj = ReagentPrep()
-        if getattr(request, 'user', None) and request.user.is_authenticated:
-            obj.created_by = request.user
+        if user and user.is_authenticated:
+            obj.created_by = user
+
+    # duplicate reagent number warning (G4): warn (don't block) on a same-lab clash
+    if reagent_no and not data.get('force'):
+        dup = ReagentPrep.objects.filter(location=location, reagent_no__iexact=reagent_no)
+        if rid:
+            dup = dup.exclude(id=int(rid))
+        if dup.exists():
+            return JsonResponse({'warning': True, 'field': 'reagent_no', 'message':
+                'Reagent No. "%s" already exists for %s. Save anyway?' % (reagent_no, location)})
+
+    prepared = (data.get('prepared_by') or '').strip() or _user_name(user)
 
     # All mutations atomic — an edit never leaves the record with its old child
     # rows deleted but new ones un-written.
@@ -221,17 +370,29 @@ def reagent_prep_save(request):
         obj.location = location
         obj.month = (data.get('month') or '').strip()[:30]
         obj.reagent_name = name[:200]
-        obj.reagent_no = (data.get('reagent_no') or '').strip()[:40]
-        obj.rtype = (data.get('rtype') or 'Reagent').strip()[:30]
+        obj.reagent_no = reagent_no
+        obj.rtype = rtype
         obj.description = (data.get('description') or '').strip()
         obj.final_volume = (data.get('final_volume') or '').strip()[:40]
         obj.conc_value = (data.get('conc_value') or '').strip()[:40]
         obj.conc_unit = (data.get('conc_unit') or '').strip()[:20]
-        obj.prepared_by = (data.get('prepared_by') or '').strip()[:120]
+        obj.prepared_by = prepared[:120]
         obj.verified_by = (data.get('verified_by') or '').strip()[:120]
-        obj.dop = _parse_date(data.get('dop'))
-        obj.doe = _parse_date(data.get('doe'))
+        obj.dop = dop
+        obj.doe = doe
         obj.remarks = (data.get('remarks') or '').strip()[:300]
+        if user and user.is_authenticated:
+            try:
+                obj.updated_by = user
+            except Exception:
+                pass
+        # editing content invalidates a prior verification (four-eyes guard)
+        if was_verified:
+            try:
+                obj.verified_by_user = None
+                obj.verified_at = None
+            except Exception:
+                pass
         obj.save()
 
         # replace child chemical rows
@@ -264,9 +425,12 @@ def reagent_prep_save(request):
                 expiry=(row.get('expiry') or '').strip()[:40],
                 chemical_lot=lot_obj)
 
-        # standardisation (only for standardised titrants that carry a payload)
+        # standardisation. F3 fix: an empty payload on a *titrant* must NEVER wipe a
+        # stored factor. Delete only when the record is no longer a titrant (the form
+        # confirms this with the user before sending an empty payload for a non-titrant).
         std = data.get('standardisation')
-        if std and (std.get('factor') not in (None, '') or std.get('true_N') not in (None, '')):
+        has_payload = bool(std and (std.get('factor') not in (None, '') or std.get('true_N') not in (None, '')))
+        if has_payload:
             s, _c = ReagentStandardisation.objects.get_or_create(prep=obj)
             s.location = location
             s.primary_std = (std.get('primary_std') or '').strip()[:120]
@@ -281,16 +445,71 @@ def reagent_prep_save(request):
             s.std_date = _parse_date(std.get('std_date'))
             s.next_due = _parse_date(std.get('next_due'))
             s.save()
-        else:
+        elif rtype != 'Standardised titrant':
             ReagentStandardisation.objects.filter(prep=obj).delete()
+        # else: titrant with no fresh payload -> keep the stored factor untouched (F3)
 
-    return JsonResponse({'ok': True, 'id': obj.id})
+    # audit trail (G2). type change is called out separately for auditors.
+    if old is None:
+        _audit(obj, user, 'created', 'record created')
+    else:
+        action = 'type-changed' if old.get('rtype') != obj.rtype else 'updated'
+        _audit(obj, user, action, _diff(old, _snapshot(obj)))
+    if was_verified:
+        _audit(obj, user, 'unverified', 'verification cleared by edit')
+
+    obj.refresh_from_db(fields=['updated_at'])
+    return JsonResponse({'ok': True, 'id': obj.id,
+                         'updated_at': obj.updated_at.strftime('%Y-%m-%dT%H:%M:%S') if obj.updated_at else '',
+                         'history': _history(obj)})
+
+
+@csrf_exempt
+def reagent_prep_verify(request):
+    """Verify / unverify a record. Open to any logged-in user (full-access policy);
+    verifier identity and time are recorded for traceability, and any later content
+    edit clears the verification (see reagent_prep_save)."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        data = _json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        data = request.POST
+    try:
+        obj = ReagentPrep.objects.get(id=int(data.get('id')))
+    except Exception:
+        return JsonResponse({'error': 'Record not found'}, status=404)
+    user = getattr(request, 'user', None)
+    action = (data.get('action') or 'verify').strip()
+    if action == 'unverify':
+        obj.verified_by_user = None
+        obj.verified_at = None
+        obj.save(update_fields=['verified_by_user', 'verified_at', 'updated_at'])
+        _audit(obj, user, 'unverified', 'verification removed')
+        return JsonResponse({'ok': True, 'verified': False})
+    obj.verified_by_user = user if (user and user.is_authenticated) else None
+    obj.verified_at = _tz.now()
+    obj.save(update_fields=['verified_by_user', 'verified_at', 'updated_at'])
+    _audit(obj, user, 'verified', 'verified by %s' % (_user_name(user) or '-'))
+    return JsonResponse({'ok': True, 'verified': True,
+                         'verified_by_name': _user_name(user),
+                         'verified_at': obj.verified_at.strftime('%d-%m-%Y %H:%M')})
 
 
 def reagent_prep_list(request):
     loc = request.GET.get('location') or 'All'
     q = (request.GET.get('q') or '').strip()
     month = (request.GET.get('month') or '').strip()
+    status = (request.GET.get('status') or 'all').strip().lower()
+    sort = (request.GET.get('sort') or '').strip()
+    try:
+        page = max(1, int(request.GET.get('page') or 1))
+    except Exception:
+        page = 1
+    per_page = 50
+    today = _date.today()
+    soon = today + _tdelta(days=14)
+
     qs = ReagentPrep.objects.all()
     if loc in _LOCS:
         qs = qs.filter(location=loc)
@@ -301,14 +520,32 @@ def reagent_prep_list(request):
             _Q(reagent_name__icontains=q) |
             _Q(reagent_no__icontains=q) |
             _Q(chemicals__chemical_name__icontains=q)).distinct()
-    qs = qs.order_by('-created_at')
-    today = _date.today()
+    if status == 'active':
+        qs = qs.filter(_Q(doe__isnull=True) | _Q(doe__gte=today))
+    elif status == 'expiring':
+        qs = qs.filter(doe__gte=today, doe__lte=soon)
+    elif status == 'expired':
+        qs = qs.filter(doe__lt=today)
+
+    order = {'doe': 'doe', '-doe': '-doe', 'no': 'reagent_no', '-no': '-reagent_no'}.get(sort, '-created_at')
+    qs = qs.order_by(order)
+
+    total = qs.count()
+    pages = max(1, (total + per_page - 1) // per_page)
+    page = min(page, pages)
+    start = (page - 1) * per_page
     rows = []
-    for o in qs[:1000]:
+    for o in qs[start:start + per_page]:
         expired = bool(o.doe and o.doe < today)
-        rows.append({'o': o, 'expired': expired})
-    return render(request, 'reagent_prep_list.html',
-                  {'list': rows, 'location': loc, 'q': q, 'month': month, 'locations': _LOCS})
+        expiring = bool(o.doe and today <= o.doe <= soon)
+        rows.append({'o': o, 'expired': expired, 'expiring': expiring,
+                     'verified': _is_verified(o)})
+    return render(request, 'reagent_prep_list.html', {
+        'list': rows, 'location': loc, 'q': q, 'month': month, 'status': status,
+        'sort': sort, 'locations': _LOCS, 'total': total, 'page': page,
+        'pages': pages, 'has_prev': page > 1, 'has_next': page < pages,
+        'prev_page': page - 1, 'next_page': page + 1,
+    })
 
 
 @_xframe_sameorigin
@@ -328,10 +565,11 @@ def reagent_prep_calculator(request):
 
 
 # ---------------------------------------------------------------- controlled PDF
-def _make_reagent_pdf(location, records):
+def _make_reagent_pdf(location, records, draft=False):
     """Build one controlled PDF for `records`, all belonging to `location`.
     Single source of truth for both the per-record PDF and the monthly/batch PDF
-    (entries stack 2-3 per page like the original paper log)."""
+    (entries stack 2-3 per page like the original paper log). `draft` overlays a
+    subtle diagonal DRAFT watermark (unverified single-record PDFs, Decision D1)."""
     ctrl = _docctrl(location)
     today = _date.today()
 
@@ -358,6 +596,17 @@ def _make_reagent_pdf(location, records):
             return s.encode('latin-1', 'replace').decode('latin-1')
 
         def header(self):
+            # DRAFT watermark (unverified records) — drawn first so content overlays it
+            if draft:
+                self.set_font(self.fam, 'B', 64)
+                self.set_text_color(232, 232, 232)
+                try:
+                    with self.rotation(45, self.w / 2.0, self.h / 2.0):
+                        self.text(self.w / 2.0 - 48, self.h / 2.0 + 12, 'DRAFT')
+                except Exception:
+                    self.set_xy(0, self.h / 2.0 - 12)
+                    self.cell(0, 24, 'DRAFT', align='C')
+                self.set_text_color(0, 0, 0)
             if _os.path.exists(_LOGO):
                 try:
                     self.image(_LOGO, 10, 8, 20, 22)
@@ -535,7 +784,12 @@ def _make_reagent_pdf(location, records):
         dop = obj.dop.strftime('%d-%m-%Y') if obj.dop else '-'
         doe = obj.doe.strftime('%d-%m-%Y') if obj.doe else '-'
         pdf.cell(48, 6, pdf.t('Prepared By: ' + (obj.prepared_by or '-')))
-        pdf.cell(48, 6, pdf.t('Verified By: ' + (obj.verified_by or '-')))
+        _vat = getattr(obj, 'verified_at', None)
+        if _vat:
+            _vname = _user_name(getattr(obj, 'verified_by_user', None)) or (obj.verified_by or '-')
+            pdf.cell(90, 6, pdf.t('Verified By: %s on %s' % (_vname, _vat.strftime('%d-%m-%Y'))))
+        else:
+            pdf.cell(90, 6, pdf.t('Verified By: ' + (obj.verified_by or '-')))
         pdf.ln(6)
         pdf.cell(48, 6, 'D.O.P.: ' + dop)
         if obj.doe and obj.doe < today:
@@ -560,8 +814,8 @@ def _pdf_response(pdf, fname):
 
 
 def generate_pdf_for_reagent_prep(obj):
-    """Single-record controlled PDF (unchanged output; now via the shared builder)."""
-    pdf = _make_reagent_pdf(obj.location, [obj])
+    """Single-record controlled PDF. Draft watermark when unverified (Decision D1)."""
+    pdf = _make_reagent_pdf(obj.location, [obj], draft=not _is_verified(obj))
     safe_no = ''.join(ch for ch in str(obj.reagent_no or obj.id) if ch.isalnum() or ch in '-_') or str(obj.id)
     return _pdf_response(pdf, 'ReagentPrep_%s_%s.pdf' % (safe_no, obj.location))
 
@@ -602,5 +856,5 @@ def reagent_prep_month_pdf(request):
 __all__ = [
     'reagent_prep', 'reagent_prep_save', 'reagent_prep_doc_save', 'reagent_prep_list',
     'reagent_prep_calculator', 'reagent_prep_pdf_from_list', 'reagent_prep_month_pdf',
-    'generate_pdf_for_reagent_prep',
+    'reagent_prep_verify', 'generate_pdf_for_reagent_prep',
 ]

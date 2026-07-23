@@ -41,3 +41,14 @@ for _m in (ReagentPrep, ReagentPrepChemical, ReagentStandardisation):
         admin.site.register(_m)
     except admin.sites.AlreadyRegistered:
         pass
+
+# Reagent prep audit (round 2)
+try:
+    from EnviTechAlApp.models import ReagentPrepAudit as _RPA
+    from django.contrib import admin as _adm
+    try:
+        _adm.site.register(_RPA)
+    except Exception:
+        pass
+except Exception:
+    pass

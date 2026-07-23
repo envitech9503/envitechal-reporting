@@ -25,7 +25,7 @@
       th{background:#f1f5f9;font-weight:700;color:#334155}
       tr:hover td{background:#fafcff}
       .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
-      .ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#b91c1c}
+      .ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#b91c1c}.warn{background:#fef9c3;color:#854d0e}
       .loc{font-size:11px;color:#64748b}
       .empty{padding:30px;text-align:center;color:#94a3b8}
       .acts a{margin-right:8px;color:#0f5132;text-decoration:none;font-size:12px}
@@ -52,8 +52,15 @@
         <option value="All"{% if location == 'All' %} selected{% endif %}>All locations</option>
         {% for l in locations %}<option value="{{ l }}"{% if location == l %} selected{% endif %}>{{ l }}</option>{% endfor %}
       </select>
+      <select name="status" title="Filter by expiry status">
+        <option value="all"{% if status == 'all' %} selected{% endif %}>All status</option>
+        <option value="active"{% if status == 'active' %} selected{% endif %}>Active</option>
+        <option value="expiring"{% if status == 'expiring' %} selected{% endif %}>Expiring &le; 14 days</option>
+        <option value="expired"{% if status == 'expired' %} selected{% endif %}>Expired</option>
+      </select>
       <input type="text" name="q" value="{{ q }}" placeholder="Search reagent name / no. / chemical">
       <input type="text" name="month" value="{{ month }}" placeholder="Month e.g. July 2026" style="width:150px">
+      <input type="hidden" name="sort" value="{{ sort }}">
       <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
       <button class="btn btn-p" type="submit" formaction="/qc/reagent_prep_month_pdf/" formtarget="_blank"
               title="Print all matching records for one lab, stacked like the paper log"><i class="fa-solid fa-file-pdf"></i> Print month</button>
@@ -61,7 +68,11 @@
     </form>
     <table>
       <thead>
-        <tr><th>Reagent No.</th><th>Reagent Name</th><th>Type</th><th>Location</th><th>D.O.P.</th><th>D.O.E.</th><th>Actions</th></tr>
+        <tr><th>Reagent No.</th><th>Reagent Name</th><th>Type</th><th>Location</th><th>D.O.P.</th>
+          <th>D.O.E.
+            <a href="?location={{ location|urlencode }}&amp;status={{ status }}&amp;q={{ q|urlencode }}&amp;month={{ month|urlencode }}&amp;sort=doe" style="text-decoration:none;color:#0f5132" title="Sort by expiry (earliest first)">&#9650;</a><a href="?location={{ location|urlencode }}&amp;status={{ status }}&amp;q={{ q|urlencode }}&amp;month={{ month|urlencode }}&amp;sort=-doe" style="text-decoration:none;color:#0f5132" title="Sort by expiry (latest first)">&#9660;</a>
+          </th>
+          <th>Status</th><th>Actions</th></tr>
       </thead>
       <tbody>
         {% for r in list %}
@@ -71,18 +82,30 @@
           <td>{{ r.o.rtype }}</td>
           <td><span class="loc">{{ r.o.location }}</span></td>
           <td>{{ r.o.dop|date:'d-m-Y'|default:'-' }}</td>
-          <td>{% if r.o.doe %}<span class="pill {% if r.expired %}bad{% else %}ok{% endif %}">{{ r.o.doe|date:'d-m-Y' }}</span>{% else %}-{% endif %}</td>
+          <td>{% if r.o.doe %}<span class="pill {% if r.expired %}bad{% elif r.expiring %}warn{% else %}ok{% endif %}">{{ r.o.doe|date:'d-m-Y' }}</span>{% else %}-{% endif %}</td>
+          <td>
+            {% if r.expired %}<span class="pill bad">Expired</span>{% elif r.expiring %}<span class="pill warn">Expiring</span>{% else %}<span class="pill ok">Active</span>{% endif %}
+            {% if r.verified %}<span class="loc" title="Verified"><i class="fa-solid fa-circle-check" style="color:#16a34a"></i></span>{% endif %}
+          </td>
           <td class="acts">
+            <a href="/qc/reagent_prep/?view={{ r.o.id }}"><i class="fa-solid fa-eye"></i> View</a>
             <a href="/qc/reagent_prep/?id={{ r.o.id }}"><i class="fa-solid fa-pen"></i> Edit</a>
             <a href="/qc/reagent_prep/?clone={{ r.o.id }}"><i class="fa-solid fa-copy"></i> Clone</a>
             <a href="/qc/reagent_prep_pdf_from_list/{{ r.o.id }}/" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF</a>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="empty">No preparation records yet. Click <b>New Preparation</b> to add one.</td></tr>
+        <tr><td colspan="8" class="empty">No preparation records match. Adjust the filters or click <b>New Preparation</b>.</td></tr>
         {% endfor %}
       </tbody>
     </table>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;padding:12px 18px;font-size:12px;color:#64748b">
+      <div>Showing {{ list|length }} of {{ total }} record{{ total|pluralize }} &mdash; page {{ page }} of {{ pages }}</div>
+      <div>
+        {% if has_prev %}<a class="btn" href="?location={{ location|urlencode }}&amp;status={{ status }}&amp;q={{ q|urlencode }}&amp;month={{ month|urlencode }}&amp;sort={{ sort }}&amp;page={{ prev_page }}">&lsaquo; Prev</a>{% endif %}
+        {% if has_next %}<a class="btn" href="?location={{ location|urlencode }}&amp;status={{ status }}&amp;q={{ q|urlencode }}&amp;month={{ month|urlencode }}&amp;sort={{ sort }}&amp;page={{ next_page }}">Next &rsaquo;</a>{% endif %}
+      </div>
+    </div>
   </div>
 </div>
 </body>

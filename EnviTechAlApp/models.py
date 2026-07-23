@@ -2698,6 +2698,12 @@ class ReagentPrep(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name='+')
+    verified_by_user = models.ForeignKey('auth.User', null=True, blank=True,
+                                          on_delete=models.SET_NULL, related_name='+')
+    verified_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         ordering = ['-created_at']
 
@@ -2741,3 +2747,18 @@ class ReagentStandardisation(models.Model):
 
     def __str__(self):
         return "Std %s @ %s (F=%s)" % (self.prep_id, self.location, self.factor)
+
+
+class ReagentPrepAudit(models.Model):
+    prep = models.ForeignKey('ReagentPrep', on_delete=models.CASCADE, related_name='audits')
+    user = models.ForeignKey('auth.User', null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name='+')
+    action = models.CharField(max_length=30, default='updated')
+    changed = models.TextField(blank=True, default='')
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-at', '-id']
+
+    def __str__(self):
+        return '%s #%s @ %s' % (self.action, self.prep_id, self.at)
