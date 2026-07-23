@@ -45,6 +45,11 @@
 {% endblock %}{% block w2_content %}
 <body>
 {% include "_unified_nav.html" %}
+<div style="max-width:1180px;margin:12px auto 0;padding:0 16px;font-size:12px;color:#64748b">
+  <a href="/qc/qc_main/" style="color:#0f5132;text-decoration:none">QC</a> &rsaquo;
+  <a href="/qc/reagent-prep-list/" style="color:#0f5132;text-decoration:none">Reagent &amp; Standards Prep</a> &rsaquo;
+  <span id="crumbLast">New Preparation</span>
+</div>
 <div class="wrap">
   <div class="card">
     <div class="hd">
@@ -54,6 +59,7 @@
         <button class="btn btn-s" type="button" onclick="toggleCalc()"><i class="fa-solid fa-calculator"></i> <span id="calcLbl">Open Calculator</span></button>
         <button class="btn" type="button" onclick="togglePreview()"><i class="fa-solid fa-eye"></i> <span id="pvLbl">Live Preview</span></button>
         <button class="btn btn-p" type="button" onclick="save()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        <button class="btn" type="button" onclick="saveNew()" title="Save this record and start a fresh preparation (keeps Location &amp; Month)"><i class="fa-solid fa-forward"></i> Save &amp; New</button>
         <button class="btn" id="pdfBtn" type="button" onclick="downloadPdf()" title="Save and download the controlled PDF"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
       </div>
     </div>
@@ -240,13 +246,34 @@ function collect(){
   return payload;
 }
 
+function setCrumb(){var c=el('crumbLast');if(!c)return;c.textContent=RECORD?(RECORD.id?('Edit #'+RECORD.id):'Clone (new record)'):'New Preparation';}
+function _postSave(p,onOk){
+  fetch('/qc/reagent_prep_save/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(p)})
+    .then(function(r){return r.json();})
+    .then(function(j){if(j&&j.ok){onOk(j);}else{flash((j&&j.error)||'Save failed.',false);}})
+    .catch(function(){flash('Network error while saving.',false);});
+}
 function save(){
   var p=collect();
   if(!p.reagent_name.trim()){flash('Reagent name is required.',false);return;}
-  fetch('/qc/reagent_prep_save/',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(p)})
-    .then(function(r){return r.json();})
-    .then(function(j){if(j&&j.ok){flash('Saved. Record #'+j.id+'.',true);if(!RECORD)RECORD={id:j.id};else RECORD.id=j.id;el('modeTag').textContent='(editing #'+j.id+')';}else{flash((j&&j.error)||'Save failed.',false);}})
-    .catch(function(){flash('Network error while saving.',false);});
+  _postSave(p,function(j){flash('Saved. Record #'+j.id+'.',true);if(!RECORD)RECORD={id:j.id};else RECORD.id=j.id;el('modeTag').textContent='(editing #'+j.id+')';setCrumb();});
+}
+function saveNew(){
+  var p=collect();
+  if(!p.reagent_name.trim()){flash('Reagent name is required.',false);return;}
+  _postSave(p,function(j){flash('Saved record #'+j.id+'. Ready for the next preparation.',true);resetForNew();});
+}
+function resetForNew(){
+  // start a fresh record; keep Location & Month for high-throughput entry
+  RECORD=null;
+  ['reagent_name','reagent_no','final_volume','conc_value','conc_unit','dop','doe','description','prepared_by','verified_by','remarks'].forEach(function(id){var e=el(id);if(e)e.value='';});
+  el('rtype').value='Reagent';onType();
+  el('chemBody').innerHTML='';addChem();addChem();
+  ['s_primary_std','s_ps_mass','s_ps_eqwt','s_titrant_ml','s_nominal_N','s_true_N','s_factor','s_std_date','s_next_due'].forEach(function(id){var e=el(id);if(e)e.value='';});
+  var pp=el('s_ps_purity');if(pp)pp.value='100';
+  el('modeTag').textContent='(new record)';setCrumb();renderPreview();
+  el('reagent_name').focus();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function prefill(){
@@ -260,7 +287,7 @@ function prefill(){
   el('modeTag').textContent=RECORD.id?('(editing #'+RECORD.id+')'):'(clone - new record)';
 }
 
-initLoc();buildInvList();prefill();onLoc();onType();
+initLoc();buildInvList();prefill();onLoc();onType();setCrumb();
 // live-preview updates as any field changes
 document.querySelector('.card').addEventListener('input',function(){renderPreview();},true);
 </script>
