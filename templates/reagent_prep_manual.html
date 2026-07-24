@@ -129,17 +129,19 @@
     </div>
 
     <!-- ============ GETTING STARTED ============ -->
-    <section class="topic" id="t-open" data-cat="start" data-keywords="open access navigate qc menu url login where find launch">
+    <section class="topic" id="t-open" data-cat="start" data-keywords="open access navigate home tile qc menu url login where find launch entry point breadcrumb back">
       <h2><span class="cat-tag">Getting started</span> Opening the module</h2>
-      <p>The module lives inside the <b>QC</b> area of the LIMS. You can reach it in two ways:</p>
+      <p>The module is served under the QC area of the LIMS (its addresses begin <code>/qc/</code>), but you open it from the <b>Home</b> page, not from the QC page. There are two reliable ways in:</p>
       <ul>
-        <li>From the top navigation bar, open <span class="path">QC</span> and choose <b>Reagent &amp; Standards Prep</b>.</li>
-        <li>Directly by address: the entry form is at <code>/qc/reagent_prep/</code> and the records list is at <code>/qc/reagent-prep-list/</code>.</li>
+        <li><b>From Home.</b> Click <span class="path">Home</span> in the top navigation bar, then click the green <b>Reagent &amp; Standards Prep</b> tile in the module grid. This opens the <b>records list</b>.</li>
+        <li><b>Directly by address.</b> The records list is at <code>/qc/reagent-prep-list/</code> and a blank entry form is at <code>/qc/reagent_prep/</code>.</li>
       </ul>
-      <p>The module has two working areas that you will move between constantly:</p>
+      <div class="warn note">The <span class="path">QC</span> button in the top navigation bar opens the QC reports page, which does <b>not</b> link to this module. Use <span class="path">Home</span> instead. For the same reason, the <b>QC Home</b> button and the <span class="path">QC ›</span> breadcrumb inside this module lead away from it with no link back — use your browser&rsquo;s Back button, or <span class="path">Home</span>, to return.</div>
+      <p>The module has two working areas that you will move between constantly, plus this manual:</p>
       <ul>
-        <li><b>The form</b> — where you create, edit, clone or view a single preparation record.</li>
-        <li><b>The list</b> — where you search, filter, sort and print existing records.</li>
+        <li><b>The list</b> (<code>/qc/reagent-prep-list/</code>) — where you search, filter, sort and print existing records. This is where the Home tile lands you.</li>
+        <li><b>The form</b> (<code>/qc/reagent_prep/</code>) — where you create, edit, clone or view a single preparation record. Reach it with <b>New Preparation</b> on the list, or with the <b>View</b> / <b>Edit</b> / <b>Clone</b> actions on any row (these open <code>?view=</code>, <code>?id=</code> and <code>?clone=</code> respectively).</li>
+        <li><b>This manual</b> — the <b>User Manual</b> button in the header of both the list and the form opens it in a new tab (<code>/qc/reagent_prep_manual/</code>).</li>
       </ul>
       <div class="note">You must be logged in. Every logged-in user has full access to create, edit, verify and print; the system records your name against the actions you take.</div>
     </section>
@@ -155,13 +157,13 @@
         <li><b>Description / Method of Preparation</b> — the narrative method, plus Prepared By, Verified By and Remarks.</li>
         <li><b>Calculator</b> — an embedded, fully-loaded preparation calculator for weigh-and-dissolve, dilutions, calibration series and conversions.</li>
       </ol>
-      <p>Above the form sit the action buttons — <b>Save</b>, <b>Save &amp; New</b>, <b>Verify</b>, <b>History</b> and the verification badge.</p>
+      <p>Above the form sits the action row, left to right: <b>List</b>, <b>User Manual</b>, <b>History</b>, <b>Open Calculator</b>, <b>Live Preview</b>, <b>Verify</b>, <b>Save</b>, <b>Save &amp; New</b> and <b>Download PDF</b>, together with the verification badge. <b>History</b> and <b>Verify</b> appear only once the record has been saved.</p>
     </section>
 
     <!-- ============ DATA ENTRY ============ -->
     <section class="topic" id="t-create" data-cat="entry" data-keywords="create new record preparation add save first steps make entry">
       <h2><span class="cat-tag">Data entry</span> Creating a new preparation</h2>
-      <p>Open the form at <span class="path">QC → Reagent &amp; Standards Prep → New Preparation</span> and work through the fields:</p>
+      <p>Open the form from <span class="path">Home → Reagent &amp; Standards Prep → New Preparation</span> and work through the fields:</p>
       <ol>
         <li>Choose the <b>Location</b> (Karachi or Lahore).</li>
         <li>Pick the <b>Reagent Type</b> — this decides whether the standardisation panel appears.</li>
@@ -186,7 +188,7 @@
       <h2><span class="cat-tag">Data entry</span> Reagent number &amp; auto-suggestion</h2>
       <p>The <b>Reagent No.</b> field helps you keep a consistent, per-laboratory numbering scheme.</p>
       <ul>
-        <li>As you focus the field, the system <b>suggests the next number</b> for each prefix already used in that lab (for example, if <code>RG-12</code> is the highest, it offers <code>RG-13</code>). The suggestion is advisory — you can type any value.</li>
+        <li>The system <b>suggests the next number</b> for each prefix already used in that lab (for example, if <code>RG-12</code> is the highest, it offers <code>RG-13</code>). The suggestions appear in two places: as a drop-down list on the <b>Reagent No.</b> field when you click or type in it, and as a &ldquo;<code>· suggested: …</code>&rdquo; hint beside the field. The suggestion is advisory — you can type any value.</li>
         <li>If the number you enter <b>already exists in the same lab</b>, the system shows a <b>duplicate warning</b> when you save and asks you to confirm. Choose <b>Save anyway</b> to proceed, or change the number.</li>
       </ul>
       <div class="note">Suggestions are calculated per laboratory, so Karachi and Lahore numbering do not interfere with each other.</div>
@@ -219,10 +221,11 @@
       <p>The <b>Description / Method of Preparation</b> box is a free-text narrative — describe the weighing, dissolution, dilution, standardisation and storage steps. Below it, <b>Prepared By</b>, <b>Verified By</b> and <b>Remarks</b> capture the people and any notes. <b>Prepared By</b> defaults to your name on a new record.</p>
     </section>
 
-    <section class="topic" id="t-preview" data-cat="entry" data-keywords="live preview calculator embedded tool weigh dissolve dilution converters">
+    <section class="topic" id="t-preview" data-cat="entry" data-keywords="live preview calculator embedded tool weigh dissolve dilution converters fx insert result row quantity">
       <h2><span class="cat-tag">Data entry</span> Live preview &amp; the calculator</h2>
       <p>As you type, a <b>live preview</b> mirrors how the controlled PDF will look. It is presentation only — nothing is stored until you click <b>Save</b>.</p>
-      <p>The embedded <b>Fully-Loaded Preparation Calculator</b> handles weigh-and-dissolve, dilutions, calibration series, standardisation, % solutions and unit converters. It is a working aid; values are not written to the record automatically — carry the results you need into the fields yourself.</p>
+      <p>The embedded <b>Fully-Loaded Preparation Calculator</b> handles weigh-and-dissolve, dilutions, calibration series, standardisation, % solutions and unit converters. Open it with <b>Open Calculator</b> (the button then reads <b>Hide Calculator</b>).</p>
+      <p>The calculator can write its result straight into the record. Press the small <b>fx</b> button on a chemical row to calculate for that row — the result is inserted into that row&rsquo;s <b>Quantity</b> and the module confirms with &ldquo;Calculator result inserted into row&nbsp;<i>n</i>&rdquo;. A standardisation calculation likewise fills the <b>True strength</b> and <b>Factor</b> fields. Opening the calculator from the toolbar instead of from a row leaves it unlinked, in which case you carry the result across yourself. Nothing is stored until you click <b>Save</b>.</p>
     </section>
 
     <section class="topic" id="t-save" data-cat="entry" data-keywords="save save and new button submit store high throughput batch entry">
@@ -264,7 +267,7 @@
         <tr><td>Next due</td><td>When the next standardisation was scheduled.</td></tr>
         <tr><td>Recorded by / at</td><td>The user who logged it and the timestamp.</td></tr>
       </table>
-      <div class="tip note">The log is <b>append-only and read-only</b> — you cannot edit past entries, which preserves the traceable history. If you save the titrant again <b>without changing the standardisation values</b>, no duplicate entry is added. The table appears only when at least one standardisation event has been logged.</div>
+      <div class="tip note">The log is <b>append-only and read-only</b> — you cannot edit past entries, which preserves the traceable history. If you save the titrant again <b>without changing the standardisation values</b>, no duplicate entry is added. The table appears only when at least one standardisation event has been logged. The on-screen table shows the <b>60 most recent</b> events; older ones remain stored in the database.</div>
     </section>
 
     <section class="topic" id="t-editstd" data-cat="std" data-keywords="edit titrant keep factor F3 not wiped standardisation preserved data loss protection re-save">
@@ -294,7 +297,7 @@
       <h2><span class="cat-tag">Verification &amp; audit</span> <span class="badge b-warn">Supervisor / QA</span> Record history (audit trail)</h2>
       <p>Click <b>History</b> on a saved record to open its <b>audit trail</b> — an append-only log of everything that has happened to the record. Each entry shows the time, the user, the action and a summary of what changed.</p>
       <p>Logged actions include: <b>created</b>, <b>updated</b> (with a field-by-field summary of changes), <b>type-changed</b>, <b>verified</b> and <b>unverified</b>.</p>
-      <div class="note">The audit trail is read-only and cannot be altered, giving a complete, defensible record of the reagent&rsquo;s life for inspection by regulatory bodies (Sindh EPA, Punjab EPA).</div>
+      <div class="note">The audit trail is read-only and cannot be altered, giving a complete, defensible record of the reagent&rsquo;s life for inspection by regulatory bodies (Sindh EPA, Punjab EPA). The panel shows the <b>60 most recent</b> entries; older ones remain stored in the database. <b>History</b> is also available in read-only View mode.</div>
       <p class="tip note">The audit trail (who did what to the record) is distinct from the <a href="#t-history">Standardisation History</a> (the running log of standardisation events). Both are read-only.</p>
     </section>
 
@@ -306,14 +309,15 @@
 
     <section class="topic" id="t-view" data-cat="verify" data-keywords="view mode read only banner look without editing inspect open">
       <h2><span class="cat-tag">Verification &amp; audit</span> Read-only View mode</h2>
-      <p>The <b>View</b> action (on the list) opens a record in <b>read-only mode</b>. A banner makes clear you are viewing, not editing, and the fields are locked. This is ideal for checking a record or showing it to a reviewer without any risk of accidental change. You can still open its PDF from View mode.</p>
+      <p>The <b>View</b> action (on the list) opens a record in <b>read-only mode</b>. A banner reads &ldquo;<i>View only — this record is open for review. Use <b>Edit</b> from the list to make changes.</i>&rdquo;, every field is locked, and the Save, Save &amp; New, Verify and Calculator buttons are hidden. This is ideal for checking a record or showing it to a reviewer without any risk of accidental change.</p>
+      <p>Two actions remain available in View mode: <b>Download PDF</b>, which opens the controlled PDF for that record, and <b>History</b>, which opens its audit trail. Neither changes the record.</p>
     </section>
 
     <!-- ============ LIST & SEARCH ============ -->
     <section class="topic" id="t-list" data-cat="list" data-keywords="list records browse table columns overview all reagents find grid">
       <h2><span class="cat-tag">List &amp; search</span> The records list</h2>
-      <p>The list at <span class="path">QC → Reagent &amp; Standards Prep</span> shows all preparation records with their number, name, type, location, D.O.P., D.O.E., status and actions. From here you search, filter, sort, open, clone and print records.</p>
-      <p>Each row&rsquo;s actions are: <b>View</b> (read-only), <b>Edit</b>, <b>Clone</b> and <b>PDF</b>.</p>
+      <p>The list at <span class="path">Home → Reagent &amp; Standards Prep</span> (address <code>/qc/reagent-prep-list/</code>) shows all preparation records with their number, name, type, location, D.O.P., D.O.E., status and actions. From here you search, filter, sort, open, clone and print records.</p>
+      <p>Each row&rsquo;s actions are: <b>View</b> (read-only), <b>Edit</b>, <b>Clone</b> and <b>PDF</b>. The header carries <b>QC Home</b>, <b>User Manual</b> and <b>New Preparation</b>.</p>
     </section>
 
     <section class="topic" id="t-filter" data-cat="list" data-keywords="filter location status active expiring expired search month query narrow find 14 days">
@@ -333,6 +337,7 @@
     <section class="topic" id="t-sort" data-cat="list" data-keywords="sort order expiry date pagination pages next prev per page 50 arrows">
       <h2><span class="cat-tag">List &amp; search</span> Sorting &amp; pagination</h2>
       <p>Click the arrows on the <b>D.O.E.</b> column header to sort by expiry — earliest first (▲) or latest first (▼) — so the most urgent reagents rise to the top.</p>
+      <p>Until you choose a sort, the list is ordered with the <b>most recently created record first</b>.</p>
       <p>The list shows <b>50 records per page</b>. The footer tells you how many are shown of the total and offers <b>Prev</b> / <b>Next</b> links, which keep your current filters and sort.</p>
     </section>
 
@@ -344,7 +349,8 @@
     <!-- ============ PDFs ============ -->
     <section class="topic" id="t-pdf" data-cat="pdf" data-keywords="pdf single record print controlled log download generate document">
       <h2><span class="cat-tag">PDFs &amp; printing</span> Single-record PDF</h2>
-      <p>The <b>PDF</b> action on a list row (and the PDF button in View mode) generates the controlled PDF for that one record — the formatted preparation log with the Envi Tech AL masthead, chemicals, standardisation and signatures.</p>
+      <p>The <b>PDF</b> action on a list row (and the <b>Download PDF</b> button in View mode) generates the controlled PDF for that one record — the formatted preparation log with the Envi Tech AL masthead, chemicals, standardisation and signatures.</p>
+      <div class="note"><b>Download PDF</b> on an editable form behaves slightly differently: it <b>saves the record first</b> and then opens the PDF, so the printed copy always matches what is stored. In read-only <b>View</b> mode it simply opens the PDF of the record you are viewing.</div>
     </section>
 
     <section class="topic" id="t-draft" data-cat="pdf" data-keywords="draft watermark unverified not verified diagonal provisional stamp final controlled">
@@ -353,10 +359,11 @@
       <div class="tip note">If you print a record and see <b>DRAFT</b> across it, that is your cue the record still needs verifying. Verify it, then re-open the PDF.</div>
     </section>
 
-    <section class="topic" id="t-month" data-cat="pdf" data-keywords="monthly pdf print month stacked log all records paper log one lab batch print">
+    <section class="topic" id="t-month" data-cat="pdf" data-keywords="monthly pdf print month stacked log all records paper log one lab batch print status filter not applied 500 cap no watermark">
       <h2><span class="cat-tag">PDFs &amp; printing</span> Monthly (stacked) PDF</h2>
-      <p>The <b>Print month</b> button on the list produces a single PDF containing <b>all matching records for one laboratory</b>, stacked like the paper log. Choose <b>Karachi</b> or <b>Lahore</b> (not &ldquo;All&rdquo;) and optionally a month, then click <b>Print month</b>.</p>
-      <div class="warn note">The monthly print needs a specific lab selected — with the location left on &ldquo;All&rdquo; it cannot produce a single-lab log.</div>
+      <p>The <b>Print month</b> button on the list produces a single PDF containing <b>the matching records for one laboratory</b>, stacked like the paper log. Choose <b>Karachi</b> or <b>Lahore</b> (not &ldquo;All&rdquo;) and optionally a month, then click <b>Print month</b>.</p>
+      <div class="warn note">The monthly print needs a specific lab selected — with the location left on &ldquo;All&rdquo; it cannot produce a single-lab log and reports &ldquo;Select Karachi or Lahore to print the monthly record&rdquo;. If nothing matches, it reports &ldquo;No preparation records match&rdquo; for that lab.</div>
+      <div class="note">The monthly print applies the <b>location</b>, <b>month</b> and <b>search</b> boxes only — the <b>Status</b> filter is <i>not</i> carried into it, so an unexpired-only screen on the list still prints the full set for that lab and month. Narrow the month or the search text if you need a shorter log. A single monthly print is capped at <b>500 records</b>, and unlike the single-record PDF it never carries the DRAFT watermark, so check verification status on the list before circulating it.</div>
     </section>
 
     <!-- ============ ACCESS ============ -->
@@ -376,14 +383,19 @@
         <li><b>Concurrent edits</b> are caught so no one silently overwrites another&rsquo;s changes.</li>
         <li><b>Editing a titrant</b> never erases its correction factor.</li>
         <li><b>Editing a verified record</b> clears its verification so it is re-checked.</li>
-        <li><b>An unverified record</b> prints with a DRAFT watermark.</li>
+        <li><b>An unverified record</b> prints with a DRAFT watermark on its single-record PDF.</li>
+        <li><b>A chemical that had already expired</b> at the date of preparation raises a confirmation before saving — &ldquo;<i>Chemical &hellip; appears expired at the date of preparation &hellip; Continue anyway?</i>&rdquo;.</li>
+        <li><b>Leaving the form with unsaved changes</b> raises a browser warning first.</li>
+        <li><b>An edit is written in one transaction</b>, so a save can never leave a record with its old chemical rows deleted but the new ones missing.</li>
         <li>Every change is written to the <b>append-only audit trail</b>.</li>
       </ul>
     </section>
 
     <!-- ============ TROUBLESHOOTING ============ -->
-    <section class="topic" id="t-faq" data-cat="help" data-keywords="troubleshooting faq problems why cannot save blocked panel missing help questions common issues">
+    <section class="topic" id="t-faq" data-cat="help" data-keywords="troubleshooting faq problems why cannot save blocked panel missing help questions common issues qc cannot find module where is it status filter">
       <h2><span class="cat-tag">Troubleshooting</span> Common questions</h2>
+      <h3>I clicked QC in the top bar and cannot find the module</h3>
+      <p>The <span class="path">QC</span> button opens the QC reports page, which does not link to this module. Click <span class="path">Home</span> instead and use the green <b>Reagent &amp; Standards Prep</b> tile, or go straight to <code>/qc/reagent-prep-list/</code>. The same applies to the <b>QC Home</b> button inside the module — it takes you to QC reports, not back to the reagent list.</p>
       <h3>The Standardisation panel isn&rsquo;t showing</h3>
       <p>It appears only when the <b>Reagent Type</b> is <i>Standardised titrant</i>. Change the type and it will appear.</p>
       <h3>My save was blocked</h3>
@@ -393,7 +405,9 @@
       <h3>The Standardisation History table is empty or missing</h3>
       <p>It only appears for <b>titrants</b> that have <b>at least one standardisation event</b> logged. Enter the standardisation values and save to create the first entry.</p>
       <h3>The monthly print won&rsquo;t generate</h3>
-      <p>Select a single laboratory (Karachi or Lahore) rather than &ldquo;All&rdquo;, then use <b>Print month</b>.</p>
+      <p>Select a single laboratory (Karachi or Lahore) rather than &ldquo;All&rdquo;, then use <b>Print month</b>. If it reports that no records match, widen the month or clear the search box.</p>
+      <h3>The monthly print contains records I had filtered out</h3>
+      <p>The monthly print carries only the <b>location</b>, <b>month</b> and <b>search</b> boxes. The <b>Status</b> filter is not applied to it — see <a href="#t-month">Monthly (stacked) PDF</a>.</p>
       <h3>My name isn&rsquo;t on the record</h3>
       <p><b>Prepared By</b> defaults to your name on new records; on older or cloned records you may need to set it. Your identity is separately captured in the audit trail whenever you save.</p>
     </section>
@@ -422,7 +436,7 @@
 
 <footer>
   <div><b>Envi Tech AL — Reagent &amp; Standards Preparation module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories.</div>
-  <div style="margin-top:4px">This document reflects the module as deployed on 24-07-2026, including the standardisation-history log. For controlled outputs, always work from the live system.</div>
+  <div style="margin-top:4px">Revision 2 — 24-07-2026. This document reflects the module as deployed on 24-07-2026, including the standardisation-history log, and was reconciled claim-by-claim against the deployed code in a QA audit on the same date. For controlled outputs, always work from the live system.</div>
 </footer>
 
 <script>
