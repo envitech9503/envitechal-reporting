@@ -627,6 +627,20 @@ def reagent_prep_calculator(request):
     return HttpResponse('<p>Calculator asset not found.</p>', status=404)
 
 
+def reagent_prep_manual(request):
+    """Serve the module user manual (self-contained searchable HTML) raw, so its
+    own CSS/JS braces are never parsed as Django template tags. Linked from the
+    form and list headers as 'User Manual'."""
+    for p in ('templates/reagent_prep_manual.html',
+              _os.path.join(_os.path.dirname(__file__), '..', '..', 'templates', 'reagent_prep_manual.html')):
+        try:
+            with open(p, encoding='utf-8') as fh:
+                return HttpResponse(fh.read())
+        except Exception:
+            continue
+    return HttpResponse('<p>User manual asset not found.</p>', status=404)
+
+
 # ---------------------------------------------------------------- controlled PDF
 def _make_reagent_pdf(location, records, draft=False):
     """Build one controlled PDF for `records`, all belonging to `location`.
@@ -919,5 +933,5 @@ def reagent_prep_month_pdf(request):
 __all__ = [
     'reagent_prep', 'reagent_prep_save', 'reagent_prep_doc_save', 'reagent_prep_list',
     'reagent_prep_calculator', 'reagent_prep_pdf_from_list', 'reagent_prep_month_pdf',
-    'reagent_prep_verify', 'generate_pdf_for_reagent_prep',
+    'reagent_prep_verify', 'reagent_prep_manual', 'generate_pdf_for_reagent_prep',
 ]

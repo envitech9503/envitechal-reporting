@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reagent &amp; Standards Preparation — User Manual | Envi Tech AL</title>
+<style>
+  :root{
+    --green:#0f5132; --green-2:#14663f; --green-soft:#e7f2ec; --ink:#1f2937; --muted:#64748b;
+    --line:#e2e8f0; --bg:#f4f6f8; --card:#ffffff; --amber:#854d0e; --amber-bg:#fef9c3;
+    --red:#b91c1c; --red-bg:#fee2e2; --blue:#1e40af; --blue-bg:#e7edfb; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55;color:var(--ink);background:var(--bg)}
+  a{color:var(--green);text-decoration:none}
+  a:hover{text-decoration:underline}
+  /* Header */
+  header.top{background:linear-gradient(135deg,var(--green),var(--green-2));color:#fff;padding:20px 26px}
+  .brandrow{display:flex;align-items:center;gap:14px;max-width:1240px;margin:0 auto}
+  .logo{width:44px;height:44px;flex:0 0 auto;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center}
+  .logo svg{width:26px;height:26px}
+  .brandtext h1{margin:0;font-size:21px;font-weight:700;letter-spacing:.2px}
+  .brandtext .sub{font-size:13px;opacity:.9}
+  .company{margin-left:auto;text-align:right;font-size:12.5px;opacity:.92;line-height:1.4}
+  .company b{font-size:14px}
+  /* Search bar */
+  .searchwrap{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.97);backdrop-filter:blur(4px);border-bottom:1px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .searchinner{max-width:1240px;margin:0 auto;padding:12px 26px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .searchbox{position:relative;flex:1 1 340px;min-width:260px}
+  .searchbox input{width:100%;padding:10px 38px 10px 40px;border:1.5px solid var(--line);border-radius:24px;font-size:15px;font-family:inherit;outline:none}
+  .searchbox input:focus{border-color:var(--green)}
+  .searchbox .mag{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .searchbox .clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:#eef2f6;color:#475569;border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:20px;text-align:center;font-size:14px;display:none}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{border:1px solid var(--line);background:#fff;color:#334155;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;user-select:none;white-space:nowrap}
+  .chip:hover{border-color:var(--green)}
+  .chip.active{background:var(--green);border-color:var(--green);color:#fff}
+  .count{font-size:12.5px;color:var(--muted);white-space:nowrap}
+  /* Layout */
+  .layout{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:264px 1fr;gap:26px;padding:22px 26px 60px}
+  /* Sidebar */
+  nav.toc{position:sticky;top:74px;align-self:start;max-height:calc(100vh - 92px);overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:12px}
+  nav.toc h3{margin:2px 6px 8px;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+  nav.toc .grp{margin-bottom:10px}
+  nav.toc .grp>span{display:block;font-size:12px;font-weight:700;color:var(--green);padding:6px 6px 3px}
+  nav.toc a{display:block;padding:5px 8px;border-radius:6px;color:#334155;font-size:13px}
+  nav.toc a:hover{background:var(--green-soft);text-decoration:none}
+  nav.toc a.hidden{display:none}
+  /* Main */
+  main{min-width:0}
+  .intro{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px}
+  .intro h2{margin:0 0 6px;color:var(--green);font-size:18px}
+  .intro p{margin:6px 0}
+  section.topic{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px;scroll-margin-top:82px}
+  section.topic.hidden{display:none}
+  section.topic h2{margin:0 0 4px;font-size:17px;color:var(--green);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .cat-tag{font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--green);background:var(--green-soft);border-radius:999px;padding:2px 9px}
+  section.topic h3{font-size:14.5px;margin:14px 0 5px;color:#0f172a}
+  section.topic p{margin:7px 0}
+  section.topic ul,section.topic ol{margin:7px 0;padding-left:22px}
+  section.topic li{margin:4px 0}
+  code{background:#f1f5f9;border:1px solid #e6edf3;border-radius:4px;padding:1px 5px;font-family:Consolas,monospace;font-size:13px}
+  .path{color:var(--green);font-weight:600}
+  table.g{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  table.g th,table.g td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.g th{background:#f1f5f9;color:#334155}
+  .note{border-left:4px solid var(--green);background:var(--green-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .warn{border-left-color:var(--amber);background:var(--amber-bg);color:#5a3a08}
+  .tip{border-left-color:var(--blue);background:var(--blue-bg);color:#1e2f66}
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .b-ok{background:#dcfce7;color:#166534}.b-warn{background:var(--amber-bg);color:var(--amber)}.b-bad{background:var(--red-bg);color:var(--red)}
+  .roles{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .no-results{display:none;text-align:center;padding:40px;color:var(--muted)}
+  .kbd{background:#fff;border:1px solid #cbd5e1;border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-size:12px;font-family:Consolas,monospace}
+  footer{max-width:1240px;margin:0 auto;padding:20px 26px 46px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
+  mark{background:#fde68a;padding:0 1px;border-radius:2px}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}nav.toc{position:static;max-height:none}}
+  @media print{.searchwrap,nav.toc,.chips,.count{display:none!important}.layout{display:block;padding:0}section.topic{break-inside:avoid;border:none;box-shadow:none;padding:8px 0}header.top{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brandrow">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0f5132" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3.5L14 9V3"/><path d="M7.5 15h9"/></svg>
+    </span>
+    <div class="brandtext">
+      <h1>Reagent &amp; Standards Preparation</h1>
+      <div class="sub">LIMS Module — User Manual · Karachi &amp; Lahore Laboratories</div>
+    </div>
+    <div class="company">
+      <b>Envi Tech AL</b><br>Environmental Testing &amp; Analytical Laboratory
+    </div>
+  </div>
+</header>
+
+<div class="searchwrap">
+  <div class="searchinner">
+    <div class="searchbox">
+      <span class="mag" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <input id="q" type="text" placeholder="Search the manual — e.g. &ldquo;verify&rdquo;, &ldquo;expiry&rdquo;, &ldquo;correction factor&rdquo;, &ldquo;DRAFT&rdquo;" autocomplete="off" aria-label="Search the manual">
+      <button class="clr" id="clr" title="Clear" aria-label="Clear search">&times;</button>
+    </div>
+    <div class="chips" id="chips">
+      <span class="chip active" data-cat="all">All topics</span>
+      <span class="chip" data-cat="start">Getting started</span>
+      <span class="chip" data-cat="entry">Data entry</span>
+      <span class="chip" data-cat="std">Standardisation</span>
+      <span class="chip" data-cat="verify">Verification &amp; audit</span>
+      <span class="chip" data-cat="list">List &amp; search</span>
+      <span class="chip" data-cat="pdf">PDFs &amp; printing</span>
+      <span class="chip" data-cat="access">Access &amp; safety</span>
+      <span class="chip" data-cat="help">Troubleshooting</span>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="Contents"><h3>Contents</h3></nav>
+  <main id="main">
+    <div class="intro" id="intro">
+      <h2>About this manual</h2>
+      <p>This guide explains every part of the <b>Reagent &amp; Standards Preparation</b> module of the Envi Tech AL LIMS, used by the Karachi and Lahore laboratories to record reagent and standard preparations, standardise titrants, verify records and generate controlled PDF logs.</p>
+      <p>Use the <b>search box</b> above to jump to any topic, or the <b>category chips</b> to narrow the list. Press <span class="kbd">/</span> anywhere to focus the search box. Sections marked <span class="badge b-warn">Supervisor / QA</span> concern verification, the audit trail and controls; everything else is day-to-day analyst use. The module gives <b>full access to all logged-in users</b> — actions are open, and the system records <i>who</i> did <i>what</i> and <i>when</i> for traceability.</p>
+    </div>
+
+    <!-- ============ GETTING STARTED ============ -->
+    <section class="topic" id="t-open" data-cat="start" data-keywords="open access navigate qc menu url login where find launch">
+      <h2><span class="cat-tag">Getting started</span> Opening the module</h2>
+      <p>The module lives inside the <b>QC</b> area of the LIMS. You can reach it in two ways:</p>
+      <ul>
+        <li>From the top navigation bar, open <span class="path">QC</span> and choose <b>Reagent &amp; Standards Prep</b>.</li>
+        <li>Directly by address: the entry form is at <code>/qc/reagent_prep/</code> and the records list is at <code>/qc/reagent-prep-list/</code>.</li>
+      </ul>
+      <p>The module has two working areas that you will move between constantly:</p>
+      <ul>
+        <li><b>The form</b> — where you create, edit, clone or view a single preparation record.</li>
+        <li><b>The list</b> — where you search, filter, sort and print existing records.</li>
+      </ul>
+      <div class="note">You must be logged in. Every logged-in user has full access to create, edit, verify and print; the system records your name against the actions you take.</div>
+    </section>
+
+    <section class="topic" id="t-tour" data-cat="start" data-keywords="overview layout form sections tour anatomy fields structure">
+      <h2><span class="cat-tag">Getting started</span> A quick tour of the entry form</h2>
+      <p>Working down the entry form you will find, in order:</p>
+      <ol>
+        <li><b>Header details</b> — location, reagent type, reagent name and number, month, dates, volume and concentration.</li>
+        <li><b>Chemicals used</b> — a table of the chemicals that went into the preparation, with live inventory recall.</li>
+        <li><b>Standardisation &amp; Correction Factor</b> — appears only for <i>Standardised titrant</i> types; computes the true strength and correction factor.</li>
+        <li><b>Standardisation History</b> — a read-only running log of every standardisation of that titrant (appears once at least one event exists).</li>
+        <li><b>Description / Method of Preparation</b> — the narrative method, plus Prepared By, Verified By and Remarks.</li>
+        <li><b>Calculator</b> — an embedded, fully-loaded preparation calculator for weigh-and-dissolve, dilutions, calibration series and conversions.</li>
+      </ol>
+      <p>Above the form sit the action buttons — <b>Save</b>, <b>Save &amp; New</b>, <b>Verify</b>, <b>History</b> and the verification badge.</p>
+    </section>
+
+    <!-- ============ DATA ENTRY ============ -->
+    <section class="topic" id="t-create" data-cat="entry" data-keywords="create new record preparation add save first steps make entry">
+      <h2><span class="cat-tag">Data entry</span> Creating a new preparation</h2>
+      <p>Open the form at <span class="path">QC → Reagent &amp; Standards Prep → New Preparation</span> and work through the fields:</p>
+      <ol>
+        <li>Choose the <b>Location</b> (Karachi or Lahore).</li>
+        <li>Pick the <b>Reagent Type</b> — this decides whether the standardisation panel appears.</li>
+        <li>Enter the <b>Reagent Name</b> (required) and a <b>Reagent No.</b> (the system suggests the next number for you).</li>
+        <li>Set the <b>D.O.P.</b> (date of preparation) and <b>D.O.E.</b> (date of expiry).</li>
+        <li>Add the <b>chemicals used</b>, one row per chemical.</li>
+        <li>For a titrant, complete the <b>Standardisation</b> panel.</li>
+        <li>Write the <b>method</b>, set <b>Prepared By</b>, and add any <b>Remarks</b>.</li>
+        <li>Click <b>Save</b> (or <b>Save &amp; New</b> to store this one and immediately start another).</li>
+      </ol>
+      <div class="warn note">The <b>Reagent Name</b> is the only strictly required field — saving without it is blocked. Everything else can be completed progressively, but a complete record is expected for regulatory logs.</div>
+    </section>
+
+    <section class="topic" id="t-type" data-cat="entry" data-keywords="reagent type standard titrant buffer percent solution category kind">
+      <h2><span class="cat-tag">Data entry</span> Reagent type</h2>
+      <p>The <b>Reagent Type</b> classifies the preparation and controls the form. The available types are: <b>Reagent</b>, <b>Standard</b>, <b>Standardised titrant</b>, <b>Buffer</b> and <b>% solution</b>.</p>
+      <p>Choosing <b>Standardised titrant</b> reveals the <b>Standardisation &amp; Correction Factor</b> panel and, once events exist, the <b>Standardisation History</b> table. Any other type hides both.</p>
+      <div class="tip note">If you change a titrant to another type and save, its stored standardisation record is removed (the reagent is no longer a titrant). See <a href="#t-editstd">Editing a titrant safely</a> for exactly when the factor is kept versus cleared.</div>
+    </section>
+
+    <section class="topic" id="t-number" data-cat="entry" data-keywords="reagent number auto suggest next number duplicate warning naming prefix RG SN datalist">
+      <h2><span class="cat-tag">Data entry</span> Reagent number &amp; auto-suggestion</h2>
+      <p>The <b>Reagent No.</b> field helps you keep a consistent, per-laboratory numbering scheme.</p>
+      <ul>
+        <li>As you focus the field, the system <b>suggests the next number</b> for each prefix already used in that lab (for example, if <code>RG-12</code> is the highest, it offers <code>RG-13</code>). The suggestion is advisory — you can type any value.</li>
+        <li>If the number you enter <b>already exists in the same lab</b>, the system shows a <b>duplicate warning</b> when you save and asks you to confirm. Choose <b>Save anyway</b> to proceed, or change the number.</li>
+      </ul>
+      <div class="note">Suggestions are calculated per laboratory, so Karachi and Lahore numbering do not interfere with each other.</div>
+    </section>
+
+    <section class="topic" id="t-dates" data-cat="entry" data-keywords="date preparation expiry dop doe month picker validation expiry cannot precede">
+      <h2><span class="cat-tag">Data entry</span> Dates: D.O.P., D.O.E. and month</h2>
+      <p><b>D.O.P.</b> is the date the reagent was prepared; <b>D.O.E.</b> is its expiry date. The <b>Month</b> field groups records for the monthly printed log and can be set with the month picker.</p>
+      <div class="warn note">The system will <b>not let the expiry (D.O.E.) fall before the preparation date (D.O.P.)</b>. If it does, the save is rejected with the message <i>&ldquo;D.O.E. (expiry) cannot be earlier than D.O.P. (prepared)&rdquo;</i>. Correct the dates and save again.</div>
+      <p>Dates display in <code>dd-mm-yyyy</code> format throughout the module and the printed logs.</p>
+    </section>
+
+    <section class="topic" id="t-chem" data-cat="entry" data-keywords="chemicals table rows cat lot number make expiry inventory autocomplete recall add row supplier">
+      <h2><span class="cat-tag">Data entry</span> Chemicals used (with inventory recall)</h2>
+      <p>Record each chemical that went into the preparation on its own row of the chemicals table. Click <b>Add Row</b> for more rows.</p>
+      <p>Start typing a <b>chemical name</b> and the system offers matches from live inventory. Selecting one <b>recalls the CAT No., LOT No., Make and Expiry</b> automatically. You can still edit any field afterwards.</p>
+      <table class="g">
+        <tr><th>Column</th><th>What to enter</th></tr>
+        <tr><td>Chemical name</td><td>The reagent-grade chemical; type to recall from inventory.</td></tr>
+        <tr><td>CAT No. / LOT No.</td><td>Catalogue and lot numbers. If inventory stores both in one string, the system splits them into the two columns for you.</td></tr>
+        <tr><td>Quantity</td><td>Amount used (with unit, e.g. 5.02 g / 250 mL).</td></tr>
+        <tr><td>Make</td><td>Manufacturer / supplier.</td></tr>
+        <tr><td>Expiry</td><td>The chemical&rsquo;s own expiry date.</td></tr>
+      </table>
+    </section>
+
+    <section class="topic" id="t-conc" data-cat="entry" data-keywords="final volume concentration value unit strength made up to">
+      <h2><span class="cat-tag">Data entry</span> Volume, concentration &amp; description</h2>
+      <p><b>Final volume</b> records the total made-up volume; <b>Concentration value</b> and <b>unit</b> record the nominal strength of the preparation (for example <code>0.1</code> / <code>N</code>).</p>
+      <p>The <b>Description / Method of Preparation</b> box is a free-text narrative — describe the weighing, dissolution, dilution, standardisation and storage steps. Below it, <b>Prepared By</b>, <b>Verified By</b> and <b>Remarks</b> capture the people and any notes. <b>Prepared By</b> defaults to your name on a new record.</p>
+    </section>
+
+    <section class="topic" id="t-preview" data-cat="entry" data-keywords="live preview calculator embedded tool weigh dissolve dilution converters">
+      <h2><span class="cat-tag">Data entry</span> Live preview &amp; the calculator</h2>
+      <p>As you type, a <b>live preview</b> mirrors how the controlled PDF will look. It is presentation only — nothing is stored until you click <b>Save</b>.</p>
+      <p>The embedded <b>Fully-Loaded Preparation Calculator</b> handles weigh-and-dissolve, dilutions, calibration series, standardisation, % solutions and unit converters. It is a working aid; values are not written to the record automatically — carry the results you need into the fields yourself.</p>
+    </section>
+
+    <section class="topic" id="t-save" data-cat="entry" data-keywords="save save and new button submit store high throughput batch entry">
+      <h2><span class="cat-tag">Data entry</span> Saving — Save vs Save &amp; New</h2>
+      <ul>
+        <li><b>Save</b> stores the record and keeps you on it (useful before verifying or printing).</li>
+        <li><b>Save &amp; New</b> stores the current record and immediately opens a fresh blank form — ideal for entering many preparations in one sitting.</li>
+      </ul>
+      <div class="note">If you try to leave the form with unsaved changes, the browser warns you first, so work is not lost by accident.</div>
+    </section>
+
+    <!-- ============ STANDARDISATION ============ -->
+    <section class="topic" id="t-std" data-cat="std" data-keywords="standardisation correction factor primary standard true strength nominal titrant mL eqwt purity mass compute normality molarity">
+      <h2><span class="cat-tag">Standardisation</span> Standardisation &amp; correction factor</h2>
+      <p>For a <b>Standardised titrant</b>, complete the standardisation panel to compute the titrant&rsquo;s true strength and correction factor. Enter the primary standard, its mass, purity and equivalent/molar weight, the titrant volume used, and the nominal strength; the system computes the rest.</p>
+      <table class="g">
+        <tr><th>Field</th><th>Meaning</th></tr>
+        <tr><td>Primary standard</td><td>The reference substance (e.g. CaCO₃, KHP, K₂Cr₂O₇).</td></tr>
+        <tr><td>PS mass / purity / eq.wt</td><td>Mass weighed (g), purity (%) and equivalent or molar weight.</td></tr>
+        <tr><td>Titrant used (mL)</td><td>Volume of titrant delivered to the endpoint.</td></tr>
+        <tr><td>Nominal strength / unit</td><td>The labelled strength (e.g. 0.1) and unit (N or M).</td></tr>
+        <tr><td>True strength <span class="badge b-ok">computed</span></td><td>Calculated actual strength of the titrant.</td></tr>
+        <tr><td>Correction factor <span class="badge b-ok">computed</span></td><td>True strength ÷ nominal strength.</td></tr>
+        <tr><td>Std date / Next due</td><td>Date standardised and the date the next standardisation is due.</td></tr>
+      </table>
+      <div class="note">Formula used: <b>True strength = (mass × purity/100) ÷ (eq.wt × titrant in litres)</b>, and <b>factor = true ÷ nominal</b>. The record is stored against the selected location.</div>
+    </section>
+
+    <section class="topic" id="t-history" data-cat="std" data-keywords="standardisation history running log re-standardisation table read only every event factor trend record newest first recorded by audit of standardisation">
+      <h2><span class="cat-tag">Standardisation</span> Standardisation History <span class="badge b-ok">new</span></h2>
+      <p>Titrants are re-standardised periodically over their life. The <b>Standardisation History</b> section keeps a <b>read-only running log of every standardisation and re-standardisation</b> of that titrant, so you can see how its correction factor has changed over time.</p>
+      <p>Each time you save the titrant with a standardisation whose values differ from the last logged one, a new dated entry is added automatically. The table shows, newest first:</p>
+      <table class="g">
+        <tr><th>Column</th><th>Shows</th></tr>
+        <tr><td>Std date</td><td>The date that standardisation was performed.</td></tr>
+        <tr><td>Primary std</td><td>The primary standard used.</td></tr>
+        <tr><td>True strength / Factor</td><td>The computed true strength and correction factor for that event.</td></tr>
+        <tr><td>Nominal / Titrant (mL)</td><td>Nominal strength and titrant volume used.</td></tr>
+        <tr><td>Next due</td><td>When the next standardisation was scheduled.</td></tr>
+        <tr><td>Recorded by / at</td><td>The user who logged it and the timestamp.</td></tr>
+      </table>
+      <div class="tip note">The log is <b>append-only and read-only</b> — you cannot edit past entries, which preserves the traceable history. If you save the titrant again <b>without changing the standardisation values</b>, no duplicate entry is added. The table appears only when at least one standardisation event has been logged.</div>
+    </section>
+
+    <section class="topic" id="t-editstd" data-cat="std" data-keywords="edit titrant keep factor F3 not wiped standardisation preserved data loss protection re-save">
+      <h2><span class="cat-tag">Standardisation</span> Editing a titrant safely</h2>
+      <p>You can edit a titrant record — for example to correct a name or add a chemical — <b>without losing its standardisation factor</b>. When you save a titrant and leave the standardisation values unchanged, the stored factor is kept exactly as it was.</p>
+      <ul>
+        <li><b>Re-standardising</b> — enter new standardisation values and save: the current factor updates and a new <a href="#t-history">history entry</a> is logged.</li>
+        <li><b>Editing other details</b> — change the name, chemicals or method and save: the standardisation factor is preserved and no history entry is added.</li>
+        <li><b>Changing the type away from titrant</b> — the standardisation record is removed, because the reagent is no longer a titrant.</li>
+      </ul>
+      <div class="note">This protection means routine edits never accidentally erase a titrant&rsquo;s correction factor.</div>
+    </section>
+
+    <!-- ============ VERIFICATION & AUDIT ============ -->
+    <section class="topic" id="t-verify" data-cat="verify" data-keywords="verify unverify verification badge approve who when review sign off checked">
+      <h2><span class="cat-tag">Verification &amp; audit</span> <span class="badge b-warn">Supervisor / QA</span> Verifying a record</h2>
+      <p>Use <b>Verify</b> to mark a saved record as checked. The button is open to <b>any logged-in user</b>; the system records <i>who</i> verified it and <i>when</i>, and shows a green <b>Verified by … · date</b> badge on the record.</p>
+      <ul>
+        <li>Click <b>Verify</b> to stamp the record; the label switches to <b>Unverify</b> so the action can be reversed.</li>
+        <li>A record must be <b>saved first</b> before it can be verified.</li>
+      </ul>
+      <div class="warn note">If a verified record is <b>edited and saved again</b>, its verification is automatically cleared — a changed record must be re-checked. The clearing is logged in the record history.</div>
+      <p class="roles">Traceability: verification stores the verifier&rsquo;s identity and timestamp even though the action is open to everyone.</p>
+    </section>
+
+    <section class="topic" id="t-audit" data-cat="verify" data-keywords="record history audit trail append only changes who what when field diff created updated type changed verified unverified log">
+      <h2><span class="cat-tag">Verification &amp; audit</span> <span class="badge b-warn">Supervisor / QA</span> Record history (audit trail)</h2>
+      <p>Click <b>History</b> on a saved record to open its <b>audit trail</b> — an append-only log of everything that has happened to the record. Each entry shows the time, the user, the action and a summary of what changed.</p>
+      <p>Logged actions include: <b>created</b>, <b>updated</b> (with a field-by-field summary of changes), <b>type-changed</b>, <b>verified</b> and <b>unverified</b>.</p>
+      <div class="note">The audit trail is read-only and cannot be altered, giving a complete, defensible record of the reagent&rsquo;s life for inspection by regulatory bodies (Sindh EPA, Punjab EPA).</div>
+      <p class="tip note">The audit trail (who did what to the record) is distinct from the <a href="#t-history">Standardisation History</a> (the running log of standardisation events). Both are read-only.</p>
+    </section>
+
+    <section class="topic" id="t-lock" data-cat="verify" data-keywords="optimistic lock concurrency stale changed by another user reload conflict simultaneous edit 409">
+      <h2><span class="cat-tag">Verification &amp; audit</span> Concurrent-edit protection</h2>
+      <p>If two people open the same record and both save, the module prevents one from silently overwriting the other. When you save a record that <b>someone else changed while you were editing</b>, the save is blocked with a message like <i>&ldquo;This record was changed by … while you were editing. Reload to get the latest version before saving.&rdquo;</i></p>
+      <p>Reload the record to pick up the latest version, re-apply your change, and save again.</p>
+    </section>
+
+    <section class="topic" id="t-view" data-cat="verify" data-keywords="view mode read only banner look without editing inspect open">
+      <h2><span class="cat-tag">Verification &amp; audit</span> Read-only View mode</h2>
+      <p>The <b>View</b> action (on the list) opens a record in <b>read-only mode</b>. A banner makes clear you are viewing, not editing, and the fields are locked. This is ideal for checking a record or showing it to a reviewer without any risk of accidental change. You can still open its PDF from View mode.</p>
+    </section>
+
+    <!-- ============ LIST & SEARCH ============ -->
+    <section class="topic" id="t-list" data-cat="list" data-keywords="list records browse table columns overview all reagents find grid">
+      <h2><span class="cat-tag">List &amp; search</span> The records list</h2>
+      <p>The list at <span class="path">QC → Reagent &amp; Standards Prep</span> shows all preparation records with their number, name, type, location, D.O.P., D.O.E., status and actions. From here you search, filter, sort, open, clone and print records.</p>
+      <p>Each row&rsquo;s actions are: <b>View</b> (read-only), <b>Edit</b>, <b>Clone</b> and <b>PDF</b>.</p>
+    </section>
+
+    <section class="topic" id="t-filter" data-cat="list" data-keywords="filter location status active expiring expired search month query narrow find 14 days">
+      <h2><span class="cat-tag">List &amp; search</span> Filtering &amp; searching</h2>
+      <p>Use the toolbar above the list to narrow it down:</p>
+      <table class="g">
+        <tr><th>Control</th><th>Effect</th></tr>
+        <tr><td>Location</td><td>Show All, Karachi or Lahore.</td></tr>
+        <tr><td>Status</td><td>All, <span class="badge b-ok">Active</span>, <span class="badge b-warn">Expiring</span> (within 14 days) or <span class="badge b-bad">Expired</span>.</td></tr>
+        <tr><td>Search box</td><td>Match on reagent name, number or chemical.</td></tr>
+        <tr><td>Month</td><td>Restrict to a month (e.g. <code>July 2026</code>).</td></tr>
+      </table>
+      <p>The <b>Status</b> column shows a coloured pill — Expired (red), Expiring (amber) or Active (green) — plus a green tick for verified records, so you can spot reagents needing attention at a glance.</p>
+      <div class="tip note">Use the <b>Expiring</b> filter as a routine check to catch reagents due to expire within a fortnight.</div>
+    </section>
+
+    <section class="topic" id="t-sort" data-cat="list" data-keywords="sort order expiry date pagination pages next prev per page 50 arrows">
+      <h2><span class="cat-tag">List &amp; search</span> Sorting &amp; pagination</h2>
+      <p>Click the arrows on the <b>D.O.E.</b> column header to sort by expiry — earliest first (▲) or latest first (▼) — so the most urgent reagents rise to the top.</p>
+      <p>The list shows <b>50 records per page</b>. The footer tells you how many are shown of the total and offers <b>Prev</b> / <b>Next</b> links, which keep your current filters and sort.</p>
+    </section>
+
+    <section class="topic" id="t-clone" data-cat="list" data-keywords="clone copy duplicate repeat preparation reuse template new from existing">
+      <h2><span class="cat-tag">List &amp; search</span> Cloning a record</h2>
+      <p>The <b>Clone</b> action copies an existing preparation into a new blank record — handy for repeat preparations. The clone starts <b>without a reagent number, without verification and without history</b>, so you complete those fresh. Fill in the new number and dates, adjust anything that differs, and save.</p>
+    </section>
+
+    <!-- ============ PDFs ============ -->
+    <section class="topic" id="t-pdf" data-cat="pdf" data-keywords="pdf single record print controlled log download generate document">
+      <h2><span class="cat-tag">PDFs &amp; printing</span> Single-record PDF</h2>
+      <p>The <b>PDF</b> action on a list row (and the PDF button in View mode) generates the controlled PDF for that one record — the formatted preparation log with the Envi Tech AL masthead, chemicals, standardisation and signatures.</p>
+    </section>
+
+    <section class="topic" id="t-draft" data-cat="pdf" data-keywords="draft watermark unverified not verified diagonal provisional stamp final controlled">
+      <h2><span class="cat-tag">PDFs &amp; printing</span> The DRAFT watermark</h2>
+      <p>A single-record PDF for a record that has <b>not yet been verified</b> carries a subtle diagonal <b>DRAFT</b> watermark. Once the record is <b>verified</b>, the watermark disappears and the PDF prints as a final controlled document.</p>
+      <div class="tip note">If you print a record and see <b>DRAFT</b> across it, that is your cue the record still needs verifying. Verify it, then re-open the PDF.</div>
+    </section>
+
+    <section class="topic" id="t-month" data-cat="pdf" data-keywords="monthly pdf print month stacked log all records paper log one lab batch print">
+      <h2><span class="cat-tag">PDFs &amp; printing</span> Monthly (stacked) PDF</h2>
+      <p>The <b>Print month</b> button on the list produces a single PDF containing <b>all matching records for one laboratory</b>, stacked like the paper log. Choose <b>Karachi</b> or <b>Lahore</b> (not &ldquo;All&rdquo;) and optionally a month, then click <b>Print month</b>.</p>
+      <div class="warn note">The monthly print needs a specific lab selected — with the location left on &ldquo;All&rdquo; it cannot produce a single-lab log.</div>
+    </section>
+
+    <!-- ============ ACCESS ============ -->
+    <section class="topic" id="t-access" data-cat="access" data-keywords="access roles permissions full access all users control document number issue rev traceability who edits open">
+      <h2><span class="cat-tag">Access &amp; safety</span> Access, roles &amp; the control number</h2>
+      <p>This module deliberately gives <b>full access to every logged-in user</b>. There is no role gate blocking who can create, edit, verify or edit the control-document number — the emphasis is on <b>traceability</b> rather than restriction. The system records your name against saves, verifications and standardisation entries.</p>
+      <p>The per-laboratory <b>control document number</b> (document no., issue no., revision no.) that appears on the printed logs can be maintained by any logged-in user.</p>
+      <p class="roles">Because access is open, treat the audit trail and verification badges as the authoritative record of who did what.</p>
+    </section>
+
+    <section class="topic" id="t-safety" data-cat="access" data-keywords="data safety protections prevent mistakes guards validation lock warning summary safeguards">
+      <h2><span class="cat-tag">Access &amp; safety</span> Built-in safeguards (summary)</h2>
+      <p>Several protections work quietly in the background to keep records sound:</p>
+      <ul>
+        <li><b>Expiry-before-preparation</b> dates are rejected.</li>
+        <li><b>Duplicate reagent numbers</b> in the same lab trigger a warning before saving.</li>
+        <li><b>Concurrent edits</b> are caught so no one silently overwrites another&rsquo;s changes.</li>
+        <li><b>Editing a titrant</b> never erases its correction factor.</li>
+        <li><b>Editing a verified record</b> clears its verification so it is re-checked.</li>
+        <li><b>An unverified record</b> prints with a DRAFT watermark.</li>
+        <li>Every change is written to the <b>append-only audit trail</b>.</li>
+      </ul>
+    </section>
+
+    <!-- ============ TROUBLESHOOTING ============ -->
+    <section class="topic" id="t-faq" data-cat="help" data-keywords="troubleshooting faq problems why cannot save blocked panel missing help questions common issues">
+      <h2><span class="cat-tag">Troubleshooting</span> Common questions</h2>
+      <h3>The Standardisation panel isn&rsquo;t showing</h3>
+      <p>It appears only when the <b>Reagent Type</b> is <i>Standardised titrant</i>. Change the type and it will appear.</p>
+      <h3>My save was blocked</h3>
+      <p>The usual reasons are: the <b>Reagent Name is empty</b>; the <b>expiry date is before the preparation date</b>; or <b>someone else edited the record</b> since you opened it (reload and try again). A <b>duplicate reagent number</b> shows a warning you can confirm past.</p>
+      <h3>There&rsquo;s a DRAFT watermark on my PDF</h3>
+      <p>The record has not been <a href="#t-verify">verified</a>. Verify it, then re-open the PDF for a clean final copy.</p>
+      <h3>The Standardisation History table is empty or missing</h3>
+      <p>It only appears for <b>titrants</b> that have <b>at least one standardisation event</b> logged. Enter the standardisation values and save to create the first entry.</p>
+      <h3>The monthly print won&rsquo;t generate</h3>
+      <p>Select a single laboratory (Karachi or Lahore) rather than &ldquo;All&rdquo;, then use <b>Print month</b>.</p>
+      <h3>My name isn&rsquo;t on the record</h3>
+      <p><b>Prepared By</b> defaults to your name on new records; on older or cloned records you may need to set it. Your identity is separately captured in the audit trail whenever you save.</p>
+    </section>
+
+    <section class="topic" id="t-glossary" data-cat="help" data-keywords="glossary terms definitions dop doe correction factor primary standard nominal true strength titrant meaning abbreviations">
+      <h2><span class="cat-tag">Troubleshooting</span> Glossary</h2>
+      <table class="g">
+        <tr><th>Term</th><th>Meaning</th></tr>
+        <tr><td>D.O.P.</td><td>Date of Preparation.</td></tr>
+        <tr><td>D.O.E.</td><td>Date of Expiry.</td></tr>
+        <tr><td>Primary standard</td><td>A high-purity reference substance used to standardise a titrant.</td></tr>
+        <tr><td>Nominal strength</td><td>The labelled / intended strength of a solution (e.g. 0.1 N).</td></tr>
+        <tr><td>True strength</td><td>The actual measured strength, computed during standardisation.</td></tr>
+        <tr><td>Correction factor</td><td>True strength ÷ nominal strength — applied to titration results.</td></tr>
+        <tr><td>Standardised titrant</td><td>A titrant whose true strength/factor has been established against a primary standard.</td></tr>
+        <tr><td>Verification</td><td>Marking a record as checked, recording who and when.</td></tr>
+        <tr><td>Audit trail</td><td>The append-only log of all changes to a record.</td></tr>
+      </table>
+    </section>
+
+    <div class="no-results" id="noresults">
+      <p><b>No topics match your search.</b><br>Try a different word, or <a href="#" id="reset">clear the search and show all topics</a>.</p>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div><b>Envi Tech AL — Reagent &amp; Standards Preparation module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories.</div>
+  <div style="margin-top:4px">This document reflects the module as deployed on 24-07-2026, including the standardisation-history log. For controlled outputs, always work from the live system.</div>
+</footer>
+
+<script>
+(function(){
+  var topics = Array.prototype.slice.call(document.querySelectorAll('section.topic'));
+  var toc = document.getElementById('toc');
+  var q = document.getElementById('q');
+  var clr = document.getElementById('clr');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var count = document.getElementById('count');
+  var noresults = document.getElementById('noresults');
+  var intro = document.getElementById('intro');
+  var activeCat = 'all';
+
+  var catNames = {start:'Getting started', entry:'Data entry', std:'Standardisation', verify:'Verification & audit', list:'List & search', pdf:'PDFs & printing', access:'Access & safety', help:'Troubleshooting'};
+  var catOrder = ['start','entry','std','verify','list','pdf','access','help'];
+
+  // Build the table of contents grouped by category
+  function buildToc(){
+    catOrder.forEach(function(cat){
+      var items = topics.filter(function(t){return t.dataset.cat===cat;});
+      if(!items.length) return;
+      var grp = document.createElement('div'); grp.className='grp'; grp.dataset.cat=cat;
+      var lbl = document.createElement('span'); lbl_text(lbl,catNames[cat]); grp.appendChild(lbl);
+      items.forEach(function(t){
+        var a = document.createElement('a');
+        a.href = '#'+t.id;
+        a.dataset.target = t.id;
+        var h = t.querySelector('h2');
+        // strip the category tag text from the TOC label
+        var title = h.textContent.replace(/^[A-Za-z &]+?(?=[A-Z])/,'').trim();
+        // simpler: use the last text chunk after the tag
+        a.textContent = tocLabel(h);
+        grp.appendChild(a);
+      });
+      toc.appendChild(grp);
+    });
+  }
+  function lbl_text(el,txt){el.textContent=txt;}
+  function tocLabel(h){
+    // The visible title is the text after the cat-tag (and any badge) span(s)
+    var clone = h.cloneNode(true);
+    Array.prototype.slice.call(clone.querySelectorAll('span')).forEach(function(s){s.remove();});
+    return clone.textContent.trim();
+  }
+
+  function norm(s){return (s||'').toLowerCase();}
+
+  function apply(){
+    var term = norm(q.value).trim();
+    var words = term.length? term.split(/\s+/):[];
+    var visible = 0;
+    var visibleByCat = {};
+    topics.forEach(function(t){
+      var inCat = (activeCat==='all' || t.dataset.cat===activeCat);
+      var hay = norm(t.textContent + ' ' + (t.dataset.keywords||''));
+      var match = words.every(function(w){return hay.indexOf(w)>-1;});
+      var show = inCat && match;
+      t.classList.toggle('hidden', !show);
+      if(show){visible++; visibleByCat[t.dataset.cat]=true;}
+    });
+    // sync TOC visibility
+    Array.prototype.slice.call(toc.querySelectorAll('a')).forEach(function(a){
+      var t = document.getElementById(a.dataset.target);
+      a.classList.toggle('hidden', t.classList.contains('hidden'));
+    });
+    Array.prototype.slice.call(toc.querySelectorAll('.grp')).forEach(function(g){
+      g.style.display = visibleByCat[g.dataset.cat] ? '' : 'none';
+    });
+    noresults.style.display = visible? 'none':'block';
+    intro.style.display = (term.length===0 && activeCat==='all') ? '' : 'none';
+    clr.style.display = term.length? 'block':'none';
+    count.textContent = visible + (visible===1?' topic':' topics');
+    highlight(words);
+  }
+
+  // lightweight highlight of matches within visible topics
+  var lastWords = [];
+  function highlight(words){
+    // remove old marks
+    if(lastWords.length){
+      topics.forEach(function(t){
+        if(t._orig!==undefined){ /* handled below */ }
+      });
+    }
+    topics.forEach(function(t){
+      // restore
+      if(t._orig!==undefined){ t.innerHTML = t._orig; t._orig=undefined; }
+    });
+    if(!words.length) return;
+    topics.forEach(function(t){
+      if(t.classList.contains('hidden')) return;
+      t._orig = t.innerHTML;
+      walk(t, words);
+    });
+    lastWords = words;
+  }
+  function walk(node, words){
+    for(var i=0;i<node.childNodes.length;i++){
+      var c = node.childNodes[i];
+      if(c.nodeType===3){
+        var txt = c.nodeValue; var low = txt.toLowerCase(); var hit=false;
+        words.forEach(function(w){ if(low.indexOf(w)>-1) hit=true; });
+        if(hit){
+          var frag = document.createElement('span');
+          var html = txt.replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];});
+          words.forEach(function(w){
+            if(!w) return;
+            var re = new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+            html = html.replace(re,'<mark>$1</mark>');
+          });
+          frag.innerHTML = html;
+          c.parentNode.replaceChild(frag, c);
+          i += frag.childNodes.length-1;
+        }
+      } else if(c.nodeType===1 && c.tagName!=='MARK' && c.tagName!=='SCRIPT'){
+        walk(c, words);
+      }
+    }
+  }
+
+  chips.forEach(function(ch){
+    ch.addEventListener('click', function(){
+      chips.forEach(function(x){x.classList.remove('active');});
+      ch.classList.add('active');
+      activeCat = ch.dataset.cat;
+      apply();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+
+  var timer=null;
+  q.addEventListener('input', function(){ clearTimeout(timer); timer=setTimeout(apply,120); });
+  clr.addEventListener('click', function(){ q.value=''; apply(); q.focus(); });
+  document.getElementById('reset').addEventListener('click', function(e){
+    e.preventDefault(); q.value=''; activeCat='all';
+    chips.forEach(function(x){x.classList.toggle('active', x.dataset.cat==='all');});
+    apply();
+  });
+  // keyboard: press / to focus search
+  document.addEventListener('keydown', function(e){
+    if(e.key==='/' && document.activeElement!==q){ e.preventDefault(); q.focus(); }
+    if(e.key==='Escape' && document.activeElement===q){ q.value=''; apply(); }
+  });
+  // smooth-scroll TOC clicks and briefly flash target
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if(!a) return;
+    var t = document.getElementById(a.dataset.target);
+    if(t){ setTimeout(function(){ t.style.transition='box-shadow .3s'; t.style.boxShadow='0 0 0 3px #14663f55'; setTimeout(function(){t.style.boxShadow='';},700); }, 250); }
+  });
+
+  buildToc();
+  apply();
+})();
+</script>
+</body>
+</html>
