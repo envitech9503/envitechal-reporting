@@ -52,3 +52,14 @@ try:
         pass
 except Exception:
     pass
+
+# Reagent standardisation history (round 2b)
+try:
+    from EnviTechAlApp.models import ReagentStandardisationHistory as _RSH
+    from django.contrib import admin as _adm2
+    try:
+        _adm2.site.register(_RSH)
+    except Exception:
+        pass
+except Exception:
+    pass

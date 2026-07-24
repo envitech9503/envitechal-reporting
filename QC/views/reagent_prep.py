@@ -15,6 +15,11 @@ from django.utils import timezone as _tz
 from django.utils.safestring import mark_safe as _mark_safe
 from django.views.decorators.clickjacking import xframe_options_sameorigin as _xframe_sameorigin
 
+try:  # new in round-2b: running standardisation-history log (optional until migrated)
+    from EnviTechAlApp.models import ReagentStandardisationHistory as _RSHist
+except Exception:
+    _RSHist = None
+
 _LOGO = "static/assets/EnviTechAL LOGO.png"
 _CALIBRI = "static/fonts/calibri.ttf"
 _CALIBRIB = "static/fonts/calibrib.ttf"
@@ -205,6 +210,60 @@ def _history(obj):
     return rows
 
 
+def _std_sig(f, tn, sd, ps, tml, nn):
+    """Comparable signature of a standardisation event (dedupe consecutive saves)."""
+    def _r(x):
+        return round(x, 6) if isinstance(x, (int, float)) else x
+    return (_r(f), _r(tn), sd or '', (ps or '').strip(), _r(tml), _r(nn))
+
+
+def _maybe_log_std(obj, s, user):
+    """Append a standardisation-history entry when the values differ from the most
+    recently recorded one (a genuine standardisation / re-standardisation event).
+    Never raises into the save path."""
+    if _RSHist is None:
+        return
+    try:
+        newk = _std_sig(s.factor, s.true_N,
+                        s.std_date.isoformat() if s.std_date else '',
+                        s.primary_std, s.titrant_ml, s.nominal_N)
+        last = obj.std_history.order_by('-recorded_at', '-id').first()
+        if last is not None:
+            lastk = _std_sig(last.factor, last.true_N,
+                             last.std_date.isoformat() if last.std_date else '',
+                             last.primary_std, last.titrant_ml, last.nominal_N)
+            if lastk == newk:
+                return  # unchanged since last log -> don't duplicate
+        _RSHist.objects.create(
+            prep=obj, location=s.location, primary_std=s.primary_std,
+            ps_mass=s.ps_mass, ps_purity=s.ps_purity, ps_eqwt=s.ps_eqwt,
+            titrant_ml=s.titrant_ml, nominal_N=s.nominal_N, true_N=s.true_N,
+            factor=s.factor, unit=s.unit, std_date=s.std_date, next_due=s.next_due,
+            recorded_by=(user if getattr(user, 'is_authenticated', False) else None))
+    except Exception:
+        pass
+
+
+def _std_history(obj):
+    rows = []
+    if _RSHist is None:
+        return rows
+    try:
+        for h in obj.std_history.all()[:60]:
+            rows.append({
+                'std_date': h.std_date.strftime('%d-%m-%Y') if h.std_date else '',
+                'primary_std': h.primary_std or '',
+                'factor': h.factor, 'true_N': h.true_N, 'unit': h.unit or 'N',
+                'nominal_N': h.nominal_N, 'titrant_ml': h.titrant_ml,
+                'next_due': h.next_due.strftime('%d-%m-%Y') if h.next_due else '',
+                'by': _user_name(h.recorded_by) or '-',
+                'at': h.recorded_at.strftime('%d-%m-%Y %H:%M') if h.recorded_at else '',
+            })
+    except Exception:
+        rows = []
+    return rows
+
+
 def _record_json(obj):
     chems = [{
         's_no': c.s_no, 'chemical_name': c.chemical_name, 'cat_no': c.cat_no,
@@ -242,6 +301,7 @@ def _record_json(obj):
         'verified_at': vat.strftime('%d-%m-%Y %H:%M') if vat else '',
         'created_by_name': _user_name(getattr(obj, 'created_by', None)),
         'history': _history(obj),
+        'std_history': _std_history(obj),
     }
 
 
@@ -445,6 +505,8 @@ def reagent_prep_save(request):
             s.std_date = _parse_date(std.get('std_date'))
             s.next_due = _parse_date(std.get('next_due'))
             s.save()
+            # running standardisation-history log (round-2b): record genuine events
+            _maybe_log_std(obj, s, user)
         elif rtype != 'Standardised titrant':
             ReagentStandardisation.objects.filter(prep=obj).delete()
         # else: titrant with no fresh payload -> keep the stored factor untouched (F3)
@@ -461,7 +523,8 @@ def reagent_prep_save(request):
     obj.refresh_from_db(fields=['updated_at'])
     return JsonResponse({'ok': True, 'id': obj.id,
                          'updated_at': obj.updated_at.strftime('%Y-%m-%dT%H:%M:%S') if obj.updated_at else '',
-                         'history': _history(obj)})
+                         'history': _history(obj),
+                         'std_history': _std_history(obj)})
 
 
 @csrf_exempt

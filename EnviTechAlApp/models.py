@@ -2762,3 +2762,28 @@ class ReagentPrepAudit(models.Model):
 
     def __str__(self):
         return '%s #%s @ %s' % (self.action, self.prep_id, self.at)
+
+
+class ReagentStandardisationHistory(models.Model):
+    prep = models.ForeignKey('ReagentPrep', on_delete=models.CASCADE, related_name='std_history')
+    location = models.CharField(max_length=40, blank=True, default='')
+    primary_std = models.CharField(max_length=120, blank=True, default='')
+    ps_mass = models.FloatField(null=True, blank=True)
+    ps_purity = models.FloatField(null=True, blank=True)
+    ps_eqwt = models.FloatField(null=True, blank=True)
+    titrant_ml = models.FloatField(null=True, blank=True)
+    nominal_N = models.FloatField(null=True, blank=True)
+    true_N = models.FloatField(null=True, blank=True)
+    factor = models.FloatField(null=True, blank=True)
+    unit = models.CharField(max_length=10, blank=True, default='N')
+    std_date = models.DateField(null=True, blank=True)
+    next_due = models.DateField(null=True, blank=True)
+    recorded_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name='+')
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-recorded_at', '-id']
+
+    def __str__(self):
+        return 'Std #%s factor=%s @ %s' % (self.prep_id, self.factor, self.std_date)

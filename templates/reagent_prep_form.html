@@ -140,6 +140,12 @@
       <div class="note">True strength = (mass x purity/100) / (eq.wt x titrant_L); factor = true / nominal. Stored per selected location.</div>
     </div>
 
+    <div class="sec hidden" id="stdHistSec" style="border-top:1px solid #eef2f6">
+      <h3>Standardisation History</h3>
+      <div id="stdHistBox" style="overflow:auto"></div>
+      <div class="note">Every standardisation / re-standardisation of this titrant is logged here (each with its date, primary standard, true strength, correction factor and who recorded it). Read-only; newest first.</div>
+    </div>
+
     <div class="sec" style="border-top:1px solid #eef2f6">
       <h3>Description / Method of Preparation</h3>
       <textarea id="description" placeholder="Describe the preparation steps, dilutions, standardisation, storage..."></textarea>
@@ -198,7 +204,7 @@ function onMonthPick(){var v=el('monthPick').value;if(!v)return;var m=v.match(/(
 function syncMonthPick(){var t=(el('month').value||'').trim();var mp=el('monthPick');if(!mp)return;for(var i=0;i<12;i++){var m=t.match(new RegExp('^'+MONTHS[i]+'\\s+(\\d{4})$','i'));if(m){mp.value=m[1]+'-'+('0'+(i+1)).slice(-2);return;}}}
 function toggleDocEdit(){el('ctrlEdit').classList.toggle('hidden');}
 function saveDoc(){var loc=el('location').value;var fd=new FormData();fd.append('location',loc);fd.append('doc_no',el('d_no').value);fd.append('issue_date',el('d_date').value);fd.append('issue_no',el('d_iss').value);fd.append('rev_no',el('d_rev').value);fetch('/qc/reagent_prep_doc_save/',{method:'POST',credentials:'include',body:fd}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){DOCCTRL[j.location]=j.doc;onLoc();el('ctrlEdit').classList.add('hidden');flash('Control number saved for '+j.location+'.',true);}else{flash((j&&j.error)||'Could not save control number.',false);}}).catch(function(){flash('Network error saving control number.',false);});}
-function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');}
+function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');renderStdHist();}
 
 function buildInvList(){var dl=el('invList');dl.innerHTML='';var seen={};INV.forEach(function(r){if(r.name&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}});}
 function invByName(n){n=(n||'').trim().toLowerCase();for(var i=0;i<INV.length;i++){if((INV[i].name||'').toLowerCase()===n)return INV[i];}return null;}
@@ -278,6 +284,9 @@ function toggleVerify(){if(!RECORD||!RECORD.id){flash('Save the record before ve
 // ---- History panel ----
 function renderHist(){var box=el('histBox');if(!box)return;var h=(RECORD&&RECORD.history)||[];if(!h.length){box.innerHTML='<div class="note">No history yet.</div>';return;}
   box.innerHTML='<table class="histtbl"><thead><tr><th>When</th><th>User</th><th>Action</th><th>Change</th></tr></thead><tbody>'+h.map(function(a){return '<tr><td>'+esc(a.at)+'</td><td>'+esc(a.user)+'</td><td>'+esc(a.action)+'</td><td>'+esc(a.changed)+'</td></tr>';}).join('')+'</tbody></table>';}
+function renderStdHist(){var sec=el('stdHistSec'),box=el('stdHistBox');if(!sec||!box)return;var h=(RECORD&&RECORD.std_history)||[];var show=(el('rtype').value==='Standardised titrant')&&h.length>0;sec.classList.toggle('hidden',!show);if(!show){box.innerHTML='';return;}
+  function v(x){return (x===null||x===undefined||x==='')?'-':x;}
+  box.innerHTML='<table class="histtbl"><thead><tr><th>Std date</th><th>Primary std</th><th>True strength</th><th>Factor</th><th>Nominal</th><th>Titrant (mL)</th><th>Next due</th><th>Recorded by</th><th>Recorded at</th></tr></thead><tbody>'+h.map(function(r){return '<tr><td>'+esc(v(r.std_date))+'</td><td>'+esc(v(r.primary_std))+'</td><td>'+esc(v(r.true_N))+' '+esc(r.unit||'')+'</td><td>'+esc(v(r.factor))+'</td><td>'+esc(v(r.nominal_N))+'</td><td>'+esc(v(r.titrant_ml))+'</td><td>'+esc(v(r.next_due))+'</td><td>'+esc(v(r.by))+'</td><td>'+esc(v(r.at))+'</td></tr>';}).join('')+'</tbody></table>';}
 function toggleHist(){var s=el('histSec');if(s.classList.contains('hidden')){s.classList.remove('hidden');renderHist();s.scrollIntoView({behavior:'smooth'});}else{s.classList.add('hidden');}}
 
 // ---- Read-only View mode ----
@@ -307,8 +316,9 @@ function _applySaved(j){
   if(!RECORD)RECORD={};
   RECORD.id=j.id; RECORD.updated_at=j.updated_at||RECORD.updated_at;
   if(j.history)RECORD.history=j.history;
+  if(j.std_history)RECORD.std_history=j.std_history;
   RECORD.verified=false; RECORD.verified_by_name=''; RECORD.verified_at='';   // edits clear verification server-side
-  dirty=false; setCrumb(); renderVerify(); renderHist();
+  dirty=false; setCrumb(); renderVerify(); renderHist(); renderStdHist();
   el('histBtn').style.display='';
 }
 function _postSave(p,onOk,retryFn){
