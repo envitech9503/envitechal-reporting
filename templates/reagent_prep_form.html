@@ -235,8 +235,85 @@ function showCalc(){var f=el('calc');if(!calcLoaded){f.onload=function(){postCtx
 function hideCalc(){var f=el('calc');f.style.display='none';el('calcLbl').textContent='Open Calculator';}
 function toggleCalc(){var f=el('calc');if(f.style.display==='block'){hideCalc();}else{linkedRow=null;showCalc();}}
 function calcForRow(btn){var rows=el('chemBody').querySelectorAll('tr');linkedRow=Array.prototype.indexOf.call(rows,btn.closest('tr'));showCalc();postCtx();}
-// receive a computed result from the calculator and place it in the linked row
-window.addEventListener('message',function(e){if(e.origin!==window.location.origin)return;var d=e.data||{};if(d.type!=='etal-calc-result')return;var rows=el('chemBody').querySelectorAll('tr');var idx=(d.targetRow!=null)?d.targetRow:linkedRow;if(idx!=null&&rows[idx]){var q=rows[idx].querySelector('.c_qty');if(q&&d.quantity)q.value=d.quantity;}if(d.note){var ds=el('description');if(ds&&!ds.value.trim())ds.value=d.note;}if(d.true_N&&el('s_true_N'))el('s_true_N').value=d.true_N;if(d.factor&&el('s_factor'))el('s_factor').value=d.factor;flash('Calculator result inserted'+(idx!=null?(' into row '+(idx+1)):'')+'.',true);renderPreview();},false);
+// ---- receive results / records back from the calculator ----
+// Returns the chemical row a calculator quantity should land in: the explicitly
+// linked row when the calculator was opened with the per-row "fx" button,
+// otherwise the first blank row (creating one if every row is already used).
+// Previously a null target silently discarded the quantity.
+function _calcTargetRow(idx){
+  var rows=el('chemBody').querySelectorAll('tr');
+  if(idx!=null&&rows[idx])return rows[idx];
+  for(var i=0;i<rows.length;i++){
+    var n=rows[i].querySelector('.c_name'),q=rows[i].querySelector('.c_qty');
+    if(n&&q&&!n.value.trim()&&!q.value.trim())return rows[i];
+  }
+  addChem({});
+  rows=el('chemBody').querySelectorAll('tr');
+  return rows[rows.length-1];
+}
+function _rowIndex(tr){var rows=el('chemBody').querySelectorAll('tr');return Array.prototype.indexOf.call(rows,tr);}
+
+function onCalcResult(d){
+  var tr=_calcTargetRow((d.targetRow!=null)?d.targetRow:linkedRow);
+  var placed=false;
+  if(tr&&d.quantity){var q=tr.querySelector('.c_qty');if(q){q.value=d.quantity;placed=true;}}
+  if(d.note){var ds=el('description');if(ds&&!ds.value.trim()){ds.value=d.note;placed=true;}}
+  if(d.true_N&&el('s_true_N')){el('s_true_N').value=d.true_N;placed=true;}
+  if(d.factor&&el('s_factor')){el('s_factor').value=d.factor;placed=true;}
+  if(!placed){flash('Nothing to insert — compute a value in the calculator first.',false);return;}
+  markDirty();
+  flash('Calculator result inserted'+(tr?(' into row '+(_rowIndex(tr)+1)):'')+'.',true);
+  renderPreview();
+}
+
+// "Fill preparation record" in the calculator: write the whole proposed record
+// into this form (name, description, dates, chemical rows, standardisation),
+// not just the calculator's own preview pane.
+function onCalcRecord(rec){
+  rec=rec||{};
+  var pairs=[['reagent_name',rec.name],['reagent_no',rec.no],['description',rec.desc],
+             ['dop',rec.dop],['doe',rec.doe]];
+  var clash=[];
+  pairs.forEach(function(pr){
+    var f=el(pr[0]);
+    if(f&&pr[1]&&f.value.trim()&&f.value.trim()!==String(pr[1]).trim())clash.push(pr[0]);
+  });
+  var overwrite=true;
+  if(clash.length){
+    overwrite=confirm('The preparation record already has values for: '+clash.join(', ')
+      +'.\n\nOK  = replace them with the calculator values.\nCancel = keep what is there and only fill the blanks.');
+  }
+  var n=0;
+  pairs.forEach(function(pr){
+    var f=el(pr[0]);if(!f||!pr[1])return;
+    if(!f.value.trim()||overwrite){f.value=pr[1];n++;}
+  });
+  // Chemicals: reuse blank rows, append the rest — never silently drop a line.
+  if(rec.chem&&rec.chem.length){
+    rec.chem.forEach(function(c){
+      if(!c||(!c.name&&!c.qty))return;
+      var tr=_calcTargetRow(null);
+      var nf=tr.querySelector('.c_name'),qf=tr.querySelector('.c_qty');
+      if(nf&&c.name&&(!nf.value.trim()||overwrite)){nf.value=c.name;onChemName(nf);}
+      if(qf&&c.qty&&(!qf.value.trim()||overwrite))qf.value=c.qty;
+      n++;
+    });
+  }
+  if(rec.true_N&&el('s_true_N')&&(!el('s_true_N').value.trim()||overwrite)){el('s_true_N').value=rec.true_N;n++;}
+  if(rec.factor&&el('s_factor')&&(!el('s_factor').value.trim()||overwrite)){el('s_factor').value=rec.factor;n++;}
+  if(!n){flash('Nothing to fill — compute a value in the calculator first.',false);return;}
+  markDirty();
+  flash('Preparation record filled from the calculator ('+n+' field'+(n===1?'':'s')+'). Review, then Save.',true);
+  renderPreview();
+}
+
+window.addEventListener('message',function(e){
+  if(e.origin!==window.location.origin)return;
+  var d=e.data||{};
+  if(d.type!=='etal-calc-result'&&d.type!=='etal-calc-record')return;
+  if(typeof VIEW_ONLY!=='undefined'&&VIEW_ONLY){flash('This record is open in view-only mode — open it for editing first.',false);return;}
+  if(d.type==='etal-calc-result')onCalcResult(d);else onCalcRecord(d.rec);
+},false);
 
 // ---- Live preview ----
 function togglePreview(){var s=el('previewSec');if(s.classList.contains('hidden')){s.classList.remove('hidden');el('pvLbl').textContent='Hide Preview';renderPreview();s.scrollIntoView({behavior:'smooth'});}else{s.classList.add('hidden');el('pvLbl').textContent='Live Preview';}}

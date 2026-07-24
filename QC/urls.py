@@ -38,4 +38,5 @@ urlpatterns = [
     path('reagent_prep_month_pdf/', views.reagent_prep_month_pdf, name='reagent_prep_month_pdf'),
 
     path('reagent_prep_doc_save/', views.reagent_prep_doc_save, name='reagent_prep_doc_save'),
+    path('reagent_prep_delete/', views.reagent_prep_delete, name='reagent_prep_delete'),
 ]

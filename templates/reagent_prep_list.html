@@ -30,6 +30,9 @@
       .empty{padding:30px;text-align:center;color:#94a3b8}
       .acts a{margin-right:8px;color:#0f5132;text-decoration:none;font-size:12px}
       .acts a:hover{text-decoration:underline}
+      .acts a.del{color:#b91c1c}
+      .banner{display:flex;align-items:center;gap:8px;margin:14px 18px 0;padding:10px 12px;border-radius:8px;
+              background:#fef2f2;border:1px solid #fecaca;color:#7f1d1d;font-size:13px}
     </style>
 {% endblock %}{% block w2_content %}
 <body>
@@ -40,6 +43,11 @@
 </div>
 <div class="wrap">
   <div class="card">
+    {% if deleted %}
+    <div class="banner" role="status"><i class="fa-solid fa-trash"></i>
+      <span>Preparation record <b>#{{ deleted_id }}</b> was permanently deleted. The deletion has been recorded in the system audit log against your user account.</span>
+    </div>
+    {% endif %}
     <div class="hd">
       <div class="title"><i class="fa-solid fa-flask-vial"></i> Reagent &amp; Standards Preparation</div>
       <div>
@@ -93,6 +101,12 @@
             <a href="/qc/reagent_prep/?id={{ r.o.id }}"><i class="fa-solid fa-pen"></i> Edit</a>
             <a href="/qc/reagent_prep/?clone={{ r.o.id }}"><i class="fa-solid fa-copy"></i> Clone</a>
             <a href="/qc/reagent_prep_pdf_from_list/{{ r.o.id }}/" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+            <a href="#" class="del" data-del="{{ r.o.id }}"
+               data-nm="{{ r.o.reagent_name }}"
+               data-no="{{ r.o.reagent_no|default:'-' }}"
+               data-dop="{{ r.o.dop|date:'d-m-Y'|default:'-' }}"
+               data-vf="{% if r.verified %}1{% else %}0{% endif %}"
+               title="Permanently delete this preparation record"><i class="fa-solid fa-trash"></i> Delete</a>
           </td>
         </tr>
         {% empty %}
@@ -109,5 +123,43 @@
     </div>
   </div>
 </div>
+
+<!-- Delete is a real POST form so Django's CSRF protection applies natively and
+     the view can redirect straight back to this filtered list. -->
+<form id="delForm" method="post" action="/qc/reagent_prep_delete/" style="display:none">
+  {% csrf_token %}
+  <input type="hidden" name="id" id="delId">
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+</form>
+<script>
+(function(){
+  var tbl = document.querySelector('table');
+  if(!tbl) return;
+  tbl.addEventListener('click', function(e){
+    var a = e.target.closest ? e.target.closest('a.del') : null;
+    if(!a) return;
+    e.preventDefault();
+    var id = a.getAttribute('data-del'),
+        nm = a.getAttribute('data-nm') || '(unnamed)',
+        no = a.getAttribute('data-no') || '-',
+        dop = a.getAttribute('data-dop') || '-',
+        vf  = a.getAttribute('data-vf') === '1';
+    var msg = 'Permanently delete this preparation record?\n\n'
+            + '  Reagent : ' + nm + '\n'
+            + '  Reg. No : ' + no + '\n'
+            + '  Prepared: ' + dop + '\n\n';
+    msg += vf
+      ? 'WARNING - this record has been VERIFIED. Deleting it removes a signed-off\n'
+        + 'quality record together with its preparation and standardisation history.\n'
+        + 'Only proceed if the record was raised in error.\n\n'
+      : 'Its preparation and standardisation history will be removed with it.\n\n';
+    msg += 'This cannot be undone. The deletion will be logged against your user account.';
+    if(!confirm(msg)) return;
+    if(vf && !confirm('Final confirmation - delete VERIFIED record "' + nm + '"?')) return;
+    document.getElementById('delId').value = id;
+    document.getElementById('delForm').submit();
+  }, false);
+})();
+</script>
 </body>
 {% endblock %}

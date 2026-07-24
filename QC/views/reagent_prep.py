@@ -14,6 +14,7 @@ from django.db import transaction as _tx
 from django.utils import timezone as _tz
 from django.utils.safestring import mark_safe as _mark_safe
 from django.views.decorators.clickjacking import xframe_options_sameorigin as _xframe_sameorigin
+from django.shortcuts import redirect as _redirect
 
 try:  # new in round-2b: running standardisation-history log (optional until migrated)
     from EnviTechAlApp.models import ReagentStandardisationHistory as _RSHist
@@ -24,6 +25,13 @@ _LOGO = "static/assets/EnviTechAL LOGO.png"
 _CALIBRI = "static/fonts/calibri.ttf"
 _CALIBRIB = "static/fonts/calibrib.ttf"
 _LOCS = ['Karachi', 'Lahore']
+
+# Controlled-PDF header geometry (portrait A4, 10 mm margins -> content 10..200).
+# The control box is right-aligned to the 200 mm text edge; the centred title
+# (centre 105 mm) must stay clear of it, hence the 82 mm cap (105 + 41 < 148).
+_BOX_W = 52.0
+_BOX_X = 200.0 - _BOX_W
+_TITLE_MAX_MM = 82.0
 
 
 def _safe_json(obj):
@@ -559,6 +567,59 @@ def reagent_prep_verify(request):
                          'verified_at': obj.verified_at.strftime('%d-%m-%Y %H:%M')})
 
 
+def reagent_prep_delete(request):
+    """Permanently delete a preparation record.
+
+    Open to every logged-in user (module-wide full-access policy), but the
+    deletion is never silent: an admin LogEntry is written *before* the row is
+    removed, because ReagentPrepAudit rows cascade away with their parent and
+    would otherwise leave no trace of who deleted what. CSRF protection is left
+    in force here (unlike the JSON endpoints) since this is a destructive
+    browser-form POST."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    user = getattr(request, 'user', None)
+    if not (user and user.is_authenticated):
+        return JsonResponse({'error': 'Login required'}, status=403)
+    try:
+        obj = ReagentPrep.objects.get(id=int(request.POST.get('id')))
+    except Exception:
+        return JsonResponse({'error': 'Record not found'}, status=404)
+
+    label = '%s (%s / %s)' % (obj.reagent_name or '-',
+                              getattr(obj, 'reagent_no', '') or '-',
+                              getattr(obj, 'location', '') or '-')
+    detail = 'Reagent prep #%s deleted: %s | prepared %s | expiry %s | verified: %s' % (
+        obj.id, label,
+        obj.dop.strftime('%d-%m-%Y') if getattr(obj, 'dop', None) else '-',
+        obj.doe.strftime('%d-%m-%Y') if getattr(obj, 'doe', None) else '-',
+        'yes' if _is_verified(obj) else 'no')
+    try:  # append-only, non-cascading audit trail
+        from django.contrib.admin.models import LogEntry as _LogEntry, DELETION as _DELETION
+        from django.contrib.contenttypes.models import ContentType as _CT
+        _LogEntry.objects.log_action(
+            user_id=user.pk,
+            content_type_id=_CT.objects.get_for_model(obj).pk,
+            object_id=str(obj.id),
+            object_repr=detail[:200],
+            action_flag=_DELETION,
+            change_message=detail[:400])
+    except Exception:
+        pass
+
+    pk = obj.id
+    obj.delete()
+
+    # Return to the list, preserving the caller's filters. `next` is validated
+    # against the list path so this cannot be used as an open redirect.
+    nxt = request.POST.get('next') or ''
+    base = '/qc/reagent-prep-list/'
+    if not (nxt.startswith(base) and '//' not in nxt[1:]):
+        nxt = base
+    sep = '&' if '?' in nxt else '?'
+    return _redirect('%s%sdeleted=%d' % (nxt, sep, pk))
+
+
 def reagent_prep_list(request):
     loc = request.GET.get('location') or 'All'
     q = (request.GET.get('q') or '').strip()
@@ -608,6 +669,8 @@ def reagent_prep_list(request):
         'sort': sort, 'locations': _LOCS, 'total': total, 'page': page,
         'pages': pages, 'has_prev': page > 1, 'has_next': page < pages,
         'prev_page': page - 1, 'next_page': page + 1,
+        'deleted': (request.GET.get('deleted') or '').isdigit(),
+        'deleted_id': request.GET.get('deleted') or '',
     })
 
 
@@ -628,9 +691,18 @@ def reagent_prep_calculator(request):
 
 
 def reagent_prep_manual(request):
-    """Serve the module user manual (self-contained searchable HTML) raw, so its
-    own CSS/JS braces are never parsed as Django template tags. Linked from the
-    form and list headers as 'User Manual'."""
+    """Serve the module user manual (self-contained searchable HTML).
+
+    Rendered through the template engine so the standard site navigation bar
+    ({% include "_unified_nav.html" %}) appears at the top of the manual and the
+    page is no longer a dead end. The manual body itself contains no Django
+    template syntax (verified: zero occurrences of the tag/variable delimiters),
+    so its own CSS/JS braces are unaffected. Falls back to the previous raw read
+    if template rendering is unavailable for any reason."""
+    try:
+        return render(request, 'reagent_prep_manual.html', {})
+    except Exception:
+        pass
     for p in ('templates/reagent_prep_manual.html',
               _os.path.join(_os.path.dirname(__file__), '..', '..', 'templates', 'reagent_prep_manual.html')):
         try:
@@ -698,28 +770,29 @@ def _make_reagent_pdf(location, records, draft=False):
             self.set_x(10)
             self.set_font(self.fam, '', 8)
             self.cell(0, 5, self.t('Analytical Laboratory - Environmental & Water Testing'), align='C', ln=1)
+            # Title carries the laboratory, matching the controlled equipment
+            # register. Auto-shrinks so it can never run into the control box.
             self.set_x(10)
-            self.set_font(self.fam, 'B', 11)
-            self.cell(0, 6, 'REAGENT PREPARATION RECORD', align='C', ln=1)
-            # control box (top-right) — Decision D1: retained on the digital record
-            bx, by, bw = 150, 8, 52
+            _title = ('REAGENT PREPARATION RECORD'
+                      + ((' - %s LABORATORY' % str(location).upper()) if location else ''))
+            _ts = 11.0
+            self.set_font(self.fam, 'B', _ts)
+            while _ts > 7.0 and self.get_string_width(self.t(_title)) > _TITLE_MAX_MM:
+                _ts -= 0.5
+                self.set_font(self.fam, 'B', _ts)
+            self.cell(0, 6, self.t(_title), align='C', ln=1)
+            # Control-number box (top-right) — house style, identical in layout to
+            # the Master List of Lab Equipment report: one bordered block, four
+            # lines, page number inside the box.
             self.set_font(self.fam, '', 7)
-            self.set_xy(bx, by)
-            rows = [
-                ('Doc No.', ctrl.doc_no or '-'),
-                ('Issue Date', getattr(ctrl, 'issue_date', '') or '-'),
-                ('Issue No.', ctrl.issue_no or '-'),
-                ('Rev No.', ctrl.rev_no or '-'),
-                ('Location', location),
-            ]
-            y = by
-            for k, v in rows:
-                self.set_xy(bx, y)
-                self.set_font(self.fam, 'B', 7)
-                self.cell(22, 5, k, border=1)
-                self.set_font(self.fam, '', 7)
-                self.cell(bw - 22, 5, self.t(' ' + str(v)), border=1, ln=1)
-                y += 5
+            self.set_xy(_BOX_X, 8)
+            self.multi_cell(_BOX_W, 4.6, self.t(
+                'Doc. No: %s\nIssue Date: %s\nIssue No. %s    Rev. No. %s\nPage No: %d of {nb}' % (
+                    ctrl.doc_no or 'TBA',
+                    getattr(ctrl, 'issue_date', '') or 'TBA',
+                    ctrl.issue_no or '01',
+                    ctrl.rev_no or '00',
+                    self.page_no())), 1, 'L')
             self.set_draw_color(0, 0, 0)
             self.line(10, 33, 202, 33)
             self.set_y(37)
@@ -750,8 +823,12 @@ def _make_reagent_pdf(location, records, draft=False):
             self.cell(0, 3.6, self.t(
                 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan.'),
                 align='C', ln=1)
+            # The page number now lives inside the control box (house style), so the
+            # footer carries the controlled-document identity and the laboratory.
             self.set_xy(10, y0 + 7.2)
-            self.cell(0, 3.6, 'Page %s of {nb}' % self.page_no(), align='R')
+            self.cell(0, 3.6, self.t('%s  |  Issue %s  Rev. %s  |  %s Laboratory' % (
+                ctrl.doc_no or 'TBA', ctrl.issue_no or '01',
+                ctrl.rev_no or '00', location)), align='R')
 
     pdf = CustomPDF(orientation='P', unit='mm', format='A4')
     pdf.alias_nb_pages()
@@ -933,5 +1010,6 @@ def reagent_prep_month_pdf(request):
 __all__ = [
     'reagent_prep', 'reagent_prep_save', 'reagent_prep_doc_save', 'reagent_prep_list',
     'reagent_prep_calculator', 'reagent_prep_pdf_from_list', 'reagent_prep_month_pdf',
-    'reagent_prep_verify', 'reagent_prep_manual', 'generate_pdf_for_reagent_prep',
+    'reagent_prep_verify', 'reagent_prep_manual', 'reagent_prep_delete',
+    'generate_pdf_for_reagent_prep',
 ]

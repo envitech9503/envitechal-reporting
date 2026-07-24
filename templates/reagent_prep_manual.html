@@ -76,10 +76,34 @@
   footer{max-width:1240px;margin:0 auto;padding:20px 26px 46px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line)}
   mark{background:#fde68a;padding:0 1px;border-radius:2px}
   @media(max-width:900px){.layout{grid-template-columns:1fr}nav.toc{position:static;max-height:none}}
-  @media print{.searchwrap,nav.toc,.chips,.count{display:none!important}.layout{display:block;padding:0}section.topic{break-inside:avoid;border:none;box-shadow:none;padding:8px 0}header.top{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  .modbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+          max-width:1200px;margin:12px auto 0;padding:0 16px}
+  .modbar .crumb{font-size:12px;color:#64748b}
+  .modbar .crumb a{color:var(--green);text-decoration:none}
+  .modbar .crumb a:hover{text-decoration:underline}
+  .modbar .modacts{display:flex;flex-wrap:wrap;gap:8px}
+  .mbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;
+        padding:6px 12px;border-radius:7px;font-size:13px;text-decoration:none;cursor:pointer}
+  .mbtn:hover{border-color:var(--green);color:var(--green)}
+  .mbtn-p{background:var(--green);border-color:var(--green);color:#fff}
+  .mbtn-p:hover{background:var(--green-2);color:#fff}
+  @media print{.modbar,.etnav,.searchwrap,nav.toc,.chips,.count{display:none!important}.layout{display:block;padding:0}section.topic{break-inside:avoid;border:none;box-shadow:none;padding:8px 0}header.top{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
 <body>
+{% include "_unified_nav.html" %}
+<div class="modbar">
+  <div class="crumb">
+    <a href="/qc/qc_main/">QC</a> &rsaquo;
+    <a href="/qc/reagent-prep-list/">Reagent &amp; Standards Prep</a> &rsaquo;
+    <span>User Manual</span>
+  </div>
+  <div class="modacts">
+    <a class="mbtn" href="/qc/reagent-prep-list/">&larr; Back to List</a>
+    <a class="mbtn mbtn-p" href="/qc/reagent_prep/">+ New Preparation</a>
+    <a class="mbtn" href="#" onclick="window.print();return false;" title="Print or save this manual as PDF">Print</a>
+  </div>
+</div>
 <header class="top">
   <div class="brandrow">
     <span class="logo" aria-hidden="true">
@@ -131,12 +155,14 @@
     <!-- ============ GETTING STARTED ============ -->
     <section class="topic" id="t-open" data-cat="start" data-keywords="open access navigate home tile qc menu url login where find launch entry point breadcrumb back">
       <h2><span class="cat-tag">Getting started</span> Opening the module</h2>
-      <p>The module is served under the QC area of the LIMS (its addresses begin <code>/qc/</code>), but you open it from the <b>Home</b> page, not from the QC page. There are two reliable ways in:</p>
+      <p>The module is served under the QC area of the LIMS (its addresses begin <code>/qc/</code>). There are four reliable ways in, and every one of them is a two-way door &mdash; you can always get back:</p>
       <ul>
         <li><b>From Home.</b> Click <span class="path">Home</span> in the top navigation bar, then click the green <b>Reagent &amp; Standards Prep</b> tile in the module grid. This opens the <b>records list</b>.</li>
+        <li><b>From QC.</b> Click <span class="path">QC</span> in the top navigation bar and use the <b>Reagent &amp; Standards Prep</b> card at the foot of the QC page &mdash; it offers <b>New Preparation</b>, <b>View List</b> and <b>User Manual</b>.</li>
+        <li><b>From the navigation menu.</b> Open the <b>Lab &amp; Compliance</b> menu in the top navigation bar and choose <b>Reagent Prep</b>.</li>
         <li><b>Directly by address.</b> The records list is at <code>/qc/reagent-prep-list/</code> and a blank entry form is at <code>/qc/reagent_prep/</code>.</li>
       </ul>
-      <div class="warn note">The <span class="path">QC</span> button in the top navigation bar opens the QC reports page, which does <b>not</b> link to this module. Use <span class="path">Home</span> instead. For the same reason, the <b>QC Home</b> button and the <span class="path">QC ›</span> breadcrumb inside this module lead away from it with no link back — use your browser&rsquo;s Back button, or <span class="path">Home</span>, to return.</div>
+      <div class="note">The standard navigation bar appears at the top of the list, the entry form <b>and this manual</b>, so you are never more than one click from anywhere else in the LIMS. The <b>QC Home</b> button and the <span class="path">QC &rsaquo;</span> breadcrumb inside this module go to the QC page, which now links back here.</div>
       <p>The module has two working areas that you will move between constantly, plus this manual:</p>
       <ul>
         <li><b>The list</b> (<code>/qc/reagent-prep-list/</code>) — where you search, filter, sort and print existing records. This is where the Home tile lands you.</li>
@@ -225,7 +251,12 @@
       <h2><span class="cat-tag">Data entry</span> Live preview &amp; the calculator</h2>
       <p>As you type, a <b>live preview</b> mirrors how the controlled PDF will look. It is presentation only — nothing is stored until you click <b>Save</b>.</p>
       <p>The embedded <b>Fully-Loaded Preparation Calculator</b> handles weigh-and-dissolve, dilutions, calibration series, standardisation, % solutions and unit converters. Open it with <b>Open Calculator</b> (the button then reads <b>Hide Calculator</b>).</p>
-      <p>The calculator can write its result straight into the record. Press the small <b>fx</b> button on a chemical row to calculate for that row — the result is inserted into that row&rsquo;s <b>Quantity</b> and the module confirms with &ldquo;Calculator result inserted into row&nbsp;<i>n</i>&rdquo;. A standardisation calculation likewise fills the <b>True strength</b> and <b>Factor</b> fields. Opening the calculator from the toolbar instead of from a row leaves it unlinked, in which case you carry the result across yourself. Nothing is stored until you click <b>Save</b>.</p>
+      <p>The calculator writes back into the record in two different ways, and it is worth knowing which button does which:</p>
+      <ul>
+        <li><b>&ldquo;Insert result into form&rdquo;</b> (the green bar at the top of the calculator) carries across <b>the single computed value</b>. Press the small <b>fx</b> button on a chemical row first and the value lands in that row&rsquo;s <b>Quantity</b>; open the calculator from the toolbar instead and the value lands in the <b>first empty chemical row</b>, a new row being added if every row is already in use. Either way the module confirms with &ldquo;Calculator result inserted into row&nbsp;<i>n</i>&rdquo;. A standardisation calculation additionally fills <b>True strength</b> and <b>Factor</b>, and the working note is copied into <b>Description</b> if that field is still blank.</li>
+        <li><b>&ldquo;Fill preparation record&rdquo;</b> (under each calculator panel &mdash; Weigh &amp; Dissolve, Dilution, % Solution and Standardisation) drafts the <b>whole record</b>: reagent name, description, preparation and expiry dates, the chemical row(s) and, for a titrant, the correction factor. Blank fields are filled silently; where a field already holds something different you are asked once whether to replace it or keep what is there and fill only the blanks.</li>
+      </ul>
+      <div class="note">Both actions write into the form only &mdash; <b>nothing is stored until you click Save</b>. Review the drafted values first: the calculator proposes a one-year expiry by default (one week for thiosulphate, one month for other titrants), which you should adjust to your own stability data. If a record is open in read-only <b>View</b> mode the calculator declines to write and says so.</div>
     </section>
 
     <section class="topic" id="t-save" data-cat="entry" data-keywords="save save and new button submit store high throughput batch entry">
@@ -299,6 +330,7 @@
       <p>Logged actions include: <b>created</b>, <b>updated</b> (with a field-by-field summary of changes), <b>type-changed</b>, <b>verified</b> and <b>unverified</b>.</p>
       <div class="note">The audit trail is read-only and cannot be altered, giving a complete, defensible record of the reagent&rsquo;s life for inspection by regulatory bodies (Sindh EPA, Punjab EPA). The panel shows the <b>60 most recent</b> entries; older ones remain stored in the database. <b>History</b> is also available in read-only View mode.</div>
       <p class="tip note">The audit trail (who did what to the record) is distinct from the <a href="#t-history">Standardisation History</a> (the running log of standardisation events). Both are read-only.</p>
+      <div class="warn note">The audit trail belongs to the record, so it is removed when the record is. <a href="#t-delete">Deleting a record</a> is therefore logged separately, in the system administration log, where the entry survives the deletion.</div>
     </section>
 
     <section class="topic" id="t-lock" data-cat="verify" data-keywords="optimistic lock concurrency stale changed by another user reload conflict simultaneous edit 409">
@@ -346,11 +378,21 @@
       <p>The <b>Clone</b> action copies an existing preparation into a new blank record — handy for repeat preparations. The clone starts <b>without a reagent number, without verification and without history</b>, so you complete those fresh. Fill in the new number and dates, adjust anything that differs, and save.</p>
     </section>
 
+    <section class="topic" id="t-delete" data-cat="list" data-keywords="delete remove record permanently erase bin trash discard wrong entry raised in error undo recycle logged deletion">
+      <h2><span class="cat-tag">List &amp; search</span> <span class="badge b-warn">Supervisor / QA</span> Deleting a record</h2>
+      <p>The <b>Delete</b> action at the end of every row on the records list removes a preparation record <b>permanently</b>. Use it only for entries raised in error &mdash; a duplicate, a test entry, or a record created against the wrong laboratory.</p>
+      <p>Clicking <b>Delete</b> opens a confirmation naming the reagent, its reagent number and its preparation date, so you can check you are deleting the row you meant. If the record has been <a href="#t-verify">verified</a>, the warning is sterner and a <b>second confirmation</b> is required &mdash; deleting a verified record removes a signed-off quality record. Once confirmed, the list reloads with your filters intact and a red banner confirming the deletion.</p>
+      <div class="warn note"><b>There is no undo and no recycle bin.</b> The record, its chemical rows, its audit trail and its standardisation history are removed together. Download the <a href="#t-pdf">single-record PDF</a> first if there is any chance the record will be needed again &mdash; for an inspection, for example.</div>
+      <p>Deletion is open to every logged-in user, in keeping with the module&rsquo;s open-access policy, but it is never anonymous: <b>who deleted what, and when</b>, is written to the system administration log together with the reagent name, number, laboratory, dates and whether the record had been verified. That entry survives the deletion and is available to QA on request.</p>
+      <p class="tip note">If you only want the record out of your everyday view, consider whether the <b>Status</b> filter or a month filter would do instead &mdash; an expired record is still a valid historical record and normally should be kept.</p>
+    </section>
+
     <!-- ============ PDFs ============ -->
     <section class="topic" id="t-pdf" data-cat="pdf" data-keywords="pdf single record print controlled log download generate document">
       <h2><span class="cat-tag">PDFs &amp; printing</span> Single-record PDF</h2>
       <p>The <b>PDF</b> action on a list row (and the <b>Download PDF</b> button in View mode) generates the controlled PDF for that one record — the formatted preparation log with the Envi Tech AL masthead, chemicals, standardisation and signatures.</p>
       <div class="note"><b>Download PDF</b> on an editable form behaves slightly differently: it <b>saves the record first</b> and then opens the PDF, so the printed copy always matches what is stored. In read-only <b>View</b> mode it simply opens the PDF of the record you are viewing.</div>
+      <p>Every page of both the single-record and the <a href="#t-month">monthly</a> PDF carries the controlled-document block in a <b>bordered box at the top right</b>, in the same house style as the Master List of Lab Equipment: <b>Doc. No.</b>, <b>Issue Date</b>, <b>Issue No.</b> and <b>Rev. No.</b>, then <b>Page No: <i>n</i> of <i>m</i></b>. The laboratory appears in the centred title (for example <i>REAGENT PREPARATION RECORD &ndash; KARACHI LABORATORY</i>) and again in the footer beside the document number. These values come from the per-laboratory control number described under <a href="#t-access">Access, roles &amp; the control number</a> &mdash; keep them current, because they are what an auditor checks first.</p>
     </section>
 
     <section class="topic" id="t-draft" data-cat="pdf" data-keywords="draft watermark unverified not verified diagonal provisional stamp final controlled">
@@ -387,15 +429,18 @@
         <li><b>A chemical that had already expired</b> at the date of preparation raises a confirmation before saving — &ldquo;<i>Chemical &hellip; appears expired at the date of preparation &hellip; Continue anyway?</i>&rdquo;.</li>
         <li><b>Leaving the form with unsaved changes</b> raises a browser warning first.</li>
         <li><b>An edit is written in one transaction</b>, so a save can never leave a record with its old chemical rows deleted but the new ones missing.</li>
-        <li>Every change is written to the <b>append-only audit trail</b>.</li>
+        <li><b>Deleting a record</b> requires a confirmation naming the record &mdash; and a second confirmation if it has been verified.</li>
+        <li>Every change is written to the <b>append-only audit trail</b>, and every <b>deletion</b> to the system administration log.</li>
       </ul>
     </section>
 
     <!-- ============ TROUBLESHOOTING ============ -->
     <section class="topic" id="t-faq" data-cat="help" data-keywords="troubleshooting faq problems why cannot save blocked panel missing help questions common issues qc cannot find module where is it status filter">
       <h2><span class="cat-tag">Troubleshooting</span> Common questions</h2>
-      <h3>I clicked QC in the top bar and cannot find the module</h3>
-      <p>The <span class="path">QC</span> button opens the QC reports page, which does not link to this module. Click <span class="path">Home</span> instead and use the green <b>Reagent &amp; Standards Prep</b> tile, or go straight to <code>/qc/reagent-prep-list/</code>. The same applies to the <b>QC Home</b> button inside the module — it takes you to QC reports, not back to the reagent list.</p>
+      <h3>Where do I find the module?</h3>
+      <p>Any of four ways: the <b>Reagent &amp; Standards Prep</b> card at the foot of the <span class="path">QC</span> page; the green tile on <span class="path">Home</span>; <b>Reagent Prep</b> in the <b>Lab &amp; Compliance</b> menu of the top navigation bar; or the address <code>/qc/reagent-prep-list/</code> directly.</p>
+      <h3>I deleted a record by mistake</h3>
+      <p>Deletion is permanent &mdash; there is no undo and no recycle bin. The record, its chemical rows, its audit trail and its standardisation history all go together. The deletion itself is logged against your user account in the system administration log, so it can be traced and the record re-entered from the printed copy. Print or download the PDF before deleting anything you may need again.</p>
       <h3>The Standardisation panel isn&rsquo;t showing</h3>
       <p>It appears only when the <b>Reagent Type</b> is <i>Standardised titrant</i>. Change the type and it will appear.</p>
       <h3>My save was blocked</h3>

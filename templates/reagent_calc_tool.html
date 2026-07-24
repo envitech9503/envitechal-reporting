@@ -184,6 +184,18 @@ function setRec(o){
   if(o.chem){clearChemRows();o.chem.forEach(c=>addChemRow(c));}
   document.getElementById('recFactor').innerHTML=o.factor?`<div class="warnbox"><b>Standardisation factor (${document.getElementById('loc').value}):</b> ${o.factor}</div>`:'';
 }
+/* Fill the local preview AND, when this calculator is embedded in the QC
+   preparation form, push the same record up to the parent so "Fill preparation
+   record" actually writes into the form (previously it only redrew the
+   calculator's own preview pane). */
+function pushRecord(o){
+  setRec(o);
+  try{
+    if(ETAL_CTX&&ETAL_CTX.linked&&window.parent&&window.parent!==window){
+      parent.postMessage({type:'etal-calc-record',rec:o},window.location.origin);
+    }
+  }catch(_){}
+}
 
 /* ======================= PANELS ======================= */
 const PANELS={};
@@ -253,7 +265,7 @@ function calcSolid(){
 }
 function toRec_solid(){const g=window._solid?window._solid.g:'';const vol=val('s_vol'),volu=val('s_volu')==='1'?'L':'mL';
  const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
- setRec({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`,
+ pushRecord({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`,
    chem:[{name:val('s_name')||'',qty:g+' g'}],dop,doe:d.toISOString().slice(0,10)});
 }
 
@@ -291,7 +303,7 @@ function calcAcid(){const a=num('d_as'),sg=num('d_sg'),mw=num('d_mw'),o=document
  if(a&&sg&&mw){const s=10*a*sg/mw;o.innerHTML=`<div class="big">${fmt(s)} <small>N or M</small></div><div class="formula">= (10 × ${a} × ${sg}) / ${mw}</div><div class="hint" style="margin-top:6px">Use this as C₁ above. (Use MW→Molarity, Eq.wt→Normality.)</div>`;}
  else o.innerHTML='';}
 function toRec_dil(){const v1=window._dil?window._dil.v1:'';const v2=val('d_v2');const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
- setRec({name:val('d_name'),no:'',desc:`Take ${v1} mL of stock, dilute with DI water and make up to ${v2} mL.`,chem:[{name:val('d_name')||'',qty:v1+' mL'}],dop,doe:d.toISOString().slice(0,10)});}
+ pushRecord({name:val('d_name'),no:'',desc:`Take ${v1} mL of stock, dilute with DI water and make up to ${v2} mL.`,chem:[{name:val('d_name')||'',qty:v1+' mL'}],dop,doe:d.toISOString().slice(0,10)});}
 
 PANELS.series=function(){
  document.getElementById('panel').innerHTML=`
@@ -354,9 +366,9 @@ function calcStd(){const m=num('st_m'),pur=num('st_pur')||100,eq=num('st_eq'),vo
    <div class="hint" style="margin-top:6px">Record the true ${U==='M'?'molarity':'normality'} and factor on the standardisation log for <b>${document.getElementById('loc').value}</b>. Re-standardise per method frequency.</div>`;}
  else o.innerHTML='<span style="color:var(--muted)">Enter mass, Eq.wt and titrant volume…</span>';}
 function toRec_std(){const s=window._std||{};const dop=today();const d=new Date();d.setDate(d.getDate()+ (val('st_p')==='thio'?7:30));
- setRec({name:(document.querySelector('#st_p option:checked')?document.querySelector('#st_p option:checked').text:'Titrant')+' — standardised',no:'',
+ pushRecord({name:(document.querySelector('#st_p option:checked')?document.querySelector('#st_p option:checked').text:'Titrant')+' — standardised',no:'',
   desc:`Standardised against primary standard. True ${(s.U==='M')?'molarity':'normality'} ${s.N||'—'} ${s.U||'N'}; correction factor ${s.factor||'—'}.`,
-  chem:[{name:'Primary standard',qty:num('st_m')?num('st_m')+' g':''}],dop,doe:d.toISOString().slice(0,10),factor:`${s.factor||'—'} (nominal ${s.nom||'—'} ${s.U||'N'} → true ${s.N||'—'} ${s.U||'N'})`});}
+  chem:[{name:'Primary standard',qty:num('st_m')?num('st_m')+' g':''}],dop,doe:d.toISOString().slice(0,10),true_N:(s.N||''),factor:`${s.factor||'—'} (nominal ${s.nom||'—'} ${s.U||'N'} → true ${s.N||'—'} ${s.U||'N'})`});}
 
 PANELS.pct=function(){
  document.getElementById('panel').innerHTML=`
@@ -367,9 +379,20 @@ PANELS.pct=function(){
     <div><label>Target %</label><input id="p_pct" type="number" step="any" value="0.9" oninput="calcPct()"/></div>
     <div><label>Final volume/mass</label><input id="p_v" type="number" step="any" value="250" oninput="calcPct()"/></div>
   </div>
-  <div class="out" id="p_out"></div>`;
+  <div class="out" id="p_out"></div>
+  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_pct()">➜ Fill preparation record</button></div>`;
  calcPct();
 };
+function toRec_pct(){
+ const t=val('p_t'),pc=num('p_pct'),v=num('p_v');
+ if(pc===null||v===null){alert('Enter the target % and the final volume/mass first.');return;}
+ const q=fmt(pc/100*v), un=(t==='vv'?'mL':'g'), vu=(t==='ww'?'g':'mL');
+ const nm=`${pc} % ${t==='wv'?'w/v':(t==='vv'?'v/v':'w/w')} solution`;
+ const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
+ pushRecord({name:nm,no:'',
+  desc:`Take ${q} ${un} of solute and make up to ${v} ${vu} with DI water (${pc} % ${t==='wv'?'w/v':(t==='vv'?'v/v':'w/w')}).`,
+  chem:[{name:'',qty:q+' '+un}],dop,doe:d.toISOString().slice(0,10)});
+}
 function calcPct(){const t=val('p_t'),pc=num('p_pct'),v=num('p_v'),o=document.getElementById('p_out');
  if(pc!==null&&v!==null){const q=pc/100*v;const un=t==='vv'?'mL':'g';
   o.innerHTML=`<div class="big">${fmt(q)} <small>${un}</small></div><div class="formula">= (% ÷ 100) × ${v} = ${pc/100} × ${v}</div><div class="hint" style="margin-top:6px">${t==='ww'?'Weigh solute + solvent to total mass.':'Dissolve and make up to '+v+' mL.'}</div>`;}
@@ -440,7 +463,10 @@ function addChemRow(d){d=d||{};const tb=document.getElementById('recRows');const
   <td style="text-align:center"><button title="delete row" onclick="this.closest('tr').remove();renumber()" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:14px">&times;</button></td>`;
  tb.appendChild(tr);renumber();}
 function chemPick(inp){const rec=INV[inp.value.trim()];if(!rec)return;const tr=inp.closest('tr');const lot=(rec.lots&&rec.lots[0])||{};
- tr.querySelector('.ccat').value=rec.cat||'';tr.querySelector('.cmake').value=rec.make||'';tr.querySelector('.clot').value=lot.lot||'';tr.querySelector('.cexp').value=lot.exp||'';}
+ // Only overwrite where the library actually has a value: a name match with no
+ // lot data must not wipe CAT / LOT / Make / Expiry the analyst already entered.
+ var _set=function(sel,v){var f=tr.querySelector(sel);if(f&&v)f.value=v;};
+ _set('.ccat',rec.cat);_set('.cmake',rec.make);_set('.clot',lot.lot);_set('.cexp',lot.exp);}
 function renumber(){document.querySelectorAll('#recRows tr').forEach((tr,i)=>{tr.querySelector('.sn').textContent=i+1;});}
 function clearChemRows(){document.getElementById('recRows').innerHTML='';}
 
@@ -471,7 +497,9 @@ function insertToForm(){
   var res=null;
   if(cur==='solid'&&window._solid){var vv=val('s_vol'),vu=(val('s_volu')==='1'?'L':'mL');res={quantity:window._solid.g+' g',note:'Weigh '+window._solid.g+' g of '+(val('s_name')||'reagent')+' and dissolve in DI water; make up to '+vv+' '+vu+'.'};}
   else if(cur==='dilute'&&window._dil){res={quantity:window._dil.v1+' mL',note:'Take '+window._dil.v1+' mL of stock; dilute with DI water; make up to '+val('d_v2')+' mL.'};}
-  else if(cur==='pct'){res={quantity:_big('#p_out'),note:'Prepare % solution as computed.'};}
+  else if(cur==='pct'){var _pq=_big('#p_out');
+    if(_pq){var _pv=val('p_v'),_pu=(val('p_t')==='ww'?'g':'mL');
+      res={quantity:_pq,note:'Take '+_pq+' of solute and make up to '+_pv+' '+_pu+' with DI water.'};}}
   else if(cur==='stand'&&window._std){res={quantity:(num('st_m')?num('st_m')+' g':''),note:'Standardised against primary standard; true '+window._std.N+' '+window._std.U+', factor '+window._std.factor+'.',true_N:window._std.N,factor:window._std.factor};}
   if(!res||(!res.quantity&&!res.note)){alert('Please compute a value first, then insert.');return;}
   parent.postMessage({type:'etal-calc-result',targetRow:ETAL_CTX.targetRow,quantity:res.quantity||'',note:res.note||'',true_N:res.true_N||null,factor:res.factor||null},window.location.origin);
