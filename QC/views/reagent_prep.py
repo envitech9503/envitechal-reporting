@@ -946,17 +946,15 @@ def _make_reagent_pdf(location, records, draft=False):
         # Four fixed columns placed with set_x() instead of cumulative cell
         # widths, so every row starts at exactly the same x. The grid is
         # anchored to the chemicals table below it (x = 10 … 202) and the
-        # bullet hangs to the left of the label column, which keeps the
-        # reagent-name row flush with the rows above and below it.
-        _MX_BULLET = 10.0    # hanging bullet
-        _MX_L_LAB = 15.0     # left label column
+        # labels sit flush with the table, Description and signature block.
+        _MX_L_LAB = 10.0     # left label column (flush with table edge)
         _MX_R_LAB = 100.0    # right label column (CAT Number table edge)
         _MX_END = 202.0      # right edge of the chemicals table
 
         pdf.set_font(pdf.fam, 'B', 9)
         _lab_w = max(pdf.get_string_width(s) for s in (
             'Month:', 'Reagent Name:', 'Concentration:',
-            'Type:', 'Reagent No.:', 'Final Volume:')) + 2.0
+            'Type:', 'Reagent No.:', 'Final Volume:')) + 3.5
         _mx_l_val = _MX_L_LAB + _lab_w
         _mx_r_val = _MX_R_LAB + _lab_w
         _mw_l_val = _MX_R_LAB - 3.0 - _mx_l_val   # 3 mm gutter before column 3
@@ -978,12 +976,8 @@ def _make_reagent_pdf(location, records, draft=False):
                 txt += _ell
             return txt
 
-        def _meta_row(l_lab, l_val, r_lab, r_val, bullet=False):
+        def _meta_row(l_lab, l_val, r_lab, r_val):
             y = pdf.get_y()
-            if bullet:
-                pdf.set_font(pdf.fam, 'B', 9)
-                pdf.set_xy(_MX_BULLET, y)
-                pdf.cell(5, 6, '•' if pdf.fam == 'Calibri' else '-', border=0)
             for x_lab, lab, x_val, w_val, val in (
                     (_MX_L_LAB, l_lab, _mx_l_val, _mw_l_val, l_val),
                     (_MX_R_LAB, r_lab, _mx_r_val, _mw_r_val, r_val)):
@@ -996,9 +990,8 @@ def _make_reagent_pdf(location, records, draft=False):
 
         conc = ((obj.conc_value + ' ' + obj.conc_unit).strip()) if (obj.conc_value or obj.conc_unit) else '-'
         _meta_row('Month:', obj.month, 'Type:', obj.rtype)
-        # bulleted reagent line (matches the original controlled record)
         _meta_row('Reagent Name:', obj.reagent_name,
-                  'Reagent No.:', obj.reagent_no, bullet=True)
+                  'Reagent No.:', obj.reagent_no)
         _meta_row('Concentration:', conc, 'Final Volume:', obj.final_volume)
         pdf.set_xy(10.0, pdf.get_y() + 3)
 
