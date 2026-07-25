@@ -942,25 +942,65 @@ def _make_reagent_pdf(location, records, draft=False):
             pdf.set_draw_color(0, 0, 0)
             pdf.ln(3)
 
-        def kv(label, value, w1=32, w2=64):
-            pdf.set_font(pdf.fam, 'B', 9)
-            pdf.cell(w1, 6, label, border=0)
-            pdf.set_font(pdf.fam, '', 9)
-            pdf.cell(w2, 6, pdf.t(value or '-'), border=0)
+        # ---- meta block -------------------------------------------------
+        # Four fixed columns placed with set_x() instead of cumulative cell
+        # widths, so every row starts at exactly the same x. The grid is
+        # anchored to the chemicals table below it (x = 10 … 202) and the
+        # bullet hangs to the left of the label column, which keeps the
+        # reagent-name row flush with the rows above and below it.
+        _MX_BULLET = 10.0    # hanging bullet
+        _MX_L_LAB = 15.0     # left label column
+        _MX_R_LAB = 100.0    # right label column (CAT Number table edge)
+        _MX_END = 202.0      # right edge of the chemicals table
 
-        kv('Month:', obj.month)
-        kv('Type:', obj.rtype, 24, 60)
-        pdf.ln(6)
-        # bulleted reagent line (matches the original controlled record)
         pdf.set_font(pdf.fam, 'B', 9)
-        pdf.cell(5, 6, '•' if pdf.fam == 'Calibri' else '-')
-        kv('Reagent Name:', obj.reagent_name, 30, 87)
-        kv('Reagent No.:', obj.reagent_no, 26, 34)
-        pdf.ln(6)
+        _lab_w = max(pdf.get_string_width(s) for s in (
+            'Month:', 'Reagent Name:', 'Concentration:',
+            'Type:', 'Reagent No.:', 'Final Volume:')) + 2.0
+        _mx_l_val = _MX_L_LAB + _lab_w
+        _mx_r_val = _MX_R_LAB + _lab_w
+        _mw_l_val = _MX_R_LAB - 3.0 - _mx_l_val   # 3 mm gutter before column 3
+        _mw_r_val = _MX_END - _mx_r_val
+        _ell = '…' if pdf.fam == 'Calibri' else '...'
+
+        def _meta_val(value, w):
+            """Fit a value to its column: shrink 9 -> 7 pt, then ellipsise."""
+            txt = pdf.t(value if (value not in (None, '')) else '-')
+            avail = w - 1.5
+            size = 9.0
+            pdf.set_font(pdf.fam, '', size)
+            while size > 7.0 and pdf.get_string_width(txt) > avail:
+                size -= 0.5
+                pdf.set_font(pdf.fam, '', size)
+            if pdf.get_string_width(txt) > avail:
+                while txt and pdf.get_string_width(txt + _ell) > avail:
+                    txt = txt[:-1]
+                txt += _ell
+            return txt
+
+        def _meta_row(l_lab, l_val, r_lab, r_val, bullet=False):
+            y = pdf.get_y()
+            if bullet:
+                pdf.set_font(pdf.fam, 'B', 9)
+                pdf.set_xy(_MX_BULLET, y)
+                pdf.cell(5, 6, '•' if pdf.fam == 'Calibri' else '-', border=0)
+            for x_lab, lab, x_val, w_val, val in (
+                    (_MX_L_LAB, l_lab, _mx_l_val, _mw_l_val, l_val),
+                    (_MX_R_LAB, r_lab, _mx_r_val, _mw_r_val, r_val)):
+                pdf.set_font(pdf.fam, 'B', 9)
+                pdf.set_xy(x_lab, y)
+                pdf.cell(_lab_w, 6, lab, border=0)
+                pdf.set_xy(x_val, y)
+                pdf.cell(w_val, 6, _meta_val(val, w_val), border=0)
+            pdf.set_xy(10.0, y + 6)
+
         conc = ((obj.conc_value + ' ' + obj.conc_unit).strip()) if (obj.conc_value or obj.conc_unit) else '-'
-        kv('Concentration:', conc, 32, 60)
-        kv('Final Volume:', obj.final_volume, 26, 40)
-        pdf.ln(9)
+        _meta_row('Month:', obj.month, 'Type:', obj.rtype)
+        # bulleted reagent line (matches the original controlled record)
+        _meta_row('Reagent Name:', obj.reagent_name,
+                  'Reagent No.:', obj.reagent_no, bullet=True)
+        _meta_row('Concentration:', conc, 'Final Volume:', obj.final_volume)
+        pdf.set_xy(10.0, pdf.get_y() + 3)
 
         # chemicals table — column labels match the original record exactly
         headers = [('S.#', 12), ('Chemical Name', 52), ('CAT Number', 26), ('LOT Number', 26),
