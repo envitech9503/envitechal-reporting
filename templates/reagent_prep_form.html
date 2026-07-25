@@ -130,6 +130,8 @@
         <div class="fld"><label>PS mass (g)</label><input id="s_ps_mass" oninput="calcStd()"></div>
         <div class="fld"><label>PS purity (%)</label><input id="s_ps_purity" value="100" oninput="calcStd()"></div>
         <div class="fld"><label>PS eq/mol wt</label><input id="s_ps_eqwt" oninput="calcStd()"></div>
+        <div class="fld"><label>Made up to (mL)</label><input id="s_vol_made" oninput="calcStd()" placeholder="blank if titrated whole"></div>
+        <div class="fld"><label>Aliquot titrated (mL)</label><input id="s_aliquot" oninput="calcStd()" placeholder="blank if titrated whole"></div>
         <div class="fld"><label>Titrant used (mL)</label><input id="s_titrant_ml" oninput="calcStd()"></div>
         <div class="fld"><label>Nominal strength</label><input id="s_nominal_N" oninput="calcStd()"></div>
         <div class="fld"><label>Unit</label><select id="s_unit" onchange="calcStd()"><option>N</option><option>M</option></select></div>
@@ -138,7 +140,11 @@
         <div class="fld"><label>Std date</label><input id="s_std_date" type="date"></div>
         <div class="fld"><label>Next due</label><input id="s_next_due" type="date"></div>
       </div>
-      <div class="note">True strength = (mass x purity/100) / (eq.wt x titrant_L); factor = true / nominal. Stored per selected location.</div>
+      <div class="note" id="s_msg" style="display:none;margin-top:8px;padding:8px 10px;border-radius:7px;background:#fdecea;border:1px solid #f5b7b1;color:#7b241c"></div>
+      <div class="note">meq of primary standard = mass &times; (purity/100) &divide; eq/mol wt &times; 1000. If the standard was made up to a
+        volume and only an aliquot titrated, enter <b>both</b> &ldquo;Made up to&rdquo; and &ldquo;Aliquot titrated&rdquo;; leave both blank if the whole
+        weighed mass was titrated. True strength = meq titrated &divide; titrant mL; factor = true &divide; nominal. Stored per selected location.
+        This is the same routine the Preparation Calculator uses &mdash; the two cannot disagree.</div>
     </div>
 
     <div class="sec hidden" id="stdHistSec" style="border-top:1px solid #eef2f6">
@@ -178,6 +184,10 @@
     </div>
   </div>
 </div>
+
+{# Canonical standardisation algorithm - the SAME file the calculator includes.
+   Defines window.ETAL_STD so this form and the calculator cannot disagree. #}
+{% include "_reagent_std_algo.html" %}
 
 <script>
 var RECORD = {{ record_json|safe }};
@@ -226,7 +236,23 @@ function delChem(b){b.closest('tr').remove();renumber();}
 function renumber(){var rows=el('chemBody').querySelectorAll('tr');rows.forEach(function(tr,i){tr.querySelector('.sno').textContent=i+1;});}
 function onChemName(inp){var tr=inp.closest('tr');var hit=invByName(inp.value);if(hit){if(!tr.querySelector('.c_cat').value)tr.querySelector('.c_cat').value=hit.cat||'';if(!tr.querySelector('.c_lot').value)tr.querySelector('.c_lot').value=hit.lot||'';if(!tr.querySelector('.c_make').value)tr.querySelector('.c_make').value=hit.make||'';if(!tr.querySelector('.c_exp').value)tr.querySelector('.c_exp').value=hit.expiry||'';tr.dataset.lot=hit.id||'';}}
 
-function calcStd(){var m=parseFloat(el('s_ps_mass').value),p=parseFloat(el('s_ps_purity').value),e=parseFloat(el('s_ps_eqwt').value),v=parseFloat(el('s_titrant_ml').value),nom=parseFloat(el('s_nominal_N').value);if(m>0&&e>0&&v>0){var pur=(p>0?p:100)/100;var trueN=(m*pur)/(e*(v/1000));el('s_true_N').value=trueN.toFixed(4);if(nom>0)el('s_factor').value=(trueN/nom).toFixed(4);}else{el('s_true_N').value='';el('s_factor').value='';}}
+// Standardisation is computed by the shared ETAL_STD routine (see the included
+// _reagent_std_algo.html) - NOT by a second copy of the arithmetic living here.
+// The form therefore honours the made-up-to / aliquot pair, rejects an
+// out-of-range purity, and formats identically to the Preparation Calculator.
+function stdMsg(t){var b=el('s_msg');if(!b)return;if(t){b.textContent=t;b.style.display='';}else{b.textContent='';b.style.display='none';}}
+function calcStd(){
+  var v=function(id){var e=el(id);return e?e.value:'';};
+  var tn=el('s_true_N'),fc=el('s_factor');
+  if(!tn||!window.ETAL_STD)return;
+  var r=ETAL_STD.standardise({mass:v('s_ps_mass'),purity:v('s_ps_purity'),eqwt:v('s_ps_eqwt'),
+    volMade:v('s_vol_made'),aliquot:v('s_aliquot'),titrant:v('s_titrant_ml'),
+    nominal:v('s_nominal_N'),unit:(v('s_unit')==='M'?'M':'N')});
+  if(!r.ok){tn.value='';if(fc)fc.value='';stdMsg(r.incomplete?'':(r.error||''));return;}
+  tn.value=r.N_s;
+  if(fc)fc.value=(r.factor===null?'':r.factor_s);
+  stdMsg('');
+}
 
 // ---- Calculator bridge (same-origin postMessage) ----
 function buildCtx(){var nm='';if(linkedRow!=null){var tr=el('chemBody').querySelectorAll('tr')[linkedRow];if(tr)nm=tr.querySelector('.c_name').value;}return {targetRow:linkedRow,chemName:nm,reagent_name:el('reagent_name').value,rtype:el('rtype').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,final_volume:el('final_volume').value,location:el('location').value};}
@@ -378,7 +404,7 @@ function applyViewOnly(){if(!VIEW_ONLY)return;el('voBanner').classList.remove('h
 function collect(){
   var chems=[];el('chemBody').querySelectorAll('tr').forEach(function(tr,i){var n=tr.querySelector('.c_name').value.trim();if(!n)return;chems.push({s_no:i+1,chemical_name:n,cat_no:tr.querySelector('.c_cat').value,lot_no:tr.querySelector('.c_lot').value,quantity:tr.querySelector('.c_qty').value,make:tr.querySelector('.c_make').value,expiry:tr.querySelector('.c_exp').value,chemical_lot:tr.dataset.lot||null});});
   var payload={id:RECORD?RECORD.id:null,client_updated_at:(RECORD&&RECORD.updated_at)||'',location:el('location').value,month:el('month').value,reagent_name:el('reagent_name').value,reagent_no:el('reagent_no').value,rtype:el('rtype').value,description:el('description').value,final_volume:el('final_volume').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,prepared_by:el('prepared_by').value,verified_by:el('verified_by').value,dop:el('dop').value,doe:el('doe').value,remarks:el('remarks').value,chemicals:chems};
-  if(el('rtype').value==='Standardised titrant'){payload.standardisation={location:el('location').value,primary_std:el('s_primary_std').value,ps_mass:el('s_ps_mass').value,ps_purity:el('s_ps_purity').value,ps_eqwt:el('s_ps_eqwt').value,titrant_ml:el('s_titrant_ml').value,nominal_N:el('s_nominal_N').value,true_N:el('s_true_N').value,factor:el('s_factor').value,unit:el('s_unit').value,std_date:el('s_std_date').value,next_due:el('s_next_due').value};}
+  if(el('rtype').value==='Standardised titrant'){payload.standardisation={location:el('location').value,primary_std:el('s_primary_std').value,ps_mass:el('s_ps_mass').value,ps_purity:el('s_ps_purity').value,ps_eqwt:el('s_ps_eqwt').value,vol_made:el('s_vol_made').value,aliquot:el('s_aliquot').value,titrant_ml:el('s_titrant_ml').value,nominal_N:el('s_nominal_N').value,true_N:el('s_true_N').value,factor:el('s_factor').value,unit:el('s_unit').value,std_date:el('s_std_date').value,next_due:el('s_next_due').value};}
   return payload;
 }
 
@@ -427,7 +453,7 @@ function resetForNew(){
   ['reagent_name','reagent_no','final_volume','conc_value','conc_unit','dop','doe','description','prepared_by','verified_by','remarks'].forEach(function(id){var e=el(id);if(e)e.value='';});
   el('rtype').value='Reagent';onType();
   el('chemBody').innerHTML='';addChem();addChem();
-  ['s_primary_std','s_ps_mass','s_ps_eqwt','s_titrant_ml','s_nominal_N','s_true_N','s_factor','s_std_date','s_next_due'].forEach(function(id){var e=el(id);if(e)e.value='';});
+  ['s_primary_std','s_ps_mass','s_ps_eqwt','s_vol_made','s_aliquot','s_titrant_ml','s_nominal_N','s_true_N','s_factor','s_std_date','s_next_due'].forEach(function(id){var e=el(id);if(e)e.value='';});
   var pp=el('s_ps_purity');if(pp)pp.value='100';
   el('modeTag').textContent='(new record)';setCrumb();renderPreview();
   el('reagent_name').focus();
@@ -441,7 +467,7 @@ function prefill(){
   el('conc_value').value=RECORD.conc_value||'';el('conc_unit').value=RECORD.conc_unit||'';el('dop').value=RECORD.dop||'';el('doe').value=RECORD.doe||'';
   el('description').value=RECORD.description||'';el('prepared_by').value=RECORD.prepared_by||'';el('verified_by').value=RECORD.verified_by||'';el('remarks').value=RECORD.remarks||'';
   (RECORD.chemicals||[]).forEach(function(c){addChem(c);});if(!(RECORD.chemicals||[]).length){addChem();}
-  var s=RECORD.standardisation;if(s){el('s_primary_std').value=s.primary_std||'';el('s_ps_mass').value=s.ps_mass||'';el('s_ps_purity').value=s.ps_purity||'100';el('s_ps_eqwt').value=s.ps_eqwt||'';el('s_titrant_ml').value=s.titrant_ml||'';el('s_nominal_N').value=s.nominal_N||'';el('s_unit').value=s.unit||'N';el('s_true_N').value=s.true_N||'';el('s_factor').value=s.factor||'';el('s_std_date').value=s.std_date||'';el('s_next_due').value=s.next_due||'';}
+  var s=RECORD.standardisation;if(s){el('s_primary_std').value=s.primary_std||'';el('s_ps_mass').value=s.ps_mass||'';el('s_ps_purity').value=s.ps_purity||'100';el('s_ps_eqwt').value=s.ps_eqwt||'';el('s_vol_made').value=s.vol_made||'';el('s_aliquot').value=s.aliquot||'';el('s_titrant_ml').value=s.titrant_ml||'';el('s_nominal_N').value=s.nominal_N||'';el('s_unit').value=s.unit||'N';el('s_true_N').value=s.true_N||'';el('s_factor').value=s.factor||'';el('s_std_date').value=s.std_date||'';el('s_next_due').value=s.next_due||'';}
   el('modeTag').textContent=RECORD.id?('(editing #'+RECORD.id+')'):'(clone - new record)';
 }
 

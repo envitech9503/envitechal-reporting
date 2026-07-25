@@ -68,7 +68,10 @@
         <option value="expired"{% if status == 'expired' %} selected{% endif %}>Expired</option>
       </select>
       <input type="text" name="q" value="{{ q }}" placeholder="Search reagent name / no. / chemical">
-      <input type="text" name="month" value="{{ month }}" placeholder="Month e.g. July 2026" style="width:150px">
+      <select name="month" title="Month of preparation &mdash; listed from the records actually on file" style="min-width:150px">
+        <option value="">All months</option>
+        {% for m in months %}<option value="{{ m }}"{% if month == m %} selected{% endif %}>{{ m }}</option>{% endfor %}
+      </select>
       <input type="hidden" name="sort" value="{{ sort }}">
       <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
       <button class="btn btn-p" type="submit" formaction="/qc/reagent_prep_month_pdf/" formtarget="_blank"

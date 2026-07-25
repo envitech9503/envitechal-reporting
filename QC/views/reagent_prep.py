@@ -242,12 +242,22 @@ def _maybe_log_std(obj, s, user):
                              last.primary_std, last.titrant_ml, last.nominal_N)
             if lastk == newk:
                 return  # unchanged since last log -> don't duplicate
-        _RSHist.objects.create(
+        kw = dict(
             prep=obj, location=s.location, primary_std=s.primary_std,
             ps_mass=s.ps_mass, ps_purity=s.ps_purity, ps_eqwt=s.ps_eqwt,
             titrant_ml=s.titrant_ml, nominal_N=s.nominal_N, true_N=s.true_N,
             factor=s.factor, unit=s.unit, std_date=s.std_date, next_due=s.next_due,
             recorded_by=(user if getattr(user, 'is_authenticated', False) else None))
+        # made-up-to / aliquot are part of the raw working and must travel with the
+        # event so a logged standardisation can always be recomputed from what was
+        # actually weighed and titrated. Guarded so the log still writes on an
+        # installation whose migration has not yet been applied.
+        _hf = {f.name for f in _RSHist._meta.get_fields() if hasattr(f, 'attname')}
+        if 'vol_made' in _hf:
+            kw['vol_made'] = getattr(s, 'vol_made', None)
+        if 'aliquot' in _hf:
+            kw['aliquot'] = getattr(s, 'aliquot', None)
+        _RSHist.objects.create(**kw)
     except Exception:
         pass
 
@@ -283,7 +293,9 @@ def _record_json(obj):
         s = obj.standardisation
         std = {
             'location': s.location, 'primary_std': s.primary_std, 'ps_mass': s.ps_mass,
-            'ps_purity': s.ps_purity, 'ps_eqwt': s.ps_eqwt, 'titrant_ml': s.titrant_ml,
+            'ps_purity': s.ps_purity, 'ps_eqwt': s.ps_eqwt,
+            'vol_made': getattr(s, 'vol_made', None), 'aliquot': getattr(s, 'aliquot', None),
+            'titrant_ml': s.titrant_ml,
             'nominal_N': s.nominal_N, 'true_N': s.true_N, 'factor': s.factor, 'unit': s.unit,
             'std_date': s.std_date.strftime('%Y-%m-%d') if s.std_date else '',
             'next_due': s.next_due.strftime('%Y-%m-%d') if s.next_due else '',
@@ -505,6 +517,11 @@ def reagent_prep_save(request):
             s.ps_mass = _f(std.get('ps_mass'))
             s.ps_purity = _f(std.get('ps_purity'))
             s.ps_eqwt = _f(std.get('ps_eqwt'))
+            # aliquot pair: only meaningful together, so store both or neither.
+            _vm, _al = _f(std.get('vol_made')), _f(std.get('aliquot'))
+            if _vm is None or _al is None:
+                _vm = _al = None
+            s.vol_made, s.aliquot = _vm, _al
             s.titrant_ml = _f(std.get('titrant_ml'))
             s.nominal_N = _f(std.get('nominal_N'))
             s.true_N = _f(std.get('true_N'))
@@ -620,6 +637,58 @@ def reagent_prep_delete(request):
     return _redirect('%s%sdeleted=%d' % (nxt, sep, pk))
 
 
+_MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December']
+
+
+def _month_key(s):
+    """Chronological sort key for a stored free-text month label.
+    Understands 'July 2026', 'Jul 2026', '07-2026' and '2026-07'; anything
+    unparseable sorts last so it is still offered, just at the bottom."""
+    t = (s or '').strip()
+    m = _re.match(r'^([A-Za-z]+)\s+(\d{4})$', t)
+    if m:
+        pre = m.group(1).lower()[:3]
+        for i, full in enumerate(_MONTH_NAMES):
+            if full.lower().startswith(pre):
+                return (int(m.group(2)), i + 1)
+    m = _re.match(r'^(\d{1,2})[-/](\d{4})$', t)
+    if m and 1 <= int(m.group(1)) <= 12:
+        return (int(m.group(2)), int(m.group(1)))
+    m = _re.match(r'^(\d{4})[-/](\d{1,2})$', t)
+    if m and 1 <= int(m.group(2)) <= 12:
+        return (int(m.group(1)), int(m.group(2)))
+    return (0, 0)
+
+
+def _month_filter(qs, month):
+    """Tolerant match against the stored free-text month field. Exact label
+    first, then a substring match, then the canonical 'July 2026' form derived
+    from a numeric entry such as 07-2026 arriving from an old bookmark."""
+    t = (month or '').strip()
+    if not t:
+        return qs
+    cond = _Q(month__iexact=t) | _Q(month__icontains=t)
+    y, mo = _month_key(t)
+    if y and mo:
+        cond = cond | _Q(month__iexact='%s %d' % (_MONTH_NAMES[mo - 1], y))
+    return qs.filter(cond)
+
+
+def _month_choices(loc, current=''):
+    """Distinct month labels actually present in the records, newest first,
+    so the filter can only ever offer a value that will match something."""
+    base = ReagentPrep.objects.all()
+    if loc in _LOCS:
+        base = base.filter(location=loc)
+    vals = set((v or '').strip() for v in base.values_list('month', flat=True))
+    vals.discard('')
+    cur = (current or '').strip()
+    if cur:
+        vals.add(cur)
+    return sorted(vals, key=lambda s: (_month_key(s), s), reverse=True)
+
+
 def reagent_prep_list(request):
     loc = request.GET.get('location') or 'All'
     q = (request.GET.get('q') or '').strip()
@@ -637,8 +706,7 @@ def reagent_prep_list(request):
     qs = ReagentPrep.objects.all()
     if loc in _LOCS:
         qs = qs.filter(location=loc)
-    if month:
-        qs = qs.filter(month__icontains=month)
+    qs = _month_filter(qs, month)
     if q:
         qs = qs.filter(
             _Q(reagent_name__icontains=q) |
@@ -666,6 +734,7 @@ def reagent_prep_list(request):
                      'verified': _is_verified(o)})
     return render(request, 'reagent_prep_list.html', {
         'list': rows, 'location': loc, 'q': q, 'month': month, 'status': status,
+        'months': _month_choices(loc, month),
         'sort': sort, 'locations': _LOCS, 'total': total, 'page': page,
         'pages': pages, 'has_prev': page > 1, 'has_next': page < pages,
         'prev_page': page - 1, 'next_page': page + 1,
@@ -677,16 +746,41 @@ def reagent_prep_list(request):
 @_xframe_sameorigin
 def reagent_prep_calculator(request):
     """Standalone fully-loaded calculator, embedded in the form via iframe.
-    Served raw (not through the template engine) so the calculator's own JS
-    braces are never parsed as Django template tags. xframe_sameorigin lets the
-    same-origin iframe render it (site default is X-Frame-Options: DENY)."""
-    for p in ('templates/reagent_calc_tool.html',
-              _os.path.join(_os.path.dirname(__file__), '..', '..', 'templates', 'reagent_calc_tool.html')):
+
+    Rendered through the template engine so that (a) the document-control
+    numbers shown on the calculator are read from InventoryDocControl instead
+    of being hard-coded in the asset, and (b) the canonical standardisation
+    algorithm can be shared with the preparation form via {% include %}.  The
+    calculator's own JS/CSS braces are protected by {% verbatim %} blocks in
+    the template, so nothing inside the tool is parsed as template syntax.
+    xframe_options_sameorigin lets the same-origin iframe render it (the site
+    default is X-Frame-Options: DENY).
+
+    Falls back to a raw read (with the verbatim markers stripped) if template
+    rendering is unavailable for any reason, so the tool degrades to a working
+    calculator rather than to an error page."""
+    ctx = {'doc_json': _safe_json({loc: _docctrl_data(loc) for loc in _LOCS})}
+    try:
+        return render(request, 'reagent_calc_tool.html', ctx)
+    except Exception:
+        pass
+    roots = ('templates',
+             _os.path.join(_os.path.dirname(__file__), '..', '..', 'templates'))
+    for root in roots:
         try:
-            with open(p, encoding='utf-8') as fh:
-                return HttpResponse(fh.read())
+            with open(_os.path.join(root, 'reagent_calc_tool.html'), encoding='utf-8') as fh:
+                body = fh.read()
         except Exception:
             continue
+        try:
+            with open(_os.path.join(root, '_reagent_std_algo.html'), encoding='utf-8') as fh:
+                algo = fh.read()
+        except Exception:
+            algo = ''
+        body = body.replace('{% include "_reagent_std_algo.html" %}', algo)
+        body = body.replace('{{ doc_json|safe }}', str(ctx['doc_json']))
+        body = body.replace('{% verbatim %}', '').replace('{% endverbatim %}', '')
+        return HttpResponse(body)
     return HttpResponse('<p>Calculator asset not found.</p>', status=404)
 
 
@@ -991,9 +1085,7 @@ def reagent_prep_month_pdf(request):
         return HttpResponse('Select Karachi or Lahore to print the monthly record.', status=400)
     month = (request.GET.get('month') or '').strip()
     q = (request.GET.get('q') or '').strip()
-    qs = ReagentPrep.objects.filter(location=loc)
-    if month:
-        qs = qs.filter(month__icontains=month)
+    qs = _month_filter(ReagentPrep.objects.filter(location=loc), month)
     if q:
         qs = qs.filter(
             _Q(reagent_name__icontains=q) |
@@ -1001,7 +1093,8 @@ def reagent_prep_month_pdf(request):
             _Q(chemicals__chemical_name__icontains=q)).distinct()
     records = list(qs.order_by('reagent_no', 'created_at')[:500])
     if not records:
-        return HttpResponse('No preparation records match for %s.' % loc, status=404)
+        return HttpResponse('No preparation records match for %s%s.' % (
+            loc, (' in ' + month) if month else ''), status=404)
     pdf = _make_reagent_pdf(loc, records)
     safe_m = ''.join(ch for ch in month if ch.isalnum()) or 'all'
     return _pdf_response(pdf, 'ReagentPrep_%s_%s.pdf' % (loc, safe_m))

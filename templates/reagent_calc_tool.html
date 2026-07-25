@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% verbatim %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -82,15 +82,18 @@
         <option value="Lahore">Lahore</option>
       </select>
     </div>
-    <div class="ctrlno">Control No:<br/><b id="ctrlNo">ETAL-LAB-###-FF-##</b></div>
+    <div class="ctrlno">Control No:<br/><b id="ctrlNo">—</b></div>
   </div>
 </header>
 
 <div class="wrap">
   <div id="insertBar" style="display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--accent);color:#fff;padding:9px 13px;border-radius:9px;margin-bottom:12px">
     <span style="font-size:12.5px">Linked to the preparation form — <b id="insLink">record</b>. Compute a value, then insert it.</span>
-    <button class="btn" style="background:#fff;color:var(--accent)" onclick="insertToForm()">➜ Insert result into form</button>
+    <button class="btn" id="insBtn" style="background:#fff;color:var(--accent)" onclick="insertToForm()">➜ Insert result into form</button>
   </div>
+  <!-- Anything the incoming context could not be applied cleanly is reported
+       here rather than being silently dropped. -->
+  <div id="ctxWarn" class="warnbox" style="display:none;margin-bottom:12px"></div>
   <div class="tabs" id="tabs"></div>
   <div class="grid">
     <div id="panel" class="card"></div>
@@ -102,7 +105,7 @@
       <div class="rec" id="rec">
         <div class="rechead">
           <div><b>REAGENT PREPARATION RECORD</b><br/><span style="font-size:11px;color:var(--muted)">Envi Tech AL — <span id="recLoc">Karachi</span></span></div>
-          <div style="text-align:right;font-size:11px;color:var(--muted)">Doc: <b id="recCtrl">ETAL-LAB-###-FF-##</b><br/>Month: <span id="recMonth"></span></div>
+          <div style="text-align:right;font-size:11px;color:var(--muted)">Doc: <b id="recCtrl">—</b><br/>Month: <span id="recMonth"></span><br/><span id="recDocMeta" style="font-size:10.5px"></span></div>
         </div>
         <div class="row">
           <div><label style="margin:2px 0">Reagent Name</label><div class="line" id="recName">—</div></div>
@@ -128,14 +131,47 @@
   <div class="foot">Envi Tech AL — Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi 75900, Pakistan · info@envitechal.com · Calculation aid; always verify against the method and record on the controlled form.</div>
 </div>
 
+{% endverbatim %}
+<!-- Document-control registry for this module, served from InventoryDocControl.
+     The calculator must never invent a control number. -->
+<script id="etalDoc" type="application/json">{{ doc_json|safe }}</script>
+{% include "_reagent_std_algo.html" %}
+{% verbatim %}
 <script>
-/* ---------- location control numbers (office-editable in the real module via InventoryDocControl) ---------- */
-const CTRL = { Karachi:"ETAL-LAB-708-RP-01", Lahore:"ETAL-LAB-709-RP-01" }; // placeholders; office sets real per-lab numbers
-function updLoc(){const l=document.getElementById('loc').value;document.getElementById('ctrlNo').textContent=CTRL[l];document.getElementById('recCtrl').textContent=CTRL[l];document.getElementById('recLoc').textContent=l;}
-function num(id){const v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
-function val(id){return document.getElementById(id).value;}
-function fmt(x,d=4){if(x===null||!isFinite(x))return'—';let s=Math.abs(x)>=1000?x.toFixed(2):x.toPrecision(d);return parseFloat(s).toString();}
-function today(){return new Date().toISOString().slice(0,10);}
+/* ---------- location control numbers, read from the live document-control registry ---------- */
+var ETAL_DOC=(function(){try{var el=document.getElementById('etalDoc');if(!el)return{};var t=(el.textContent||'').trim();if(!t)return{};var o=JSON.parse(t);return (o&&typeof o==='object')?o:{};}catch(_){return{};}})();
+function ctrlFor(loc){var d=ETAL_DOC[loc];return (d&&d.doc_no)?d.doc_no:'—';}
+var CTRL=(function(){var o={};for(var k in ETAL_DOC){if(Object.prototype.hasOwnProperty.call(ETAL_DOC,k))o[k]=ctrlFor(k);}return o;})();
+function docMeta(loc){var d=ETAL_DOC[loc]||{};var b=[];if(d.issue_no)b.push('Issue No. '+d.issue_no);if(d.rev_no!==undefined&&d.rev_no!==null&&d.rev_no!=='')b.push('Rev. No. '+d.rev_no);if(d.issue_date)b.push('Issue Date '+d.issue_date);return b.join(' · ');}
+function updLoc(){var l=document.getElementById('loc').value;var c=ctrlFor(l);
+ document.getElementById('ctrlNo').textContent=c;document.getElementById('recCtrl').textContent=c;document.getElementById('recLoc').textContent=l;
+ var m=document.getElementById('recDocMeta');if(m)m.textContent=docMeta(l);
+ if(typeof calcStd==='function'&&cur==='stand')calcStd();}
+function num(id){var e=document.getElementById(id);if(!e)return null;var s=(e.value===undefined?'':String(e.value)).trim();if(s==='')return null;var v=parseFloat(s);return isNaN(v)||!isFinite(v)?null:v;}
+function val(id){var e=document.getElementById(id);return e?e.value:'';}
+
+/* ---------- number presentation (precision-grade: fixed decimals, no exponent,
+     decimals chosen from magnitude so a weighing instruction always shows the
+     digits the balance can actually deliver) ---------- */
+function fmt(x){if(x===null||x===undefined||!isFinite(x))return'—';var a=Math.abs(x);
+ var d=a>=1000?1:a>=100?2:a>=1?3:a>=0.1?4:a>=0.01?5:6;return x.toFixed(d);}
+function fmtMass(x){if(x===null||x===undefined||!isFinite(x))return'—';var a=Math.abs(x);
+ var d=a>=1000?1:a>=100?2:a>=10?3:a>=0.01?4:6;return x.toFixed(d);}
+function fmtVol(x){if(x===null||x===undefined||!isFinite(x))return'—';var a=Math.abs(x);
+ var d=a>=1000?1:a>=100?2:a>=1?2:a>=0.01?3:4;return x.toFixed(d);}
+function fmtN(x){return (window.ETAL_STD&&ETAL_STD.fmtN)?ETAL_STD.fmtN(x):fmt(x);}
+
+/* ---------- dates: Pakistan Standard Time (UTC+5, no DST) ----------
+   ISO is used on the wire because the parent form's D.O.P./D.O.E. are
+   <input type="date">; dd-mm-yyyy is used for anything an analyst reads. */
+function _pkNow(){var d=new Date();return new Date(d.getTime()+d.getTimezoneOffset()*60000+5*3600000);}
+function _iso(d){var p=function(v){return (v<10?'0':'')+v;};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function today(){return _iso(_pkNow());}
+function todayPlusDays(n){var d=_pkNow();d.setDate(d.getDate()+n);return _iso(d);}
+function todayPlusYears(n){var d=_pkNow();d.setFullYear(d.getFullYear()+n);return _iso(d);}
+function dmy(iso){if(!iso)return'';var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?(m[3]+'-'+m[2]+'-'+m[1]):String(iso);}
+var _MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthLabel(){var d=_pkNow();return _MONTHS[d.getMonth()]+' '+d.getFullYear();}
 
 /* ---------- reagent library (water-lab essentials) ---------- */
 const LIB=[
@@ -159,6 +195,30 @@ const LIB=[
  {n:"Ammonium chloride",f:"NH₄Cl",mw:53.49,el:"N",elmw:14.007,cat:"Ammonia-N standard",recipe:"3.819 g → 1 L = 1000 mg/L NH₃-N (factor 3.819)."},
 ];
 
+/* ---------- element / ion atomic & equivalent weights (IUPAC 2021 masses) ----------
+   Used by the "expressed-as-element" standards and by the converter species
+   picker, so the two can never disagree. */
+const SPECIES={
+ "Ca²⁺"    :{mw:40.078,  eq:20.039},
+ "Mg²⁺"    :{mw:24.305,  eq:12.1525},
+ "Na⁺"     :{mw:22.990,  eq:22.990},
+ "K⁺"      :{mw:39.098,  eq:39.098},
+ "Cl⁻"     :{mw:35.453,  eq:35.453},
+ "HCO₃⁻"   :{mw:61.016,  eq:61.016},
+ "CO₃²⁻"   :{mw:60.008,  eq:30.004},
+ "SO₄²⁻"   :{mw:96.06,   eq:48.03},
+ "NO₃⁻"    :{mw:62.004,  eq:62.004},
+ "NH₄⁺"    :{mw:18.039,  eq:18.039},
+ "OH⁻"     :{mw:17.007,  eq:17.007},
+ "PO₄³⁻"   :{mw:94.971,  eq:31.657},
+ "F⁻"      :{mw:18.998,  eq:18.998},
+ "Fe³⁺"    :{mw:55.845,  eq:18.615},
+ "Mn²⁺"    :{mw:54.938,  eq:27.469},
+ "CaCO₃"   :{mw:100.09,  eq:50.045}
+};
+const ELEM={N:14.007,P:30.974,S:32.06,C:12.011,Cl:35.453,F:18.998,Na:22.990,K:39.098,
+            Ca:40.078,Mg:24.305,Fe:55.845,Mn:54.938,Cu:63.546,Zn:65.38,Cr:51.996,Ni:58.693,Pb:207.2,Cd:112.414};
+
 /* ---------- tabs ---------- */
 const TABS=[
  {id:"solid",t:"Weigh &amp; Dissolve (solid)"},
@@ -171,16 +231,44 @@ const TABS=[
 ];
 let cur="solid";
 function drawTabs(){const c=document.getElementById('tabs');c.innerHTML=TABS.map(x=>`<button class="${x.id===cur?'active':''}" onclick="go('${x.id}')">${x.t}</button>`).join('');}
-function go(id){cur=id;drawTabs();PANELS[id]();}
+function go(id){cur=id;drawTabs();PANELS[id]();syncTransfer();}
+
+/* ---------- held results: a stale figure must never be transferable ----------
+   Every calculation either stores a fresh result for its own tab or clears it,
+   and syncTransfer() then enables/disables the Insert and Fill controls, so a
+   value left over from an earlier, now-invalid entry cannot reach a controlled
+   record. */
+var RES={solid:null,dilute:null,series:null,stand:null,pct:null};
+function setRes(tab,v){
+  RES[tab]=v||null;
+  window._solid=RES.solid;window._dil=RES.dilute;window._ser=RES.series;
+  window._std=RES.stand;window._pct=RES.pct;
+  syncTransfer();
+}
+function syncTransfer(){
+  var ok=!!RES[cur];
+  var ins=document.getElementById('insBtn');
+  if(ins){ins.disabled=!ok;ins.style.opacity=ok?'1':'.5';ins.style.cursor=ok?'pointer':'not-allowed';
+    ins.title=ok?'Insert the computed result into the preparation form':'Compute a valid result on this tab first.';}
+  var fills=document.querySelectorAll('button[data-fill]');
+  for(var i=0;i<fills.length;i++){var b=fills[i];
+    b.disabled=!ok;b.style.opacity=ok?'1':'.5';b.style.cursor=ok?'pointer':'not-allowed';
+    b.title=ok?'Fill the preparation record from this calculation':'Compute a valid result on this tab first.';}
+}
+/* Output-pane states: a hard validation failure is a visible warning, an
+   as-yet-incomplete entry is a quiet prompt.  Neither leaves a result held. */
+function outWarn(o,msg){o.innerHTML='<div class="warnbox" style="margin-top:0"><b>Cannot compute &mdash;</b> '+msg+'</div>';}
+function outAsk(o,msg){o.innerHTML='<span style="color:var(--muted)">'+msg+'</span>';}
 
 /* ---------- record helpers ---------- */
 function setRec(o){
-  document.getElementById('recMonth').textContent=o.month||new Date().toLocaleString('en-GB',{month:'short',year:'2-digit'});
+  document.getElementById('recMonth').textContent=o.month||monthLabel();
   document.getElementById('recName').textContent=o.name||'—';
   document.getElementById('recNo').textContent=o.no||'—';
   document.getElementById('recDesc').textContent=o.desc||'—';
-  document.getElementById('recDop').textContent=o.dop||today();
-  document.getElementById('recDoe').textContent=o.doe||'—';
+  /* dates travel ISO (parent uses <input type="date">) but are READ dd-mm-yyyy */
+  document.getElementById('recDop').textContent=dmy(o.dop||today());
+  document.getElementById('recDoe').textContent=o.doe?dmy(o.doe):'—';
   if(o.chem){clearChemRows();o.chem.forEach(c=>addChemRow(c));}
   document.getElementById('recFactor').innerHTML=o.factor?`<div class="warnbox"><b>Standardisation factor (${document.getElementById('loc').value}):</b> ${o.factor}</div>`:'';
 }
@@ -229,44 +317,65 @@ PANELS.solid=function(){
     <div><label>Equiv. weight (for N)</label><input id="s_eq" type="number" step="any" oninput="calcSolid()"/><div class="hint">= MW ÷ n (H⁺/OH⁻/e⁻/charge)</div></div>
     <div><label>Assay / purity (%)</label><input id="s_pur" type="number" step="any" value="100" oninput="calcSolid()"/></div>
   </div>
-  <div class="row">
+  <div class="row3">
     <div><label>Salt MW (for "as element")</label><input id="s_saltmw" type="number" step="any" oninput="calcSolid()" placeholder="salt formula wt"/></div>
+    <div><label>Element / ion</label><select class="f" id="s_el" onchange="pickElem()"><option value="">— choose —</option>${Object.keys(ELEM).map(k=>`<option value="${k}">${k} (${ELEM[k]})</option>`).join('')}</select></div>
     <div><label>Element/ion MW</label><input id="s_elmw" type="number" step="any" oninput="calcSolid()" placeholder="e.g. N=14.007"/></div>
   </div>
   <div class="out" id="s_out"></div>
-  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_solid()">➜ Fill preparation record</button></div>`;
+  <div class="flex" style="margin-top:10px"><button class="btn" data-fill="solid" onclick="toRec_solid()">➜ Fill preparation record</button></div>`;
  calcSolid();
 };
+function pickElem(){var k=val('s_el');if(k&&ELEM[k]!==undefined){document.getElementById('s_elmw').value=ELEM[k];}calcSolid();}
+/* M-5: every field the library owns is cleared before it is repopulated, so a
+   plain salt selected after an "expressed-as-element" salt cannot inherit the
+   previous entry's salt-MW / element-MW pair. */
 function loadSolid(){const i=val('s_lib');if(i==='')return;const x=LIB.filter(y=>!y.liquid)[i];
  document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';
- if(x.el){document.getElementById('s_saltmw').value=x.mw;document.getElementById('s_elmw').value=x.elmw;}
+ document.getElementById('s_saltmw').value='';document.getElementById('s_elmw').value='';
+ var es=document.getElementById('s_el');if(es)es.value='';
+ var us=document.getElementById('s_unit');
+ if(x.el){document.getElementById('s_saltmw').value=x.mw;document.getElementById('s_elmw').value=x.elmw;
+   if(es&&ELEM[x.el]!==undefined)es.value=x.el;
+   if(us&&(us.value==='N'||us.value==='M'))us.value='ppmEl';}
  calcSolid();}
 function calcSolid(){
- const conc=num('s_conc'),vol=num('s_vol'),volu=parseFloat(val('s_volu')),mw=num('s_mw'),eq=num('s_eq'),pur=num('s_pur')||100,unit=val('s_unit');
+ const conc=num('s_conc'),vol=num('s_vol'),volu=parseFloat(val('s_volu')),mw=num('s_mw'),eq=num('s_eq'),purIn=num('s_pur'),unit=val('s_unit');
+ const o=document.getElementById('s_out');
+ /* L-5: blank assay means "not stated" = 100 %.  An entered 0 % (or a negative,
+    or >100 %) is an error, never a silent fall-back to 100 %. */
+ if(purIn!==null&&(purIn<=0||purIn>100)){setRes('solid',null);
+   outWarn(o,'assay / purity must be greater than 0 % and not more than 100 %. A reagent of 0 % assay contains none of the substance, so no weighable mass exists.');return;}
+ const pur=(purIn===null)?100:purIn;
  const VL=(vol!==null)?vol/volu:null; let mass=null,formula='',expl=[];
+ if(vol!==null&&vol<=0){setRes('solid',null);outWarn(o,'the final volume must be greater than zero.');return;}
+ if(conc!==null&&conc<0){setRes('solid',null);outWarn(o,'the target concentration cannot be negative.');return;}
  if(conc!==null&&VL!==null){
    if(unit==='N'&&eq){mass=conc*eq*VL;formula=`mass = N × Eq.wt × V(L) = ${conc} × ${eq} × ${fmt(VL)}`;}
    else if(unit==='M'&&mw){mass=conc*mw*VL;formula=`mass = M × MW × V(L) = ${conc} × ${mw} × ${fmt(VL)}`;}
    else if(unit==='pw'){mass=conc/100*VL*1000;formula=`mass = (% ÷ 100) × V(mL) = (${conc}/100) × ${fmt(VL*1000)}`;}
    else if(unit==='gL'){mass=conc*VL;formula=`mass = g/L × V(L) = ${conc} × ${fmt(VL)}`;}
    else if(unit==='ppm'){mass=conc*VL/1000;formula=`mass = ppm × V(L) ÷ 1000 = ${conc} × ${fmt(VL)} / 1000`;}
-   else if(unit==='ppmEl'){const smw=num('s_saltmw'),elmw=num('s_elmw');if(smw&&elmw){const gf=smw/elmw;mass=conc*VL/1000*gf;formula=`gravimetric factor = salt MW / element MW = ${smw}/${elmw} = ${fmt(gf)}\nmass = ppm × V(L)/1000 × factor`;expl.push(`Gravimetric factor ${fmt(gf)} (weigh this much salt to deliver the ion).`);}}
+   else if(unit==='ppmEl'){const smw=num('s_saltmw'),elmw=num('s_elmw');
+     if(smw!==null&&elmw!==null&&smw>0&&elmw>0){const gf=smw/elmw;mass=conc*VL/1000*gf;
+       formula=`gravimetric factor = salt MW ÷ element MW = ${smw} ÷ ${elmw} = ${fmt(gf)}\nmass = ppm × V(L) ÷ 1000 × factor`;
+       expl.push(`Gravimetric factor ${fmt(gf)} — weigh this much salt to deliver the stated mass of the ion.`);}}
  }
- let massP=(mass!==null&&pur)?mass*100/pur:mass;
- if(pur&&pur!==100&&mass!==null)expl.push(`Assay ${pur}% → weigh ${fmt(massP)} g of reagent to get ${fmt(mass)} g pure.`);
- const o=document.getElementById('s_out');
- if(massP===null){o.innerHTML='<span style="color:var(--muted)">Enter concentration, volume and MW/Eq.wt…</span>';return;}
+ let massP=(mass!==null)?mass*100/pur:null;
+ if(pur!==100&&mass!==null)expl.push(`Assay ${pur} % → weigh ${fmtMass(massP)} g of reagent to obtain ${fmtMass(mass)} g of pure substance.`);
+ if(massP===null){setRes('solid',null);
+   outAsk(o,unit==='ppmEl'?'Enter concentration, volume, salt MW and element MW…':'Enter concentration, volume and MW/Eq.wt…');return;}
  const g=massP, mg=massP*1000;
- o.innerHTML=`<div class="big">${fmt(g)} <small>g</small> ${g<1?`<span class="tag">= ${fmt(mg)} mg</span>`:''}</div>
-   <div class="formula">${formula}${pur&&pur!==100?`\n→ ÷ (assay/100) = ÷ ${(pur/100)}`:''}</div>
+ o.innerHTML=`<div class="big">${fmtMass(g)} <small>g</small> ${g<1?`<span class="tag">= ${fmt(mg)} mg</span>`:''}</div>
+   <div class="formula">${formula}${pur!==100?`\n→ ÷ (assay ÷ 100) = ÷ ${(pur/100)}`:''}</div>
    ${expl.length?`<ul>${expl.map(e=>`<li>${e}</li>`).join('')}</ul>`:''}
-   <div style="margin-top:8px;font-size:12.5px;color:var(--muted)">Dissolve in DI/DW water and make up to <b>${fmt(vol)} ${volu===1?'L':'mL'}</b>.</div>`;
- window._solid={g:fmt(g),vol,volu};
+   <div style="margin-top:8px;font-size:12.5px;color:var(--muted)">Dissolve in DI/DW water and make up to <b>${fmtVol(vol)} ${volu===1?'L':'mL'}</b>.</div>`;
+ setRes('solid',{g:fmtMass(g),vol,volu});
 }
-function toRec_solid(){const g=window._solid?window._solid.g:'';const vol=val('s_vol'),volu=val('s_volu')==='1'?'L':'mL';
- const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
+function toRec_solid(){if(!RES.solid){alert('Compute a valid mass first, then fill the record.');return;}
+ const g=RES.solid.g;const vol=val('s_vol'),volu=val('s_volu')==='1'?'L':'mL';
  pushRecord({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`,
-   chem:[{name:val('s_name')||'',qty:g+' g'}],dop,doe:d.toISOString().slice(0,10)});
+   chem:[{name:val('s_name')||'',qty:g+' g'}],dop:today(),doe:todayPlusYears(1)});
 }
 
 PANELS.dilute=function(){
@@ -279,7 +388,7 @@ PANELS.dilute=function(){
   <div class="row3">
     <div><label>Target strength (C₂)</label><input id="d_c2" type="number" step="any" oninput="calcDil()"/></div>
     <div><label>Target volume (V₂)</label><input id="d_v2" type="number" step="any" oninput="calcDil()" placeholder="mL"/></div>
-    <div><label>Unit (same for C₁,C₂)</label><select class="f" id="d_u"><option>N</option><option>M</option><option>%</option><option>ppm</option></select></div>
+    <div><label>Unit (same for C₁,C₂)</label><select class="f" id="d_u" onchange="calcDil()"><option>N</option><option>M</option><option>%</option><option>ppm</option><option>g/L</option><option>mg/L</option></select></div>
   </div>
   <div class="out" id="d_out"></div>
   <hr style="border:none;border-top:1px dashed var(--line);margin:14px 0"/>
@@ -290,20 +399,39 @@ PANELS.dilute=function(){
     <div><label>MW / Eq.wt</label><input id="d_mw" type="number" step="any" value="98.08" oninput="calcAcid()"/></div>
   </div>
   <div class="out" id="d_acid"></div>
-  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_dil()">➜ Fill preparation record</button></div>`;
+  <div class="flex" style="margin-top:10px"><button class="btn" data-fill="dilute" onclick="toRec_dil()">➜ Fill preparation record</button></div>`;
  calcDil();calcAcid();
 };
-function calcDil(){const c1=num('d_c1'),c2=num('d_c2'),v2=num('d_v2'),o=document.getElementById('d_out');
- if(c1&&c2&&v2){const v1=c2*v2/c1;window._dil={v1:fmt(v1),v2,name:''};
-   o.innerHTML=`<div class="big">${fmt(v1)} <small>mL of stock</small></div>
-   <div class="formula">V₁ = C₂V₂ / C₁ = (${c2} × ${v2}) / ${c1}</div>
-   <div style="margin-top:8px;color:var(--muted);font-size:12.5px">Take <b>${fmt(v1)} mL</b> of stock, add to water and make up to <b>${v2} mL</b>. Dilution factor ≈ <b>${fmt(c1/c2)}×</b>.</div>`;}
- else o.innerHTML='<span style="color:var(--muted)">Enter C₁, C₂ and V₂…</span>';}
+function calcDil(){const c1=num('d_c1'),c2=num('d_c2'),v2=num('d_v2'),u=val('d_u')||'',o=document.getElementById('d_out');
+ if(c1===null||c2===null||v2===null){setRes('dilute',null);outAsk(o,'Enter C₁, C₂ and V₂…');return;}
+ if(c1<=0||c2<=0||v2<=0){setRes('dilute',null);outWarn(o,'stock strength, target strength and target volume must all be greater than zero.');return;}
+ /* L-3: a target stronger than the stock is not a dilution.  The figure is not
+    merely flagged — it is withheld, so it cannot be transferred to a record. */
+ if(c2>c1){setRes('dilute',null);
+   o.innerHTML=`<div class="warnbox" style="margin-top:0;background:#fdecea;border-color:#f5b7b1;color:#7b241c">
+     <b>Not a dilution.</b> The target strength (C₂ = ${c2} ${u}) is greater than the stock strength (C₁ = ${c1} ${u}).
+     A solution cannot be made stronger by adding diluent — this requires a stronger stock, or evaporation/re-standardisation.
+     No volume has been calculated and nothing can be transferred to the preparation record.</div>`;
+   return;}
+ const v1=c2*v2/c1;
+ setRes('dilute',{v1:fmtVol(v1),v2,u,name:val('d_name')||''});
+ o.innerHTML=`<div class="big">${fmtVol(v1)} <small>mL of stock (${u})</small></div>
+   <div class="formula">V₁ = C₂V₂ ÷ C₁ = (${c2} ${u} × ${v2} mL) ÷ ${c1} ${u} = ${fmtVol(v1)} mL</div>
+   <div style="margin-top:8px;color:var(--muted);font-size:12.5px">Take <b>${fmtVol(v1)} mL</b> of the ${c1} ${u} stock, add to water and make up to <b>${v2} mL</b> to give <b>${c2} ${u}</b>. Dilution factor ≈ <b>${fmt(c1/c2)}×</b>. Diluent required ≈ <b>${fmtVol(v2-v1)} mL</b>.</div>`;}
 function calcAcid(){const a=num('d_as'),sg=num('d_sg'),mw=num('d_mw'),o=document.getElementById('d_acid');
- if(a&&sg&&mw){const s=10*a*sg/mw;o.innerHTML=`<div class="big">${fmt(s)} <small>N or M</small></div><div class="formula">= (10 × ${a} × ${sg}) / ${mw}</div><div class="hint" style="margin-top:6px">Use this as C₁ above. (Use MW→Molarity, Eq.wt→Normality.)</div>`;}
- else o.innerHTML='';}
-function toRec_dil(){const v1=window._dil?window._dil.v1:'';const v2=val('d_v2');const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
- pushRecord({name:val('d_name'),no:'',desc:`Take ${v1} mL of stock, dilute with DI water and make up to ${v2} mL.`,chem:[{name:val('d_name')||'',qty:v1+' mL'}],dop,doe:d.toISOString().slice(0,10)});}
+ if(a===null||sg===null||mw===null){o.innerHTML='';return;}
+ if(a<=0||a>100){outWarn(o,'the acid assay must be greater than 0 % and not more than 100 %.');return;}
+ if(sg<=0||mw<=0){outWarn(o,'specific gravity and MW / Eq.wt must both be greater than zero.');return;}
+ const s=10*a*sg/mw;
+ o.innerHTML=`<div class="big">${fmt(s)} <small>N or M</small></div><div class="formula">= (10 × ${a} × ${sg}) ÷ ${mw} = ${fmt(s)}</div>
+   <div class="flex" style="margin-top:8px"><button class="btn sec" style="padding:4px 10px;font-size:11.5px" onclick="useAcidAsC1(${s})">Use as C₁ above</button>
+   <span class="hint" style="margin-top:0">Enter the MW for molarity, the Eq.wt for normality.</span></div>`;}
+function useAcidAsC1(s){var e=document.getElementById('d_c1');if(e){e.value=Number(s).toFixed(4);calcDil();}}
+function toRec_dil(){if(!RES.dilute){alert('Compute a valid dilution first, then fill the record.');return;}
+ const v1=RES.dilute.v1,v2=val('d_v2'),u=RES.dilute.u;
+ pushRecord({name:val('d_name'),no:'',
+  desc:`Take ${v1} mL of ${val('d_c1')} ${u} stock, dilute with DI water and make up to ${v2} mL (final strength ${val('d_c2')} ${u}).`,
+  chem:[{name:val('d_name')||'',qty:v1+' mL'}],dop:today(),doe:todayPlusYears(1)});}
 
 PANELS.series=function(){
  document.getElementById('panel').innerHTML=`
@@ -316,59 +444,112 @@ PANELS.series=function(){
   </div>
   <label>Target points (comma separated)</label>
   <input id="se_pts" value="0, 5, 10, 25, 50, 100" oninput="calcSer()"/>
-  <div class="out" id="se_out"></div>`;
+  <div class="out" id="se_out"></div>
+  <div class="flex" style="margin-top:10px"><button class="btn" data-fill="series" onclick="toRec_ser()">➜ Fill preparation record</button></div>`;
  calcSer();
 };
-function calcSer(){const st=num('se_stock'),fv=num('se_fv'),u=val('se_unit');const pts=val('se_pts').split(',').map(x=>parseFloat(x)).filter(x=>!isNaN(x));const o=document.getElementById('se_out');
- if(st&&fv&&pts.length){let rows=pts.map(p=>{const a=p*fv/st;return `<tr><td>${p} ${u}</td><td><b>${a>fv?'<span style="color:var(--danger)">'+fmt(a)+' (exceeds vol!)</span>':fmt(a)}</b> mL</td><td>${fmt(fv-a)} mL</td></tr>`;}).join('');
-  o.innerHTML=`<table class="lib"><thead><tr><th>Standard</th><th>Stock to take</th><th>+ Water to</th></tr></thead><tbody>${rows}</tbody></table><div class="hint" style="margin-top:6px">aliquot = (target × final vol) ÷ stock conc. Make each up to ${fv} mL with DI water.</div>`;}
- else o.innerHTML='<span style="color:var(--muted)">Enter stock, volume and points…</span>';}
+function calcSer(){const st=num('se_stock'),fv=num('se_fv'),u=val('se_unit')||'';const o=document.getElementById('se_out');
+ /* L-4: an unreadable entry in the point list is reported, never silently dropped. */
+ const raw=val('se_pts').split(',');const pts=[];const bad=[];
+ raw.forEach(function(tok){const t=tok.trim();if(t==='')return;const x=parseFloat(t);
+   if(isNaN(x)||!isFinite(x)||!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(t))bad.push(t);else pts.push(x);});
+ if(st===null||fv===null||!pts.length){setRes('series',null);
+   outAsk(o,'Enter stock concentration, final volume and at least one calibration point…');
+   if(bad.length)o.innerHTML+=`<div class="warnbox"><b>Ignored:</b> ${bad.map(b=>'&ldquo;'+b+'&rdquo;').join(', ')} — not a number.</div>`;
+   return;}
+ if(st<=0||fv<=0){setRes('series',null);outWarn(o,'stock concentration and final volume must both be greater than zero.');return;}
+ const neg=pts.filter(function(p){return p<0;});
+ if(neg.length){setRes('series',null);outWarn(o,'a calibration point cannot be a negative concentration ('+neg.join(', ')+').');return;}
+ let over=0;
+ const rows=pts.map(function(p){const a=p*fv/st;const dil=fv-a;if(a>fv)over++;
+   const aCell=(a>fv)?('<span style="color:var(--danger);font-weight:700">'+fmtVol(a)+' mL — exceeds vol!</span>')
+                     :('<b>'+fmtVol(a)+'</b> mL');
+   /* M-11: the third column is the constant make-up volume — the volume the
+      flask is filled TO — with the diluent added shown only as an aid. */
+   const mkCell=(a>fv)?'<span style="color:var(--danger)">not achievable</span>'
+                     :(fmtVol(fv)+' mL <span class="hint" style="display:inline">(add ≈ '+fmtVol(dil)+' mL DI water)</span>');
+   return '<tr><td>'+p+' '+u+'</td><td>'+aCell+'</td><td>'+mkCell+'</td></tr>';}).join('');
+ o.innerHTML=`<table class="lib"><thead><tr><th>Standard</th><th>Stock to take</th><th>Make up to</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="hint" style="margin-top:6px">aliquot = (target × final volume) ÷ stock concentration. Transfer the aliquot to the flask and make up to ${fmtVol(fv)} mL with DI water — do not simply add the diluent volume shown.</div>
+  ${over?`<div class="warnbox"><b>${over} point${over>1?'s':''} cannot be prepared</b> from a ${st} ${u} stock in ${fmtVol(fv)} mL. Use a stronger stock or a larger final volume.</div>`:''}
+  ${bad.length?`<div class="warnbox"><b>Ignored:</b> ${bad.map(b=>'&ldquo;'+b+'&rdquo;').join(', ')} — not a number. Correct or remove ${bad.length>1?'them':'it'} before preparing the series.</div>`:''}`;
+ if(over||bad.length){setRes('series',null);return;}
+ setRes('series',{stock:st,unit:u,fv:fv,pts:pts,
+   rows:pts.map(function(p){return {conc:p,aliquot:fmtVol(p*fv/st)};})});}
+function toRec_ser(){if(!RES.series){alert('Compute a valid standard series first, then fill the record.');return;}
+ const r=RES.series;
+ const list=r.rows.map(function(x){return x.conc+' '+r.unit+' → '+x.aliquot+' mL';}).join('; ');
+ pushRecord({name:`Calibration standard series ${r.pts[0]}–${r.pts[r.pts.length-1]} ${r.unit}`,no:'',
+  desc:`From a ${r.stock} ${r.unit} stock, pipette the aliquot for each point into a ${fmtVol(r.fv)} mL volumetric flask and make up to the mark with DI water: ${list}.`,
+  chem:[{name:'Stock standard '+r.stock+' '+r.unit,qty:fmtVol(r.rows.reduce(function(s,x){return s+parseFloat(x.aliquot);},0))+' mL total'}],
+  dop:today(),doe:todayPlusDays(30)});}
 
 PANELS.stand=function(){
  document.getElementById('panel').innerHTML=`
   <h2>Standardisation — normality &amp; correction factor</h2>
-  <p class="note">Compute the true normality of a titrant (and its correction factor) from a titration against a primary standard. Presets for common water-lab titrants. Factor is stored <b>per location</b>.</p>
-  <label>Preset (optional)</label>
+  <p class="note">True strength of a titrant and its correction factor, from a titration against a primary standard. Each preset is a <b>titrant + primary-standard pair</b>, because the equivalent weight belongs to the standard, not to the titrant. Factor is recorded <b>per location</b>.</p>
+  <label>Titrant / primary-standard pair (optional preset)</label>
   <select class="f" id="st_p" onchange="presetStd()">
     <option value="">— custom —</option>
-    <option value="naoh">NaOH vs Oxalic acid / KHP</option>
-    <option value="hcl">HCl / H₂SO₄ vs Na₂CO₃</option>
-    <option value="edta">EDTA vs CaCO₃ standard</option>
-    <option value="agno3">AgNO₃ vs NaCl</option>
-    <option value="thio">Na₂S₂O₃ vs K₂Cr₂O₇ / KIO₃</option>
-    <option value="kmno4">KMnO₄ vs Na₂C₂O₄</option>
+    ${Object.keys(ETAL_STD.PRESETS).map(k=>`<option value="${k}">${ETAL_STD.PRESETS[k].titrant} vs ${ETAL_STD.PRESETS[k].ps}</option>`).join('')}
   </select>
+  <div class="hint" id="st_ps">Choose a pair, or enter the equivalent weight of your own primary standard.</div>
   <div class="row3">
     <div><label>Mass of primary std (g)</label><input id="st_m" type="number" step="any" oninput="calcStd()"/></div>
-    <div><label>Purity (%)</label><input id="st_pur" type="number" step="any" value="100" oninput="calcStd()"/></div>
-    <div><label>Eq. wt of primary std</label><input id="st_eq" type="number" step="any" oninput="calcStd()"/></div>
+    <div><label>Purity / assay (%)</label><input id="st_pur" type="number" step="any" value="100" oninput="calcStd()"/></div>
+    <div><label id="st_eql">Eq. wt of primary std</label><input id="st_eq" type="number" step="any" oninput="calcStd()"/></div>
   </div>
   <div class="row3">
-    <div><label>Std made up to (mL)</label><input id="st_vol" type="number" step="any" oninput="calcStd()" placeholder="if using a dilution"/></div>
-    <div><label>Aliquot titrated (mL)</label><input id="st_ali" type="number" step="any" oninput="calcStd()" placeholder="blank = whole"/></div>
+    <div><label>Std made up to (mL)</label><input id="st_vol" type="number" step="any" oninput="calcStd()" placeholder="leave blank if titrating the whole mass"/></div>
+    <div><label>Aliquot titrated (mL)</label><input id="st_ali" type="number" step="any" oninput="calcStd()" placeholder="leave blank if titrating the whole mass"/></div>
     <div><label>Titrant used (mL)</label><input id="st_tit" type="number" step="any" oninput="calcStd()"/></div>
   </div>
-  <label>Nominal (label) normality — for factor</label>
-  <input id="st_nom" type="number" step="any" placeholder="e.g. 0.1" oninput="calcStd()"/>
+  <div class="hint">&ldquo;Made up to&rdquo; and &ldquo;aliquot titrated&rdquo; are a pair &mdash; enter <b>both</b>, or leave <b>both</b> blank to titrate the whole weighed mass.</div>
+  <div class="row">
+    <div><label>Nominal (label) strength — for the factor</label><input id="st_nom" type="number" step="any" placeholder="e.g. 0.1" oninput="calcStd()"/></div>
+    <div><label>Strength expressed as</label><select class="f" id="st_u" onchange="calcStd()"><option value="N">Normality (N)</option><option value="M">Molarity (M)</option></select></div>
+  </div>
   <div class="out" id="st_out"></div>
-  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_std()">➜ Fill preparation record (with factor)</button></div>`;
+  <div class="flex" style="margin-top:10px"><button class="btn" data-fill="stand" onclick="toRec_std()">➜ Fill preparation record (with factor)</button></div>`;
  calcStd();
 };
-const STDP={naoh:{eq:63.035,nom:0.1},hcl:{eq:52.994,nom:0.1},edta:{eq:100.09,nom:0.01},agno3:{eq:58.44,nom:0.0141},thio:{eq:49.03,nom:0.1},kmno4:{eq:67.00,nom:0.1}};
-function presetStd(){const p=STDP[val('st_p')];if(p){document.getElementById('st_eq').value=p.eq;document.getElementById('st_nom').value=p.nom;}calcStd();}
-function calcStd(){const m=num('st_m'),pur=num('st_pur')||100,eq=num('st_eq'),vol=num('st_vol'),ali=num('st_ali'),tit=num('st_tit'),nom=num('st_nom');const o=document.getElementById('st_out');const U=(val('st_p')==='edta')?'M':'N';
- if(m&&eq&&tit){let meq=m*(pur/100)/eq*1000; // meq in the mass weighed
-   if(vol&&ali)meq=meq*ali/vol; // fraction titrated
-   const N=meq/tit; const factor=nom?N/nom:null;
-   window._std={N:fmt(N,5),factor:factor?fmt(factor,5):'',nom,U};
-   o.innerHTML=`<div class="big">${fmt(N,5)} <small>${U} (true)</small> ${factor?`<span class="tag">factor ${fmt(factor,5)}</span>`:''}</div>
-   <div class="formula">meq of std = mass × purity/Eq.wt × 1000${vol&&ali?` × (aliquot/volume)`:''}\nN(titrant) = meq / titrant mL${nom?`\nfactor = N / nominal = ${fmt(N,5)} / ${nom}`:''}</div>
-   <div class="hint" style="margin-top:6px">Record the true ${U==='M'?'molarity':'normality'} and factor on the standardisation log for <b>${document.getElementById('loc').value}</b>. Re-standardise per method frequency.</div>`;}
- else o.innerHTML='<span style="color:var(--muted)">Enter mass, Eq.wt and titrant volume…</span>';}
-function toRec_std(){const s=window._std||{};const dop=today();const d=new Date();d.setDate(d.getDate()+ (val('st_p')==='thio'?7:30));
- pushRecord({name:(document.querySelector('#st_p option:checked')?document.querySelector('#st_p option:checked').text:'Titrant')+' — standardised',no:'',
-  desc:`Standardised against primary standard. True ${(s.U==='M')?'molarity':'normality'} ${s.N||'—'} ${s.U||'N'}; correction factor ${s.factor||'—'}.`,
-  chem:[{name:'Primary standard',qty:num('st_m')?num('st_m')+' g':''}],dop,doe:d.toISOString().slice(0,10),true_N:(s.N||''),factor:`${s.factor||'—'} (nominal ${s.nom||'—'} ${s.U||'N'} → true ${s.N||'—'} ${s.U||'N'})`});}
+/* H-1: the preset table now lives in the shared, canonical algorithm partial and
+   carries one entry per titrant + primary-standard PAIR. */
+const STDP=ETAL_STD.PRESETS;
+function presetStd(){const k=val('st_p'),p=STDP[k];const h=document.getElementById('st_ps');
+ if(p){document.getElementById('st_eq').value=p.eq;document.getElementById('st_nom').value=p.nom;
+   var u=document.getElementById('st_u');if(u)u.value=p.U;
+   var l=document.getElementById('st_eql');if(l)l.textContent=(p.U==='M')?'Molar mass of primary std':'Eq. wt of primary std';
+   if(h)h.innerHTML='Primary standard: <b>'+p.ps+'</b> &mdash; '+((p.U==='M')?'molar mass ':'equivalent weight ')+p.eq+' g'+((p.U==='M')?'/mol':'/eq')+', nominal '+p.nom+' '+p.U+'.';}
+ else if(h)h.textContent='Choose a pair, or enter the equivalent weight of your own primary standard.';
+ calcStd();}
+function calcStd(){
+ const o=document.getElementById('st_out');if(!o)return;
+ const U=(val('st_u')==='M')?'M':'N';
+ const r=ETAL_STD.standardise({mass:val('st_m'),purity:val('st_pur'),eqwt:val('st_eq'),
+   volMade:val('st_vol'),aliquot:val('st_ali'),titrant:val('st_tit'),nominal:val('st_nom'),unit:U});
+ if(!r.ok){setRes('stand',null);
+   if(r.incomplete)outAsk(o,r.error);else outWarn(o,r.error);
+   return;}
+ const k=val('st_p'),p=STDP[k];
+ setRes('stand',{N:r.N_s,factor:r.factor_s,nom:r.nominal,U:r.U,
+   ps:(p?p.ps:'primary standard'),titrant:(p?p.titrant:'titrant'),preset:k,
+   usedAliquot:r.usedAliquot,raw:r});
+ const drift=(r.factor!==null)?Math.abs(r.factor-1)*100:null;
+ o.innerHTML=`<div class="big">${r.N_s} <small>${r.U} (true)</small> ${r.factor!==null?`<span class="tag">factor ${r.factor_s}</span>`:''}</div>
+  <div class="formula">${ETAL_STD.formulaText(r)}</div>
+  ${drift!==null&&drift>10?`<div class="warnbox"><b>Check this titration.</b> The correction factor departs from unity by ${drift.toFixed(1)} % &mdash; verify the weighing, the equivalent weight and the end-point before accepting it.</div>`:''}
+  <div class="hint" style="margin-top:6px">Record the true ${r.U==='M'?'molarity':'normality'} and the factor on the standardisation log for <b>${document.getElementById('loc').value}</b> (${ctrlFor(document.getElementById('loc').value)}). Re-standardise at the frequency the method requires.</div>`;}
+function toRec_std(){
+ if(!RES.stand){alert('Compute a valid standardisation first, then fill the record.');return;}
+ const s=RES.stand;
+ const days=(s.preset&&ETAL_STD.INTERVAL[s.preset])?ETAL_STD.INTERVAL[s.preset]:30;
+ pushRecord({name:s.titrant+' '+(s.nom!==null&&s.nom!==undefined?s.nom+' '+s.U:'')+' — standardised',no:'',
+  desc:`Standardised against ${s.ps}. True ${(s.U==='M')?'molarity':'normality'} ${s.N} ${s.U}; correction factor ${s.factor||'—'} (nominal ${s.nom!==null&&s.nom!==undefined?s.nom:'—'} ${s.U}).`,
+  chem:[{name:s.ps,qty:num('st_m')!==null?num('st_m')+' g':''}],
+  dop:today(),doe:todayPlusDays(days),
+  true_N:s.N,
+  factor:`${s.factor||'—'} (nominal ${s.nom!==null&&s.nom!==undefined?s.nom:'—'} ${s.U} → true ${s.N} ${s.U})`});}
 
 PANELS.pct=function(){
  document.getElementById('panel').innerHTML=`
@@ -379,24 +560,45 @@ PANELS.pct=function(){
     <div><label>Target %</label><input id="p_pct" type="number" step="any" value="0.9" oninput="calcPct()"/></div>
     <div><label>Final volume/mass</label><input id="p_v" type="number" step="any" value="250" oninput="calcPct()"/></div>
   </div>
+  <div class="row">
+    <div><label>Assay / purity of the solute (%)</label><input id="p_pur" type="number" step="any" value="100" oninput="calcPct()"/><div class="hint">Blank or 100 = as-is. A technical-grade solid is corrected up by 100 ÷ assay.</div></div>
+    <div><label>Solute name (optional)</label><input id="p_name" placeholder="e.g. Sodium chloride"/></div>
+  </div>
   <div class="out" id="p_out"></div>
-  <div class="flex" style="margin-top:10px"><button class="btn" onclick="toRec_pct()">➜ Fill preparation record</button></div>`;
+  <div class="flex" style="margin-top:10px"><button class="btn" data-fill="pct" onclick="toRec_pct()">➜ Fill preparation record</button></div>`;
  calcPct();
 };
+function _pctLbl(t){return t==='wv'?'w/v':(t==='vv'?'v/v':'w/w');}
 function toRec_pct(){
- const t=val('p_t'),pc=num('p_pct'),v=num('p_v');
- if(pc===null||v===null){alert('Enter the target % and the final volume/mass first.');return;}
- const q=fmt(pc/100*v), un=(t==='vv'?'mL':'g'), vu=(t==='ww'?'g':'mL');
- const nm=`${pc} % ${t==='wv'?'w/v':(t==='vv'?'v/v':'w/w')} solution`;
- const dop=today();const d=new Date();d.setFullYear(d.getFullYear()+1);
- pushRecord({name:nm,no:'',
-  desc:`Take ${q} ${un} of solute and make up to ${v} ${vu} with DI water (${pc} % ${t==='wv'?'w/v':(t==='vv'?'v/v':'w/w')}).`,
-  chem:[{name:'',qty:q+' '+un}],dop,doe:d.toISOString().slice(0,10)});
+ if(!RES.pct){alert('Compute a valid quantity first, then fill the record.');return;}
+ const r=RES.pct;
+ pushRecord({name:r.name||`${r.pct} % ${r.lbl} solution`,no:'',
+  desc:r.instruction,
+  chem:[{name:r.name||'',qty:r.q+' '+r.un}],dop:today(),doe:todayPlusYears(1)});
 }
-function calcPct(){const t=val('p_t'),pc=num('p_pct'),v=num('p_v'),o=document.getElementById('p_out');
- if(pc!==null&&v!==null){const q=pc/100*v;const un=t==='vv'?'mL':'g';
-  o.innerHTML=`<div class="big">${fmt(q)} <small>${un}</small></div><div class="formula">= (% ÷ 100) × ${v} = ${pc/100} × ${v}</div><div class="hint" style="margin-top:6px">${t==='ww'?'Weigh solute + solvent to total mass.':'Dissolve and make up to '+v+' mL.'}</div>`;}
- else o.innerHTML='';}
+function calcPct(){const t=val('p_t'),pc=num('p_pct'),v=num('p_v'),purIn=num('p_pur'),o=document.getElementById('p_out');
+ if(pc===null||v===null){setRes('pct',null);outAsk(o,'Enter the target % and the final volume/mass…');return;}
+ if(pc<0||pc>100){setRes('pct',null);outWarn(o,'a percentage strength must be between 0 % and 100 %.');return;}
+ if(v<=0){setRes('pct',null);outWarn(o,'the final volume/mass must be greater than zero.');return;}
+ /* M-13 + L-5: assay correction, with 0 % rejected rather than read as 100 %. */
+ if(purIn!==null&&(purIn<=0||purIn>100)){setRes('pct',null);
+   outWarn(o,'assay / purity must be greater than 0 % and not more than 100 %.');return;}
+ const pur=(purIn===null)?100:purIn;
+ const pure=pc/100*v, q=pure*100/pur;
+ const un=(t==='vv')?'mL':'g', vu=(t==='ww')?'g':'mL';
+ const lbl=_pctLbl(t);
+ const nm=val('p_name')||'';
+ const fq=(un==='mL')?fmtVol(q):fmtMass(q);
+ const instruction=(t==='ww')
+   ? `Weigh ${fq} ${un} of ${nm||'solute'} and add DI water to a total mass of ${v} g (${pc} % w/w) — the water added is ${fmtMass(v-q)} g.`
+   : `Take ${fq} ${un} of ${nm||'solute'}, dissolve in DI water and make up to ${v} mL (${pc} % ${lbl}).`;
+ o.innerHTML=`<div class="big">${fq} <small>${un}</small></div>
+  <div class="formula">= (% ÷ 100) × ${v} = ${pc/100} × ${v} = ${(un==='mL')?fmtVol(pure):fmtMass(pure)} ${un} of pure solute${pur!==100?`\n→ ÷ (assay ÷ 100) = ÷ ${(pur/100)} = ${fq} ${un} as-received`:''}</div>
+  ${pur!==100?`<ul><li>Assay ${pur} % → weigh ${fq} ${un} to deliver ${(un==='mL')?fmtVol(pure):fmtMass(pure)} ${un} of pure substance.</li></ul>`:''}
+  <div class="hint" style="margin-top:6px">${t==='ww'
+    ? 'w/w is a mass ratio: weigh the solute, then add solvent until the <b>total mass</b> reaches '+v+' g (remainder of solvent ≈ '+fmtMass(v-q)+' g). Do not make up to volume.'
+    : 'Dissolve and make up to <b>'+v+' mL</b> in a volumetric flask — not "add '+v+' mL of water".'}</div>`;
+ setRes('pct',{q:fq,un:un,vu:vu,pct:pc,v:v,lbl:lbl,name:nm,instruction:instruction});}
 
 PANELS.conv=function(){
  document.getElementById('panel').innerHTML=`
@@ -406,7 +608,7 @@ PANELS.conv=function(){
    <b style="color:var(--etal)">mg/L ⇌ meq/L ⇌ mmol/L</b>
    <div class="row3"><div><label>Value</label><input id="c_val" type="number" step="any" value="100" oninput="calcConv()"/></div>
    <div><label>From</label><select class="f" id="c_from" onchange="calcConv()"><option value="mgL">mg/L</option><option value="meqL">meq/L</option><option value="mmolL">mmol/L</option></select></div>
-   <div><label>Species</label><input id="c_sp" value="CaCO₃" oninput="0"/></div></div>
+   <div><label>Species</label><input id="c_sp" list="spList" value="CaCO₃" oninput="pickSpecies()" placeholder="e.g. Ca²⁺"/><datalist id="spList">${Object.keys(SPECIES).map(k=>`<option value="${k}">`).join('')}</datalist><div class="hint" id="c_sphint">Recognised species fill MW and Eq.wt automatically.</div></div></div>
    <div class="row"><div><label>Molar mass (MW)</label><input id="c_mw" type="number" step="any" value="100.09" oninput="calcConv()"/></div>
    <div><label>Equivalent weight</label><input id="c_eq" type="number" step="any" value="50.045" oninput="calcConv()"/></div></div>
    <div class="out" id="c_out"></div>
@@ -414,17 +616,37 @@ PANELS.conv=function(){
   <div class="card" style="box-shadow:none;padding:12px;margin-top:12px">
    <b style="color:var(--etal)">Express hardness / alkalinity as CaCO₃</b>
    <div class="row3"><div><label>Species conc (mg/L)</label><input id="cc_v" type="number" step="any" value="40" oninput="calcCaCO3()"/></div>
-   <div><label>Species Eq.wt</label><input id="cc_eq" type="number" step="any" value="20.04" oninput="calcCaCO3()"/><div class="hint">Ca=20.04, Mg=12.15</div></div>
+   <div><label>Species Eq.wt</label><input id="cc_eq" list="ccList" type="text" value="20.039" oninput="pickCaSpecies()"/><datalist id="ccList">${Object.keys(SPECIES).map(k=>`<option value="${SPECIES[k].eq}">${k}</option>`).join('')}</datalist><div class="hint" id="cc_hint">Ca²⁺ = 20.039, Mg²⁺ = 12.1525, HCO₃⁻ = 61.016</div></div>
    <div><label>&nbsp;</label><div class="hint">as-CaCO₃ Eq.wt = 50.045</div></div></div>
    <div class="out" id="cc_out"></div>
   </div>`;
  calcConv();calcCaCO3();
 };
-function calcConv(){const v=num('c_val'),f=val('c_from'),mw=num('c_mw'),eq=num('c_eq'),o=document.getElementById('c_out');if(!(v!==null&&mw&&eq))return;
+/* L-2: the species name is no longer inert — a recognised species fills MW and
+   Eq.wt from the shared table so the two conversion cards cannot disagree. */
+function pickSpecies(){var k=(val('c_sp')||'').trim();var s=SPECIES[k];var h=document.getElementById('c_sphint');
+ if(s){document.getElementById('c_mw').value=s.mw;document.getElementById('c_eq').value=s.eq;
+   if(h)h.innerHTML='<b>'+k+'</b> — MW '+s.mw+', Eq.wt '+s.eq+' (from the standard table).';}
+ else if(h)h.textContent=k?('“'+k+'” is not in the table — enter MW and Eq.wt yourself.'):'Recognised species fill MW and Eq.wt automatically.';
+ calcConv();}
+function pickCaSpecies(){var raw=(val('cc_eq')||'').trim();var h=document.getElementById('cc_hint');
+ if(SPECIES[raw]){document.getElementById('cc_eq').value=SPECIES[raw].eq;if(h)h.innerHTML='<b>'+raw+'</b> — Eq.wt '+SPECIES[raw].eq+'.';}
+ else if(h)h.innerHTML='Ca²⁺ = 20.039, Mg²⁺ = 12.1525, HCO₃⁻ = 61.016';
+ calcCaCO3();}
+/* M-12: an incomplete or invalid entry clears the pane — a previous result must
+   never remain on screen looking like the answer to the current inputs. */
+function calcConv(){const v=num('c_val'),f=val('c_from'),mw=num('c_mw'),eq=num('c_eq'),o=document.getElementById('c_out');if(!o)return;
+ if(v===null||mw===null||eq===null){outAsk(o,'Enter a value, the molar mass and the equivalent weight…');return;}
+ if(mw<=0||eq<=0){outWarn(o,'molar mass and equivalent weight must both be greater than zero.');return;}
+ if(v<0){outWarn(o,'a concentration cannot be negative.');return;}
  let mgL;if(f==='mgL')mgL=v;else if(f==='meqL')mgL=v*eq;else mgL=v*mw;
  o.innerHTML=`<div class="kv"><span>mg/L</span><b>${fmt(mgL)}</b></div><div class="kv"><span>meq/L (= mg/L ÷ Eq.wt)</span><b>${fmt(mgL/eq)}</b></div><div class="kv"><span>mmol/L (= mg/L ÷ MW)</span><b>${fmt(mgL/mw)}</b></div>`;}
-function calcCaCO3(){const v=num('cc_v'),eq=num('cc_eq'),o=document.getElementById('cc_out');if(!(v!==null&&eq))return;const asC=v*50.045/eq;
- o.innerHTML=`<div class="big">${fmt(asC)} <small>mg/L as CaCO₃</small></div><div class="formula">= conc × 50.045 / Eq.wt = ${v} × 50.045 / ${eq}</div>`;}
+function calcCaCO3(){const v=num('cc_v'),eq=num('cc_eq'),o=document.getElementById('cc_out');if(!o)return;
+ if(v===null||eq===null){outAsk(o,'Enter the species concentration and its equivalent weight…');return;}
+ if(eq<=0){outWarn(o,'the equivalent weight must be greater than zero.');return;}
+ if(v<0){outWarn(o,'a concentration cannot be negative.');return;}
+ const asC=v*50.045/eq;
+ o.innerHTML=`<div class="big">${fmt(asC)} <small>mg/L as CaCO₃</small></div><div class="formula">= conc × 50.045 ÷ Eq.wt = ${v} × 50.045 ÷ ${eq} = ${fmt(asC)}</div>`;}
 
 PANELS.lib=function(){
  document.getElementById('panel').innerHTML=`
@@ -436,8 +658,26 @@ PANELS.lib=function(){
 };
 function drawLib(){const q=(val('lib_s')||'').toLowerCase();const rows=LIB.map((x,i)=>({x,i})).filter(({x})=>(x.n+x.f+x.cat).toLowerCase().includes(q));
  document.getElementById('lib_t').innerHTML=`<thead><tr><th>Reagent</th><th>Formula</th><th>MW</th><th>Eq.wt</th><th>Use / basis</th><th>Standard recipe</th><th></th></tr></thead><tbody>${rows.map(({x,i})=>`<tr><td>${x.n}</td><td>${x.f}</td><td>${x.mw}</td><td>${x.eq||(x.el?'—':'')}</td><td>${x.cat}</td><td>${x.recipe}</td><td><button onclick="useLib(${i})">Use ▸</button></td></tr>`).join('')}</tbody>`;}
-function useLib(i){cur='solid';drawTabs();PANELS.solid();const li=LIB.filter(x=>!x.liquid).findIndex(x=>x.n===LIB[i].n);
- if(li>=0){document.getElementById('s_lib').value=li;loadSolid();}else{const x=LIB[i];document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';calcSolid();}}
+/* M-6: a concentrated liquid cannot be weighed out — sending it to the
+   Weigh & Dissolve tab produced a mass for a reagent that is measured by
+   volume.  Liquids now open on the Dilute tab with the acid-strength helper
+   already primed from the library's assay and specific gravity. */
+function useLib(i){const x=LIB[i];
+ if(x.liquid){go('dilute');
+   const nm=document.getElementById('d_name');if(nm)nm.value=x.n;
+   const as=document.getElementById('d_as');if(as&&x.assay)as.value=x.assay;
+   const sg=document.getElementById('d_sg');if(sg&&x.sg)sg.value=x.sg;
+   const mwf=document.getElementById('d_mw');if(mwf)mwf.value=(x.eq||x.mw);
+   calcAcid();
+   if(x.assay&&x.sg){const s=10*x.assay*x.sg/(x.eq||x.mw);const c1=document.getElementById('d_c1');
+     if(c1){c1.value=Number(s).toFixed(4);}}
+   const u=document.getElementById('d_u');if(u)u.value=(x.eq&&x.eq!==x.mw)?'N':'N';
+   calcDil();
+   return;}
+ go('solid');
+ const li=LIB.filter(y=>!y.liquid).findIndex(y=>y.n===x.n);
+ if(li>=0){document.getElementById('s_lib').value=li;loadSolid();}
+ else{document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';calcSolid();}}
 
 /* ---- editable chemical rows + inventory autocomplete (live build queries ChemicalItem/ChemicalLot) ---- */
 const INV={
@@ -473,35 +713,137 @@ function clearChemRows(){document.getElementById('recRows').innerHTML='';}
 /* ---------- bridge to the parent QC preparation form (same-origin iframe) ---------- */
 var ETAL_CTX={targetRow:null,linked:false};
 function _originOK(e){try{return e.origin===window.location.origin;}catch(_){return false;}}
-function mapUnit(u){u=(u||'').toString().trim().toUpperCase();var sel=document.getElementById('s_unit');if(!sel)return;var m={'N':'N','M':'M','%':'pw','%W/V':'pw','G/L':'gL','MG/L':'ppm','PPM':'ppm'};if(m[u])sel.value=m[u];}
-function setVol(fv){var mm=(fv||'').toString().match(/([\d.]+)\s*(mL|ml|L|l)?/);if(!mm)return;var v=document.getElementById('s_vol'),u=document.getElementById('s_volu');if(v)v.value=mm[1];if(u)u.value=((mm[2]||'').toLowerCase()==='l')?'1':'1000';}
+/* ---- M-3: tolerant unit parsing.  The form's concentration unit is free text,
+     so spacing, case and non-breaking spaces must all be absorbed — and a unit
+     that cannot be mapped must be reported, never silently ignored. ---- */
+function _normUnit(u){return (u||'').toString().replace(/ /g,' ').replace(/\s*\/\s*/g,'/').replace(/\s+/g,' ').trim().toUpperCase();}
+var UNITMAP={'N':'N','NORMAL':'N','NORMALITY':'N','EQ/L':'N',
+ 'M':'M','MOLAR':'M','MOLARITY':'M','MOL/L':'M','MOLE/L':'M',
+ '%':'pw','% W/V':'pw','%W/V':'pw','W/V':'pw','W/V %':'pw','PERCENT':'pw','PER CENT':'pw','% (W/V)':'pw',
+ 'G/L':'gL','GM/L':'gL','GRAM/L':'gL','G/LITRE':'gL',
+ 'MG/L':'ppm','PPM':'ppm','MG/LITRE':'ppm','MG/LIT':'ppm','PARTS PER MILLION':'ppm'};
+function _elemKey(k){k=(k||'').toString().trim();for(var e in ELEM){if(e.toUpperCase()===k.toUpperCase())return e;}return null;}
+function mapUnit(u){
+  var raw=_normUnit(u);if(!raw)return null;
+  var sel=document.getElementById('s_unit');
+  /* "mg/L as N", "ppm as N", "mg/L as P" — an expressed-as-element standard */
+  var m=raw.match(/^(MG\/L|PPM|MG\/LITRE)\s+AS\s+([A-Z0-9]+)$/);
+  if(m){var el=_elemKey(m[2]);
+    if(el){if(sel)sel.value='ppmEl';
+      var ef=document.getElementById('s_elmw');if(ef)ef.value=ELEM[el];
+      var es=document.getElementById('s_el');if(es)es.value=el;
+      return 'ppmEl';}}
+  var code=UNITMAP[raw]||null;
+  if(code&&sel)sel.value=code;
+  return code;
+}
+/* ---- M-4: volume parsing.  Thousands separators are stripped only between
+     digits, so "1,000 mL" and "1 000 mL" both read 1000 while "0.5 L" is
+     untouched; a trailing comment such as "(nominal)" is ignored. ---- */
+function parseVol(s){
+  if(s===null||s===undefined)return null;
+  var t=String(s).replace(/ /g,' ').trim();
+  if(t==='')return null;
+  t=t.replace(/(\d)[\s,](?=\d{3}(\D|$))/g,'$1');
+  var m=t.match(/(-?\d+(?:\.\d+)?)\s*(m\s*l|ml|millilitre?s?|l|litre?s?|liters?)?/i);
+  if(!m)return null;
+  var v=parseFloat(m[1]);
+  if(isNaN(v)||!isFinite(v)||v<=0)return null;
+  var un=(m[2]||'').toLowerCase().replace(/\s+/g,'');
+  return {value:v,unit:(un&&un.charAt(0)==='l')?'L':'mL'};
+}
+function volInML(p){return p?(p.unit==='L'?p.value*1000:p.value):null;}
+function setVol(fv){var p=parseVol(fv);if(!p)return false;
+  var v=document.getElementById('s_vol'),u=document.getElementById('s_volu');
+  if(v)v.value=p.value;if(u)u.value=(p.unit==='L')?'1':'1000';return true;}
 function showInsertBar(label){var b=document.getElementById('insertBar');if(!b)return;b.style.display='flex';document.getElementById('insLink').textContent=label||'record';}
+function showCtxWarn(list){var w=document.getElementById('ctxWarn');if(!w)return;
+  if(!list||!list.length){w.style.display='none';w.innerHTML='';return;}
+  w.style.display='block';
+  w.innerHTML='<b>Check these before you calculate:</b><ul style="margin:4px 0 0;padding-left:18px">'+list.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>';}
+
+/* ---- M-1: routing.  Derived from the form's own reagent-type list, and from
+     the concentration unit when the type alone is not decisive. ---- */
+function routeFor(rtype,unit){
+  var rt=(rtype||'').toString().toLowerCase();
+  var u=_normUnit(unit);
+  if(/standardis|standardiz|titrant|titre|titer|correction factor/.test(rt))return 'stand';
+  if(/series|calibration curve|calibration standard/.test(rt))return 'series';
+  if(/dilut/.test(rt))return 'dilute';
+  if(/%|\bw\/v\b|\bv\/v\b|\bw\/w\b|per\s*cent|percent/.test(rt))return 'pct';
+  if(u.charAt(0)==='%'||/^(W\/V|V\/V|W\/W)$/.test(u))return 'pct';
+  return 'solid';
+}
+/* ---- M-2: the incoming context is applied on EVERY route, not only "solid" ---- */
+function applyCtx(c){
+  var route=routeFor(c.rtype,c.conc_unit);
+  go(route);
+  var warns=[],name=(c.chemName||c.reagent_name||''),vol=parseVol(c.final_volume),nu=_normUnit(c.conc_unit);
+  if(c.final_volume&&!vol)warns.push('The final volume &ldquo;'+c.final_volume+'&rdquo; could not be read as a volume — enter it here manually.');
+  if(route==='stand'){
+    if(c.conc_value){var n=document.getElementById('st_nom');if(n)n.value=c.conc_value;}
+    var su=document.getElementById('st_u');if(su)su.value=(nu==='M'||nu==='MOLAR'||nu==='MOL/L'||nu==='MOLARITY')?'M':'N';
+    if(c.eqwt){var se=document.getElementById('st_eq');if(se)se.value=c.eqwt;}
+    if(name){var sp=document.getElementById('st_ps');if(sp)sp.innerHTML='For <b>'+name+'</b> — choose the titrant / primary-standard pair, or enter the equivalent weight.';}
+    calcStd();
+  }else if(route==='pct'){
+    var t=document.getElementById('p_t');
+    if(t)t.value=/V\/V/.test(nu)?'vv':(/W\/W/.test(nu)?'ww':'wv');
+    if(c.conc_value!==undefined&&c.conc_value!==null&&c.conc_value!==''){
+      var pv=parseFloat(String(c.conc_value).replace(/[%\s]/g,''));
+      if(!isNaN(pv))document.getElementById('p_pct').value=pv;
+      else warns.push('The concentration &ldquo;'+c.conc_value+'&rdquo; could not be read as a percentage.');}
+    if(vol)document.getElementById('p_v').value=volInML(vol);
+    var pn=document.getElementById('p_name');if(pn&&name)pn.value=name;
+    calcPct();
+  }else if(route==='dilute'){
+    if(c.conc_value)document.getElementById('d_c2').value=c.conc_value;
+    if(vol)document.getElementById('d_v2').value=volInML(vol);
+    var du=document.getElementById('d_u');
+    if(du){var dm={'N':'N','M':'M','%':'%','PPM':'ppm','MG/L':'mg/L','G/L':'g/L'};if(dm[nu])du.value=dm[nu];}
+    var dn=document.getElementById('d_name');if(dn&&name)dn.value=name;
+    calcDil();
+  }else if(route==='series'){
+    if(vol)document.getElementById('se_fv').value=volInML(vol);
+    if(c.conc_unit)document.getElementById('se_unit').value=c.conc_unit;
+    calcSer();
+  }else{
+    if(c.conc_value){var cv=document.getElementById('s_conc');if(cv)cv.value=c.conc_value;}
+    if(c.conc_unit&&!mapUnit(c.conc_unit))
+      warns.push('The unit &ldquo;'+c.conc_unit+'&rdquo; is not one this calculator recognises — choose the correct unit above before reading the result.');
+    if(c.final_volume)setVol(c.final_volume);
+    var nm=document.getElementById('s_name');if(nm&&!nm.value&&name)nm.value=name;
+    if(c.eqwt){var eq=document.getElementById('s_eq');if(eq)eq.value=c.eqwt;}
+    calcSolid();
+  }
+  showCtxWarn(warns);
+}
 window.addEventListener('message',function(e){
   if(!_originOK(e))return;var d=e.data||{};if(d.type!=='etal-calc-context')return;var c=d.ctx||{};
   ETAL_CTX.targetRow=(c.targetRow!=null)?c.targetRow:null;ETAL_CTX.linked=true;
   if(c.location){var lc=document.getElementById('loc');if(lc){lc.value=c.location;updLoc();}}
-  var rt=(c.rtype||'').toLowerCase();
-  if(rt.indexOf('standard')>-1&&rt.indexOf('titrant')>-1){go('stand');var n=document.getElementById('st_nom');if(n&&c.conc_value){n.value=c.conc_value;calcStd();}}
-  else if(rt.indexOf('%')>-1||rt.indexOf('solution')>-1){go('pct');}
-  else{go('solid');
-    if(c.conc_value){var el=document.getElementById('s_conc');if(el)el.value=c.conc_value;}
-    if(c.conc_unit)mapUnit(c.conc_unit);
-    if(c.final_volume)setVol(c.final_volume);
-    var nm=document.getElementById('s_name');if(nm&&!nm.value&&(c.chemName||c.reagent_name))nm.value=c.chemName||c.reagent_name;
-    if(c.eqwt){var eq=document.getElementById('s_eq');if(eq)eq.value=c.eqwt;}
-    calcSolid();}
+  applyCtx(c);
   showInsertBar(c.targetRow!=null?('Row '+(c.targetRow+1)):'record');
 },false);
 function _big(sel){var q=document.querySelector(sel+' .big');if(!q)return '';return q.textContent.replace(/\s+/g,' ').trim();}
 function insertToForm(){
   var res=null;
-  if(cur==='solid'&&window._solid){var vv=val('s_vol'),vu=(val('s_volu')==='1'?'L':'mL');res={quantity:window._solid.g+' g',note:'Weigh '+window._solid.g+' g of '+(val('s_name')||'reagent')+' and dissolve in DI water; make up to '+vv+' '+vu+'.'};}
-  else if(cur==='dilute'&&window._dil){res={quantity:window._dil.v1+' mL',note:'Take '+window._dil.v1+' mL of stock; dilute with DI water; make up to '+val('d_v2')+' mL.'};}
-  else if(cur==='pct'){var _pq=_big('#p_out');
-    if(_pq){var _pv=val('p_v'),_pu=(val('p_t')==='ww'?'g':'mL');
-      res={quantity:_pq,note:'Take '+_pq+' of solute and make up to '+_pv+' '+_pu+' with DI water.'};}}
-  else if(cur==='stand'&&window._std){res={quantity:(num('st_m')?num('st_m')+' g':''),note:'Standardised against primary standard; true '+window._std.N+' '+window._std.U+', factor '+window._std.factor+'.',true_N:window._std.N,factor:window._std.factor};}
-  if(!res||(!res.quantity&&!res.note)){alert('Please compute a value first, then insert.');return;}
+  if(cur==='solid'&&RES.solid){var vv=val('s_vol'),vu=(val('s_volu')==='1'?'L':'mL');
+    res={quantity:RES.solid.g+' g',note:'Weigh '+RES.solid.g+' g of '+(val('s_name')||'reagent')+' and dissolve in DI water; make up to '+vv+' '+vu+'.'};}
+  else if(cur==='dilute'&&RES.dilute){
+    res={quantity:RES.dilute.v1+' mL',note:'Take '+RES.dilute.v1+' mL of '+val('d_c1')+' '+RES.dilute.u+' stock; dilute with DI water; make up to '+val('d_v2')+' mL.'};}
+  else if(cur==='pct'&&RES.pct){
+    res={quantity:RES.pct.q+' '+RES.pct.un,note:RES.pct.instruction};}
+  /* M-10: the calibration series can now be transferred too. */
+  else if(cur==='series'&&RES.series){var r=RES.series;
+    res={quantity:'',note:'Calibration series from a '+r.stock+' '+r.unit+' stock, each made up to '+fmtVol(r.fv)+' mL: '
+      +r.rows.map(function(x){return x.conc+' '+r.unit+' → '+x.aliquot+' mL';}).join('; ')+'.'};}
+  /* M-7: for a standardisation the quantity is deliberately blank — the mass of
+     the PRIMARY STANDARD is not the quantity of the titrant being recorded. */
+  else if(cur==='stand'&&RES.stand){var s=RES.stand;
+    res={quantity:'',note:'Standardised against '+s.ps+' ('+(num('st_m')!==null?num('st_m')+' g':'mass as recorded')+'); true '+s.N+' '+s.U+', correction factor '+(s.factor||'—')+'.',
+      true_N:s.N,factor:s.factor};}
+  if(!res||(!res.quantity&&!res.note)){alert('Please compute a valid result on this tab first, then insert.');return;}
   parent.postMessage({type:'etal-calc-result',targetRow:ETAL_CTX.targetRow,quantity:res.quantity||'',note:res.note||'',true_N:res.true_N||null,factor:res.factor||null},window.location.origin);
 }
 
@@ -510,3 +852,4 @@ fillInvList();drawTabs();go('solid');updLoc();setRec({});addChemRow();
 </script>
 </body>
 </html>
+{% endverbatim %}

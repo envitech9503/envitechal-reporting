@@ -1,0 +1,141 @@
+{% verbatim %}
+<script>
+/* =====================================================================
+   Envi Tech AL — canonical standardisation algorithm (single source of truth)
+   Included by BOTH the Reagent Preparation form and the Preparation Calculator
+   so the two can never drift apart.  Exposes window.ETAL_STD.
+
+   Basis:  meq of primary standard = mass(g) x (purity% / 100) / Eq.wt x 1000
+           if the standard was made up to a volume and only an aliquot titrated,
+           meq(titrated) = meq x (aliquot / volume made up to)
+           N(titrant)    = meq(titrated) / titrant volume (mL)
+           factor        = N(true) / N(nominal)
+   For a molar titrant (e.g. EDTA vs CaCO3) the same arithmetic is used with the
+   molar mass in place of the equivalent weight and the result read as molarity.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+
+  /* One entry per titrant + primary-standard PAIR.  A single entry per titrant
+     is not sufficient: NaOH standardised against oxalic acid (Eq.wt 63.035)
+     and against KHP (Eq.wt 204.22) are different determinations. */
+  var PRESETS = {
+    naoh_ox : {eq: 63.035, nom: 0.1,    U: 'N', titrant: 'NaOH',      ps: 'Oxalic acid dihydrate (H₂C₂O₄·2H₂O)'},
+    naoh_khp: {eq: 204.22, nom: 0.1,    U: 'N', titrant: 'NaOH',      ps: 'Potassium hydrogen phthalate, KHP (KHC₈H₄O₄)'},
+    hcl     : {eq: 52.994, nom: 0.1,    U: 'N', titrant: 'HCl / H₂SO₄', ps: 'Sodium carbonate, anhydrous (Na₂CO₃)'},
+    edta    : {eq: 100.09, nom: 0.01,   U: 'M', titrant: 'EDTA',      ps: 'Calcium carbonate (CaCO₃)'},
+    agno3   : {eq: 58.44,  nom: 0.0141, U: 'N', titrant: 'AgNO₃',     ps: 'Sodium chloride (NaCl)'},
+    thio_dic: {eq: 49.031, nom: 0.1,    U: 'N', titrant: 'Na₂S₂O₃',  ps: 'Potassium dichromate (K₂Cr₂O₇)'},
+    thio_kio: {eq: 35.667, nom: 0.1,    U: 'N', titrant: 'Na₂S₂O₃',  ps: 'Potassium iodate (KIO₃)'},
+    kmno4   : {eq: 67.00,  nom: 0.1,    U: 'N', titrant: 'KMnO₄',     ps: 'Sodium oxalate (Na₂C₂O₄)'}
+  };
+
+  /* Re-standardisation interval (days) used to propose the next-due date. */
+  var INTERVAL = {thio_dic: 7, thio_kio: 7, kmno4: 30, edta: 90, agno3: 90,
+                  naoh_ox: 30, naoh_khp: 30, hcl: 90};
+
+  function n(v) {
+    if (v === null || v === undefined) return null;
+    if (typeof v === 'number') return isFinite(v) ? v : null;
+    var s = String(v).trim();
+    if (s === '') return null;
+    var x = parseFloat(s);
+    return isNaN(x) ? null : x;
+  }
+
+  /* Result formatting — fixed decimals, never exponent, never trailing-zero
+     stripped, because a controlled record must show the precision claimed. */
+  function fmtN(x) {
+    if (x === null || !isFinite(x)) return '';
+    var a = Math.abs(x);
+    if (a >= 100) return x.toFixed(3);
+    if (a >= 1)   return x.toFixed(4);
+    return x.toFixed(5);
+  }
+  function fmtFactor(x) {
+    if (x === null || !isFinite(x)) return '';
+    return x.toFixed(4);
+  }
+
+  /* standardise(o) -> {ok, error, N, factor, meq, U, ...}
+     o = {mass, purity, eqwt, volMade, aliquot, titrant, nominal, unit} */
+  function standardise(o) {
+    o = o || {};
+    var mass    = n(o.mass),
+        purity  = n(o.purity),
+        eqwt    = n(o.eqwt),
+        volMade = n(o.volMade),
+        aliquot = n(o.aliquot),
+        titrant = n(o.titrant),
+        nominal = n(o.nominal),
+        U       = (o.unit === 'M') ? 'M' : 'N';
+
+    var need = [];
+    if (mass === null)    need.push('mass of primary standard');
+    if (eqwt === null)    need.push((U === 'M') ? 'molar mass of the primary standard' : 'equivalent weight of the primary standard');
+    if (titrant === null) need.push('titrant volume');
+    if (need.length) return {ok: false, incomplete: true, U: U, error: 'Enter the ' + need.join(', ') + '.'};
+
+    if (mass <= 0)    return {ok: false, U: U, error: 'The mass of primary standard must be greater than zero.'};
+    if (eqwt <= 0)    return {ok: false, U: U, error: 'The equivalent / molar weight must be greater than zero.'};
+    if (titrant <= 0) return {ok: false, U: U, error: 'The titrant volume must be greater than zero.'};
+
+    /* Purity: blank means "not stated" and is taken as 100 %.  An entered value
+       of 0 (or a negative) is an error, NOT a silent fall-back to 100 %. */
+    if (purity === null) purity = 100;
+    if (purity <= 0 || purity > 100) {
+      return {ok: false, U: U, error: 'Assay / purity must be greater than 0 % and not more than 100 %.'};
+    }
+
+    /* Made-up volume and titrated aliquot are a PAIR.  One without the other is
+       ambiguous, so the result is suppressed rather than silently computed on
+       the whole weighed mass. */
+    var usedAliquot = false;
+    if (volMade !== null || aliquot !== null) {
+      if (volMade === null) return {ok: false, U: U, error: 'An aliquot was entered but not the volume the standard was made up to. Enter both, or clear both to titrate the whole weighed mass.'};
+      if (aliquot === null) return {ok: false, U: U, error: 'A made-up volume was entered but not the aliquot titrated. Enter both, or clear both to titrate the whole weighed mass.'};
+      if (volMade <= 0 || aliquot <= 0) return {ok: false, U: U, error: 'Made-up volume and aliquot must both be greater than zero.'};
+      if (aliquot > volMade) return {ok: false, U: U, error: 'The aliquot titrated (' + aliquot + ' mL) cannot exceed the volume the standard was made up to (' + volMade + ' mL).'};
+      usedAliquot = true;
+    }
+
+    var meqWeighed = mass * (purity / 100) / eqwt * 1000;
+    var meq = usedAliquot ? meqWeighed * aliquot / volMade : meqWeighed;
+    var N = meq / titrant;
+    var factor = (nominal !== null && nominal > 0) ? N / nominal : null;
+
+    return {
+      ok: true, U: U,
+      meqWeighed: meqWeighed, meq: meq, N: N, factor: factor,
+      nominal: nominal, purity: purity, usedAliquot: usedAliquot,
+      volMade: volMade, aliquot: aliquot, titrant: titrant,
+      mass: mass, eqwt: eqwt,
+      N_s: fmtN(N), factor_s: fmtFactor(factor)
+    };
+  }
+
+  function formulaText(r) {
+    if (!r || !r.ok) return '';
+    var t = 'meq of primary std = mass × (purity/100) ÷ Eq.wt × 1000'
+          + '\n                   = ' + r.mass + ' × (' + r.purity + '/100) ÷ ' + r.eqwt + ' × 1000 = ' + r.meqWeighed.toFixed(5) + ' meq';
+    if (r.usedAliquot) {
+      t += '\nmeq titrated       = ' + r.meqWeighed.toFixed(5) + ' × (' + r.aliquot + ' ÷ ' + r.volMade + ') = ' + r.meq.toFixed(5) + ' meq';
+    }
+    t += '\n' + r.U + ' (true)            = meq ÷ titrant mL = ' + r.meq.toFixed(5) + ' ÷ ' + r.titrant + ' = ' + r.N_s;
+    if (r.factor !== null) {
+      t += '\nfactor             = ' + r.U + '(true) ÷ ' + r.U + '(nominal) = ' + r.N_s + ' ÷ ' + r.nominal + ' = ' + r.factor_s;
+    }
+    return t;
+  }
+
+  root.ETAL_STD = {
+    PRESETS: PRESETS,
+    INTERVAL: INTERVAL,
+    standardise: standardise,
+    formulaText: formulaText,
+    fmtN: fmtN,
+    fmtFactor: fmtFactor
+  };
+})(window);
+</script>
+{% endverbatim %}
