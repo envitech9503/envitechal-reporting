@@ -121,6 +121,7 @@
         <span class="note">Type a chemical name to recall CAT/LOT/Make/Expiry from live inventory; you can still edit any field.</span>
       </div>
       <datalist id="invList"></datalist>
+      <datalist id="lotList"></datalist>
     </div>
 
     <div class="sec hidden" id="stdPanel" style="border-top:1px solid #eef2f6">
@@ -210,21 +211,38 @@ function flash(msg, ok){var f=el('flash');f.textContent=msg;f.className='flash '
 function initLoc(){var s=el('location');s.innerHTML='';LOCS.forEach(function(l){var o=document.createElement('option');o.value=l;o.textContent=l;s.appendChild(o);});}
 function curDoc(){return DOCCTRL[el('location').value]||{doc_no:'',issue_date:'',issue_no:'01',rev_no:'00'};}
 function onLoc(){var d=curDoc();el('ctrlNo').textContent=d.doc_no?(d.doc_no+'  |  Issue '+(d.issue_no||'01')+'  Rev '+(d.rev_no||'00')+(d.issue_date?('  |  '+d.issue_date):'')):'not set yet - office to enter';if(IS_ADMIN){el('ctrlEditLink').classList.remove('hidden');el('d_no').value=d.doc_no||'';el('d_date').value=d.issue_date||'';el('d_iss').value=d.issue_no||'01';el('d_rev').value=d.rev_no||'00';}buildNoList();}
-function buildNoList(){var loc=el('location').value;var arr=(NEXTNO&&NEXTNO[loc])||[];var dl=el('noList');if(dl){dl.innerHTML=arr.map(function(x){return '<option value="'+esc(x)+'">';}).join('');}var hint=el('noHint');if(hint){hint.textContent=arr.length?('· suggested: '+arr.join(', ')):'';}}
+function buildNoList(){buildInvList();var loc=el('location').value;var arr=(NEXTNO&&NEXTNO[loc])||[];var dl=el('noList');if(dl){dl.innerHTML=arr.map(function(x){return '<option value="'+esc(x)+'">';}).join('');}var hint=el('noHint');if(hint){hint.textContent=arr.length?('· suggested: '+arr.join(', ')):'';}}
 function onMonthPick(){var v=el('monthPick').value;if(!v)return;var m=v.match(/(\d{4})-(\d{2})/);if(m){el('month').value=MONTHS[parseInt(m[2],10)-1]+' '+m[1];markDirty();renderPreview();}}
 function syncMonthPick(){var t=(el('month').value||'').trim();var mp=el('monthPick');if(!mp)return;for(var i=0;i<12;i++){var m=t.match(new RegExp('^'+MONTHS[i]+'\\s+(\\d{4})$','i'));if(m){mp.value=m[1]+'-'+('0'+(i+1)).slice(-2);return;}}}
 function toggleDocEdit(){el('ctrlEdit').classList.toggle('hidden');}
 function saveDoc(){var loc=el('location').value;var fd=new FormData();fd.append('location',loc);fd.append('doc_no',el('d_no').value);fd.append('issue_date',el('d_date').value);fd.append('issue_no',el('d_iss').value);fd.append('rev_no',el('d_rev').value);fetch('/qc/reagent_prep_doc_save/',{method:'POST',credentials:'include',body:fd}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){DOCCTRL[j.location]=j.doc;onLoc();el('ctrlEdit').classList.add('hidden');flash('Control number saved for '+j.location+'.',true);}else{flash((j&&j.error)||'Could not save control number.',false);}}).catch(function(){flash('Network error saving control number.',false);});}
 function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');renderStdHist();}
 
-function buildInvList(){var dl=el('invList');dl.innerHTML='';var seen={};INV.forEach(function(r){if(r.name&&!seen[r.name]){seen[r.name]=1;var o=document.createElement('option');o.value=r.name;dl.appendChild(o);}});}
-function invByName(n){n=(n||'').trim().toLowerCase();for(var i=0;i<INV.length;i++){if((INV[i].name||'').toLowerCase()===n)return INV[i];}return null;}
+function curLoc(){var e=el('location');return (e&&e.value)||'Karachi';}
+// Inventory is served for BOTH laboratories; the form must only ever offer the
+// stock of the laboratory currently selected, otherwise a Lahore lot can be
+// recalled onto a Karachi record (analyst finding, 27-07-2026).
+function invForLoc(){var L=curLoc();return INV.filter(function(r){return !r.loc||r.loc===L;});}
+function invLotsFor(n){n=(n||'').trim().toLowerCase();if(!n)return [];return invForLoc().filter(function(r){return (r.name||'').toLowerCase()===n;});}
+function lotLabel(r){var p=[];if(r.lot)p.push('LOT '+r.lot);if(r.cat)p.push('CAT '+r.cat);if(r.make)p.push(r.make);if(r.expiry)p.push('exp '+r.expiry);return p.join('  |  ');}
+function buildInvList(){var dl=el('invList');if(!dl)return;dl.innerHTML='';var rows=invForLoc();var grp={};rows.forEach(function(r){if(!r.name)return;(grp[r.name]=grp[r.name]||[]).push(r);});
+  var html=Object.keys(grp).sort().map(function(n){var v=grp[n];var d=(v.length>1)?(v.length+' lots in '+curLoc()+' - choose the lot in the LOT column'):lotLabel(v[0]);return '<option value="'+esc(n)+'">'+esc(d)+'</option>';}).join('');dl.innerHTML=html;}
+// Pick the lot an analyst would actually reach for: an in-use lot before a
+// finished one, then the one that expires last.  Never a silent "first row".
+function invByName(n){var v=invLotsFor(n);if(!v.length)return null;
+  var key=function(r){var d=(r.expiry||'').split('-');var t=(d.length===3)?(d[2]+d[1]+d[0]):'00000000';return ((r.status==='In use')?'1':'0')+t;};
+  return v.slice().sort(function(a,b){return key(a)<key(b)?1:(key(a)>key(b)?-1:0);})[0];}
+function invByLot(n,lotv){var v=invLotsFor(n);lotv=(lotv||'').trim().toLowerCase();if(!lotv)return null;for(var i=0;i<v.length;i++){if((v[i].lot||'').toLowerCase()===lotv)return v[i];}return null;}
+function buildLotList(inp){var tr=inp.closest('tr');var nm=tr.querySelector('.c_name').value;var dl=el('lotList');if(!dl)return;
+  dl.innerHTML=invLotsFor(nm).map(function(r){return '<option value="'+esc(r.lot||'')+'">'+esc(lotLabel(r))+'</option>';}).join('');}
+function onChemLot(inp){var tr=inp.closest('tr');var hit=invByLot(tr.querySelector('.c_name').value,inp.value);if(!hit)return;
+  tr.querySelector('.c_cat').value=hit.cat||'';tr.querySelector('.c_make').value=hit.make||'';tr.querySelector('.c_exp').value=hit.expiry||'';tr.dataset.lot=hit.id||'';tr.dataset.auto='1';markDirty();}
 
 function chemRowHTML(r){r=r||{};return ''+
   '<td class="sno"></td>'+
   '<td><input class="c_name" list="invList" value="'+esc(r.chemical_name)+'" oninput="onChemName(this)"></td>'+
   '<td><input class="c_cat" value="'+esc(r.cat_no)+'"></td>'+
-  '<td><input class="c_lot" value="'+esc(r.lot_no)+'"></td>'+
+  '<td><input class="c_lot" list="lotList" value="'+esc(r.lot_no)+'" onfocus="buildLotList(this)" onchange="onChemLot(this)"></td>'+
   '<td><input class="c_qty" value="'+esc(r.quantity)+'"></td>'+
   '<td><input class="c_make" value="'+esc(r.make)+'"></td>'+
   '<td><input class="c_exp" value="'+esc(r.expiry)+'"></td>'+
@@ -234,7 +252,13 @@ function esc(v){return (v==null?'':String(v)).replace(/&/g,'&amp;').replace(/"/g
 function addChem(r){var tr=document.createElement('tr');tr.dataset.lot=(r&&r.chemical_lot)||'';tr.innerHTML=chemRowHTML(r);el('chemBody').appendChild(tr);renumber();}
 function delChem(b){b.closest('tr').remove();renumber();}
 function renumber(){var rows=el('chemBody').querySelectorAll('tr');rows.forEach(function(tr,i){tr.querySelector('.sno').textContent=i+1;});}
-function onChemName(inp){var tr=inp.closest('tr');var hit=invByName(inp.value);if(hit){if(!tr.querySelector('.c_cat').value)tr.querySelector('.c_cat').value=hit.cat||'';if(!tr.querySelector('.c_lot').value)tr.querySelector('.c_lot').value=hit.lot||'';if(!tr.querySelector('.c_make').value)tr.querySelector('.c_make').value=hit.make||'';if(!tr.querySelector('.c_exp').value)tr.querySelector('.c_exp').value=hit.expiry||'';tr.dataset.lot=hit.id||'';}}
+function onChemName(inp){var tr=inp.closest('tr');var hit=invByName(inp.value);
+  if(!hit){if(tr.dataset.auto==='1'){tr.dataset.auto='';tr.dataset.lot='';}return;}
+  // Overwrite only what a previous recall wrote; anything typed by hand stands.
+  var over=(tr.dataset.auto==='1');
+  var set=function(sel,v){var e=tr.querySelector(sel);if(over||!e.value)e.value=v||'';};
+  set('.c_cat',hit.cat);set('.c_lot',hit.lot);set('.c_make',hit.make);set('.c_exp',hit.expiry);
+  tr.dataset.lot=hit.id||'';tr.dataset.auto='1';}
 
 // Standardisation is computed by the shared ETAL_STD routine (see the included
 // _reagent_std_algo.html) - NOT by a second copy of the arithmetic living here.

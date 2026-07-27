@@ -90,7 +90,43 @@ def _split_cat_lot(raw):
         return '', _clean(raw[li + 3:])
     if ci != -1:
         return _clean(raw[ci + 3:]), ''
+    # Karachi convention: the lab records "LOT/CAT" in one field with a slash
+    # and no keywords, e.g. 'MKCW4009/258105' (lot MKCW4009, catalogue 258105).
+    # 131 of 139 Karachi lots use this form; before this rule they fell through
+    # to (cat='', lot=<whole string>), which is what the analyst reported as
+    # "CAT column empty / LOT column showing a merged value".
+    if raw.count('/') == 1:
+        left, right = [p.strip() for p in raw.split('/')]
+        if (left and right and ' ' not in left and ' ' not in right
+                and len(left) <= 40 and len(right) <= 40):
+            return right, left
     return '', raw
+
+
+_BRAND_RX = _re.compile(r'brand(?:\s*name)?\s*[:\-]?\s*([^;|\n]+)', _re.I)
+
+
+def _brand_of(lot, item=None):
+    """Manufacturer brand for a lot.
+
+    The lab has no dedicated brand column; it records the manufacturer as free
+    text in ChemicalLot.remarks and, more completely, in ChemicalItem.notes.
+    Two conventions are in use and both are accepted: "Brand: <name>" (283 of
+    the 422 live entries) and "BRAND <name>" with no punctuation (the rest).
+    Against the register of 27-07-2026 this resolves 287 of the 288 live lots
+    to one of 21 manufacturer names.  Lot-level text wins because a re-order
+    can change manufacturer without a new item record.
+    Returns '' when no brand has been recorded, so callers can decide whether
+    to fall back to the supplier.
+    """
+    for src in ((getattr(lot, 'remarks', '') if lot else ''),
+                (getattr(item, 'notes', '') if item else '')):
+        m = _BRAND_RX.search(src or '')
+        if m:
+            b = m.group(1).strip(' .;,')
+            if b:
+                return b
+    return ''
 
 
 def _inventory_for_autocomplete():
@@ -99,15 +135,22 @@ def _inventory_for_autocomplete():
         for lot in (ChemicalLot.objects
                     .exclude(status='Discarded')
                     .select_related('item')
-                    .order_by('item__name', 'id')[:800]):
+                    .order_by('item__name', 'id')):
             it = lot.item
             cat, lotno = _split_cat_lot(lot.lot_no)
+            brand = _brand_of(lot, it)
+            supplier = lot.supplier or ''
             rows.append({
                 'id': lot.id,
+                'loc': lot.location or '',
                 'name': it.name if it else '',
                 'cat': cat,
                 'lot': lotno,
-                'make': lot.supplier or '',
+                'make': brand or supplier,
+                'brand': brand,
+                'supplier': supplier,
+                'grade': (it.grade or '') if it else '',
+                'status': lot.status or '',
                 'expiry': lot.expiry.strftime('%d-%m-%Y') if lot.expiry else '',
             })
     except Exception:
@@ -759,7 +802,8 @@ def reagent_prep_calculator(request):
     Falls back to a raw read (with the verbatim markers stripped) if template
     rendering is unavailable for any reason, so the tool degrades to a working
     calculator rather than to an error page."""
-    ctx = {'doc_json': _safe_json({loc: _docctrl_data(loc) for loc in _LOCS})}
+    ctx = {'doc_json': _safe_json({loc: _docctrl_data(loc) for loc in _LOCS}),
+           'inventory_json': _safe_json(_inventory_for_autocomplete())}
     try:
         return render(request, 'reagent_calc_tool.html', ctx)
     except Exception:

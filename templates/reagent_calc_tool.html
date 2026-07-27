@@ -135,6 +135,7 @@
 <!-- Document-control registry for this module, served from InventoryDocControl.
      The calculator must never invent a control number. -->
 <script id="etalDoc" type="application/json">{{ doc_json|safe }}</script>
+<script id="etalInv" type="application/json">{{ inventory_json|safe }}</script>
 {% include "_reagent_std_algo.html" %}
 {% verbatim %}
 <script>
@@ -143,7 +144,7 @@ var ETAL_DOC=(function(){try{var el=document.getElementById('etalDoc');if(!el)re
 function ctrlFor(loc){var d=ETAL_DOC[loc];return (d&&d.doc_no)?d.doc_no:'—';}
 var CTRL=(function(){var o={};for(var k in ETAL_DOC){if(Object.prototype.hasOwnProperty.call(ETAL_DOC,k))o[k]=ctrlFor(k);}return o;})();
 function docMeta(loc){var d=ETAL_DOC[loc]||{};var b=[];if(d.issue_no)b.push('Issue No. '+d.issue_no);if(d.rev_no!==undefined&&d.rev_no!==null&&d.rev_no!=='')b.push('Rev. No. '+d.rev_no);if(d.issue_date)b.push('Issue Date '+d.issue_date);return b.join(' · ');}
-function updLoc(){var l=document.getElementById('loc').value;var c=ctrlFor(l);
+function updLoc(){try{fillInvList();}catch(_){}var l=document.getElementById('loc').value;var c=ctrlFor(l);
  document.getElementById('ctrlNo').textContent=c;document.getElementById('recCtrl').textContent=c;document.getElementById('recLoc').textContent=l;
  var m=document.getElementById('recDocMeta');if(m)m.textContent=docMeta(l);
  if(typeof calcStd==='function'&&cur==='stand')calcStd();}
@@ -293,7 +294,7 @@ PANELS.solid=function(){
   <h2>Weigh &amp; Dissolve — solid reagent / standard</h2>
   <p class="note">Mass to weigh for a target concentration &amp; volume. Handles Molar, Normal, %w/v, g/L, ppm (mg/L), and "expressed-as-element" standards — with assay/purity and hydrate correction.</p>
   <label>Load from library (optional)</label>
-  <select class="f" id="s_lib" onchange="loadSolid()"><option value="">— choose a reagent —</option>${LIB.filter(x=>!x.liquid).map((x,i)=>`<option value="${i}">${x.n} (${x.f})</option>`).join('')}</select>
+  <select class="f" id="s_lib" onchange="loadSolid()"><option value="">— choose a reagent —</option><optgroup label="Primary standards &amp; titrants (with MW / eq. wt)">${LIB.filter(x=>!x.liquid).map((x,i)=>`<option value="${i}">${x.n} (${x.f})</option>`).join('')}</optgroup><optgroup id="s_lib_inv" label="Laboratory inventory"></optgroup></select>
   <div class="row">
     <div><label>Reagent name</label><input id="s_name" placeholder="e.g. Oxalic acid 0.1 N"/></div>
     <div><label>Reagent No.</label><input id="s_no" placeholder="e.g. AD-01 / RG-16"/></div>
@@ -330,7 +331,19 @@ function pickElem(){var k=val('s_el');if(k&&ELEM[k]!==undefined){document.getEle
 /* M-5: every field the library owns is cleared before it is repopulated, so a
    plain salt selected after an "expressed-as-element" salt cannot inherit the
    previous entry's salt-MW / element-MW pair. */
-function loadSolid(){const i=val('s_lib');if(i==='')return;const x=LIB.filter(y=>!y.liquid)[i];
+function loadInvSolid(name){var e=INV[name];if(!e)return;var lot=(e.lots&&e.lots[0])||{};
+ var nf=document.getElementById('s_name');if(nf)nf.value=name;
+ // If the curated library also knows this chemical, keep its MW / eq. wt so the
+ // calculation stays available; otherwise leave them for the analyst to enter.
+ var m=LIB.filter(function(y){return !y.liquid && y.n.toLowerCase().indexOf(name.toLowerCase())===0;})[0]
+     || LIB.filter(function(y){return !y.liquid && name.toLowerCase().indexOf(y.n.toLowerCase())===0;})[0];
+ var mw=document.getElementById('s_mw'),eq=document.getElementById('s_eq');
+ if(m){if(mw)mw.value=m.mw;if(eq)eq.value=m.eq||'';}else{if(mw)mw.value='';if(eq)eq.value='';}
+ addChemRow({name:name,cat:lot.cat||e.cat||'',lot:lot.lot||'',make:lot.make||e.make||'',exp:lot.exp||''});
+ try{calcSolid();}catch(_){}}
+function loadSolid(){const i=val('s_lib');if(i==='')return;
+ if(String(i).slice(0,4)==='inv:'){loadInvSolid(String(i).slice(4));return;}
+ const x=LIB.filter(y=>!y.liquid)[i];
  document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';
  document.getElementById('s_saltmw').value='';document.getElementById('s_elmw').value='';
  var es=document.getElementById('s_el');if(es)es.value='';
@@ -680,18 +693,21 @@ function useLib(i){const x=LIB[i];
  else{document.getElementById('s_name').value=x.n;document.getElementById('s_mw').value=x.mw;document.getElementById('s_eq').value=x.eq||'';calcSolid();}}
 
 /* ---- editable chemical rows + inventory autocomplete (live build queries ChemicalItem/ChemicalLot) ---- */
-const INV={
- "Oxalic acid dihydrate":{cat:"00376",make:"Sigma",lots:[{lot:"SLCN5391",exp:"Jun 2027"}]},
- "Silver nitrate":{cat:"7520-4125",make:"Daejung",lots:[{lot:"90BS42C1",exp:"2030"}]},
- "EDTA disodium dihydrate":{cat:"E1644",make:"Sigma",lots:[{lot:"SLCDS217",exp:"Aug 2027"}]},
- "Potassium dichromate":{cat:"207802",make:"Sigma-Aldrich",lots:[{lot:"MKCS3074",exp:"Sep 2027"}]},
- "Sulphuric acid":{cat:"258105",make:"Sigma-Aldrich",lots:[{lot:"MKCW4009",exp:"Jul 2029"}]},
- "Mercuric sulphate":{cat:"83565-180",make:"VWR",lots:[{lot:"B385712110",exp:"Sep 2026"}]},
- "Sodium chloride":{cat:"746398",make:"Sigma",lots:[{lot:"SLCM3356",exp:"Jan 2028"}]},
- "Ferric chloride hexahydrate":{cat:"1.03943",make:"Merck",lots:[{lot:"K52130343",exp:"Oct 2027"}]},
- "Sodium phosphate monobasic":{cat:"S9638",make:"Sigma",lots:[{lot:"BCCK5996",exp:"Jun 2026"}]},
-};
-function fillInvList(){document.getElementById('invList').innerHTML=Object.keys(INV).map(n=>`<option value="${n}">`).join('');}
+/* Live inventory, served by reagent_prep_calculator() from ChemicalItem /
+   ChemicalLot.  This replaced a nine-entry hardcoded map whose CAT / brand /
+   lot values had drifted away from the Karachi register (analyst finding,
+   27-07-2026).  INV keeps its original {name:{cat,make,lots:[...]}} shape so
+   fillInvList() / chemPick() / addChemRow() are unchanged in behaviour. */
+var ETAL_INV=(function(){try{var e=document.getElementById('etalInv');if(!e)return[];var t=(e.textContent||'').trim();if(!t)return[];var a=JSON.parse(t);return Array.isArray(a)?a:[];}catch(_){return[];}})();
+function calcLoc(){var e=document.getElementById('loc');return (e&&e.value)||'Karachi';}
+function invRows(){var L=calcLoc();return ETAL_INV.filter(function(r){return !r.loc||r.loc===L;});}
+var INV={};
+function rebuildINV(){INV={};invRows().forEach(function(r){if(!r.name)return;var e=INV[r.name];if(!e){e=INV[r.name]={cat:r.cat||'',make:r.make||'',lots:[]};}
+  e.lots.push({lot:r.lot||'',exp:r.expiry||'',cat:r.cat||'',make:r.make||'',status:r.status||''});});}
+function invOptgroupHTML(){return Object.keys(INV).sort().map(function(n){var e=INV[n];var d=(e.lots.length>1)?(' - '+e.lots.length+' lots'):(e.make?(' - '+e.make):'');return '<option value="inv:'+n.replace(/"/g,'&quot;')+'">'+n+d+'</option>';}).join('');}
+function fillInvList(){rebuildINV();
+  var dl=document.getElementById('invList');if(dl)dl.innerHTML=Object.keys(INV).sort().map(function(n){return '<option value="'+n.replace(/"/g,'&quot;')+'">';}).join('');
+  var og=document.getElementById('s_lib_inv');if(og){og.label='Laboratory inventory - '+calcLoc()+' ('+Object.keys(INV).length+')';og.innerHTML=invOptgroupHTML();}}
 function addChemRow(d){d=d||{};const tb=document.getElementById('recRows');const tr=document.createElement('tr');
  tr.innerHTML=`<td class="sn"></td>
   <td><input list="invList" class="cr" style="width:100%;border:none;font:inherit;font-size:11.5px" value="${(d.name||'').replace(/"/g,'&quot;')}" oninput="chemPick(this)"/></td>
@@ -703,6 +719,7 @@ function addChemRow(d){d=d||{};const tb=document.getElementById('recRows');const
   <td style="text-align:center"><button title="delete row" onclick="this.closest('tr').remove();renumber()" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:14px">&times;</button></td>`;
  tb.appendChild(tr);renumber();}
 function chemPick(inp){const rec=INV[inp.value.trim()];if(!rec)return;const tr=inp.closest('tr');const lot=(rec.lots&&rec.lots[0])||{};
+ if(lot.cat)rec.cat=lot.cat; if(lot.make)rec.make=lot.make;
  // Only overwrite where the library actually has a value: a name match with no
  // lot data must not wipe CAT / LOT / Make / Expiry the analyst already entered.
  var _set=function(sel,v){var f=tr.querySelector(sel);if(f&&v)f.value=v;};
