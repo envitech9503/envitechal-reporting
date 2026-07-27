@@ -140,6 +140,13 @@ def _inventory_for_autocomplete():
             cat, lotno = _split_cat_lot(lot.lot_no)
             brand = _brand_of(lot, it)
             supplier = lot.supplier or ''
+            # The structural columns are authoritative.  The free-text parsing
+            # above is retained only as a fallback for lots recorded before
+            # these columns existed.  Anything entered from 27-07-2026 onwards
+            # is read straight from ChemicalLot.cat_no and ChemicalLot.brand
+            # and cannot be lost to a change of typing convention.
+            cat = (getattr(lot, 'cat_no', '') or '').strip() or cat
+            brand = (getattr(lot, 'brand', '') or '').strip() or brand
             rows.append({
                 'id': lot.id,
                 'loc': lot.location or '',

@@ -2618,6 +2618,8 @@ class ChemicalLot(models.Model):
     item = models.ForeignKey(ChemicalItem, on_delete=models.CASCADE, related_name='lots')
     location = models.CharField(max_length=20, default='Karachi')
     lot_no = models.CharField(max_length=80, blank=True, default='')
+    cat_no = models.CharField(max_length=80, blank=True, default='')
+    brand = models.CharField(max_length=120, blank=True, default='')
     supplier = models.CharField(max_length=150, blank=True, default='')
     po_ref = models.CharField(max_length=60, blank=True, default='')
     received = models.DateField(null=True, blank=True)

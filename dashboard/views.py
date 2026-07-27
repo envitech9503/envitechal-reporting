@@ -919,7 +919,7 @@ def chemicals_data(request):
                 continue
             state, days = _chem_exp_state(lot, today)
             total += max(bal, 0)
-            lots_out.append({'id': lot.id, 'lot_no': lot.lot_no, 'supplier': lot.supplier, 'po_ref': lot.po_ref,
+            lots_out.append({'id': lot.id, 'lot_no': lot.lot_no, 'cat_no': lot.cat_no, 'brand': lot.brand, 'supplier': lot.supplier, 'po_ref': lot.po_ref,
                              'received': lot.received.strftime('%d-%m-%Y') if lot.received else '',
                              'expiry': lot.expiry.strftime('%d-%m-%Y') if lot.expiry else '',
                              'opened': lot.opened.strftime('%d-%m-%Y') if lot.opened else '',
@@ -1037,7 +1037,7 @@ def chemicals_save(request):
         qty = _f('qty')
         if not qty or qty <= 0:
             return JsonResponse({'error': 'Received quantity must be a positive number'}, status=400)
-        lot = ChemicalLot.objects.create(item=it, location=loc, lot_no=(g.get('lot_no') or '')[:80],
+        lot = ChemicalLot.objects.create(item=it, location=loc, lot_no=(g.get('lot_no') or '')[:80], cat_no=(g.get('cat_no') or '').strip()[:80], brand=(g.get('brand') or '').strip()[:120],
                                          supplier=(g.get('supplier') or '')[:150], po_ref=(g.get('po_ref') or '')[:60],
                                          received=_d('received') or timezone.localdate(), expiry=_d('expiry'),
                                          qty_received=qty, coa=(g.get('coa') == '1'),
@@ -1109,6 +1109,16 @@ def chemicals_save(request):
         lot.remarks = combined[-200:]
         lot.save()
         return JsonResponse({'ok': True, 'expiry': ne.strftime('%d-%m-%Y')})
+
+    if act == 'lotedit':
+        try:
+            lot = ChemicalLot.objects.get(id=int(g.get('lot')))
+        except Exception:
+            return JsonResponse({'error': 'Lot not found'}, status=404)
+        lot.cat_no = (g.get('cat_no') or '').strip()[:80]
+        lot.brand = (g.get('brand') or '').strip()[:120]
+        lot.save(update_fields=['cat_no', 'brand'])
+        return JsonResponse({'ok': True, 'cat_no': lot.cat_no, 'brand': lot.brand})
 
     return JsonResponse({'error': 'Unknown action'}, status=400)
 

@@ -54,6 +54,8 @@
   <h3 id="recvT">Receive stock</h3>
   <div class="grid">
     <div><label>Lot / Batch No</label><input id="r_lot"></div>
+    <div><label>Catalogue No</label><input id="r_cat" placeholder="e.g. 7520-4125"></div>
+    <div><label>Manufacturer / Brand</label><input id="r_brand" placeholder="e.g. Sigma-Aldrich"></div>
     <div><label>Supplier</label><input id="r_sup"></div>
     <div><label>PO Reference (e.g. PO-ETAL-1236)</label><input id="r_po"></div>
     <div><label>Received date</label><input id="r_rec" type="date"></div>
@@ -63,6 +65,14 @@
     <div class="full"><label>Remarks</label><input id="r_rem"></div>
   </div>
   <div class="foot"><button class="btn-o" onclick="closeModals()">Cancel</button><button class="btn-g" onclick="saveRecv()">Receive into <span id="recvLoc"></span></button></div>
+</div>
+<div class="modal" id="ldet">
+  <h3>Lot details</h3>
+  <div class="grid">
+    <div><label>Catalogue No</label><input id="d_cat"></div>
+    <div><label>Manufacturer / Brand</label><input id="d_brand"></div>
+  </div>
+  <div class="foot"><button class="btn-o" onclick="closeModals()">Cancel</button><button class="btn-g" onclick="saveLotDetails()">Save details</button></div>
 </div>
 <div class="modal" id="ledg">
   <h3 id="ledgT">Lot ledger</h3>
@@ -112,10 +122,10 @@ function render(){
     tb.appendChild(tr);
     if(OPEN[r.id]&&r.lots.length){
       var h=document.createElement('tr');h.className='lotrow';
-      h.innerHTML='<td></td><td colspan="9"><table style="font-size:12px"><thead><tr><th>Lot/Batch</th><th>Supplier</th><th>PO Ref</th><th>Received</th><th>Expiry</th><th>Opened</th><th>Balance</th><th>CoA</th><th>Status</th><th></th></tr></thead><tbody>'+r.lots.map(function(l){
+      h.innerHTML='<td></td><td colspan="9"><table style="font-size:12px"><thead><tr><th>Lot/Batch</th><th>Cat No</th><th>Make</th><th>Supplier</th><th>PO Ref</th><th>Received</th><th>Expiry</th><th>Opened</th><th>Balance</th><th>CoA</th><th>Status</th><th></th></tr></thead><tbody>'+r.lots.map(function(l){
         var ex=l.expiry?('<span class="st '+(l.exp_state||'none')+'">'+esc(l.expiry)+(l.exp_state==='Expiring'?' ('+l.exp_days+'d)':'')+'</span>'):'';
-        return '<tr><td>'+esc(l.lot_no)+'</td><td>'+esc(l.supplier)+'</td><td>'+esc(l.po_ref)+'</td><td>'+esc(l.received)+'</td><td>'+ex+'</td><td>'+esc(l.opened)+'</td><td><b>'+l.balance+' '+esc(r.unit)+'</b></td><td>'+(l.coa?'Yes':'No')+'</td><td><span class="st '+(l.status==='In use'?'Inuse':esc(l.status))+'">'+esc(l.status)+'</span></td>'+
-          '<td style="white-space:nowrap"><button class="btn-s" onclick="issue('+l.id+',\''+esc(r.unit)+'\')">Issue</button> <button class="btn-o" onclick="adjust('+l.id+',\''+esc(r.unit)+'\')">Adjust</button> <button class="btn-o" onclick="ledger('+l.id+')">Ledger</button> <button class="btn-o" onclick="lotStatus('+l.id+',\''+esc(l.status)+'\')">Status</button> <button class="btn-o" onclick="retest('+l.id+',\''+esc(l.expiry)+'\')">Retest</button></td></tr>';
+        return '<tr><td>'+esc(l.lot_no)+'</td><td>'+esc(l.cat_no||'')+'</td><td>'+esc(l.brand||'')+'</td><td>'+esc(l.supplier)+'</td><td>'+esc(l.po_ref)+'</td><td>'+esc(l.received)+'</td><td>'+ex+'</td><td>'+esc(l.opened)+'</td><td><b>'+l.balance+' '+esc(r.unit)+'</b></td><td>'+(l.coa?'Yes':'No')+'</td><td><span class="st '+(l.status==='In use'?'Inuse':esc(l.status))+'">'+esc(l.status)+'</span></td>'+
+          '<td style="white-space:nowrap"><button class="btn-s" onclick="issue('+l.id+',\''+esc(r.unit)+'\')">Issue</button> <button class="btn-o" onclick="adjust('+l.id+',\''+esc(r.unit)+'\')">Adjust</button> <button class="btn-o" onclick="ledger('+l.id+')">Ledger</button> <button class="btn-o" onclick="lotStatus('+l.id+',\''+esc(l.status)+'\')">Status</button> <button class="btn-o" onclick="retest('+l.id+',\''+esc(l.expiry)+'\')">Retest</button> <button class="btn-o" onclick="lotDetails('+l.id+')">Details</button></td></tr>';
       }).join('')+'</tbody></table></td>';
       tb.appendChild(h);
     }
@@ -128,13 +138,16 @@ function saveItem(){var fd=new FormData();fd.append('act','item');fd.append('id'
 function editItem(id){var r=DATA.filter(function(x){return x.id===id;})[0];if(!r)return;document.getElementById('addbar').style.display='flex';document.getElementById('f_id').value=id;document.getElementById('f_name').value=r.name;document.getElementById('f_category').value=r.category;document.getElementById('f_grade').value=r.grade;document.getElementById('f_cas').value=r.cas;document.getElementById('f_unit').value=r.unit;document.getElementById('f_storage').value=r.storage;document.getElementById('f_hazard').value=r.hazard;document.getElementById('f_reorder').value=(r.reorder!=null?r.reorder:'');document.getElementById('f_notes').value=r.notes;document.getElementById('itembtn').textContent='Update item';window.scrollTo(0,0);}
 function retire(id){if(!confirm('Retire this item from the catalogue? Its history is kept.'))return;var fd=new FormData();fd.append('act','retire');fd.append('id',id);post(fd);}
 function openRecv(id){RITEM=id;var r=DATA.filter(function(x){return x.id===id;})[0];document.getElementById('recvT').textContent='Receive stock - '+(r?r.name:'');document.getElementById('recvLoc').textContent=LOC;document.getElementById('mbg').style.display='block';document.getElementById('recv').style.display='block';}
-function saveRecv(){var fd=new FormData();fd.append('act','receive');fd.append('item',RITEM);fd.append('location',LOC);fd.append('lot_no',document.getElementById('r_lot').value);fd.append('supplier',document.getElementById('r_sup').value);fd.append('po_ref',document.getElementById('r_po').value);fd.append('received',document.getElementById('r_rec').value);fd.append('expiry',document.getElementById('r_exp').value);fd.append('qty',document.getElementById('r_qty').value);fd.append('coa',document.getElementById('r_coa').value);fd.append('remarks',document.getElementById('r_rem').value);post(fd,function(){closeModals();['r_lot','r_sup','r_po','r_qty','r_rem'].forEach(function(k){document.getElementById(k).value='';});});}
+function saveRecv(){var fd=new FormData();fd.append('act','receive');fd.append('item',RITEM);fd.append('location',LOC);fd.append('lot_no',document.getElementById('r_lot').value);fd.append('cat_no',document.getElementById('r_cat').value);fd.append('brand',document.getElementById('r_brand').value);fd.append('supplier',document.getElementById('r_sup').value);fd.append('po_ref',document.getElementById('r_po').value);fd.append('received',document.getElementById('r_rec').value);fd.append('expiry',document.getElementById('r_exp').value);fd.append('qty',document.getElementById('r_qty').value);fd.append('coa',document.getElementById('r_coa').value);fd.append('remarks',document.getElementById('r_rem').value);post(fd,function(){closeModals();['r_lot','r_cat','r_brand','r_sup','r_po','r_qty','r_rem'].forEach(function(k){document.getElementById(k).value='';});});}
 function issue(lot,unit){var q=prompt('Quantity to issue / consume ('+unit+'):','');if(q==null||q==='')return;var rem=prompt('Purpose / remarks (optional):','')||'';var fd=new FormData();fd.append('act','move');fd.append('lot',lot);fd.append('mtype','OUT');fd.append('qty',q);fd.append('remarks',rem);post(fd);}
 function adjust(lot,unit){var q=prompt('Adjustment in '+unit+' (use minus for losses, e.g. -25 for spillage; positive to correct upwards):','');if(q==null||q==='')return;var rem=prompt('Reason for adjustment (required):','');if(!rem){alert('A reason is required for stock adjustments.');return;}var fd=new FormData();fd.append('act','move');fd.append('lot',lot);fd.append('mtype','ADJ');fd.append('qty',q);fd.append('remarks',rem);post(fd);}
 function retest(lot,curexp){var ne=prompt('Retest - enter NEW expiry date (YYYY-MM-DD). Current: '+(curexp||'-'),'');if(!ne||!ne.trim())return;var rm=prompt('Optional note / reason (e.g. retest pass, CoA ref):','')||'';var fd=new FormData();fd.append('act','retest');fd.append('lot',lot);fd.append('new_expiry',ne.trim());fd.append('remarks',rm.trim());post(fd);}
 function lotStatus(lot,cur){var st=prompt('Set lot status: In use / Quarantine / Finished / Discarded',cur);if(!st)return;var fd=new FormData();fd.append('act','lotstatus');fd.append('lot',lot);fd.append('status',st.trim());post(fd);}
+var DLOT=null;
+function lotDetails(id){DLOT=id;var f=null;DATA.forEach(function(r){(r.lots||[]).forEach(function(l){if(l.id===id){f=l;}});});document.getElementById('d_cat').value=(f&&f.cat_no)||'';document.getElementById('d_brand').value=(f&&f.brand)||'';document.getElementById('mbg').style.display='block';document.getElementById('ldet').style.display='block';}
+function saveLotDetails(){var fd=new FormData();fd.append('act','lotedit');fd.append('lot',DLOT);fd.append('cat_no',document.getElementById('d_cat').value);fd.append('brand',document.getElementById('d_brand').value);post(fd,function(){closeModals();});}
 function ledger(lot){fetch('/dashboard/api/chemicals/?lot='+lot,{credentials:'include'}).then(function(r){return r.json();}).then(function(d){if(!d.lot){alert('Not found');return;}document.getElementById('ledgT').textContent='Ledger - '+d.lot.item+(d.lot.lot_no?' (Lot '+d.lot.lot_no+')':'')+' - balance '+d.lot.balance+' '+d.lot.unit;document.getElementById('ledrows').innerHTML=(d.moves||[]).map(function(m){return '<tr><td>'+esc(m.date)+'</td><td>'+esc(m.type)+'</td><td>'+m.qty+'</td><td>'+esc(m.by)+'</td><td>'+esc(m.remarks)+'</td></tr>';}).join('')||'<tr><td colspan="5" class="empty">No movements</td></tr>';document.getElementById('mbg').style.display='block';document.getElementById('ledg').style.display='block';});}
-function closeModals(){['mbg','recv','ledg'].forEach(function(i){document.getElementById(i).style.display='none';});}
+function closeModals(){['mbg','recv','ledg','ldet'].forEach(function(i){document.getElementById(i).style.display='none';});}
 function saveDoc(){var fd=new FormData();fd.append('act','doc');fd.append('location',LOC);fd.append('doc_no',document.getElementById('d_no').value);fd.append('issue_date',document.getElementById('d_date').value);fd.append('issue_no',document.getElementById('d_iss').value);fd.append('rev_no',document.getElementById('d_rev').value);post(fd);}
 load();
 </script>
