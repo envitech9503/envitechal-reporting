@@ -8358,7 +8358,7 @@ def wasteWater2cloneSave(request,pk):
           else:
               return HttpResponse("Invalid request method", status=400)
      # context = {'list': existing_dw}
-     return render(request, "WasteWaterForm2Clone.html")
+     return redirect(to='wasteWater2-clone', pk=pk)
 
 def wasteWaterclone(request,pk):
      existing_form = WasteWaterSludge.objects.get(id=pk)
@@ -8504,7 +8504,7 @@ def wasteWatercloneSave(request,pk):
             else:
                 return HttpResponse("Invalid request method", status=400)
      # context = {'list': existing_dw}
-     return render(request, "WasteWaterSludgeClone.html")
+     return redirect(to='wastewater-clone', pk=pk)
 
 __all__ = [
     'wasteWaterSludge',

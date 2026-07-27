@@ -1467,6 +1467,18 @@ const doc_3 = document.querySelector('#doc_3')
                 $("#save_rows").on('click', getExtraFields)
                 var table = document.querySelector('#table')
                 var add_rows = document.querySelector('#add_rows')
+        /* fix14-H: bind #add_rows click exactly once, permanently. */
+        if (add_rows && !add_rows.__etalBindOnce) {
+            add_rows.__etalBindOnce = 1;
+            var __etalAEL = add_rows.addEventListener.bind(add_rows);
+            add_rows.addEventListener = function (t, f, o) {
+                if (t === 'click') {
+                    if (add_rows.__etalClickBound) { return; }
+                    add_rows.__etalClickBound = 1;
+                }
+                return __etalAEL(t, f, o);
+            };
+        }
                 currentNumber = 33
 
                 add_rows.addEventListener('click', (e) => {
@@ -1531,6 +1543,18 @@ const doc_3 = document.querySelector('#doc_3')
                 $("#save_rows").on('click', getExtraFields)
                 var table = document.querySelector('#table')
                 var add_rows = document.querySelector('#add_rows')
+        /* fix14-H: bind #add_rows click exactly once, permanently. */
+        if (add_rows && !add_rows.__etalBindOnce) {
+            add_rows.__etalBindOnce = 1;
+            var __etalAEL = add_rows.addEventListener.bind(add_rows);
+            add_rows.addEventListener = function (t, f, o) {
+                if (t === 'click') {
+                    if (add_rows.__etalClickBound) { return; }
+                    add_rows.__etalClickBound = 1;
+                }
+                return __etalAEL(t, f, o);
+            };
+        }
                 currentNumber = 33
 
                 add_rows.addEventListener('click', (e) => {
@@ -1596,6 +1620,18 @@ const doc_3 = document.querySelector('#doc_3')
                  $("#save_rows").on('click', getExtraFields)
                  var table = document.querySelector('#table')
                  var add_rows = document.querySelector('#add_rows')
+        /* fix14-H: bind #add_rows click exactly once, permanently. */
+        if (add_rows && !add_rows.__etalBindOnce) {
+            add_rows.__etalBindOnce = 1;
+            var __etalAEL = add_rows.addEventListener.bind(add_rows);
+            add_rows.addEventListener = function (t, f, o) {
+                if (t === 'click') {
+                    if (add_rows.__etalClickBound) { return; }
+                    add_rows.__etalClickBound = 1;
+                }
+                return __etalAEL(t, f, o);
+            };
+        }
                  currentNumber = 33
 
                  add_rows.addEventListener('click', (e) => {
@@ -1658,6 +1694,18 @@ const doc_3 = document.querySelector('#doc_3')
                  $("#save_rows").on('click', getExtraFields)
                  var table = document.querySelector('#table')
                  var add_rows = document.querySelector('#add_rows')
+        /* fix14-H: bind #add_rows click exactly once, permanently. */
+        if (add_rows && !add_rows.__etalBindOnce) {
+            add_rows.__etalBindOnce = 1;
+            var __etalAEL = add_rows.addEventListener.bind(add_rows);
+            add_rows.addEventListener = function (t, f, o) {
+                if (t === 'click') {
+                    if (add_rows.__etalClickBound) { return; }
+                    add_rows.__etalClickBound = 1;
+                }
+                return __etalAEL(t, f, o);
+            };
+        }
                  currentNumber = 33
 
                  add_rows.addEventListener('click', (e) => {
@@ -1718,6 +1766,18 @@ const doc_3 = document.querySelector('#doc_3')
                     $("#save_rows").on('click', getExtraFields);
                     var table = document.querySelector('#table');
                     var add_rows = document.querySelector('#add_rows');
+        /* fix14-H: bind #add_rows click exactly once, permanently. */
+        if (add_rows && !add_rows.__etalBindOnce) {
+            add_rows.__etalBindOnce = 1;
+            var __etalAEL = add_rows.addEventListener.bind(add_rows);
+            add_rows.addEventListener = function (t, f, o) {
+                if (t === 'click') {
+                    if (add_rows.__etalClickBound) { return; }
+                    add_rows.__etalClickBound = 1;
+                }
+                return __etalAEL(t, f, o);
+            };
+        }
                     var currentNumber = 33;
             
                     add_rows.addEventListener('click', (e) => {
