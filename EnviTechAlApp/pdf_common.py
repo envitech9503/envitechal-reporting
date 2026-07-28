@@ -1878,7 +1878,7 @@ class PDF_vehicularEmissionReport(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(84.8,104,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.vehEm_test_type)
+               self.text(110,104,txt=(self.vehEm_test_type or "") + ((" - " + self.vehEm_test_type_extra) if self.vehEm_test_type_extra else ""))
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
@@ -1907,7 +1907,7 @@ class PDF_vehicularEmissionReport(FPDF):
 
 class PDF_vehicularEmissionReport1(FPDF):
      def __init__(self,lab_report_no,invoice_bill_no,reporting_date,address,attention,email,sample_id,vehEm_test_perf_date,
-                  vehEm_test_perfBy,vehEm_test_type,vehEm_test_desc,report_to,*args, **kwargs):
+                  vehEm_test_perfBy,vehEm_test_type,vehEm_test_desc,report_to,vehEm_test_type_extra=None,*args, **kwargs):
           super().__init__(*args, **kwargs)
           self.show_full_header = True
           self.lab_report_no = lab_report_no
@@ -1920,6 +1920,7 @@ class PDF_vehicularEmissionReport1(FPDF):
           self.vehEm_test_perf_date = vehEm_test_perf_date
           self.vehEm_test_perfBy = vehEm_test_perfBy
           self.vehEm_test_type = vehEm_test_type
+          self.vehEm_test_type_extra = vehEm_test_type_extra
           self.vehEm_test_desc = vehEm_test_desc
           self.report_to = report_to
 
@@ -2078,7 +2079,7 @@ class PDF_vehicularEmissionReport1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(84.8,109,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.vehEm_test_type)
+               self.text(110,109,txt=(self.vehEm_test_type or "") + ((" - " + self.vehEm_test_type_extra) if self.vehEm_test_type_extra else ""))
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)

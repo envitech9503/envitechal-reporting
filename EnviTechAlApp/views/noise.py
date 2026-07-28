@@ -343,6 +343,10 @@ def noiseAnalysisUpdate(request,pk):
 
 
 
+NOISE_ANALYSIS_LIMITS = {"Residential Day":55,"Residential Night":45,
+    "Commercial Day":65,"Commercial Night":55,"Industrial Day":75,
+    "Industrial Night":65,"Silence Day":50,"Silence Night":45}
+
 def noiseAnalysisView(request,pk):
      nA = NoiseAnalysis.objects.get(id=pk)
      nA.extra_field = nA.extra_field.replace("'", "\"")
@@ -364,7 +368,11 @@ def noiseAnalysisView(request,pk):
      img = qr.make_image(fill_color="black", back_color="white")
      img.save(qr_file_path)
      qr_relative_path = f"{settings.MEDIA_URL}{qr_filename}"
-     context = {'data':nA,'qr':qr_relative_path,'logo':logo}
+     _sel_na = (nA.select1 or '').strip()
+     _show_limit = (_sel_na != 'No Limit')
+     _noise_limit = NOISE_ANALYSIS_LIMITS.get(_sel_na, nA.custom_limit or '-')
+     context = {'data':nA,'qr':qr_relative_path,'logo':logo,
+                'show_limit':_show_limit,'noise_limit':_noise_limit}
 
      return render(request,'noiseAnalysisReport.html',context)
 
@@ -809,6 +817,13 @@ def noiseAnalysisReport(request,pk):
                if _loc:
                     TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,(nA.custom_limit or "-")])
                     sr_no = sr_no+1
+     if (nA.select1 or '').strip() == 'No Limit':
+         _nl_p = [(getattr(nA,'r%d'%_x),getattr(nA,'r%d_%d'%(_x,_x)))
+                  for _x in range(1,14)]
+         for _loc,_res in _nl_p:
+             if _loc:
+                 TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,""])
+                 sr_no = sr_no+1
      for extra_field in nA.extra_field:
           areas = extra_field.get("areas")
           methods = extra_field.get("methods")
@@ -851,7 +866,14 @@ def noiseAnalysisReport(request,pk):
 
 
      #report data table
-     with pdf.table(col_widths=(10, 50, 30,30,30,30),width=190,line_height=6,text_align=("CENTER","LEFT","CENTER","CENTER",'CENTER','CENTER')) as table:
+     _sel_na = (nA.select1 or '').strip()
+     _show_na = (_sel_na != 'No Limit')
+     if not _show_na:
+         TABLE_DATA = [_r[:5] for _r in TABLE_DATA]
+     _cw_na = (10, 50, 30,30,30,30) if _show_na else (10, 50, 30,30,30)
+     _ta_na = ("CENTER","LEFT","CENTER","CENTER","CENTER","CENTER")
+     if not _show_na: _ta_na = ("CENTER","LEFT","CENTER","CENTER","CENTER")
+     with pdf.table(col_widths=_cw_na,width=190,line_height=6,text_align=_ta_na) as table:
 
 
 
@@ -859,7 +881,8 @@ def noiseAnalysisReport(request,pk):
           for k in range(0,len(TABLE_DATA)):
                data_row = TABLE_DATA[k]
                if k == 0:
-                    data_row[5] = nA.select + ' Limits'
+                    if len(data_row) > 5:
+                        data_row[5] = nA.select + ' Limits'
 
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
@@ -1661,6 +1684,13 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
                if _loc:
                     TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,(nA.custom_limit or "-")])
                     sr_no = sr_no+1
+     if (nA.select1 or '').strip() == 'No Limit':
+         _nl_p = [(getattr(nA,'r%d'%_x),getattr(nA,'r%d_%d'%(_x,_x)))
+                  for _x in range(1,14)]
+         for _loc,_res in _nl_p:
+             if _loc:
+                 TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,""])
+                 sr_no = sr_no+1
      for extra_field in nA.extra_field:
           areas = extra_field.get("areas")
           methods = extra_field.get("methods")
@@ -1702,7 +1732,14 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
 
 
      #report data table
-     with pdf.table(col_widths=(10, 50, 30,30,30,30),width=190,line_height=6,text_align=("CENTER","LEFT","CENTER","CENTER",'CENTER','CENTER')) as table:
+     _sel_na = (nA.select1 or '').strip()
+     _show_na = (_sel_na != 'No Limit')
+     if not _show_na:
+         TABLE_DATA = [_r[:5] for _r in TABLE_DATA]
+     _cw_na = (10, 50, 30,30,30,30) if _show_na else (10, 50, 30,30,30)
+     _ta_na = ("CENTER","LEFT","CENTER","CENTER","CENTER","CENTER")
+     if not _show_na: _ta_na = ("CENTER","LEFT","CENTER","CENTER","CENTER")
+     with pdf.table(col_widths=_cw_na,width=190,line_height=6,text_align=_ta_na) as table:
 
 
 
@@ -1710,7 +1747,8 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
           for k in range(0,len(TABLE_DATA)):
                data_row = TABLE_DATA[k]
                if k == 0:
-                    data_row[5] = nA.select + ' Limits'
+                    if len(data_row) > 5:
+                        data_row[5] = nA.select + ' Limits'
 
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")

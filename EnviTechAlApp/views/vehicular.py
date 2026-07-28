@@ -769,7 +769,7 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
 
      pdf = PDFWithPageNumbers(lab_report_no=vem.lab_report_no,invoice_bill_no=vem.invoice_bill_no,reporting_date=vem.reporting_date,report_to=vem.report_to,
                               address=vem.address,attention=vem.attention,email=vem.email,sample_id=vem.sample_id,vehEm_test_perf_date=vem.vehEm_test_perf_date,
-                              vehEm_test_desc=vem.vehEm_test_desc,vehEm_test_type=vem.vehEm_test_type,vehEm_test_perfBy=vem.vehEm_test_perfBy,
+                              vehEm_test_desc=vem.vehEm_test_desc,vehEm_test_type=vem.vehEm_test_type,vehEm_test_perfBy=vem.vehEm_test_perfBy,vehEm_test_type_extra=vem.vehEm_test_type_extra,
 
                               )
      pdf._rq_request, pdf._rq_pk = request, pk

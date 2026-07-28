@@ -277,7 +277,7 @@
       <table id="report-table" class="water-report-table border border-black mt-2 w-8/12" cellspacing="15">
         <thead>
           <tr>
-            <th class="font-semibold" style="font-size: 15px;" colspan="6">Test Report</th>
+            <th class="font-semibold" style="font-size: 15px;" colspan="{% if show_limit %}6{% else %}5{% endif %}">Test Report</th>
           </tr>
           <tr class="">
             <th class="border border-black">Sr.#</th>
@@ -285,7 +285,7 @@
             <th class="border border-black">Methods</th>
             <th class="border border-black">Unit</th>
             <th class="border border-black">Result</th>
-            <th class="border border-black">{{data.select}} Limits</th>
+            {% if show_limit %}<th class="border border-black">{{data.select}} Limits</th>{% endif %}
           </tr>
         </thead>
         <tbody id="">
@@ -296,30 +296,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r1_1}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -330,30 +307,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r2_2}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -364,30 +318,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r3_3}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -398,30 +329,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r4_4}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -432,30 +340,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r5_5}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -466,30 +351,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r6_6}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -500,30 +362,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r7_7}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -534,30 +373,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r8_8}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -568,30 +384,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r9_9}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -602,30 +395,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r10_10}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -636,30 +406,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r11_11}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -670,30 +417,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r12_12}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -704,30 +428,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r13_13}}</td>
-            {%if data.select1 == 'Residential Day'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Residential Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Day'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Commercial Night'%}
-                <td class="text-center">55</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Day'%}
-                <td class="text-center">75</td>
-            {%endif%}
-            {%if data.select1 == 'Industrial Night'%}
-                <td class="text-center">65</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Day'%}
-                <td class="text-center">50</td>
-            {%endif%}
-            {%if data.select1 == 'Silence Night'%}
-                <td class="text-center">45</td>
-            {%endif%}
+            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -738,7 +439,7 @@
             <td class="pl-2">{{ extra_field.methods }}</td>
             <td class="text-center">{{ extra_field.unit }}</td>
             <td class="text-center">{{ extra_field.result }}</td>
-            <td class="text-center">{{ extra_field.limit }}</td>
+            {% if show_limit %}<td class="text-center">{{ extra_field.limit }}</td>{% endif %}
           </tr>
           
       {% endfor %}
