@@ -296,7 +296,7 @@
       <table id="" class="water-report-table border border-black mt-2 w-8/12" cellspacing="15">
         <thead>
           <tr>
-            <th class="font-semibold" style="font-size: 15px;" colspan="{% if data.in_out == 'in-out' %}9{% elif data.in_out == 'inlet_customlimits' or data.in_out == 'outlet_customLimits' %}6{% else %}8{% endif %}">Analyyical Test Report</th>
+            <th class="font-semibold" style="font-size: 15px;" colspan="{% if data.in_out == 'in-out' %}9{% elif data.in_out == 'in_out_customlimits' %}7{% elif data.in_out == 'inlet_customlimits' or data.in_out == 'outlet_customLimits' %}6{% else %}8{% endif %}">Analyyical Test Report</th>
           </tr>
           <tr class="">
             <th class="border border-black">Sr.#</th>
@@ -318,6 +318,11 @@
             <th class="border border-black">{{data.cutomLimit1}}</th>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <th class="border border-black">{{data.outlet_result|default:"Outlet Results"}}</th>
+            <th class="border border-black">{{data.cutomLimit1}}</th>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <th class="border border-black">{{data.inlet_result|default:"Inlet Results"}}</th>
             <th class="border border-black">{{data.outlet_result|default:"Outlet Results"}}</th>
             <th class="border border-black">{{data.cutomLimit1}}</th>
             {%endif%}
@@ -397,6 +402,11 @@
             <td class="text-center">{{data.result_1_1}}</td>
             <td class="border border-black">{{data.cutomLimit2}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_1}}</td>
+            <td class="text-center">{{data.result_1_1}}</td>
+            <td class="border border-black">{{data.cutomLimit2}}</td>
+            {%endif%}
           </tr>
           {%endif%}
 
@@ -467,6 +477,11 @@
             <td class="border border-black">{{data.cutomLimit3}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_2_2}}</td>
+            <td class="border border-black">{{data.cutomLimit3}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_2}}</td>
             <td class="text-center">{{data.result_2_2}}</td>
             <td class="border border-black">{{data.cutomLimit3}}</td>
             {%endif%}
@@ -544,6 +559,11 @@
             <td class="text-center">{{data.result_3_3}}</td>
             <td class="border border-black">{{data.cutomLimit4}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_3}}</td>
+            <td class="text-center">{{data.result_3_3}}</td>
+            <td class="border border-black">{{data.cutomLimit4}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -615,6 +635,11 @@
             <td class="border border-black">{{data.cutomLimit5}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_4_4}}</td>
+            <td class="border border-black">{{data.cutomLimit5}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_4}}</td>
             <td class="text-center">{{data.result_4_4}}</td>
             <td class="border border-black">{{data.cutomLimit5}}</td>
             {%endif%}
@@ -692,6 +717,11 @@
             <td class="text-center">{{data.result_5_5}}</td>
             <td class="border border-black">{{data.cutomLimit6}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_5}}</td>
+            <td class="text-center">{{data.result_5_5}}</td>
+            <td class="border border-black">{{data.cutomLimit6}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -766,6 +796,11 @@
             <td class="text-center">{{data.result_6_6}}</td>
             <td class="border border-black">{{data.cutomLimit7}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_6}}</td>
+            <td class="text-center">{{data.result_6_6}}</td>
+            <td class="border border-black">{{data.cutomLimit7}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -837,6 +872,11 @@
             <td class="border border-black">{{data.cutomLimit8}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_7_7}}</td>
+            <td class="border border-black">{{data.cutomLimit8}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_7}}</td>
             <td class="text-center">{{data.result_7_7}}</td>
             <td class="border border-black">{{data.cutomLimit8}}</td>
             {%endif%}
@@ -922,6 +962,11 @@
             <td class="text-center">{{data.result_8_8}}</td>
             <td class="border border-black">{{data.cutomLimit9}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_8}}</td>
+            <td class="text-center">{{data.result_8_8}}</td>
+            <td class="border border-black">{{data.cutomLimit9}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -993,6 +1038,11 @@
             <td class="border border-black">{{data.cutomLimit10}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_9_9}}</td>
+            <td class="border border-black">{{data.cutomLimit10}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_9}}</td>
             <td class="text-center">{{data.result_9_9}}</td>
             <td class="border border-black">{{data.cutomLimit10}}</td>
             {%endif%}
@@ -1070,6 +1120,11 @@
             <td class="text-center">{{data.result_10_10}}</td>
             <td class="border border-black">{{data.cutomLimit11}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_10}}</td>
+            <td class="text-center">{{data.result_10_10}}</td>
+            <td class="border border-black">{{data.cutomLimit11}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -1141,6 +1196,11 @@
             <td class="border border-black">{{data.cutomLimit12}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_11_11}}</td>
+            <td class="border border-black">{{data.cutomLimit12}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_11}}</td>
             <td class="text-center">{{data.result_11_11}}</td>
             <td class="border border-black">{{data.cutomLimit12}}</td>
             {%endif%}
@@ -1218,6 +1278,11 @@
             <td class="text-center">{{data.result_12_12}}</td>
             <td class="border border-black">{{data.cutomLimit13}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_12}}</td>
+            <td class="text-center">{{data.result_12_12}}</td>
+            <td class="border border-black">{{data.cutomLimit13}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -1289,6 +1354,11 @@
             <td class="border border-black">{{data.cutomLimit14}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_13_13}}</td>
+            <td class="border border-black">{{data.cutomLimit14}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_13}}</td>
             <td class="text-center">{{data.result_13_13}}</td>
             <td class="border border-black">{{data.cutomLimit14}}</td>
             {%endif%}
@@ -1366,6 +1436,11 @@
             <td class="text-center">{{data.result_14_14}}</td>
             <td class="border border-black">{{data.cutomLimit15}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_14}}</td>
+            <td class="text-center">{{data.result_14_14}}</td>
+            <td class="border border-black">{{data.cutomLimit15}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -1437,6 +1512,11 @@
             <td class="border border-black">{{data.cutomLimit16}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_15_15}}</td>
+            <td class="border border-black">{{data.cutomLimit16}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_15}}</td>
             <td class="text-center">{{data.result_15_15}}</td>
             <td class="border border-black">{{data.cutomLimit16}}</td>
             {%endif%}
@@ -1514,6 +1594,11 @@
             <td class="text-center">{{data.result_16_16}}</td>
             <td class="border border-black">{{data.cutomLimit17}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_16}}</td>
+            <td class="text-center">{{data.result_16_16}}</td>
+            <td class="border border-black">{{data.cutomLimit17}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -1585,6 +1670,11 @@
             <td class="border border-black">{{data.cutomLimit18}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_17_17}}</td>
+            <td class="border border-black">{{data.cutomLimit18}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_17}}</td>
             <td class="text-center">{{data.result_17_17}}</td>
             <td class="border border-black">{{data.cutomLimit18}}</td>
             {%endif%}
@@ -1662,6 +1752,11 @@
             <td class="text-center">{{data.result_18_18}}</td>
             <td class="border border-black">{{data.cutomLimit19}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_18}}</td>
+            <td class="text-center">{{data.result_18_18}}</td>
+            <td class="border border-black">{{data.cutomLimit19}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -1733,6 +1828,11 @@
             <td class="border border-black">{{data.cutomLimit20}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_19_19}}</td>
+            <td class="border border-black">{{data.cutomLimit20}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_19}}</td>
             <td class="text-center">{{data.result_19_19}}</td>
             <td class="border border-black">{{data.cutomLimit20}}</td>
             {%endif%}
@@ -1810,6 +1910,11 @@
             <td class="text-center">{{data.result_20_20}}</td>
             <td class="border border-black">{{data.cutomLimit21}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_20}}</td>
+            <td class="text-center">{{data.result_20_20}}</td>
+            <td class="border border-black">{{data.cutomLimit21}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -1881,6 +1986,11 @@
             <td class="border border-black">{{data.cutomLimit22}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_21_21}}</td>
+            <td class="border border-black">{{data.cutomLimit22}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_21}}</td>
             <td class="text-center">{{data.result_21_21}}</td>
             <td class="border border-black">{{data.cutomLimit22}}</td>
             {%endif%}
@@ -1958,6 +2068,11 @@
             <td class="text-center">{{data.result_22_22}}</td>
             <td class="border border-black">{{data.cutomLimit23}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_22}}</td>
+            <td class="text-center">{{data.result_22_22}}</td>
+            <td class="border border-black">{{data.cutomLimit23}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2032,6 +2147,11 @@
             <td class="text-center">{{data.result_23_23}}</td>
             <td class="border border-black">{{data.cutomLimit24}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_23}}</td>
+            <td class="text-center">{{data.result_23_23}}</td>
+            <td class="border border-black">{{data.cutomLimit24}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2101,6 +2221,11 @@
             <td class="border border-black">{{data.cutomLimit25}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_24_24}}</td>
+            <td class="border border-black">{{data.cutomLimit25}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_24}}</td>
             <td class="text-center">{{data.result_24_24}}</td>
             <td class="border border-black">{{data.cutomLimit25}}</td>
             {%endif%}
@@ -2178,6 +2303,11 @@
             <td class="text-center">{{data.result_25_25}}</td>
             <td class="border border-black">{{data.cutomLimit26}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_25}}</td>
+            <td class="text-center">{{data.result_25_25}}</td>
+            <td class="border border-black">{{data.cutomLimit26}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2249,6 +2379,11 @@
             <td class="border border-black">{{data.cutomLimit27}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_26_26}}</td>
+            <td class="border border-black">{{data.cutomLimit27}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_26}}</td>
             <td class="text-center">{{data.result_26_26}}</td>
             <td class="border border-black">{{data.cutomLimit27}}</td>
             {%endif%}
@@ -2326,6 +2461,11 @@
             <td class="text-center">{{data.result_27_27}}</td>
             <td class="border border-black">{{data.cutomLimit28}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_27}}</td>
+            <td class="text-center">{{data.result_27_27}}</td>
+            <td class="border border-black">{{data.cutomLimit28}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2397,6 +2537,11 @@
             <td class="border border-black">{{data.cutomLimit29}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_28_28}}</td>
+            <td class="border border-black">{{data.cutomLimit29}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_28}}</td>
             <td class="text-center">{{data.result_28_28}}</td>
             <td class="border border-black">{{data.cutomLimit29}}</td>
             {%endif%}
@@ -2474,6 +2619,11 @@
             <td class="text-center">{{data.result_29_29}}</td>
             <td class="border border-black">{{data.cutomLimit30}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_29}}</td>
+            <td class="text-center">{{data.result_29_29}}</td>
+            <td class="border border-black">{{data.cutomLimit30}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2545,6 +2695,11 @@
             <td class="border border-black">{{data.cutomLimit31}}</td>
             {%endif%}
             {% if data.in_out == 'outlet_customLimits' %}
+            <td class="text-center">{{data.result_30_30}}</td>
+            <td class="border border-black">{{data.cutomLimit31}}</td>
+            {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_30}}</td>
             <td class="text-center">{{data.result_30_30}}</td>
             <td class="border border-black">{{data.cutomLimit31}}</td>
             {%endif%}
@@ -2622,6 +2777,11 @@
             <td class="text-center">{{data.result_31_31}}</td>
             <td class="border border-black">{{data.cutomLimit32}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_31}}</td>
+            <td class="text-center">{{data.result_31_31}}</td>
+            <td class="border border-black">{{data.cutomLimit32}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2696,6 +2856,11 @@
             <td class="text-center">{{data.result_32_32}}</td>
             <td class="border border-black">{{data.cutomLimit33}}</td>
             {%endif%}
+            {% if data.in_out == 'in_out_customlimits' %}
+            <td class="text-center">{{data.result_32}}</td>
+            <td class="text-center">{{data.result_32_32}}</td>
+            <td class="border border-black">{{data.cutomLimit33}}</td>
+            {%endif%}
             
           </tr>
           {%endif%}
@@ -2747,6 +2912,15 @@
             <td class="pl-2">{{extra_field.parameters}}</td>
             <td class="pl-2">{{extra_field.methods}}</td>
             <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.outlet}}</td>
+            <td class="pl-2">{{extra_field.customLimits}}</td>
+            {%endif%}
+          {% if data.in_out == 'in_out_customlimits' %}
+            <td class="pl-2">{{extra_field.sr}}</td>
+            <td class="pl-2">{{extra_field.parameters}}</td>
+            <td class="pl-2">{{extra_field.methods}}</td>
+            <td class="pl-2">{{extra_field.unit}}</td>
+            <td class="pl-2">{{extra_field.result}}</td>
             <td class="pl-2">{{extra_field.outlet}}</td>
             <td class="pl-2">{{extra_field.customLimits}}</td>
             {%endif%}

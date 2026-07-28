@@ -162,24 +162,31 @@
                 {% csrf_token %}
                 <h1 class="text-center mt-10 text-3xl py-16">Waste Water 2</h1>
                 <div class="flex ">
-                    <div class="alert w-52 flex flex-col justify-around my-6">
+                    <div class="alert w-full flex flex-col justify-around my-6">
                     
-                        <div class="">
-                            <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
-                        </div>
-                        <div>
-                            <input class="SEQS-value" type="checkbox" value="SEQS_" {% if data.location == 'SEQS' %}checked{% endif %}>
-                            <label for="">SEQS</label>
-                        </div>
-
-                        <div>
-                            <input class="PEQS-value" type="checkbox" value="PEQS_" {% if data.location == 'PEQS' %}checked{% endif %}>
-                            <label for="">PEQS</label>
-                        </div>
-
-                        <div>
-                            <input class="NEQS-value" type="checkbox" value="NEQS_" {% if data.location != 'SEQS' and data.location != 'PEQS' %}checked{% endif %} >
-                            <label for="">NEQS</label>
+                        <div class="w-full border border-gray-300 rounded-xl bg-white shadow-sm px-6 py-5 mb-6">
+                            <div class="flex flex-wrap gap-x-12 gap-y-6">
+                                <div>
+                                    <p class="text-sm font-bold uppercase tracking-wide text-gray-600 mb-3" style="display:flex;align-items:center;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                                    <div class="flex flex-wrap gap-x-8 gap-y-2">
+                                        <div class="flex items-center gap-2"><input class="SEQS-value" type="checkbox" value="SEQS_" {% if data.location == 'SEQS' %}checked{% endif %}><label for="">SEQS</label></div>
+                                        <div class="flex items-center gap-2"><input class="PEQS-value" type="checkbox" value="PEQS_" {% if data.location == 'PEQS' %}checked{% endif %}><label for="">PEQS</label></div>
+                                        <div class="flex items-center gap-2"><input class="NEQS-value" type="checkbox" value="NEQS_" {% if data.location != 'SEQS' and data.location != 'PEQS' %}checked{% endif %} ><label for="">NEQS</label></div>
+                                    </div>
+                                </div>
+                                <div class="pl-12 border-l border-gray-200">
+                                    <p class="text-sm font-bold uppercase tracking-wide text-gray-600 mb-3">Report Type</p>
+                                    <div class="grid grid-cols-2 gap-x-12 gap-y-2">
+                                        <div class="flex items-center gap-2 whitespace-nowrap"><input class="in" {% if data.in_out == 'in' %}checked{% endif %} type="checkbox" value="in"><label for="">Inlet or Result </label></div>
+                                        <div class="flex items-center gap-2 whitespace-nowrap"><input class="out" {% if data.in_out == 'out' %}checked{% endif %} type="checkbox" value="out"><label for="">Outlet</label></div>
+                                        <div class="flex items-center gap-2 whitespace-nowrap"><input class="in-out" {% if data.in_out == 'in-out' %}checked{% endif %} type="checkbox" value="in-out"><label for="">Inlet & Outlet</label></div>
+                                        <div class="flex items-center gap-2 whitespace-nowrap"><input id="inlet_customLimits" {% if data.in_out == 'inlet_customlimits' %}checked{% endif %} type="checkbox" value="inlet_customlimits"><label for="">Inlet & Custom Limits</label></div>
+                                        <div class="flex items-center gap-2 whitespace-nowrap"><input id="outlet_customLimits" {% if data.in_out == 'outlet_customLimits' %}checked{% endif %} type="checkbox" value="outlet_customLimits"><label for="">Outlet & Custom Limits</label></div>
+                                        <div class="flex items-center gap-2 whitespace-nowrap"><input id="in_out_customLimits" {% if data.in_out == 'in_out_customlimits' %}checked{% endif %} type="checkbox" value="outlet_customLimits"><label for="">Inlet & Outlet & Custom Limits</label></div>
+                                    </div>
+                                    <input id="in_out_checkbox" type="text" name="in_out" value="{{data.in_out}}" style="display: none;">
+                                </div>
+                            </div>
                         </div>
                         <input id="checkinput" type="text" name="location" value="{{data.location}}"
                             style="display: none;">
@@ -206,29 +213,6 @@
                         </div>
 
 
-                    </div>
-                    <div class="w-52 pt-8 ml-4">
-                        <div class="">
-                            <input class="in" {% if data.in_out == 'in' %}checked{% endif %} type="checkbox" value="in">
-                            <label for="">Inlet or Result </label>
-                        </div>
-                        <div class="">
-                            <input class="out" {% if data.in_out == 'out' %}checked{% endif %} type="checkbox" value="out">
-                            <label for="">Outlet</label>
-                        </div>
-                        <div class="">
-                            <input class="in-out" {% if data.in_out == 'in-out' %}checked{% endif %} type="checkbox" value="in-out">
-                            <label for="">Inlet & Outlet</label>
-                        </div>
-                        <div class="">
-                            <input id="inlet_customLimits" {% if data.in_out == 'inlet_customlimits' %}checked{% endif %} type="checkbox" value="inlet_customlimits">
-                            <label for="">Inlet & Custom Limits</label>
-                        </div>
-                        <div class="">
-                            <input id="outlet_customLimits" {% if data.in_out == 'outlet_customLimits' %}checked{% endif %} type="checkbox" value="outlet_customLimits">
-                            <label for="">Outlet & Custom Limits</label>
-                        </div>
-                        <input id="in_out_checkbox" type="text" name="in_out" value="{{data.in_out}}" style="display: none;">
                     </div>
                 </div>
                 <div class="flex justify-between">
@@ -1159,6 +1143,15 @@
                                 <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
                                 <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
                                 {%endif%}
+                            {% if data.in_out == 'in_out_customlimits' %}
+                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
+                                <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
+                                {%endif%}
                             </tr>
                             {% endfor %}
                             
@@ -1506,6 +1499,7 @@
             var custom_checkbox = document.querySelector('#custom_checkbox')
             var inlet_customLimits = document.querySelector('#inlet_customLimits')
             var outlet_customLimits = document.querySelector('#outlet_customLimits')
+            var in_out_customLimits = document.querySelector('#in_out_customLimits')
 
             function inlet__customLimits(){
                 const stringToJSON = (s)=>{
@@ -1583,8 +1577,88 @@
 
             }
 
+            function in_out__customLimits(){
+                const stringToJSON = (s)=>{
+                    s = s.replaceAll('&#x27;','"')
+                   s =  JSON.parse(s)
+                  return s
+                }
+                var extraFields = [];
+                  const getExtraFields = async () => {
+                  var extraRows = $("tr[id^='extraRow-']")
+                for(var i =0;i<extraRows.length;i++){
+                    let _row = extraRows[i];
+                    let num_row = _row.id.split("-")[1]
+
+                    let obj = {
+                        "sr":num_row,
+                        "parameters":$(`input[name='extra-${num_row}-1']`).val(),
+                        "methods":$(`input[name='extra-${num_row}-2']`).val(),
+                        "unit":$(`input[name='extra-${num_row}-3']`).val(),
+                        "result":$(`input[name='extra-${num_row}-4']`).val(),
+                        "outlet":$(`input[name='extra-${num_row}-5']`).val(),
+                        "customLimits":$(`input[name='extra-${num_row}-6']`).val(),
+
+                    }
+                    extraFields.push(obj);
+                }
+                $("#extra_field").val(JSON.stringify(extraFields))
+                }
+
+
+
+                $("#save_rows").on('click', getExtraFields)
+                var table = document.querySelector('#table')
+                var add_rows = document.querySelector('#add_rows')
+        /* fix14-H: bind #add_rows click exactly once, permanently. */
+        if (add_rows && !add_rows.__etalBindOnce) {
+            add_rows.__etalBindOnce = 1;
+            var __etalAEL = add_rows.addEventListener.bind(add_rows);
+            add_rows.addEventListener = function (t, f, o) {
+                if (t === 'click') {
+                    if (add_rows.__etalClickBound) { return; }
+                    add_rows.__etalClickBound = 1;
+                }
+                return __etalAEL(t, f, o);
+            };
+        }
+                currentNumber = 33
+
+                add_rows.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    var newRow = table.insertRow(table.rows.length);
+                    $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    var cell0 = newRow.insertCell(0);
+                    cell0.innerHTML = `${currentNumber}`;
+
+                    for (var i = 1; i < 7; i++) {
+                        var cell = newRow.insertCell(i);
+                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                    }
+
+                    currentNumber++;
+
+                });
+                if(in_out_customLimits.checked){
+                    in_out_checkbox.value = 'in_out_customlimits'
+                    $(".outlet_result_1,.SEQS,.PEQS,.NEQS").hide()
+                    $(".inlet_result,.outlet_result,.customLimits_td").show()
+                
+                }
+                else{
+                    in_out_checkbox.value = ''
+                    $(".outlet_result,.outlet_result_1").show()
+                    $(".customLimits_td").hide()
+                }
+
+            }
+
             if(inlet_customLimits.checked){
                 inlet__customLimits()
+            }
+
+            if(in_out_customLimits.checked){
+                in_out__customLimits()
             }
             
 

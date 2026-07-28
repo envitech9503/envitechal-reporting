@@ -2190,6 +2190,25 @@ def wasteWAter2Update(request,pk):
                          "result": result,
                          "customLimits":customLimits
                     }) 
+          elif ww.in_out == 'in_out_customlimits':
+               for i in range(len(request.POST.getlist('sr[]'))):
+                    sr = request.POST.getlist('sr[]')[i]
+                    parameters = request.POST.getlist('parameters[]')[i]
+                    methods = request.POST.getlist('methods[]')[i]
+                    unit = request.POST.getlist('unit[]')[i]
+                    result = request.POST.getlist('result[]')[i]
+                    outlet = request.POST.getlist('outlet[]')[i]
+                    customLimits = request.POST.getlist('customLimits[]')[i]
+
+                    ww.extra_field.append({
+                         "sr": sr,
+                         "parameters": parameters,
+                         "methods": methods,
+                         "unit": unit,
+                         "result": result,
+                         "outlet": outlet,
+                         "customLimits":customLimits
+                    }) 
           elif ww.in_out == 'outlet_customLimits':
                for i in range(len(request.POST.getlist('sr[]'))):
                     sr = request.POST.getlist('sr[]')[i]
@@ -4150,6 +4169,279 @@ def wasteWater2Pdf(request,pk):
           num_rows =0
           
           with pdf.table(col_widths=(10, 50, 30,15,30,30),width=190,line_height=6,text_align=("CENTER","LEFT","CENTER","CENTER",'CENTER','CENTER','CENTER','CENTER','CENTER')) as table:
+               # row = table.row()
+               # row.cell(7,colspan=2)
+
+               # watwer mark
+               # pdf.set_page_background("static/assets/Capture.PNG")
+
+               for k in range(0,len(TABLE_DATA)):
+                    data_row = TABLE_DATA[k]
+                    # if k == 0:
+                    #      data_row[5] = ww.select + ' 1'
+                    #      data_row[6] = ww.select + ' 2'
+                    #      data_row[7] = ww.select + ' 3'
+
+                    # watwer mark
+                    # pdf.set_page_background("static/assets/Capture.PNG")
+                    row = table.row()
+                    for i in range(0,len(data_row)):
+                         datum = data_row[i]
+
+                         row.cell(datum)
+     elif ww.in_out == 'in_out_customlimits':
+          TABLE_DATA = [
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),(ww.outlet_result or "Outlet Results"),ww.cutomLimit1],
+     ]
+          sr_no = 1
+
+          if ww.result_1 or ww.result_1_1:
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,ww.cutomLimit2]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+          
+
+          if ww.result_2 or ww.result_2_2:
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,ww.cutomLimit3]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+          
+
+          if ww.result_3 or ww.result_3_3:
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,ww.cutomLimit4]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+     
+
+          if ww.result_4 or ww.result_4_4:
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,ww.cutomLimit5]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+
+          if ww.result_5 or ww.result_5_5:
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,ww.cutomLimit6]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+
+          if ww.result_6 or ww.result_6_6:
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,ww.cutomLimit7]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+
+          if ww.result_7 or ww.result_7_7:
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,ww.cutomLimit8]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+     
+
+          if ww.result_8 or ww.result_8_8:
+               if ww.metho_select =="ASTM":
+                    a = [str(sr_no),"Oil & Grease","ASTM D-3291","mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+                    
+
+          if ww.result_8 or ww.result_8_8:
+               if ww.metho_select =="USEPA":
+                    a = [str(sr_no),"Oil & Grease","USEPA 1664","mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+          if ww.result_8 or ww.result_8_8:
+               if ww.metho_select =="APHA":
+                    a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+
+          
+
+          if ww.result_9 or ww.result_9_9:
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,ww.cutomLimit10]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+     
+
+          if ww.result_10 or ww.result_10_10:
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,ww.cutomLimit11]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+          
+
+          if ww.result_11 or ww.result_11_11:
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,ww.cutomLimit12]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+         
+          if ww.result_12 or ww.result_12_12:
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,ww.cutomLimit13]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+          if ww.result_13 or ww.result_13_13:
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,ww.cutomLimit14]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_14 or ww.result_14_14:
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,ww.cutomLimit15]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+
+          if ww.result_15 or ww.result_15_15:
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,ww.cutomLimit16]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_16 or ww.result_16_16:
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,ww.cutomLimit17]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_17 or ww.result_17_17:
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,ww.cutomLimit18]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_18 or ww.result_18_18:
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,ww.cutomLimit19]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_19 or ww.result_19_19:
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,ww.cutomLimit20]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_20 or ww.result_20_20:
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,ww.cutomLimit21]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_21 or ww.result_21_21:
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,ww.cutomLimit22]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_22 or ww.result_22_22:
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,ww.cutomLimit23]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_23 or ww.result_23_23:
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,ww.cutomLimit24]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_24 or ww.result_24_24:
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,ww.cutomLimit25]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_25 or ww.result_25_25:
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,ww.cutomLimit26]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_26 or ww.result_26_26:
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,ww.cutomLimit27]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_27 or ww.result_27_27:
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,ww.cutomLimit28]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_28 or ww.result_28_28:
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,ww.cutomLimit29]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_29 or ww.result_29_29:
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,ww.cutomLimit30]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_30 or ww.result_30_30:
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,ww.cutomLimit31]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_31 or ww.result_31_31:
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,ww.cutomLimit32]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_32 or ww.result_32_32:
+               a = [str(sr_no),"Silver","*APHA 3111-B","mg/L",ww.result_32,ww.result_32_32,ww.cutomLimit33]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+          for extra_field in ww.extra_field:
+               parameters = extra_field.get("parameters")
+               methods = extra_field.get("methods")
+               unit = extra_field.get("unit")
+               result = extra_field.get("result")
+               outlet = extra_field.get("outlet")
+               customLimits = extra_field.get("customLimits")
+               
+
+               # Check if the "parameters" field is not empty before adding the row
+               if parameters:
+                    a = [str(sr_no), parameters, methods, unit, result, outlet, customLimits]
+                    sr_no += 1
+                    TABLE_DATA.append(a)     
+
+
+
+
+
+
+     
+          pdf.add_page()
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          pdf.add_font("Calibri","",font_path,uni=True)
+          pdf.add_font("Calibri","B",font_path_bold,uni=True)
+          pdf.set_font("Calibri","", 9)
+          pdf.set_auto_page_break(auto=True,margin=5)
+
+
+
+
+
+
+
+
+          num_rows =0
+          
+          with pdf.table(col_widths=(10, 50, 30,15,30,30,30),width=190,line_height=6,text_align=("CENTER","LEFT","CENTER","CENTER",'CENTER','CENTER','CENTER','CENTER','CENTER')) as table:
                # row = table.row()
                # row.cell(7,colspan=2)
 
@@ -6999,6 +7291,279 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                          datum = data_row[i]
 
                          row.cell(datum)
+     elif ww.in_out == 'in_out_customlimits':
+          TABLE_DATA = [
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),(ww.outlet_result or "Outlet Results"),ww.cutomLimit1],
+     ]
+          sr_no = 1
+
+          if ww.result_1 or ww.result_1_1:
+                    a = [str(sr_no),"Temperature 40°C",(ww.method_1 or "*APHA 2550"),"°C",ww.result_1,ww.result_1_1,ww.cutomLimit2]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+          
+
+          if ww.result_2 or ww.result_2_2:
+               a = [str(sr_no),"pH",(ww.method_2 or "*APHA 4500 H-B"),"-",ww.result_2,ww.result_2_2,ww.cutomLimit3]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+          
+
+          if ww.result_3 or ww.result_3_3:
+               a = [str(sr_no),"Sulphide",(ww.method_3 or "*APHA 4500-S2-D"),"mg/L",ww.result_3,ww.result_3_3,ww.cutomLimit4]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+     
+
+          if ww.result_4 or ww.result_4_4:
+               a = [str(sr_no),"Biological Oxygen Demand(BOD)5",(ww.method_4 or "HACH 10099"),"mg/L",ww.result_4,ww.result_4_4,ww.cutomLimit5]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+
+          if ww.result_5 or ww.result_5_5:
+               a = [str(sr_no),"Chemical Oxygen Demand(COD)",(ww.method_5 or "*HACH 8000"),"mg/L",ww.result_5,ww.result_5_5,ww.cutomLimit6]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+
+          if ww.result_6 or ww.result_6_6:
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",(ww.method_6 or "*APHA 2540-C"),"mg/L",ww.result_6,ww.result_6_6,ww.cutomLimit7]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+
+          if ww.result_7 or ww.result_7_7:
+               a = [str(sr_no),"Total Suspended Solids (TSS)",(ww.method_7 or "*APHA 2540-D"),"mg/L",ww.result_7,ww.result_7_7,ww.cutomLimit8]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+     
+
+          if ww.result_8 or ww.result_8_8:
+               if ww.metho_select =="ASTM":
+                    a = [str(sr_no),"Oil & Grease","ASTM D-3291","mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+                    
+
+          if ww.result_8 or ww.result_8_8:
+               if ww.metho_select =="USEPA":
+                    a = [str(sr_no),"Oil & Grease","USEPA 1664","mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+          if ww.result_8 or ww.result_8_8:
+               if ww.metho_select =="APHA":
+                    a = [str(sr_no),"Oil & Grease","APHA 5220-B","mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+               if ww.metho_select == "Custom":
+                    a = [str(sr_no),"Oil & Grease",(ww.metho_custom or "APHA 5220-B"),"mg/L",ww.result_8,ww.result_8_8,ww.cutomLimit9]
+                    sr_no = sr_no+1
+                    TABLE_DATA.append(a)
+
+          
+
+          if ww.result_9 or ww.result_9_9:
+               a = [str(sr_no),"Cadmium",(ww.method_9 or "*APHA 3111-B"),"mg/L",ww.result_9,ww.result_9_9,ww.cutomLimit10]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+     
+
+          if ww.result_10 or ww.result_10_10:
+               a = [str(sr_no),"Copper",(ww.method_10 or "*APHA 3111-B"),"mg/L",ww.result_10,ww.result_10_10,ww.cutomLimit11]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+          
+
+          if ww.result_11 or ww.result_11_11:
+               a = [str(sr_no),"Iron",(ww.method_11 or "*APHA 3111-B"),"mg/L",ww.result_11,ww.result_11_11,ww.cutomLimit12]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+         
+          if ww.result_12 or ww.result_12_12:
+               a = [str(sr_no),"Lead",(ww.method_12 or "*APHA 3111-B"),"mg/L",ww.result_12,ww.result_12_12,ww.cutomLimit13]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+          if ww.result_13 or ww.result_13_13:
+               a = [str(sr_no),"Manganese",(ww.method_13 or "*APHA 3111-B"),"mg/L",ww.result_13,ww.result_13_13,ww.cutomLimit14]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_14 or ww.result_14_14:
+               a = [str(sr_no),"Mercury",(ww.method_14 or "*APHA 3112-B"),"mg/L",ww.result_14,ww.result_14_14,ww.cutomLimit15]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+
+          if ww.result_15 or ww.result_15_15:
+               a = [str(sr_no),"Nickel",(ww.method_15 or "*APHA 3111-B"),"mg/L",ww.result_15,ww.result_15_15,ww.cutomLimit16]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_16 or ww.result_16_16:
+               a = [str(sr_no),"Selenium",(ww.method_16 or "*APHA 3114-B"),"mg/L",ww.result_16,ww.result_16_16,ww.cutomLimit17]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_17 or ww.result_17_17:
+               a = [str(sr_no),"Chromium",(ww.method_17 or "*APHA 3111-B"),"mg/L",ww.result_17,ww.result_17_17,ww.cutomLimit18]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_18 or ww.result_18_18:
+               a = [str(sr_no),"Zinc",(ww.method_18 or "*APHA 3111-B"),"mg/L",ww.result_18,ww.result_18_18,ww.cutomLimit19]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_19 or ww.result_19_19:
+               a = [str(sr_no),"Arsenic",(ww.method_19 or "*APHA 3114-B"),"mg/L",ww.result_19,ww.result_19_19,ww.cutomLimit20]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_20 or ww.result_20_20:
+               a = [str(sr_no),"Chlorine",(ww.method_20 or "HACH 10069"),"mg/L",ww.result_20,ww.result_20_20,ww.cutomLimit21]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_21 or ww.result_21_21:
+               a = [str(sr_no),"Chloride",(ww.method_21 or "*APHA 4500 CL-B"),"mg/L",ww.result_21,ww.result_21_21,ww.cutomLimit22]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_22 or ww.result_22_22:
+               a = [str(sr_no),"Cyanide",(ww.method_22 or "HACH 8027"),"mg/L",ww.result_22,ww.result_22_22,ww.cutomLimit23]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_23 or ww.result_23_23:
+               a = [str(sr_no),"Fluoride",(ww.method_23 or "*HACH 8029"),"mg/L",ww.result_23,ww.result_23_23,ww.cutomLimit24]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_24 or ww.result_24_24:
+               a = [str(sr_no),"Ammonia",(ww.method_24 or "*HACH 8038"),"mg/L",ww.result_24,ww.result_24_24,ww.cutomLimit25]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_25 or ww.result_25_25:
+               a = [str(sr_no),"Total Toxic Metals",(ww.method_25 or "APHA 3111"),"mg/L",ww.result_25,ww.result_25_25,ww.cutomLimit26]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_26 or ww.result_26_26:
+               a = [str(sr_no),"Sulphate",(ww.method_26 or "HACH 8051"),"mg/L",ww.result_26,ww.result_26_26,ww.cutomLimit27]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_27 or ww.result_27_27:
+               a = [str(sr_no),"An Ionic Detergent As MBAs",(ww.method_27 or "*APHA 5540 C"),"mg/L",ww.result_27,ww.result_27_27,ww.cutomLimit28]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_28 or ww.result_28_28:
+               a = [str(sr_no),"Pesticides",(ww.method_28 or "USEPA-614.1"),"mg/L",ww.result_28,ww.result_28_28,ww.cutomLimit29]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_29 or ww.result_29_29:
+               a = [str(sr_no),"Phenolic Compounds(as Phenol)",(ww.method_29 or "HACH 8047"),"mg/L",ww.result_29,ww.result_29_29,ww.cutomLimit30]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_30 or ww.result_30_30:
+               a = [str(sr_no),"Boron",(ww.method_30 or "HACH 8015"),"mg/L",ww.result_30,ww.result_30_30,ww.cutomLimit31]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+
+          if ww.result_31 or ww.result_31_31:
+               a = [str(sr_no),"Barium",(ww.method_31 or "HACH 8014"),"mg/L",ww.result_31,ww.result_31_31,ww.cutomLimit32]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          if ww.result_32 or ww.result_32_32:
+               a = [str(sr_no),"Silver","*APHA 3111-B","mg/L",ww.result_32,ww.result_32_32,ww.cutomLimit33]
+               sr_no = sr_no+1
+               TABLE_DATA.append(a)
+
+          
+          for extra_field in ww.extra_field:
+               parameters = extra_field.get("parameters")
+               methods = extra_field.get("methods")
+               unit = extra_field.get("unit")
+               result = extra_field.get("result")
+               outlet = extra_field.get("outlet")
+               customLimits = extra_field.get("customLimits")
+               
+
+               # Check if the "parameters" field is not empty before adding the row
+               if parameters:
+                    a = [str(sr_no), parameters, methods, unit, result, outlet, customLimits]
+                    sr_no += 1
+                    TABLE_DATA.append(a)     
+
+
+
+
+
+
+     
+          pdf.add_page()
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          pdf.add_font("Calibri","",font_path,uni=True)
+          pdf.add_font("Calibri","B",font_path_bold,uni=True)
+          pdf.set_font("Calibri","", 9)
+          pdf.set_auto_page_break(auto=True,margin=12)
+
+
+
+
+
+
+
+
+          num_rows =0
+          
+          with pdf.table(col_widths=(10, 50, 30,15,30,30,30),width=190,line_height=6,text_align=("CENTER","LEFT","CENTER","CENTER",'CENTER','CENTER','CENTER','CENTER','CENTER')) as table:
+               # row = table.row()
+               # row.cell(7,colspan=2)
+
+               # watwer mark
+               # pdf.set_page_background("static/assets/Capture.PNG")
+
+               for k in range(0,len(TABLE_DATA)):
+                    data_row = TABLE_DATA[k]
+                    # if k == 0:
+                    #      data_row[5] = ww.select + ' 1'
+                    #      data_row[6] = ww.select + ' 2'
+                    #      data_row[7] = ww.select + ' 3'
+
+                    # watwer mark
+                    # pdf.set_page_background("static/assets/Capture.PNG")
+                    row = table.row()
+                    for i in range(0,len(data_row)):
+                         datum = data_row[i]
+
+                         row.cell(datum)
 
 
 
@@ -8236,6 +8801,25 @@ def wasteWater2cloneSave(request,pk):
                          "methods": methods,
                          "unit": unit,
                          "result": result,
+                         "customLimits":customLimits
+                    }) 
+          elif existing_Form.in_out == 'in_out_customlimits':
+               for i in range(len(request.POST.getlist('sr[]'))):
+                    sr = request.POST.getlist('sr[]')[i]
+                    parameters = request.POST.getlist('parameters[]')[i]
+                    methods = request.POST.getlist('methods[]')[i]
+                    unit = request.POST.getlist('unit[]')[i]
+                    result = request.POST.getlist('result[]')[i]
+                    outlet = request.POST.getlist('outlet[]')[i]
+                    customLimits = request.POST.getlist('customLimits[]')[i]
+
+                    existing_Form.extra_field.append({
+                         "sr": sr,
+                         "parameters": parameters,
+                         "methods": methods,
+                         "unit": unit,
+                         "result": result,
+                         "outlet": outlet,
                          "customLimits":customLimits
                     }) 
           elif existing_Form.in_out == 'outlet_customLimits':
