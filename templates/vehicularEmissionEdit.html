@@ -730,11 +730,11 @@
     
     var table = document.querySelector('#table')
     var add_rows = document.querySelector('#add_rows')
-    currentNumber = 33
     
     add_rows.addEventListener('click', (e) => {
     e.preventDefault()
     var newRow = table.insertRow(table.rows.length);
+    currentNumber = String(newRow.rowIndex).padStart(2, '0');
     $(newRow).attr("id",`extraRow-${currentNumber}`)
     var cell0 = newRow.insertCell(0);
     cell0.innerHTML = `${currentNumber}`;
@@ -744,7 +744,6 @@
         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
     }
     
-    currentNumber++;
     })
         
             {% comment %} $(document).ready(async () => {
