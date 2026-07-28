@@ -1893,15 +1893,17 @@
                      currentNumber++;
 
                  });
+            }
 
-                 if (in_out.checked) {
+            in_out.addEventListener('change', () => {
+                if (in_out.checked) {
                     in_out_checkbox.value = 'in-out';
                     inlet_outlet()
 
                 } else {
                     in_out_checkbox.value = '';
                 }
-            }
+            });
 
             if(in_out.checked){
 
