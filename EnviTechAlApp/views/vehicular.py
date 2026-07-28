@@ -212,7 +212,8 @@ def vehicularEmissionUpdate(request,pk):
           # vem.vehEm_approvedby = request.FILES['vehEm-approvedby']
           # vem.vehEm_approvedby1 = request.FILES['vehEm-approvedby1']
           vem.city_location = request.POST['city_location']
-          vem.extra_field = json.loads(request.POST['extra_field'])
+          new_extra_field = json.loads(request.POST['extra_field'])
+          vem.extra_field = []
           analyst_sign_id = request.POST.get('analyst_sign')
           review_sign_id = request.POST.get('review_sign')
           approved_sign_id = request.POST.get('approved_sign')
@@ -244,6 +245,7 @@ def vehicularEmissionUpdate(request,pk):
             
 
           
+          vem.extra_field.extend(new_extra_field)
           vem.extra_field = json.dumps(vem.extra_field)
           
           vem.pdf_heading=request.POST.get('pdf_heading')
@@ -1222,7 +1224,8 @@ def vehicularEmissioncloneSave(request,pk):
           # existing_Form.vehEm_approvedby = request.FILES['vehEm-approvedby']
           # existing_Form.vehEm_approvedby1 = request.FILES['vehEm-approvedby1']
           existing_Form.city_location = request.POST['city_location']
-          existing_Form.extra_field = json.loads(request.POST['extra_field'])
+          new_extra_field = json.loads(request.POST['extra_field'])
+          existing_Form.extra_field = []
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                parameters = request.POST.getlist('parameters[]')[i]
@@ -1242,6 +1245,7 @@ def vehicularEmissioncloneSave(request,pk):
             
 
           
+          existing_Form.extra_field.extend(new_extra_field)
           existing_Form.extra_field = json.dumps(existing_Form.extra_field)
 
           
