@@ -2349,7 +2349,7 @@ def wasteWater2Pdf(request,pk):
      if ww.in_out == 'in':
           
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit",ww.inlet_result,"","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),"","",""],
      ]
           sr_no = 1
 
@@ -3900,7 +3900,7 @@ def wasteWater2Pdf(request,pk):
 
      elif ww.in_out == 'inlet_customlimits':
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit",ww.inlet_result,ww.cutomLimit1],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),ww.cutomLimit1],
      ]
           sr_no = 1
 
@@ -5178,7 +5178,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      if ww.in_out == 'in':
           
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit",ww.inlet_result,"","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),"","",""],
      ]
           sr_no = 1
 
@@ -6729,7 +6729,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
      elif ww.in_out == 'inlet_customlimits':
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit",ww.inlet_result,ww.cutomLimit1],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),ww.cutomLimit1],
      ]
           sr_no = 1
 
