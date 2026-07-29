@@ -127,6 +127,11 @@ def gaseousEmission(request):
                                           GaseEm_custom_legend=GaseEm_custom_legend,GaseEm_doc_con_1=GaseEm_doc_con_1,GaseEm_doc_con_2=GaseEm_doc_con_2,
                                           GaseEm_doc_con_3=GaseEm_doc_con_3,city_location=city_location,customer_id=customer_id,analyst_signature=analyst_sign,assistant_manager_signature=review_sign,lab_manager_signature=approved_sign,
                                           **image_data,pdf_heading=pdf_heading,created_by = request.user,industry=industry)
+        if 'seqs-1' in request.POST:
+            import json as _gj
+            gaseousForm.seqs_limits = _gj.dumps([request.POST.get('seqs-'+str(_i),'') for _i in range(1,23)])
+            gaseousForm.peqs_limits = _gj.dumps([request.POST.get('peqs-'+str(_i),'') for _i in range(1,23)])
+            gaseousForm.neqs_limits = _gj.dumps([request.POST.get('neqs-'+str(_i),'') for _i in range(1,23)])
         gaseousForm.save()
         
         if customer_id:
@@ -220,117 +225,117 @@ def gaseousReportgeneratePDF(request,pk):
      ]
      sr_no = 1
      if gaseousForm.GaseEm_sr1:
-          a = [str(sr_no),"Smoke, Ringlemann Scale","-",gaseousForm.GaseEm_sr1,"2"]
+          a = [str(sr_no),"Smoke, Ringlemann Scale","-",gaseousForm.GaseEm_sr1,gaseousForm.limits[0]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr2 and gaseousForm.GaseEm_types == 'gas_fired':
-          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"300"]
+          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,gaseousForm.limits[1]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr2 and gaseousForm.GaseEm_types == 'oil_fired':
-          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"300"]
+          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,gaseousForm.limits[1]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr2 and gaseousForm.GaseEm_types == 'coal_fired':
-          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"500"]
+          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,gaseousForm.limits[1]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr2 and gaseousForm.GaseEm_types == 'biomass':
-          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"-"]
+          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,gaseousForm.limits[1]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr3:
-          a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",gaseousForm.GaseEm_sr3,"800"]
+          a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",gaseousForm.GaseEm_sr3,gaseousForm.limits[2]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr4:
-          a = [str(sr_no),"Nitrogen Dioxide (NO₂)","mg/Nm³",gaseousForm.GaseEm_sr4,"-"]
+          a = [str(sr_no),"Nitrogen Dioxide (NO₂)","mg/Nm³",gaseousForm.GaseEm_sr4,gaseousForm.limits[3]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr5:
-          a = [str(sr_no),"Nitrogen Oxide (NO)","mg/Nm³",gaseousForm.GaseEm_sr5,"-"]
+          a = [str(sr_no),"Nitrogen Oxide (NO)","mg/Nm³",gaseousForm.GaseEm_sr5,gaseousForm.limits[4]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == 'gas_fired':
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"400"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "oil_fired":
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"600"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
 
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "coal_fired":
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"1200"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "biomass":
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"-"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
 
      if gaseousForm.GaseEm_sr7:
-          a = [str(sr_no),"Oxygen (O₂)","%",gaseousForm.GaseEm_sr7,"-"]
+          a = [str(sr_no),"Oxygen (O₂)","%",gaseousForm.GaseEm_sr7,gaseousForm.limits[6]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr8:
-          a = [str(sr_no),"Hydrogen Sulfide(H₂S)","mg/Nm³",gaseousForm.GaseEm_sr8,"10"]
+          a = [str(sr_no),"Hydrogen Sulfide(H₂S)","mg/Nm³",gaseousForm.GaseEm_sr8,gaseousForm.limits[7]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr9:
-          a = [str(sr_no),"Hydrogen Chloride","mg/Nm³",gaseousForm.GaseEm_sr9,"400"]
+          a = [str(sr_no),"Hydrogen Chloride","mg/Nm³",gaseousForm.GaseEm_sr9,gaseousForm.limits[8]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr10:
-          a = [str(sr_no),"Chlorine","mg/Nm³",gaseousForm.GaseEm_sr10,"150"]
+          a = [str(sr_no),"Chlorine","mg/Nm³",gaseousForm.GaseEm_sr10,gaseousForm.limits[9]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr11:
-          a = [str(sr_no),"Hydrogen Fluoride","mg/Nm³",gaseousForm.GaseEm_sr11,"150"]
+          a = [str(sr_no),"Hydrogen Fluoride","mg/Nm³",gaseousForm.GaseEm_sr11,gaseousForm.limits[10]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr12:
-          a = [str(sr_no),"Sulphur Dioxide (SO₂)","mg/Nm³",gaseousForm.GaseEm_sr12,"1700"]
+          a = [str(sr_no),"Sulphur Dioxide (SO₂)","mg/Nm³",gaseousForm.GaseEm_sr12,gaseousForm.limits[11]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr13:
-          a = [str(sr_no),"Mercury","mg/Nm³",gaseousForm.GaseEm_sr13,"10"]
+          a = [str(sr_no),"Mercury","mg/Nm³",gaseousForm.GaseEm_sr13,gaseousForm.limits[12]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr14:
-          a = [str(sr_no),"Cadmium","mg/Nm³",gaseousForm.GaseEm_sr14,"20"]
+          a = [str(sr_no),"Cadmium","mg/Nm³",gaseousForm.GaseEm_sr14,gaseousForm.limits[13]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr15:
-          a = [str(sr_no),"Arsenic","mg/Nm³",gaseousForm.GaseEm_sr15,"20"]
+          a = [str(sr_no),"Arsenic","mg/Nm³",gaseousForm.GaseEm_sr15,gaseousForm.limits[14]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr16:
-          a = [str(sr_no),"Copper","mg/Nm³",gaseousForm.GaseEm_sr16,"50"]
+          a = [str(sr_no),"Copper","mg/Nm³",gaseousForm.GaseEm_sr16,gaseousForm.limits[15]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr17:
-          a = [str(sr_no),"Antimony","mg/Nm³",gaseousForm.GaseEm_sr17,"20"]
+          a = [str(sr_no),"Antimony","mg/Nm³",gaseousForm.GaseEm_sr17,gaseousForm.limits[16]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr18:
-          a = [str(sr_no),"Zinc","mg/Nm³",gaseousForm.GaseEm_sr18,"200"]
+          a = [str(sr_no),"Zinc","mg/Nm³",gaseousForm.GaseEm_sr18,gaseousForm.limits[17]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr19:
-          a = [str(sr_no),"Lead","mg/Nm³",gaseousForm.GaseEm_sr19,"50"]
+          a = [str(sr_no),"Lead","mg/Nm³",gaseousForm.GaseEm_sr19,gaseousForm.limits[18]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr20:
-          a = [str(sr_no),"Carbon dioxide (CO₂)","%",gaseousForm.GaseEm_sr20,"-"]
+          a = [str(sr_no),"Carbon dioxide (CO₂)","%",gaseousForm.GaseEm_sr20,gaseousForm.limits[19]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr21:
-          a = [str(sr_no),"Hydrocarbon","%",gaseousForm.GaseEm_sr21,"-"]
+          a = [str(sr_no),"Hydrocarbon","%",gaseousForm.GaseEm_sr21,gaseousForm.limits[20]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr22:
-          a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,"-"]
+          a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,gaseousForm.limits[21]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_types == 'biomass':
@@ -734,105 +739,105 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
      ]
      sr_no = 1
      if gaseousForm.GaseEm_sr1:
-          a = [str(sr_no),"Smoke, Ringlemann Scale","-",gaseousForm.GaseEm_sr1,"2"]
+          a = [str(sr_no),"Smoke, Ringlemann Scale","-",gaseousForm.GaseEm_sr1,gaseousForm.limits[0]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr2:
-          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,"300"]
+          a = [str(sr_no),"Particulate matter","mg/Nm³",gaseousForm.GaseEm_sr2,gaseousForm.limits[1]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr3:
-          a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",gaseousForm.GaseEm_sr3,"800"]
+          a = [str(sr_no),"Carbon Monoxide (CO)","mg/Nm³",gaseousForm.GaseEm_sr3,gaseousForm.limits[2]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr4:
-          a = [str(sr_no),"Nitrogen Dioxide (NO₂)","mg/Nm³",gaseousForm.GaseEm_sr4,"-"]
+          a = [str(sr_no),"Nitrogen Dioxide (NO₂)","mg/Nm³",gaseousForm.GaseEm_sr4,gaseousForm.limits[3]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr5:
-          a = [str(sr_no),"Nitrogen Oxide (NO)","mg/Nm³",gaseousForm.GaseEm_sr5,"-"]
+          a = [str(sr_no),"Nitrogen Oxide (NO)","mg/Nm³",gaseousForm.GaseEm_sr5,gaseousForm.limits[4]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == 'gas_fired':
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"400"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "oil_fired":
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"600"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
 
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "coal_fired":
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"1200"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      elif gaseousForm.GaseEm_sr6 and gaseousForm.GaseEm_types == "biomass":
-          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,"-"]
+          a = [str(sr_no),"NOx","mg/Nm³",gaseousForm.GaseEm_sr6,gaseousForm.limits[5]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
 
      if gaseousForm.GaseEm_sr7:
-          a = [str(sr_no),"Oxygen (O₂)","%",gaseousForm.GaseEm_sr7,"-"]
+          a = [str(sr_no),"Oxygen (O₂)","%",gaseousForm.GaseEm_sr7,gaseousForm.limits[6]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr8:
-          a = [str(sr_no),"Hydrogen Sulfide(H₂S)","mg/Nm³",gaseousForm.GaseEm_sr8,"10"]
+          a = [str(sr_no),"Hydrogen Sulfide(H₂S)","mg/Nm³",gaseousForm.GaseEm_sr8,gaseousForm.limits[7]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr9:
-          a = [str(sr_no),"Hydrogen Chloride","mg/Nm³",gaseousForm.GaseEm_sr9,"400"]
+          a = [str(sr_no),"Hydrogen Chloride","mg/Nm³",gaseousForm.GaseEm_sr9,gaseousForm.limits[8]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr10:
-          a = [str(sr_no),"Chlorine","mg/Nm³",gaseousForm.GaseEm_sr10,"150"]
+          a = [str(sr_no),"Chlorine","mg/Nm³",gaseousForm.GaseEm_sr10,gaseousForm.limits[9]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr11:
-          a = [str(sr_no),"Hydrogen Fluoride","mg/Nm³",gaseousForm.GaseEm_sr11,"150"]
+          a = [str(sr_no),"Hydrogen Fluoride","mg/Nm³",gaseousForm.GaseEm_sr11,gaseousForm.limits[10]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr12:
-          a = [str(sr_no),"Sulphur Dioxide (SO₂)","mg/Nm³",gaseousForm.GaseEm_sr12,"1700"]
+          a = [str(sr_no),"Sulphur Dioxide (SO₂)","mg/Nm³",gaseousForm.GaseEm_sr12,gaseousForm.limits[11]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr13:
-          a = [str(sr_no),"Mercury","mg/Nm³",gaseousForm.GaseEm_sr13,"10"]
+          a = [str(sr_no),"Mercury","mg/Nm³",gaseousForm.GaseEm_sr13,gaseousForm.limits[12]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr14:
-          a = [str(sr_no),"Cadmium","mg/Nm³",gaseousForm.GaseEm_sr14,"20"]
+          a = [str(sr_no),"Cadmium","mg/Nm³",gaseousForm.GaseEm_sr14,gaseousForm.limits[13]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr15:
-          a = [str(sr_no),"Arsenic","mg/Nm³",gaseousForm.GaseEm_sr15,"20"]
+          a = [str(sr_no),"Arsenic","mg/Nm³",gaseousForm.GaseEm_sr15,gaseousForm.limits[14]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr16:
-          a = [str(sr_no),"Copper","mg/Nm³",gaseousForm.GaseEm_sr16,"50"]
+          a = [str(sr_no),"Copper","mg/Nm³",gaseousForm.GaseEm_sr16,gaseousForm.limits[15]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr17:
-          a = [str(sr_no),"Antimony","mg/Nm³",gaseousForm.GaseEm_sr17,"20"]
+          a = [str(sr_no),"Antimony","mg/Nm³",gaseousForm.GaseEm_sr17,gaseousForm.limits[16]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr18:
-          a = [str(sr_no),"Zinc","mg/Nm³",gaseousForm.GaseEm_sr18,"200"]
+          a = [str(sr_no),"Zinc","mg/Nm³",gaseousForm.GaseEm_sr18,gaseousForm.limits[17]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr19:
-          a = [str(sr_no),"Lead","mg/Nm³",gaseousForm.GaseEm_sr19,"50"]
+          a = [str(sr_no),"Lead","mg/Nm³",gaseousForm.GaseEm_sr19,gaseousForm.limits[18]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr20:
-          a = [str(sr_no),"Carbon dioxide (CO₂)","%",gaseousForm.GaseEm_sr20,"-"]
+          a = [str(sr_no),"Carbon dioxide (CO₂)","%",gaseousForm.GaseEm_sr20,gaseousForm.limits[19]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr21:
-          a = [str(sr_no),"Hydrocarbon","%",gaseousForm.GaseEm_sr21,"-"]
+          a = [str(sr_no),"Hydrocarbon","%",gaseousForm.GaseEm_sr21,gaseousForm.limits[20]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_sr22:
-          a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,"-"]
+          a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,gaseousForm.limits[21]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
      if gaseousForm.GaseEm_types == 'biomass':
@@ -1377,6 +1382,11 @@ def GaseousFormcloneSave(request,pk):
                        setattr(existing_Form, desc_key, description)
 
         existing_Form.id = None
+        if 'seqs-1' in request.POST:
+            import json as _gj
+            existing_Form.seqs_limits = _gj.dumps([request.POST.get('seqs-'+str(_i),'') for _i in range(1,23)])
+            existing_Form.peqs_limits = _gj.dumps([request.POST.get('peqs-'+str(_i),'') for _i in range(1,23)])
+            existing_Form.neqs_limits = _gj.dumps([request.POST.get('neqs-'+str(_i),'') for _i in range(1,23)])
         existing_Form.save()
         user = request.user
         action = f'Gaseous Emission Form {existing_Form.lab_report_no} cloned by {user.username}'

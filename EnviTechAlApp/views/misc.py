@@ -1070,6 +1070,11 @@ def updateGaseousRecord(request,pk):
                     if description is not None:
                          setattr(update_data, desc_key, description)
 
+          if 'seqs-1' in request.POST:
+              import json as _gj
+              update_data.seqs_limits = _gj.dumps([request.POST.get('seqs-'+str(_i),'') for _i in range(1,23)])
+              update_data.peqs_limits = _gj.dumps([request.POST.get('peqs-'+str(_i),'') for _i in range(1,23)])
+              update_data.neqs_limits = _gj.dumps([request.POST.get('neqs-'+str(_i),'') for _i in range(1,23)])
           update_data.save()
           user = request.user
           action = f'Gaseous Emission Form {update_data.lab_report_no} edited by {user.username}'

@@ -356,32 +356,32 @@
                                 <td>Smoke, Ringlemann Scale</td>
                                 <td>-</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr1}}" name="GasEm-sr1" type="text" ></td>
-                                <td class="SEQS">2</td>
-                                <td class="PEQS">2</td>
-                                <td class="NEQS">2</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-1" type="text" value="{{data.limits.0.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-1" type="text" value="{{data.limits.0.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-1" type="text" value="{{data.limits.0.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>02</td>
-                                <td>Particular matter</td>
+                                <td>Particulate matter</td>
                         
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr2}}" name="GasEm-sr2" type="text"></td>
-                                <td class="SEQS" {% if data.location != 'SEQS' %} style="display: none;" {% endif %}>300</td>
-                                <td class="PEQS" {% if data.location != 'PEQS' %} style="display: none;" {% endif %}>300</td>
-                                <td class="NEQS" {% if data.location != 'NEQS' %} style="display: none;" {% endif %}>500</td>
+                                <td class="SEQS" {% if data.location != 'SEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="seqs-2" type="text" value="{{data.limits.1.seqs}}"></td>
+                                <td class="PEQS" {% if data.location != 'PEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="peqs-2" type="text" value="{{data.limits.1.peqs}}"></td>
+                                <td class="NEQS" {% if data.location != 'NEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="neqs-2" type="text" value="{{data.limits.1.neqs}}"></td>
 
                                 
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>03</td>
-                                <td>Carobon Monoxide (CO)</td>
+                                <td>Carbon Monoxide (CO)</td>
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr3}}" name="GasEm-sr3" type="text"></td>
-                                <td class="SEQS"> 800 </td>
-                                <td class="PEQS"> 800 </td>
-                                <td class="NEQS"> 800 </td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-3" type="text" value="{{data.limits.2.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-3" type="text" value="{{data.limits.2.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-3" type="text" value="{{data.limits.2.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -390,9 +390,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr4}}" name="GasEm-sr4" type="text"></td>
-                                <td class="SEQS"> - </td>
-                                <td class="PEQS"> - </td>
-                                <td class="NEQS"> - </td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-4" type="text" value="{{data.limits.3.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-4" type="text" value="{{data.limits.3.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-4" type="text" value="{{data.limits.3.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -401,9 +401,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr5}}" name="GasEm-sr5" type="text"></td>
-                                <td class="SEQS"> - </td>
-                                <td class="PEQS"> - </td>
-                                <td class="NEQS"> - </td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-5" type="text" value="{{data.limits.4.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-5" type="text" value="{{data.limits.4.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-5" type="text" value="{{data.limits.4.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -412,15 +412,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr6}}" name="GasEm-sr6" type="text"></td>
-                                {% if data.GaseEm_types == 'gas_fired' %}
-                                    <td class=""> 400 </td>
-                                {% elif data.GaseEm_types == 'oil_fired' %}
-                                    <td class=""> 600 </td>
-                                {% elif data.GaseEm_types == 'coal_fired' %}
-                                    <td class=""> 1200 </td>
-                                {% elif data.GaseEm_types == 'biomass' %}
-                                    <td class=""> - </td>
-                                {% endif %}
+                                <td class="SEQS" {% if data.location != 'SEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="seqs-6" type="text" value="{{data.limits.5.seqs}}"></td>
+                                <td class="PEQS" {% if data.location != 'PEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="peqs-6" type="text" value="{{data.limits.5.peqs}}"></td>
+                                <td class="NEQS" {% if data.location != 'NEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="neqs-6" type="text" value="{{data.limits.5.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -429,9 +423,9 @@
                                 
                                 <td>%</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr7}}" name="GasEm-sr7" type="text"></td>
-                                <td class="SEQS"> - </td>
-                                <td class="PEQS"> - </td>
-                                <td class="NEQS"> - </td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-7" type="text" value="{{data.limits.6.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-7" type="text" value="{{data.limits.6.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-7" type="text" value="{{data.limits.6.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -440,9 +434,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr8}}" name="GasEm-sr8" type="text"></td>
-                                <td class="SEQS"> 10 </td>
-                                <td class="PEQS"> 10 </td>
-                                <td class="NEQS"> 10 </td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-8" type="text" value="{{data.limits.7.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-8" type="text" value="{{data.limits.7.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-8" type="text" value="{{data.limits.7.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -451,9 +445,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr9}}" name="GasEm-sr9" type="text"></td>
-                                <td class="SEQS"> 400 </td>
-                                <td class="PEQS"> 400 </td>
-                                <td class="NEQS"> 400 </td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-9" type="text" value="{{data.limits.8.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-9" type="text" value="{{data.limits.8.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-9" type="text" value="{{data.limits.8.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -462,9 +456,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr10}}" name="GasEm-sr10" type="text"></td>
-                                <td class="SEQS"> 150</td>
-                                <td class="PEQS"> 150</td>
-                                <td class="NEQS"> 150</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-10" type="text" value="{{data.limits.9.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-10" type="text" value="{{data.limits.9.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-10" type="text" value="{{data.limits.9.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -473,9 +467,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr11}}" name="GasEm-sr11" type="text"></td>
-                                <td class="SEQS"> 150</td>
-                                <td class="PEQS"> 150</td>
-                                <td class="NEQS"> 150</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-11" type="text" value="{{data.limits.10.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-11" type="text" value="{{data.limits.10.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-11" type="text" value="{{data.limits.10.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -484,9 +478,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr12}}" name="GasEm-sr12" type="text"></td>
-                                <td class="SEQS">1700</td>
-                                <td class="PEQS">1700</td>
-                                <td class="NEQS">1700</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-12" type="text" value="{{data.limits.11.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-12" type="text" value="{{data.limits.11.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-12" type="text" value="{{data.limits.11.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -495,9 +489,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr13}}" name="GasEm-sr13" type="text"></td>
-                                <td class="SEQS"> 10</td>
-                                <td class="PEQS"> 10</td>
-                                <td class="NEQS"> 10</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-13" type="text" value="{{data.limits.12.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-13" type="text" value="{{data.limits.12.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-13" type="text" value="{{data.limits.12.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -506,9 +500,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr14}}" name="GasEm-sr14" type="text"></td>
-                                <td class="SEQS"> 20</td>
-                                <td class="PEQS"> 20</td>
-                                <td class="NEQS"> 20</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-14" type="text" value="{{data.limits.13.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-14" type="text" value="{{data.limits.13.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-14" type="text" value="{{data.limits.13.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -517,9 +511,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr15}}" name="GasEm-sr15" type="text"></td>
-                                <td class="SEQS"> 20</td>
-                                <td class="PEQS"> 20</td>
-                                <td class="NEQS"> 20</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-15" type="text" value="{{data.limits.14.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-15" type="text" value="{{data.limits.14.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-15" type="text" value="{{data.limits.14.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -528,9 +522,9 @@
                                
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr16}}" name="GasEm-sr16" type="text"></td>
-                                <td class="SEQS">50</td>
-                                <td class="PEQS">50</td>
-                                <td class="NEQS">50</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-16" type="text" value="{{data.limits.15.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-16" type="text" value="{{data.limits.15.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-16" type="text" value="{{data.limits.15.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -539,9 +533,9 @@
                                
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr17}}" name="GasEm-sr17" type="text"></td>
-                                <td class="SEQS">20</td>
-                                <td class="PEQS">20</td>
-                                <td class="NEQS">20</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-17" type="text" value="{{data.limits.16.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-17" type="text" value="{{data.limits.16.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-17" type="text" value="{{data.limits.16.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -550,9 +544,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr18}}" name="GasEm-sr18" type="text"></td>
-                                <td class="SEQS">200</td>
-                                <td class="PEQS">200</td>
-                                <td class="NEQS">200</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-18" type="text" value="{{data.limits.17.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-18" type="text" value="{{data.limits.17.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-18" type="text" value="{{data.limits.17.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -561,9 +555,9 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr19}}" name="GasEm-sr19" type="text"></td>
-                                <td class="SEQS">50</td>
-                                <td class="PEQS">50</td>
-                                <td class="NEQS">50</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-19" type="text" value="{{data.limits.18.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-19" type="text" value="{{data.limits.18.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-19" type="text" value="{{data.limits.18.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -572,9 +566,9 @@
                                 
                                 <td>%</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr20}}" name="GasEm-sr20" type="text"></td>
-                                <td class="SEQS">-</td>
-                                <td class="PEQS">-</td>
-                                <td class="NEQS">-</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-20" type="text" value="{{data.limits.19.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-20" type="text" value="{{data.limits.19.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-20" type="text" value="{{data.limits.19.neqs}}"></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -583,9 +577,9 @@
                                 
                                 <td>%</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr21}}" name="GasEm-sr21" type="text"></td>
-                                <td class="SEQS">-</td>
-                                <td class="PEQS">-</td>
-                                <td class="NEQS">-</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-21" type="text" value="{{data.limits.20.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-21" type="text" value="{{data.limits.20.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-21" type="text" value="{{data.limits.20.neqs}}"></td>
                                 
                                 
                             </tr>
@@ -595,9 +589,9 @@
                                 
                                 <td>dB</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr22}}" name="GasEm-sr22" type="text"></td>
-                                <td class="SEQS">-</td>
-                                <td class="PEQS">-</td>
-                                <td class="NEQS">-</td>
+                                <td class="SEQS"><input class="border-2 border-black w-20 text-center" name="seqs-22" type="text" value="{{data.limits.21.seqs}}"></td>
+                                <td class="PEQS"><input class="border-2 border-black w-20 text-center" name="peqs-22" type="text" value="{{data.limits.21.peqs}}"></td>
+                                <td class="NEQS"><input class="border-2 border-black w-20 text-center" name="neqs-22" type="text" value="{{data.limits.21.neqs}}"></td>
                                 
                                 
                             </tr>

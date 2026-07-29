@@ -237,6 +237,81 @@ class GaseousEmissionForm(models.Model):
     GasEm_test_desc = models.CharField(max_length=100)
     GaseEm_types = models.CharField(max_length=100)
     GaseEm_select = models.CharField(max_length=100,null=True)
+    seqs_limits = models.TextField(null=True,blank=True)
+    peqs_limits = models.TextField(null=True,blank=True)
+    neqs_limits = models.TextField(null=True,blank=True)
+
+    GAS_LIMIT_DEFAULTS = [
+        ('2','2','2'),
+        ('300','300','500'),
+        ('800','800','800'),
+        ('-','-','-'),
+        ('-','-','-'),
+        ('400','600','1200'),
+        ('-','-','-'),
+        ('10','10','10'),
+        ('400','400','400'),
+        ('150','150','150'),
+        ('150','150','150'),
+        ('1700','1700','1700'),
+        ('10','10','10'),
+        ('20','20','20'),
+        ('20','20','20'),
+        ('50','50','50'),
+        ('20','20','20'),
+        ('200','200','200'),
+        ('50','50','50'),
+        ('-','-','-'),
+        ('-','-','-'),
+        ('-','-','-'),
+    ]
+
+    GAS_FUEL_ROWS = (2,6)
+
+    @property
+    def limits(self):
+        import json
+        cols = []
+        for raw in (self.seqs_limits, self.peqs_limits, self.neqs_limits):
+            try:
+                v = json.loads(raw) if raw else []
+            except Exception:
+                v = []
+            if not isinstance(v, list):
+                v = []
+            cols.append(v)
+        std = str(self.location or self.GaseEm_select or 'SEQS').strip().upper()
+        fuel = str(self.GaseEm_types or '').strip().lower()
+        out = []
+        for i in range(22):
+            d = GaseousEmissionForm.GAS_LIMIT_DEFAULTS[i]
+            row = []
+            for j in range(3):
+                arr = cols[j]
+                val = ''
+                if i < len(arr) and arr[i] is not None:
+                    val = str(arr[i]).strip()
+                if val == '':
+                    val = d[j]
+                row.append(val)
+            if (i + 1) in GaseousEmissionForm.GAS_FUEL_ROWS:
+                if fuel == 'oil_fired':
+                    pr = row[1]
+                elif fuel == 'coal_fired':
+                    pr = row[2]
+                elif fuel == 'biomass':
+                    pr = '-'
+                else:
+                    pr = row[0]
+            else:
+                if std == 'PEQS':
+                    pr = row[1]
+                elif std == 'NEQS':
+                    pr = row[2]
+                else:
+                    pr = row[0]
+            out.append({'seqs':row[0],'peqs':row[1],'neqs':row[2],'printed':pr})
+        return out
     GaseEm_sr1 = models.CharField(max_length=500,null=True)
     GaseEm_sr2 =  models.CharField(max_length=500, null = True )
     GaseEm_sr3 =  models.CharField(max_length=500, null = True )
@@ -1324,6 +1399,15 @@ class AmbientAir2(models.Model):
     col_head_7 = models.CharField(max_length=200,null=True,blank=True)
     col_head_8 = models.CharField(max_length=200,null=True,blank=True)
     col_head_9 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_1 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_2 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_3 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_4 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_5 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_6 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_7 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_8 = models.CharField(max_length=200,null=True,blank=True)
+    col_unit_9 = models.CharField(max_length=200,null=True,blank=True)
     pdf_image_1 = models.TextField(null=True,blank=True)  # base64 string
     pdf_desc_1 = models.TextField(null=True,blank=True)
     pdf_image_2 = models.TextField(null=True,blank=True)  # base64 string

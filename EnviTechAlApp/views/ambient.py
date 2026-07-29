@@ -471,14 +471,23 @@ def ambientAirQuality2(request):
           approved_sign = Signatures.objects.get(id=approved_sign_id)
           pdf_heading = request.POST.get('pdf_heading')
           col_head_1 = request.POST.get('col_head_1')
+          col_unit_1 = request.POST.get('col_unit_1')
           col_head_2 = request.POST.get('col_head_2')
+          col_unit_2 = request.POST.get('col_unit_2')
           col_head_3 = request.POST.get('col_head_3')
+          col_unit_3 = request.POST.get('col_unit_3')
           col_head_4 = request.POST.get('col_head_4')
+          col_unit_4 = request.POST.get('col_unit_4')
           col_head_5 = request.POST.get('col_head_5')
+          col_unit_5 = request.POST.get('col_unit_5')
           col_head_6 = request.POST.get('col_head_6')
+          col_unit_6 = request.POST.get('col_unit_6')
           col_head_7 = request.POST.get('col_head_7')
+          col_unit_7 = request.POST.get('col_unit_7')
           col_head_8 = request.POST.get('col_head_8')
+          col_unit_8 = request.POST.get('col_unit_8')
           col_head_9 = request.POST.get('col_head_9')
+          col_unit_9 = request.POST.get('col_unit_9')
           image_data = {}
 
           for i in range(1, 7):
@@ -546,7 +555,7 @@ def ambientAirQuality2(request):
                                         legend_4=legend_4,legend_5=legend_5,legend_6=legend_6,legend_7=legend_7,legend_8=legend_8,legend_9=legend_9,legend_10=legend_10,
                                         legend_11=legend_11,edit_note=edit_note,custom_legend=custom_legend,location=location,
                                         doc1=doc1,doc2=doc2,doc3=doc3,city_location=city_location,customer_id=customer_id,analyst_signature=analyst_sign,
-                                        assistant_manager_signature=review_sign,lab_manager_signature=approved_sign,**image_data,pdf_heading=pdf_heading,col_head_1=col_head_1,col_head_2=col_head_2,col_head_3=col_head_3,col_head_4=col_head_4,col_head_5=col_head_5,col_head_6=col_head_6,col_head_7=col_head_7,col_head_8=col_head_8,col_head_9=col_head_9,created_by = request.user,industry=industry)
+                                        assistant_manager_signature=review_sign,lab_manager_signature=approved_sign,**image_data,pdf_heading=pdf_heading,col_head_1=col_head_1,col_head_2=col_head_2,col_head_3=col_head_3,col_head_4=col_head_4,col_head_5=col_head_5,col_head_6=col_head_6,col_head_7=col_head_7,col_head_8=col_head_8,col_head_9=col_head_9,col_unit_1=col_unit_1,col_unit_2=col_unit_2,col_unit_3=col_unit_3,col_unit_4=col_unit_4,col_unit_5=col_unit_5,col_unit_6=col_unit_6,col_unit_7=col_unit_7,col_unit_8=col_unit_8,col_unit_9=col_unit_9,created_by = request.user,industry=industry)
           ambientAirForm2.save()
           
           
@@ -2087,14 +2096,23 @@ def ambientAir2Update(request,pk):
 
           AA.pdf_heading=request.POST.get('pdf_heading')
           AA.col_head_1=request.POST.get('col_head_1')
+          AA.col_unit_1=request.POST.get('col_unit_1')
           AA.col_head_2=request.POST.get('col_head_2')
+          AA.col_unit_2=request.POST.get('col_unit_2')
           AA.col_head_3=request.POST.get('col_head_3')
+          AA.col_unit_3=request.POST.get('col_unit_3')
           AA.col_head_4=request.POST.get('col_head_4')
+          AA.col_unit_4=request.POST.get('col_unit_4')
           AA.col_head_5=request.POST.get('col_head_5')
+          AA.col_unit_5=request.POST.get('col_unit_5')
           AA.col_head_6=request.POST.get('col_head_6')
+          AA.col_unit_6=request.POST.get('col_unit_6')
           AA.col_head_7=request.POST.get('col_head_7')
+          AA.col_unit_7=request.POST.get('col_unit_7')
           AA.col_head_8=request.POST.get('col_head_8')
+          AA.col_unit_8=request.POST.get('col_unit_8')
           AA.col_head_9=request.POST.get('col_head_9')
+          AA.col_unit_9=request.POST.get('col_unit_9')
           
           for i in range(1, 7):
                image_key = f'pdf_image_{i}'
@@ -2173,7 +2191,7 @@ def ambientAir2Pdf(request,pk):
 
 
      TABLE_DATA = [
-           ["Sr.#", "Time", (AA2.col_head_1 or "CO")+"\nmg/m³", (AA2.col_head_2 or "NO")+"\nµg/m³", (AA2.col_head_3 or "NO₂")+"\nµg/m³", (AA2.col_head_4 or "SO₂")+"\nµg/m³", (AA2.col_head_5 or "O₃")+"\nµg/m³", (AA2.col_head_6 or "SPM")+"\nµg/m³", (AA2.col_head_7 or "PM10")+"\nµg/m³", (AA2.col_head_8 or "PM2.5")+"\nµg/m³", (AA2.col_head_9 or "Lead")+"\nµg/m³"],
+           ["Sr.#", "Time", (AA2.col_head_1 or "CO")+"\n"+(AA2.col_unit_1 or "mg/m³"), (AA2.col_head_2 or "NO")+"\n"+(AA2.col_unit_2 or "µg/m³"), (AA2.col_head_3 or "NO₂")+"\n"+(AA2.col_unit_3 or "µg/m³"), (AA2.col_head_4 or "SO₂")+"\n"+(AA2.col_unit_4 or "µg/m³"), (AA2.col_head_5 or "O₃")+"\n"+(AA2.col_unit_5 or "µg/m³"), (AA2.col_head_6 or "SPM")+"\n"+(AA2.col_unit_6 or "µg/m³"), (AA2.col_head_7 or "PM10")+"\n"+(AA2.col_unit_7 or "µg/m³"), (AA2.col_head_8 or "PM2.5")+"\n"+(AA2.col_unit_8 or "µg/m³"), (AA2.col_head_9 or "Lead")+"\n"+(AA2.col_unit_9 or "µg/m³")],
      ]
      sr_no = 1
      if AA2.sr1_2 or AA2.sr1_3 or AA2.sr1_4 or AA2.sr1_5 or AA2.sr1_6 or AA2.sr1_7 or AA2.sr1_8 or AA2.sr1_9 or AA2.sr1_10:
@@ -2720,7 +2738,7 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
 
 
      TABLE_DATA = [
-                ["Sr.#", "Time", (AA2.col_head_1 or "CO")+"\nmg/m³", (AA2.col_head_2 or "NO")+"\nµg/m³", (AA2.col_head_3 or "NO₂")+"\nµg/m³", (AA2.col_head_4 or "SO₂")+"\nµg/m³", (AA2.col_head_5 or "O₃")+"\nµg/m³", (AA2.col_head_6 or "SPM")+"\nµg/m³", (AA2.col_head_7 or "PM10")+"\nµg/m³", (AA2.col_head_8 or "PM2.5")+"\nµg/m³", (AA2.col_head_9 or "Lead")+"\nµg/m³"],
+                ["Sr.#", "Time", (AA2.col_head_1 or "CO")+"\n"+(AA2.col_unit_1 or "mg/m³"), (AA2.col_head_2 or "NO")+"\n"+(AA2.col_unit_2 or "µg/m³"), (AA2.col_head_3 or "NO₂")+"\n"+(AA2.col_unit_3 or "µg/m³"), (AA2.col_head_4 or "SO₂")+"\n"+(AA2.col_unit_4 or "µg/m³"), (AA2.col_head_5 or "O₃")+"\n"+(AA2.col_unit_5 or "µg/m³"), (AA2.col_head_6 or "SPM")+"\n"+(AA2.col_unit_6 or "µg/m³"), (AA2.col_head_7 or "PM10")+"\n"+(AA2.col_unit_7 or "µg/m³"), (AA2.col_head_8 or "PM2.5")+"\n"+(AA2.col_unit_8 or "µg/m³"), (AA2.col_head_9 or "Lead")+"\n"+(AA2.col_unit_9 or "µg/m³")],
      ]
      sr_no = 1
      if AA2.sr1_2 or AA2.sr1_3 or AA2.sr1_4 or AA2.sr1_5 or AA2.sr1_6 or AA2.sr1_7 or AA2.sr1_8 or AA2.sr1_9 or AA2.sr1_10:
@@ -3689,14 +3707,23 @@ def ambientAir2cloneSave(request,pk):
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')
           existing_Form.col_head_1=request.POST.get('col_head_1')
+          existing_Form.col_unit_1=request.POST.get('col_unit_1')
           existing_Form.col_head_2=request.POST.get('col_head_2')
+          existing_Form.col_unit_2=request.POST.get('col_unit_2')
           existing_Form.col_head_3=request.POST.get('col_head_3')
+          existing_Form.col_unit_3=request.POST.get('col_unit_3')
           existing_Form.col_head_4=request.POST.get('col_head_4')
+          existing_Form.col_unit_4=request.POST.get('col_unit_4')
           existing_Form.col_head_5=request.POST.get('col_head_5')
+          existing_Form.col_unit_5=request.POST.get('col_unit_5')
           existing_Form.col_head_6=request.POST.get('col_head_6')
+          existing_Form.col_unit_6=request.POST.get('col_unit_6')
           existing_Form.col_head_7=request.POST.get('col_head_7')
+          existing_Form.col_unit_7=request.POST.get('col_unit_7')
           existing_Form.col_head_8=request.POST.get('col_head_8')
+          existing_Form.col_unit_8=request.POST.get('col_unit_8')
           existing_Form.col_head_9=request.POST.get('col_head_9')
+          existing_Form.col_unit_9=request.POST.get('col_unit_9')
           
           for i in range(1, 7):
                image_key = f'pdf_image_{i}'
@@ -3867,14 +3894,23 @@ def ambientAircloneSave(request,pk):
             
             existing_Form.pdf_heading=request.POST.get('pdf_heading')
             existing_Form.col_head_1=request.POST.get('col_head_1')
+            existing_Form.col_unit_1=request.POST.get('col_unit_1')
             existing_Form.col_head_2=request.POST.get('col_head_2')
+            existing_Form.col_unit_2=request.POST.get('col_unit_2')
             existing_Form.col_head_3=request.POST.get('col_head_3')
+            existing_Form.col_unit_3=request.POST.get('col_unit_3')
             existing_Form.col_head_4=request.POST.get('col_head_4')
+            existing_Form.col_unit_4=request.POST.get('col_unit_4')
             existing_Form.col_head_5=request.POST.get('col_head_5')
+            existing_Form.col_unit_5=request.POST.get('col_unit_5')
             existing_Form.col_head_6=request.POST.get('col_head_6')
+            existing_Form.col_unit_6=request.POST.get('col_unit_6')
             existing_Form.col_head_7=request.POST.get('col_head_7')
+            existing_Form.col_unit_7=request.POST.get('col_unit_7')
             existing_Form.col_head_8=request.POST.get('col_head_8')
+            existing_Form.col_unit_8=request.POST.get('col_unit_8')
             existing_Form.col_head_9=request.POST.get('col_head_9')
+            existing_Form.col_unit_9=request.POST.get('col_unit_9')
           
             for i in range(1, 7):
                  
