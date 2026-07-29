@@ -223,10 +223,10 @@ function curLoc(){var e=el('location');return (e&&e.value)||'Karachi';}
 // stock of the laboratory currently selected, otherwise a Lahore lot can be
 // recalled onto a Karachi record (analyst finding, 27-07-2026).
 function invForLoc(){var L=curLoc();return INV.filter(function(r){return !r.loc||r.loc===L;});}
-function invLotsFor(n){n=(n||'').trim().toLowerCase();if(!n)return [];return invForLoc().filter(function(r){return (r.name||'').toLowerCase()===n;});}
+function invLotsFor(n){n=(n||'').trim().toLowerCase();if(!n)return [];return invForLoc().filter(function(r){return !r.nolot&&(r.name||'').toLowerCase()===n;});}
 function lotLabel(r){var p=[];if(r.lot)p.push('LOT '+r.lot);if(r.cat)p.push('CAT '+r.cat);if(r.make)p.push(r.make);if(r.expiry)p.push('exp '+r.expiry);return p.join('  |  ');}
 function buildInvList(){var dl=el('invList');if(!dl)return;dl.innerHTML='';var rows=invForLoc();var grp={};rows.forEach(function(r){if(!r.name)return;(grp[r.name]=grp[r.name]||[]).push(r);});
-  var html=Object.keys(grp).sort().map(function(n){var v=grp[n];var d=(v.length>1)?(v.length+' lots in '+curLoc()+' - choose the lot in the LOT column'):lotLabel(v[0]);return '<option value="'+esc(n)+'">'+esc(d)+'</option>';}).join('');dl.innerHTML=html;}
+  var html=Object.keys(grp).sort().map(function(n){var v=grp[n];var d=v[0].nolot?('on the register - no lot at '+curLoc()):(v.length>1)?(v.length+' lots in '+curLoc()+' - choose the lot in the LOT column'):lotLabel(v[0]);return '<option value="'+esc(n)+'">'+esc(d)+'</option>';}).join('');dl.innerHTML=html;}
 // Pick the lot an analyst would actually reach for: an in-use lot before a
 // finished one, then the one that expires last.  Never a silent "first row".
 function invByName(n){var v=invLotsFor(n);if(!v.length)return null;

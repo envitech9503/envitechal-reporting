@@ -703,8 +703,8 @@ function calcLoc(){var e=document.getElementById('loc');return (e&&e.value)||'Ka
 function invRows(){var L=calcLoc();return ETAL_INV.filter(function(r){return !r.loc||r.loc===L;});}
 var INV={};
 function rebuildINV(){INV={};invRows().forEach(function(r){if(!r.name)return;var e=INV[r.name];if(!e){e=INV[r.name]={cat:r.cat||'',make:r.make||'',lots:[]};}
-  e.lots.push({lot:r.lot||'',exp:r.expiry||'',cat:r.cat||'',make:r.make||'',status:r.status||''});});}
-function invOptgroupHTML(){return Object.keys(INV).sort().map(function(n){var e=INV[n];var d=(e.lots.length>1)?(' - '+e.lots.length+' lots'):(e.make?(' - '+e.make):'');return '<option value="inv:'+n.replace(/"/g,'&quot;')+'">'+n+d+'</option>';}).join('');}
+  if(!r.nolot)e.lots.push({lot:r.lot||'',exp:r.expiry||'',cat:r.cat||'',make:r.make||'',status:r.status||''});});}
+function invOptgroupHTML(){return Object.keys(INV).sort().map(function(n){var e=INV[n];var d=(e.lots.length===0)?(' - on register, no lot at '+calcLoc()):(e.lots.length>1)?(' - '+e.lots.length+' lots'):(e.make?(' - '+e.make):'');return '<option value="inv:'+n.replace(/"/g,'&quot;')+'">'+n+d+'</option>';}).join('');}
 function fillInvList(){rebuildINV();
   var dl=document.getElementById('invList');if(dl)dl.innerHTML=Object.keys(INV).sort().map(function(n){return '<option value="'+n.replace(/"/g,'&quot;')+'">';}).join('');
   var og=document.getElementById('s_lib_inv');if(og){og.label='Laboratory inventory - '+calcLoc()+' ('+Object.keys(INV).length+')';og.innerHTML=invOptgroupHTML();}}

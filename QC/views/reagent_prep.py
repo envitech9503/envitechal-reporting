@@ -130,27 +130,41 @@ def _brand_of(lot, item=None):
 
 
 def _inventory_for_autocomplete():
+    """Chemical universe offered by every reagent, standard-preparation and
+    calculator drop-down.
+
+    Parity rule (analyst instruction, 29-07-2026): the drop-downs must offer
+    the same register the Chemicals module shows for the selected laboratory
+    - every active ChemicalItem, with no chemical left behind.  Lot, CAT,
+    brand and expiry detail remains strictly scoped to the selected
+    laboratory, so a Lahore lot can never be recalled onto a Karachi record
+    (analyst finding, 27-07-2026).  Rows carry nolot=1 where the chemical is
+    on the register but holds no lot at that laboratory: the client offers
+    the name and suppresses lot auto-fill.  Retired items (active=False) are
+    no longer offered - saved preparations keep their own stored text, so
+    recall of historical records is unaffected.
+    """
     rows = []
     try:
+        from EnviTechAlApp.models import ChemicalItem as _CI
+        seen = set()
         for lot in (ChemicalLot.objects
-                    .exclude(status='Discarded')
-                    .select_related('item')
-                    .order_by('item__name', 'id')):
+                        .filter(item__active=True)
+                        .exclude(status='Discarded')
+                        .select_related('item')
+                        .order_by('item__name', 'id')):
             it = lot.item
             cat, lotno = _split_cat_lot(lot.lot_no)
             brand = _brand_of(lot, it)
             supplier = lot.supplier or ''
-            # The structural columns are authoritative.  The free-text parsing
-            # above is retained only as a fallback for lots recorded before
-            # these columns existed.  Anything entered from 27-07-2026 onwards
-            # is read straight from ChemicalLot.cat_no and ChemicalLot.brand
-            # and cannot be lost to a change of typing convention.
             cat = (getattr(lot, 'cat_no', '') or '').strip() or cat
             brand = (getattr(lot, 'brand', '') or '').strip() or brand
+            nm = it.name if it else ''
+            loc = lot.location or ''
             rows.append({
                 'id': lot.id,
-                'loc': lot.location or '',
-                'name': it.name if it else '',
+                'loc': loc,
+                'name': nm,
                 'cat': cat,
                 'lot': lotno,
                 'make': brand or supplier,
@@ -159,7 +173,27 @@ def _inventory_for_autocomplete():
                 'grade': (it.grade or '') if it else '',
                 'status': lot.status or '',
                 'expiry': lot.expiry.strftime('%d-%m-%Y') if lot.expiry else '',
+                'nolot': 0,
             })
+            seen.add((loc, nm))
+        for it in _CI.objects.filter(active=True).order_by('name'):
+            for loc in _LOCS:
+                if (loc, it.name) in seen:
+                    continue
+                rows.append({
+                    'id': 0,
+                    'loc': loc,
+                    'name': it.name,
+                    'cat': '',
+                    'lot': '',
+                    'make': '',
+                    'brand': '',
+                    'supplier': '',
+                    'grade': it.grade or '',
+                    'status': '',
+                    'expiry': '',
+                    'nolot': 1,
+                })
     except Exception:
         rows = []
     return rows
