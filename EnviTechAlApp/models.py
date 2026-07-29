@@ -1669,6 +1669,7 @@ class NoiseAnalysis(models.Model):
     select1 = models.CharField(max_length=500,null=True)
     select = models.CharField(max_length=500,null=True)
     custom_limit = models.CharField(max_length=500,null=True,blank=True)
+    row_limits = models.TextField(null=True,blank=True)
     r1 = models.CharField(max_length=500)
     r1_1 = models.CharField(max_length=500)
     r2 = models.CharField(max_length=500)
@@ -2761,6 +2762,7 @@ class ReagentPrep(models.Model):
     RTYPES = (
         ('Reagent', 'Reagent'),
         ('Standard', 'Standard'),
+        ('Multi-component reagent', 'Multi-component reagent'),
         ('Standardised titrant', 'Standardised titrant'),
         ('Buffer', 'Buffer'),
         ('% solution', '% solution'),

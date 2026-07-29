@@ -82,7 +82,7 @@
         <div class="fld"><label>Location</label><select id="location" onchange="onLoc()"></select></div>
         <div class="fld"><label>Month <input type="month" id="monthPick" onchange="onMonthPick()" title="Pick a month" style="font-size:11px;padding:1px 3px;margin-left:4px;width:auto"></label><input id="month" placeholder="e.g. July 2026"></div>
         <div class="fld"><label>Type</label><select id="rtype" onchange="onType()">
-          <option>Reagent</option><option>Standard</option><option>Standardised titrant</option><option>Buffer</option><option>% solution</option>
+          <option>Reagent</option><option>Standard</option><option>Multi-component reagent</option><option>Standardised titrant</option><option>Buffer</option><option>% solution</option>
         </select></div>
         <div class="fld wide"><label>Control No. (this lab) <a id="ctrlEditLink" class="hidden" href="javascript:void(0)" onclick="toggleDocEdit()" style="font-weight:500;font-size:11px;color:#0ea5e9">edit</a></label>
           <div class="ctrlbox">
@@ -179,7 +179,7 @@
     <div class="sec" style="border-top:1px solid #eef2f6">
       <div class="calcbar">
         <h3 style="margin:0"><i class="fa-solid fa-calculator"></i> Fully-Loaded Preparation Calculator</h3>
-        <span class="note">All scenarios: weigh &amp; dissolve, dilute, calibration series, standardisation, % solutions, converters, reagent library.</span>
+        <span class="note">All scenarios: weigh &amp; dissolve, multi-component, dilute, calibration series, standardisation, % solutions, converters, reagent library.</span>
       </div>
       <iframe id="calc" src="about:blank" title="Reagent calculator"></iframe>
     </div>
@@ -320,7 +320,7 @@ function onCalcResult(d){
 // into this form (name, description, dates, chemical rows, standardisation),
 // not just the calculator's own preview pane.
 function onCalcRecord(rec){
-  rec=rec||{};
+  rec=rec||{};if(rec.rtype){var _tf=el('rtype');if(_tf){var _ok=[].some.call(_tf.options,function(op){return op.value===rec.rtype||op.text===rec.rtype;});if(_ok&&_tf.value!==rec.rtype){_tf.value=rec.rtype;if(typeof onType==='function')onType();}}}
   var pairs=[['reagent_name',rec.name],['reagent_no',rec.no],['description',rec.desc],
              ['dop',rec.dop],['doe',rec.doe]];
   var clash=[];

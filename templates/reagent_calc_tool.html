@@ -223,6 +223,7 @@ const ELEM={N:14.007,P:30.974,S:32.06,C:12.011,Cl:35.453,F:18.998,Na:22.990,K:39
 /* ---------- tabs ---------- */
 const TABS=[
  {id:"solid",t:"Weigh &amp; Dissolve (solid)"},
+ {id:"multi",t:"Multi-Component Preparation"},
  {id:"dilute",t:"Dilute a Liquid (C₁V₁=C₂V₂)"},
  {id:"series",t:"Calibration Standard Series"},
  {id:"stand",t:"Standardisation / Factor"},
@@ -239,7 +240,7 @@ function go(id){cur=id;drawTabs();PANELS[id]();syncTransfer();}
    and syncTransfer() then enables/disables the Insert and Fill controls, so a
    value left over from an earlier, now-invalid entry cannot reach a controlled
    record. */
-var RES={solid:null,dilute:null,series:null,stand:null,pct:null};
+var RES={solid:null,dilute:null,series:null,stand:null,pct:null,multi:null};
 function setRes(tab,v){
   RES[tab]=v||null;
   window._solid=RES.solid;window._dil=RES.dilute;window._ser=RES.series;
@@ -389,6 +390,101 @@ function toRec_solid(){if(!RES.solid){alert('Compute a valid mass first, then fi
  const g=RES.solid.g;const vol=val('s_vol'),volu=val('s_volu')==='1'?'L':'mL';
  pushRecord({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`,
    chem:[{name:val('s_name')||'',qty:g+' g'}],dop:today(),doe:todayPlusYears(1)});
+}
+
+/* ============ MULTI-COMPONENT PREPARATION (analyst request, 29-07-2026) ============
+   Several chemicals, one solution.  Every component name offers the full chemical
+   register of the selected laboratory (same lab-scoped inventory as the record
+   rows), each mass is computed with the same formulae as Weigh & Dissolve, and
+   "Fill preparation record" writes every component into the controlled record. */
+PANELS.multi=function(){
+ document.getElementById('panel').innerHTML=`
+ <h2>Multi-Component Preparation &mdash; several chemicals, one solution</h2>
+ <p class="note">Build a preparation from any number of chemicals. The Chemical column offers the full inventory of the selected laboratory. Compute each mass from a target concentration, or enter a direct quantity; all components are made up to one shared final volume.</p>
+ <div class="row">
+  <div><label>Preparation name</label><input id="m_name" placeholder="e.g. Mixed calibration reagent"/></div>
+  <div><label>Reagent No.</label><input id="m_no" placeholder="e.g. MC-01"/></div>
+ </div>
+ <div class="row">
+  <div><label>Final volume</label><div class="flex"><input id="m_vol" type="number" step="any" oninput="calcMulti()" placeholder="e.g. 1000" style="flex:1"/><select class="f" id="m_volu" onchange="calcMulti()"><option value="0">mL</option><option value="1">L</option></select></div></div>
+  <div></div>
+ </div>
+ <div style="overflow-x:auto;margin-top:10px"><table style="width:100%;border-collapse:collapse;font-size:12.5px" id="m_tbl">
+  <thead><tr style="text-align:left;color:var(--muted)"><th style="width:26px">S.#</th><th>Chemical (full inventory)</th><th>Basis</th><th>Value</th><th>MW / Eq.wt</th><th>Purity %</th><th>Computed qty</th><th></th></tr></thead>
+  <tbody id="m_rows"></tbody>
+ </table></div>
+ <div style="margin-top:8px"><button class="btn" style="background:#fff;color:var(--accent)" onclick="addMultiRow()">+ Add component</button></div>
+ <div class="out" id="m_out"></div>
+ <div class="flex" style="margin-top:10px"><button class="btn" data-fill="multi" onclick="toRec_multi()">&#8594; Fill preparation record</button></div>`;
+ addMultiRow();addMultiRow();
+ calcMulti();
+};
+function addMultiRow(){var tb=document.getElementById('m_rows');if(!tb)return;var tr=document.createElement('tr');
+ tr.innerHTML=`<td class="msn" style="color:var(--muted)"></td>
+ <td><input class="mname" list="invList" style="width:97%" oninput="mLib(this);calcMulti()" placeholder="type a chemical name"/></td>
+ <td><select class="mbasis f" onchange="calcMulti()"><option value="M">Molarity (M)</option><option value="N">Normality (N)</option><option value="pw">% w/v</option><option value="gL">g/L</option><option value="ppm">ppm (mg/L)</option><option value="g">direct mass (g)</option><option value="mL">direct volume (mL)</option></select></td>
+ <td><input class="mval" type="number" step="any" style="width:76px" oninput="calcMulti()" placeholder="e.g. 0.1"/></td>
+ <td><input class="mmw" type="number" step="any" style="width:86px" oninput="calcMulti()" placeholder="auto / enter"/></td>
+ <td><input class="mpur" type="number" step="any" style="width:60px" value="100" oninput="calcMulti()"/></td>
+ <td class="mqty" style="font-weight:600;white-space:nowrap"></td>
+ <td><button title="delete row" onclick="this.closest('tr').remove();calcMulti()" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:14px">&times;</button></td>`;
+ tb.appendChild(tr);calcMulti();}
+function mLib(inp){var n=(inp.value||'').trim().toLowerCase();if(!n)return;var tr=inp.closest('tr');
+ var m=LIB.filter(function(y){return !y.liquid&&y.n.toLowerCase()===n;})[0];
+ var f=tr.querySelector('.mmw');if(m&&f&&!f.value)f.value=m.mw||'';}
+function calcMulti(){
+ var o=document.getElementById('m_out');if(!o)return;
+ var trs=[].slice.call(document.querySelectorAll('#m_rows tr'));
+ trs.forEach(function(tr,i){var c=tr.querySelector('.msn');if(c)c.textContent=i+1;});
+ var vol=num('m_vol'),volu=val('m_volu')==='1'?'L':'mL';
+ if(vol!==null&&vol<=0){setRes('multi',null);outWarn(o,'the final volume must be greater than zero.');return;}
+ var VL=(vol!==null)?(volu==='L'?vol:vol/1000):null;
+ var out=[],bad=null,pending=false,touched=false;
+ trs.forEach(function(tr,i){
+  if(bad)return;
+  var name=(tr.querySelector('.mname').value||'').trim();
+  var raw=String(tr.querySelector('.mval').value||'').trim();
+  var basis=tr.querySelector('.mbasis').value;
+  var qc=tr.querySelector('.mqty');qc.textContent='';
+  if(!name&&raw===''){return;}
+  touched=true;
+  if(!name||raw===''){pending=true;return;}
+  var vN=parseFloat(raw);
+  if(!isFinite(vN)||vN<=0){bad='component '+(i+1)+': the value must be a number greater than zero.';return;}
+  var qty=null;
+  if(basis==='g'){qty=fmtMass(vN)+' g';}
+  else if(basis==='mL'){qty=fmt(vN)+' mL';}
+  else{
+   if(VL===null){pending=true;return;}
+   var pur=String(tr.querySelector('.mpur').value||'').trim();
+   var puN=(pur==='')?100:parseFloat(pur);
+   if(!isFinite(puN)||puN<=0||puN>100){bad='component '+(i+1)+': assay / purity must be greater than 0 % and not more than 100 %.';return;}
+   var mass=null;
+   if(basis==='M'||basis==='N'){
+    var mw=String(tr.querySelector('.mmw').value||'').trim();
+    var mwN=(mw==='')?null:parseFloat(mw);
+    if(mwN===null){pending=true;return;}
+    if(!isFinite(mwN)||mwN<=0){bad='component '+(i+1)+': MW / Eq.wt must be greater than zero.';return;}
+    mass=vN*mwN*VL;
+   }else if(basis==='pw'){mass=vN/100*VL*1000;}
+   else if(basis==='gL'){mass=vN*VL;}
+   else if(basis==='ppm'){mass=vN*VL/1000;}
+   mass=mass*100/puN;
+   qty=fmtMass(mass)+' g';
+  }
+  qc.textContent=qty;
+  out.push({name:name,qty:qty});
+ });
+ if(bad){setRes('multi',null);outWarn(o,bad);return;}
+ if(!touched){setRes('multi',null);outAsk(o,'Add the components of the preparation &mdash; every chemical of the selected laboratory is offered in the Chemical column.');return;}
+ if(pending||VL===null||!out.length){setRes('multi',null);outAsk(o,'Enter the final volume and complete each component row (name, value, and MW / Eq.wt where the basis needs it).');return;}
+ setRes('multi',{rows:out,vol:vol,volu:volu});
+ o.innerHTML=`<div class="big">${out.length} component${out.length>1?'s':''} ready</div><ul>${out.map(function(c){return '<li>'+c.qty+' &mdash; '+c.name+'</li>';}).join('')}</ul><div style="margin-top:8px;font-size:12.5px;color:var(--muted)">Dissolve sequentially in DI water and make up to <b>${fmtVol(vol)} ${volu}</b>.</div>`;
+}
+function toRec_multi(){if(!RES.multi){alert('Complete the component table first, then fill the record.');return;}
+ var r=RES.multi;
+ var desc='Multi-component preparation: '+r.rows.map(function(c){return c.qty+' of '+c.name;}).join('; ')+'. Dissolve sequentially in DI water and make up to '+r.vol+' '+r.volu+'.';
+ pushRecord({name:val('m_name'),no:val('m_no'),desc:desc,chem:r.rows.map(function(c){return {name:c.name,qty:c.qty};}),dop:today(),doe:todayPlusYears(1),rtype:'Multi-component reagent'});
 }
 
 PANELS.dilute=function(){
@@ -860,6 +956,7 @@ function insertToForm(){
   else if(cur==='stand'&&RES.stand){var s=RES.stand;
     res={quantity:'',note:'Standardised against '+s.ps+' ('+(num('st_m')!==null?num('st_m')+' g':'mass as recorded')+'); true '+s.N+' '+s.U+', correction factor '+(s.factor||'—')+'.',
       true_N:s.N,factor:s.factor};}
+  if(cur==='multi'&&RES.multi){alert('A multi-component preparation fills the whole record - use the "Fill preparation record" button on its tab.');return;}
   if(!res||(!res.quantity&&!res.note)){alert('Please compute a valid result on this tab first, then insert.');return;}
   parent.postMessage({type:'etal-calc-result',targetRow:ETAL_CTX.targetRow,quantity:res.quantity||'',note:res.note||'',true_N:res.true_N||null,factor:res.factor||null},window.location.origin);
 }
