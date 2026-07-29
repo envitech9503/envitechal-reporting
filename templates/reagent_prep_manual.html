@@ -181,7 +181,7 @@
         <li><b>Standardisation &amp; Correction Factor</b> — appears only for <i>Standardised titrant</i> types; computes the true strength and correction factor.</li>
         <li><b>Standardisation History</b> — a read-only running log of every standardisation of that titrant (appears once at least one event exists).</li>
         <li><b>Description / Method of Preparation</b> — the narrative method, plus Prepared By, Verified By and Remarks.</li>
-        <li><b>Calculator</b> — an embedded, fully-loaded preparation calculator for weigh-and-dissolve, dilutions, calibration series and conversions.</li>
+        <li><b>Calculator</b> — an embedded, fully-loaded preparation calculator for weigh-and-dissolve, dilutions, calibration series, multi-component preparations and conversions.</li>
       </ol>
       <p>Above the form sits the action row, left to right: <b>List</b>, <b>User Manual</b>, <b>History</b>, <b>Open Calculator</b>, <b>Live Preview</b>, <b>Verify</b>, <b>Save</b>, <b>Save &amp; New</b> and <b>Download PDF</b>, together with the verification badge. <b>History</b> and <b>Verify</b> appear only once the record has been saved.</p>
     </section>
@@ -203,11 +203,19 @@
       <div class="warn note">The <b>Reagent Name</b> is the only strictly required field — saving without it is blocked. Everything else can be completed progressively, but a complete record is expected for regulatory logs.</div>
     </section>
 
-    <section class="topic" id="t-type" data-cat="entry" data-keywords="reagent type standard titrant buffer percent solution category kind">
+    <section class="topic" id="t-type" data-cat="entry" data-keywords="reagent type standard titrant buffer percent solution multi-component multicomponent mixed category kind">
       <h2><span class="cat-tag">Data entry</span> Reagent type</h2>
-      <p>The <b>Reagent Type</b> classifies the preparation and controls the form. The available types are: <b>Reagent</b>, <b>Standard</b>, <b>Standardised titrant</b>, <b>Buffer</b> and <b>% solution</b>.</p>
+      <p>The <b>Reagent Type</b> classifies the preparation and controls the form. The available types are: <b>Reagent</b>, <b>Standard</b>, <b>Multi-component reagent</b>, <b>Standardised titrant</b>, <b>Buffer</b> and <b>% solution</b>. Choosing <b>Multi-component reagent</b> marks a preparation made from several chemicals in one solution &mdash; the calculator opens its <b>Multi-Component Preparation</b> tab automatically (see the dedicated topic below).</p>
       <p>Choosing <b>Standardised titrant</b> reveals the <b>Standardisation &amp; Correction Factor</b> panel and, once events exist, the <b>Standardisation History</b> table. Any other type hides both.</p>
       <div class="tip note">If you change a titrant to another type and save, its stored standardisation record is removed (the reagent is no longer a titrant). See <a href="#t-editstd">Editing a titrant safely</a> for exactly when the factor is kept versus cleared.</div>
+    </section>
+
+    <section class="topic" id="t-multi" data-cat="entry" data-keywords="multi-component multicomponent several chemicals mixed solution components basis molarity normality shared final volume">
+      <h2><span class="cat-tag">Data entry</span> Multi-component preparations</h2>
+      <p>Select <b>Multi-component reagent</b> as the Type when one solution is prepared from several chemicals. Open the calculator: its <b>Multi-Component Preparation</b> tab is selected automatically.</p>
+      <p>Add one row per component. Each <b>Chemical</b> box offers the full register of the selected laboratory. Choose a <b>Basis</b> per row &mdash; a target concentration (Molarity, Normality, % w/v, g/L or ppm, with MW / Eq.wt and assay correction) or a direct quantity in g or mL &mdash; and enter one shared <b>final volume</b>. The computed quantity appears on each row.</p>
+      <p><b>&ldquo;Fill preparation record&rdquo;</b> writes every component into the <b>Chemicals used</b> table (CAT / LOT / Make / Expiry are recalled from the laboratory inventory where a lot exists), drafts the description with each quantity, sets the dates and selects the Type for you.</p>
+      <div class="tip note">Quantities are computed with the same formulae as Weigh &amp; Dissolve, applied per component against the shared final volume.</div>
     </section>
 
     <section class="topic" id="t-number" data-cat="entry" data-keywords="reagent number auto suggest next number duplicate warning naming prefix RG SN datalist">
@@ -250,11 +258,11 @@
     <section class="topic" id="t-preview" data-cat="entry" data-keywords="live preview calculator embedded tool weigh dissolve dilution converters fx insert result row quantity">
       <h2><span class="cat-tag">Data entry</span> Live preview &amp; the calculator</h2>
       <p>As you type, a <b>live preview</b> mirrors how the controlled PDF will look. It is presentation only — nothing is stored until you click <b>Save</b>.</p>
-      <p>The embedded <b>Fully-Loaded Preparation Calculator</b> handles weigh-and-dissolve, dilutions, calibration series, standardisation, % solutions and unit converters. Open it with <b>Open Calculator</b> (the button then reads <b>Hide Calculator</b>).</p>
+      <p>The embedded <b>Fully-Loaded Preparation Calculator</b> handles weigh-and-dissolve, dilutions, calibration series, standardisation, % solutions, multi-component preparations and unit converters. Open it with <b>Open Calculator</b> (the button then reads <b>Hide Calculator</b>). The calculator opens on the tab that matches the selected <b>Type</b> &mdash; a multi-component reagent lands on <b>Multi-Component Preparation</b>, a standardised titrant on <b>Standardisation / Factor</b>, a % solution on <b>% Solution</b> and other types on <b>Weigh &amp; Dissolve</b>; changing the Type re-routes an open calculator.</p>
       <p>The calculator writes back into the record in two different ways, and it is worth knowing which button does which:</p>
       <ul>
         <li><b>&ldquo;Insert result into form&rdquo;</b> (the green bar at the top of the calculator) carries across <b>the single computed value</b>. Press the small <b>fx</b> button on a chemical row first and the value lands in that row&rsquo;s <b>Quantity</b>; open the calculator from the toolbar instead and the value lands in the <b>first empty chemical row</b>, a new row being added if every row is already in use. Either way the module confirms with &ldquo;Calculator result inserted into row&nbsp;<i>n</i>&rdquo;. A standardisation calculation additionally fills <b>True strength</b> and <b>Factor</b>, and the working note is copied into <b>Description</b> if that field is still blank.</li>
-        <li><b>&ldquo;Fill preparation record&rdquo;</b> (under each calculator panel &mdash; Weigh &amp; Dissolve, Dilution, % Solution and Standardisation) drafts the <b>whole record</b>: reagent name, description, preparation and expiry dates, the chemical row(s) and, for a titrant, the correction factor. Blank fields are filled silently; where a field already holds something different you are asked once whether to replace it or keep what is there and fill only the blanks.</li>
+        <li><b>&ldquo;Fill preparation record&rdquo;</b> (under each calculator panel &mdash; Weigh &amp; Dissolve, Dilution, % Solution, Standardisation and Multi-Component Preparation) drafts the <b>whole record</b>: reagent name, description, preparation and expiry dates, the chemical row(s) and, for a titrant, the correction factor. Blank fields are filled silently; where a field already holds something different you are asked once whether to replace it or keep what is there and fill only the blanks.</li>
       </ul>
       <div class="note">Both actions write into the form only &mdash; <b>nothing is stored until you click Save</b>. Review the drafted values first: the calculator proposes a one-year expiry by default (one week for thiosulphate, one month for other titrants), which you should adjust to your own stability data. If a record is open in read-only <b>View</b> mode the calculator declines to write and says so.</div>
     </section>
