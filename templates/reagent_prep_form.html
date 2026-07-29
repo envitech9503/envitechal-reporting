@@ -216,7 +216,7 @@ function onMonthPick(){var v=el('monthPick').value;if(!v)return;var m=v.match(/(
 function syncMonthPick(){var t=(el('month').value||'').trim();var mp=el('monthPick');if(!mp)return;for(var i=0;i<12;i++){var m=t.match(new RegExp('^'+MONTHS[i]+'\\s+(\\d{4})$','i'));if(m){mp.value=m[1]+'-'+('0'+(i+1)).slice(-2);return;}}}
 function toggleDocEdit(){el('ctrlEdit').classList.toggle('hidden');}
 function saveDoc(){var loc=el('location').value;var fd=new FormData();fd.append('location',loc);fd.append('doc_no',el('d_no').value);fd.append('issue_date',el('d_date').value);fd.append('issue_no',el('d_iss').value);fd.append('rev_no',el('d_rev').value);fetch('/qc/reagent_prep_doc_save/',{method:'POST',credentials:'include',body:fd}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){DOCCTRL[j.location]=j.doc;onLoc();el('ctrlEdit').classList.add('hidden');flash('Control number saved for '+j.location+'.',true);}else{flash((j&&j.error)||'Could not save control number.',false);}}).catch(function(){flash('Network error saving control number.',false);});}
-function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');renderStdHist();}
+function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');renderStdHist();if(typeof postCtx==='function'){try{postCtx();}catch(_e){}}}
 
 function curLoc(){var e=el('location');return (e&&e.value)||'Karachi';}
 // Inventory is served for BOTH laboratories; the form must only ever offer the

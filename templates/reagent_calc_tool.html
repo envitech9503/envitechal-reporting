@@ -880,6 +880,7 @@ function showCtxWarn(list){var w=document.getElementById('ctxWarn');if(!w)return
 function routeFor(rtype,unit){
   var rt=(rtype||'').toString().toLowerCase();
   var u=_normUnit(unit);
+  if(/multi[- ]?component/.test(rt))return 'multi';
   if(/standardis|standardiz|titrant|titre|titer|correction factor/.test(rt))return 'stand';
   if(/series|calibration curve|calibration standard/.test(rt))return 'series';
   if(/dilut/.test(rt))return 'dilute';
@@ -890,7 +891,7 @@ function routeFor(rtype,unit){
 /* ---- M-2: the incoming context is applied on EVERY route, not only "solid" ---- */
 function applyCtx(c){
   var route=routeFor(c.rtype,c.conc_unit);
-  go(route);
+  if(!(route==='multi'&&cur==='multi'))go(route);
   var warns=[],name=(c.chemName||c.reagent_name||''),vol=parseVol(c.final_volume),nu=_normUnit(c.conc_unit);
   if(c.final_volume&&!vol)warns.push('The final volume &ldquo;'+c.final_volume+'&rdquo; could not be read as a volume — enter it here manually.');
   if(route==='stand'){
@@ -920,6 +921,10 @@ function applyCtx(c){
     if(vol)document.getElementById('se_fv').value=volInML(vol);
     if(c.conc_unit)document.getElementById('se_unit').value=c.conc_unit;
     calcSer();
+  }else if(route==='multi'){
+    var mv=document.getElementById('m_vol');if(mv&&vol&&!mv.value)mv.value=volInML(vol);
+    var mn=document.getElementById('m_name');if(mn&&name&&!mn.value)mn.value=name;
+    calcMulti();
   }else{
     if(c.conc_value){var cv=document.getElementById('s_conc');if(cv)cv.value=c.conc_value;}
     if(c.conc_unit&&!mapUnit(c.conc_unit))
