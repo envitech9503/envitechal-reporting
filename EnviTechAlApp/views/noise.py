@@ -36,6 +36,7 @@ def noiseAnalysis(request):
           select = request.POST.get('select')
           select1 = request.POST.get('select1')
           custom_limit = request.POST.get('custom_limit')
+          row_limits = json.dumps([(request.POST.get('rlim%d' % _i) or '').strip() for _i in range(1, 14)]) if (request.POST.get('select1') or '').strip() == 'No Limit' else None
           r1 = request.POST['r1']
           r1_1 = request.POST['r1_1']
           r2 = request.POST['r2']
@@ -126,7 +127,7 @@ def noiseAnalysis(request):
                          pass
           noiseForm = NoiseAnalysis(lab_report_no=lab_report_no,invoice_bill_no=invoice_bill_no,reporting_date=reporting_date,report_to=report_to,
                                     address=address,attention=attention,email=email,sample_id=sample_id,test_perf_date=test_perf_date,
-                                    test_type=test_type,test_perf_by=test_perf_by,test_desc=test_desc,select=select,select1=select1,custom_limit=custom_limit,r1=r1,r1_1=r1_1,
+                                    test_type=test_type,test_perf_by=test_perf_by,test_desc=test_desc,select=select,select1=select1,custom_limit=custom_limit,row_limits=row_limits,r1=r1,r1_1=r1_1,
                                     r2=r2,r2_2=r2_2,r3=r3,r3_3=r3_3,r4=r4,r4_4=r4_4,r5=r5,r5_5=r5_5,r6=r6,r6_6=r6_6,r7=r7,r7_7=r7_7,
                                     r8=r8,r8_8=r8_8,r9=r9,r9_9=r9_9,r10=r10,r10_10=r10_10,r11=r11,r11_11=r11_11,r12=r12,r12_12=r12_12,
                                     r13=r13,r13_13=r13_13,legend_1=legend_1,legend_2=legend_2,legend_3=legend_3,legend_4=legend_4,
@@ -222,6 +223,7 @@ def noiseAnalysisUpdate(request,pk):
           nA.select = request.POST.get('select')
           nA.select1 = request.POST.get('select1')
           nA.custom_limit = request.POST.get('custom_limit')
+          nA.row_limits = json.dumps([(request.POST.get('rlim%d' % _i) or '').strip() for _i in range(1, 14)]) if (request.POST.get('select1') or '').strip() == 'No Limit' else None
           nA.r1 = request.POST['r1']
           nA.r1_1 = request.POST['r1_1']
           nA.r2 = request.POST['r2']
@@ -369,10 +371,21 @@ def noiseAnalysisView(request,pk):
      img.save(qr_file_path)
      qr_relative_path = f"{settings.MEDIA_URL}{qr_filename}"
      _sel_na = (nA.select1 or '').strip()
-     _show_limit = (_sel_na != 'No Limit')
+     try:
+         _rlims = json.loads(nA.row_limits or '[]')
+     except Exception:
+         _rlims = []
+     _rlims = [str(_x or '').strip() for _x in _rlims]
+     _show_limit = (_sel_na != 'No Limit') or any(_rlims)
      _noise_limit = NOISE_ANALYSIS_LIMITS.get(_sel_na, nA.custom_limit or '-')
+     if _sel_na == 'No Limit':
+         _row_lims = (_rlims + ['']*13)[:13]
+     else:
+         _row_lims = [_noise_limit]*13
+     _limits_header = ('Limits' if _sel_na in ('Custom','No Limit') else (nA.select or '') + ' Limits')
      context = {'data':nA,'qr':qr_relative_path,'logo':logo,
-                'show_limit':_show_limit,'noise_limit':_noise_limit}
+                'show_limit':_show_limit,'noise_limit':_noise_limit,
+                'rlims':_row_lims,'limits_header':_limits_header}
 
      return render(request,'noiseAnalysisReport.html',context)
 
@@ -818,11 +831,16 @@ def noiseAnalysisReport(request,pk):
                     TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,(nA.custom_limit or "-")])
                     sr_no = sr_no+1
      if (nA.select1 or '').strip() == 'No Limit':
+         try:
+             _rlims = json.loads(nA.row_limits or '[]')
+         except Exception:
+             _rlims = []
          _nl_p = [(getattr(nA,'r%d'%_x),getattr(nA,'r%d_%d'%(_x,_x)))
                   for _x in range(1,14)]
-         for _loc,_res in _nl_p:
+         for _ri,(_loc,_res) in enumerate(_nl_p):
              if _loc:
-                 TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,""])
+                 _lv = (_rlims[_ri] if _ri < len(_rlims) else '') or ''
+                 TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,str(_lv)])
                  sr_no = sr_no+1
      for extra_field in nA.extra_field:
           areas = extra_field.get("areas")
@@ -869,6 +887,11 @@ def noiseAnalysisReport(request,pk):
      _sel_na = (nA.select1 or '').strip()
      _show_na = (_sel_na != 'No Limit')
      if not _show_na:
+         try:
+             _show_na = any((str(_x or '').strip()) for _x in json.loads(nA.row_limits or '[]'))
+         except Exception:
+             _show_na = False
+     if not _show_na:
          TABLE_DATA = [_r[:5] for _r in TABLE_DATA]
      _cw_na = (10, 50, 30,30,30,30) if _show_na else (10, 50, 30,30,30)
      _ta_na = ("CENTER","LEFT","CENTER","CENTER","CENTER","CENTER")
@@ -882,7 +905,7 @@ def noiseAnalysisReport(request,pk):
                data_row = TABLE_DATA[k]
                if k == 0:
                     if len(data_row) > 5:
-                        data_row[5] = nA.select + ' Limits'
+                        data_row[5] = ('Limits' if _sel_na in ('Custom','No Limit') else (nA.select or '') + ' Limits')
 
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
@@ -1685,11 +1708,16 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
                     TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,(nA.custom_limit or "-")])
                     sr_no = sr_no+1
      if (nA.select1 or '').strip() == 'No Limit':
+         try:
+             _rlims = json.loads(nA.row_limits or '[]')
+         except Exception:
+             _rlims = []
          _nl_p = [(getattr(nA,'r%d'%_x),getattr(nA,'r%d_%d'%(_x,_x)))
                   for _x in range(1,14)]
-         for _loc,_res in _nl_p:
+         for _ri,(_loc,_res) in enumerate(_nl_p):
              if _loc:
-                 TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,""])
+                 _lv = (_rlims[_ri] if _ri < len(_rlims) else '') or ''
+                 TABLE_DATA.append([str(sr_no),_loc,"ASTM E1686-16","dB",_res,str(_lv)])
                  sr_no = sr_no+1
      for extra_field in nA.extra_field:
           areas = extra_field.get("areas")
@@ -1735,6 +1763,11 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
      _sel_na = (nA.select1 or '').strip()
      _show_na = (_sel_na != 'No Limit')
      if not _show_na:
+         try:
+             _show_na = any((str(_x or '').strip()) for _x in json.loads(nA.row_limits or '[]'))
+         except Exception:
+             _show_na = False
+     if not _show_na:
          TABLE_DATA = [_r[:5] for _r in TABLE_DATA]
      _cw_na = (10, 50, 30,30,30,30) if _show_na else (10, 50, 30,30,30)
      _ta_na = ("CENTER","LEFT","CENTER","CENTER","CENTER","CENTER")
@@ -1748,7 +1781,7 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
                data_row = TABLE_DATA[k]
                if k == 0:
                     if len(data_row) > 5:
-                        data_row[5] = nA.select + ' Limits'
+                        data_row[5] = ('Limits' if _sel_na in ('Custom','No Limit') else (nA.select or '') + ' Limits')
 
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
@@ -4217,6 +4250,7 @@ def noiseAnalysiscloneSave(request,pk):
           existing_Form.select = request.POST.get('select')
           existing_Form.select1 = request.POST.get('select1')
           existing_Form.custom_limit = request.POST.get('custom_limit')
+          existing_Form.row_limits = json.dumps([(request.POST.get('rlim%d' % _i) or '').strip() for _i in range(1, 14)]) if (request.POST.get('select1') or '').strip() == 'No Limit' else None
           existing_Form.r1 = request.POST['r1']
           existing_Form.r1_1 = request.POST['r1_1']
           existing_Form.r2 = request.POST['r2']

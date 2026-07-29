@@ -285,7 +285,7 @@
             <th class="border border-black">Methods</th>
             <th class="border border-black">Unit</th>
             <th class="border border-black">Result</th>
-            {% if show_limit %}<th class="border border-black">{{data.select}} Limits</th>{% endif %}
+            {% if show_limit %}<th class="border border-black">{{ limits_header }}</th>{% endif %}
           </tr>
         </thead>
         <tbody id="">
@@ -296,7 +296,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r1_1}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.0 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -307,7 +307,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r2_2}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.1 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -318,7 +318,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r3_3}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.2 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -329,7 +329,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r4_4}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.3 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -340,7 +340,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r5_5}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.4 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -351,7 +351,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r6_6}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.5 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -362,7 +362,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r7_7}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.6 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -373,7 +373,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r8_8}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.7 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -384,7 +384,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r9_9}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.8 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -395,7 +395,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r10_10}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.9 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -406,7 +406,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r11_11}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.10 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -417,7 +417,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r12_12}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.11 }}</td>{% endif %}
             
           </tr>
           {%endif%}
@@ -428,7 +428,7 @@
             <td class="text-center">ASTM E1686-16</td>
             <td class="text-center">dB</td>
             <td class="text-center">{{data.r13_13}}</td>
-            {% if show_limit %}<td class="text-center">{{ noise_limit }}</td>{% endif %}
+            {% if show_limit %}<td class="text-center">{{ rlims.12 }}</td>{% endif %}
             
           </tr>
           {%endif%}

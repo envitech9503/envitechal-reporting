@@ -282,7 +282,7 @@
                             <option class="" value="Residential Day">Residential (Day)</option>
                             <option class="" value="Residential Night">Residential (Night)</option>
                             <option class="" value="Commercial Day">Commercial (Day)</option>
-                            <option class="" value="Commercial Night">Commercila (Night)</option>
+                            <option class="" value="Commercial Night">Commercial (Night)</option>
                             <option class="" value="Industrial Day">Industrial (Day)</option>
                             <option class="" value="Industrial Night">Industrial (Night)</option>
                             <option class="" value="Silence Day">Silence Zone (Day)</option>
@@ -294,15 +294,47 @@
                           <label class="font-bold text-lg" for="custom_limit">Custom Limit (dB)</label>
                           <input id="custom_limit" name="custom_limit" type="text" value="{{data.custom_limit}}" placeholder="e.g. 60" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" style="width:24rem">
                         </div>
-                        <script>
-                        (function(){
-                          function tog(){ var s=document.getElementById("result_type_1"), w=document.getElementById("custom_limit_wrap"); if(!s||!w)return;
-                            var c=(s.value==="Custom"); var nl=(s.value==="No Limit"); w.style.display=c?"block":"none";
-                            document.querySelectorAll("td.res_day").forEach(function(td){ td.style.visibility=(c||nl)?"hidden":"visible"; }); }
-                          if(window.jQuery){ jQuery("#result_type_1").on("change",tog); } else { var s=document.getElementById("result_type_1"); if(s)s.addEventListener("change",tog); }
-                          document.addEventListener("DOMContentLoaded",tog); tog();
-                        })();
-                        </script>
+                        <script>var ROW_LIMITS = [];</script>
+<script>
+(function(){
+  var STD={"Residential Day":"res_day","Residential Night":"res_night","Commercial Day":"commer_day","Commercial Night":"commer_night","Industrial Day":"indus_day","Industrial Night":"indus_night","Silence Day":"silence_day","Silence Night":"silence_night"};
+  var LIM={"Residential Day":"55","Residential Night":"45","Commercial Day":"65","Commercial Night":"55","Industrial Day":"75","Industrial Night":"65","Silence Day":"50","Silence Night":"45"};
+  var ALL="td.res_day,td.res_night,td.commer_day,td.commer_night,td.indus_day,td.indus_night,td.silence_day,td.silence_night";
+  function numFilter(el){var v=el.value.replace(/[^0-9.]/g,"");var p=v.split(".");if(p.length>2){v=p[0]+"."+p.slice(1).join("");}if(v!==el.value){el.value=v;}}
+  function mirror(){var c=document.getElementById("custom_limit");jQuery(".cl-mirror").text(c&&c.value?c.value:"");}
+  function applyUI(){
+    var s=document.getElementById("result_type_1");if(!s){return;}
+    var v=s.value,custom=(v==="Custom"),nl=(v==="No Limit");
+    jQuery("#custom_limit_wrap").toggle(custom);
+    jQuery(ALL).hide();
+    jQuery("td.custom_cell").toggle(custom);
+    jQuery("td.nolimit_cell").toggle(nl);
+    jQuery(".range_value .std-limit").toggle(!custom&&!nl);
+    jQuery(".range_value .cl-mirror").toggle(custom);
+    jQuery(".range_value .rlim-input").toggle(nl);
+    if(!custom&&!nl){if(STD[v]){jQuery("td."+STD[v]).show();}jQuery(".range_value .std-limit").text(LIM[v]||"");}
+    if(custom){mirror();}
+    var hsel=jQuery('select[name="select"]'),hc=hsel.next(".select2-container");
+    if(custom||nl){hc.hide();hsel.hide();jQuery("#limits_hdr").show();}
+    else{hc.show();jQuery("#limits_hdr").hide();}
+  }
+  function descFor(v){
+    if(v==="Custom"){return "Noise Analysis - Custom Limit";}
+    if(v==="No Limit"){return "Noise Analysis";}
+    var std=jQuery('select[name="select"]').val()||"SEQS";
+    return "Noise Analysis as per "+std+"-2016";
+  }
+  jQuery(function(){
+    jQuery("#result_type_1").on("change",function(){applyUI();var d=document.querySelector(".test_desc");if(d){d.value=descFor(this.value);}});
+    jQuery(document).on("input","#custom_limit",function(){numFilter(this);mirror();});
+    jQuery(document).on("input",".rlim-input, input[name^='rlim']",function(){numFilter(this);});
+    if(typeof ROW_LIMITS!=="undefined"&&ROW_LIMITS&&ROW_LIMITS.length){jQuery("input[name^='rlim']").each(function(i){if(ROW_LIMITS[i]!==undefined&&ROW_LIMITS[i]!==null){this.value=ROW_LIMITS[i];}});}
+    applyUI();
+    setTimeout(applyUI,400);
+  });
+  jQuery(window).on("load",applyUI);
+})();
+</script>
                     </div>
                 </div>
     
@@ -325,7 +357,7 @@
                                     <option value="PEQS">PEQS Limits</option>
                                     <option value="NEQS">NEQS Limits</option>
                                     
-                               </select></th>
+                               </select><span id="limits_hdr" class="font-bold" style="display:none">Limits</span></th>
                                 
                                 
                                 
@@ -346,6 +378,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim1" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -362,6 +396,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim2" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>03</td>
@@ -377,6 +413,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim3" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>04</td>
@@ -392,6 +430,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim4" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>05</td>
@@ -407,6 +447,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim5" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>06</td>
@@ -422,6 +464,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim6" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>07</td>
@@ -437,6 +481,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim7" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>08</td>
@@ -452,6 +498,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim8" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>09</td>
@@ -467,6 +515,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim9" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>10</td>
@@ -482,6 +532,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim10" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>11</td>
@@ -497,6 +549,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim11" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>12</td>
@@ -512,6 +566,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim12" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             <tr class="text-center border h-16">
                                 <td>13</td>
@@ -527,6 +583,8 @@
                                 <td class="indus_night" >65</td>
                                 <td class="silence_day" >50</td>
                                 <td class="silence_night" >45</td>
+                                <td class="custom_cell" style="display:none"><span class="cl-mirror"></span></td>
+                                <td class="nolimit_cell" style="display:none"><input type="text" maxlength="6" name="rlim13" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" value=""></td>
                             </tr>
                             
                             
