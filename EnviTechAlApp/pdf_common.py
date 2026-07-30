@@ -1735,6 +1735,30 @@ class PDF_wasteWaterPdf1(FPDF):
 
           self.set_y(136.9)
 
+
+def _vehEm_type_text(a, b):
+     a = (a or '').strip()
+     b = (b or '').strip()
+     if not b or b.lower() == a.lower() or (a and b.lower() in a.lower()):
+          return a
+     if a and a.lower() in b.lower():
+          return b
+     return (a + ' - ' + b) if a else b
+
+def _text_fit(pdf, x, y, txt, max_w, size=10, min_size=6.5):
+     txt = txt or ''
+     s = size
+     pdf.set_font("Calibri", "", s)
+     while s > min_size and pdf.get_string_width(txt) > max_w:
+          s -= 0.5
+          pdf.set_font("Calibri", "", s)
+     if pdf.get_string_width(txt) > max_w:
+          while txt and pdf.get_string_width(txt + '...') > max_w:
+               txt = txt[:-1]
+          txt = (txt + '...') if txt else ''
+     pdf.text(x, y, txt=txt)
+     pdf.set_font("Calibri", "", size)
+
 class PDF_vehicularEmissionReport(FPDF):
      def __init__(self,lab_report_no,invoice_bill_no,reporting_date,address,attention,email,sample_id,vehEm_test_perf_date,
                   vehEm_test_perfBy,vehEm_test_type,vehEm_test_desc,report_to,vehEm_test_type_extra,*args, **kwargs):
@@ -1878,7 +1902,7 @@ class PDF_vehicularEmissionReport(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(84.8,104,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=(self.vehEm_test_type or "") + ((" - " + self.vehEm_test_type_extra) if self.vehEm_test_type_extra else ""))
+               _text_fit(self, 110, 104, _vehEm_type_text(self.vehEm_test_type, self.vehEm_test_type_extra), 88)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
@@ -2079,7 +2103,7 @@ class PDF_vehicularEmissionReport1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(84.8,109,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=(self.vehEm_test_type or "") + ((" - " + self.vehEm_test_type_extra) if self.vehEm_test_type_extra else ""))
+               _text_fit(self, 110, 109, _vehEm_type_text(self.vehEm_test_type, self.vehEm_test_type_extra), 88)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
