@@ -1,0 +1,2209 @@
+From cb40e43bcf2f4cb8dec82acd81a96f45f3211946 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 30 Jul 2026 22:40:43 +0000
+Subject: [PATCH] Logging Sheet + Sample Registration QA fixes: month
+ round-trip, geolocation overwrite guards, delete protection, live audit
+ timestamps, signature guards, PDF issue-date and header corrections
+
+---
+ EnviTechAlApp/pdf_common.py       |  4 +-
+ EnviTechAlApp/views/ambient.py    | 16 ++---
+ EnviTechAlApp/views/calib.py      |  8 +--
+ EnviTechAlApp/views/drinking.py   |  4 +-
+ EnviTechAlApp/views/gaseous.py    |  4 +-
+ EnviTechAlApp/views/inspection.py |  8 +--
+ EnviTechAlApp/views/logviews.py   | 70 +++++++++++-----------
+ EnviTechAlApp/views/lux.py        |  8 +--
+ EnviTechAlApp/views/machine.py    |  8 +--
+ EnviTechAlApp/views/microbial.py  |  8 +--
+ EnviTechAlApp/views/misc.py       | 35 ++++++-----
+ EnviTechAlApp/views/noise.py      | 12 ++--
+ EnviTechAlApp/views/packing.py    |  8 +--
+ EnviTechAlApp/views/sample.py     | 99 +++++++++++++++++--------------
+ EnviTechAlApp/views/shared.py     |  9 +++
+ EnviTechAlApp/views/vehicular.py  |  8 +--
+ EnviTechAlApp/views/verif.py      |  8 +--
+ EnviTechAlApp/views/viscous.py    |  8 +--
+ EnviTechAlApp/views/waste.py      | 16 ++---
+ templates/addLogging.html         | 68 +++++++++++----------
+ templates/ambientAir2.html        |  3 +-
+ templates/drinkingWaterEdit.html  |  5 +-
+ templates/loggingClone.html       | 48 ++++++++-------
+ templates/loggingEdit.html        | 48 ++++++++-------
+ templates/loggingList.html        |  6 +-
+ templates/loggingSheet.html       | 19 +++---
+ templates/loggingView.html        | 56 +++++++++--------
+ templates/sample_clone.html       | 85 +++++++++++---------------
+ templates/sample_edit.html        | 67 +++++++++++----------
+ templates/sample_list.html        |  4 +-
+ templates/sample_main.html        |  9 ++-
+ templates/sample_reg.html         | 50 +++++++++-------
+ templates/sample_view.html        | 10 ++--
+ 33 files changed, 434 insertions(+), 385 deletions(-)
+
+diff --git a/EnviTechAlApp/pdf_common.py b/EnviTechAlApp/pdf_common.py
+index b5e8c91..41562ac 100644
+--- a/EnviTechAlApp/pdf_common.py
++++ b/EnviTechAlApp/pdf_common.py
+@@ -6016,8 +6016,8 @@ class PDF_logPdf(FPDF):
+         self.text(172, 12, txt=self._rq_logging.lab)  
+         if self._rq_logging.city_location == 'Lahore' or self._rq_logging.city_location == 'lahore':                                                                                                                         
+            self.text(172, 16, txt="Issue Date: 05-01-2023")
+-        elif self._rq_logging.city_location == 'Karachi' or self._rq_logging.city_location == 'karachi': 
+-             self.text(172, 16, txt="Issue Date: 05-01-2023")
++        elif self._rq_logging.city_location == 'Karachi' or self._rq_logging.city_location == 'karachi':
++             self.text(172, 16, txt="Issue Date: 17-12-2021")
+         self.text(172, 20, txt=self._rq_logging.issue_no)
+ 
+         self.set_text_color(0, 0, 0)
+diff --git a/EnviTechAlApp/views/ambient.py b/EnviTechAlApp/views/ambient.py
+index df9bb10..bac5a35 100644
+--- a/EnviTechAlApp/views/ambient.py
++++ b/EnviTechAlApp/views/ambient.py
+@@ -129,7 +129,7 @@ def ambientAirForm(request):
+ 
+             user = request.user
+             action = f'Ambient Air Form {ambientAir.lab_report_no} created by {user.username}'
+-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+             messages.success(request, 'Operation was successful!')
+             id = (AmbientAirForm.objects.last()).id
+             if "submit_and_view" in request.POST:
+@@ -576,7 +576,7 @@ def ambientAirQuality2(request):
+ 
+           user = request.user
+           action = f'Ambient Air 2 Form {ambientAirForm2.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (AmbientAir2.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -607,7 +607,7 @@ def ambientAirDelete(request,pk):
+      ambientDelete.delete()
+      user = request.user
+      action = f'Ambient Air Form {ambientDelete.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect('ambientAirList')
+ 
+@@ -757,7 +757,7 @@ def ambientAirUpdateRecord(request,pk):
+           ambientUpdate.save()
+           user = request.user
+           action = f'Ambient Air Form {ambientUpdate.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+ 
+           id = ambientUpdate.id
+@@ -1738,7 +1738,7 @@ def ambientAir2Delete(request,pk):
+      AA.delete()
+      user = request.user
+      action = f'Ambient Air 2 Form {AA.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("ambientAir2List")
+ 
+@@ -2158,7 +2158,7 @@ def ambientAir2Update(request,pk):
+           AA.save()
+           user = request.user
+           action = f'Ambient Air 2 Form {AA.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = AA.id
+           if "submit_and_view" in request.POST:
+@@ -3787,7 +3787,7 @@ def ambientAir2cloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Ambient Air 2 Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+ 
+@@ -3950,7 +3950,7 @@ def ambientAircloneSave(request,pk):
+             existing_Form.save()
+             user = request.user
+             action = f'Ambient Air Form {existing_Form.lab_report_no} cloned by {user.username}'
+-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+             messages.success(request, 'Operation was successful!')
+             id = existing_Form.id
+             if "update_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/calib.py b/EnviTechAlApp/views/calib.py
+index 6718b86..7ddd830 100644
+--- a/EnviTechAlApp/views/calib.py
++++ b/EnviTechAlApp/views/calib.py
+@@ -142,7 +142,7 @@ def calibration(request):
+           
+           user = request.user
+           action = f'Calibration certificate {calibration.cert_num} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = (Calibration.objects.last()).id
+           if "submit_and_view" in request.POST:
+                url = f"/calibration_view/{str(id)}/"
+@@ -197,7 +197,7 @@ def calib_delete(request,pk):
+      calib.delete()
+      user = request.user
+      action = f'Calibration certificate {calib.cert_num} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      return redirect("calib_list")
+ 
+ @login_required(login_url="/login")
+@@ -379,7 +379,7 @@ def calib_update(request,pk):
+           calib.save()
+           user = request.user
+           action = f'Calibration certificate {calib.cert_num} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = calib.id
+           if "submit_and_view" in request.POST:
+                url = f'/calibration_view/{str(id)}/'
+@@ -575,7 +575,7 @@ def calib_clone_update(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Calibration certificate {existing_Form.cert_num} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+                 url = f"/calibration_view/{str(id)}/"
+diff --git a/EnviTechAlApp/views/drinking.py b/EnviTechAlApp/views/drinking.py
+index e5d3f2d..908f1dd 100644
+--- a/EnviTechAlApp/views/drinking.py
++++ b/EnviTechAlApp/views/drinking.py
+@@ -249,7 +249,7 @@ def drinkingWaterForm(request):
+           
+           user = request.user
+           action = f'Drinking Water Form {waterForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (DrinkingWaterForm.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -527,7 +527,7 @@ def drinkingWaterCloneSave(request,pk):
+           existing_dw.save()
+           user = request.user
+           action = f'Drinking Water Form {existing_dw.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_dw.id
+           # id = (DrinkingWaterForm.objects.last()).id
+diff --git a/EnviTechAlApp/views/gaseous.py b/EnviTechAlApp/views/gaseous.py
+index b8db50a..daf3351 100644
+--- a/EnviTechAlApp/views/gaseous.py
++++ b/EnviTechAlApp/views/gaseous.py
+@@ -150,7 +150,7 @@ def gaseousEmission(request):
+              LoggingSheet.objects.filter(id=customer_id).update(rep_date=reporting_date)
+         user = request.user
+         action = f'Gaseous Emission Form {gaseousForm.lab_report_no} created by {user.username}'
+-        AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++        AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+         messages.success(request, 'Operation was successful!')
+         id = (GaseousEmissionForm.objects.last()).id
+         if "submit_and_view" in request.POST:
+@@ -1396,7 +1396,7 @@ def GaseousFormcloneSave(request,pk):
+         existing_Form.save()
+         user = request.user
+         action = f'Gaseous Emission Form {existing_Form.lab_report_no} cloned by {user.username}'
+-        AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++        AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+         messages.success(request, 'Operation was successful!')
+         id = existing_Form.id
+         if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/inspection.py b/EnviTechAlApp/views/inspection.py
+index 3dd2163..248457d 100644
+--- a/EnviTechAlApp/views/inspection.py
++++ b/EnviTechAlApp/views/inspection.py
+@@ -161,7 +161,7 @@ def inspection(request):
+           
+           user = request.user
+           action = f'Inspection certificate {inspect.cert_num} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = (Inspection.objects.last()).id
+           if "submit_and_view" in request.POST:
+                url = f"/inspection_view/{str(id)}/"
+@@ -355,7 +355,7 @@ def inspect_update(request,pk):
+           inspect.save()
+           user = request.user
+           action = f'Inspection certificate {inspect.cert_num} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = inspect.id
+           if "submit_and_view" in request.POST:
+                url = f'/inspection_view/{str(id)}/'
+@@ -373,7 +373,7 @@ def inspect_delete(request,pk):
+      inspect.delete()
+      user = request.user
+      action = f'Inspection certificate {inspect.cert_num} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      return redirect(to='inspection_list')
+ 
+ 
+@@ -558,7 +558,7 @@ def inspect_clone_update(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Inspection certificate {existing_Form.cert_num} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+                url = f'/inspection_view/{str(id)}/'
+diff --git a/EnviTechAlApp/views/logviews.py b/EnviTechAlApp/views/logviews.py
+index e0e6cfa..37b454b 100644
+--- a/EnviTechAlApp/views/logviews.py
++++ b/EnviTechAlApp/views/logviews.py
+@@ -1,6 +1,7 @@
+ # Auto-generated 18-07-2026: split of monolithic views.py (EnviTechAL rehab).
+ # Do not add module-level state here without reading views/__init__.py linker notes.
+ from .shared import *  # noqa: F401,F403
++from django.views.decorators.http import require_POST
+ 
+ 
+ def logoutUser(request):
+@@ -21,22 +22,16 @@ def loggingSheet(request):
+                 selected_date = datetime.strptime(selected_month, '%Y-%m')
+             except ValueError:
+                 # Handle the case where the input is not a valid date
+-                # You might want to add proper error handling or redirect to an error page
+-                return render(request, 'error_page.html')
++                return render(request, 'error.html', {'error': 'Please select a valid month.'}, status=400)
+ 
+             # Filter the queryset based on the year and month components
+             log = LoggingSheet.objects.filter(month__year=selected_date.year, month__month=selected_date.month,city_location=selected_location).order_by('-id')
+-            logging = LoggingSheet.objects.first()
+-            context = {'data': log,"dt":selected_date.month,"yr":selected_date.year,'logging':logging,'selected_location':selected_location}
+-            
++            logging = log.first()
++            context = {'data': log,"dt":selected_date.month,"yr":selected_date.year,'logging':logging,'selected_location':selected_location,'selected_month':selected_month}
++
+             return render(request, 'loggingSheet.html', context)
+-        else:
+-            log = LoggingSheet.objects.all().order_by('-id')
+-    else:
+-        log = LoggingSheet.objects.all().order_by('-id')
+ 
+-    
+-    return render(request, 'loggingSheet.html',)
++    return render(request, 'loggingSheet.html', {})
+ 
+ 
+ def loggingList(request):
+@@ -63,8 +58,8 @@ def loggingUpdate(request,pk):
+           log.exp_date = request.POST['exp_date']
+           log.rep_date = request.POST['rep_date']
+ 
+-          # log.month = datetime.strptime(request.POST['month'], '%Y-%m-%d').date() if request.POST['month'] else None
+-          log.month = request.POST.get('month')
++          _m = request.POST.get('month')
++          log.month = datetime.strptime(_m, '%Y-%m-%d').date() if _m else None
+           log.rec_by = request.POST['rec_by']
+           log.remarks = request.POST['remarks']
+           log.lab = request.POST['lab']
+@@ -76,14 +71,14 @@ def loggingUpdate(request,pk):
+           log.save()
+           user = request.user
+           action = f'Logging Sheet Edited by {user.username}'
+-          # AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+-          messages.success(request, 'Sample successfully added!')
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
++          messages.success(request, 'Logging sheet updated successfully!')
+           if "submit_and_view" in request.POST:
+-               return redirect(to='loggingSheet')
++               return redirect(f"/loggingView/{pk}/")
+           if "submit_and_new" in request.POST:
+-               
+-               return render(request, "loggingList.html")  
+-     return render(request,"addLogging.html") 
++
++               return redirect('addLogging')
++     return render(request,"addLogging.html")
+ 
+ 
+ def loggingClone(request,pk):
+@@ -106,8 +101,8 @@ def loggingCloneUpdate(request,pk):
+           log.rep_date = request.POST['rep_date']
+ 
+ 
+-          # log.month = datetime.strptime(request.POST['month'], '%Y-%m-%d').date() if request.POST['month'] else None
+-          log.month = request.POST.get('month')
++          _m = request.POST.get('month')
++          log.month = datetime.strptime(_m, '%Y-%m-%d').date() if _m else None
+           log.rec_by = request.POST['rec_by']
+           log.remarks = request.POST['remarks']
+           log.lab = request.POST['lab']
+@@ -117,19 +112,20 @@ def loggingCloneUpdate(request,pk):
+ 
+           log.pk = None
+           log.id = None
++          log.created_by = request.user
+           log.save()
+           id = log.id
+           user = request.user
+-          action = f'Logging Sheet Edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+-          messages.success(request, 'Sample successfully added!')
+-          
++          action = f'Logging Sheet Cloned by {user.username}'
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
++          messages.success(request, 'Logging sheet cloned successfully!')
++
+           if "submit_and_view" in request.POST:
+                url = f"/loggingView/{str(id)}/"
+                return redirect(to=url)
+-          if "submit_and_new" in request.POST: 
+-               return render(request, "loggingList.html")  
+-     return render(request,"addLogging.html") 
++          if "submit_and_new" in request.POST:
++               return redirect('addLogging')
++     return render(request,"addLogging.html")
+ 
+ def loggingView(request,pk):
+      log = LoggingSheet.objects.get(id=pk)
+@@ -138,27 +134,33 @@ def loggingView(request,pk):
+      context = {'data':log,'month':month}
+      return render(request,'loggingView.html',context)
+ 
++@require_POST
+ def loggingDelete(request,pk):
+      log = LoggingSheet.objects.get(id=pk)
+      user = request.user
+      action = f'Logging Sheet {log.sample_id} Deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+-     messages.success(request, 'Sample successfully Deleted!')
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
++     messages.success(request, 'Logging sheet deleted successfully!')
+      log.delete()
+      return redirect("loggingList")
+ 
+ 
+ def logPdf(request):
+-    mn = request.GET.get('dt')
+-    yr =  request.GET.get('yr')
++    try:
++        mn = int(request.GET.get('dt'))
++        yr = int(request.GET.get('yr'))
++    except (TypeError, ValueError):
++        return HttpResponse('Invalid parameters', status=400)
+     loc = request.GET.get('loc')
+-    
++
+     data = LoggingSheet.objects.filter(month__year=yr, month__month=mn,city_location=loc)
+-    logging = LoggingSheet.objects.first()
++    logging = data.first()
+     from fpdf import FPDF
+     from EnviTechAlApp.pdf_common import PDF_logPdf as PDFWithPageNumbers
+     pdf = PDFWithPageNumbers()
+     pdf._rq_data, pdf._rq_logging = data, logging
++    if not logging:
++        return HttpResponse('No logging records for the selected month/location', status=404)
+     pdf.add_page()
+     font_path = "static/fonts/calibri.ttf"
+     font_path_bold = "static/fonts/calibrib.ttf"
+diff --git a/EnviTechAlApp/views/lux.py b/EnviTechAlApp/views/lux.py
+index e90061c..9bbc971 100644
+--- a/EnviTechAlApp/views/lux.py
++++ b/EnviTechAlApp/views/lux.py
+@@ -148,7 +148,7 @@ def luxAnalysis(request):
+ 
+           user = request.user
+           action = f'Lux Analysis Form {luxForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (LuxAnalysisForm.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -177,7 +177,7 @@ def luxAnalysisDelete(request,pk):
+      luxAnalysis.delete()
+      user = request.user
+      action = f'Lux Analysis Form {luxAnalysis.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect('luxAnalysisList')
+ 
+@@ -335,7 +335,7 @@ def luxAnalysisUpdate(request,pk):
+           luxAnalysis.save()
+           user = request.user
+           action = f'Lux Analysis Form {luxAnalysis.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+ 
+ 
+@@ -1452,7 +1452,7 @@ def luxFormcloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           # action = f'Lux Analysis Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          # AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          # AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/machine.py b/EnviTechAlApp/views/machine.py
+index 2e41760..c63be6f 100644
+--- a/EnviTechAlApp/views/machine.py
++++ b/EnviTechAlApp/views/machine.py
+@@ -118,7 +118,7 @@ def machineOil(request):
+ 
+           user = request.user
+           action = f'Machine Oil Form {machineOil.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (MachineOilForm.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -147,7 +147,7 @@ def machineOilDelete(request,pk):
+      machineOil.delete()
+      user = request.user
+      action = f'Machine Oil Form {machineOil.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("machineOilList")
+ 
+@@ -270,7 +270,7 @@ def machineOilUpdate(request,pk):
+           machineOil.save()
+           user = request.user
+           action = f'Machine Oil Form {machineOil.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = machineOil.id
+           if "submit_and_view" in request.POST:
+@@ -1359,7 +1359,7 @@ def machineOilcloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Machine Oil Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/microbial.py b/EnviTechAlApp/views/microbial.py
+index e1b9c6a..2e24223 100644
+--- a/EnviTechAlApp/views/microbial.py
++++ b/EnviTechAlApp/views/microbial.py
+@@ -146,7 +146,7 @@ def microbialAnalysis(request):
+ 
+           user = request.user
+           action = f'Microbial Form {microbialForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (MicrobialAnalysis.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -173,7 +173,7 @@ def microbialDelete(request,pk):
+      mba.delete()
+      user = request.user
+      action = f'Microbial Form {mba.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("microbialList")
+ 
+@@ -333,7 +333,7 @@ def microbialUpdate(request,pk):
+           mba.save()
+           user = request.user
+           action = f'Microbial Form {mba.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = mba.id
+           if "submit_and_view" in request.POST:
+@@ -1390,7 +1390,7 @@ def microbialcloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Microbial Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/misc.py b/EnviTechAlApp/views/misc.py
+index 28a6362..1a8a6b7 100644
+--- a/EnviTechAlApp/views/misc.py
++++ b/EnviTechAlApp/views/misc.py
+@@ -381,14 +381,17 @@ def addLogging(request):
+           att_person = request.POST['att_person']
+           email = request.POST['email']
+           sample_nature = request.POST['sample_nature']
+-          rec_date = datetime.strptime(request.POST['rec_date'], '%Y-%m-%d').date()
+-          exp_date = datetime.strptime(request.POST['exp_date'], '%Y-%m-%d').date()
+-          rep_date = datetime.strptime(request.POST['rep_date'], '%Y-%m-%d').date()
+-          formatted_rec_date = rec_date.strftime('%d-%B-%Y')
+-          formatted_exp_date = exp_date.strftime('%d-%B-%Y')
+-          formatted_rep_date = rep_date.strftime('%d-%B-%Y')
+-
+-          month = datetime.strptime(request.POST['month'], '%Y-%m-%d').date() if request.POST['month'] else None
++          def _d(k):
++               v = request.POST.get(k)
++               return datetime.strptime(v, '%Y-%m-%d').date() if v else None
++          rec_date = _d('rec_date')
++          exp_date = _d('exp_date')
++          rep_date = _d('rep_date')
++          formatted_rec_date = rec_date.strftime('%d-%B-%Y') if rec_date else ''
++          formatted_exp_date = exp_date.strftime('%d-%B-%Y') if exp_date else ''
++          formatted_rep_date = rep_date.strftime('%d-%B-%Y') if rep_date else ''
++
++          month = _d('month')
+           rec_by = request.POST['rec_by']
+           remarks = request.POST['remarks']
+           lab = request.POST['lab']
+@@ -400,12 +403,12 @@ def addLogging(request):
+           log = LoggingSheet(city_location=city_location,sample_id=sample_id,client_name=client_name,
+                               address=address,att_person=att_person,sample_nature = sample_nature,month=month,
+                               email=email,rec_date=formatted_rec_date,exp_date=formatted_exp_date,rep_date=formatted_rep_date,rec_by=rec_by,remarks=remarks,
+-                              lab=lab,issue_date=issue_date,issue_no=issue_no,issue=issue)
++                              lab=lab,issue_date=issue_date,issue_no=issue_no,issue=issue,created_by=request.user)
+ 
+           log.save()
+           user = request.user
+           action = f'Logging Sheet created by {user.username}'
+-          # AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Sample successfully added!')
+           id = (LoggingSheet.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -611,7 +614,7 @@ def deleteDrinkingWaterList(request,pk):
+      drinkingWaterList.delete()
+      user = request.user
+      action = f'Drinking Water Form {drinkingWaterList.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("drinkWaterList")
+ 
+@@ -658,7 +661,9 @@ def editDrinkingWaterListRecord(request,pk):
+           updatedata.address = request.POST['address']
+           updatedata.attention = request.POST['attention']
+           updatedata.email = request.POST['email']
+-          updatedata.customer_id = request.POST.get('customer_id')
++          _c = request.POST.get('customer_id')
++          if _c:
++               updatedata.customer_id = _c
+           updatedata.sample_id = request.POST['sample_id']
+           updatedata.sample_collection_date = request.POST['collection_date']
+           updatedata.sample_description = request.POST['sample_description']
+@@ -862,7 +867,7 @@ def editDrinkingWaterListRecord(request,pk):
+           if updatedata.customer_id:
+                LoggingSheet.objects.filter(id=updatedata.customer_id).update(rep_date=updatedata.reporting_date)
+           action = f'Drinking Water Form {updatedata.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = updatedata.id
+           if "submit_and_view" in request.POST:
+@@ -925,7 +930,7 @@ def deleteGaseousList(request,pk):
+      gaseous_Emission.delete()
+      user = request.user
+      action = f'Gaseous Emission Form {gaseous_Emission.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+ 
+      return redirect('gaseousEmissionList')
+@@ -1098,7 +1103,7 @@ def updateGaseousRecord(request,pk):
+           update_data.save()
+           user = request.user
+           action = f'Gaseous Emission Form {update_data.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = update_data.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/noise.py b/EnviTechAlApp/views/noise.py
+index e85f06a..18ea19e 100644
+--- a/EnviTechAlApp/views/noise.py
++++ b/EnviTechAlApp/views/noise.py
+@@ -178,7 +178,7 @@ def noiseAnalysis(request):
+ 
+           user = request.user
+           action = f'Noise Analysis Form {noiseForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (NoiseAnalysis.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -206,7 +206,7 @@ def noiseAnalysisDelete(request,pk):
+      nA.delete()
+      user = request.user
+      action = f'Noise Analysis Form {nA.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("noiseAnalysisList")
+ 
+@@ -377,7 +377,7 @@ def noiseAnalysisUpdate(request,pk):
+           nA.save()
+           user = request.user
+           action = f'Noise Analysis Form {nA.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = nA.id
+           if "submit_and_view" in request.POST:
+@@ -2617,7 +2617,7 @@ def noiseMonitoring_clone_update(request,pk):
+           nA.save()
+           user = request.user
+           action = f'Noise Analysis Form {nA.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = nA.id
+           if "submit_and_view" in request.POST:
+@@ -2800,7 +2800,7 @@ def noiseMonitoring_edit_update(request,pk):
+           nA.save()
+           user = request.user
+           action = f'Noise Analysis Form {nA.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = nA.id
+           if "submit_and_view" in request.POST:
+@@ -4462,7 +4462,7 @@ def noiseAnalysiscloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Noise Analysis Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/packing.py b/EnviTechAlApp/views/packing.py
+index 171e6db..77d6128 100644
+--- a/EnviTechAlApp/views/packing.py
++++ b/EnviTechAlApp/views/packing.py
+@@ -91,7 +91,7 @@ def packingPoly(request):
+ 
+           user = request.user
+           action = f'Packing Poly Bag Form {packingForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (PackingPolyBagForm.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -117,7 +117,7 @@ def  packingPolyBagDelete(request,pk):
+      ppb.delete()
+      user = request.user
+      action = f'Packing Poly Bag Form {ppb.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect(to="packingPolyBagList")
+ 
+@@ -223,7 +223,7 @@ def packingPolyBagUpdate(request,pk):
+           ppb.save()
+           user = request.user
+           action = f'Packing Poly Bag Form {ppb.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = ppb.id
+           if "submit_and_view" in request.POST:
+@@ -1073,7 +1073,7 @@ def packingPolycloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Packing Poly Bag Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/sample.py b/EnviTechAlApp/views/sample.py
+index 0e32777..9ea8f92 100644
+--- a/EnviTechAlApp/views/sample.py
++++ b/EnviTechAlApp/views/sample.py
+@@ -1,6 +1,7 @@
+ # Auto-generated 18-07-2026: split of monolithic views.py (EnviTechAL rehab).
+ # Do not add module-level state here without reading views/__init__.py linker notes.
+ from .shared import *  # noqa: F401,F403
++from django.views.decorators.http import require_POST
+ 
+ 
+ 
+@@ -144,8 +145,8 @@ def sample_reg(request):
+           sample_by_id = request.POST.get('sample_sign')
+           auth_sign_id = request.POST.get('auth_sign')
+           
+-          auth_signature = Signatures.objects.get(id=auth_sign_id)
+-          sampling_by_signature = Signatures.objects.get(id=sample_by_id)
++          auth_signature = Signatures.objects.filter(id=auth_sign_id).first() if auth_sign_id else None
++          sampling_by_signature = Signatures.objects.filter(id=sample_by_id).first() if sample_by_id else None
+           # approved_sign = Signatures.objects.get(id=approved_sign_id)
+           
+           other_params = {}
+@@ -155,7 +156,7 @@ def sample_reg(request):
+                field = f"other_param_{i}"  # model field
+                other_params[field] = request.POST.get(key) == "on"
+                
+-          for i in range(1, 64):  # 1 to 66
++          for i in range(1, 65):  # 1 to 66
+                key = f"ww_other_param_{i}"   # your checkbox input id/name
+                field = f"ww_other_param_{i}"  # model field
+                ww_other_params[field] = request.POST.get(key) == "on"
+@@ -176,16 +177,16 @@ def sample_reg(request):
+           sample.save()
+           
+           action = f'Sample Registration form created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Sample successfully added!')
+-          id = (Sample_registration.objects.last()).id
++          id = sample.id
+           if "submit_and_view" in request.POST:
+                url = f"/sample_view/{str(id)}/"
+                return redirect(to=url)
+           if "submit_and_new" in request.POST:
+-               
+-               return render(request, "sample_reg.html")                    
+-     return render(request,"sample_reg.html",context={'signs':signs})
++
++               return redirect('sample_reg')
++     return render(request,"sample_reg.html",context={'signs':Signatures.objects.filter(user__is_active=True)})
+ 
+ def sample_main(request):
+      return render(request,"sample_main.html")
+@@ -197,25 +198,28 @@ def sample_list(request):
+      return render(request,"sample_list.html",context)
+ 
+ def sample_view(request,pk):
+-     sample = Sample_registration.objects.get(id=pk)
++     sample = get_object_or_404(Sample_registration, id=pk)
+      context = {'data':sample}
+      return render(request,"sample_view.html",context)
++@require_POST
+ def sample_delete(request,pk):
+-     sample = Sample_registration.objects.get(id=pk)
++     if not request.user.is_superuser:
++          return HttpResponse(status=403)
++     sample = get_object_or_404(Sample_registration, id=pk)
+      user = request.user
+      action = f'Sample Registration form {sample.sample_id} Deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      sample.delete()
+      return redirect("sample_list")
+ 
+ 
+ def sample_edit(request,pk):
+-     sample = Sample_registration.objects.get(id=pk)
+-     context = {'data':sample,'signs':signs}
++     sample = get_object_or_404(Sample_registration, id=pk)
++     context = {'data':sample,'signs':Signatures.objects.filter(user__is_active=True)}
+      return render(request,'sample_edit.html',context)
+ 
+ def sample_update(request,pk):
+-     sample = Sample_registration.objects.get(id=pk)
++     sample = get_object_or_404(Sample_registration, id=pk)
+      if request.method == 'POST':
+           sample.location = request.POST['location']
+           sample.city_location = request.POST['city_location']
+@@ -244,7 +248,7 @@ def sample_update(request,pk):
+                     'checkinp116', 'checkinp117'
+                     ]
+           checkbox_fields.extend([f"other_param_{i}" for i in range(1, 67)])
+-          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 64)])
++          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 65)])
+           sample.inp1 = request.POST['inp1']
+           sample.inp2 = request.POST['inp2']
+           sample.inp3 = request.POST['inp3']
+@@ -277,9 +281,9 @@ def sample_update(request,pk):
+           auth_sign_id =request.POST.get('auth_sign')
+           sample_by_id =request.POST.get('sample_sign')
+           
+-          auth_signature = Signatures.objects.get(id=auth_sign_id)
+-          sampling_by_signature = Signatures.objects.get(id=sample_by_id)
+-          
++          auth_signature = Signatures.objects.filter(id=auth_sign_id).first() if auth_sign_id else None
++          sampling_by_signature = Signatures.objects.filter(id=sample_by_id).first() if sample_by_id else None
++
+           sample.auth_signature = auth_signature
+           sample.sampling_by_signature = sampling_by_signature
+ 
+@@ -291,23 +295,22 @@ def sample_update(request,pk):
+           
+           
+           user = request.user
+-          sample.created_by =user
+           sample.save()
+           action = f'Sample Registration form {sample.sample_id} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = sample.id
+           if "submit_and_view" in request.POST:
+                url = f"/sample_view/{str(id)}/"
+                return redirect(to=url)
+           if "submit_and_new" in request.POST:
+-               
+-               return redirect("sample_list")                    
+-     return render(request,"sample_list.html")
++
++               return redirect("sample_list")
++     return redirect("sample_list")
+ 
+ 
+ def sample_clone(request,pk):
+-     sample = Sample_registration.objects.get(id=pk)
+-     context = {'data':sample,'signs':signs}
++     sample = get_object_or_404(Sample_registration, id=pk)
++     context = {'data':sample,'signs':Signatures.objects.filter(user__is_active=True)}
+      return render(request,'sample_clone.html',context)
+ 
+ 
+@@ -345,7 +348,7 @@ def sample_clone_update(request,pk):
+                     'checkinp116', 'checkinp117'
+                     ]
+           checkbox_fields.extend([f"other_param_{i}" for i in range(1, 67)])
+-          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 64)])
++          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 65)])
+           sample.inp1 = request.POST['inp1']
+           sample.inp2 = request.POST['inp2']
+           sample.inp3 = request.POST['inp3']
+@@ -365,8 +368,8 @@ def sample_clone_update(request,pk):
+           sample.inp109 = request.POST['inp109']
+           
+           sample.inp112 = request.POST['inp112']
+-          sample.other1 = request.POST['other1']
+-          sample.other2 = request.POST['other2']
++          sample.other1 = request.POST.get('other1')
++          sample.other2 = request.POST.get('other2')
+           
+           sample.inp115 = request.POST['inp115']
+           sample.assign_to = request.POST['assign_to']
+@@ -378,14 +381,14 @@ def sample_clone_update(request,pk):
+           auth_sign_id =request.POST.get('auth_sign')
+           sample_by_id =request.POST.get('sample_sign')
+           
+-          auth_signature = Signatures.objects.get(id=auth_sign_id)
+-          sampling_by_signature = Signatures.objects.get(id=sample_by_id)
+-          
++          auth_signature = Signatures.objects.filter(id=auth_sign_id).first() if auth_sign_id else None
++          sampling_by_signature = Signatures.objects.filter(id=sample_by_id).first() if sample_by_id else None
++
+           sample.auth_signature = auth_signature
+           sample.sampling_by_signature = sampling_by_signature
+ 
+           for field in checkbox_fields:
+-               new_value = field in request.POST            
++               new_value = field in request.POST
+                setattr(sample, field, new_value)
+                
+           
+@@ -395,7 +398,7 @@ def sample_clone_update(request,pk):
+           sample.id = None
+           sample.save()
+           action = f'Sample Registration form {sample.sample_id} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = sample.id
+           if "submit_and_view" in request.POST:
+               url = f"/sample_view/{str(id)}/"
+@@ -430,7 +433,7 @@ def samplePdf(request,pk):
+                # self.text(175,self.h-10,txt="www.envitechal.com")
+ 
+ 
+-     sample = Sample_registration.objects.get(id=pk)
++     sample = get_object_or_404(Sample_registration, id=pk)
+ 
+      pdf = PDFWithPageNumbers()
+      pdf._rq_sample = sample
+@@ -2086,7 +2089,7 @@ def samplePdf(request,pk):
+           pdf.image(unchecked, 85, 201.8, 4, 4)
+      pdf.text(91, 205, txt="Not Required")
+ 
+-     pdf.text(120, 205, txt="Detail(if requred):")
++     pdf.text(120, 205, txt="Detail (if required):")
+      pdf.text(153, 205, txt=sample.inp106)
+      pdf.line(152, 206, 192, 206)
+ 
+@@ -2103,7 +2106,7 @@ def samplePdf(request,pk):
+           pdf.image(unchecked, 85, 207.8, 4, 4)
+      pdf.text(91, 211, txt="Not Required")
+ 
+-     pdf.text(120, 211, txt="Detail(if requred):")
++     pdf.text(120, 211, txt="Detail (if required):")
+      pdf.text(153, 211, txt=sample.inp109)
+      pdf.line(152, 212, 192, 212)
+ 
+@@ -2120,7 +2123,7 @@ def samplePdf(request,pk):
+           pdf.image(unchecked, 85, 213.8, 4, 4)
+      pdf.text(91, 217, txt="Not Required")
+ 
+-     pdf.text(120, 217, txt="Detail(if requred):")
++     pdf.text(120, 217, txt="Detail (if required):")
+      pdf.text(153, 217, txt=sample.inp112)
+      pdf.line(152, 218, 192, 218)
+ 
+@@ -2137,7 +2140,7 @@ def samplePdf(request,pk):
+           pdf.image(unchecked, 85, 219.8, 4, 4)
+      pdf.text(91, 223, txt="Not Required")
+ 
+-     pdf.text(120, 223, txt="Detail(if requred):")
++     pdf.text(120, 223, txt="Detail (if required):")
+      pdf.text(153, 223, txt=sample.inp115)
+      pdf.line(152, 224, 192, 224)
+ 
+@@ -2148,7 +2151,7 @@ def samplePdf(request,pk):
+      if sample.assign_to:
+           pdf.text(12,257,txt="Assigned to(Analyst Name): "+sample.assign_to)
+      else:
+-          pdf.text(12,257,txt="Assigned to():")
++          pdf.text(12,257,txt="Assigned to:")
+      pdf.rect(10,260,190,19)
+ 
+      if sample.checkinp116:
+@@ -2203,7 +2206,7 @@ def samplePdf1(request,pk):
+                # self.image("static/assets/header.PNG",0,0,self.w,22.5)
+ 
+ 
+-     sample = Sample_registration.objects.get(id=pk)
++     sample = get_object_or_404(Sample_registration, id=pk)
+      pdf = PDFWithPageNumbers()
+      pdf.add_page()
+      
+@@ -2231,11 +2234,17 @@ def samplePdf1(request,pk):
+      pdf.text(75,24,txt="SAMPLE IDENTIFICATION LABEL")
+ 
+ 
+-     current_date = sample.inp9
+-     current_date=current_date.replace("/","-")
+-     given_date = datetime.strptime(current_date,"%d-%m-%Y")
+-     date_five_days_ahead = given_date + timedelta(days=6)
+-     date_five_days_ahead_str = date_five_days_ahead.strftime("%d-%m-%Y")
++     try:
++          current_date = sample.inp9
++          current_date=current_date.replace("/","-")
++          given_date = datetime.strptime(current_date,"%d-%m-%Y")
++     except (ValueError, TypeError, AttributeError):
++          given_date = None
++     if given_date is not None:
++          date_five_days_ahead = given_date + timedelta(days=6)
++          date_five_days_ahead_str = date_five_days_ahead.strftime("%d-%m-%Y")
++     else:
++          date_five_days_ahead_str = ""
+      
+ 
+      pdf.set_font("Calibri","B", 8 )
+diff --git a/EnviTechAlApp/views/shared.py b/EnviTechAlApp/views/shared.py
+index 5b6ba21..fc09225 100644
+--- a/EnviTechAlApp/views/shared.py
++++ b/EnviTechAlApp/views/shared.py
+@@ -152,9 +152,18 @@ local_date_pakistan = current_datetime_pakistan.date()
+ local_time_str_pakistan = current_datetime_pakistan.strftime("%H:%M:%S")
+ 
+ # Create a formatted string
++# DEPRECATED: local_date is computed once at import time and therefore frozen.
++# Kept only for backward compatibility; use now_pk_str() for a fresh timestamp.
+ local_date = f"Date: {local_date_pakistan}, Time: {local_time_str_pakistan}"
+ 
+ 
++def now_pk_str():
++    """Return the current Pakistan (Asia/Karachi) date/time as a formatted
++    string ('Date: YYYY-MM-DD, Time: HH:MM:SS'), computed fresh on each call."""
++    _now_pakistan = timezone.now().astimezone(target_timezone)
++    return f"Date: {_now_pakistan.date()}, Time: {_now_pakistan.strftime('%H:%M:%S')}"
++
++
+ logger = logging.getLogger(__name__)
+ 
+ 
+diff --git a/EnviTechAlApp/views/vehicular.py b/EnviTechAlApp/views/vehicular.py
+index 26fa965..236ed2e 100644
+--- a/EnviTechAlApp/views/vehicular.py
++++ b/EnviTechAlApp/views/vehicular.py
+@@ -122,7 +122,7 @@ def vehicularEmission(request):
+ 
+           user = request.user
+           action = f'Vehicular Emission Form {vehicularemissionForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (VehiculEmissionForm.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -152,7 +152,7 @@ def vehicularEmissionDelete(request,pk):
+      vem.delete()
+      user = request.user
+      action = f'Vehicular Emission Form {vem.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect(to="vehicularEmissionList")
+ 
+@@ -294,7 +294,7 @@ def vehicularEmissionUpdate(request,pk):
+           vem.save()
+           user = request.user
+           action = f'Vehicular Emission Form {vem.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = vem.id
+           if "update_and_view" in request.POST:
+@@ -1309,7 +1309,7 @@ def vehicularEmissioncloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Vehicular Analysis Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/verif.py b/EnviTechAlApp/views/verif.py
+index 557e5bf..72f2e6d 100644
+--- a/EnviTechAlApp/views/verif.py
++++ b/EnviTechAlApp/views/verif.py
+@@ -100,7 +100,7 @@ def verification(request):
+           
+           user = request.user
+           action = f'Verification certificate {verif.cert_num} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = (Verification.objects.last()).id
+           if "submit_and_view" in request.POST:
+                url = f"/verification_view/{str(id)}/"
+@@ -119,7 +119,7 @@ def verif_delete(request,pk):
+      verif.delete()
+      user = request.user
+      action = f'Verification certificate {verif.cert_num} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      return redirect('verification_list')
+ 
+ 
+@@ -244,7 +244,7 @@ def verif_update(request,pk):
+           verif.save()
+           user = request.user
+           action = f'Verification certificate {verif.cert_num} editied by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = verif.id
+           if "submit_and_view" in request.POST:
+                url = f'/verification_view/{str(id)}/'
+@@ -381,7 +381,7 @@ def verif_clone_update(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Verification certificate {existing_Form.cert_num} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+                url = f'/verification_view/{str(id)}/'
+diff --git a/EnviTechAlApp/views/viscous.py b/EnviTechAlApp/views/viscous.py
+index e018ec7..52ecee3 100644
+--- a/EnviTechAlApp/views/viscous.py
++++ b/EnviTechAlApp/views/viscous.py
+@@ -96,7 +96,7 @@ def viscousLiquid(request):
+ 
+           user = request.user
+           action = f'Viscous Liquid Form {viscousForm.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (ViscousLiquid.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -124,7 +124,7 @@ def viscousLiquidDelete(request,pk):
+      vl.delete()
+      user = request.user
+      action = f'Viscous Liquid Form {vl.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("viscousLiquidList")
+ 
+@@ -237,7 +237,7 @@ def viscousLiquidUpdate(request,pk):
+           vL.save()
+           user = request.user
+           action = f'Viscous Liquid Form {vL.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = vL.id
+           if "submit_and_view" in request.POST:
+@@ -1198,7 +1198,7 @@ def viscousLiquidcloneSave(request,pk):
+           existing_Form.save()
+           user = request.user
+           action = f'Viscous Liquid Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+diff --git a/EnviTechAlApp/views/waste.py b/EnviTechAlApp/views/waste.py
+index 1e0f33c..3337c53 100644
+--- a/EnviTechAlApp/views/waste.py
++++ b/EnviTechAlApp/views/waste.py
+@@ -140,7 +140,7 @@ def wasteWaterSludge(request):
+ 
+             user = request.user
+             action = f'Waste Water Form {wasteWaterForm.lab_report_no} created by {user.username}'
+-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+             messages.success(request, 'Operation was successful!')
+             id = (AmbientAirForm.objects.last()).id
+             id = (WasteWaterSludge.objects.last()).id
+@@ -503,7 +503,7 @@ def wasteWater2(request):
+ 
+           user = request.user
+           action = f'Waste Water 2 Form {wasteWaterForm2.lab_report_no} created by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = (WasteWaterForm2.objects.last()).id
+           if "submit_and_view" in request.POST:
+@@ -529,7 +529,7 @@ def wasteWaterSludgeDelete(request,pk):
+      wastewaterForm.delete()
+      user = request.user
+      action = f'Waste Water Form {wastewaterForm.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect('wasteWaterSludgeList')
+ 
+@@ -667,7 +667,7 @@ def wasteWaterUpdate(request,pk):
+           wasterWaterForm.save()
+           user = request.user
+           action = f'Waste Water Form {wasterWaterForm.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id=wasterWaterForm.id
+           if "submit_and_view" in request.POST:
+@@ -1961,7 +1961,7 @@ def wasteWAter2Delete(request,pk):
+      ww.delete()
+      user = request.user
+      action = f'Waste Water 2 Form {ww.lab_report_no} deleted by {user.username}'
+-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+      messages.success(request, 'Operation was successful!')
+      return redirect("wasteWater2List")
+ 
+@@ -2305,7 +2305,7 @@ def wasteWAter2Update(request,pk):
+           ww.save()
+           user = request.user
+           action = f'Waste Water 2 Form {ww.lab_report_no} edited by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = ww.id
+           if "submit_and_view" in request.POST:
+@@ -8902,7 +8902,7 @@ def wasteWater2cloneSave(request,pk):
+                LoggingSheet.objects.filter(id=_clone_customer_id).update(rep_date=existing_Form.reporting_date)
+           user = request.user
+           action = f'Waste Water 2 Form {existing_Form.lab_report_no} cloned by {user.username}'
+-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+           messages.success(request, 'Operation was successful!')
+           id = existing_Form.id
+           if "submit_and_view" in request.POST:
+@@ -9053,7 +9053,7 @@ def wasteWatercloneSave(request,pk):
+             id = existing_Form.id
+             user = request.user
+             action = f'Waste Water Form {existing_Form.lab_report_no} cloned by {user.username}'
+-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
++            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+             messages.success(request, 'Operation was successful!')
+             if "submit_and_view" in request.POST:
+                 url = f"/wasteWaterSludge-view/{str(id)}/"
+diff --git a/templates/addLogging.html b/templates/addLogging.html
+index da602e3..a7fdd76 100755
+--- a/templates/addLogging.html
++++ b/templates/addLogging.html
+@@ -77,7 +77,7 @@
+     <div class=" w-full flex justify-center">
+         <table class="border-2 border-gray-200 w-8/12 ">
+             <tr >
+-                <td class="p-2 border border-gray-300"><b>PLease Select Month</b></td>
++                <td class="p-2 border border-gray-300"><b>Please Select Month</b></td>
+                 <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" type="date" name="month" id=""></td>
+             </tr>
+             <tr>
+@@ -175,35 +175,41 @@
+ <script>
+     $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            console.log(location)
+-            if (location) {
+-                // if(location.region == 'punjab'){
+-                //     console.log('hello')
+-                //     let issue_date = $('#issue_date')
+-                //     issue_date.val('Issue Date: 05-01-2023')
+-                // }
+-                // else{
+-                //     let issue_date = $('#issue_date')
+-                //     issue_date.val('Issue Date: 17-12-2021')
+-                // }
+-                let region = location.region.toLowerCase();
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++        try {
++            const req_pip = await fetch('https://api.ipify.org?format=json');
++            var public_ip = await req_pip.json();
++            public_ip = public_ip.ip ? public_ip.ip : null;
++            if (public_ip) {
++                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                const req_loc_ip = await fetch(url);
++                var location = await req_loc_ip.json();
++                console.log(location)
++                if (location) {
++                    // if(location.region == 'punjab'){
++                    //     console.log('hello')
++                    //     let issue_date = $('#issue_date')
++                    //     issue_date.val('Issue Date: 05-01-2023')
++                    // }
++                    // else{
++                    //     let issue_date = $('#issue_date')
++                    //     issue_date.val('Issue Date: 17-12-2021')
++                    // }
++                    let region = location.region.toLowerCase();
++                    if (!document.querySelector('.city_location').value) {
++                        switch (region) {
++                            case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                            case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                            case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++                        }
++                    }
+                 }
+-                setTimeout(function(){
+-                    $("#loc_err").hide()
+-                },1000)
+-              
+             }
++        } catch (e) {
++            console.log(e)
++        } finally {
++            setTimeout(function(){
++                $("#loc_err").hide()
++            },1000)
+         }
+     })
+ 
+@@ -243,9 +249,9 @@ peqs_value.addEventListener("change",()=>{
+         seqs_value.disabled=true
+         neqs_value.disabled=true
+         issue_date.value='Issue Date: 05-01-2023'
+-        issue_no.value='Issue No: 01 Rev.No 00'
+-        con_date.value = "05-01-2023"
+-        
++        // issue_no.value='Issue No: 01 Rev.No 00'
++        // con_date.value = "05-01-2023"
++
+     }else{
+         checkinput.value = ""
+         city_location.value=""
+diff --git a/templates/ambientAir2.html b/templates/ambientAir2.html
+index 9dd9493..a6d22a2 100755
+--- a/templates/ambientAir2.html
++++ b/templates/ambientAir2.html
+@@ -1462,6 +1462,7 @@ console.log('average', average);
+                         var customer_id = $("#customers option:selected").attr("data-id");
+                         // const customer = t.value
+                         console.log('pk',customer_id)
++                        $("input[name='customer_id']").val(customer_id);
+                         $("input[name='lab_rep_no']").val(customer.sample_id)
+                         $("input[name='testId']").val(customer.sample_id)
+                         $("input[name='report_to']").val(customer.client_name)
+@@ -1469,7 +1470,7 @@ console.log('average', average);
+                         $("input[name='address']").val(customer.address)
+                         $("input[name='email']").val(customer.email)
+                         $("input[name='test_perf_date']").val(customer.rec_date)
+-                        $("input[name='ambientAir_rep_date']").val(customer.rep_date)
++                        $("input[name='report_date']").val(customer.rep_date)
+ 
+                     }
+         
+diff --git a/templates/drinkingWaterEdit.html b/templates/drinkingWaterEdit.html
+index 9e04eef..1ed58d3 100755
+--- a/templates/drinkingWaterEdit.html
++++ b/templates/drinkingWaterEdit.html
+@@ -275,11 +275,12 @@
+                         <div class="mt-4 flex flex-col">
+                             
+                             <label class="font-bold text-lg" for="">Customer</label>
+-                            <select id="customers" name="customer_id" onchange="selectCustomer(this)"
++                            <select id="customers" onchange="selectCustomer(this)"
+                                 class="border-2 border-black w-96 px-2 py-2 rounded-lg">
+                                 <option selected disabled>Select Customer</option>
+ 
+                             </select>
++                            <input type="hidden" name="customer_id" value="">
+                         </div>
+ 
+                     </div>
+@@ -1338,7 +1339,7 @@
+             const customers ={{customers|safe}}
+             
+             for(customer of customers){
+-                let html = `<option value='${JSON.stringify(customer.pk)}'>${customer.fields.sample_id} - 
++                let html = `<option data-id="${customer.pk}" value='${JSON.stringify(customer.fields)}'>${customer.fields.sample_id} -
+                     ${customer.fields.client_name} - ${customer.fields.sample_nature}</option>`
+                 $("#customers").append(html)
+             }
+diff --git a/templates/loggingClone.html b/templates/loggingClone.html
+index c19f366..16bbe26 100755
+--- a/templates/loggingClone.html
++++ b/templates/loggingClone.html
+@@ -59,7 +59,7 @@
+               
+                 <div class="mt-4 flex flex-col">
+                     <label class="font-bold text-lg" for="">Location</label>
+-                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
++                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
+                 </div>
+                
+                 
+@@ -75,8 +75,8 @@
+     <div class=" w-full flex justify-center">
+         <table class="border-2 border-gray-200 w-8/12 ">
+             <tr >
+-                <td class="p-2 border border-gray-300"><b>PLease Select Month</b></td>
+-                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{data.month}}" type="text" name="month" id=""></td>
++                <td class="p-2 border border-gray-300"><b>Please Select Month</b></td>
++                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{ data.month|date:'Y-m-d' }}" type="date" name="month" id=""></td>
+             </tr>
+             <tr>
+                 <td class="p-2 border border-gray-300"><b>Sample/Test ID</b></td>
+@@ -173,26 +173,32 @@
+ <script>
+     $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            console.log(location)
+-            if (location) {
+-                let region = location.region.toLowerCase();
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++        try {
++            const req_pip = await fetch('https://api.ipify.org?format=json');
++            var public_ip = await req_pip.json();
++            public_ip = public_ip.ip ? public_ip.ip : null;
++            if (public_ip) {
++                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                const req_loc_ip = await fetch(url);
++                var location = await req_loc_ip.json();
++                console.log(location)
++                if (location) {
++                    let region = location.region.toLowerCase();
++                    if (!document.querySelector('.city_location').value) {
++                        switch (region) {
++                            case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                            case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                            case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++                        }
++                    }
+                 }
+-                setTimeout(function(){
+-                    $("#loc_err").hide()
+-                },1000)
+-              
+             }
++        } catch (e) {
++            console.log(e)
++        } finally {
++            setTimeout(function(){
++                $("#loc_err").hide()
++            },1000)
+         }
+     })
+ 
+diff --git a/templates/loggingEdit.html b/templates/loggingEdit.html
+index b9fafe2..6a1c9a2 100755
+--- a/templates/loggingEdit.html
++++ b/templates/loggingEdit.html
+@@ -61,7 +61,7 @@
+               
+                 <div class="mt-4 flex flex-col">
+                     <label class="font-bold text-lg" for="">Location</label>
+-                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
++                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
+                 </div>
+                
+                 
+@@ -77,8 +77,8 @@
+     <div class=" w-full flex justify-center">
+         <table class="border-2 border-gray-200 w-8/12 ">
+             <tr >
+-                <td class="p-2 border border-gray-300"><b>PLease Select Month</b></td>
+-                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{data.month}}" type="text" name="month" id=""></td>
++                <td class="p-2 border border-gray-300"><b>Please Select Month</b></td>
++                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{ data.month|date:'Y-m-d' }}" type="date" name="month" id=""></td>
+             </tr>
+             <tr>
+                 <td class="p-2 border border-gray-300"><b>Sample/Test ID</b></td>
+@@ -175,26 +175,32 @@
+ <script>
+     $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            console.log(location)
+-            if (location) {
+-                let region = location.region.toLowerCase();
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++        try {
++            const req_pip = await fetch('https://api.ipify.org?format=json');
++            var public_ip = await req_pip.json();
++            public_ip = public_ip.ip ? public_ip.ip : null;
++            if (public_ip) {
++                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                const req_loc_ip = await fetch(url);
++                var location = await req_loc_ip.json();
++                console.log(location)
++                if (location) {
++                    let region = location.region.toLowerCase();
++                    if (!document.querySelector('.city_location').value) {
++                        switch (region) {
++                            case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                            case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                            case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++                        }
++                    }
+                 }
+-                setTimeout(function(){
+-                    $("#loc_err").hide()
+-                },1000)
+-              
+             }
++        } catch (e) {
++            console.log(e)
++        } finally {
++            setTimeout(function(){
++                $("#loc_err").hide()
++            },1000)
+         }
+     })
+ 
+diff --git a/templates/loggingList.html b/templates/loggingList.html
+index c4fee52..8e29c64 100755
+--- a/templates/loggingList.html
++++ b/templates/loggingList.html
+@@ -75,7 +75,7 @@
+                         <td>{{data.city_location}}</td>
+                         <td><a href="{% url 'loggingView' data.id%}"><i class="file-icon fa-solid fa-file  text-3xl cursor-pointer "></i></a></td>
+                         <td><a href="{% url 'loggingEdit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600 text-3xl cursor-pointer "></i></a></td>
+-                        <td><a href="{% url 'loggingDelete' data.id%}"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></a></td>
++                        <td><form method="post" action="{% url 'loggingDelete' data.id%}" style="display:inline;margin:0">{% csrf_token %}<button type="submit" style="background:none;border:none;padding:0;cursor:pointer"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></button></form></td>
+                         <td><a href="{% url 'loggingClone' data.id%}"><i class="fa-solid fa-copy text-3xl cursor-pointer " style="color:#f97316;"></i></a></td>
+                     </tr>
+                     {% endfor %}
+@@ -178,7 +178,7 @@
+     }
+     
+ </script>
+-<!-- etal-delete-confirm --><script>document.addEventListener("click",function(e){var t=e.target;var a=t&&t.closest?t.closest("a,button"):null;if(!a)return;var h=(a.getAttribute("href")||"")+" "+(a.getAttribute("onclick")||"");var txt=(a.textContent||"").trim();if(/delete/i.test(h)||/^delete$/i.test(txt)){if(!window.confirm("Delete this record permanently? This action cannot be undone.")){e.preventDefault();e.stopImmediatePropagation();}}},true);</script>
++<!-- etal-delete-confirm --><script>document.addEventListener("click",function(e){var t=e.target;var a=t&&t.closest?t.closest("a,button"):null;if(!a)return;var h=(a.getAttribute("href")||"")+" "+(a.getAttribute("onclick")||"")+" "+((a.closest("form")&&a.closest("form").getAttribute("action"))||"");var txt=(a.textContent||"").trim();if(/delete/i.test(h)||/^delete$/i.test(txt)){if(!window.confirm("Delete this record permanently? This action cannot be undone.")){e.preventDefault();e.stopImmediatePropagation();}}},true);</script>
+ <script>/* etal-select-col */(function(){function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-sel"))return;t.setAttribute("data-etal-sel","1");var hr=t.tHead&&t.tHead.rows[0];if(!hr)return;var th=document.createElement("th");th.setAttribute("style","white-space:nowrap");th.innerHTML='<label style="display:flex;align-items:center;gap:6px;justify-content:center;cursor:pointer;margin:0"><input type="checkbox" id="etalSelAll" style="width:15px;height:15px;accent-color:#00A651"> Select All</label>';hr.insertBefore(th,hr.firstElementChild);var tb=t.tBodies[0];if(tb){for(var i=0;i<tb.rows.length;i++){var r=tb.rows[i];if(r.cells.length===1&&r.cells[0].colSpan>1){r.cells[0].colSpan+=1;continue;}var td=document.createElement("td");td.setAttribute("style","text-align:center");td.innerHTML='<input type="checkbox" class="etal-row-sel" style="width:15px;height:15px;accent-color:#00A651">';r.insertBefore(td,r.firstElementChild);}}var badge=document.createElement("div");badge.id="etalSelCount";badge.setAttribute("style","display:none;margin:6px 0;font-size:13px;color:#065f46;font-weight:600");t.parentElement.insertBefore(badge,t);function upd(){var c=t.querySelectorAll(".etal-row-sel:checked").length;badge.style.display=c?"block":"none";badge.textContent=c+" selected";}document.addEventListener("change",function(e){var el=e.target;if(!el)return;if(el.id==="etalSelAll"){var bs=t.querySelectorAll(".etal-row-sel");for(var k=0;k<bs.length;k++)bs[k].checked=el.checked;upd();}else if(el.classList&&el.classList.contains("etal-row-sel")){upd();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+-<script>/* etal-bulk-actions */(function(){var ADMIN="{{ user.is_superuser|yesno:'1,0' }}"==="1";function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-bulk"))return;t.setAttribute("data-etal-bulk","1");var old=document.getElementById("etalSelCount");if(old)old.style.display="none";var bar=document.createElement("div");bar.id="etalBulkBar";bar.setAttribute("style","display:none;align-items:center;gap:14px;margin:10px 0;padding:8px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;font-size:13.5px");var cnt=document.createElement("span");cnt.setAttribute("style","color:#065f46;font-weight:600");bar.appendChild(cnt);if(ADMIN){var del=document.createElement("button");del.type="button";del.textContent="Delete Selected";del.setAttribute("style","background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer");del.onmouseover=function(){del.style.filter="brightness(1.08)"};del.onmouseout=function(){del.style.filter=""};del.addEventListener("click",function(){var rows=selRows();if(!rows.length)return;if(!confirm("Delete "+rows.length+" selected record(s)? This action cannot be undone."))return;del.disabled=true;del.textContent="Deleting...";(function run(i){if(i>=rows.length){location.reload();return;}var a=rows[i].querySelector('a[href*="delete" i]');if(a&&a.getAttribute("href")){fetch(a.getAttribute("href"),{credentials:"include"}).then(function(){run(i+1)}).catch(function(){run(i+1)});}else{run(i+1);}})(0);});bar.appendChild(del);}var hint=document.createElement("span");hint.setAttribute("style","color:#6b7280;font-size:12px");hint.textContent=ADMIN?"":"(bulk delete is available to administrators)";bar.appendChild(hint);t.parentElement.insertBefore(bar,t);function selRows(){return Array.prototype.slice.call(t.querySelectorAll(".etal-row-sel:checked")).map(function(cb){return cb.closest("tr");}).filter(Boolean);}function upd(){var n=t.querySelectorAll(".etal-row-sel:checked").length;bar.style.display=n?"flex":"none";cnt.textContent=n+" selected";}document.addEventListener("change",function(e){if(e.target&&(e.target.classList&&e.target.classList.contains("etal-row-sel")||e.target.id==="etalSelAll"))setTimeout(upd,0);});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
++<script>/* etal-bulk-actions */(function(){var ADMIN="{{ user.is_superuser|yesno:'1,0' }}"==="1";function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-bulk"))return;t.setAttribute("data-etal-bulk","1");var old=document.getElementById("etalSelCount");if(old)old.style.display="none";var bar=document.createElement("div");bar.id="etalBulkBar";bar.setAttribute("style","display:none;align-items:center;gap:14px;margin:10px 0;padding:8px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;font-size:13.5px");var cnt=document.createElement("span");cnt.setAttribute("style","color:#065f46;font-weight:600");bar.appendChild(cnt);if(ADMIN){var del=document.createElement("button");del.type="button";del.textContent="Delete Selected";del.setAttribute("style","background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer");del.onmouseover=function(){del.style.filter="brightness(1.08)"};del.onmouseout=function(){del.style.filter=""};del.addEventListener("click",function(){var rows=selRows();if(!rows.length)return;if(!confirm("Delete "+rows.length+" selected record(s)? This action cannot be undone."))return;del.disabled=true;del.textContent="Deleting...";(function run(i){if(i>=rows.length){location.reload();return;}var f=rows[i].querySelector('form[action*="delete" i]');var url=f?f.getAttribute("action"):null;if(url){fetch(url,{method:'POST',credentials:'include',headers:{'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}}).then(function(){run(i+1)}).catch(function(){run(i+1)});}else{run(i+1);}})(0);});bar.appendChild(del);}var hint=document.createElement("span");hint.setAttribute("style","color:#6b7280;font-size:12px");hint.textContent=ADMIN?"":"(bulk delete is available to administrators)";bar.appendChild(hint);t.parentElement.insertBefore(bar,t);function selRows(){return Array.prototype.slice.call(t.querySelectorAll(".etal-row-sel:checked")).map(function(cb){return cb.closest("tr");}).filter(Boolean);}function upd(){var n=t.querySelectorAll(".etal-row-sel:checked").length;bar.style.display=n?"flex":"none";cnt.textContent=n+" selected";}document.addEventListener("change",function(e){if(e.target&&(e.target.classList&&e.target.classList.contains("etal-row-sel")||e.target.id==="etalSelAll"))setTimeout(upd,0);});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+ {% endblock %}
+\ No newline at end of file
+diff --git a/templates/loggingSheet.html b/templates/loggingSheet.html
+index 873d90f..f48021d 100755
+--- a/templates/loggingSheet.html
++++ b/templates/loggingSheet.html
+@@ -69,8 +69,8 @@
+                 <div class="">
+                     <label for="selected_location">Select Location:</label>
+                     <select id="selected_location" name="selected_location" required>
+-                        <option value="Karachi">Karachi</option>
+-                        <option value="Lahore">Lahore</option>
++                        <option value="Karachi" {% if selected_location == 'Karachi' %}selected{% endif %}>Karachi</option>
++                        <option value="Lahore" {% if selected_location == 'Lahore' %}selected{% endif %}>Lahore</option>
+                         <!-- Add more locations as needed -->
+                     </select>
+                 </div>
+@@ -156,20 +156,20 @@
+             </div>
+             <div class="w-full flex justify-center ">
+                 {% if dt and yr %} 
+-            <table id="example" class="dispaly border border-black" style="width:100%; "cellspacing=10 >
+-                <section class="text-xl flex" style="    
++            <section class="text-xl flex" style="
+                 left: 90px;
+                 height: fit-content;
+                 padding-left: -3px;
+                 position: absolute;
+                 top: 574px;
+                 z-index: 1;">
+-                    
++
+                      <a class="text-lg pl-4 pointer" target="_blank" href="{% url "log-pdf" %}?dt={{dt}}&yr={{yr}}&loc={{selected_location}}"><img src="{% static "/assets/pdf-removebg-preview.png" %}" alt="" style="width:40px"></a>
+-                     
++
+                      <!--a class="text-lg pl-2" target="_blank" href="#"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>EXCEL</a-->
+-                     
++
+                    </section>
++            <table id="example" class="display border border-black" style="width:100%; "cellspacing=10 >
+                 <thead>
+ 
+                     <tr class="bg-gray-200 text-black font-mono text-sm">
+@@ -266,7 +266,10 @@
+         border:none;
+         outline:none;
+     }
+-    button.dt-button:hover:not(.disabled), div.dt-button:hover:not(.disabled), a.dt-button:hover:not(.disabled), input.dt-button:hover:not(.disabled)
++    button.dt-button:hover:not(.disabled), div.dt-button:hover:not(.disabled), a.dt-button:hover:not(.disabled), input.dt-button:hover:not(.disabled) {
++        background: none;
++        border: none;
++    }
+     .btn-excel {
+         background: none;
+         border:none;
+diff --git a/templates/loggingView.html b/templates/loggingView.html
+index 3cc892d..eeaa11a 100755
+--- a/templates/loggingView.html
++++ b/templates/loggingView.html
+@@ -17,7 +17,7 @@
+         <h1 class="text-4xl font-bold">Logging Sheet Form</h1>
+     </div>
+     <div  class="w-full flex flex-col justify-around ">
+-        <div class="flex w-8/12 hidden">
++        <div class="flex w-8/12">
+             <div class="alert w-52 flex flex-col justify-around my-6">
+             
+                 <div class="">
+@@ -40,7 +40,7 @@
+               
+                 <div class="mt-4 flex flex-col">
+                     <label class="font-bold text-lg" for="">Location</label>
+-                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
++                    <input disabled class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
+                 </div>
+                
+                 
+@@ -56,7 +56,7 @@
+     <div class=" w-full flex justify-center">
+         <table class="border-2 border-gray-200 w-8/12 ">
+             <tr >
+-                <td class="p-2 border border-gray-300"><b>PLease Select Month</b></td>
++                <td class="p-2 border border-gray-300"><b>Please Select Month</b></td>
+                 <td colspan="3" class="p-2 border border-gray-300"><input disabled class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{month}}" type="date" name="month" id=""></td>
+             </tr>
+             <tr>
+@@ -143,26 +143,32 @@
+ <script>
+     $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            console.log(location)
+-            if (location) {
+-                let region = location.region.toLowerCase();
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++        try {
++            const req_pip = await fetch('https://api.ipify.org?format=json');
++            var public_ip = await req_pip.json();
++            public_ip = public_ip.ip ? public_ip.ip : null;
++            if (public_ip) {
++                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                const req_loc_ip = await fetch(url);
++                var location = await req_loc_ip.json();
++                console.log(location)
++                if (location) {
++                    let region = location.region.toLowerCase();
++                    if (!document.querySelector('.city_location').value) {
++                        switch (region) {
++                            case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                            case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                            case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++                        }
++                    }
+                 }
+-                setTimeout(function(){
+-                    $("#loc_err").hide()
+-                },1000)
+-              
+             }
++        } catch (e) {
++            console.log(e)
++        } finally {
++            setTimeout(function(){
++                $("#loc_err").hide()
++            },1000)
+         }
+     })
+ 
+@@ -199,10 +205,10 @@ peqs_value.addEventListener("change",()=>{
+         city_location.value="Lahore"
+         seqs_value.disabled=true
+         neqs_value.disabled=true
+-        issue_date.value='Issue Date: 05-01-2023'
+-        issue_no.value='Issue No: 01 Rev.No 00'
+-        con_date.value = "05-01-2023"
+-        
++        // issue_date.value='Issue Date: 05-01-2023'
++        // issue_no.value='Issue No: 01 Rev.No 00'
++        // con_date.value = "05-01-2023"
++
+     }else{
+         checkinput.value = ""
+         city_location.value=""
+diff --git a/templates/sample_clone.html b/templates/sample_clone.html
+index da175eb..50ebcb7 100755
+--- a/templates/sample_clone.html
++++ b/templates/sample_clone.html
+@@ -82,12 +82,12 @@
+                         <input class="NEQS-value" type="checkbox" value="NEQS_">
+                         <label for="">NEQS</label>
+                     </div>
+-                    <input id="checkinput" type="text" name="location" value="" style="display: none;">
++                    <input id="checkinput" type="text" name="location" value="{{data.location}}" style="display: none;">
+                     <div class="flex justify-between flex-wrap">
+                   
+                     <div class="mt-4 flex flex-col">
+                         <label class="font-bold text-lg" for="">Location</label>
+-                        <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
++                        <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
+                     </div>
+                    
+                     
+@@ -103,7 +103,7 @@
+                  <h5 class="" style=""><b>Sample Information:</b></h5>
+                  <div class="">
+                      <label for="">Sample ID</label>
+-                     <input class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{data.sample_id}}" type="text" name="sample_id" id="">
++                     <input class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="" required type="text" name="sample_id" id="">
+                  </div>
+              </div>
+          </div>
+@@ -239,12 +239,12 @@
+                             {% if data.checkinp16 %}
+                                <div class="">
+                                 <input id="effluent" checked class="" name="checkinp16" type="checkbox">
+-                                <labelfor="effluent"><b>Effluent</b></labelfor=>
++                                <label for="effluent"><b>Effluent</b></label>
+                                </div>
+                             {% else %} 
+                                 <div class="">
+                                     <input id="effluent" class="" name="checkinp16" type="checkbox">
+-                                    <labelfor="effluent"><b>Effluent</b></labelfor=>  
++                                    <label for="effluent"><b>Effluent</b></label>  
+                                 </div>                 
+                             {% endif %}
+                             
+@@ -265,12 +265,12 @@
+                             {% if data.checkinp17 %}
+                                     <div class="">
+                                         <input id="bore_water" checked class="" name="checkinp17" type="checkbox">
+-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>
++                                    <label for="bore_water"><b>Bore Water</b></label>
+                                     </div>
+                                 {% else %} 
+                                     <div class="">
+                                         <input id="bore_water" class="" name="checkinp17" type="checkbox">
+-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>  
++                                    <label for="bore_water"><b>Bore Water</b></label>  
+                                     </div> 
+                                 {% endif %}
+                             
+@@ -318,24 +318,6 @@
+                     
+                     
+                     
+-                        <td class="p-2 space-x-4"><b>pH</b><input 
+-                            class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+-                        name="inp20" value="{{data.inp20}}" type="text"></td>
+-                    
+-                </tr>
+-            </table>
+-        </div>
+-        <div class="w-full flex justify-center">
+-            <table class="border-2 border-gray-200 w-8/12 border-t-0">
+-                <tr>
+-                    <td class="p-2 border border-gray-300"><b>Environmental Conditions (when sample Received):</b></td>
+-                   
+-                        <td class="p-2 space-x-4"><b>Temp</b><input 
+-                            class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+-                        name="inp19" value="{{data.inp19}}" type="text"></td>
+-                    
+-                    
+-                    
+                         <td class="p-2 space-x-4"><b>pH</b><input 
+                             class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
+                         name="inp20" value="{{data.inp20}}" type="text"></td>
+@@ -1050,11 +1032,11 @@
+     </div>
+ 
+     <div class="">
+-        {% if data.ww_other_param_63 %}<input  checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input disabled id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
++        {% if data.ww_other_param_63 %}<input  checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
+         <label for="ww_param_63"><b>Pseudomonas aeruginosa</b></label>
+     </div>
+     <div class="">
+-        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
++        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
+         <label for="ww_param_64"><b>Pseudomonas aeruginosa</b></label>
+     </div>
+ </div>
+@@ -1440,9 +1422,9 @@
+                             <input   id="flo" name="checkinp66" type="checkbox">
+                         {%endif%}
+                         {% if data.city_location == 'Lahore' %}
+-                            <label for="flo"><b>Flouride</b></label>
++                            <label for="flo"><b>Fluoride</b></label>
+                         {% else %}
+-                            <label for="flo"><b>Flouride*</b></label>
++                            <label for="flo"><b>Fluoride*</b></label>
+                         {% endif %}
+                     </div>
+                     <div class="">
+@@ -1967,7 +1949,7 @@
+                     <select required id="analyst-sign" name="auth_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                 <option selected disabled>select</option>
+                                 {% for sign in signs %}
+-                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
++                                    <option value="{{sign.id}}" {% if sign.id == data.auth_signature_id %}selected{% endif %}>{{sign.user.username}} ({{sign.role}})</option>
+                                 {% endfor %}
+                     </select>
+                     <hr class="w-full text-black">
+@@ -1994,7 +1976,7 @@
+                     <select required id="" name="sample_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                 <option selected disabled>sample By</option>
+                                 {% for sign in signs %}
+-                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
++                                    <option value="{{sign.id}}" {% if sign.id == data.sampling_by_signature_id %}selected{% endif %}>{{sign.user.username}} ({{sign.role}})</option>
+                                 {% endfor %}
+                     </select>
+                     <hr class="border border-gray-700">
+@@ -2024,27 +2006,32 @@ $(document).ready(function () {
+         });
+ $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            console.log(location)
+-            if (location) {
+-                let region = location.region.toLowerCase();
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++        if (!$(".city_location").val()) {
++            let region = '';
++            try {
++                const req_pip = await fetch('https://api.ipify.org?format=json');
++                var public_ip = await req_pip.json();
++                public_ip = public_ip.ip ? public_ip.ip : null;
++                if (public_ip) {
++                    let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                    const req_loc_ip = await fetch(url);
++                    var location = await req_loc_ip.json();
++                    if (location && location.region) {
++                        region = location.region.toLowerCase();
++                    }
+                 }
+-                setTimeout(function(){
+-                    $("#loc_err").hide()
+-                },1000)
+-              
++            } catch (e) {
++                console.log('IP geolocation lookup failed:', e);
++            }
++            switch (region) {
++                case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+             }
+         }
++        setTimeout(function(){
++            $("#loc_err").hide()
++        },1000)
+     })
+ 
+     var seqs_value = document.querySelector(".SEQS-value")
+diff --git a/templates/sample_edit.html b/templates/sample_edit.html
+index 1618e71..426fee4 100755
+--- a/templates/sample_edit.html
++++ b/templates/sample_edit.html
+@@ -86,12 +86,12 @@
+                     <input class="NEQS-value" type="checkbox" value="NEQS_">
+                     <label for="">NEQS</label>
+                 </div>
+-                <input id="checkinput" type="text" name="location" value="" style="display: none;">
++                <input id="checkinput" type="text" name="location" value="{{data.location}}" style="display: none;">
+                 <div class="flex justify-between flex-wrap">
+               
+                 <div class="mt-4 flex flex-col">
+                     <label class="font-bold text-lg" for="">Location</label>
+-                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
++                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
+                 </div>
+                
+                 
+@@ -245,12 +245,12 @@
+                         {% if data.checkinp16 %}
+                            <div class="">
+                             <input id="effluent" checked class="" name="checkinp16" type="checkbox">
+-                            <labelfor="effluent"><b>Effluent</b></labelfor=>
++                            <label for="effluent"><b>Effluent</b></label>
+                            </div>
+                         {% else %} 
+                             <div class="">
+                                 <input id="effluent" class="" name="checkinp16" type="checkbox">
+-                                <labelfor="effluent"><b>Effluent</b></labelfor=>  
++                                <label for="effluent"><b>Effluent</b></label>  
+                             </div>                 
+                         {% endif %}
+                         
+@@ -271,12 +271,12 @@
+                         {% if data.checkinp17 %}
+                                 <div class="">
+                                     <input id="bore_water" checked class="" name="checkinp17" type="checkbox">
+-                                <labelfor="bore_water"><b>Bore Water</b></labelfor=>
++                                <label for="bore_water"><b>Bore Water</b></label>
+                                 </div>
+                             {% else %} 
+                                 <div class="">
+                                     <input id="bore_water" class="" name="checkinp17" type="checkbox">
+-                                <labelfor="bore_water"><b>Bore Water</b></labelfor=>  
++                                <label for="bore_water"><b>Bore Water</b></label>  
+                                 </div> 
+                             {% endif %}
+                         
+@@ -1041,11 +1041,11 @@
+     </div>
+ 
+     <div class="">
+-        {% if data.ww_other_param_63 %}<input  checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input disabled id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
++        {% if data.ww_other_param_63 %}<input  checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
+         <label for="ww_param_63"><b>Pseudomonas aeruginosa</b></label>
+     </div>
+     <div class="">
+-        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
++        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
+         <label for="ww_param_64"><b>Pseudomonas aeruginosa</b></label>
+     </div>
+ </div>
+@@ -1431,9 +1431,9 @@
+                         <input   id="flo" name="checkinp66" type="checkbox">
+                     {%endif%}
+                     {% if data.city_location == 'Lahore' %}
+-                        <label for="flo"><b>Flouride</b></label>
++                        <label for="flo"><b>Fluoride</b></label>
+                     {% else %}
+-                        <label for="flo"><b>Flouride*</b></label>
++                        <label for="flo"><b>Fluoride*</b></label>
+                     {% endif %}
+                 </div>
+                 <div class="">
+@@ -1961,7 +1961,7 @@
+                 <select required id="analyst-sign" name="auth_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                 <option selected disabled>select</option>
+                                 {% for sign in signs %}
+-                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
++                                    <option value="{{sign.id}}" {% if sign.id == data.auth_signature_id %}selected{% endif %}>{{sign.user.username}} ({{sign.role}})</option>
+                                 {% endfor %}
+                     </select>
+                 <hr class="w-full text-black">
+@@ -1985,10 +1985,10 @@
+             </div>
+             <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                 <label class="font-bold text-lg" for=""> Sampling By</label>
+-                <select id="" name="sample_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
++                <select id="" name="sample_sign" required class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                 <option selected disabled>sample By</option>
+                                 {% for sign in signs %}
+-                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
++                                    <option value="{{sign.id}}" {% if sign.id == data.sampling_by_signature_id %}selected{% endif %}>{{sign.user.username}} ({{sign.role}})</option>
+                                 {% endfor %}
+                     </select>
+                 <hr class="border border-gray-700">
+@@ -2018,27 +2018,32 @@
+         });
+     $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            console.log(location)
+-            if (location) {
+-                let region = location.region.toLowerCase();
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++        if (!$(".city_location").val()) {
++            let region = '';
++            try {
++                const req_pip = await fetch('https://api.ipify.org?format=json');
++                var public_ip = await req_pip.json();
++                public_ip = public_ip.ip ? public_ip.ip : null;
++                if (public_ip) {
++                    let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                    const req_loc_ip = await fetch(url);
++                    var location = await req_loc_ip.json();
++                    if (location && location.region) {
++                        region = location.region.toLowerCase();
++                    }
+                 }
+-                setTimeout(function(){
+-                    $("#loc_err").hide()
+-                },1000)
+-              
++            } catch (e) {
++                console.log('IP geolocation lookup failed:', e);
++            }
++            switch (region) {
++                case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+             }
+         }
++        setTimeout(function(){
++            $("#loc_err").hide()
++        },1000)
+     })
+ 
+     var seqs_value = document.querySelector(".SEQS-value")
+diff --git a/templates/sample_list.html b/templates/sample_list.html
+index 5327f62..2b721d0 100755
+--- a/templates/sample_list.html
++++ b/templates/sample_list.html
+@@ -113,7 +113,7 @@
+                         <td>{{data.city_location}}</td>
+                         <td><a href="{% url 'sample_view' data.id %}"><i class="file-icon fa-solid fa-file  text-3xl cursor-pointer "></i></a></td>
+                         <td><a href="{% url 'sample_edit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600 text-3xl cursor-pointer "></i></a></td>
+-                        <td><a id="gasemdltBtn" href="{% url 'sample_delete' data.id%}"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></a></td>
++                        <td><form method="post" action="{% url 'sample_delete' data.id%}" style="display:inline" onsubmit="return confirm('Delete this record permanently? This action cannot be undone.');">{% csrf_token %}<button type="submit" style="background:none;border:none;padding:0;cursor:pointer"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer "></i></button></form></td>
+                         <td><a id="gasemdltBtn" href="{% url 'sample_clone' data.id%}"><i class="fa-solid fa-copy text-3xl cursor-pointer " style="color:#f97316;"></i></a></td>
+                     </tr>
+                     {% endfor %}
+@@ -218,7 +218,7 @@
+ </script>
+ <!-- etal-delete-confirm --><script>document.addEventListener("click",function(e){var t=e.target;var a=t&&t.closest?t.closest("a,button"):null;if(!a)return;var h=(a.getAttribute("href")||"")+" "+(a.getAttribute("onclick")||"");var txt=(a.textContent||"").trim();if(/delete/i.test(h)||/^delete$/i.test(txt)){if(!window.confirm("Delete this record permanently? This action cannot be undone.")){e.preventDefault();e.stopImmediatePropagation();}}},true);</script>
+ <script>/* etal-select-col */(function(){function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-sel"))return;t.setAttribute("data-etal-sel","1");var hr=t.tHead&&t.tHead.rows[0];if(!hr)return;var th=document.createElement("th");th.setAttribute("style","white-space:nowrap");th.innerHTML='<label style="display:flex;align-items:center;gap:6px;justify-content:center;cursor:pointer;margin:0"><input type="checkbox" id="etalSelAll" style="width:15px;height:15px;accent-color:#00A651"> Select All</label>';hr.insertBefore(th,hr.firstElementChild);var tb=t.tBodies[0];if(tb){for(var i=0;i<tb.rows.length;i++){var r=tb.rows[i];if(r.cells.length===1&&r.cells[0].colSpan>1){r.cells[0].colSpan+=1;continue;}var td=document.createElement("td");td.setAttribute("style","text-align:center");td.innerHTML='<input type="checkbox" class="etal-row-sel" style="width:15px;height:15px;accent-color:#00A651">';r.insertBefore(td,r.firstElementChild);}}var badge=document.createElement("div");badge.id="etalSelCount";badge.setAttribute("style","display:none;margin:6px 0;font-size:13px;color:#065f46;font-weight:600");t.parentElement.insertBefore(badge,t);function upd(){var c=t.querySelectorAll(".etal-row-sel:checked").length;badge.style.display=c?"block":"none";badge.textContent=c+" selected";}document.addEventListener("change",function(e){var el=e.target;if(!el)return;if(el.id==="etalSelAll"){var bs=t.querySelectorAll(".etal-row-sel");for(var k=0;k<bs.length;k++)bs[k].checked=el.checked;upd();}else if(el.classList&&el.classList.contains("etal-row-sel")){upd();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+-<script>/* etal-bulk-actions */(function(){var ADMIN="{{ user.is_superuser|yesno:'1,0' }}"==="1";function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-bulk"))return;t.setAttribute("data-etal-bulk","1");var old=document.getElementById("etalSelCount");if(old)old.style.display="none";var bar=document.createElement("div");bar.id="etalBulkBar";bar.setAttribute("style","display:none;align-items:center;gap:14px;margin:10px 0;padding:8px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;font-size:13.5px");var cnt=document.createElement("span");cnt.setAttribute("style","color:#065f46;font-weight:600");bar.appendChild(cnt);if(ADMIN){var del=document.createElement("button");del.type="button";del.textContent="Delete Selected";del.setAttribute("style","background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer");del.onmouseover=function(){del.style.filter="brightness(1.08)"};del.onmouseout=function(){del.style.filter=""};del.addEventListener("click",function(){var rows=selRows();if(!rows.length)return;if(!confirm("Delete "+rows.length+" selected record(s)? This action cannot be undone."))return;del.disabled=true;del.textContent="Deleting...";(function run(i){if(i>=rows.length){location.reload();return;}var a=rows[i].querySelector('a[href*="delete" i]');if(a&&a.getAttribute("href")){fetch(a.getAttribute("href"),{credentials:"include"}).then(function(){run(i+1)}).catch(function(){run(i+1)});}else{run(i+1);}})(0);});bar.appendChild(del);}var hint=document.createElement("span");hint.setAttribute("style","color:#6b7280;font-size:12px");hint.textContent=ADMIN?"":"(bulk delete is available to administrators)";bar.appendChild(hint);t.parentElement.insertBefore(bar,t);function selRows(){return Array.prototype.slice.call(t.querySelectorAll(".etal-row-sel:checked")).map(function(cb){return cb.closest("tr");}).filter(Boolean);}function upd(){var n=t.querySelectorAll(".etal-row-sel:checked").length;bar.style.display=n?"flex":"none";cnt.textContent=n+" selected";}document.addEventListener("change",function(e){if(e.target&&(e.target.classList&&e.target.classList.contains("etal-row-sel")||e.target.id==="etalSelAll"))setTimeout(upd,0);});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
++<script>/* etal-bulk-actions */(function(){var ADMIN="{{ user.is_superuser|yesno:'1,0' }}"==="1";function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-bulk"))return;t.setAttribute("data-etal-bulk","1");var old=document.getElementById("etalSelCount");if(old)old.style.display="none";var bar=document.createElement("div");bar.id="etalBulkBar";bar.setAttribute("style","display:none;align-items:center;gap:14px;margin:10px 0;padding:8px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;font-size:13.5px");var cnt=document.createElement("span");cnt.setAttribute("style","color:#065f46;font-weight:600");bar.appendChild(cnt);if(ADMIN){var del=document.createElement("button");del.type="button";del.textContent="Delete Selected";del.setAttribute("style","background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer");del.onmouseover=function(){del.style.filter="brightness(1.08)"};del.onmouseout=function(){del.style.filter=""};del.addEventListener("click",function(){var rows=selRows();if(!rows.length)return;if(!confirm("Delete "+rows.length+" selected record(s)? This action cannot be undone."))return;del.disabled=true;del.textContent="Deleting...";(function run(i){if(i>=rows.length){location.reload();return;}var f=rows[i].querySelector('form[action*="delete" i]');var a=rows[i].querySelector('a[href*="delete" i]');var url=f?f.getAttribute("action"):(a?a.getAttribute("href"):null);var tokEl=f?f.querySelector('input[name="csrfmiddlewaretoken"]'):document.querySelector('input[name="csrfmiddlewaretoken"]');var tok=tokEl?tokEl.value:"";if(url){fetch(url,{method:"POST",credentials:"include",headers:{"X-CSRFToken":tok}}).then(function(){run(i+1)}).catch(function(){run(i+1)});}else{run(i+1);}})(0);});bar.appendChild(del);}var hint=document.createElement("span");hint.setAttribute("style","color:#6b7280;font-size:12px");hint.textContent=ADMIN?"":"(bulk delete is available to administrators)";bar.appendChild(hint);t.parentElement.insertBefore(bar,t);function selRows(){return Array.prototype.slice.call(t.querySelectorAll(".etal-row-sel:checked")).map(function(cb){return cb.closest("tr");}).filter(Boolean);}function upd(){var n=t.querySelectorAll(".etal-row-sel:checked").length;bar.style.display=n?"flex":"none";cnt.textContent=n+" selected";}document.addEventListener("change",function(e){if(e.target&&(e.target.classList&&e.target.classList.contains("etal-row-sel")||e.target.id==="etalSelAll"))setTimeout(upd,0);});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+ {% endblock %}{% block w2_tail %}</body>
+ </html>
+ {% endblock %}
+\ No newline at end of file
+diff --git a/templates/sample_main.html b/templates/sample_main.html
+index 750eea9..6850194 100755
+--- a/templates/sample_main.html
++++ b/templates/sample_main.html
+@@ -80,6 +80,7 @@
+           
+           .dropdown:hover .dropdown-content {
+             display: block;
++        }
+         .NEQS,.PEQS{
+ 	    display: none;
+         }
+@@ -188,18 +189,16 @@
+ 
+     
+     
+-    <script src={% static '/js/app.js'%}?v=20260712 defer >
++    <script src={% static '/js/app.js'%}?v=20260712 defer ></script>
++    <script>
+         document.addEventListener('DOMContentLoaded', function () {
+             const toggleButton = document.querySelector('.nav-toggle');
+             const body = document.querySelector('body');
+-        
++
+             toggleButton.addEventListener('click', function () {
+                 body.classList.toggle('nav-opened');
+             });
+         });
+-
+-    
+-        
+     </script>
+     {% else %}
+     <script>window.location='/login/'</script>
+diff --git a/templates/sample_reg.html b/templates/sample_reg.html
+index 483f39b..6a9a5c8 100755
+--- a/templates/sample_reg.html
++++ b/templates/sample_reg.html
+@@ -219,7 +219,7 @@
+                             </div>
+                             <div class="">
+                                 <input id="effluent"   class="" name="checkinp16" type="checkbox">
+-                                <labelfor="effluent"><b>Effluent</b></labelfor=>
++                                <label for="effluent"><b>Effluent</b></label>
+                                </div>
+                             
+                             
+@@ -233,7 +233,7 @@
+                         </div>
+                         <div class="">
+                             <input id="bore_water"   class="" name="checkinp17" type="checkbox">
+-                        <labelfor="bore_water"><b>Bore Water</b></labelfor=>
++                        <label for="bore_water"><b>Bore Water</b></label>
+                         </div>
+                     </div>
+                         <div class="space-y-4">
+@@ -390,7 +390,7 @@
+             </div>
+             <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                 <label class="font-bold text-lg" for=""> Authorized Signature</label>
+-                <select id="analyst-sign" name="auth_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
++                <select id="analyst-sign" name="auth_sign" required class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                 <option selected disabled>select</option>
+                                 {% for sign in signs %}
+                                     <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+@@ -417,7 +417,7 @@
+             </div>
+             <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
+                 <label class="font-bold text-lg" for=""> Sampling By</label>
+-                <select id="" name="sample_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
++                <select id="" name="sample_sign" required class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                                 <option selected disabled>sample By</option>
+                                 {% for sign in signs %}
+                                     <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+@@ -449,17 +449,22 @@
+         });
+     $(document).ready(async () => {
+         $("#loc_err").show()
+-        const req_pip = await fetch('https://api.ipify.org?format=json');
+-        var public_ip = await req_pip.json();
+-        public_ip = public_ip.ip ? public_ip.ip : null;
+-        if (public_ip) {
+-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+-            const req_loc_ip = await fetch(url);
+-            var location = await req_loc_ip.json();
+-            
+-            
+-            if (location) {
+-                let region = location.region.toLowerCase();
++        let region = '';
++        try {
++            const req_pip = await fetch('https://api.ipify.org?format=json');
++            var public_ip = await req_pip.json();
++            public_ip = public_ip.ip ? public_ip.ip : null;
++            if (public_ip) {
++                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
++                const req_loc_ip = await fetch(url);
++                var location = await req_loc_ip.json();
++                if (location && location.region) {
++                    region = location.region.toLowerCase();
++                }
++            }
++        } catch (e) {
++            console.log('IP geolocation lookup failed:', e);
++        }
+                 if(region == 'punjab'){
+                     console.log('punjab')
+                     const wasterWaterContainer = $('#wasterWaterContainer')
+@@ -1982,18 +1987,17 @@
+                     `)
+                     
+                 }
+-                switch (region) {
+-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++                if (!$(".city_location").val()) {
++                    switch (region) {
++                        case "sindh": $("input[value='SEQS_']").trigger("click"); break;
++                        case "punjab": $("input[value='PEQS_']").trigger("click"); break;
++                        case "kpk": $("input[value='NEQS_']").trigger("click"); break;
++                    }
+                 }
+-                
++
+                 setTimeout(function(){
+                     $("#loc_err").hide()
+                 },1000)
+-              
+-            }
+-        }
+     })
+ 
+     var seqs_value = document.querySelector(".SEQS-value")
+diff --git a/templates/sample_view.html b/templates/sample_view.html
+index 0cd5804..7eb4aa6 100755
+--- a/templates/sample_view.html
++++ b/templates/sample_view.html
+@@ -253,12 +253,12 @@
+                         {% if data.checkinp16 %}
+                            <div class="">
+                             <input id="effluent" checked disabled class="" name="checkinp16" type="checkbox">
+-                            <labelfor="effluent"><b>Effluent</b></labelfor=>
++                            <label for="effluent"><b>Effluent</b></label>
+                            </div>
+                         {% else %} 
+                             <div class="">
+                                 <input id="effluent" disabled class="" name="checkinp16" type="checkbox">
+-                                <labelfor="effluent"><b>Effluent</b></labelfor=>  
++                                <label for="effluent"><b>Effluent</b></label>  
+                             </div>                 
+                         {% endif %}
+                         
+@@ -279,12 +279,12 @@
+                             {% if data.checkinp17 %}
+                                     <div class="">
+                                         <input id="bore_water" checked disabled class="" name="checkinp17" type="checkbox">
+-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>
++                                    <label for="bore_water"><b>Bore Water</b></label>
+                                     </div>
+                                 {% else %} 
+                                     <div class="">
+                                         <input id="bore_water" disabled class="" name="checkinp17" type="checkbox">
+-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>  
++                                    <label for="bore_water"><b>Bore Water</b></label>  
+                                     </div> 
+                                 {% endif %}
+                             
+@@ -1055,7 +1055,7 @@
+         <label for="ww_param_63"><b>Pseudomonas aeruginosa</b></label>
+     </div>
+     <div class="">
+-        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
++        {% if data.ww_other_param_64 %}<input disabled checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
+         <label for="ww_param_64"><b>Bioassay test</b></label>
+     </div>
+ </div>
+-- 
+2.43.0
+
