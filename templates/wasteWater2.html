@@ -1729,7 +1729,7 @@ const doc_3 = document.querySelector('#doc_3')
                  else{
                      in_out_checkbox.value = ''
                      $(".outlet_result").show()
-                     location.reload()
+                     $(".outlet_result,.inlet_result").show(); /* in-place restore, was location.reload() - 31-07-2026 */
              }
              })
 
@@ -1802,7 +1802,7 @@ const doc_3 = document.querySelector('#doc_3')
 
                 } else {
                     in_out_checkbox.value = '';
-                    location.reload()
+                    $(".outlet_result,.inlet_result").show(); /* in-place restore, was location.reload() - 31-07-2026 */
                 }
             
                 
@@ -1879,7 +1879,7 @@ const doc_3 = document.querySelector('#doc_3')
                 } else {
                     in_out_checkbox.value = '';
                     $(".outlet_result,.inlet_result").show();
-                    location.reload()
+                    $(".outlet_result,.inlet_result").show(); /* in-place restore, was location.reload() - 31-07-2026 */
                 }
             });
 
