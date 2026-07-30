@@ -210,7 +210,10 @@
                 </div>
                 <div class="flex justify-between">
                     <div class="flex flex-col">
-                        <label class="font-bold text-lg" for="">Lab Report No</label>
+                        <label class="font-bold text-lg" for="">Customer <span style="font-weight:400;font-size:12.5px;color:#64748b">(pick to change &mdash; stored details stay until you choose)</span></label>
+                        <select id="customers" onchange="selectCustomer(this)" class="border-2 border-black w-96 px-2 py-2 rounded-lg"><option selected disabled>Select Customer</option></select>
+                        <input type="hidden" name="customer_id" value="">
+                        <label class="font-bold text-lg" style="margin-top:8px" for="">Lab Report No</label>
                         <input class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" name="lab_rep_no" type="text" value="{{data.lab_report_no}}">
                     </div>
                     <div class="flex flex-col">
@@ -2013,6 +2016,27 @@
                             }
                         }
                     }) {% endcomment %}
+                /* Customer selector (analyst request 30-07-2026): mirrors the New form; the report's own Lab Report No is deliberately preserved. */
+                const loadCustomers = async()=>{
+                    const customers = {{log|default:"[]"|safe}}
+                    for(const customer of customers){
+                        let html =`<option data-id="${customer.pk}" value='${JSON.stringify(customer.fields)}'> ${customer.fields.sample_id} - ${customer.fields.client_name}- ${customer.fields.sample_nature} </option>`
+                        $("#customers").append(html)
+                    }
+                }
+                const selectCustomer = async(t)=>{
+                    const customer = JSON.parse(t.value)
+                    var customer_id = $("#customers option:selected").attr("data-id");
+                    $("input[name='customer_id']").val(customer_id)
+                    $("input[name='address']").val(customer.address)
+                    $("input[name='repo_date']").val(customer.rep_date)
+                    $("input[name='sampleId']").val(customer.sample_id)
+                    $("input[name='report_to']").val(customer.client_name)
+                    $("input[name='attention']").val(customer.att_person)
+                    $("input[name='email']").val(customer.email)
+                    $("input[name='sample_Col_date']").val(customer.rec_date)
+                }
+                loadCustomers()
                 </script>
 <script src={% static '/js/app.js'%}?v=20260712 defer >
     

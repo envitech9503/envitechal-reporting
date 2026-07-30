@@ -1960,6 +1960,9 @@ def wasteWAter2Edit(request,pk):
          'pdf_image_4': image_previews.get('pdf_image_4'),
          'pdf_image_5': image_previews.get('pdf_image_5'),
          'pdf_image_6': image_previews.get('pdf_image_6'),}
+     log = LoggingSheet.objects.all()
+     log = serializers.serialize('json', log)
+     context['log'] = log
      return render(request,"wasteWater2Edit.html",context)
 
 @login_required(login_url="/login")
@@ -1967,6 +1970,11 @@ def wasteWAter2Update(request,pk):
      ww = WasteWaterForm2.objects.get(id=pk)
      if request.method == 'POST':
           ww.location = request.POST['location']
+          # analyst request 30-07-2026: allow changing the customer on Edit
+          _cust_id = request.POST.get('customer_id')
+          if _cust_id:
+              ww.customer_id = _cust_id
+              LoggingSheet.objects.filter(id=_cust_id).update(rep_date=request.POST.get('repo_date'))
           industry_id = request.POST.get('industry')
           ww.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
           ww.lab_report_no = request.POST['lab_rep_no']
