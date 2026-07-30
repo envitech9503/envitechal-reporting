@@ -426,6 +426,7 @@ def detox_edit_update(request,pk):
         detox.legend_9 = request.POST.get('legend_9')
         detox.legend_10 = request.POST.get('legend_10')
         detox.legend_11 = request.POST.get('legend_11')
+        detox.legend_12 = request.POST.get('legend_12')
         detox.edit_note = request.POST.get('edit_note')
         detox.doc_1 = request.POST.get('doc_1')
         detox.doc_2 = request.POST.get('doc_2')
@@ -482,7 +483,7 @@ def detox_edit_update(request,pk):
                         "sr": request.POST.getlist(f'{prefix}sr[]')[i],
                         "parameters": request.POST.getlist(f'{prefix}parameters[]')[i],
                         "cas": request.POST.getlist(f'{prefix}cas[]')[i],
-                        "methods": request.POST.getlist(f'{prefix}method[]')[i],
+                        "method": request.POST.getlist(f'{prefix}method[]')[i],
                         "1rl": request.POST.getlist(f'{prefix}1rl[]')[i],
                         "unit": request.POST.getlist(f'{prefix}unit[]')[i],
                         "inlet": request.POST.getlist(f'{prefix}inlet[]')[i],
@@ -513,7 +514,16 @@ def detox_edit_update(request,pk):
         process_extra_field('extra_field_14', 'extra14_')
         process_extra_field('extra_field_15', 'extra15_')
         process_extra_field('extra_field_16', 'extra16_')
-        process_extra_field('extra_field_17', 'extra17_')
+        # extra_field_17 is the legend table: new rows post as JSON, saved rows post as legend[]
+        try:
+            _rows_17 = json.loads(request.POST.get('extra_field_17') or '[]')
+        except Exception:
+            _rows_17 = []
+        if not isinstance(_rows_17, list):
+            _rows_17 = []
+        for _v in request.POST.getlist('legend[]'):
+            _rows_17.append({'legend': _v})
+        detox.extra_field_17 = _rows_17
              
              
     
@@ -665,6 +675,7 @@ def detox_clone_update(request,pk):
         detox.legend_9 = request.POST.get('legend_9')
         detox.legend_10 = request.POST.get('legend_10')
         detox.legend_11 = request.POST.get('legend_11')
+        detox.legend_12 = request.POST.get('legend_12')
         detox.edit_note = request.POST.get('edit_note')
         detox.doc_1 = request.POST.get('doc_1')
         detox.doc_2 = request.POST.get('doc_2')
@@ -721,7 +732,7 @@ def detox_clone_update(request,pk):
                         "sr": request.POST.getlist(f'{prefix}sr[]')[i],
                         "parameters": request.POST.getlist(f'{prefix}parameters[]')[i],
                         "cas": request.POST.getlist(f'{prefix}cas[]')[i],
-                        "methods": request.POST.getlist(f'{prefix}method[]')[i],
+                        "method": request.POST.getlist(f'{prefix}method[]')[i],
                         "1rl": request.POST.getlist(f'{prefix}1rl[]')[i],
                         "unit": request.POST.getlist(f'{prefix}unit[]')[i],
                         "inlet": request.POST.getlist(f'{prefix}inlet[]')[i],
@@ -752,7 +763,16 @@ def detox_clone_update(request,pk):
         process_extra_field('extra_field_14', 'extra14_')
         process_extra_field('extra_field_15', 'extra15_')
         process_extra_field('extra_field_16', 'extra16_')
-        process_extra_field('extra_field_17', 'extra17_')
+        # extra_field_17 is the legend table: new rows post as JSON, saved rows post as legend[]
+        try:
+            _rows_17 = json.loads(request.POST.get('extra_field_17') or '[]')
+        except Exception:
+            _rows_17 = []
+        if not isinstance(_rows_17, list):
+            _rows_17 = []
+        for _v in request.POST.getlist('legend[]'):
+            _rows_17.append({'legend': _v})
+        detox.extra_field_17 = _rows_17
              
              
     

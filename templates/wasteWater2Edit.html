@@ -1089,62 +1089,62 @@
                                 
                             </tr>
                             {% for extra_field in data.extra_field  %}
-                            <tr class=" border">
+                            <tr class="text-center border h-16">
                                 {% if data.in_out == 'in-out' %}
-                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim1}}" name="lim1[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim2}}" name="lim2[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim3}}" name="lim3[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.outlet}}" name="outlet[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim1}}" name="lim1[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim2}}" name="lim2[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim3}}" name="lim3[]"></td>
                                 {% endif %}
                                 {% if data.in_out == 'in' %}
-                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim1}}" name="lim1[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim2}}" name="lim2[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim3}}" name="lim3[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim1}}" name="lim1[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim2}}" name="lim2[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim3}}" name="lim3[]"></td>
                                 {%endif%}
                                 {% if data.in_out == 'out' %}
-                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim1}}" name="lim1[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim2}}" name="lim2[]"></td>
-                                <td class="text-center"><input type="text" value="{{extra_field.lim3}}" name="lim3[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.outlet}}" name="outlet[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim1}}" name="lim1[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim2}}" name="lim2[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.lim3}}" name="lim3[]"></td>
                                 {%endif%}
                                 {% if data.in_out == 'inlet_customlimits' %}
-                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
                                 {%endif%}
                             {% if data.in_out == 'outlet_customLimits' %}
-                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.outlet}}" name="outlet[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
                                 {%endif%}
                             {% if data.in_out == 'in_out_customlimits' %}
-                                <td class="text-center"><input type="text" value="{{extra_field.sr}}" name="sr[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.parameters}}" name="parameters[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.methods}}" name="methods[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.unit}}" name="unit[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.result}}" name="result[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.outlet}}" name="outlet[]"> </td>
-                                <td class="text-center"><input type="text" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.sr}}" name="sr[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.parameters}}" name="parameters[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.methods}}" name="methods[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.unit}}" name="unit[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.result}}" name="result[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.outlet}}" name="outlet[]"> </td>
+                                <td class="text-center"><input type="text" class="border-2 border-black px-2" value="{{extra_field.customLimits}}" name="customLimits[]"></td>
                                 {%endif%}
                             </tr>
                             {% endfor %}
@@ -1496,6 +1496,8 @@
             var outlet_customLimits = document.querySelector('#outlet_customLimits')
             var in_out_customLimits = document.querySelector('#in_out_customLimits')
 
+            jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
             function inlet__customLimits(){
                 const stringToJSON = (s)=>{
                     s = s.replaceAll('&#x27;','"')
@@ -1504,6 +1506,7 @@
                 }
                 var extraFields = [];
                   const getExtraFields = async () => {
+                  extraFields = [];
                   var extraRows = $("tr[id^='extraRow-']")
                 for(var i =0;i<extraRows.length;i++){
                     let _row = extraRows[i];
@@ -1540,18 +1543,19 @@
                 return __etalAEL(t, f, o);
             };
         }
-                currentNumber = 33
+                currentNumber = 33 + {{ data.extra_field|length }}
 
                 add_rows.addEventListener('click', (e) => {
                     e.preventDefault()
                     var newRow = table.insertRow(table.rows.length);
                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    $(newRow).attr("class","text-center border h-16")
                     var cell0 = newRow.insertCell(0);
                     cell0.innerHTML = `${currentNumber}`;
 
                     for (var i = 1; i < 6; i++) {
                         var cell = newRow.insertCell(i);
-                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                     }
 
                     currentNumber++;
@@ -1580,6 +1584,7 @@
                 }
                 var extraFields = [];
                   const getExtraFields = async () => {
+                  extraFields = [];
                   var extraRows = $("tr[id^='extraRow-']")
                 for(var i =0;i<extraRows.length;i++){
                     let _row = extraRows[i];
@@ -1617,18 +1622,19 @@
                 return __etalAEL(t, f, o);
             };
         }
-                currentNumber = 33
+                currentNumber = 33 + {{ data.extra_field|length }}
 
                 add_rows.addEventListener('click', (e) => {
                     e.preventDefault()
                     var newRow = table.insertRow(table.rows.length);
                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    $(newRow).attr("class","text-center border h-16")
                     var cell0 = newRow.insertCell(0);
                     cell0.innerHTML = `${currentNumber}`;
 
                     for (var i = 1; i < 7; i++) {
                         var cell = newRow.insertCell(i);
-                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                     }
 
                     currentNumber++;
@@ -1648,11 +1654,11 @@
 
             }
 
-            if(inlet_customLimits.checked){
+            if (inlet_customLimits && inlet_customLimits.checked) {
                 inlet__customLimits()
             }
 
-            if(in_out_customLimits.checked){
+            if (in_out_customLimits && in_out_customLimits.checked) {
                 in_out__customLimits()
             }
             
@@ -1667,6 +1673,7 @@
                 }
                 var extraFields = [];
                   const getExtraFields = async () => {
+                  extraFields = [];
                   var extraRows = $("tr[id^='extraRow-']")
                 for(var i =0;i<extraRows.length;i++){
                     let _row = extraRows[i];
@@ -1703,18 +1710,19 @@
                 return __etalAEL(t, f, o);
             };
         }
-                currentNumber = 33
+                currentNumber = 33 + {{ data.extra_field|length }}
 
                 add_rows.addEventListener('click', (e) => {
                     e.preventDefault()
                     var newRow = table.insertRow(table.rows.length);
                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    $(newRow).attr("class","text-center border h-16")
                     var cell0 = newRow.insertCell(0);
                     cell0.innerHTML = `${currentNumber}`;
 
                     for (var i = 1; i < 6; i++) {
                         var cell = newRow.insertCell(i);
-                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                     }
 
                     currentNumber++;
@@ -1737,7 +1745,7 @@
 
             }
 
-            if(outlet_customLimits){
+            if (outlet_customLimits && outlet_customLimits.checked) {
 
                 outlet__customLimits()
             }
@@ -1751,6 +1759,7 @@
                 }
                 var extraFields = [];
                    const getExtraFields = async () => {
+                   extraFields = [];
                    var extraRows = $("tr[id^='extraRow-']")
                  for(var i =0;i<extraRows.length;i++){
                      let _row = extraRows[i];
@@ -1789,18 +1798,19 @@
                 return __etalAEL(t, f, o);
             };
         }
-                 currentNumber = 33
+                 currentNumber = 33 + {{ data.extra_field|length }}
 
                  add_rows.addEventListener('click', (e) => {
                      e.preventDefault()
                      var newRow = table.insertRow(table.rows.length);
                      $(newRow).attr("id",`extraRow-${currentNumber}`)
+                     $(newRow).attr("class","text-center border h-16")
                      var cell0 = newRow.insertCell(0);
                      cell0.innerHTML = `${currentNumber}`;
 
                      for (var i = 1; i < 8; i++) {
                          var cell = newRow.insertCell(i);
-                         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                         cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                      }
 
                      currentNumber++;
@@ -1818,7 +1828,7 @@
                     
                 }
             }
-            if(inlet.checked){
+            if (inlet && inlet.checked) {
                 inlet_()
 
             }
@@ -1832,6 +1842,7 @@
                 }
                 var extraFields = [];
                    const getExtraFields = async () => {
+                   extraFields = [];
                    var extraRows = $("tr[id^='extraRow-']")
                  for(var i =0;i<extraRows.length;i++){
                      let _row = extraRows[i];
@@ -1871,18 +1882,19 @@
                 return __etalAEL(t, f, o);
             };
         }
-                 currentNumber = 33
+                 currentNumber = 33 + {{ data.extra_field|length }}
 
                  add_rows.addEventListener('click', (e) => {
                      e.preventDefault()
                      var newRow = table.insertRow(table.rows.length);
                      $(newRow).attr("id",`extraRow-${currentNumber}`)
+                     $(newRow).attr("class","text-center border h-16")
                      var cell0 = newRow.insertCell(0);
                      cell0.innerHTML = `${currentNumber}`;
 
                      for (var i = 1; i <= 9; i++) {
                          var cell = newRow.insertCell(i);
-                         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                         cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                      }
 
                      currentNumber++;
@@ -1900,7 +1912,7 @@
                 }
             });
 
-            if(in_out.checked){
+            if (in_out && in_out.checked) {
 
                 inlet_outlet()
             }  
@@ -1916,6 +1928,7 @@
                 var extraFields = [];
             
                     const getExtraFields = async () => {
+                        extraFields = [];
                         var extraRows = $("tr[id^='extraRow-']");
                         for (var i = 0; i < extraRows.length; i++) {
                             let _row = extraRows[i];
@@ -1951,18 +1964,19 @@
                 return __etalAEL(t, f, o);
             };
         }
-                    var currentNumber = 33;
+                    var currentNumber = 33 + {{ data.extra_field|length }};
             
                     add_rows.addEventListener('click', (e) => {
                         e.preventDefault();
                         var newRow = table.insertRow(table.rows.length);
                         $(newRow).attr("id", `extraRow-${currentNumber}`);
+                        $(newRow).attr("class","text-center border h-16")
                         var cell0 = newRow.insertCell(0);
                         cell0.innerHTML = `${currentNumber}`;
             
                         for (var i = 1; i < 8; i++) {
                             var cell = newRow.insertCell(i);
-                            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                            cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                         }
             
                         currentNumber++;
@@ -1981,7 +1995,7 @@
                     }
             }
              
-            if(outlet.checked){
+            if (outlet && outlet.checked) {
 
                 outlet_()
             }                  

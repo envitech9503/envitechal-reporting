@@ -158,7 +158,8 @@ def viscousLiquidUpdate(request,pk):
      if request.method == 'POST':
           vL.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          vL.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               vL.industry = Industry_sector.objects.get(id=industry_id)
           vL.lab_report_no = request.POST['lab_rep_no']
           vL.invoice_bill_no = request.POST['invoice_no']
           vL.reporting_date = request.POST['report_date']
@@ -199,9 +200,12 @@ def viscousLiquidUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          vL.analyst_signature = analyst_sign
-          vL.assistant_manager_signature = review_sign
-          vL.lab_manager_signature = approved_sign
+          if analyst_sign:
+               vL.analyst_signature = analyst_sign
+          if review_sign:
+               vL.assistant_manager_signature = review_sign
+          if approved_sign:
+               vL.lab_manager_signature = approved_sign
           
           vL.pdf_heading=request.POST.get('pdf_heading')
           
@@ -1112,7 +1116,8 @@ def viscousLiquidcloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['invoice_no']
           existing_Form.reporting_date = request.POST['report_date']
@@ -1136,6 +1141,7 @@ def viscousLiquidcloneSave(request,pk):
           existing_Form.custom_legend = request.POST['custom_legend']
           existing_Form.doc1 = request.POST['doc1']
           existing_Form.doc2 = request.POST['doc2']
+          existing_Form.doc3 = request.POST['doc3']
           existing_Form.created_by = request.user
           # existing_Form.analyzedby = request.FILES['analyzedby']
           # existing_Form.reviewedby = request.FILES['reviewedby']
@@ -1152,9 +1158,12 @@ def viscousLiquidcloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
 
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')

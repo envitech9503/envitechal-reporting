@@ -3,6 +3,10 @@
 from .shared import *  # noqa: F401,F403
 
 
+def _gv(lst, i):
+    return lst[i] if i < len(lst) else ""
+
+
 @login_required(login_url="/login")
 def inspection(request):
      if request.method == 'POST':
@@ -312,42 +316,31 @@ def inspect_update(request,pk):
           inspect.master_equip = request.POST.get('master_equip',"")
           inspect.physical_inspect = request.POST.get('physical_inspect',"")
           inspect.extra_field = json.loads(request.POST["extra_field"])
-          
-          
-          if inspect.extra_field:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    test = request.POST.getlist('test[]')[i]
-                    observation = request.POST.getlist('observation[]')[i]
-
-                    inspect.extra_field.append({
-                         'sr':sr,
-                         'test':test,
-                         'observation':observation,
-                    })
-          
-          
+          _sr_l = request.POST.getlist('sr[]')
+          _test_l = request.POST.getlist('test[]')
+          _observation_l = request.POST.getlist('observation[]')
+          for i in range(len(_sr_l)):
+               inspect.extra_field.append({
+                    'sr': _gv(_sr_l, i),
+                    'test': _gv(_test_l, i),
+                    'observation': _gv(_observation_l, i),
+               })
           inspect.extra_field = json.dumps(inspect.extra_field)
 
           inspect.extra_field1 = json.loads(request.POST["extra_field1"])
-          
-          if inspect.extra_field1:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp1 = request.POST.getlist('inp1[]')[i]
-                    inp2 = request.POST.getlist('inp2[]')[i]
-                    inp3 = request.POST.getlist('inp3[]')[i]
-                    inp4 = request.POST.getlist('inp4[]')[i]
-
-                    inspect.extra_field1.append({
-                         'sr':sr,
-                         'inp1':inp1,
-                         'inp2':inp2,
-                         'inp3':inp3,
-                         'inp4':inp4,
-                    })
-          
-          
+          _sr1_l = request.POST.getlist('sr1[]')
+          _inp1_l = request.POST.getlist('inp1[]')
+          _inp2_l = request.POST.getlist('inp2[]')
+          _inp3_l = request.POST.getlist('inp3[]')
+          _inp4_l = request.POST.getlist('inp4[]')
+          for i in range(len(_sr1_l)):
+               inspect.extra_field1.append({
+                    'sr': _gv(_sr1_l, i),
+                    'inp1': _gv(_inp1_l, i),
+                    'inp2': _gv(_inp2_l, i),
+                    'inp3': _gv(_inp3_l, i),
+                    'inp4': _gv(_inp4_l, i),
+               })
           inspect.extra_field1 = json.dumps(inspect.extra_field1)
           city_location_clean = inspect.city_location.strip().lower().rstrip('.')
 
@@ -525,40 +518,32 @@ def inspect_clone_update(request,pk):
           existing_Form.master_equip = request.POST.get('master_equip')
           existing_Form.physical_inspect = request.POST.get('physical_inspect')
           existing_Form.extra_field = json.loads(request.POST["extra_field"])
-          
-          if existing_Form.extra_field:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    test = request.POST.getlist('test[]')[i]
-                    observation = request.POST.getlist('observation[]')[i]
-
-                    existing_Form.extra_field.append({
-                         'sr':sr,
-                         'test':test,
-                         'observation':observation,
-                    })
-                    
-          
-          
+          _sr_l = request.POST.getlist('sr[]')
+          _test_l = request.POST.getlist('test[]')
+          _observation_l = request.POST.getlist('observation[]')
+          for i in range(len(_sr_l)):
+               existing_Form.extra_field.append({
+                    'sr': _gv(_sr_l, i),
+                    'test': _gv(_test_l, i),
+                    'observation': _gv(_observation_l, i),
+               })
           existing_Form.extra_field = json.dumps(existing_Form.extra_field)
 
           existing_Form.extra_field1 = json.loads(request.POST["extra_field1"])
-          
-          if existing_Form.extra_field1:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp1 = request.POST.getlist('inp1[]')[i]
-                    inp2 = request.POST.getlist('inp2[]')[i]
-                    inp3 = request.POST.getlist('inp3[]')[i]
-                    inp4 = request.POST.getlist('inp4[]')[i]
-
-                    existing_Form.extra_field1.append({
-                         'sr':sr,
-                         'inp1':inp1,
-                         'inp2':inp2,
-                         'inp3':inp3,
-                         'inp4':inp4,
-                    })
+          _sr1_l = request.POST.getlist('sr1[]')
+          _inp1_l = request.POST.getlist('inp1[]')
+          _inp2_l = request.POST.getlist('inp2[]')
+          _inp3_l = request.POST.getlist('inp3[]')
+          _inp4_l = request.POST.getlist('inp4[]')
+          for i in range(len(_sr1_l)):
+               existing_Form.extra_field1.append({
+                    'sr': _gv(_sr1_l, i),
+                    'inp1': _gv(_inp1_l, i),
+                    'inp2': _gv(_inp2_l, i),
+                    'inp3': _gv(_inp3_l, i),
+                    'inp4': _gv(_inp4_l, i),
+               })
+          existing_Form.extra_field1 = json.dumps(existing_Form.extra_field1)
           
           
           inspect_sign_id = request.POST.get('inspect_sign')

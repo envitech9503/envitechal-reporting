@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 @login_required(login_url="/login")
 def gaseousEmission(request):
@@ -173,8 +185,7 @@ def gaseousEmissionReport(request,pk):
      current_url = request.build_absolute_uri()
      
      try:
-          gaseousReport.extra_field = gaseousReport.extra_field.replace("'", "\"")
-          gaseousReport.extra_field = json.loads(gaseousReport.extra_field)
+          gaseousReport.extra_field = _safe_json_list(gaseousReport.extra_field)
      except (ValueError, AttributeError):
         gaseousReport.extra_field = {}     
 
@@ -216,8 +227,7 @@ def gaseousReportgeneratePDF(request,pk):
 
 
      gaseousForm = GaseousEmissionForm.objects.get(id=pk)
-     gaseousForm.extra_field = gaseousForm.extra_field.replace("'", "\"")
-     gaseousForm.extra_field = json.loads(gaseousForm.extra_field)
+     gaseousForm.extra_field = _safe_json_list(gaseousForm.extra_field)
 
 
      TABLE_DATA = [
@@ -338,9 +348,6 @@ def gaseousReportgeneratePDF(request,pk):
           a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,gaseousForm.limits[21]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
-     if gaseousForm.GaseEm_types == 'biomass':
-          for _r in TABLE_DATA[1:]:
-               _r[4] = "-"
      for extra_field in gaseousForm.extra_field:
           parameters = extra_field.get("parameters")
           unit = extra_field.get("unit")
@@ -730,8 +737,7 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
 
 
      gaseousForm = GaseousEmissionForm.objects.get(id=pk)
-     gaseousForm.extra_field = gaseousForm.extra_field.replace("'", "\"")
-     gaseousForm.extra_field = json.loads(gaseousForm.extra_field)
+     gaseousForm.extra_field = _safe_json_list(gaseousForm.extra_field)
 
 
      TABLE_DATA = [
@@ -840,9 +846,6 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
           a = [str(sr_no),"Noise","dB",gaseousForm.GaseEm_sr22,gaseousForm.limits[21]['printed']]
           sr_no = sr_no+1
           TABLE_DATA.append(a)
-     if gaseousForm.GaseEm_types == 'biomass':
-          for _r in TABLE_DATA[1:]:
-               _r[4] = "-"
      for extra_field in gaseousForm.extra_field:
           parameters = extra_field.get("parameters")
           unit = extra_field.get("unit")
@@ -1230,8 +1233,7 @@ def gaseousReportgeneratePDF1(request,pk,return_bytes=False):
 
 def GaseousFormclone(request,pk):
      existing_form = GaseousEmissionForm.objects.get(id=pk)
-     existing_form.extra_field = existing_form.extra_field.replace("'", "\"")
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -1259,7 +1261,8 @@ def GaseousFormcloneSave(request,pk):
      if request.method == 'POST':
         existing_Form.location = request.POST['location']
         industry_id = request.POST.get('industry')
-        existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+        if industry_id:
+             existing_Form.industry = Industry_sector.objects.get(id=industry_id)
         existing_Form.lab_report_no = request.POST['GasEm-lab_report_no']
         existing_Form.invoice_bill_no = request.POST['GasEm-invoice-bill-no']
         existing_Form.reporting_date = request.POST['GasEm-reporting-date']
@@ -1347,9 +1350,12 @@ def GaseousFormcloneSave(request,pk):
         approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
         # Assign to ambientUpdate if needed
-        existing_Form.analyst_signature = analyst_sign
-        existing_Form.assistant_manager_signature = review_sign
-        existing_Form.lab_manager_signature = approved_sign
+        if analyst_sign:
+             existing_Form.analyst_signature = analyst_sign
+        if review_sign:
+             existing_Form.assistant_manager_signature = review_sign
+        if approved_sign:
+             existing_Form.lab_manager_signature = approved_sign
           
         existing_Form.extra_field = json.dumps(existing_Form.extra_field)
         

@@ -2,6 +2,22 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
+def _gv(lst, i):
+    return lst[i] if i < len(lst) else ""
+
+
 
 @login_required(login_url="/login")
 def wasteWaterSludge(request):
@@ -438,6 +454,10 @@ def wasteWater2(request):
                     elif report_type == 'outlet_customLimits':
                          structured_extra['outlet_result'] = item.get('outlet', item.get('result', ''))
                          structured_extra['custom_limit'] = item.get('customLimits', '')
+                    elif report_type == 'in_out_customlimits':
+                         structured_extra['inlet_result'] = item.get('result', '')
+                         structured_extra['outlet_result'] = item.get('outlet', '')
+                         structured_extra['custom_limit'] = item.get('customLimits', '')
                     
                     structured_data['extra_parameters'].append(structured_extra)
                     extra_counter += 1
@@ -541,7 +561,8 @@ def wasteWaterUpdate(request,pk):
      if request.method == 'POST':
           wasterWaterForm.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          ambientUpdate.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               wasterWaterForm.industry = Industry_sector.objects.get(id=industry_id)
           wasterWaterForm.lab_report_no = request.POST['ww_lab_report_no']
           wasterWaterForm.invoice_bill_no = request.POST['ww_invoice_no']
           wasterWaterForm.reporting_date = request.POST['ww_report_date']
@@ -605,9 +626,12 @@ def wasteWaterUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          wasterWaterForm.analyst_signature = analyst_sign
-          wasterWaterForm.assistant_manager_signature = review_sign
-          wasterWaterForm.lab_manager_signature = approved_sign
+          if analyst_sign:
+               wasterWaterForm.analyst_signature = analyst_sign
+          if review_sign:
+               wasterWaterForm.assistant_manager_signature = review_sign
+          if approved_sign:
+               wasterWaterForm.lab_manager_signature = approved_sign
           wasterWaterForm.created_by = request.user
           
           wasterWaterForm.pdf_heading=request.POST.get('pdf_heading')
@@ -1944,8 +1968,7 @@ def wasteWAter2Delete(request,pk):
 @login_required(login_url="/login")
 def wasteWAter2Edit(request,pk):
      ww = WasteWaterForm2.objects.get(id=pk)
-     # ww.extra_field = ww.extra_field.replace("'", "\"")
-     ww.extra_field = json.loads(ww.extra_field)
+     ww.extra_field = _safe_json_list(ww.extra_field)
      image_previews = {}
      for i in range(1, 7):
          image_key = f'pdf_image_{i}'
@@ -1968,6 +1991,7 @@ def wasteWAter2Edit(request,pk):
 @login_required(login_url="/login")
 def wasteWAter2Update(request,pk):
      ww = WasteWaterForm2.objects.get(id=pk)
+     _original_extra = ww.extra_field
      if request.method == 'POST':
           ww.location = request.POST['location']
           # analyst request 30-07-2026: allow changing the customer on Edit
@@ -1976,7 +2000,8 @@ def wasteWAter2Update(request,pk):
               ww.customer_id = _cust_id
               LoggingSheet.objects.filter(id=_cust_id).update(rep_date=request.POST.get('repo_date'))
           industry_id = request.POST.get('industry')
-          ww.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               ww.industry = Industry_sector.objects.get(id=industry_id)
           ww.lab_report_no = request.POST['lab_rep_no']
           ww.invoice_bill_no = request.POST['invoice_no']
           ww.reporting_date = request.POST['repo_date']
@@ -2115,126 +2140,88 @@ def wasteWAter2Update(request,pk):
           ww.inlet_result = request.POST['inlet_result']
           ww.outlet_result = request.POST.get('outlet_result')
           ww.extra_field = json.loads(request.POST['extra_field'])
+          _sr_l = request.POST.getlist('sr[]')
+          _parameters_l = request.POST.getlist('parameters[]')
+          _methods_l = request.POST.getlist('methods[]')
+          _unit_l = request.POST.getlist('unit[]')
+          _result_l = request.POST.getlist('result[]')
+          _outlet_l = request.POST.getlist('outlet[]')
+          _lim1_l = request.POST.getlist('lim1[]')
+          _lim2_l = request.POST.getlist('lim2[]')
+          _lim3_l = request.POST.getlist('lim3[]')
+          _customLimits_l = request.POST.getlist('customLimits[]')
           if ww.in_out == 'in-out':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    lim1 = request.POST.getlist('lim1[]')[i]
-                    lim2 = request.POST.getlist('lim2[]')[i]
-                    lim3 = request.POST.getlist('lim3[]')[i]
-
+               for i in range(len(_sr_l)):
                     ww.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "outlet":outlet,
-                         "lim1":lim1,
-                         "lim2":lim2,
-                         "lim3":lim3,
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "lim1": _gv(_lim1_l, i),
+                         "lim2": _gv(_lim2_l, i),
+                         "lim3": _gv(_lim3_l, i),
                     })
           elif ww.in_out == 'in':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    lim1 = request.POST.getlist('lim1[]')[i]
-                    lim2 = request.POST.getlist('lim2[]')[i]
-                    lim3 = request.POST.getlist('lim3[]')[i]
-
+               for i in range(len(_sr_l)):
                     ww.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "lim1":lim1,
-                         "lim2":lim2,
-                         "lim3":lim3,
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "lim1": _gv(_lim1_l, i),
+                         "lim2": _gv(_lim2_l, i),
+                         "lim3": _gv(_lim3_l, i),
                     })
           elif ww.in_out == 'out':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    lim1 = request.POST.getlist('lim1[]')[i]
-                    lim2 = request.POST.getlist('lim2[]')[i]
-                    lim3 = request.POST.getlist('lim3[]')[i]
-
+               for i in range(len(_sr_l)):
                     ww.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "outlet": outlet,
-                         "lim1":lim1,
-                         "lim2":lim2,
-                         "lim3":lim3,
-                    })          
-
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "lim1": _gv(_lim1_l, i),
+                         "lim2": _gv(_lim2_l, i),
+                         "lim3": _gv(_lim3_l, i),
+                    })
           elif ww.in_out == 'inlet_customlimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    customLimits = request.POST.getlist('customLimits[]')[i]
-
+               for i in range(len(_sr_l)):
                     ww.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "customLimits":customLimits
-                    }) 
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "customLimits": _gv(_customLimits_l, i),
+                    })
           elif ww.in_out == 'in_out_customlimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    customLimits = request.POST.getlist('customLimits[]')[i]
-
+               for i in range(len(_sr_l)):
                     ww.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "outlet": outlet,
-                         "customLimits":customLimits
-                    }) 
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "customLimits": _gv(_customLimits_l, i),
+                    })
           elif ww.in_out == 'outlet_customLimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    customLimits = request.POST.getlist('customLimits[]')[i]
-
+               for i in range(len(_sr_l)):
                     ww.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "outlet": outlet,
-                         "customLimits":customLimits
-                    })           
-          ww.extra_field = json.dumps(ww.extra_field)          
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "customLimits": _gv(_customLimits_l, i),
+                    })
+          else:
+               # Unknown/empty mode: keep the rows already stored on the record
+               ww.extra_field.extend(_safe_json_list(_original_extra))
+          ww.extra_field = json.dumps(ww.extra_field)
           ww.cutomLimit1 = request.POST['cutomLimit1'] 
           ww.cutomLimit2 = request.POST['cutomLimit2'] 
           ww.cutomLimit3 = request.POST['cutomLimit3'] 
@@ -2280,9 +2267,12 @@ def wasteWAter2Update(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          ww.analyst_signature = analyst_sign
-          ww.assistant_manager_signature = review_sign
-          ww.lab_manager_signature = approved_sign
+          if analyst_sign:
+               ww.analyst_signature = analyst_sign
+          if review_sign:
+               ww.assistant_manager_signature = review_sign
+          if approved_sign:
+               ww.lab_manager_signature = approved_sign
 
           
           ww.pdf_heading=request.POST.get('pdf_heading')
@@ -2330,8 +2320,7 @@ def wasteWAter2Update(request,pk):
 def wasteWAter2View(request,pk):
      ww = WasteWaterForm2.objects.get(id=pk)
      current_url = request.build_absolute_uri()
-     ww.extra_field = ww.extra_field.replace("'", "\"")
-     ww.extra_field = json.loads(ww.extra_field)
+     ww.extra_field = _safe_json_list(ww.extra_field)
 
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{ww.lab_report_no}.png"
@@ -2363,8 +2352,7 @@ def wasteWater2Pdf(request,pk):
 
 
      ww = WasteWaterForm2.objects.get(id=pk)
-     ww.extra_field = ww.extra_field.replace("'", "\"")
-     ww.extra_field = json.loads(ww.extra_field)
+     ww.extra_field = _safe_json_list(ww.extra_field)
 
      pdf = PDFWithPageNumbers(lab_report_no=ww.lab_report_no,invoice_bill_no=ww.invoice_bill_no,reporting_date=ww.reporting_date,report_to=ww.report_to,
                                    address=ww.address,attention=ww.attention,email=ww.email,sample_id=ww.sample_id,sample_Col_date=ww.sample_Col_date,
@@ -2965,6 +2953,7 @@ def wasteWater2Pdf(request,pk):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result, lim1,lim2,lim3]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)
 
@@ -3599,6 +3588,7 @@ def wasteWater2Pdf(request,pk):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, outlet, lim1,lim2,lim3]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)     
 
@@ -3874,6 +3864,7 @@ def wasteWater2Pdf(request,pk):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, outlet, customLimits]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)
 
@@ -4150,6 +4141,7 @@ def wasteWater2Pdf(request,pk):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result, customLimits]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)     
 
@@ -4423,6 +4415,7 @@ def wasteWater2Pdf(request,pk):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result, outlet, customLimits]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)     
 
@@ -5067,6 +5060,7 @@ def wasteWater2Pdf(request,pk):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result,outlet,lim1,lim2,lim3]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)          
           
@@ -5465,8 +5459,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
 
      ww = WasteWaterForm2.objects.get(id=pk)
-     ww.extra_field = ww.extra_field.replace("'", "\"")
-     ww.extra_field = json.loads(ww.extra_field)
+     ww.extra_field = _safe_json_list(ww.extra_field)
 
      pdf = PDFWithPageNumbers(lab_report_no=ww.lab_report_no,invoice_bill_no=ww.invoice_bill_no,reporting_date=ww.reporting_date,report_to=ww.report_to,
                                    address=ww.address,attention=ww.attention,email=ww.email,sample_id=ww.sample_id,sample_Col_date=ww.sample_Col_date,
@@ -6067,6 +6060,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result, lim1,lim2,lim3]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)
 
@@ -6701,6 +6695,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, outlet, lim1,lim2,lim3]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)     
 
@@ -6976,6 +6971,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, outlet, customLimits]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)
 
@@ -7252,6 +7248,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result, customLimits]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)     
 
@@ -7525,6 +7522,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
                # Check if the "parameters" field is not empty before adding the row
                if parameters:
                     a = [str(sr_no), parameters, methods, unit, result, outlet, customLimits]
+                    a = ["" if _x is None else str(_x) for _x in a]
                     sr_no += 1
                     TABLE_DATA.append(a)     
 
@@ -8153,6 +8151,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
           for extra_field in ww.extra_field:
                a = [str(sr_no), extra_field.get("parameters"), extra_field.get("methods"), extra_field.get("unit"),extra_field.get("result"), extra_field.get("outlet"), extra_field.get("lim1"),extra_field.get("lim2"),extra_field.get("lim3")]
+               a = ["" if _x is None else str(_x) for _x in a]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
 
@@ -8560,8 +8559,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
 
 def wasteWater2clone(request,pk):
      existing_form = WasteWaterForm2.objects.get(id=pk)
-     existing_form.extra_field = existing_form.extra_field.replace("'", "\"")
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -8586,10 +8584,12 @@ def wasteWater2cloneSave(request,pk):
          existing_Form = WasteWaterForm2.objects.get(id=pk)
      except WasteWaterForm2.DoesNotExist:
          return HttpResponse("Form not found", status=404)
+     _original_extra = existing_Form.extra_field
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['invoice_no']
           existing_Form.reporting_date = request.POST['repo_date']
@@ -8728,126 +8728,88 @@ def wasteWater2cloneSave(request,pk):
           existing_Form.inlet_result = request.POST['inlet_result']
           existing_Form.outlet_result = request.POST.get('outlet_result')
           existing_Form.extra_field = json.loads(request.POST['extra_field'])
+          _sr_l = request.POST.getlist('sr[]')
+          _parameters_l = request.POST.getlist('parameters[]')
+          _methods_l = request.POST.getlist('methods[]')
+          _unit_l = request.POST.getlist('unit[]')
+          _result_l = request.POST.getlist('result[]')
+          _outlet_l = request.POST.getlist('outlet[]')
+          _lim1_l = request.POST.getlist('lim1[]')
+          _lim2_l = request.POST.getlist('lim2[]')
+          _lim3_l = request.POST.getlist('lim3[]')
+          _customLimits_l = request.POST.getlist('customLimits[]')
           if existing_Form.in_out == 'in-out':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    lim1 = request.POST.getlist('lim1[]')[i]
-                    lim2 = request.POST.getlist('lim2[]')[i]
-                    lim3 = request.POST.getlist('lim3[]')[i]
-
+               for i in range(len(_sr_l)):
                     existing_Form.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "outlet":outlet,
-                         "lim1":lim1,
-                         "lim2":lim2,
-                         "lim3":lim3,
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "lim1": _gv(_lim1_l, i),
+                         "lim2": _gv(_lim2_l, i),
+                         "lim3": _gv(_lim3_l, i),
                     })
           elif existing_Form.in_out == 'in':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    lim1 = request.POST.getlist('lim1[]')[i]
-                    lim2 = request.POST.getlist('lim2[]')[i]
-                    lim3 = request.POST.getlist('lim3[]')[i]
-
+               for i in range(len(_sr_l)):
                     existing_Form.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "lim1":lim1,
-                         "lim2":lim2,
-                         "lim3":lim3,
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "lim1": _gv(_lim1_l, i),
+                         "lim2": _gv(_lim2_l, i),
+                         "lim3": _gv(_lim3_l, i),
                     })
           elif existing_Form.in_out == 'out':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    lim1 = request.POST.getlist('lim1[]')[i]
-                    lim2 = request.POST.getlist('lim2[]')[i]
-                    lim3 = request.POST.getlist('lim3[]')[i]
-
+               for i in range(len(_sr_l)):
                     existing_Form.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "outlet": outlet,
-                         "lim1":lim1,
-                         "lim2":lim2,
-                         "lim3":lim3,
-                    })          
-
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "lim1": _gv(_lim1_l, i),
+                         "lim2": _gv(_lim2_l, i),
+                         "lim3": _gv(_lim3_l, i),
+                    })
           elif existing_Form.in_out == 'inlet_customlimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    customLimits = request.POST.getlist('customLimits[]')[i]
-
+               for i in range(len(_sr_l)):
                     existing_Form.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "customLimits":customLimits
-                    }) 
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "customLimits": _gv(_customLimits_l, i),
+                    })
           elif existing_Form.in_out == 'in_out_customlimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    customLimits = request.POST.getlist('customLimits[]')[i]
-
+               for i in range(len(_sr_l)):
                     existing_Form.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "outlet": outlet,
-                         "customLimits":customLimits
-                    }) 
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "result": _gv(_result_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "customLimits": _gv(_customLimits_l, i),
+                    })
           elif existing_Form.in_out == 'outlet_customLimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    outlet = request.POST.getlist('outlet[]')[i]
-                    customLimits = request.POST.getlist('customLimits[]')[i]
-
+               for i in range(len(_sr_l)):
                     existing_Form.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "outlet": outlet,
-                         "customLimits":customLimits
-                    })           
-          existing_Form.extra_field = json.dumps(existing_Form.extra_field) 
+                         "sr": _gv(_sr_l, i),
+                         "parameters": _gv(_parameters_l, i),
+                         "methods": _gv(_methods_l, i),
+                         "unit": _gv(_unit_l, i),
+                         "outlet": _gv(_outlet_l, i),
+                         "customLimits": _gv(_customLimits_l, i),
+                    })
+          else:
+               # Unknown/empty mode: keep the rows already stored on the record
+               existing_Form.extra_field.extend(_safe_json_list(_original_extra))
+          existing_Form.extra_field = json.dumps(existing_Form.extra_field)
           existing_Form.cutomLimit1 = request.POST['cutomLimit1'] 
           existing_Form.cutomLimit2 = request.POST['cutomLimit2'] 
           existing_Form.cutomLimit3 = request.POST['cutomLimit3'] 
@@ -8894,9 +8856,12 @@ def wasteWater2cloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')
           
@@ -8981,7 +8946,8 @@ def wasteWatercloneSave(request,pk):
      if request.method == 'POST':
             existing_Form.location = request.POST['location']
             industry_id = request.POST.get('industry')
-            existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+            if industry_id:
+                 existing_Form.industry = Industry_sector.objects.get(id=industry_id)
             existing_Form.lab_report_no = request.POST['ww_lab_report_no']
             existing_Form.invoice_bill_no = request.POST['ww_invoice_no']
             existing_Form.reporting_date = request.POST['ww_report_date']
@@ -9047,9 +9013,12 @@ def wasteWatercloneSave(request,pk):
             approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
     
             # Assign to ambientUpdate if needed
-            existing_Form.analyst_signature = analyst_sign
-            existing_Form.assistant_manager_signature = review_sign
-            existing_Form.lab_manager_signature = approved_sign
+            if analyst_sign:
+                 existing_Form.analyst_signature = analyst_sign
+            if review_sign:
+                 existing_Form.assistant_manager_signature = review_sign
+            if approved_sign:
+                 existing_Form.lab_manager_signature = approved_sign
 
           
             existing_Form.pdf_heading=request.POST.get('pdf_heading')

@@ -8023,6 +8023,7 @@ let currentNumber_17 = 1;
 // For table 1 (Alkylphenols)
 var extraFields = [];
 const getExtraFields = async () => {
+    extraFields = [];
     var extraRows = $("tr[id^='extraRow-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8059,7 +8060,8 @@ document.getElementById('add_rows').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra-${currentNumber}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra-${currentNumber}-${i}">`;
     }
 
     currentNumber++;
@@ -8068,6 +8070,7 @@ document.getElementById('add_rows').addEventListener('click', (e) => {
 // For table 2 (Phthalates)
 var extraFields_2 = [];
 const getExtraFields_2 = async () => {
+    extraFields_2 = [];
     var extraRows = $("tr[id^='extraRow_2-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8104,7 +8107,8 @@ document.getElementById('add_rows_2').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_2-${currentNumber_2}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_2-${currentNumber_2}-${i}">`;
     }
 
     currentNumber_2++;
@@ -8115,6 +8119,7 @@ document.getElementById('add_rows_2').addEventListener('click', (e) => {
 
 var extraFields_3 = [];
 const getExtraFields_3 = async () => {
+    extraFields_3 = [];
     var extraRows = $("tr[id^='extraRow_3-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8151,7 +8156,8 @@ document.getElementById('add_rows_3').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_3-${currentNumber_3}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_3-${currentNumber_3}-${i}">`;
     }
 
     currentNumber_3++;
@@ -8161,6 +8167,7 @@ document.getElementById('add_rows_3').addEventListener('click', (e) => {
 
 var extraFields_3_1 = [];
 const getExtraFields_3_1 = async () => {
+    extraFields_3_1 = [];
     var extraRows = $("tr[id^='extraRow_3_1-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8197,7 +8204,8 @@ document.getElementById('add_rows_3_1').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_3_1-${currentNumber_3_1}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_3_1-${currentNumber_3_1}-${i}">`;
     }
 
     currentNumber_3_1++;
@@ -8207,6 +8215,7 @@ document.getElementById('add_rows_3_1').addEventListener('click', (e) => {
 
 var extraFields_4 = [];
 const getExtraFields_4 = async () => {
+    extraFields_4 = [];
     var extraRows = $("tr[id^='extraRow_4-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8243,7 +8252,8 @@ document.getElementById('add_rows_4').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_4-${currentNumber_4}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_4-${currentNumber_4}-${i}">`;
     }
 
     currentNumber_4++;
@@ -8253,6 +8263,7 @@ document.getElementById('add_rows_4').addEventListener('click', (e) => {
 
 var extraFields_4_1 = [];
 const getExtraFields_4_1 = async () => {
+    extraFields_4_1 = [];
     var extraRows = $("tr[id^='extraRow_4_1-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8289,7 +8300,8 @@ document.getElementById('add_rows_4_1').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_4_1-${currentNumber_4_1}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_4_1-${currentNumber_4_1}-${i}">`;
     }
 
     currentNumber_4_1++;
@@ -8297,6 +8309,7 @@ document.getElementById('add_rows_4_1').addEventListener('click', (e) => {
 
 var extraFields_5 = [];
 const getExtraFields_5 = async () => {
+    extraFields_5 = [];
     var extraRows = $("tr[id^='extraRow_5-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8333,7 +8346,8 @@ document.getElementById('add_rows_5').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_5-${currentNumber_5}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_5-${currentNumber_5}-${i}">`;
     }
 
     currentNumber_5++;
@@ -8343,6 +8357,7 @@ document.getElementById('add_rows_5').addEventListener('click', (e) => {
 
 var extraFields_6 = [];
 const getExtraFields_6 = async () => {
+    extraFields_6 = [];
     var extraRows = $("tr[id^='extraRow_6-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8379,7 +8394,8 @@ document.getElementById('add_rows_6').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_6-${currentNumber_6}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_6-${currentNumber_6}-${i}">`;
     }
 
     currentNumber_6++;
@@ -8388,6 +8404,7 @@ document.getElementById('add_rows_6').addEventListener('click', (e) => {
 
 var extraFields_7 = [];
 const getExtraFields_7 = async () => {
+    extraFields_7 = [];
     var extraRows = $("tr[id^='extraRow_7-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8424,7 +8441,8 @@ document.getElementById('add_rows_7').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_7-${currentNumber_7}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_7-${currentNumber_7}-${i}">`;
     }
 
     currentNumber_7++;
@@ -8434,6 +8452,7 @@ document.getElementById('add_rows_7').addEventListener('click', (e) => {
 
 var extraFields_8 = [];
 const getExtraFields_8 = async () => {
+    extraFields_8 = [];
     var extraRows = $("tr[id^='extraRow_8-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8470,7 +8489,8 @@ document.getElementById('add_rows_8').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_8-${currentNumber_8}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_8-${currentNumber_8}-${i}">`;
     }
 
     currentNumber_8++;
@@ -8479,6 +8499,7 @@ document.getElementById('add_rows_8').addEventListener('click', (e) => {
 
 var extraFields_8_1 = [];
 const getExtraFields_8_1 = async () => {
+    extraFields_8_1 = [];
     var extraRows = $("tr[id^='extraRow_8_1-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8515,7 +8536,8 @@ document.getElementById('add_rows_8_1').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_8_1-${currentNumber_8_1}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_8_1-${currentNumber_8_1}-${i}">`;
     }
 
     currentNumber_8_1++;
@@ -8524,6 +8546,7 @@ document.getElementById('add_rows_8_1').addEventListener('click', (e) => {
 
 var extraFields_9 = [];
 const getExtraFields_9 = async () => {
+    extraFields_9 = [];
     var extraRows = $("tr[id^='extraRow_9-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8560,7 +8583,8 @@ document.getElementById('add_rows_9').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_9-${currentNumber_9}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_9-${currentNumber_9}-${i}">`;
     }
 
     currentNumber_9++;
@@ -8570,6 +8594,7 @@ document.getElementById('add_rows_9').addEventListener('click', (e) => {
 
 var extraFields_10 = [];
 const getExtraFields_10 = async () => {
+    extraFields_10 = [];
     var extraRows = $("tr[id^='extraRow_10-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8606,7 +8631,8 @@ document.getElementById('add_rows_10').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_10-${currentNumber_10}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_10-${currentNumber_10}-${i}">`;
     }
 
     currentNumber_10++;
@@ -8616,6 +8642,7 @@ document.getElementById('add_rows_10').addEventListener('click', (e) => {
 
 var extraFields_11 = [];
 const getExtraFields_11 = async () => {
+    extraFields_11 = [];
     var extraRows = $("tr[id^='extraRow_11-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8652,7 +8679,8 @@ document.getElementById('add_rows_11').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_11-${currentNumber_11}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_11-${currentNumber_11}-${i}">`;
     }
 
     currentNumber_11++;
@@ -8662,6 +8690,7 @@ document.getElementById('add_rows_11').addEventListener('click', (e) => {
 
 var extraFields_12 = [];
 const getExtraFields_12 = async () => {
+    extraFields_12 = [];
     var extraRows = $("tr[id^='extraRow_12-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8698,7 +8727,8 @@ document.getElementById('add_rows_12').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_12-${currentNumber_12}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_12-${currentNumber_12}-${i}">`;
     }
 
     currentNumber_12++;
@@ -8707,6 +8737,7 @@ document.getElementById('add_rows_12').addEventListener('click', (e) => {
 
 var extraFields_13 = [];
 const getExtraFields_13 = async () => {
+    extraFields_13 = [];
     var extraRows = $("tr[id^='extraRow_13-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8743,7 +8774,8 @@ document.getElementById('add_rows_13').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_13-${currentNumber_13}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_13-${currentNumber_13}-${i}">`;
     }
 
     currentNumber_13++;
@@ -8752,6 +8784,7 @@ document.getElementById('add_rows_13').addEventListener('click', (e) => {
 
 var extraFields_14 = [];
 const getExtraFields_14 = async () => {
+    extraFields_14 = [];
     var extraRows = $("tr[id^='extraRow_14-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8788,7 +8821,8 @@ document.getElementById('add_rows_14').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_14-${currentNumber_14}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_14-${currentNumber_14}-${i}">`;
     }
 
     currentNumber_14++;
@@ -8797,6 +8831,7 @@ document.getElementById('add_rows_14').addEventListener('click', (e) => {
 
 var extraFields_15 = [];
 const getExtraFields_15 = async () => {
+    extraFields_15 = [];
     var extraRows = $("tr[id^='extraRow_15-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8833,7 +8868,8 @@ document.getElementById('add_rows_15').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_15-${currentNumber_15}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_15-${currentNumber_15}-${i}">`;
     }
 
     currentNumber_15++;
@@ -8842,6 +8878,7 @@ document.getElementById('add_rows_15').addEventListener('click', (e) => {
 
 var extraFields_16 = [];
 const getExtraFields_16 = async () => {
+    extraFields_16 = [];
     var extraRows = $("tr[id^='extraRow_16-']")
     for(var i = 0; i < extraRows.length; i++){
         let _row = extraRows[i];
@@ -8878,7 +8915,8 @@ document.getElementById('add_rows_16').addEventListener('click', (e) => {
 
     for (var i = 1; i < 11; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" class="w-full p-1 border rounded" name="extra_16-${currentNumber_16}-${i}">`;
+        cell.className = "border border-gray-300 p-2";
+        cell.innerHTML = `<input type="text" class="w-full p-2" name="extra_16-${currentNumber_16}-${i}">`;
     }
 
     currentNumber_16++;
@@ -8901,6 +8939,8 @@ const getExtraFields_17 = async () => {
 };
 
 $("#save_rows_17").on('click', getExtraFields_17);
+
+jQuery(function(){ var f = jQuery("input[id^='extra_field']").first().closest('form'); f.on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
 
 // Table 2 Add Rows functionality
 document.getElementById('add_rows_17').addEventListener('click', (e) => {

@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 @login_required(login_url="/login")
 def ambientAirForm(request):
@@ -123,7 +135,7 @@ def ambientAirForm(request):
             if "submit_and_view" in request.POST:
                url = f"/ambientAir-view/{str(id)}/"
                return redirect(to=url)
-            if "submit_and_new" in request.POST:
+            if "submit_and_new" in request.POST or "submit_and_addnew" in request.POST:
                return render(request, "ambientAirForm.html")
         else:
           log = LoggingSheet.objects.all()
@@ -602,10 +614,7 @@ def ambientAirDelete(request,pk):
 @login_required(login_url="/login")
 def ambientAirEdit(request,pk):
      ambientEdit = AmbientAirForm.objects.get(id=pk)
-     try:
-        ambientEdit.extra_field = json.loads(ambientEdit.extra_field) if ambientEdit.extra_field else []
-     except Exception:
-          ambientEdit.extra_field = []
+     ambientEdit.extra_field = _safe_json_list(ambientEdit.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -634,7 +643,8 @@ def ambientAirUpdateRecord(request,pk):
           # return data
           ambientUpdate.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          ambientUpdate.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               ambientUpdate.industry = Industry_sector.objects.get(id=industry_id)
           ambientUpdate.lab_report_no = request.POST['ambient_Air_lab_report_no']
           ambientUpdate.invoice_bill_no = request.POST['ambientAir_invoice_no']
           ambientUpdate.reporting_date = request.POST['ambientAir_rep_date']
@@ -647,6 +657,7 @@ def ambientAirUpdateRecord(request,pk):
           ambientUpdate.ambientAir_test_type_location = request.POST['ambientAir_testtype_location']
           ambientUpdate.ambientAir_test_perf_by = request.POST['ambientAir_test_perf_by']
           ambientUpdate.ambienAir_test_desc = request.POST['ambientAir_test_desc']
+          ambientUpdate.ambienAir_select = request.POST.get('select', ambientUpdate.ambienAir_select)
           ambientUpdate.ambientAir_sr1 = request.POST['ambientAir_sr1']
           ambientUpdate.ambientAir_sr2 = request.POST['ambientAir_sr2']
           ambientUpdate.ambientAir_sr3 = request.POST['ambientAir_sr3']
@@ -685,9 +696,12 @@ def ambientAirUpdateRecord(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          ambientUpdate.analyst_signature = analyst_sign
-          ambientUpdate.assistant_manager_signature = review_sign
-          ambientUpdate.lab_manager_signature = approved_sign
+          if analyst_sign:
+               ambientUpdate.analyst_signature = analyst_sign
+          if review_sign:
+               ambientUpdate.assistant_manager_signature = review_sign
+          if approved_sign:
+               ambientUpdate.lab_manager_signature = approved_sign
           ambientUpdate.created_by = request.user
 
           extra_field_list = []  # always start empty
@@ -709,6 +723,7 @@ def ambientAirUpdateRecord(request,pk):
                          "limit": limit,
                     })
 
+          extra_field_list.extend(_safe_json_list(request.POST.get('extra_field') or '[]'))
           ambientUpdate.extra_field = json.dumps(extra_field_list)
           
           ambientUpdate.pdf_heading=request.POST.get('pdf_heading')
@@ -760,8 +775,7 @@ def ambientAirUpdateRecord(request,pk):
 
 def ambientAirview(request,pk):
      ambientAir = AmbientAirForm.objects.get(id=pk)
-     ambientAir.extra_field = ambientAir.extra_field.replace("'", "\"")
-     ambientAir.extra_field = json.loads(ambientAir.extra_field)
+     ambientAir.extra_field = _safe_json_list(ambientAir.extra_field)
      current_url = request.build_absolute_uri()
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{ambientAir.lab_report_no}.png"
@@ -792,8 +806,7 @@ def ambientAirGeneratePDF(request,pk):
 
 
      ambientAirForm = AmbientAirForm.objects.get(id=pk)
-     ambientAirForm.extra_field = ambientAirForm.extra_field.replace("'", "\"")
-     ambientAirForm.extra_field = json.loads(ambientAirForm.extra_field)
+     ambientAirForm.extra_field = _safe_json_list(ambientAirForm.extra_field)
 
 
      TABLE_DATA = [
@@ -915,7 +928,7 @@ def ambientAirGeneratePDF(request,pk):
                data_row = TABLE_DATA[k]
                num_rows+=1
                if k == 0: 
-                    data_row[4] = ambientAirForm.ambienAir_select + " Limits"
+                    data_row[4] = (ambientAirForm.ambienAir_select or "SEQS") + " Limits"
 
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
@@ -1236,8 +1249,7 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
 
 
      ambientAirForm = AmbientAirForm.objects.get(id=pk)
-     ambientAirForm.extra_field = ambientAirForm.extra_field.replace("'", "\"")
-     ambientAirForm.extra_field = json.loads(ambientAirForm.extra_field)
+     ambientAirForm.extra_field = _safe_json_list(ambientAirForm.extra_field)
 
 
      TABLE_DATA = [
@@ -1361,7 +1373,7 @@ def ambientAirGeneratePDF1(request,pk,return_bytes=False):
                data_row = TABLE_DATA[k]
                num_rows+=1
                if k == 0: 
-                    data_row[4] = ambientAirForm.ambienAir_select + " Limits"
+                    data_row[4] = (ambientAirForm.ambienAir_select or "SEQS") + " Limits"
 
                # watwer mark
                # pdf.set_page_background("static/assets/Capture.PNG")
@@ -1755,7 +1767,8 @@ def ambientAir2Update(request,pk):
      if request.method == 'POST':
           AA.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          AA.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               AA.industry = Industry_sector.objects.get(id=industry_id)
           # AA.hours_checkBox = request.POST['hours_checkBox']
           AA.lab_report_no = request.POST['lab_rep_no']
           AA.invoice_bill_no = request.POST['invoice_no']
@@ -2090,9 +2103,12 @@ def ambientAir2Update(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          AA.analyst_signature = analyst_sign
-          AA.assistant_manager_signature = review_sign
-          AA.lab_manager_signature = approved_sign
+          if analyst_sign:
+               AA.analyst_signature = analyst_sign
+          if review_sign:
+               AA.assistant_manager_signature = review_sign
+          if approved_sign:
+               AA.lab_manager_signature = approved_sign
 
           AA.pdf_heading=request.POST.get('pdf_heading')
           AA.col_head_1=request.POST.get('col_head_1')
@@ -2312,7 +2328,7 @@ def ambientAir2Pdf(request,pk):
           
           TABLE_DATA.append(a)
      if AA2.location == "NEQS":
-          a=["NEQS","",f"{AA2.peqs_lim_1}",f"{AA2.neqs_lim_2}",f"{AA2.neqs_lim_3}",f"{AA2.neqs_lim_4}",f"{AA2.neqs_lim_5}",f"{AA2.neqs_lim_6}",f"{AA2.neqs_lim_7}",f"{AA2.neqs_lim_8}",f"{AA2.neqs_lim_9}"]
+          a=["NEQS","",f"{AA2.neqs_lim_1}",f"{AA2.neqs_lim_2}",f"{AA2.neqs_lim_3}",f"{AA2.neqs_lim_4}",f"{AA2.neqs_lim_5}",f"{AA2.neqs_lim_6}",f"{AA2.neqs_lim_7}",f"{AA2.neqs_lim_8}",f"{AA2.neqs_lim_9}"]
           
           TABLE_DATA.append(a) 
 
@@ -2859,7 +2875,7 @@ def ambientAir2Pdf1(request,pk,return_bytes=False):
           
           TABLE_DATA.append(a)
      if AA2.location == "NEQS":
-          a=["NEQS","",f"{AA2.peqs_lim_1}",f"{AA2.neqs_lim_2}",f"{AA2.neqs_lim_3}",f"{AA2.neqs_lim_4}",f"{AA2.neqs_lim_5}",f"{AA2.neqs_lim_6}",f"{AA2.neqs_lim_7}",f"{AA2.neqs_lim_8}",f"{AA2.neqs_lim_9}"]
+          a=["NEQS","",f"{AA2.neqs_lim_1}",f"{AA2.neqs_lim_2}",f"{AA2.neqs_lim_3}",f"{AA2.neqs_lim_4}",f"{AA2.neqs_lim_5}",f"{AA2.neqs_lim_6}",f"{AA2.neqs_lim_7}",f"{AA2.neqs_lim_8}",f"{AA2.neqs_lim_9}"]
           
           TABLE_DATA.append(a)
        
@@ -3380,7 +3396,8 @@ def ambientAir2cloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           # existing_Form.hours_checkBox = request.POST['hours_checkBox']
           existing_Form.lab_report_no = request.POST['lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['invoice_no']
@@ -3759,9 +3776,12 @@ def ambientAir2cloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           existing_Form.id = None
           existing_Form.save()
@@ -3785,8 +3805,7 @@ def ambientAir2cloneSave(request,pk):
 
 def ambientAirClone(request,pk):
      existing_form = AmbientAirForm.objects.get(id=pk)
-     existing_form.extra_field = existing_form.extra_field.replace("'", "\"")
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -3813,7 +3832,8 @@ def ambientAircloneSave(request,pk):
      if request.method == 'POST':
             existing_Form.location = request.POST['location']
             industry_id = request.POST.get('industry')
-            existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+            if industry_id:
+                 existing_Form.industry = Industry_sector.objects.get(id=industry_id)
             existing_Form.lab_report_no = request.POST['ambient_Air_lab_report_no']
             existing_Form.invoice_bill_no = request.POST['ambientAir_invoice_no']
             existing_Form.reporting_date = request.POST['ambientAir_rep_date']
@@ -3858,24 +3878,27 @@ def ambientAircloneSave(request,pk):
           #   existing_Form.ambientAir_approved_by = request.FILES["ambientAir_approvedby" ]
           #   existing_Form.ambientAir_approved_by1 = request.FILES["ambientAir_approvedby1" ]
             existing_Form.city_location = request.POST['city_location']
-            existing_Form.extra_field = json.loads(request.POST['extra_field'])
+            new_extra_field = _safe_json_list(request.POST.get('extra_field') or '[]')
+            extra_field_list = []
             for i in range(len(request.POST.getlist('sr[]'))):
-               sr = request.POST.getlist('sr[]')[i]
-               parameters = request.POST.getlist('parameters[]')[i]
-               unit = request.POST.getlist('unit[]')[i]
-               result = request.POST.getlist('result[]')[i]
-               limit = request.POST.getlist('limit[]')[i]            
+               sr = request.POST.getlist('sr[]')[i].strip()
+               parameters = request.POST.getlist('parameters[]')[i].strip()
+               unit = request.POST.getlist('unit[]')[i].strip()
+               result = request.POST.getlist('result[]')[i].strip()
+               limit = request.POST.getlist('limit[]')[i].strip()
 
-               existing_Form.extra_field.append({
+               # only add if at least one field is filled (avoid empty rows)
+               if sr or parameters or unit or result or limit:
+                    extra_field_list.append({
                          "sr": sr,
                          "parameters": parameters,
                          "unit": unit,
                          "result": result,
                          "limit": limit,
-                    })        
+                    })
 
-
-            existing_Form.extra_field = json.dumps(existing_Form.extra_field)
+            extra_field_list.extend(new_extra_field)
+            existing_Form.extra_field = json.dumps(extra_field_list)
             
             
             analyst_sign_id = request.POST.get('analyst_sign')
@@ -3887,30 +3910,15 @@ def ambientAircloneSave(request,pk):
             approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
             # Assign to ambientUpdate if needed
-            existing_Form.analyst_signature = analyst_sign
-            existing_Form.assistant_manager_signature = review_sign
-            existing_Form.lab_manager_signature = approved_sign
+            if analyst_sign:
+                 existing_Form.analyst_signature = analyst_sign
+            if review_sign:
+                 existing_Form.assistant_manager_signature = review_sign
+            if approved_sign:
+                 existing_Form.lab_manager_signature = approved_sign
             
             
             existing_Form.pdf_heading=request.POST.get('pdf_heading')
-            existing_Form.col_head_1=request.POST.get('col_head_1')
-            existing_Form.col_unit_1=request.POST.get('col_unit_1')
-            existing_Form.col_head_2=request.POST.get('col_head_2')
-            existing_Form.col_unit_2=request.POST.get('col_unit_2')
-            existing_Form.col_head_3=request.POST.get('col_head_3')
-            existing_Form.col_unit_3=request.POST.get('col_unit_3')
-            existing_Form.col_head_4=request.POST.get('col_head_4')
-            existing_Form.col_unit_4=request.POST.get('col_unit_4')
-            existing_Form.col_head_5=request.POST.get('col_head_5')
-            existing_Form.col_unit_5=request.POST.get('col_unit_5')
-            existing_Form.col_head_6=request.POST.get('col_head_6')
-            existing_Form.col_unit_6=request.POST.get('col_unit_6')
-            existing_Form.col_head_7=request.POST.get('col_head_7')
-            existing_Form.col_unit_7=request.POST.get('col_unit_7')
-            existing_Form.col_head_8=request.POST.get('col_head_8')
-            existing_Form.col_unit_8=request.POST.get('col_unit_8')
-            existing_Form.col_head_9=request.POST.get('col_head_9')
-            existing_Form.col_unit_9=request.POST.get('col_unit_9')
           
             for i in range(1, 7):
                  

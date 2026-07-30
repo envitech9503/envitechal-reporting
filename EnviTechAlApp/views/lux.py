@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 @login_required(login_url="/login")
 def luxAnalysis(request):
@@ -144,6 +156,8 @@ def luxAnalysis(request):
                return redirect(to=url)
           if "submit_and_new" in request.POST:
                return redirect(to='luxAnalysis')
+          # Fallback for plain "submit" button: mirror submit_and_new behaviour
+          return redirect(to='luxAnalysis')
      else:
           log = LoggingSheet.objects.all()
           log = serializers.serialize('json',log)
@@ -170,8 +184,7 @@ def luxAnalysisDelete(request,pk):
 @login_required(login_url="/login")
 def luxAnalysisEdit(request,pk):
      luxAnalysis = LuxAnalysisForm.objects.get(id=pk)
-     luxAnalysis.extra_field = luxAnalysis.extra_field.replace("'", "\"")
-     luxAnalysis.extra_field = json.loads(luxAnalysis.extra_field)
+     luxAnalysis.extra_field = _safe_json_list(luxAnalysis.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -196,7 +209,8 @@ def luxAnalysisUpdate(request,pk):
      if request.method == 'POST':
           luxAnalysis.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          luxAnalysis.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               luxAnalysis.industry = Industry_sector.objects.get(id=industry_id)
           luxAnalysis.lab_report_no = request.POST['lux_lab_rep_no']
           luxAnalysis.invoice_bill_no = request.POST['lux_invoice_no']
           luxAnalysis.reporting_date = request.POST['lux_report_date']
@@ -257,7 +271,8 @@ def luxAnalysisUpdate(request,pk):
           # luxAnalysis.lux_approvedby = request.FILES['lux-approvedby']
           # luxAnalysis.lux_approvedby1 = request.FILES['lux-approvedby1']
           luxAnalysis.city_location = request.POST['city_location']
-          luxAnalysis.extra_field = json.loads(request.POST.get('extra_field'))
+          new_extra_field = json.loads(request.POST.get('extra_field'))
+          luxAnalysis.extra_field = []
           analyst_sign_id = request.POST.get('analyst_sign')
           review_sign_id = request.POST.get('review_sign')
           approved_sign_id = request.POST.get('approved_sign')
@@ -268,9 +283,12 @@ def luxAnalysisUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          luxAnalysis.analyst_signature = analyst_sign
-          luxAnalysis.assistant_manager_signature = review_sign
-          luxAnalysis.lab_manager_signature = approved_sign
+          if analyst_sign:
+               luxAnalysis.analyst_signature = analyst_sign
+          if review_sign:
+               luxAnalysis.assistant_manager_signature = review_sign
+          if approved_sign:
+               luxAnalysis.lab_manager_signature = approved_sign
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                parameter = request.POST.getlist('parameter[]')[i]
@@ -282,9 +300,11 @@ def luxAnalysisUpdate(request,pk):
                          "parameter": parameter,
                          "unit": unit,
                          "result": result,
-                    })        
-               
-               
+                    })
+
+          luxAnalysis.extra_field.extend(new_extra_field)
+          luxAnalysis.extra_field = json.dumps(luxAnalysis.extra_field)
+
           luxAnalysis.pdf_heading=request.POST.get('pdf_heading')
           
           for i in range(1, 7):
@@ -331,8 +351,7 @@ def luxAnalysisUpdate(request,pk):
 
 def luxAnalysisView(request,pk):
      luxAnalysis = LuxAnalysisForm.objects.get(id=pk)
-     luxAnalysis.extra_field = luxAnalysis.extra_field.replace("'", "\"")
-     luxAnalysis.extra_field = json.loads(luxAnalysis.extra_field)
+     luxAnalysis.extra_field = _safe_json_list(luxAnalysis.extra_field)
      current_url = request.build_absolute_uri()
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{luxAnalysis.lab_report_no}.png"
@@ -364,8 +383,7 @@ def luxAnalysisReportPdf(request,pk):
 
 
      lux = LuxAnalysisForm.objects.get(id=pk)
-     lux.extra_field = lux.extra_field.replace("'", "\"")
-     lux.extra_field = json.loads(lux.extra_field)
+     lux.extra_field = _safe_json_list(lux.extra_field)
 
      TABLE_DATA = [
            ["Sr.#","Locations","Unit","Result"],
@@ -826,8 +844,7 @@ def luxAnalysisReportPdf1(request,pk,return_bytes=False):
 
 
      lux = LuxAnalysisForm.objects.get(id=pk)
-     lux.extra_field = lux.extra_field.replace("'", "\"")
-     lux.extra_field = json.loads(lux.extra_field)
+     lux.extra_field = _safe_json_list(lux.extra_field)
 
      TABLE_DATA = [
            ["Sr.#","Locations","Unit","Result"],
@@ -1282,8 +1299,7 @@ def luxAnalysisReportPdf1(request,pk,return_bytes=False):
 
 def luxFormclone(request,pk):
      existing_form = LuxAnalysisForm.objects.get(id=pk)
-     existing_form.extra_field = existing_form.extra_field.replace("'", "\"")
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -1311,7 +1327,8 @@ def luxFormcloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['lux_lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['lux_invoice_no']
           existing_Form.reporting_date = request.POST['lux_report_date']
@@ -1372,7 +1389,8 @@ def luxFormcloneSave(request,pk):
           # existing_Form.lux_approvedby = request.FILES['lux-approvedby']
           # existing_Form.lux_approvedby1 = request.FILES['lux-approvedby1']
           existing_Form.city_location = request.POST['city_location']
-          existing_Form.extra_field = json.loads(request.POST['extra_field'])
+          new_extra_field = json.loads(request.POST['extra_field'])
+          existing_Form.extra_field = []
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                parameter = request.POST.getlist('parameter[]')[i]
@@ -1384,7 +1402,8 @@ def luxFormcloneSave(request,pk):
                          "parameter": parameter,
                          "unit": unit,
                          "result": result,
-                    })        
+                    })
+          existing_Form.extra_field.extend(new_extra_field)
           existing_Form.extra_field = json.dumps(existing_Form.extra_field)
           analyst_sign_id = request.POST.get('analyst_sign')
           review_sign_id = request.POST.get('review_sign')
@@ -1395,9 +1414,12 @@ def luxFormcloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')

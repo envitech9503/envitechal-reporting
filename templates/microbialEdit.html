@@ -370,18 +370,18 @@
                                                             </tr>
                                                             {% for extra_field in data.extra_field %}
 
-                                                            <tr class=" border">
-                                                                <td class="text-center"><input type="text" value=" {{ extra_field.sr }}" name="sr[]">
+                                                            <tr class="text-center border h-16">
+                                                                <td class="text-center"><input type="text" class="border-2 border-black w-52 h-10 rounded p-2" value="{{ extra_field.sr }}" name="sr[]">
                                                                 </td>
-                                                                <td class="pl-2"><input type="text" value="{{ extra_field.parameters }}"
+                                                                <td class="pl-2"><input type="text" class="border-2 border-black w-52 h-10 rounded p-2" value="{{ extra_field.parameters }}"
                                                                         name="parameters[]"> </td>
-                                                                <td class="text-center"><input type="text" value="{{ extra_field.units }}"
+                                                                <td class="text-center"><input type="text" class="border-2 border-black w-52 h-10 rounded p-2" value="{{ extra_field.units }}"
                                                                         name="units[]"> </td>
-                                                                <td class="text-center"><input type="text" value="{{ extra_field.ex_1 }}" name="ex_1[]">
+                                                                <td class="text-center"><input type="text" class="border-2 border-black w-52 h-10 rounded p-2" value="{{ extra_field.ex_1 }}" name="ex_1[]">
                                                                 </td>
-                                                                <td class="text-center"><input type="text" value="{{ extra_field.result }}"
+                                                                <td class="text-center"><input type="text" class="border-2 border-black w-52 h-10 rounded p-2" value="{{ extra_field.result }}"
                                                                         name="result[]"> </td>
-                                                                <td class="text-center"><input type="text" value="{{ extra_field.ex_2 }}"
+                                                                <td class="text-center"><input type="text" class="border-2 border-black w-52 h-10 rounded p-2" value="{{ extra_field.ex_2 }}"
                                                                         name="ex_2[]"></td>
                                                             </tr>
 
@@ -400,10 +400,11 @@
                                                       var _b=document.getElementById("add_rows");
                                                       if(_b){_b.addEventListener("click",function(){
                                                         var tb=document.querySelector("#table tbody"); if(!tb)return;
-                                                        var tr=document.createElement("tr"); tr.className="border";
-                                                        tr.innerHTML='<td class="text-center"><input type="text" name="sr[]" class="border-2 border-black w-20 h-10 rounded p-2"></td>'+
+                                                        var tr=document.createElement("tr"); tr.className="text-center border h-16";
+                                                        var srNum=String(tb.querySelectorAll("tr").length+1).padStart(2,"0");
+                                                        tr.innerHTML='<td class="text-center"><input type="text" name="sr[]" value="'+srNum+'" class="border-2 border-black w-20 h-10 rounded p-2"></td>'+
                                                           '<td class="pl-2"><input type="text" name="parameters[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
-                                                          '<td class="text-center"><input type="text" name="units[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
+                                                          '<td class="text-center"><input type="text" name="units[]" value="CFU/100ml" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
                                                           '<td class="text-center"><input type="text" name="ex_1[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
                                                           '<td class="text-center"><input type="text" name="result[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>'+
                                                           '<td class="text-center"><input type="text" name="ex_2[]" class="border-2 border-black w-52 h-10 rounded p-2"></td>';

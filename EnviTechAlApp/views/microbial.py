@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 
 @login_required(login_url="/login")
@@ -168,7 +180,7 @@ def microbialDelete(request,pk):
 @login_required(login_url="/login")
 def microbialEdit(request,pk):
      mba = MicrobialAnalysis.objects.get(id=pk)
-     mba.extra_field = json.loads(mba.extra_field)
+     mba.extra_field = _safe_json_list(mba.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -194,7 +206,8 @@ def microbialUpdate(request,pk):
      if request.method == 'POST':
           mba.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          mba.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               mba.industry = Industry_sector.objects.get(id=industry_id)
           mba.lab_report_no = request.POST['micro_lab_report_no']
           mba.invoice_bill_no = request.POST['micro_invoice_bill']
           mba.reporting_date = request.POST['micro_rep_date']
@@ -283,9 +296,12 @@ def microbialUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          mba.analyst_signature = analyst_sign
-          mba.assistant_manager_signature = review_sign
-          mba.lab_manager_signature = approved_sign
+          if analyst_sign:
+               mba.analyst_signature = analyst_sign
+          if review_sign:
+               mba.assistant_manager_signature = review_sign
+          if approved_sign:
+               mba.lab_manager_signature = approved_sign
           
           mba.pdf_heading=request.POST.get('pdf_heading')
           
@@ -331,7 +347,7 @@ def microbialUpdate(request,pk):
 
 def microbialView(request,pk):
      mba = MicrobialAnalysis.objects.get(id=pk)
-     mba.extra_field = json.loads(mba.extra_field)
+     mba.extra_field = _safe_json_list(mba.extra_field)
      current_url = request.build_absolute_uri()
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{mba.lab_report_no}.png"
@@ -363,8 +379,7 @@ def microbialAnalysisPdf(request,pk):
 
 
      micro = MicrobialAnalysis.objects.get(id=pk)
-     micro.extra_field = micro.extra_field.replace("'", "\"")
-     micro.extra_field = json.loads(micro.extra_field)
+     micro.extra_field = _safe_json_list(micro.extra_field)
 
      TABLE_DATA = [
            ["Sr.#","Parameter/Analytes Description",micro.unit_head,micro.micro_ex_1_1,"Result",micro.micro_ex_2_1],
@@ -791,8 +806,7 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
 
 
      micro = MicrobialAnalysis.objects.get(id=pk)
-     micro.extra_field = micro.extra_field.replace("'", "\"")
-     micro.extra_field = json.loads(micro.extra_field)
+     micro.extra_field = _safe_json_list(micro.extra_field)
 
 
      TABLE_DATA = [
@@ -1217,7 +1231,7 @@ def microbialAnalysisPdf1(request,pk,return_bytes=False):
 
 def microbialclone(request,pk):
      existing_form = MicrobialAnalysis.objects.get(id=pk)
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -1245,7 +1259,8 @@ def microbialcloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['micro_lab_report_no']
           existing_Form.invoice_bill_no = request.POST['micro_invoice_bill']
           existing_Form.reporting_date = request.POST['micro_rep_date']
@@ -1336,9 +1351,12 @@ def microbialcloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
 
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')

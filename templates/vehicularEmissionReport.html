@@ -323,14 +323,15 @@
           </tr>
           {%endif%}
           {% for extra_field in data.extra_field %}
+          {% if extra_field.parameters %}
           <tr class=" border">
-            <td class="text-center">4</td>
+            <td class="text-center">{{ extra_field.sr }}</td>
             <td class="pl-2">{{ extra_field.parameters }}</td>
             <td class="text-center">{{ extra_field.unit }}</td>
             <td class="text-center">{{ extra_field.result }}</td>
             <td class="text-center">{{ extra_field.limit }}</td>
           </tr>
-          
+          {% endif %}
       {% endfor %}
           
           

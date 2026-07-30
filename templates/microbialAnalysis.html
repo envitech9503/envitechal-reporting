@@ -631,6 +631,8 @@
 
     $("#save_rows").on('click', getExtraFields);
 
+    jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
     var table = document.querySelector('#table');
     var add_rows = document.querySelector('#add_rows');
     var currentNumber = 7; // start from 7
@@ -643,13 +645,14 @@
 
         var newRow = table.insertRow(table.rows.length);
         $(newRow).attr("id", `extraRow-${formattedNumber}`);
+        $(newRow).attr("class", "text-center border h-16");
 
         var cell0 = newRow.insertCell(0);
         cell0.innerHTML = `${formattedNumber}`;
 
         for (var i = 1; i < 6; i++) {
             var cell = newRow.insertCell(i);
-            cell.innerHTML = `<input type="text" name="extra-${formattedNumber}-${i}">`;
+            cell.innerHTML = `<input type="text" class="border-2 border-black w-52 h-10 rounded p-2" name="extra-${formattedNumber}-${i}" ${i === 2 ? 'value="CFU/100ml"' : ''}>`;
         }
 
         currentNumber++;

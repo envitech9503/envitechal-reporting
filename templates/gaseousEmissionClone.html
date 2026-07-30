@@ -367,9 +367,10 @@
                         
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr2}}" name="GasEm-sr2" type="text"></td>
-                                <td class="SEQS" {% if data.location != 'SEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="seqs-2" type="text" value="{{data.limits.1.seqs}}"></td>
-                                <td class="PEQS" {% if data.location != 'PEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="peqs-2" type="text" value="{{data.limits.1.peqs}}"></td>
-                                <td class="NEQS" {% if data.location != 'NEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="neqs-2" type="text" value="{{data.limits.1.neqs}}"></td>
+                                <td class="GAS" {% if data.GaseEm_types != 'gas_fired' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="seqs-2" type="text" value="{{data.limits.1.seqs}}"></td>
+                                <td class="OIL" {% if data.GaseEm_types != 'oil_fired' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="peqs-2" type="text" value="{{data.limits.1.peqs}}"></td>
+                                <td class="COAL" {% if data.GaseEm_types != 'coal_fired' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="neqs-2" type="text" value="{{data.limits.1.neqs}}"></td>
+                                <td class="BIOMASS" {% if data.GaseEm_types != 'biomass' %} style="display: none;" {% endif %}> - </td>
 
                                 
                             </tr>
@@ -412,9 +413,10 @@
                                 
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" value="{{data.GaseEm_sr6}}" name="GasEm-sr6" type="text"></td>
-                                <td class="SEQS" {% if data.location != 'SEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="seqs-6" type="text" value="{{data.limits.5.seqs}}"></td>
-                                <td class="PEQS" {% if data.location != 'PEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="peqs-6" type="text" value="{{data.limits.5.peqs}}"></td>
-                                <td class="NEQS" {% if data.location != 'NEQS' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="neqs-6" type="text" value="{{data.limits.5.neqs}}"></td>
+                                <td class="GAS" {% if data.GaseEm_types != 'gas_fired' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="seqs-6" type="text" value="{{data.limits.5.seqs}}"></td>
+                                <td class="OIL" {% if data.GaseEm_types != 'oil_fired' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="peqs-6" type="text" value="{{data.limits.5.peqs}}"></td>
+                                <td class="COAL" {% if data.GaseEm_types != 'coal_fired' %} style="display: none;" {% endif %}><input class="border-2 border-black w-20 text-center" name="neqs-6" type="text" value="{{data.limits.5.neqs}}"></td>
+                                <td class="BIOMASS" {% if data.GaseEm_types != 'biomass' %} style="display: none;" {% endif %}> - </td>
                                 
                             </tr>
                             <tr class="text-center border h-16">
@@ -598,12 +600,12 @@
 
                             {% for extra_field in data.extra_field %}
 
-                                    <tr class=" border">
-                                        <td class="text-center"><input type="text" value=" {{ extra_field.sr }}" name="sr[]"></td>
-                                        <td class="pl-2"><input type="text" value="{{ extra_field.parameters }}" name="parameters[]"> </td>
-                                        <td class="text-center"><input type="text" value="{{ extra_field.unit }}" name="unit[]"> </td>
-                                        <td class="text-center"><input type="text" value="{{ extra_field.result }}" name="result[]"> </td>
-                                        <td class="text-center"><input type="text" value="{{ extra_field.limit }}" name="limit[]"></td>
+                                    <tr class="text-center border h-16">
+                                        <td class="text-center"><input type="text" class="border-2 border-black w-72" value="{{ extra_field.sr }}" name="sr[]"></td>
+                                        <td class="pl-2"><input type="text" class="border-2 border-black w-72" value="{{ extra_field.parameters }}" name="parameters[]"> </td>
+                                        <td class="text-center"><input type="text" class="border-2 border-black w-72" value="{{ extra_field.unit }}" name="unit[]"> </td>
+                                        <td class="text-center"><input type="text" class="border-2 border-black w-72" value="{{ extra_field.result }}" name="result[]"> </td>
+                                        <td class="text-center"><input type="text" class="border-2 border-black w-72" value="{{ extra_field.limit }}" name="limit[]"></td>
                                     </tr>
                                     
                             {% endfor %}
@@ -1043,6 +1045,7 @@
 
     var extraFields = [];
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -1063,21 +1066,24 @@
     
     
     $("#save_rows").on('click', getExtraFields)
-    
+
+    jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
     var table = document.querySelector('#table')
     var add_rows = document.querySelector('#add_rows')
-    currentNumber = 33
+    currentNumber = 33 + {{ data.extra_field|length }}
     
     add_rows.addEventListener('click', (e) => {
     e.preventDefault()
     var newRow = table.insertRow(table.rows.length);
     $(newRow).attr("id",`extraRow-${currentNumber}`)
+    $(newRow).attr("class","text-center border h-16")
     var cell0 = newRow.insertCell(0);
     cell0.innerHTML = `${currentNumber}`;
     
     for (var i = 1; i < 5; i++) {
         var cell = newRow.insertCell(i);
-        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+        cell.innerHTML = `<input type="text" class="border-2 border-black w-72" name="extra-${currentNumber}-${i}">`;
     }
     
     currentNumber++;

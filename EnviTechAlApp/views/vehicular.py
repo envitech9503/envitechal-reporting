@@ -3,6 +3,18 @@
 from .shared import *  # noqa: F401,F403
 
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 @login_required(login_url="/login")
 def vehicularEmission(request):
@@ -118,6 +130,8 @@ def vehicularEmission(request):
                return redirect(to=url)
           if "submit_and_new" in request.POST:
                return redirect("vahicularEmission")
+          # Fallback for plain "submit" button: mirror submit_and_new behaviour
+          return redirect("vahicularEmission")
 
      else:
           log = LoggingSheet.objects.all()
@@ -145,8 +159,7 @@ def vehicularEmissionDelete(request,pk):
 @login_required(login_url="/login")
 def vehicularEmissionEdit(request,pk):
      vem = VehiculEmissionForm.objects.get(id=pk)
-     vem.extra_field = vem.extra_field.replace("'", "\"")
-     vem.extra_field = json.loads(vem.extra_field)
+     vem.extra_field = _safe_json_list(vem.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -172,7 +185,8 @@ def vehicularEmissionUpdate(request,pk):
      if request.method == "POST":
           vem.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          vem.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               vem.industry = Industry_sector.objects.get(id=industry_id)
           vem.lab_report_no = request.POST['vehEm_lab_report_no']
           vem.invoice_bill_no = request.POST['vehEm_invoice_no']
           vem.reporting_date = request.POST['vehEm_report_date']
@@ -223,9 +237,12 @@ def vehicularEmissionUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          vem.analyst_signature = analyst_sign
-          vem.assistant_manager_signature = review_sign
-          vem.lab_manager_signature = approved_sign
+          if analyst_sign:
+               vem.analyst_signature = analyst_sign
+          if review_sign:
+               vem.assistant_manager_signature = review_sign
+          if approved_sign:
+               vem.lab_manager_signature = approved_sign
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                parameters = request.POST.getlist('parameters[]')[i]
@@ -291,8 +308,7 @@ def vehicularEmissionUpdate(request,pk):
 def vehicularEmissionView(request,pk):
      vem = VehiculEmissionForm.objects.get(id=pk)
      current_url = request.build_absolute_uri()
-     vem.extra_field = vem.extra_field.replace("'", "\"")
-     vem.extra_field = json.loads(vem.extra_field)
+     vem.extra_field = _safe_json_list(vem.extra_field)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{vem.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
@@ -322,8 +338,7 @@ def vehicularEmissionReport(request,pk):
 
 
      vem = VehiculEmissionForm.objects.get(id=pk)
-     vem.extra_field = vem.extra_field.replace("'", "\"")
-     vem.extra_field = json.loads(vem.extra_field)
+     vem.extra_field = _safe_json_list(vem.extra_field)
 
 
      TABLE_DATA = [
@@ -735,8 +750,7 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
 
 
      vem = VehiculEmissionForm.objects.get(id=pk)
-     vem.extra_field = vem.extra_field.replace("'", "\"")
-     vem.extra_field = json.loads(vem.extra_field)
+     vem.extra_field = _safe_json_list(vem.extra_field)
 
 
      TABLE_DATA = [
@@ -1155,8 +1169,7 @@ def vehicularEmissionReport1(request,pk,return_bytes=False):
 
 def vehicularEmissionclone(request,pk):
      existing_form = VehiculEmissionForm.objects.get(id=pk)
-     existing_form.extra_field = existing_form.extra_field.replace("'", "\"")
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -1184,7 +1197,8 @@ def vehicularEmissioncloneSave(request,pk):
      if request.method == "POST":
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['vehEm_lab_report_no']
           existing_Form.invoice_bill_no = request.POST['vehEm_invoice_no']
           existing_Form.reporting_date = request.POST['vehEm_report_date']
@@ -1258,9 +1272,12 @@ def vehicularEmissioncloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')
           

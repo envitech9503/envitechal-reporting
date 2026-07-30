@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 def compress_image(uploaded_file, max_size_kb=500):
     """Compress image to under max_size_kb while preserving quality"""
@@ -606,7 +618,7 @@ def deleteDrinkingWaterList(request,pk):
 @login_required(login_url="/login")
 def editDrinkingWaterList(request,pk):
      drinkingWaterList = DrinkingWaterForm.objects.get(id=pk)
-     drinkingWaterList.extra_field = json.loads(drinkingWaterList.extra_field)
+     drinkingWaterList.extra_field = _safe_json_list(drinkingWaterList.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json', log)
      image_previews = {}
@@ -637,7 +649,8 @@ def editDrinkingWaterListRecord(request,pk):
      if request.method == 'POST':
           updatedata.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          updatedata.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               updatedata.industry = Industry_sector.objects.get(id=industry_id)
           updatedata.lab_report_no = request.POST['lab_report_no']
           updatedata.invoice_bill_no = request.POST['invoice_bill_no']
           updatedata.reporting_date = request.POST['reporting_date']
@@ -747,13 +760,17 @@ def editDrinkingWaterListRecord(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          updatedata.analyst_signature = analyst_sign
-          updatedata.assistant_manager_signature = review_sign
-          updatedata.lab_manager_signature = approved_sign
+          if analyst_sign:
+               updatedata.analyst_signature = analyst_sign
+          if review_sign:
+               updatedata.assistant_manager_signature = review_sign
+          if approved_sign:
+               updatedata.lab_manager_signature = approved_sign
           
            
           
-          updatedata.extra_field = json.loads(request.POST["extra_field"])
+          new_extra_field = json.loads(request.POST["extra_field"])
+          updatedata.extra_field = []
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                parameters = request.POST.getlist('parameters[]')[i]
@@ -770,7 +787,8 @@ def editDrinkingWaterListRecord(request,pk):
                     "result": result,
                     "limit": limit,
                })
-          
+
+          updatedata.extra_field.extend(new_extra_field)
           updatedata.extra_field = json.dumps(updatedata.extra_field)
           updatedata.custominput = request.POST['custominput'] 
           updatedata.custominput1 = request.POST['custominput1'] 
@@ -870,8 +888,7 @@ def drinkWaterReport(request, pk):
     
     # Process extra_field safely
     try:
-        waterReport.extra_field = waterReport.extra_field.replace("'", "\"")
-        waterReport.extra_field = json.loads(waterReport.extra_field)
+        waterReport.extra_field = _safe_json_list(waterReport.extra_field)
     except (ValueError, AttributeError):
         waterReport.extra_field = {}
 
@@ -917,8 +934,7 @@ def deleteGaseousList(request,pk):
 @login_required(login_url="/login")
 def editGaseousList(request,pk):
      gaseous_Emission =  GaseousEmissionForm.objects.get(id=pk)
-     gaseous_Emission.extra_field = gaseous_Emission.extra_field.replace("'", "\"")
-     gaseous_Emission.extra_field = json.loads(gaseous_Emission.extra_field)
+     gaseous_Emission.extra_field = _safe_json_list(gaseous_Emission.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -945,7 +961,8 @@ def updateGaseousRecord(request,pk):
      update_data = GaseousEmissionForm.objects.get(id=pk)
      if request.method=='POST':
           industry_id = request.POST.get('industry')
-          update_data.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               update_data.industry = Industry_sector.objects.get(id=industry_id)
           update_data.location = request.POST['location']
           update_data.lab_report_no = request.POST['GasEm-lab_report_no']
           update_data.invoice_bill_no = request.POST['GasEm-invoice-bill-no']
@@ -1015,9 +1032,12 @@ def updateGaseousRecord(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          update_data.analyst_signature = analyst_sign
-          update_data.assistant_manager_signature = review_sign
-          update_data.lab_manager_signature = approved_sign
+          if analyst_sign:
+               update_data.analyst_signature = analyst_sign
+          if review_sign:
+               update_data.assistant_manager_signature = review_sign
+          if approved_sign:
+               update_data.lab_manager_signature = approved_sign
           
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]

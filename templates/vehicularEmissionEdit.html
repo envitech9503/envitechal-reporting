@@ -289,7 +289,7 @@
     
     
                 <div class="w-full flex flex-col justify-center">
-                    <table id="" class=" water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
+                    <table id="table" class=" water-form-table border-collapse border-2 border-gray-700 mt-10 " cellspacing="15">
                         <thead>
                             <tr>
                                 <th>Sr.#</th>
@@ -707,6 +707,7 @@
     
     var extraFields = [];
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -727,7 +728,9 @@
     
     
     $("#save_rows").on('click', getExtraFields)
-    
+
+    jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
     var table = document.querySelector('#table')
     var add_rows = document.querySelector('#add_rows')
     

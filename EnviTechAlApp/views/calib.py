@@ -3,6 +3,10 @@
 from .shared import *  # noqa: F401,F403
 
 
+def _gv(lst, i):
+    return lst[i] if i < len(lst) else ""
+
+
 @login_required(login_url="/login") 
 
 def calibration(request):
@@ -313,70 +317,55 @@ def calib_update(request,pk):
           calib.disc = request.POST['disc'] 
           calib.city_location = request.POST['city_location']
           calib.extra_field = json.loads(request.POST["extra_field"])
-          
-          if calib.extra_field:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp1 = request.POST.getlist('inp1[]')[i]
-                    inp2 = request.POST.getlist('inp2[]')[i]
-                    inp3 = request.POST.getlist('inp3[]')[i]
-                    inp4 = request.POST.getlist('inp4[]')[i]
-
-                    calib.extra_field.append({
-                         'sr':sr,
-                         'inp1':inp1,
-                         'inp2':inp2,
-                         'inp3':inp3,
-                         'inp4':inp4,
-                    })
-          
-          
+          _sr_l = request.POST.getlist('sr[]')
+          _inp1_l = request.POST.getlist('inp1[]')
+          _inp2_l = request.POST.getlist('inp2[]')
+          _inp3_l = request.POST.getlist('inp3[]')
+          _inp4_l = request.POST.getlist('inp4[]')
+          for i in range(len(_sr_l)):
+               calib.extra_field.append({
+                    'sr': _gv(_sr_l, i),
+                    'inp1': _gv(_inp1_l, i),
+                    'inp2': _gv(_inp2_l, i),
+                    'inp3': _gv(_inp3_l, i),
+                    'inp4': _gv(_inp4_l, i),
+               })
           calib.extra_field = json.dumps(calib.extra_field)
 
           calib.extra_field1 = json.loads(request.POST["extra_field1"])
-          
-          if calib.extra_field1:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp2_1 = request.POST.getlist('inp2_1[]')[i]
-                    inp2_2 = request.POST.getlist('inp2_2[]')[i]
-                    inp2_3 = request.POST.getlist('inp2_3[]')[i]
-                    inp2_4 = request.POST.getlist('inp2_4[]')[i]
-                    inp2_5 = request.POST.getlist('inp2_5[]')[i]
-
-                    calib.extra_field1.append({
-                         'sr':sr,
-                         'inp2_1':inp2_1,
-                         'inp2_2':inp2_2,
-                         'inp2_3':inp2_3,
-                         'inp2_4':inp2_4,
-                         'inp2_5':inp2_5,
-                    })
-          
-          
+          _sr1_l = request.POST.getlist('sr1[]')
+          _inp2_1_l = request.POST.getlist('inp2_1[]')
+          _inp2_2_l = request.POST.getlist('inp2_2[]')
+          _inp2_3_l = request.POST.getlist('inp2_3[]')
+          _inp2_4_l = request.POST.getlist('inp2_4[]')
+          _inp2_5_l = request.POST.getlist('inp2_5[]')
+          for i in range(len(_sr1_l)):
+               calib.extra_field1.append({
+                    'sr': _gv(_sr1_l, i),
+                    'inp2_1': _gv(_inp2_1_l, i),
+                    'inp2_2': _gv(_inp2_2_l, i),
+                    'inp2_3': _gv(_inp2_3_l, i),
+                    'inp2_4': _gv(_inp2_4_l, i),
+                    'inp2_5': _gv(_inp2_5_l, i),
+               })
           calib.extra_field1 = json.dumps(calib.extra_field1)
 
           calib.extra_field2 = json.loads(request.POST["extra_field2"])
-          
-          if calib.extra_field2:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp3_1 = request.POST.getlist('inp3_1[]')[i]
-                    inp3_2 = request.POST.getlist('inp3_2[]')[i]
-                    inp3_3 = request.POST.getlist('inp3_3[]')[i]
-                    inp3_4 = request.POST.getlist('inp3_4[]')[i]
-                    inp3_5 = request.POST.getlist('inp3_5[]')[i]
-
-                    calib.extra_field2.append({
-                         'sr':sr,
-                         'inp3_1':inp3_1,
-                         'inp3_2':inp3_2,
-                         'inp3_3':inp3_3,
-                         'inp3_4':inp3_4,
-                         'inp3_5':inp3_5,
-                    })
-          
-          
+          _sr2_l = request.POST.getlist('sr2[]')
+          _inp3_1_l = request.POST.getlist('inp3_1[]')
+          _inp3_2_l = request.POST.getlist('inp3_2[]')
+          _inp3_3_l = request.POST.getlist('inp3_3[]')
+          _inp3_4_l = request.POST.getlist('inp3_4[]')
+          _inp3_5_l = request.POST.getlist('inp3_5[]')
+          for i in range(len(_sr2_l)):
+               calib.extra_field2.append({
+                    'sr': _gv(_sr2_l, i),
+                    'inp3_1': _gv(_inp3_1_l, i),
+                    'inp3_2': _gv(_inp3_2_l, i),
+                    'inp3_3': _gv(_inp3_3_l, i),
+                    'inp3_4': _gv(_inp3_4_l, i),
+                    'inp3_5': _gv(_inp3_5_l, i),
+               })
           calib.extra_field2 = json.dumps(calib.extra_field2)
           
           calib_sign_id = request.POST.get('calib_sign')
@@ -522,71 +511,55 @@ def calib_clone_update(request,pk):
           existing_Form.disc = request.POST['disc']
           existing_Form.city_location = request.POST['city_location']
           existing_Form.extra_field = json.loads(request.POST["extra_field"])
-          existing_Form.extra_field = json.loads(request.POST["extra_field"])
-          
-          if existing_Form.extra_field:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp1 = request.POST.getlist('inp1[]')[i]
-                    inp2 = request.POST.getlist('inp2[]')[i]
-                    inp3 = request.POST.getlist('inp3[]')[i]
-                    inp4 = request.POST.getlist('inp4[]')[i]
-
-                    existing_Form.extra_field.append({
-                         'sr':sr,
-                         'inp1':inp1,
-                         'inp2':inp2,
-                         'inp3':inp3,
-                         'inp4':inp4,
-                    })
-          
-          
+          _sr_l = request.POST.getlist('sr[]')
+          _inp1_l = request.POST.getlist('inp1[]')
+          _inp2_l = request.POST.getlist('inp2[]')
+          _inp3_l = request.POST.getlist('inp3[]')
+          _inp4_l = request.POST.getlist('inp4[]')
+          for i in range(len(_sr_l)):
+               existing_Form.extra_field.append({
+                    'sr': _gv(_sr_l, i),
+                    'inp1': _gv(_inp1_l, i),
+                    'inp2': _gv(_inp2_l, i),
+                    'inp3': _gv(_inp3_l, i),
+                    'inp4': _gv(_inp4_l, i),
+               })
           existing_Form.extra_field = json.dumps(existing_Form.extra_field)
 
           existing_Form.extra_field1 = json.loads(request.POST["extra_field1"])
-          
-          if existing_Form.extra_field1:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp2_1 = request.POST.getlist('inp2_1[]')[i]
-                    inp2_2 = request.POST.getlist('inp2_2[]')[i]
-                    inp2_3 = request.POST.getlist('inp2_3[]')[i]
-                    inp2_4 = request.POST.getlist('inp2_4[]')[i]
-                    inp2_5 = request.POST.getlist('inp2_5[]')[i]
-
-                    existing_Form.extra_field1.append({
-                         'sr':sr,
-                         'inp2_1':inp2_1,
-                         'inp2_2':inp2_2,
-                         'inp2_3':inp2_3,
-                         'inp2_4':inp2_4,
-                         'inp2_5':inp2_5,
-                    })
-          
-          
+          _sr1_l = request.POST.getlist('sr1[]')
+          _inp2_1_l = request.POST.getlist('inp2_1[]')
+          _inp2_2_l = request.POST.getlist('inp2_2[]')
+          _inp2_3_l = request.POST.getlist('inp2_3[]')
+          _inp2_4_l = request.POST.getlist('inp2_4[]')
+          _inp2_5_l = request.POST.getlist('inp2_5[]')
+          for i in range(len(_sr1_l)):
+               existing_Form.extra_field1.append({
+                    'sr': _gv(_sr1_l, i),
+                    'inp2_1': _gv(_inp2_1_l, i),
+                    'inp2_2': _gv(_inp2_2_l, i),
+                    'inp2_3': _gv(_inp2_3_l, i),
+                    'inp2_4': _gv(_inp2_4_l, i),
+                    'inp2_5': _gv(_inp2_5_l, i),
+               })
           existing_Form.extra_field1 = json.dumps(existing_Form.extra_field1)
 
           existing_Form.extra_field2 = json.loads(request.POST["extra_field2"])
-          
-          if existing_Form.extra_field2:
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    inp3_1 = request.POST.getlist('inp3_1[]')[i]
-                    inp3_2 = request.POST.getlist('inp3_2[]')[i]
-                    inp3_3 = request.POST.getlist('inp3_3[]')[i]
-                    inp3_4 = request.POST.getlist('inp3_4[]')[i]
-                    inp3_5 = request.POST.getlist('inp3_5[]')[i]
-
-                    existing_Form.extra_field2.append({
-                         'sr':sr,
-                         'inp3_1':inp3_1,
-                         'inp3_2':inp3_2,
-                         'inp3_3':inp3_3,
-                         'inp3_4':inp3_4,
-                         'inp3_5':inp3_5,
-                    })
-          
-          
+          _sr2_l = request.POST.getlist('sr2[]')
+          _inp3_1_l = request.POST.getlist('inp3_1[]')
+          _inp3_2_l = request.POST.getlist('inp3_2[]')
+          _inp3_3_l = request.POST.getlist('inp3_3[]')
+          _inp3_4_l = request.POST.getlist('inp3_4[]')
+          _inp3_5_l = request.POST.getlist('inp3_5[]')
+          for i in range(len(_sr2_l)):
+               existing_Form.extra_field2.append({
+                    'sr': _gv(_sr2_l, i),
+                    'inp3_1': _gv(_inp3_1_l, i),
+                    'inp3_2': _gv(_inp3_2_l, i),
+                    'inp3_3': _gv(_inp3_3_l, i),
+                    'inp3_4': _gv(_inp3_4_l, i),
+                    'inp3_5': _gv(_inp3_5_l, i),
+               })
           existing_Form.extra_field2 = json.dumps(existing_Form.extra_field2)
           
 

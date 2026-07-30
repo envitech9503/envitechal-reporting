@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 def noise_distance_legend(location):
     _m = {'PEQS': 'Punjab', 'SEQS': 'Sindh', 'NEQS': 'National'}
     _std = (location or '').strip().upper()
@@ -180,8 +192,7 @@ def noiseAnalysisDelete(request,pk):
 @login_required(login_url="/login")
 def noiseAnalysisEdit(request,pk):
      nA = NoiseAnalysis.objects.get(id=pk)
-     nA.extra_field = nA.extra_field.replace("'", "\"")
-     nA.extra_field = json.loads(nA.extra_field)
+     nA.extra_field = _safe_json_list(nA.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -207,7 +218,8 @@ def noiseAnalysisUpdate(request,pk):
      if request.method == 'POST':
           nA.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          nA.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               nA.industry = Industry_sector.objects.get(id=industry_id)
           nA.lab_report_no = request.POST['lab_rep_no']
           nA.invoice_bill_no = request.POST['invoice_no']
           nA.reporting_date = request.POST['rep_date']
@@ -272,7 +284,7 @@ def noiseAnalysisUpdate(request,pk):
           # nA.approvedby = request.FILES['approvedby']
           # nA.approvedby1 = request.FILES['approvedby1']
           nA.city_location = request.POST['city_location']
-          nA.extra_field = json.loads(request.POST['extra_field'])
+          nA.extra_field = _safe_json_list(request.POST.get('extra_field') or '[]')
           analyst_sign_id = request.POST.get('analyst_sign')
           review_sign_id = request.POST.get('review_sign')
           approved_sign_id = request.POST.get('approved_sign')
@@ -282,9 +294,12 @@ def noiseAnalysisUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          nA.analyst_signature = analyst_sign
-          nA.assistant_manager_signature = review_sign
-          nA.lab_manager_signature = approved_sign
+          if analyst_sign:
+               nA.analyst_signature = analyst_sign
+          if review_sign:
+               nA.assistant_manager_signature = review_sign
+          if approved_sign:
+               nA.lab_manager_signature = approved_sign
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                areas = request.POST.getlist('areas[]')[i]
@@ -292,6 +307,9 @@ def noiseAnalysisUpdate(request,pk):
                unit = request.POST.getlist('unit[]')[i]
                result = request.POST.getlist('result[]')[i]
                limit = request.POST.getlist('limit[]')[i]            
+               sr = (sr or '').strip()
+               methods = (methods or '').strip() or 'ASTM E1686-16'
+               unit = (unit or '').strip() or 'dB'
 
                nA.extra_field.append({
                          "sr": sr,
@@ -351,8 +369,12 @@ NOISE_ANALYSIS_LIMITS = {"Residential Day":55,"Residential Night":45,
 
 def noiseAnalysisView(request,pk):
      nA = NoiseAnalysis.objects.get(id=pk)
-     nA.extra_field = nA.extra_field.replace("'", "\"")
-     nA.extra_field = json.loads(nA.extra_field)
+     nA.extra_field = _safe_json_list(nA.extra_field)
+     for _e in nA.extra_field:
+          if isinstance(_e, dict):
+               _e['methods'] = (str(_e.get('methods') or '').strip() or 'ASTM E1686-16')
+               _e['unit'] = (str(_e.get('unit') or '').strip() or 'dB')
+               _e['sr'] = str(_e.get('sr') or '').strip()
      current_url = request.build_absolute_uri()
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{nA.lab_report_no}.png"
@@ -377,6 +399,8 @@ def noiseAnalysisView(request,pk):
          _rlims = []
      _rlims = [str(_x or '').strip() for _x in _rlims]
      _show_limit = (_sel_na != 'No Limit') or any(_rlims)
+     if not _show_limit:
+         _show_limit = any((str((_e or {}).get('limit') or '').strip()) for _e in (nA.extra_field or []) if isinstance(_e, dict))
      _noise_limit = NOISE_ANALYSIS_LIMITS.get(_sel_na, nA.custom_limit or '-')
      if _sel_na == 'No Limit':
          _row_lims = (_rlims + ['']*13)[:13]
@@ -399,8 +423,12 @@ def noiseAnalysisReport(request,pk):
 
 
      nA= NoiseAnalysis.objects.get(id=pk)
-     nA.extra_field = nA.extra_field.replace("'", "\"")
-     nA.extra_field = json.loads(nA.extra_field)
+     nA.extra_field = _safe_json_list(nA.extra_field)
+     for _e in nA.extra_field:
+          if isinstance(_e, dict):
+               _e['methods'] = (str(_e.get('methods') or '').strip() or 'ASTM E1686-16')
+               _e['unit'] = (str(_e.get('unit') or '').strip() or 'dB')
+               _e['sr'] = str(_e.get('sr') or '').strip()
 
      TABLE_DATA = [
            ["Sr.#","Locations","Methods","Unit","Result",""],
@@ -891,6 +919,8 @@ def noiseAnalysisReport(request,pk):
              _show_na = any((str(_x or '').strip()) for _x in json.loads(nA.row_limits or '[]'))
          except Exception:
              _show_na = False
+     if not _show_na:
+         _show_na = any((str((_e or {}).get('limit') or '').strip()) for _e in (nA.extra_field or []) if isinstance(_e, dict))
      if not _show_na:
          TABLE_DATA = [_r[:5] for _r in TABLE_DATA]
      _cw_na = (10, 50, 30,30,30,30) if _show_na else (10, 50, 30,30,30)
@@ -1274,8 +1304,12 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
 
 
      nA= NoiseAnalysis.objects.get(id=pk)
-     nA.extra_field = nA.extra_field.replace("'", "\"")
-     nA.extra_field = json.loads(nA.extra_field)
+     nA.extra_field = _safe_json_list(nA.extra_field)
+     for _e in nA.extra_field:
+          if isinstance(_e, dict):
+               _e['methods'] = (str(_e.get('methods') or '').strip() or 'ASTM E1686-16')
+               _e['unit'] = (str(_e.get('unit') or '').strip() or 'dB')
+               _e['sr'] = str(_e.get('sr') or '').strip()
 
 
      TABLE_DATA = [
@@ -1767,6 +1801,8 @@ def noiseAnalysisReport1(request,pk,return_bytes=False):
              _show_na = any((str(_x or '').strip()) for _x in json.loads(nA.row_limits or '[]'))
          except Exception:
              _show_na = False
+     if not _show_na:
+         _show_na = any((str((_e or {}).get('limit') or '').strip()) for _e in (nA.extra_field or []) if isinstance(_e, dict))
      if not _show_na:
          TABLE_DATA = [_r[:5] for _r in TABLE_DATA]
      _cw_na = (10, 50, 30,30,30,30) if _show_na else (10, 50, 30,30,30)
@@ -2189,7 +2225,7 @@ def noisemonitoring(request):
                     "result": request.POST.get(result_key),
                 })
                 index += 1
-            graph_type = request.POST.get('graph_type')
+            graph_type = request.POST.get('graph_type') or 'line'
             # Extract other form fields
             legend_1 = request.POST.get('legend_1')
             legend_2 = request.POST.get('legend_2')
@@ -2366,8 +2402,18 @@ def noiseMonitoring_view(request,pk):
      qr_relative_path = f"{settings.MEDIA_URL}{qr_filename}"
      
      table_data = nM.table_data or []
-     table_data.append(leq_value)
-     return render(request,'noiseMonitoring_view.html',context = {'data':nM,'qr':qr_relative_path,"table_data": table_data,'logo':logo,'leq_value':leq_value})
+     limit_values = {
+        "Residential Day": 55,
+        "Residential Night": 45,
+        "Commercial Day": 65,
+        "Commercial Night": 55,
+        "Industrial Day": 75,
+        "Industrial Night": 65,
+        "Silence Day": 50,
+        "Silence Night": 45,
+     }
+     limit_value = (nM.custom_limit or "-") if nM.select1 == "Custom" else limit_values.get(nM.select1, "-")
+     return render(request,'noiseMonitoring_view.html',context = {'data':nM,'qr':qr_relative_path,"table_data": table_data,'logo':logo,'leq_value':leq_value,'limit_value':limit_value})
      
 @login_required(login_url="/login")
 def noiseMonitoring_clone(request,pk):
@@ -2409,7 +2455,8 @@ def noiseMonitoring_clone_update(request,pk):
      if request.method == 'POST':
           nA.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          nA.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               nA.industry = Industry_sector.objects.get(id=industry_id)
           nA.lab_report_no = request.POST['lab_rep_no']
           nA.invoice_bill_no = request.POST['invoice_no']
           nA.reporting_date = request.POST['rep_date']
@@ -2470,7 +2517,7 @@ def noiseMonitoring_clone_update(request,pk):
           # nA.approvedby = request.FILES['approvedby']
           # nA.approvedby1 = request.FILES['approvedby1']
           nA.city_location = request.POST['city_location']
-          nA.extra_field = json.loads(request.POST['extra_field'])
+          nA.extra_field = _safe_json_list(request.POST.get('extra_field') or '[]')
           analyst_sign_id = request.POST.get('analyst_sign')
           review_sign_id = request.POST.get('review_sign')
           approved_sign_id = request.POST.get('approved_sign')
@@ -2480,9 +2527,12 @@ def noiseMonitoring_clone_update(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          nA.analyst_signature = analyst_sign
-          nA.assistant_manager_signature = review_sign
-          nA.lab_manager_signature = approved_sign
+          if analyst_sign:
+               nA.analyst_signature = analyst_sign
+          if review_sign:
+               nA.assistant_manager_signature = review_sign
+          if approved_sign:
+               nA.lab_manager_signature = approved_sign
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                areas = request.POST.getlist('areas[]')[i]
@@ -2500,6 +2550,8 @@ def noiseMonitoring_clone_update(request,pk):
                          "limit": limit,
                     })        
 
+          if isinstance(nA.extra_field, list):
+               nA.extra_field = json.dumps(nA.extra_field)
           nA.pdf_heading=request.POST.get('pdf_heading')
           
           for i in range(1, 7):
@@ -2538,7 +2590,7 @@ def noiseMonitoring_clone_update(request,pk):
                url = f"/noiseMonitoring_view/{str(id)}/"
                return redirect(to=url)
           if "submit_and_new" in request.POST:
-               return redirect(to="noiseMonitoring_clone")
+               return redirect("noiseMonitoring_list")
      return render(request,"noiseMonitoring_clone.html")
 
 
@@ -2583,7 +2635,8 @@ def noiseMonitoring_edit_update(request,pk):
      if request.method == 'POST':
           nA.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          nA.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               nA.industry = Industry_sector.objects.get(id=industry_id)
           nA.lab_report_no = request.POST['lab_rep_no']
           nA.invoice_bill_no = request.POST['invoice_no']
           nA.reporting_date = request.POST['rep_date']
@@ -2638,13 +2691,12 @@ def noiseMonitoring_edit_update(request,pk):
           nA.doc2 = request.POST['doc2']
           nA.doc3 = request.POST['doc3']
           nA.graph_type = request.POST.get('graph_type')
-          nA.created_by = request.user
           # nA.analyzedby = request.FILES['analyzedby']
           # nA.reviewedby = request.FILES['reviewedby']
           # nA.approvedby = request.FILES['approvedby']
           # nA.approvedby1 = request.FILES['approvedby1']
           nA.city_location = request.POST['city_location']
-          nA.extra_field = json.loads(request.POST['extra_field'])
+          nA.extra_field = _safe_json_list(request.POST.get('extra_field') or '[]')
           analyst_sign_id = request.POST.get('analyst_sign')
           review_sign_id = request.POST.get('review_sign')
           approved_sign_id = request.POST.get('approved_sign')
@@ -2654,9 +2706,12 @@ def noiseMonitoring_edit_update(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          nA.analyst_signature = analyst_sign
-          nA.assistant_manager_signature = review_sign
-          nA.lab_manager_signature = approved_sign
+          if analyst_sign:
+               nA.analyst_signature = analyst_sign
+          if review_sign:
+               nA.assistant_manager_signature = review_sign
+          if approved_sign:
+               nA.lab_manager_signature = approved_sign
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                areas = request.POST.getlist('areas[]')[i]
@@ -2674,6 +2729,8 @@ def noiseMonitoring_edit_update(request,pk):
                          "limit": limit,
                     })        
 
+          if isinstance(nA.extra_field, list):
+               nA.extra_field = json.dumps(nA.extra_field)
           nA.pdf_heading=request.POST.get('pdf_heading')
           
           for i in range(1, 7):
@@ -2712,7 +2769,7 @@ def noiseMonitoring_edit_update(request,pk):
                url = f"/noiseMonitoring_view/{str(id)}/"
                return redirect(to=url)
           if "submit_and_new" in request.POST:
-               return redirect(to="noiseMonitoring_edit")
+               return redirect("noiseMonitoring_list")
      return render(request,"noiseMonitoring_edit.html")
      
 @login_required(login_url="/login")
@@ -4205,8 +4262,7 @@ def noiseMonitoring_report(request,pk):
 
 def noiseAnalysisclone(request,pk):
      existing_form = NoiseAnalysis.objects.get(id=pk)
-     existing_form.extra_field = existing_form.extra_field.replace("'", "\"")
-     existing_form.extra_field = json.loads(existing_form.extra_field)
+     existing_form.extra_field = _safe_json_list(existing_form.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json',log)
      image_previews = {}
@@ -4234,7 +4290,8 @@ def noiseAnalysiscloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['invoice_no']
           existing_Form.reporting_date = request.POST['rep_date']
@@ -4299,7 +4356,7 @@ def noiseAnalysiscloneSave(request,pk):
           # existing_Form.approvedby = request.FILES['approvedby']
           # existing_Form.approvedby1 = request.FILES['approvedby1']
           existing_Form.city_location = request.POST['city_location']
-          existing_Form.extra_field = json.loads(request.POST['extra_field'])
+          existing_Form.extra_field = _safe_json_list(request.POST.get('extra_field') or '[]')
           for i in range(len(request.POST.getlist('sr[]'))):
                sr = request.POST.getlist('sr[]')[i]
                areas = request.POST.getlist('areas[]')[i]
@@ -4307,6 +4364,9 @@ def noiseAnalysiscloneSave(request,pk):
                unit = request.POST.getlist('unit[]')[i]
                result = request.POST.getlist('result[]')[i]
                limit = request.POST.getlist('limit[]')[i]            
+               sr = (sr or '').strip()
+               methods = (methods or '').strip() or 'ASTM E1686-16'
+               unit = (unit or '').strip() or 'dB'
 
                existing_Form.extra_field.append({
                          "sr": sr,
@@ -4326,9 +4386,12 @@ def noiseAnalysiscloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')
           

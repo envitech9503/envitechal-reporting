@@ -747,8 +747,6 @@
                     doc_2.value = "Issue Date: 25-03-25"
                     doc_3.value = "Issue:02 Rev:01"
                     checkinput.value = "PEQS"
-                    doc_issue.value="Issue:01 Rev:00"
-                    doc_date.value= "Issue Date: 05-01-23"
                     console.log(checkinput)
                     seqs_value.disabled=true
                     neqs_value.disabled=true
@@ -845,6 +843,7 @@
 
                     var extraFields = [];
         const getExtraFields = async () => {
+            extraFields = [];
             var extraRows = $("tr[id^='extraRow-']")
         for(var i =0;i<extraRows.length;i++){
             let _row = extraRows[i];
@@ -865,6 +864,8 @@
 
         $("#save_rows").on('click', getExtraFields)
 
+        jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
         var table = document.querySelector('#table')
         var add_rows = document.querySelector('#add_rows')
         currentNumber = 14
@@ -873,12 +874,13 @@
         e.preventDefault()
         var newRow = table.insertRow(table.rows.length);
         $(newRow).attr("id",`extraRow-${currentNumber}`)
+        $(newRow).attr("class","text-center border h-16")
         var cell0 = newRow.insertCell(0);
         cell0.innerHTML = `${currentNumber}`;
 
-        for (var i = 1; i < 6; i++) {
+        for (var i = 1; i < 4; i++) {
             var cell = newRow.insertCell(i);
-            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+            cell.innerHTML = `<input type="text" class="border-2 border-black w-96 h-10 rounded p-2" name="extra-${currentNumber}-${i}" ${i === 2 ? 'value="Lux(lx)"' : ''}>`;
         }
 
         currentNumber++;

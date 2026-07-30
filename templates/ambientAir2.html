@@ -368,10 +368,10 @@
                                 <td><input class="col_ h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_0" type="text" value="1:00 PM"></td>
                                 <td><input class="col_1 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_1" type="text"></td>
                                 <td><input class="col_2 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_2" type="text"></td>
-                                <td><input class="col_2 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_3" type="text"></td>
+                                <td><input class="col_3 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_3" type="text"></td>
                                 <td><input class="col_4 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_4" type="text"></td>
                                 <td><input class="col_5 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_5" type="text"></td>
-                                <td><input class="col_5 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_6" type="text"></td>
+                                <td><input class="col_6 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_6" type="text"></td>
                                 <td><input class="col_7 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_7" type="text"></td>
                                 <td><input class="col_8 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_8" type="text"></td>
                                 <td><input class="col_9 h-10 w-20 px-2 py-3 border-2 border-black" name="sr4_9" type="text"></td>
@@ -691,7 +691,7 @@
                                 </div>
                             </tr>
 
-                            <tr class="airbamibient2tr8hours text-center border h-16 hidden hide">
+                            {% comment %} <tr class="airbamibient2tr8hours text-center border h-16 hidden hide">
                                 <td colspan="2"><select id="result_type" class="select h-8 text-center w-36 font-bold border border-black" name="select" id="">
                                     <option name="SEQS" class="ambientair2option1" value="SEQS">SEQS Limits</option>
                                     <option name="PEQS" class = "ambientair2option2" value="PEQS">PEQS Limits</option>
@@ -731,10 +731,10 @@
                                     <td class="NEQS w-20">-</td>
                                     <td class="NEQS w-20">-</td>
                                 </div>
-                            </tr>
-                            
+                            </tr> {% endcomment %}
 
-                            
+
+
                         </tbody>
                     </table>
     
@@ -1228,10 +1228,22 @@ console.log('average', average);
                     input.addEventListener('input', calculateAverage9);
                 });
             });
-            
 
 
-            
+
+            $(document).ready(function () {
+                $("#result_type").on("change", function () {
+                    var selectedLocation = $(this).val();
+
+                    $(".SEQS, .PEQS, .NEQS").css("display", "none"); // Hide all
+                    $("." + selectedLocation).css("display", "table-cell"); // Show selected properly
+                });
+
+                // Ensure the correct value is shown on page load
+                var initialLocation = $("#result_type").val();
+                $(".SEQS, .PEQS, .NEQS").css("display", "none"); // Hide all initially
+                $("." + initialLocation).css("display", "table-cell"); // Show the selected one
+            });
 
 
             $(document).ready(function () {

@@ -282,7 +282,7 @@
                 </tr>
                 {% for extra_field in data.extra_field1 %}
                         <tr>
-                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr[]"  type="text"></b></td>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr1[]"  type="text"></b></td>
                             <td><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp2_1}}" name="inp2_1[]"  type="text"></b></td>
                             <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp2_2}}" name="inp2_2[]" type="text" ></td>
                             <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp2_3}}" name="inp2_3[]" type="text" ></td>
@@ -355,7 +355,7 @@
                 </tr>
                 {% for extra_field in data.extra_field2 %}
                         <tr>
-                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr[]"  type="text"></b></td>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr2[]"  type="text"></b></td>
                             <td><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp3_1}}" name="inp3_1[]"  type="text"></b></td>
                             <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp3_2}}" name="inp3_2[]" type="text" ></td>
                             <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp3_3}}" name="inp3_3[]" type="text" ></td>
@@ -456,6 +456,7 @@
     function extra_field1(){
         var extraFields = []
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -479,7 +480,7 @@
     
     var table = document.querySelector('#table')
     var add_rows = document.querySelector('#add_rows')
-    currentNumber = 33
+    currentNumber = 33 + {{ data.extra_field|length }}
     
     add_rows.addEventListener('click', (e) => {
     e.preventDefault()
@@ -510,6 +511,7 @@
     function extra_field2(){
         var extraFields = []
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow1-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -534,7 +536,7 @@
     
     var table = document.querySelector('#table1')
     var add_rows = document.querySelector('#add_rows1')
-    currentNumber = 33
+    currentNumber = 33 + {{ data.extra_field1|length }}
     
     add_rows.addEventListener('click', (e) => {
     e.preventDefault()
@@ -565,6 +567,7 @@
     function extra_field3(){
         var extraFields = []
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow2-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -589,7 +592,7 @@
     
     var table = document.querySelector('#table2')
     var add_rows = document.querySelector('#add_rows2')
-    currentNumber = 33
+    currentNumber = 33 + {{ data.extra_field2|length }}
     
     add_rows.addEventListener('click', (e) => {
     e.preventDefault()
@@ -621,6 +624,8 @@
     extra_field1()
     extra_field2()
     extra_field3()
+
+    jQuery(function(){ var f = jQuery("input[id^='extra_field']").first().closest('form'); f.on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
 
 {% comment %} const dateInput = document.querySelector(".date_calib");
 const formattedDateOutput = document.querySelector(".formattedDateOutput");

@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 
 @login_required(login_url="/login")
@@ -273,8 +285,7 @@ def drinkingWaterList(request):
 @login_required(login_url="/login")
 def drinkingWaterClone(request,pk):
      dw = DrinkingWaterForm.objects.get(id=pk)
-     dw.extra_field = dw.extra_field.replace("'", "\"")
-     dw.extra_field = json.loads(dw.extra_field)
+     dw.extra_field = _safe_json_list(dw.extra_field)
      log = LoggingSheet.objects.all()
      log = serializers.serialize('json', log)
      image_previews = {}
@@ -304,7 +315,8 @@ def drinkingWaterCloneSave(request,pk):
           # new_dw = deepcopy(existing_dw)
           existing_dw.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_dw.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_dw.industry = Industry_sector.objects.get(id=industry_id)
           existing_dw.lab_report_no = request.POST['lab_report_no']
           existing_dw.invoice_bill_no = request.POST['invoice_bill_no']
           existing_dw.reporting_date = request.POST['reporting_date']
@@ -406,7 +418,8 @@ def drinkingWaterCloneSave(request,pk):
           # existing_dw.approved_by = request.FILES["approvedby" ]
           # existing_dw.approved_by1 = request.FILES["approvedby1" ]
           existing_dw.city_location = request.POST['city_location']
-          existing_dw.extra_field = json.loads(request.POST["extra_field"])
+          new_extra_field = json.loads(request.POST["extra_field"])
+          existing_dw.extra_field = []
           
           existing_dw.pdf_heading=request.POST.get('pdf_heading')
           existing_dw.created_by = request.user
@@ -437,40 +450,23 @@ def drinkingWaterCloneSave(request,pk):
                          setattr(existing_dw, desc_key, description)
      
           
-          if existing_dw.in_out == 'customLimits':
-               for i in range(len(request.POST.getlist('sr[]'))):
-                    sr = request.POST.getlist('sr[]')[i]
-                    parameters = request.POST.getlist('parameters[]')[i]
-                    methods = request.POST.getlist('methods[]')[i]
-                    unit = request.POST.getlist('unit[]')[i]
-                    result = request.POST.getlist('result[]')[i]
-                    limit = request.POST.getlist('limit[]')[i]
+          for i in range(len(request.POST.getlist('sr[]'))):
+               sr = request.POST.getlist('sr[]')[i]
+               parameters = request.POST.getlist('parameters[]')[i]
+               methods = request.POST.getlist('methods[]')[i]
+               unit = request.POST.getlist('unit[]')[i]
+               result = request.POST.getlist('result[]')[i]
+               limit = request.POST.getlist('limit[]')[i]
 
-                    existing_dw.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "limit": limit,
-                    })
-          else:
-               for i in range(len(request.POST.getlist("sr[]"))):
-                    sr = request.POST.getlist("sr[]")[i]
-                    parameters = request.POST.getlist("parameters[]")[i]
-                    methods = request.POST.getlist("methods[]")[i]
-                    unit = request.POST.getlist("unit[]")[i]
-                    result = request.POST.getlist("result[]")[i]
-                    limit = request.POST.getlist("limit[]")[i]
-
-                    existing_dw.extra_field.append({
-                         "sr": sr,
-                         "parameters": parameters,
-                         "methods": methods,
-                         "unit": unit,
-                         "result": result,
-                         "limit": limit,
-                    })
+               existing_dw.extra_field.append({
+                    "sr": sr,
+                    "parameters": parameters,
+                    "methods": methods,
+                    "unit": unit,
+                    "result": result,
+                    "limit": limit,
+               })
+          existing_dw.extra_field.extend(new_extra_field)
           existing_dw.extra_field = json.dumps(existing_dw.extra_field)
           existing_dw.in_out = request.POST['in_out'] 
           existing_dw.custominput = request.POST['custominput'] 
@@ -519,9 +515,12 @@ def drinkingWaterCloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          existing_dw.analyst_signature = analyst_sign
-          existing_dw.assistant_manager_signature = review_sign
-          existing_dw.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_dw.analyst_signature = analyst_sign
+          if review_sign:
+               existing_dw.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_dw.lab_manager_signature = approved_sign
           
 
           existing_dw.id = None

@@ -2,6 +2,18 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _safe_json_list(_v):
+    import json as _json, ast as _ast
+    if isinstance(_v, (list, dict)): return _v
+    if not _v: return []
+    try: return _json.loads(_v)
+    except Exception:
+        try: return _ast.literal_eval(_v)
+        except Exception:
+            try: return _json.loads(_v.replace("'", '"'))
+            except Exception: return []
+
+
 
 
 
@@ -239,8 +251,7 @@ def generatePDF(request,pk):
 
 
      waterForm = DrinkingWaterForm.objects.get(id=pk)
-     waterForm.extra_field = waterForm.extra_field.replace("'", "\"")
-     waterForm.extra_field = json.loads(waterForm.extra_field)
+     waterForm.extra_field = _safe_json_list(waterForm.extra_field)
 
      if waterForm.in_out == 'customLimits':
           TABLE_DATA = [
@@ -248,131 +259,131 @@ def generatePDF(request,pk):
           ]
           sr_no = 1
           if waterForm.water_sr1:
-               a = [str(sr_no),"pH @ 25°C",waterForm.method_1,"-",waterForm.water_sr1,waterForm.custominput1]
+               a = [str(sr_no),"pH @ 25°C",waterForm.method_1 or "*APHA 4500 H","-",waterForm.water_sr1,waterForm.custominput1]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr2:
-               a = [str(sr_no),"Total Dissolved Solids (TDS)",waterForm.method_2,"mg/L",waterForm.water_sr2,waterForm.custominput2]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",waterForm.method_2 or "*APHA 2540-C","mg/L",waterForm.water_sr2,waterForm.custominput2]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr3:
-               a = [str(sr_no),"Total Hardness as CaCO₃",waterForm.method_3,"mg/L",waterForm.water_sr3,waterForm.custominput3]
+               a = [str(sr_no),"Total Hardness as CaCO₃",waterForm.method_3 or "ASTM D 1126","mg/L",waterForm.water_sr3,waterForm.custominput3]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr4:
-               a = [str(sr_no),"Color",waterForm.method_4,"TCU",waterForm.water_sr4,waterForm.custominput4]
+               a = [str(sr_no),"Color",waterForm.method_4 or "HACH 8025","TCU",waterForm.water_sr4,waterForm.custominput4]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr5:
-               a = [str(sr_no),"Turbidity",waterForm.method_5,"NTU",waterForm.water_sr5,waterForm.custominput5]
+               a = [str(sr_no),"Turbidity",waterForm.method_5 or "*APHA 2130","NTU",waterForm.water_sr5,waterForm.custominput5]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr6:
-               a = [str(sr_no),"Nitrite",waterForm.method_6,"mg/L",waterForm.water_sr6,waterForm.custominput6]
+               a = [str(sr_no),"Nitrite",waterForm.method_6 or "HACH 8507","mg/L",waterForm.water_sr6,waterForm.custominput6]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr7:
-               a = [str(sr_no),"Nitrate (NO₃)",waterForm.method_7,"mg/L",waterForm.water_sr7,waterForm.custominput7]
+               a = [str(sr_no),"Nitrate (NO₃)",waterForm.method_7 or "HACH 8039","mg/L",waterForm.water_sr7,waterForm.custominput7]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr8:
-               a = [str(sr_no),"Taste",waterForm.method_8,"-",waterForm.water_sr8,waterForm.custominput8]
+               a = [str(sr_no),"Taste",waterForm.method_8 or "*APHA 2160","-",waterForm.water_sr8,waterForm.custominput8]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr9:
-               a = [str(sr_no),"Odor",waterForm.method_9,"-",waterForm.water_sr9,waterForm.custominput9]
+               a = [str(sr_no),"Odor",waterForm.method_9 or "*APHA 2150","-",waterForm.water_sr9,waterForm.custominput9]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr10:
-               a = [str(sr_no),"Chloride (Cl)",waterForm.method_10,"mg/L",waterForm.water_sr10,waterForm.custominput10]
+               a = [str(sr_no),"Chloride (Cl)",waterForm.method_10 or "*APHA 4500 Cl","mg/L",waterForm.water_sr10,waterForm.custominput10]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr11:
-               a = [str(sr_no),"Fluoride (F)",waterForm.method_11,"mg/L",waterForm.water_sr11,waterForm.custominput11]
+               a = [str(sr_no),"Fluoride (F)",waterForm.method_11 or "HACH 8029","mg/L",waterForm.water_sr11,waterForm.custominput11]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr12:
-               a = [str(sr_no),"Aluminum (Al)",waterForm.method_12,"mg/L",waterForm.water_sr12,waterForm.custominput12]
+               a = [str(sr_no),"Aluminum (Al)",waterForm.method_12 or "*APHA 3111-D","mg/L",waterForm.water_sr12,waterForm.custominput12]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr13:
-               a = [str(sr_no),"Nickel (Ni)",waterForm.method_13,"mg/L",waterForm.water_sr13,waterForm.custominput13]
+               a = [str(sr_no),"Nickel (Ni)",waterForm.method_13 or "*APHA 3111-B","mg/L",waterForm.water_sr13,waterForm.custominput13]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr14:
-               a = [str(sr_no),"Lead (Pb)",waterForm.method_14,"mg/L",waterForm.water_sr14,waterForm.custominput14]
+               a = [str(sr_no),"Lead (Pb)",waterForm.method_14 or "*APHA 3111-B","mg/L",waterForm.water_sr14,waterForm.custominput14]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr15:
-               a = [str(sr_no),"Barium (Ba)",waterForm.method_15,"mg/L",waterForm.water_sr15,waterForm.custominput15]
+               a = [str(sr_no),"Barium (Ba)",waterForm.method_15 or "HACH 8014","mg/L",waterForm.water_sr15,waterForm.custominput15]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr16:
-               a = [str(sr_no),"Antimony (Sb)",waterForm.method_16,"mg/L",waterForm.water_sr16,waterForm.custominput16]
+               a = [str(sr_no),"Antimony (Sb)",waterForm.method_16 or "*APHA 3111-B","mg/L",waterForm.water_sr16,waterForm.custominput16]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr17:
-               a = [str(sr_no),"Arsenic (As)",waterForm.method_17,"mg/L",waterForm.water_sr17,waterForm.custominput17]
+               a = [str(sr_no),"Arsenic (As)",waterForm.method_17 or "*APHA 3114-B","mg/L",waterForm.water_sr17,waterForm.custominput17]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr18:
-               a = [str(sr_no),"Boron (B)",waterForm.method_18,"mg/L",waterForm.water_sr18,waterForm.custominput18]
+               a = [str(sr_no),"Boron (B)",waterForm.method_18 or "HACH 8015","mg/L",waterForm.water_sr18,waterForm.custominput18]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr19:
-               a = [str(sr_no),"Cadmium (Cd)",waterForm.method_19,"mg/L",waterForm.water_sr19,waterForm.custominput19]
+               a = [str(sr_no),"Cadmium (Cd)",waterForm.method_19 or "*APHA 3111-B","mg/L",waterForm.water_sr19,waterForm.custominput19]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr20:
-               a = [str(sr_no),"Chromium (Cr)",waterForm.method_20,"mg/L",waterForm.water_sr20,waterForm.custominput20]
+               a = [str(sr_no),"Chromium (Cr)",waterForm.method_20 or "*APHA 3111-B","mg/L",waterForm.water_sr20,waterForm.custominput20]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr21:
-               a = [str(sr_no),"Selenium (Se)",waterForm.method_21,"mg/L",waterForm.water_sr21,waterForm.custominput21]
+               a = [str(sr_no),"Selenium (Se)",waterForm.method_21 or "*APHA 3114-B","mg/L",waterForm.water_sr21,waterForm.custominput21]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr22:
-               a = [str(sr_no),"Copper (Cu)",waterForm.method_22,"mg/L",waterForm.water_sr22,waterForm.custominput22]
+               a = [str(sr_no),"Copper (Cu)",waterForm.method_22 or "*APHA 3111-B","mg/L",waterForm.water_sr22,waterForm.custominput22]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr23:
-               a = [str(sr_no),"Cyanide (CN)",waterForm.method_23,"mg/L",waterForm.water_sr23,waterForm.custominput23]
+               a = [str(sr_no),"Cyanide (CN)",waterForm.method_23 or "HACH 8027","mg/L",waterForm.water_sr23,waterForm.custominput23]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr24:
-               a = [str(sr_no),"Mercury (Hg)",waterForm.method_24,"mg/L",waterForm.water_sr24,waterForm.custominput24]
+               a = [str(sr_no),"Mercury (Hg)",waterForm.method_24 or "*APHA 3112-B","mg/L",waterForm.water_sr24,waterForm.custominput24]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr25:
-               a = [str(sr_no),"Manganese (Mn)",waterForm.method_25,"mg/L",waterForm.water_sr25,waterForm.custominput25]
+               a = [str(sr_no),"Manganese (Mn)",waterForm.method_25 or "*APHA 3111-B","mg/L",waterForm.water_sr25,waterForm.custominput25]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr26:
-               a = [str(sr_no),"Zinc (Zn)",waterForm.method_26,"mg/L",waterForm.water_sr26,waterForm.custominput26]
+               a = [str(sr_no),"Zinc (Zn)",waterForm.method_26 or "*APHA 3111-B","mg/L",waterForm.water_sr26,waterForm.custominput26]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr27:
-               a = [str(sr_no),"Residual Chlorine",waterForm.method_27,"mg/L",waterForm.water_sr27,waterForm.custominput27]
+               a = [str(sr_no),"Residual Chlorine",waterForm.method_27 or "HACH 10069","mg/L",waterForm.water_sr27,waterForm.custominput27]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr28:
-               a = [str(sr_no),"Phenolic Compounds as Phenols",waterForm.method_28,"mg/L",waterForm.water_sr28,waterForm.custominput28]
+               a = [str(sr_no),"Phenolic Compounds as Phenols",waterForm.method_28 or "ASTM-D-1783","mg/L",waterForm.water_sr28,waterForm.custominput28]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr29:
-               a = [str(sr_no),"Fecal Coliform",waterForm.method_29,"CFU/100 ml",waterForm.water_sr29,waterForm.custominput29]
+               a = [str(sr_no),"Fecal Coliform",waterForm.method_29 or "USEPA 1604","CFU/100 ml",waterForm.water_sr29,waterForm.custominput29]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr30:
-               a = [str(sr_no),"Total Coliform",waterForm.method_30,"CFU/100 ml",waterForm.water_sr30,waterForm.custominput30]
+               a = [str(sr_no),"Total Coliform",waterForm.method_30 or "*APHA 922 B","CFU/100 ml",waterForm.water_sr30,waterForm.custominput30]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr31:
-               a = [str(sr_no),"E-Coli",waterForm.method_31,"CFU/100 ml",waterForm.water_sr31,waterForm.custominput31]
+               a = [str(sr_no),"E-Coli",waterForm.method_31 or "USEPA 1604","CFU/100 ml",waterForm.water_sr31,waterForm.custominput31]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr32:
-               a = [str(sr_no),"Pesticides",waterForm.method_32,"mg/L",waterForm.water_sr32,waterForm.custominput32]
+               a = [str(sr_no),"Pesticides",waterForm.method_32 or "USEPA-614.1","mg/L",waterForm.water_sr32,waterForm.custominput32]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           for extra_field in waterForm.extra_field:
@@ -1034,8 +1045,7 @@ def generatePDF_report(request,pk,return_bytes=False):
 
 
      waterForm = DrinkingWaterForm.objects.get(id=pk)
-     waterForm.extra_field = waterForm.extra_field.replace("'", "\"")
-     waterForm.extra_field = json.loads(waterForm.extra_field)
+     waterForm.extra_field = _safe_json_list(waterForm.extra_field)
 
      if waterForm.in_out == 'customLimits':
           TABLE_DATA = [
@@ -1043,131 +1053,131 @@ def generatePDF_report(request,pk,return_bytes=False):
           ]
           sr_no = 1
           if waterForm.water_sr1:
-               a = [str(sr_no),"pH @ 25°C",waterForm.method_1,"-",waterForm.water_sr1,waterForm.custominput1]
+               a = [str(sr_no),"pH @ 25°C",waterForm.method_1 or "*APHA 4500 H","-",waterForm.water_sr1,waterForm.custominput1]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr2:
-               a = [str(sr_no),"Total Dissolved Solids (TDS)",waterForm.method_2,"mg/L",waterForm.water_sr2,waterForm.custominput2]
+               a = [str(sr_no),"Total Dissolved Solids (TDS)",waterForm.method_2 or "*APHA 2540-C","mg/L",waterForm.water_sr2,waterForm.custominput2]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr3:
-               a = [str(sr_no),"Total Hardness as CaCO₃",waterForm.method_3,"mg/L",waterForm.water_sr3,waterForm.custominput3]
+               a = [str(sr_no),"Total Hardness as CaCO₃",waterForm.method_3 or "ASTM D 1126","mg/L",waterForm.water_sr3,waterForm.custominput3]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr4:
-               a = [str(sr_no),"Color",waterForm.method_4,"TCU",waterForm.water_sr4,waterForm.custominput4]
+               a = [str(sr_no),"Color",waterForm.method_4 or "HACH 8025","TCU",waterForm.water_sr4,waterForm.custominput4]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr5:
-               a = [str(sr_no),"Turbidity",waterForm.method_5,"NTU",waterForm.water_sr5,waterForm.custominput5]
+               a = [str(sr_no),"Turbidity",waterForm.method_5 or "*APHA 2130","NTU",waterForm.water_sr5,waterForm.custominput5]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr6:
-               a = [str(sr_no),"Nitrite",waterForm.method_6,"mg/L",waterForm.water_sr6,waterForm.custominput6]
+               a = [str(sr_no),"Nitrite",waterForm.method_6 or "HACH 8507","mg/L",waterForm.water_sr6,waterForm.custominput6]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr7:
-               a = [str(sr_no),"Nitrate (NO₃)",waterForm.method_7,"mg/L",waterForm.water_sr7,waterForm.custominput7]
+               a = [str(sr_no),"Nitrate (NO₃)",waterForm.method_7 or "HACH 8039","mg/L",waterForm.water_sr7,waterForm.custominput7]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr8:
-               a = [str(sr_no),"Taste",waterForm.method_8,"-",waterForm.water_sr8,waterForm.custominput8]
+               a = [str(sr_no),"Taste",waterForm.method_8 or "*APHA 2160","-",waterForm.water_sr8,waterForm.custominput8]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr9:
-               a = [str(sr_no),"Odor",waterForm.method_9,"-",waterForm.water_sr9,waterForm.custominput9]
+               a = [str(sr_no),"Odor",waterForm.method_9 or "*APHA 2150","-",waterForm.water_sr9,waterForm.custominput9]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr10:
-               a = [str(sr_no),"Chloride (Cl)",waterForm.method_10,"mg/L",waterForm.water_sr10,waterForm.custominput10]
+               a = [str(sr_no),"Chloride (Cl)",waterForm.method_10 or "*APHA 4500 Cl","mg/L",waterForm.water_sr10,waterForm.custominput10]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr11:
-               a = [str(sr_no),"Fluoride (F)",waterForm.method_11,"mg/L",waterForm.water_sr11,waterForm.custominput11]
+               a = [str(sr_no),"Fluoride (F)",waterForm.method_11 or "HACH 8029","mg/L",waterForm.water_sr11,waterForm.custominput11]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr12:
-               a = [str(sr_no),"Aluminum (Al)",waterForm.method_12,"mg/L",waterForm.water_sr12,waterForm.custominput12]
+               a = [str(sr_no),"Aluminum (Al)",waterForm.method_12 or "*APHA 3111-D","mg/L",waterForm.water_sr12,waterForm.custominput12]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr13:
-               a = [str(sr_no),"Nickel (Ni)",waterForm.method_13,"mg/L",waterForm.water_sr13,waterForm.custominput13]
+               a = [str(sr_no),"Nickel (Ni)",waterForm.method_13 or "*APHA 3111-B","mg/L",waterForm.water_sr13,waterForm.custominput13]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr14:
-               a = [str(sr_no),"Lead (Pb)",waterForm.method_14,"mg/L",waterForm.water_sr14,waterForm.custominput14]
+               a = [str(sr_no),"Lead (Pb)",waterForm.method_14 or "*APHA 3111-B","mg/L",waterForm.water_sr14,waterForm.custominput14]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr15:
-               a = [str(sr_no),"Barium (Ba)",waterForm.method_15,"mg/L",waterForm.water_sr15,waterForm.custominput15]
+               a = [str(sr_no),"Barium (Ba)",waterForm.method_15 or "HACH 8014","mg/L",waterForm.water_sr15,waterForm.custominput15]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr16:
-               a = [str(sr_no),"Antimony (Sb)",waterForm.method_16,"mg/L",waterForm.water_sr16,waterForm.custominput16]
+               a = [str(sr_no),"Antimony (Sb)",waterForm.method_16 or "*APHA 3111-B","mg/L",waterForm.water_sr16,waterForm.custominput16]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr17:
-               a = [str(sr_no),"Arsenic (As)",waterForm.method_17,"mg/L",waterForm.water_sr17,waterForm.custominput17]
+               a = [str(sr_no),"Arsenic (As)",waterForm.method_17 or "*APHA 3114-B","mg/L",waterForm.water_sr17,waterForm.custominput17]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr18:
-               a = [str(sr_no),"Boron (B)",waterForm.method_18,"mg/L",waterForm.water_sr18,waterForm.custominput18]
+               a = [str(sr_no),"Boron (B)",waterForm.method_18 or "HACH 8015","mg/L",waterForm.water_sr18,waterForm.custominput18]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr19:
-               a = [str(sr_no),"Cadmium (Cd)",waterForm.method_19,"mg/L",waterForm.water_sr19,waterForm.custominput19]
+               a = [str(sr_no),"Cadmium (Cd)",waterForm.method_19 or "*APHA 3111-B","mg/L",waterForm.water_sr19,waterForm.custominput19]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr20:
-               a = [str(sr_no),"Chromium (Cr)",waterForm.method_20,"mg/L",waterForm.water_sr20,waterForm.custominput20]
+               a = [str(sr_no),"Chromium (Cr)",waterForm.method_20 or "*APHA 3111-B","mg/L",waterForm.water_sr20,waterForm.custominput20]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr21:
-               a = [str(sr_no),"Selenium (Se)",waterForm.method_21,"mg/L",waterForm.water_sr21,waterForm.custominput21]
+               a = [str(sr_no),"Selenium (Se)",waterForm.method_21 or "*APHA 3114-B","mg/L",waterForm.water_sr21,waterForm.custominput21]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr22:
-               a = [str(sr_no),"Copper (Cu)",waterForm.method_22,"mg/L",waterForm.water_sr22,waterForm.custominput22]
+               a = [str(sr_no),"Copper (Cu)",waterForm.method_22 or "*APHA 3111-B","mg/L",waterForm.water_sr22,waterForm.custominput22]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr23:
-               a = [str(sr_no),"Cyanide (CN)",waterForm.method_23,"mg/L",waterForm.water_sr23,waterForm.custominput23]
+               a = [str(sr_no),"Cyanide (CN)",waterForm.method_23 or "HACH 8027","mg/L",waterForm.water_sr23,waterForm.custominput23]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr24:
-               a = [str(sr_no),"Mercury (Hg)",waterForm.method_24,"mg/L",waterForm.water_sr24,waterForm.custominput24]
+               a = [str(sr_no),"Mercury (Hg)",waterForm.method_24 or "*APHA 3112-B","mg/L",waterForm.water_sr24,waterForm.custominput24]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr25:
-               a = [str(sr_no),"Manganese (Mn)",waterForm.method_25,"mg/L",waterForm.water_sr25,waterForm.custominput25]
+               a = [str(sr_no),"Manganese (Mn)",waterForm.method_25 or "*APHA 3111-B","mg/L",waterForm.water_sr25,waterForm.custominput25]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr26:
-               a = [str(sr_no),"Zinc (Zn)",waterForm.method_26,"mg/L",waterForm.water_sr26,waterForm.custominput26]
+               a = [str(sr_no),"Zinc (Zn)",waterForm.method_26 or "*APHA 3111-B","mg/L",waterForm.water_sr26,waterForm.custominput26]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr27:
-               a = [str(sr_no),"Residual Chlorine",waterForm.method_27,"mg/L",waterForm.water_sr27,waterForm.custominput27]
+               a = [str(sr_no),"Residual Chlorine",waterForm.method_27 or "HACH 10069","mg/L",waterForm.water_sr27,waterForm.custominput27]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr28:
-               a = [str(sr_no),"Phenolic Compounds as Phenols",waterForm.method_28,"mg/L",waterForm.water_sr28,waterForm.custominput28]
+               a = [str(sr_no),"Phenolic Compounds as Phenols",waterForm.method_28 or "ASTM-D-1783","mg/L",waterForm.water_sr28,waterForm.custominput28]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr29:
-               a = [str(sr_no),"Fecal Coliform",waterForm.method_29,"CFU/100 ml",waterForm.water_sr29,waterForm.custominput29]
+               a = [str(sr_no),"Fecal Coliform",waterForm.method_29 or "USEPA 1604","CFU/100 ml",waterForm.water_sr29,waterForm.custominput29]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr30:
-               a = [str(sr_no),"Total Coliform",waterForm.method_30,"CFU/100 ml",waterForm.water_sr30,waterForm.custominput30]
+               a = [str(sr_no),"Total Coliform",waterForm.method_30 or "*APHA 922 B","CFU/100 ml",waterForm.water_sr30,waterForm.custominput30]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr31:
-               a = [str(sr_no),"E-Coli",waterForm.method_31,"CFU/100 ml",waterForm.water_sr31,waterForm.custominput31]
+               a = [str(sr_no),"E-Coli",waterForm.method_31 or "USEPA 1604","CFU/100 ml",waterForm.water_sr31,waterForm.custominput31]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           if waterForm.water_sr32:
-               a = [str(sr_no),"Pesticides",waterForm.method_32,"mg/L",waterForm.water_sr32,waterForm.custominput32]
+               a = [str(sr_no),"Pesticides",waterForm.method_32 or "USEPA-614.1","mg/L",waterForm.water_sr32,waterForm.custominput32]
                sr_no = sr_no+1
                TABLE_DATA.append(a)
           for extra_field in waterForm.extra_field:

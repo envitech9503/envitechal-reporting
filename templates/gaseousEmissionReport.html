@@ -499,7 +499,7 @@
           {% for extra_field in list.extra_field %}
 
           <tr class=" border">
-            <td class="text-center">23</td>
+            <td class="text-center">{{ forloop.counter|add:22 }}</td>
             <td class="pl-2">{{ extra_field.parameters }}</td>
             <td class="text-center">{{ extra_field.unit }}</td>
             <td class="text-center">{{ extra_field.result }}</td>

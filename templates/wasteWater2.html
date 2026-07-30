@@ -1427,9 +1427,14 @@ const doc_3 = document.querySelector('#doc_3')
             var outlet_customLimits = document.querySelector('#outlet_customLimits')
             var in_out_customLimits = document.querySelector('#in_out_customLimits')
 
+            jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
+            var currentNumber = 33;
+
             function inlet__customLimits(){
                 var extraFields = [];
                   const getExtraFields = async () => {
+                  extraFields = [];
                   var extraRows = $("tr[id^='extraRow-']")
                 for(var i =0;i<extraRows.length;i++){
                     let _row = extraRows[i];
@@ -1466,17 +1471,17 @@ const doc_3 = document.querySelector('#doc_3')
                 return __etalAEL(t, f, o);
             };
         }
-                currentNumber = 33
 
                 add_rows.addEventListener('click', (e) => {
                     var newRow = table.insertRow(table.rows.length);
                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    $(newRow).attr("class","text-center border h-16")
                     var cell0 = newRow.insertCell(0);
                     cell0.innerHTML = `${currentNumber}`;
 
                     for (var i = 1; i < 6; i++) {
                         var cell = newRow.insertCell(i);
-                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                     }
 
                     currentNumber++;
@@ -1488,6 +1493,7 @@ const doc_3 = document.querySelector('#doc_3')
             function in_out__customLimits(){
                 var extraFields = [];
                   const getExtraFields = async () => {
+                  extraFields = [];
                   var extraRows = $("tr[id^='extraRow-']")
                 for(var i =0;i<extraRows.length;i++){
                     let _row = extraRows[i];
@@ -1525,17 +1531,17 @@ const doc_3 = document.querySelector('#doc_3')
                 return __etalAEL(t, f, o);
             };
         }
-                currentNumber = 33
 
                 add_rows.addEventListener('click', (e) => {
                     var newRow = table.insertRow(table.rows.length);
                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    $(newRow).attr("class","text-center border h-16")
                     var cell0 = newRow.insertCell(0);
                     cell0.innerHTML = `${currentNumber}`;
 
                     for (var i = 1; i < 7; i++) {
                         var cell = newRow.insertCell(i);
-                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                     }
 
                     currentNumber++;
@@ -1580,6 +1586,7 @@ const doc_3 = document.querySelector('#doc_3')
             function outlet__customLimits(){
                 var extraFields = [];
                   const getExtraFields = async () => {
+                  extraFields = [];
                   var extraRows = $("tr[id^='extraRow-']")
                 for(var i =0;i<extraRows.length;i++){
                     let _row = extraRows[i];
@@ -1616,18 +1623,18 @@ const doc_3 = document.querySelector('#doc_3')
                 return __etalAEL(t, f, o);
             };
         }
-                currentNumber = 33
 
                 add_rows.addEventListener('click', (e) => {
                     e.preventDefault()
                     var newRow = table.insertRow(table.rows.length);
                     $(newRow).attr("id",`extraRow-${currentNumber}`)
+                    $(newRow).attr("class","text-center border h-16")
                     var cell0 = newRow.insertCell(0);
                     cell0.innerHTML = `${currentNumber}`;
 
                     for (var i = 1; i < 6; i++) {
                         var cell = newRow.insertCell(i);
-                        cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                        cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                     }
 
                     currentNumber++;
@@ -1655,6 +1662,7 @@ const doc_3 = document.querySelector('#doc_3')
             function inlet_(){
                 var extraFields = [];
                    const getExtraFields = async () => {
+                   extraFields = [];
                    var extraRows = $("tr[id^='extraRow-']")
                  for(var i =0;i<extraRows.length;i++){
                      let _row = extraRows[i];
@@ -1693,18 +1701,18 @@ const doc_3 = document.querySelector('#doc_3')
                 return __etalAEL(t, f, o);
             };
         }
-                 currentNumber = 33
 
                  add_rows.addEventListener('click', (e) => {
                      e.preventDefault()
                      var newRow = table.insertRow(table.rows.length);
                      $(newRow).attr("id",`extraRow-${currentNumber}`)
+                     $(newRow).attr("class","text-center border h-16")
                      var cell0 = newRow.insertCell(0);
                      cell0.innerHTML = `${currentNumber}`;
 
                      for (var i = 1; i < 8; i++) {
                          var cell = newRow.insertCell(i);
-                         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                         cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                      }
 
                      currentNumber++;
@@ -1728,6 +1736,7 @@ const doc_3 = document.querySelector('#doc_3')
             function inlet_outlet(){
                 var extraFields = [];
                    const getExtraFields = async () => {
+                   extraFields = [];
                    var extraRows = $("tr[id^='extraRow-']")
                  for(var i =0;i<extraRows.length;i++){
                      let _row = extraRows[i];
@@ -1767,18 +1776,18 @@ const doc_3 = document.querySelector('#doc_3')
                 return __etalAEL(t, f, o);
             };
         }
-                 currentNumber = 33
 
                  add_rows.addEventListener('click', (e) => {
                      e.preventDefault()
                      var newRow = table.insertRow(table.rows.length);
                      $(newRow).attr("id",`extraRow-${currentNumber}`)
+                     $(newRow).attr("class","text-center border h-16")
                      var cell0 = newRow.insertCell(0);
                      cell0.innerHTML = `${currentNumber}`;
 
                      for (var i = 1; i < 9; i++) {
                          var cell = newRow.insertCell(i);
-                         cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                         cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                      }
 
                      currentNumber++;
@@ -1804,6 +1813,7 @@ const doc_3 = document.querySelector('#doc_3')
                 var extraFields = [];
             
                     const getExtraFields = async () => {
+                        extraFields = [];
                         var extraRows = $("tr[id^='extraRow-']");
                         for (var i = 0; i < extraRows.length; i++) {
                             let _row = extraRows[i];
@@ -1839,18 +1849,18 @@ const doc_3 = document.querySelector('#doc_3')
                 return __etalAEL(t, f, o);
             };
         }
-                    var currentNumber = 33;
             
                     add_rows.addEventListener('click', (e) => {
                         e.preventDefault();
                         var newRow = table.insertRow(table.rows.length);
                         $(newRow).attr("id", `extraRow-${currentNumber}`);
+                        $(newRow).attr("class","text-center border h-16")
                         var cell0 = newRow.insertCell(0);
                         cell0.innerHTML = `${currentNumber}`;
             
                         for (var i = 1; i < 8; i++) {
                             var cell = newRow.insertCell(i);
-                            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                            cell.innerHTML = `<input type="text" class="border-2 border-black px-2" name="extra-${currentNumber}-${i}">`;
                         }
             
                         currentNumber++;
@@ -1873,8 +1883,28 @@ const doc_3 = document.querySelector('#doc_3')
                 }
             });
 
-            
-            
+            // Load-time dispatch: bind the mode handlers matching the checked mode checkbox
+            if (inlet_customLimits && inlet_customLimits.checked) {
+                inlet__customLimits()
+            }
+            if (in_out_customLimits && in_out_customLimits.checked) {
+                in_out__customLimits()
+            }
+            if (outlet_customLimits && outlet_customLimits.checked) {
+                outlet__customLimits()
+            }
+            if (inlet && inlet.checked) {
+                inlet_()
+            }
+            if (in_out && in_out.checked) {
+                inlet_outlet()
+            }
+            if (outlet && outlet.checked) {
+                outlet_()
+            }
+
+
+
 
             
             

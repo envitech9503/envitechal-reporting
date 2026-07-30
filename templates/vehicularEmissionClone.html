@@ -753,6 +753,7 @@
     
     var extraFields = [];
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -773,7 +774,9 @@
     
     
     $("#save_rows").on('click', getExtraFields)
-    
+
+    jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
     var table = document.querySelector('#table')
     var add_rows = document.querySelector('#add_rows')
     

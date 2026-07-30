@@ -161,7 +161,7 @@
                 {% if data.extra_field1 %}
                     {% for extra_field in data.extra_field1 %}
                         <tr>
-                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr[]"  type="text"></b></td>
+                            <td style="display:none;"><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.sr}}" name="sr1[]"  type="text"></b></td>
                             <td><b><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp1}}" name="inp1[]"  type="text"></b></td>
                             <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp2}}" name="inp2[]" type="text" ></td>
                             <td><input class="border border-gray-500 px-3 py-1 w-full outline-none" value="{{extra_field.inp3}}" name="inp3[]" type="text" ></td>
@@ -339,6 +339,7 @@
     function extra_field(){
         var extraFields = []
         const getExtraFields = async () => {
+            extraFields = [];
             var extraRows = $("tr[id^='extraRow-']")
         for(var i =0;i<extraRows.length;i++){
             let _row = extraRows[i];
@@ -362,7 +363,7 @@
 
         var table = document.querySelector('#table')
         var add_rows = document.querySelector('#add_rows')
-        currentNumber = 33
+        let currentNumber = 33 + {{ data.extra_field|length }}
 
         add_rows.addEventListener('click', (e) => {
             e.preventDefault()
@@ -373,7 +374,7 @@
             cell0.style.display="none"
             for (var i = 1; i < 5; i++) {
                 var cell = newRow.insertCell(i);
-                cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+                cell.innerHTML = `<input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="extra-${currentNumber}-${i}">`;
             }
 
         currentNumber++;
@@ -383,6 +384,7 @@
         function extra_field1(){
             var extraFields = []
             const getExtraFields = async () => {
+            extraFields = [];
             var extraRows = $("tr[id^='extraRow1-']")
             for(var i =0;i<extraRows.length;i++){
                 let _row = extraRows[i];
@@ -406,7 +408,7 @@
         
             var table = document.querySelector('#table1')
             var add_rows = document.querySelector('#add_rows1')
-            currentNumber = 33
+            let currentNumber = 33 + {{ data.extra_field1|length }}
         
             add_rows.addEventListener('click', (e) => {
                 e.preventDefault()
@@ -417,7 +419,7 @@
                 cell0.style.display="none"
                 for (var i = 1; i < 5; i++) {
                     var cell = newRow.insertCell(i);
-                    cell.innerHTML = `<input type="text" name="extra1-${currentNumber}-${i}">`;
+                    cell.innerHTML = `<input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="extra1-${currentNumber}-${i}">`;
             }
         
             currentNumber++;
@@ -426,6 +428,8 @@
     
             extra_field()
             extra_field1() 
+
+jQuery(function(){ var f = jQuery("input[id^='extra_field']").first().closest('form'); f.on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
 
 const dateInput = document.querySelector(".verif_date");
         const formattedDateOutput = document.querySelector(".formattedDateOutput");

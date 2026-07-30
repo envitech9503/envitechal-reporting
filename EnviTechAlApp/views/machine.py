@@ -178,7 +178,8 @@ def machineOilUpdate(request,pk):
      if request.method == 'POST':
           machineOil.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          machineOil.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               machineOil.industry = Industry_sector.objects.get(id=industry_id)
           machineOil.lab_report_no = request.POST['machine_lab_rep_no']
           machineOil.invoice_bill_no = request.POST['machine_invoice_no']
           machineOil.reporting_date = request.POST['machine_rep_date']
@@ -231,9 +232,12 @@ def machineOilUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          machineOil.analyst_signature = analyst_sign
-          machineOil.assistant_manager_signature = review_sign
-          machineOil.lab_manager_signature = approved_sign
+          if analyst_sign:
+               machineOil.analyst_signature = analyst_sign
+          if review_sign:
+               machineOil.assistant_manager_signature = review_sign
+          if approved_sign:
+               machineOil.lab_manager_signature = approved_sign
 
           machineOil.pdf_heading=request.POST.get('pdf_heading')
           
@@ -1260,7 +1264,8 @@ def machineOilcloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['machine_lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['machine_invoice_no']
           existing_Form.reporting_date = request.POST['machine_rep_date']
@@ -1314,9 +1319,12 @@ def machineOilcloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')
           

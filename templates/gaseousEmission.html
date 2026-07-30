@@ -371,9 +371,9 @@
                         
                                 <td>mg/Nm³</td>
                                 <td><input class="border-2 border-black w-72" name="GasEm-sr2" type="text"></td>
-                                <td class="SEQS GAS"><input class="border-2 border-black w-20 text-center" name="seqs-2" type="text" value="300"></td>
-                                <td class="PEQS OIL"><input class="border-2 border-black w-20 text-center" name="peqs-2" type="text" value="300"></td>
-                                <td class="NEQS COAL"><input class="border-2 border-black w-20 text-center" name="neqs-2" type="text" value="500"></td>
+                                <td class="GAS"><input class="border-2 border-black w-20 text-center" name="seqs-2" type="text" value="300"></td>
+                                <td class="OIL"><input class="border-2 border-black w-20 text-center" name="peqs-2" type="text" value="300"></td>
+                                <td class="COAL"><input class="border-2 border-black w-20 text-center" name="neqs-2" type="text" value="500"></td>
                                 <td class="BIOMASS"> - </td>
                                 
                             </tr>
@@ -977,6 +977,7 @@ const dateInput = document.querySelector(".dateInput");
 
     var extraFields = [];
 const getExtraFields = async () => {
+    extraFields = [];
     var extraRows = $("tr[id^='extraRow-']")
 for(var i =0;i<extraRows.length;i++){
     let _row = extraRows[i];
@@ -998,6 +999,8 @@ $("#extra_field").val(JSON.stringify(extraFields))
 
 $("#save_rows").on('click', getExtraFields)
 
+jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
+
 var table = document.querySelector('#table')
 var add_rows = document.querySelector('#add_rows')
 currentNumber = 33
@@ -1006,12 +1009,13 @@ add_rows.addEventListener('click', (e) => {
 e.preventDefault()
 var newRow = table.insertRow(table.rows.length);
 $(newRow).attr("id",`extraRow-${currentNumber}`)
+$(newRow).attr("class","text-center border h-16")
 var cell0 = newRow.insertCell(0);
 cell0.innerHTML = `${currentNumber}`;
 
 for (var i = 1; i < 5; i++) {
     var cell = newRow.insertCell(i);
-    cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+    cell.innerHTML = `<input type="text" class="border-2 border-black w-72" name="extra-${currentNumber}-${i}">`;
 }
 
 currentNumber++;

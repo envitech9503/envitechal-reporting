@@ -774,7 +774,7 @@
           <tr class=" border">
             <td class="text-center">31</td>
             <td class="pl-2">E-Coli</td>
-            <td class="text-center">USE{{list.method_31}}</td>
+            <td class="text-center">{{list.method_31}}</td>
             <td class="text-center">CFU/100 ml</td>
             <td class="text-center">{{list.water_sr31}}</td>
             {% if list.in_out == 'customLimits' %}
@@ -792,7 +792,12 @@
             <td class="text-center">{{list.method_32}}</td>
             <td class="text-center">mg/L</td>
             <td class="text-center">{{list.water_sr32}}</td>
-            
+            {% if list.in_out == 'customLimits' %}
+            <td class="text-center">{{list.custominput32}}</td>
+            {% endif %}
+            {% if list.in_out == "" %}
+            <td class="text-center">-</td>
+            {% endif %}
           </tr>
           {%endif%}
           {% for extra_field in list.extra_field %}

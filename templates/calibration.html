@@ -418,6 +418,7 @@
     function extra_field1(){
         var extraFields = []
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -472,6 +473,7 @@
     function extra_field2(){
         var extraFields = []
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow1-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -527,6 +529,7 @@
     function extra_field3(){
         var extraFields = []
     const getExtraFields = async () => {
+        extraFields = [];
         var extraRows = $("tr[id^='extraRow2-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -583,6 +586,8 @@
     extra_field1()
     extra_field2()
     extra_field3()
+
+    jQuery(function(){ var f = jQuery("input[id^='extra_field']").first().closest('form'); f.on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
 
 
     

@@ -277,7 +277,7 @@
                 <label class="font-bold  text-lg" for="">Table :</label>
                 <input class="border border-gray-500 px-3 py-1 w-8/12 outline-none" type="text" name="forklift_table" value="Forklift (Weight Lifted)">
             </div>
-            <table id="table1">
+            <table id="table2">
                 <tr>
                   <th class="text-center" rowspan="2">Weight</th>
                   <th class="text-center" rowspan="2">Set Value Height</th>
@@ -463,6 +463,7 @@ const stringToJSON =   (s)=>{
  function extra_field(){
     var extraFields = []
     const getExtraFields = async () => {
+    extraFields = [];
     var extraRows = $("tr[id^='extraRow-']")
     for(var i =0;i<extraRows.length;i++){
         let _row = extraRows[i];
@@ -495,7 +496,7 @@ const stringToJSON =   (s)=>{
         cell0.style.display="none"
         for (var i = 1; i < 3; i++) {
             var cell = newRow.insertCell(i);
-            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
+            cell.innerHTML = `<input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="extra-${currentNumber}-${i}">`;
     }
 
     currentNumber++;
@@ -505,6 +506,7 @@ const stringToJSON =   (s)=>{
     function extra_field1(){
         var extraFields1 = []
         const getExtraFields1 = async () => {
+        extraFields1 = [];
         var extraRows = $("tr[id^='extraRow1-']")
         for(var i =0;i<extraRows.length;i++){
             let _row = extraRows[i];
@@ -539,7 +541,7 @@ const stringToJSON =   (s)=>{
             cell0.style.display="none"
             for (var i = 1; i < 5; i++) {
                 var cell = newRow.insertCell(i);
-                cell.innerHTML = `<input type="text" name="extra1-${currentNumber}-${i}">`;
+                cell.innerHTML = `<input type="text" class="border border-gray-500 px-3 py-1 w-full outline-none" name="extra1-${currentNumber}-${i}">`;
         }
     
         currentNumber++;
@@ -548,6 +550,8 @@ const stringToJSON =   (s)=>{
 
         extra_field()
         extra_field1()
+
+jQuery(function(){ var f = jQuery("input[id^='extra_field']").first().closest('form'); f.on('submit', function(){ jQuery("[id^='save_rows']").trigger('click'); }); });
 
 const dateInput = document.querySelector(".insp_date");
         const formattedDateOutput = document.querySelector(".formattedDateOutput");

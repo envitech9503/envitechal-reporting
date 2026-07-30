@@ -335,6 +335,7 @@
     applyUI();
     setTimeout(applyUI,400);
   });
+  window.naApplyUI=applyUI;
   jQuery(window).on("load",applyUI);
 })();
 </script>
@@ -762,16 +763,14 @@
                             </tr>
                             
                             {% for extra_field in data.extra_field %}
-
-                                    <tr class=" border">
-                                        <td class="text-center"><input type="text" value=" {{ extra_field.sr }}" name="sr[]"></td>
-                                        <td class="pl-2"><input type="text" value="{{ extra_field.areas }}" name="areas[]"> </td>
-                                        <td class="text-center"><input type="text" value="{{ extra_field.methods }}" name="methods[]"> </td>
-                                        <td class="text-center"><input type="text" value="{{ extra_field.unit }}" name="unit[]"> </td>  
-                                        <td class="text-center"><input type="text" value="{{ extra_field.result }}" name="result[]"> </td>
-                                        <td class="text-center"><input type="text" value="{{ extra_field.limit }}" name="limit[]"></td>
+                                    <tr class="text-center border h-16">
+                                        <td>{{ extra_field.sr }}<input type="hidden" value="{{ extra_field.sr }}" name="sr[]"></td>
+                                        <td><input class="border-2 border-black w-96 h-10 rounded p-2" type="text" value="{{ extra_field.areas }}" name="areas[]"></td>
+                                        <td>{{ extra_field.methods|default:"ASTM E1686-16" }}<input type="hidden" value="{{ extra_field.methods|default:'ASTM E1686-16' }}" name="methods[]"></td>
+                                        <td>{{ extra_field.unit|default:"dB" }}<input type="hidden" value="{{ extra_field.unit|default:'dB' }}" name="unit[]"></td>
+                                        <td><input class="border-2 border-black w-96 h-10 rounded p-2" type="text" value="{{ extra_field.result }}" name="result[]"></td>
+                                        <td class="range_value"><span class="std-limit"></span><span class="cl-mirror" style="display:none"></span><input type="text" maxlength="6" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" style="display:none" value="{{ extra_field.limit }}" name="limit[]"></td>
                                     </tr>
-                                    
                             {% endfor %}
                         </tbody>
                     </table>
@@ -1221,8 +1220,23 @@
             
                     
 
-                    var extraFields = [];
-        const getExtraFields = async () => {
+                    var NA_LIMS = {"Residential Day":"55","Residential Night":"45","Commercial Day":"65","Commercial Night":"55","Industrial Day":"75","Industrial Night":"65","Silence Day":"50","Silence Night":"45"};
+        function naModeLimit(rowVal){
+            var m = $("#result_type_1").val();
+            if (m === "No Limit") return rowVal || "";
+            if (m === "Custom") return $("#custom_limit").val() || "";
+            return NA_LIMS[m] || rowVal || "";
+        }
+        function naSyncSavedLimits(){
+            var m = $("#result_type_1").val();
+            $("input[name='limit[]']").each(function(){
+                if (m === "Custom") this.value = $("#custom_limit").val() || "";
+                else if (m !== "No Limit") this.value = NA_LIMS[m] || this.value;
+            });
+        }
+        var extraFields = [];
+        const getExtraFields = () => {
+            extraFields = [];
             var extraRows = $("tr[id^='extraRow-']")
         for(var i =0;i<extraRows.length;i++){
             let _row = extraRows[i];
@@ -1231,10 +1245,10 @@
             let obj = {
                 "sr":num_row,
                 "areas":$(`input[name='extra-${num_row}-1']`).val(),
-                "methods":$(`input[name='extra-${num_row}-2']`).val(),
-                "unit":$(`input[name='extra-${num_row}-3']`).val(),
+                "methods":$(`input[name='extra-${num_row}-2']`).val() || "ASTM E1686-16",
+                "unit":$(`input[name='extra-${num_row}-3']`).val() || "dB",
                 "result":$(`input[name='extra-${num_row}-4']`).val(),
-                "limit":$(`input[name='extra-${num_row}-5']`).val(),
+                "limit":naModeLimit($(`input[name='extra-${num_row}-5']`).val()),
             }
             extraFields.push(obj);
         }
@@ -1244,24 +1258,27 @@
 
 
         $("#save_rows").on('click', getExtraFields)
+        jQuery(function(){ jQuery('#extra_field').closest('form').on('submit', function(){ getExtraFields(); naSyncSavedLimits(); }); });
 
         var table = document.querySelector('#table')
         var add_rows = document.querySelector('#add_rows')
-        currentNumber = 14
+        currentNumber = 14 + {{ data.extra_field|length }}
 
         add_rows.addEventListener('click', (e) => {
         e.preventDefault()
+        var n = currentNumber;
         var newRow = table.insertRow(table.rows.length);
-        $(newRow).attr("id",`extraRow-${currentNumber}`)
-        var cell0 = newRow.insertCell(0);
-        cell0.innerHTML = `${currentNumber}`;
-
-        for (var i = 1; i < 6; i++) {
-            var cell = newRow.insertCell(i);
-            cell.innerHTML = `<input type="text" name="extra-${currentNumber}-${i}">`;
-        }
+        $(newRow).attr("id",`extraRow-${n}`)
+        newRow.className = "text-center border h-16";
+        newRow.innerHTML = `<td>${n}</td>`
+            + `<td><input class="border-2 border-black w-96 h-10 rounded p-2" name="extra-${n}-1" type="text"></td>`
+            + `<td>ASTM E1686-16<input type="hidden" name="extra-${n}-2" value="ASTM E1686-16"></td>`
+            + `<td>dB<input type="hidden" name="extra-${n}-3" value="dB"></td>`
+            + `<td><input class="border-2 border-black w-96 h-10 rounded p-2" name="extra-${n}-4" type="text"></td>`
+            + `<td class="range_value"><span class="std-limit"></span><span class="cl-mirror" style="display:none"></span><input type="text" maxlength="6" name="extra-${n}-5" class="rlim-input border-2 border-black w-24 h-10 rounded p-2 text-center" style="display:none" value=""></td>`;
 
         currentNumber++;
+        if (window.naApplyUI) window.naApplyUI();
         })
 
         $(document).ready(function() {

@@ -148,7 +148,8 @@ def packingPolyBagUpdate(request,pk):
      if request.method == 'POST':
           ppb.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          ppb.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               ppb.industry = Industry_sector.objects.get(id=industry_id)
           ppb.lab_report_no = request.POST['pack_lab_rep_no']
           ppb.invoice_bill_no = request.POST['pack_invoice']
           ppb.reporting_date = request.POST['pack_rep_date']
@@ -184,9 +185,12 @@ def packingPolyBagUpdate(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
 
           # Assign to ambientUpdate if needed
-          ppb.analyst_signature = analyst_sign
-          ppb.assistant_manager_signature = review_sign
-          ppb.lab_manager_signature = approved_sign
+          if analyst_sign:
+               ppb.analyst_signature = analyst_sign
+          if review_sign:
+               ppb.assistant_manager_signature = review_sign
+          if approved_sign:
+               ppb.lab_manager_signature = approved_sign
           
           ppb.pdf_heading=request.POST.get('pdf_heading')
           
@@ -991,7 +995,8 @@ def packingPolycloneSave(request,pk):
      if request.method == 'POST':
           existing_Form.location = request.POST['location']
           industry_id = request.POST.get('industry')
-          existing_Form.industry = Industry_sector.objects.get(id=industry_id) if industry_id else None
+          if industry_id:
+               existing_Form.industry = Industry_sector.objects.get(id=industry_id)
           existing_Form.lab_report_no = request.POST['pack_lab_rep_no']
           existing_Form.invoice_bill_no = request.POST['pack_invoice']
           existing_Form.reporting_date = request.POST['pack_rep_date']
@@ -1028,9 +1033,12 @@ def packingPolycloneSave(request,pk):
           approved_sign = get_object_or_404(Signatures, id=approved_sign_id) if approved_sign_id else None
   
           # Assign to ambientUpdate if needed
-          existing_Form.analyst_signature = analyst_sign
-          existing_Form.assistant_manager_signature = review_sign
-          existing_Form.lab_manager_signature = approved_sign
+          if analyst_sign:
+               existing_Form.analyst_signature = analyst_sign
+          if review_sign:
+               existing_Form.assistant_manager_signature = review_sign
+          if approved_sign:
+               existing_Form.lab_manager_signature = approved_sign
           
           existing_Form.pdf_heading=request.POST.get('pdf_heading')
           
