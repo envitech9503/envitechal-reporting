@@ -152,7 +152,16 @@ local_date_pakistan = current_datetime_pakistan.date()
 local_time_str_pakistan = current_datetime_pakistan.strftime("%H:%M:%S")
 
 # Create a formatted string
+# DEPRECATED: local_date is computed once at import time and therefore frozen.
+# Kept only for backward compatibility; use now_pk_str() for a fresh timestamp.
 local_date = f"Date: {local_date_pakistan}, Time: {local_time_str_pakistan}"
+
+
+def now_pk_str():
+    """Return the current Pakistan (Asia/Karachi) date/time as a formatted
+    string ('Date: YYYY-MM-DD, Time: HH:MM:SS'), computed fresh on each call."""
+    _now_pakistan = timezone.now().astimezone(target_timezone)
+    return f"Date: {_now_pakistan.date()}, Time: {_now_pakistan.strftime('%H:%M:%S')}"
 
 
 logger = logging.getLogger(__name__)

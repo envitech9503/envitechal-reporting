@@ -142,7 +142,7 @@ def calibration(request):
           
           user = request.user
           action = f'Calibration certificate {calibration.cert_num} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = (Calibration.objects.last()).id
           if "submit_and_view" in request.POST:
                url = f"/calibration_view/{str(id)}/"
@@ -197,7 +197,7 @@ def calib_delete(request,pk):
      calib.delete()
      user = request.user
      action = f'Calibration certificate {calib.cert_num} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      return redirect("calib_list")
 
 @login_required(login_url="/login")
@@ -379,7 +379,7 @@ def calib_update(request,pk):
           calib.save()
           user = request.user
           action = f'Calibration certificate {calib.cert_num} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = calib.id
           if "submit_and_view" in request.POST:
                url = f'/calibration_view/{str(id)}/'
@@ -575,7 +575,7 @@ def calib_clone_update(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Calibration certificate {existing_Form.cert_num} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = existing_Form.id
           if "submit_and_view" in request.POST:
                 url = f"/calibration_view/{str(id)}/"

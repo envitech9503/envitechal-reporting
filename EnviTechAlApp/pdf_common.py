@@ -6016,8 +6016,8 @@ class PDF_logPdf(FPDF):
         self.text(172, 12, txt=self._rq_logging.lab)  
         if self._rq_logging.city_location == 'Lahore' or self._rq_logging.city_location == 'lahore':                                                                                                                         
            self.text(172, 16, txt="Issue Date: 05-01-2023")
-        elif self._rq_logging.city_location == 'Karachi' or self._rq_logging.city_location == 'karachi': 
-             self.text(172, 16, txt="Issue Date: 05-01-2023")
+        elif self._rq_logging.city_location == 'Karachi' or self._rq_logging.city_location == 'karachi':
+             self.text(172, 16, txt="Issue Date: 17-12-2021")
         self.text(172, 20, txt=self._rq_logging.issue_no)
 
         self.set_text_color(0, 0, 0)

@@ -129,7 +129,7 @@ def ambientAirForm(request):
 
             user = request.user
             action = f'Ambient Air Form {ambientAir.lab_report_no} created by {user.username}'
-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
             messages.success(request, 'Operation was successful!')
             id = (AmbientAirForm.objects.last()).id
             if "submit_and_view" in request.POST:
@@ -576,7 +576,7 @@ def ambientAirQuality2(request):
 
           user = request.user
           action = f'Ambient Air 2 Form {ambientAirForm2.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (AmbientAir2.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -607,7 +607,7 @@ def ambientAirDelete(request,pk):
      ambientDelete.delete()
      user = request.user
      action = f'Ambient Air Form {ambientDelete.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect('ambientAirList')
 
@@ -757,7 +757,7 @@ def ambientAirUpdateRecord(request,pk):
           ambientUpdate.save()
           user = request.user
           action = f'Ambient Air Form {ambientUpdate.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
 
           id = ambientUpdate.id
@@ -1738,7 +1738,7 @@ def ambientAir2Delete(request,pk):
      AA.delete()
      user = request.user
      action = f'Ambient Air 2 Form {AA.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("ambientAir2List")
 
@@ -2158,7 +2158,7 @@ def ambientAir2Update(request,pk):
           AA.save()
           user = request.user
           action = f'Ambient Air 2 Form {AA.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = AA.id
           if "submit_and_view" in request.POST:
@@ -3787,7 +3787,7 @@ def ambientAir2cloneSave(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Ambient Air 2 Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
 
@@ -3950,7 +3950,7 @@ def ambientAircloneSave(request,pk):
             existing_Form.save()
             user = request.user
             action = f'Ambient Air Form {existing_Form.lab_report_no} cloned by {user.username}'
-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
             messages.success(request, 'Operation was successful!')
             id = existing_Form.id
             if "update_and_view" in request.POST:

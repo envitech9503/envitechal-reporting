@@ -381,14 +381,17 @@ def addLogging(request):
           att_person = request.POST['att_person']
           email = request.POST['email']
           sample_nature = request.POST['sample_nature']
-          rec_date = datetime.strptime(request.POST['rec_date'], '%Y-%m-%d').date()
-          exp_date = datetime.strptime(request.POST['exp_date'], '%Y-%m-%d').date()
-          rep_date = datetime.strptime(request.POST['rep_date'], '%Y-%m-%d').date()
-          formatted_rec_date = rec_date.strftime('%d-%B-%Y')
-          formatted_exp_date = exp_date.strftime('%d-%B-%Y')
-          formatted_rep_date = rep_date.strftime('%d-%B-%Y')
+          def _d(k):
+               v = request.POST.get(k)
+               return datetime.strptime(v, '%Y-%m-%d').date() if v else None
+          rec_date = _d('rec_date')
+          exp_date = _d('exp_date')
+          rep_date = _d('rep_date')
+          formatted_rec_date = rec_date.strftime('%d-%B-%Y') if rec_date else ''
+          formatted_exp_date = exp_date.strftime('%d-%B-%Y') if exp_date else ''
+          formatted_rep_date = rep_date.strftime('%d-%B-%Y') if rep_date else ''
 
-          month = datetime.strptime(request.POST['month'], '%Y-%m-%d').date() if request.POST['month'] else None
+          month = _d('month')
           rec_by = request.POST['rec_by']
           remarks = request.POST['remarks']
           lab = request.POST['lab']
@@ -400,12 +403,12 @@ def addLogging(request):
           log = LoggingSheet(city_location=city_location,sample_id=sample_id,client_name=client_name,
                               address=address,att_person=att_person,sample_nature = sample_nature,month=month,
                               email=email,rec_date=formatted_rec_date,exp_date=formatted_exp_date,rep_date=formatted_rep_date,rec_by=rec_by,remarks=remarks,
-                              lab=lab,issue_date=issue_date,issue_no=issue_no,issue=issue)
+                              lab=lab,issue_date=issue_date,issue_no=issue_no,issue=issue,created_by=request.user)
 
           log.save()
           user = request.user
           action = f'Logging Sheet created by {user.username}'
-          # AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Sample successfully added!')
           id = (LoggingSheet.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -611,7 +614,7 @@ def deleteDrinkingWaterList(request,pk):
      drinkingWaterList.delete()
      user = request.user
      action = f'Drinking Water Form {drinkingWaterList.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("drinkWaterList")
 
@@ -658,7 +661,9 @@ def editDrinkingWaterListRecord(request,pk):
           updatedata.address = request.POST['address']
           updatedata.attention = request.POST['attention']
           updatedata.email = request.POST['email']
-          updatedata.customer_id = request.POST.get('customer_id')
+          _c = request.POST.get('customer_id')
+          if _c:
+               updatedata.customer_id = _c
           updatedata.sample_id = request.POST['sample_id']
           updatedata.sample_collection_date = request.POST['collection_date']
           updatedata.sample_description = request.POST['sample_description']
@@ -862,7 +867,7 @@ def editDrinkingWaterListRecord(request,pk):
           if updatedata.customer_id:
                LoggingSheet.objects.filter(id=updatedata.customer_id).update(rep_date=updatedata.reporting_date)
           action = f'Drinking Water Form {updatedata.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = updatedata.id
           if "submit_and_view" in request.POST:
@@ -925,7 +930,7 @@ def deleteGaseousList(request,pk):
      gaseous_Emission.delete()
      user = request.user
      action = f'Gaseous Emission Form {gaseous_Emission.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
 
      return redirect('gaseousEmissionList')
@@ -1098,7 +1103,7 @@ def updateGaseousRecord(request,pk):
           update_data.save()
           user = request.user
           action = f'Gaseous Emission Form {update_data.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = update_data.id
           if "submit_and_view" in request.POST:

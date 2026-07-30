@@ -118,7 +118,7 @@ def machineOil(request):
 
           user = request.user
           action = f'Machine Oil Form {machineOil.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (MachineOilForm.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -147,7 +147,7 @@ def machineOilDelete(request,pk):
      machineOil.delete()
      user = request.user
      action = f'Machine Oil Form {machineOil.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("machineOilList")
 
@@ -270,7 +270,7 @@ def machineOilUpdate(request,pk):
           machineOil.save()
           user = request.user
           action = f'Machine Oil Form {machineOil.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = machineOil.id
           if "submit_and_view" in request.POST:
@@ -1359,7 +1359,7 @@ def machineOilcloneSave(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Machine Oil Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:

@@ -1,6 +1,7 @@
 # Auto-generated 18-07-2026: split of monolithic views.py (EnviTechAL rehab).
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
+from django.views.decorators.http import require_POST
 
 
 def logoutUser(request):
@@ -21,22 +22,16 @@ def loggingSheet(request):
                 selected_date = datetime.strptime(selected_month, '%Y-%m')
             except ValueError:
                 # Handle the case where the input is not a valid date
-                # You might want to add proper error handling or redirect to an error page
-                return render(request, 'error_page.html')
+                return render(request, 'error.html', {'error': 'Please select a valid month.'}, status=400)
 
             # Filter the queryset based on the year and month components
             log = LoggingSheet.objects.filter(month__year=selected_date.year, month__month=selected_date.month,city_location=selected_location).order_by('-id')
-            logging = LoggingSheet.objects.first()
-            context = {'data': log,"dt":selected_date.month,"yr":selected_date.year,'logging':logging,'selected_location':selected_location}
-            
-            return render(request, 'loggingSheet.html', context)
-        else:
-            log = LoggingSheet.objects.all().order_by('-id')
-    else:
-        log = LoggingSheet.objects.all().order_by('-id')
+            logging = log.first()
+            context = {'data': log,"dt":selected_date.month,"yr":selected_date.year,'logging':logging,'selected_location':selected_location,'selected_month':selected_month}
 
-    
-    return render(request, 'loggingSheet.html',)
+            return render(request, 'loggingSheet.html', context)
+
+    return render(request, 'loggingSheet.html', {})
 
 
 def loggingList(request):
@@ -63,8 +58,8 @@ def loggingUpdate(request,pk):
           log.exp_date = request.POST['exp_date']
           log.rep_date = request.POST['rep_date']
 
-          # log.month = datetime.strptime(request.POST['month'], '%Y-%m-%d').date() if request.POST['month'] else None
-          log.month = request.POST.get('month')
+          _m = request.POST.get('month')
+          log.month = datetime.strptime(_m, '%Y-%m-%d').date() if _m else None
           log.rec_by = request.POST['rec_by']
           log.remarks = request.POST['remarks']
           log.lab = request.POST['lab']
@@ -76,14 +71,14 @@ def loggingUpdate(request,pk):
           log.save()
           user = request.user
           action = f'Logging Sheet Edited by {user.username}'
-          # AuditLog.objects.create(user=user, action=action, timestamp=local_date)
-          messages.success(request, 'Sample successfully added!')
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+          messages.success(request, 'Logging sheet updated successfully!')
           if "submit_and_view" in request.POST:
-               return redirect(to='loggingSheet')
+               return redirect(f"/loggingView/{pk}/")
           if "submit_and_new" in request.POST:
-               
-               return render(request, "loggingList.html")  
-     return render(request,"addLogging.html") 
+
+               return redirect('addLogging')
+     return render(request,"addLogging.html")
 
 
 def loggingClone(request,pk):
@@ -106,8 +101,8 @@ def loggingCloneUpdate(request,pk):
           log.rep_date = request.POST['rep_date']
 
 
-          # log.month = datetime.strptime(request.POST['month'], '%Y-%m-%d').date() if request.POST['month'] else None
-          log.month = request.POST.get('month')
+          _m = request.POST.get('month')
+          log.month = datetime.strptime(_m, '%Y-%m-%d').date() if _m else None
           log.rec_by = request.POST['rec_by']
           log.remarks = request.POST['remarks']
           log.lab = request.POST['lab']
@@ -117,19 +112,20 @@ def loggingCloneUpdate(request,pk):
 
           log.pk = None
           log.id = None
+          log.created_by = request.user
           log.save()
           id = log.id
           user = request.user
-          action = f'Logging Sheet Edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
-          messages.success(request, 'Sample successfully added!')
-          
+          action = f'Logging Sheet Cloned by {user.username}'
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+          messages.success(request, 'Logging sheet cloned successfully!')
+
           if "submit_and_view" in request.POST:
                url = f"/loggingView/{str(id)}/"
                return redirect(to=url)
-          if "submit_and_new" in request.POST: 
-               return render(request, "loggingList.html")  
-     return render(request,"addLogging.html") 
+          if "submit_and_new" in request.POST:
+               return redirect('addLogging')
+     return render(request,"addLogging.html")
 
 def loggingView(request,pk):
      log = LoggingSheet.objects.get(id=pk)
@@ -138,27 +134,33 @@ def loggingView(request,pk):
      context = {'data':log,'month':month}
      return render(request,'loggingView.html',context)
 
+@require_POST
 def loggingDelete(request,pk):
      log = LoggingSheet.objects.get(id=pk)
      user = request.user
      action = f'Logging Sheet {log.sample_id} Deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
-     messages.success(request, 'Sample successfully Deleted!')
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
+     messages.success(request, 'Logging sheet deleted successfully!')
      log.delete()
      return redirect("loggingList")
 
 
 def logPdf(request):
-    mn = request.GET.get('dt')
-    yr =  request.GET.get('yr')
+    try:
+        mn = int(request.GET.get('dt'))
+        yr = int(request.GET.get('yr'))
+    except (TypeError, ValueError):
+        return HttpResponse('Invalid parameters', status=400)
     loc = request.GET.get('loc')
-    
+
     data = LoggingSheet.objects.filter(month__year=yr, month__month=mn,city_location=loc)
-    logging = LoggingSheet.objects.first()
+    logging = data.first()
     from fpdf import FPDF
     from EnviTechAlApp.pdf_common import PDF_logPdf as PDFWithPageNumbers
     pdf = PDFWithPageNumbers()
     pdf._rq_data, pdf._rq_logging = data, logging
+    if not logging:
+        return HttpResponse('No logging records for the selected month/location', status=404)
     pdf.add_page()
     font_path = "static/fonts/calibri.ttf"
     font_path_bold = "static/fonts/calibrib.ttf"

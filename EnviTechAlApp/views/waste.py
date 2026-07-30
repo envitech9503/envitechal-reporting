@@ -140,7 +140,7 @@ def wasteWaterSludge(request):
 
             user = request.user
             action = f'Waste Water Form {wasteWaterForm.lab_report_no} created by {user.username}'
-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
             messages.success(request, 'Operation was successful!')
             id = (AmbientAirForm.objects.last()).id
             id = (WasteWaterSludge.objects.last()).id
@@ -503,7 +503,7 @@ def wasteWater2(request):
 
           user = request.user
           action = f'Waste Water 2 Form {wasteWaterForm2.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (WasteWaterForm2.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -529,7 +529,7 @@ def wasteWaterSludgeDelete(request,pk):
      wastewaterForm.delete()
      user = request.user
      action = f'Waste Water Form {wastewaterForm.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect('wasteWaterSludgeList')
 
@@ -667,7 +667,7 @@ def wasteWaterUpdate(request,pk):
           wasterWaterForm.save()
           user = request.user
           action = f'Waste Water Form {wasterWaterForm.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id=wasterWaterForm.id
           if "submit_and_view" in request.POST:
@@ -1961,7 +1961,7 @@ def wasteWAter2Delete(request,pk):
      ww.delete()
      user = request.user
      action = f'Waste Water 2 Form {ww.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("wasteWater2List")
 
@@ -2305,7 +2305,7 @@ def wasteWAter2Update(request,pk):
           ww.save()
           user = request.user
           action = f'Waste Water 2 Form {ww.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = ww.id
           if "submit_and_view" in request.POST:
@@ -8902,7 +8902,7 @@ def wasteWater2cloneSave(request,pk):
                LoggingSheet.objects.filter(id=_clone_customer_id).update(rep_date=existing_Form.reporting_date)
           user = request.user
           action = f'Waste Water 2 Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:
@@ -9053,7 +9053,7 @@ def wasteWatercloneSave(request,pk):
             id = existing_Form.id
             user = request.user
             action = f'Waste Water Form {existing_Form.lab_report_no} cloned by {user.username}'
-            AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+            AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
             messages.success(request, 'Operation was successful!')
             if "submit_and_view" in request.POST:
                 url = f"/wasteWaterSludge-view/{str(id)}/"

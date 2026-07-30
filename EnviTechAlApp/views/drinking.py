@@ -249,7 +249,7 @@ def drinkingWaterForm(request):
           
           user = request.user
           action = f'Drinking Water Form {waterForm.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (DrinkingWaterForm.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -527,7 +527,7 @@ def drinkingWaterCloneSave(request,pk):
           existing_dw.save()
           user = request.user
           action = f'Drinking Water Form {existing_dw.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_dw.id
           # id = (DrinkingWaterForm.objects.last()).id

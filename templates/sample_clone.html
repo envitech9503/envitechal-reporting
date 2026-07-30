@@ -82,12 +82,12 @@
                         <input class="NEQS-value" type="checkbox" value="NEQS_">
                         <label for="">NEQS</label>
                     </div>
-                    <input id="checkinput" type="text" name="location" value="" style="display: none;">
+                    <input id="checkinput" type="text" name="location" value="{{data.location}}" style="display: none;">
                     <div class="flex justify-between flex-wrap">
                   
                     <div class="mt-4 flex flex-col">
                         <label class="font-bold text-lg" for="">Location</label>
-                        <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                        <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
                     </div>
                    
                     
@@ -103,7 +103,7 @@
                  <h5 class="" style=""><b>Sample Information:</b></h5>
                  <div class="">
                      <label for="">Sample ID</label>
-                     <input class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{data.sample_id}}" type="text" name="sample_id" id="">
+                     <input class="w-96 border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="" required type="text" name="sample_id" id="">
                  </div>
              </div>
          </div>
@@ -239,12 +239,12 @@
                             {% if data.checkinp16 %}
                                <div class="">
                                 <input id="effluent" checked class="" name="checkinp16" type="checkbox">
-                                <labelfor="effluent"><b>Effluent</b></labelfor=>
+                                <label for="effluent"><b>Effluent</b></label>
                                </div>
                             {% else %} 
                                 <div class="">
                                     <input id="effluent" class="" name="checkinp16" type="checkbox">
-                                    <labelfor="effluent"><b>Effluent</b></labelfor=>  
+                                    <label for="effluent"><b>Effluent</b></label>  
                                 </div>                 
                             {% endif %}
                             
@@ -265,12 +265,12 @@
                             {% if data.checkinp17 %}
                                     <div class="">
                                         <input id="bore_water" checked class="" name="checkinp17" type="checkbox">
-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>
+                                    <label for="bore_water"><b>Bore Water</b></label>
                                     </div>
                                 {% else %} 
                                     <div class="">
                                         <input id="bore_water" class="" name="checkinp17" type="checkbox">
-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>  
+                                    <label for="bore_water"><b>Bore Water</b></label>  
                                     </div> 
                                 {% endif %}
                             
@@ -307,24 +307,6 @@
             
         </div>
     
-        <div class="w-full flex justify-center">
-            <table class="border-2 border-gray-200 w-8/12 border-t-0">
-                <tr>
-                    <td class="p-2 border border-gray-300"><b>Environmental Conditions (when sample Received):</b></td>
-                   
-                        <td class="p-2 space-x-4"><b>Temp</b><input 
-                            class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
-                        name="inp19" value="{{data.inp19}}" type="text"></td>
-                    
-                    
-                    
-                        <td class="p-2 space-x-4"><b>pH</b><input 
-                            class="w-9/12  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm"
-                        name="inp20" value="{{data.inp20}}" type="text"></td>
-                    
-                </tr>
-            </table>
-        </div>
         <div class="w-full flex justify-center">
             <table class="border-2 border-gray-200 w-8/12 border-t-0">
                 <tr>
@@ -1050,11 +1032,11 @@
     </div>
 
     <div class="">
-        {% if data.ww_other_param_63 %}<input  checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input disabled id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
+        {% if data.ww_other_param_63 %}<input  checked id="ww_param_63" name="ww_other_param_63" type="checkbox">{% else %}<input id="ww_param_63" name="ww_other_param_63" type="checkbox">{% endif %}
         <label for="ww_param_63"><b>Pseudomonas aeruginosa</b></label>
     </div>
     <div class="">
-        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
+        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
         <label for="ww_param_64"><b>Pseudomonas aeruginosa</b></label>
     </div>
 </div>
@@ -1440,9 +1422,9 @@
                             <input   id="flo" name="checkinp66" type="checkbox">
                         {%endif%}
                         {% if data.city_location == 'Lahore' %}
-                            <label for="flo"><b>Flouride</b></label>
+                            <label for="flo"><b>Fluoride</b></label>
                         {% else %}
-                            <label for="flo"><b>Flouride*</b></label>
+                            <label for="flo"><b>Fluoride*</b></label>
                         {% endif %}
                     </div>
                     <div class="">
@@ -1967,7 +1949,7 @@
                     <select required id="analyst-sign" name="auth_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
                                 <option selected disabled>select</option>
                                 {% for sign in signs %}
-                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                    <option value="{{sign.id}}" {% if sign.id == data.auth_signature_id %}selected{% endif %}>{{sign.user.username}} ({{sign.role}})</option>
                                 {% endfor %}
                     </select>
                     <hr class="w-full text-black">
@@ -1994,7 +1976,7 @@
                     <select required id="" name="sample_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
                                 <option selected disabled>sample By</option>
                                 {% for sign in signs %}
-                                    <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
+                                    <option value="{{sign.id}}" {% if sign.id == data.sampling_by_signature_id %}selected{% endif %}>{{sign.user.username}} ({{sign.role}})</option>
                                 {% endfor %}
                     </select>
                     <hr class="border border-gray-700">
@@ -2024,27 +2006,32 @@ $(document).ready(function () {
         });
 $(document).ready(async () => {
         $("#loc_err").show()
-        const req_pip = await fetch('https://api.ipify.org?format=json');
-        var public_ip = await req_pip.json();
-        public_ip = public_ip.ip ? public_ip.ip : null;
-        if (public_ip) {
-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
-            const req_loc_ip = await fetch(url);
-            var location = await req_loc_ip.json();
-            console.log(location)
-            if (location) {
-                let region = location.region.toLowerCase();
-                switch (region) {
-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+        if (!$(".city_location").val()) {
+            let region = '';
+            try {
+                const req_pip = await fetch('https://api.ipify.org?format=json');
+                var public_ip = await req_pip.json();
+                public_ip = public_ip.ip ? public_ip.ip : null;
+                if (public_ip) {
+                    let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+                    const req_loc_ip = await fetch(url);
+                    var location = await req_loc_ip.json();
+                    if (location && location.region) {
+                        region = location.region.toLowerCase();
+                    }
                 }
-                setTimeout(function(){
-                    $("#loc_err").hide()
-                },1000)
-              
+            } catch (e) {
+                console.log('IP geolocation lookup failed:', e);
+            }
+            switch (region) {
+                case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                case "kpk": $("input[value='NEQS_']").trigger("click"); break;
             }
         }
+        setTimeout(function(){
+            $("#loc_err").hide()
+        },1000)
     })
 
     var seqs_value = document.querySelector(".SEQS-value")

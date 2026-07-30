@@ -1462,6 +1462,7 @@ console.log('average', average);
                         var customer_id = $("#customers option:selected").attr("data-id");
                         // const customer = t.value
                         console.log('pk',customer_id)
+                        $("input[name='customer_id']").val(customer_id);
                         $("input[name='lab_rep_no']").val(customer.sample_id)
                         $("input[name='testId']").val(customer.sample_id)
                         $("input[name='report_to']").val(customer.client_name)
@@ -1469,7 +1470,7 @@ console.log('average', average);
                         $("input[name='address']").val(customer.address)
                         $("input[name='email']").val(customer.email)
                         $("input[name='test_perf_date']").val(customer.rec_date)
-                        $("input[name='ambientAir_rep_date']").val(customer.rep_date)
+                        $("input[name='report_date']").val(customer.rep_date)
 
                     }
         

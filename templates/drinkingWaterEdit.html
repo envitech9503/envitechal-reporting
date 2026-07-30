@@ -275,11 +275,12 @@
                         <div class="mt-4 flex flex-col">
                             
                             <label class="font-bold text-lg" for="">Customer</label>
-                            <select id="customers" name="customer_id" onchange="selectCustomer(this)"
+                            <select id="customers" onchange="selectCustomer(this)"
                                 class="border-2 border-black w-96 px-2 py-2 rounded-lg">
                                 <option selected disabled>Select Customer</option>
 
                             </select>
+                            <input type="hidden" name="customer_id" value="">
                         </div>
 
                     </div>
@@ -1338,7 +1339,7 @@
             const customers ={{customers|safe}}
             
             for(customer of customers){
-                let html = `<option value='${JSON.stringify(customer.pk)}'>${customer.fields.sample_id} - 
+                let html = `<option data-id="${customer.pk}" value='${JSON.stringify(customer.fields)}'>${customer.fields.sample_id} -
                     ${customer.fields.client_name} - ${customer.fields.sample_nature}</option>`
                 $("#customers").append(html)
             }

@@ -150,7 +150,7 @@ def gaseousEmission(request):
              LoggingSheet.objects.filter(id=customer_id).update(rep_date=reporting_date)
         user = request.user
         action = f'Gaseous Emission Form {gaseousForm.lab_report_no} created by {user.username}'
-        AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+        AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
         messages.success(request, 'Operation was successful!')
         id = (GaseousEmissionForm.objects.last()).id
         if "submit_and_view" in request.POST:
@@ -1396,7 +1396,7 @@ def GaseousFormcloneSave(request,pk):
         existing_Form.save()
         user = request.user
         action = f'Gaseous Emission Form {existing_Form.lab_report_no} cloned by {user.username}'
-        AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+        AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
         messages.success(request, 'Operation was successful!')
         id = existing_Form.id
         if "submit_and_view" in request.POST:

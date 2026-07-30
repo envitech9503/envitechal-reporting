@@ -219,7 +219,7 @@
                             </div>
                             <div class="">
                                 <input id="effluent"   class="" name="checkinp16" type="checkbox">
-                                <labelfor="effluent"><b>Effluent</b></labelfor=>
+                                <label for="effluent"><b>Effluent</b></label>
                                </div>
                             
                             
@@ -233,7 +233,7 @@
                         </div>
                         <div class="">
                             <input id="bore_water"   class="" name="checkinp17" type="checkbox">
-                        <labelfor="bore_water"><b>Bore Water</b></labelfor=>
+                        <label for="bore_water"><b>Bore Water</b></label>
                         </div>
                     </div>
                         <div class="space-y-4">
@@ -390,7 +390,7 @@
             </div>
             <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
                 <label class="font-bold text-lg" for=""> Authorized Signature</label>
-                <select id="analyst-sign" name="auth_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                <select id="analyst-sign" name="auth_sign" required class="border-2 border-black px-2 py-2 rounded-lg w-full">
                                 <option selected disabled>select</option>
                                 {% for sign in signs %}
                                     <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
@@ -417,7 +417,7 @@
             </div>
             <div class="flex flex-col space-y-4 border p-2  border-gray-500 w-1/2">
                 <label class="font-bold text-lg" for=""> Sampling By</label>
-                <select id="" name="sample_sign" class="border-2 border-black px-2 py-2 rounded-lg w-full">
+                <select id="" name="sample_sign" required class="border-2 border-black px-2 py-2 rounded-lg w-full">
                                 <option selected disabled>sample By</option>
                                 {% for sign in signs %}
                                     <option value="{{sign.id}}">{{sign.user.username}} ({{sign.role}})</option>
@@ -449,17 +449,22 @@
         });
     $(document).ready(async () => {
         $("#loc_err").show()
-        const req_pip = await fetch('https://api.ipify.org?format=json');
-        var public_ip = await req_pip.json();
-        public_ip = public_ip.ip ? public_ip.ip : null;
-        if (public_ip) {
-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
-            const req_loc_ip = await fetch(url);
-            var location = await req_loc_ip.json();
-            
-            
-            if (location) {
-                let region = location.region.toLowerCase();
+        let region = '';
+        try {
+            const req_pip = await fetch('https://api.ipify.org?format=json');
+            var public_ip = await req_pip.json();
+            public_ip = public_ip.ip ? public_ip.ip : null;
+            if (public_ip) {
+                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+                const req_loc_ip = await fetch(url);
+                var location = await req_loc_ip.json();
+                if (location && location.region) {
+                    region = location.region.toLowerCase();
+                }
+            }
+        } catch (e) {
+            console.log('IP geolocation lookup failed:', e);
+        }
                 if(region == 'punjab'){
                     console.log('punjab')
                     const wasterWaterContainer = $('#wasterWaterContainer')
@@ -1982,18 +1987,17 @@
                     `)
                     
                 }
-                switch (region) {
-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                if (!$(".city_location").val()) {
+                    switch (region) {
+                        case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                        case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                        case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                    }
                 }
-                
+
                 setTimeout(function(){
                     $("#loc_err").hide()
                 },1000)
-              
-            }
-        }
     })
 
     var seqs_value = document.querySelector(".SEQS-value")

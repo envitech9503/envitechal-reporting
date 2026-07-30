@@ -61,7 +61,7 @@
               
                 <div class="mt-4 flex flex-col">
                     <label class="font-bold text-lg" for="">Location</label>
-                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="" placeholder="Karachi,Lahore">
+                    <input class="city_location border-2 border-black w-96 px-2 py-2 rounded-lg" type="text" name="city_location" value="{{data.city_location}}" placeholder="Karachi,Lahore">
                 </div>
                
                 
@@ -77,8 +77,8 @@
     <div class=" w-full flex justify-center">
         <table class="border-2 border-gray-200 w-8/12 ">
             <tr >
-                <td class="p-2 border border-gray-300"><b>PLease Select Month</b></td>
-                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{data.month}}" type="text" name="month" id=""></td>
+                <td class="p-2 border border-gray-300"><b>Please Select Month</b></td>
+                <td colspan="3" class="p-2 border border-gray-300"><input class="w-full  border border-2 p-1 border-gray-300 outline-none focus:ring-1 ring-blue-300 rounded-sm" value="{{ data.month|date:'Y-m-d' }}" type="date" name="month" id=""></td>
             </tr>
             <tr>
                 <td class="p-2 border border-gray-300"><b>Sample/Test ID</b></td>
@@ -175,26 +175,32 @@
 <script>
     $(document).ready(async () => {
         $("#loc_err").show()
-        const req_pip = await fetch('https://api.ipify.org?format=json');
-        var public_ip = await req_pip.json();
-        public_ip = public_ip.ip ? public_ip.ip : null;
-        if (public_ip) {
-            let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
-            const req_loc_ip = await fetch(url);
-            var location = await req_loc_ip.json();
-            console.log(location)
-            if (location) {
-                let region = location.region.toLowerCase();
-                switch (region) {
-                    case "sindh": $("input[value='SEQS_']").trigger("click"); break;
-                    case "punjab": $("input[value='PEQS_']").trigger("click"); break;
-                    case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+        try {
+            const req_pip = await fetch('https://api.ipify.org?format=json');
+            var public_ip = await req_pip.json();
+            public_ip = public_ip.ip ? public_ip.ip : null;
+            if (public_ip) {
+                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
+                const req_loc_ip = await fetch(url);
+                var location = await req_loc_ip.json();
+                console.log(location)
+                if (location) {
+                    let region = location.region.toLowerCase();
+                    if (!document.querySelector('.city_location').value) {
+                        switch (region) {
+                            case "sindh": $("input[value='SEQS_']").trigger("click"); break;
+                            case "punjab": $("input[value='PEQS_']").trigger("click"); break;
+                            case "kpk": $("input[value='NEQS_']").trigger("click"); break;
+                        }
+                    }
                 }
-                setTimeout(function(){
-                    $("#loc_err").hide()
-                },1000)
-              
             }
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setTimeout(function(){
+                $("#loc_err").hide()
+            },1000)
         }
     })
 

@@ -146,7 +146,7 @@ def microbialAnalysis(request):
 
           user = request.user
           action = f'Microbial Form {microbialForm.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (MicrobialAnalysis.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -173,7 +173,7 @@ def microbialDelete(request,pk):
      mba.delete()
      user = request.user
      action = f'Microbial Form {mba.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("microbialList")
 
@@ -333,7 +333,7 @@ def microbialUpdate(request,pk):
           mba.save()
           user = request.user
           action = f'Microbial Form {mba.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = mba.id
           if "submit_and_view" in request.POST:
@@ -1390,7 +1390,7 @@ def microbialcloneSave(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Microbial Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:

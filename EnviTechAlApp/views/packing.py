@@ -91,7 +91,7 @@ def packingPoly(request):
 
           user = request.user
           action = f'Packing Poly Bag Form {packingForm.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (PackingPolyBagForm.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -117,7 +117,7 @@ def  packingPolyBagDelete(request,pk):
      ppb.delete()
      user = request.user
      action = f'Packing Poly Bag Form {ppb.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect(to="packingPolyBagList")
 
@@ -223,7 +223,7 @@ def packingPolyBagUpdate(request,pk):
           ppb.save()
           user = request.user
           action = f'Packing Poly Bag Form {ppb.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = ppb.id
           if "submit_and_view" in request.POST:
@@ -1073,7 +1073,7 @@ def packingPolycloneSave(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Packing Poly Bag Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:

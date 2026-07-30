@@ -80,6 +80,7 @@
           
           .dropdown:hover .dropdown-content {
             display: block;
+        }
         .NEQS,.PEQS{
 	    display: none;
         }
@@ -188,18 +189,16 @@
 
     
     
-    <script src={% static '/js/app.js'%}?v=20260712 defer >
+    <script src={% static '/js/app.js'%}?v=20260712 defer ></script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggleButton = document.querySelector('.nav-toggle');
             const body = document.querySelector('body');
-        
+
             toggleButton.addEventListener('click', function () {
                 body.classList.toggle('nav-opened');
             });
         });
-
-    
-        
     </script>
     {% else %}
     <script>window.location='/login/'</script>

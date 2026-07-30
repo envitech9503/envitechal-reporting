@@ -1,6 +1,7 @@
 # Auto-generated 18-07-2026: split of monolithic views.py (EnviTechAL rehab).
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
+from django.views.decorators.http import require_POST
 
 
 
@@ -144,8 +145,8 @@ def sample_reg(request):
           sample_by_id = request.POST.get('sample_sign')
           auth_sign_id = request.POST.get('auth_sign')
           
-          auth_signature = Signatures.objects.get(id=auth_sign_id)
-          sampling_by_signature = Signatures.objects.get(id=sample_by_id)
+          auth_signature = Signatures.objects.filter(id=auth_sign_id).first() if auth_sign_id else None
+          sampling_by_signature = Signatures.objects.filter(id=sample_by_id).first() if sample_by_id else None
           # approved_sign = Signatures.objects.get(id=approved_sign_id)
           
           other_params = {}
@@ -155,7 +156,7 @@ def sample_reg(request):
                field = f"other_param_{i}"  # model field
                other_params[field] = request.POST.get(key) == "on"
                
-          for i in range(1, 64):  # 1 to 66
+          for i in range(1, 65):  # 1 to 66
                key = f"ww_other_param_{i}"   # your checkbox input id/name
                field = f"ww_other_param_{i}"  # model field
                ww_other_params[field] = request.POST.get(key) == "on"
@@ -176,16 +177,16 @@ def sample_reg(request):
           sample.save()
           
           action = f'Sample Registration form created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Sample successfully added!')
-          id = (Sample_registration.objects.last()).id
+          id = sample.id
           if "submit_and_view" in request.POST:
                url = f"/sample_view/{str(id)}/"
                return redirect(to=url)
           if "submit_and_new" in request.POST:
-               
-               return render(request, "sample_reg.html")                    
-     return render(request,"sample_reg.html",context={'signs':signs})
+
+               return redirect('sample_reg')
+     return render(request,"sample_reg.html",context={'signs':Signatures.objects.filter(user__is_active=True)})
 
 def sample_main(request):
      return render(request,"sample_main.html")
@@ -197,25 +198,28 @@ def sample_list(request):
      return render(request,"sample_list.html",context)
 
 def sample_view(request,pk):
-     sample = Sample_registration.objects.get(id=pk)
+     sample = get_object_or_404(Sample_registration, id=pk)
      context = {'data':sample}
      return render(request,"sample_view.html",context)
+@require_POST
 def sample_delete(request,pk):
-     sample = Sample_registration.objects.get(id=pk)
+     if not request.user.is_superuser:
+          return HttpResponse(status=403)
+     sample = get_object_or_404(Sample_registration, id=pk)
      user = request.user
      action = f'Sample Registration form {sample.sample_id} Deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      sample.delete()
      return redirect("sample_list")
 
 
 def sample_edit(request,pk):
-     sample = Sample_registration.objects.get(id=pk)
-     context = {'data':sample,'signs':signs}
+     sample = get_object_or_404(Sample_registration, id=pk)
+     context = {'data':sample,'signs':Signatures.objects.filter(user__is_active=True)}
      return render(request,'sample_edit.html',context)
 
 def sample_update(request,pk):
-     sample = Sample_registration.objects.get(id=pk)
+     sample = get_object_or_404(Sample_registration, id=pk)
      if request.method == 'POST':
           sample.location = request.POST['location']
           sample.city_location = request.POST['city_location']
@@ -244,7 +248,7 @@ def sample_update(request,pk):
                     'checkinp116', 'checkinp117'
                     ]
           checkbox_fields.extend([f"other_param_{i}" for i in range(1, 67)])
-          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 64)])
+          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 65)])
           sample.inp1 = request.POST['inp1']
           sample.inp2 = request.POST['inp2']
           sample.inp3 = request.POST['inp3']
@@ -277,9 +281,9 @@ def sample_update(request,pk):
           auth_sign_id =request.POST.get('auth_sign')
           sample_by_id =request.POST.get('sample_sign')
           
-          auth_signature = Signatures.objects.get(id=auth_sign_id)
-          sampling_by_signature = Signatures.objects.get(id=sample_by_id)
-          
+          auth_signature = Signatures.objects.filter(id=auth_sign_id).first() if auth_sign_id else None
+          sampling_by_signature = Signatures.objects.filter(id=sample_by_id).first() if sample_by_id else None
+
           sample.auth_signature = auth_signature
           sample.sampling_by_signature = sampling_by_signature
 
@@ -291,23 +295,22 @@ def sample_update(request,pk):
           
           
           user = request.user
-          sample.created_by =user
           sample.save()
           action = f'Sample Registration form {sample.sample_id} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = sample.id
           if "submit_and_view" in request.POST:
                url = f"/sample_view/{str(id)}/"
                return redirect(to=url)
           if "submit_and_new" in request.POST:
-               
-               return redirect("sample_list")                    
-     return render(request,"sample_list.html")
+
+               return redirect("sample_list")
+     return redirect("sample_list")
 
 
 def sample_clone(request,pk):
-     sample = Sample_registration.objects.get(id=pk)
-     context = {'data':sample,'signs':signs}
+     sample = get_object_or_404(Sample_registration, id=pk)
+     context = {'data':sample,'signs':Signatures.objects.filter(user__is_active=True)}
      return render(request,'sample_clone.html',context)
 
 
@@ -345,7 +348,7 @@ def sample_clone_update(request,pk):
                     'checkinp116', 'checkinp117'
                     ]
           checkbox_fields.extend([f"other_param_{i}" for i in range(1, 67)])
-          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 64)])
+          checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 65)])
           sample.inp1 = request.POST['inp1']
           sample.inp2 = request.POST['inp2']
           sample.inp3 = request.POST['inp3']
@@ -365,8 +368,8 @@ def sample_clone_update(request,pk):
           sample.inp109 = request.POST['inp109']
           
           sample.inp112 = request.POST['inp112']
-          sample.other1 = request.POST['other1']
-          sample.other2 = request.POST['other2']
+          sample.other1 = request.POST.get('other1')
+          sample.other2 = request.POST.get('other2')
           
           sample.inp115 = request.POST['inp115']
           sample.assign_to = request.POST['assign_to']
@@ -378,14 +381,14 @@ def sample_clone_update(request,pk):
           auth_sign_id =request.POST.get('auth_sign')
           sample_by_id =request.POST.get('sample_sign')
           
-          auth_signature = Signatures.objects.get(id=auth_sign_id)
-          sampling_by_signature = Signatures.objects.get(id=sample_by_id)
-          
+          auth_signature = Signatures.objects.filter(id=auth_sign_id).first() if auth_sign_id else None
+          sampling_by_signature = Signatures.objects.filter(id=sample_by_id).first() if sample_by_id else None
+
           sample.auth_signature = auth_signature
           sample.sampling_by_signature = sampling_by_signature
 
           for field in checkbox_fields:
-               new_value = field in request.POST            
+               new_value = field in request.POST
                setattr(sample, field, new_value)
                
           
@@ -395,7 +398,7 @@ def sample_clone_update(request,pk):
           sample.id = None
           sample.save()
           action = f'Sample Registration form {sample.sample_id} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = sample.id
           if "submit_and_view" in request.POST:
               url = f"/sample_view/{str(id)}/"
@@ -430,7 +433,7 @@ def samplePdf(request,pk):
                # self.text(175,self.h-10,txt="www.envitechal.com")
 
 
-     sample = Sample_registration.objects.get(id=pk)
+     sample = get_object_or_404(Sample_registration, id=pk)
 
      pdf = PDFWithPageNumbers()
      pdf._rq_sample = sample
@@ -2086,7 +2089,7 @@ def samplePdf(request,pk):
           pdf.image(unchecked, 85, 201.8, 4, 4)
      pdf.text(91, 205, txt="Not Required")
 
-     pdf.text(120, 205, txt="Detail(if requred):")
+     pdf.text(120, 205, txt="Detail (if required):")
      pdf.text(153, 205, txt=sample.inp106)
      pdf.line(152, 206, 192, 206)
 
@@ -2103,7 +2106,7 @@ def samplePdf(request,pk):
           pdf.image(unchecked, 85, 207.8, 4, 4)
      pdf.text(91, 211, txt="Not Required")
 
-     pdf.text(120, 211, txt="Detail(if requred):")
+     pdf.text(120, 211, txt="Detail (if required):")
      pdf.text(153, 211, txt=sample.inp109)
      pdf.line(152, 212, 192, 212)
 
@@ -2120,7 +2123,7 @@ def samplePdf(request,pk):
           pdf.image(unchecked, 85, 213.8, 4, 4)
      pdf.text(91, 217, txt="Not Required")
 
-     pdf.text(120, 217, txt="Detail(if requred):")
+     pdf.text(120, 217, txt="Detail (if required):")
      pdf.text(153, 217, txt=sample.inp112)
      pdf.line(152, 218, 192, 218)
 
@@ -2137,7 +2140,7 @@ def samplePdf(request,pk):
           pdf.image(unchecked, 85, 219.8, 4, 4)
      pdf.text(91, 223, txt="Not Required")
 
-     pdf.text(120, 223, txt="Detail(if requred):")
+     pdf.text(120, 223, txt="Detail (if required):")
      pdf.text(153, 223, txt=sample.inp115)
      pdf.line(152, 224, 192, 224)
 
@@ -2148,7 +2151,7 @@ def samplePdf(request,pk):
      if sample.assign_to:
           pdf.text(12,257,txt="Assigned to(Analyst Name): "+sample.assign_to)
      else:
-          pdf.text(12,257,txt="Assigned to():")
+          pdf.text(12,257,txt="Assigned to:")
      pdf.rect(10,260,190,19)
 
      if sample.checkinp116:
@@ -2203,7 +2206,7 @@ def samplePdf1(request,pk):
                # self.image("static/assets/header.PNG",0,0,self.w,22.5)
 
 
-     sample = Sample_registration.objects.get(id=pk)
+     sample = get_object_or_404(Sample_registration, id=pk)
      pdf = PDFWithPageNumbers()
      pdf.add_page()
      
@@ -2231,11 +2234,17 @@ def samplePdf1(request,pk):
      pdf.text(75,24,txt="SAMPLE IDENTIFICATION LABEL")
 
 
-     current_date = sample.inp9
-     current_date=current_date.replace("/","-")
-     given_date = datetime.strptime(current_date,"%d-%m-%Y")
-     date_five_days_ahead = given_date + timedelta(days=6)
-     date_five_days_ahead_str = date_five_days_ahead.strftime("%d-%m-%Y")
+     try:
+          current_date = sample.inp9
+          current_date=current_date.replace("/","-")
+          given_date = datetime.strptime(current_date,"%d-%m-%Y")
+     except (ValueError, TypeError, AttributeError):
+          given_date = None
+     if given_date is not None:
+          date_five_days_ahead = given_date + timedelta(days=6)
+          date_five_days_ahead_str = date_five_days_ahead.strftime("%d-%m-%Y")
+     else:
+          date_five_days_ahead_str = ""
      
 
      pdf.set_font("Calibri","B", 8 )

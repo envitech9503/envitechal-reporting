@@ -253,12 +253,12 @@
                         {% if data.checkinp16 %}
                            <div class="">
                             <input id="effluent" checked disabled class="" name="checkinp16" type="checkbox">
-                            <labelfor="effluent"><b>Effluent</b></labelfor=>
+                            <label for="effluent"><b>Effluent</b></label>
                            </div>
                         {% else %} 
                             <div class="">
                                 <input id="effluent" disabled class="" name="checkinp16" type="checkbox">
-                                <labelfor="effluent"><b>Effluent</b></labelfor=>  
+                                <label for="effluent"><b>Effluent</b></label>  
                             </div>                 
                         {% endif %}
                         
@@ -279,12 +279,12 @@
                             {% if data.checkinp17 %}
                                     <div class="">
                                         <input id="bore_water" checked disabled class="" name="checkinp17" type="checkbox">
-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>
+                                    <label for="bore_water"><b>Bore Water</b></label>
                                     </div>
                                 {% else %} 
                                     <div class="">
                                         <input id="bore_water" disabled class="" name="checkinp17" type="checkbox">
-                                    <labelfor="bore_water"><b>Bore Water</b></labelfor=>  
+                                    <label for="bore_water"><b>Bore Water</b></label>  
                                     </div> 
                                 {% endif %}
                             
@@ -1055,7 +1055,7 @@
         <label for="ww_param_63"><b>Pseudomonas aeruginosa</b></label>
     </div>
     <div class="">
-        {% if data.ww_other_param_64 %}<input  checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
+        {% if data.ww_other_param_64 %}<input disabled checked id="ww_param_64" name="ww_other_param_64" type="checkbox">{% else %}<input disabled id="ww_param_64" name="ww_other_param_64" type="checkbox">{% endif %}
         <label for="ww_param_64"><b>Bioassay test</b></label>
     </div>
 </div>

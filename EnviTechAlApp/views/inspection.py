@@ -161,7 +161,7 @@ def inspection(request):
           
           user = request.user
           action = f'Inspection certificate {inspect.cert_num} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = (Inspection.objects.last()).id
           if "submit_and_view" in request.POST:
                url = f"/inspection_view/{str(id)}/"
@@ -355,7 +355,7 @@ def inspect_update(request,pk):
           inspect.save()
           user = request.user
           action = f'Inspection certificate {inspect.cert_num} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = inspect.id
           if "submit_and_view" in request.POST:
                url = f'/inspection_view/{str(id)}/'
@@ -373,7 +373,7 @@ def inspect_delete(request,pk):
      inspect.delete()
      user = request.user
      action = f'Inspection certificate {inspect.cert_num} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      return redirect(to='inspection_list')
 
 
@@ -558,7 +558,7 @@ def inspect_clone_update(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Inspection certificate {existing_Form.cert_num} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = existing_Form.id
           if "submit_and_view" in request.POST:
                url = f'/inspection_view/{str(id)}/'

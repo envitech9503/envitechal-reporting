@@ -148,7 +148,7 @@ def luxAnalysis(request):
 
           user = request.user
           action = f'Lux Analysis Form {luxForm.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (LuxAnalysisForm.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -177,7 +177,7 @@ def luxAnalysisDelete(request,pk):
      luxAnalysis.delete()
      user = request.user
      action = f'Lux Analysis Form {luxAnalysis.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect('luxAnalysisList')
 
@@ -335,7 +335,7 @@ def luxAnalysisUpdate(request,pk):
           luxAnalysis.save()
           user = request.user
           action = f'Lux Analysis Form {luxAnalysis.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
 
 
@@ -1452,7 +1452,7 @@ def luxFormcloneSave(request,pk):
           existing_Form.save()
           user = request.user
           # action = f'Lux Analysis Form {existing_Form.lab_report_no} cloned by {user.username}'
-          # AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          # AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:

@@ -69,8 +69,8 @@
                 <div class="">
                     <label for="selected_location">Select Location:</label>
                     <select id="selected_location" name="selected_location" required>
-                        <option value="Karachi">Karachi</option>
-                        <option value="Lahore">Lahore</option>
+                        <option value="Karachi" {% if selected_location == 'Karachi' %}selected{% endif %}>Karachi</option>
+                        <option value="Lahore" {% if selected_location == 'Lahore' %}selected{% endif %}>Lahore</option>
                         <!-- Add more locations as needed -->
                     </select>
                 </div>
@@ -156,20 +156,20 @@
             </div>
             <div class="w-full flex justify-center ">
                 {% if dt and yr %} 
-            <table id="example" class="dispaly border border-black" style="width:100%; "cellspacing=10 >
-                <section class="text-xl flex" style="    
+            <section class="text-xl flex" style="
                 left: 90px;
                 height: fit-content;
                 padding-left: -3px;
                 position: absolute;
                 top: 574px;
                 z-index: 1;">
-                    
+
                      <a class="text-lg pl-4 pointer" target="_blank" href="{% url "log-pdf" %}?dt={{dt}}&yr={{yr}}&loc={{selected_location}}"><img src="{% static "/assets/pdf-removebg-preview.png" %}" alt="" style="width:40px"></a>
-                     
+
                      <!--a class="text-lg pl-2" target="_blank" href="#"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>EXCEL</a-->
-                     
+
                    </section>
+            <table id="example" class="display border border-black" style="width:100%; "cellspacing=10 >
                 <thead>
 
                     <tr class="bg-gray-200 text-black font-mono text-sm">
@@ -266,7 +266,10 @@
         border:none;
         outline:none;
     }
-    button.dt-button:hover:not(.disabled), div.dt-button:hover:not(.disabled), a.dt-button:hover:not(.disabled), input.dt-button:hover:not(.disabled)
+    button.dt-button:hover:not(.disabled), div.dt-button:hover:not(.disabled), a.dt-button:hover:not(.disabled), input.dt-button:hover:not(.disabled) {
+        background: none;
+        border: none;
+    }
     .btn-excel {
         background: none;
         border:none;

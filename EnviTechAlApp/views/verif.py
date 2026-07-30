@@ -100,7 +100,7 @@ def verification(request):
           
           user = request.user
           action = f'Verification certificate {verif.cert_num} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = (Verification.objects.last()).id
           if "submit_and_view" in request.POST:
                url = f"/verification_view/{str(id)}/"
@@ -119,7 +119,7 @@ def verif_delete(request,pk):
      verif.delete()
      user = request.user
      action = f'Verification certificate {verif.cert_num} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      return redirect('verification_list')
 
 
@@ -244,7 +244,7 @@ def verif_update(request,pk):
           verif.save()
           user = request.user
           action = f'Verification certificate {verif.cert_num} editied by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = verif.id
           if "submit_and_view" in request.POST:
                url = f'/verification_view/{str(id)}/'
@@ -381,7 +381,7 @@ def verif_clone_update(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Verification certificate {existing_Form.cert_num} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           id = existing_Form.id
           if "submit_and_view" in request.POST:
                url = f'/verification_view/{str(id)}/'

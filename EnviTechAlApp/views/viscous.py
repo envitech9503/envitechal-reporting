@@ -96,7 +96,7 @@ def viscousLiquid(request):
 
           user = request.user
           action = f'Viscous Liquid Form {viscousForm.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (ViscousLiquid.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -124,7 +124,7 @@ def viscousLiquidDelete(request,pk):
      vl.delete()
      user = request.user
      action = f'Viscous Liquid Form {vl.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("viscousLiquidList")
 
@@ -237,7 +237,7 @@ def viscousLiquidUpdate(request,pk):
           vL.save()
           user = request.user
           action = f'Viscous Liquid Form {vL.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = vL.id
           if "submit_and_view" in request.POST:
@@ -1198,7 +1198,7 @@ def viscousLiquidcloneSave(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Viscous Liquid Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:

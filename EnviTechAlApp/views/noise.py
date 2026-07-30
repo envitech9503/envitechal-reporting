@@ -178,7 +178,7 @@ def noiseAnalysis(request):
 
           user = request.user
           action = f'Noise Analysis Form {noiseForm.lab_report_no} created by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = (NoiseAnalysis.objects.last()).id
           if "submit_and_view" in request.POST:
@@ -206,7 +206,7 @@ def noiseAnalysisDelete(request,pk):
      nA.delete()
      user = request.user
      action = f'Noise Analysis Form {nA.lab_report_no} deleted by {user.username}'
-     AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+     AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
      messages.success(request, 'Operation was successful!')
      return redirect("noiseAnalysisList")
 
@@ -377,7 +377,7 @@ def noiseAnalysisUpdate(request,pk):
           nA.save()
           user = request.user
           action = f'Noise Analysis Form {nA.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = nA.id
           if "submit_and_view" in request.POST:
@@ -2617,7 +2617,7 @@ def noiseMonitoring_clone_update(request,pk):
           nA.save()
           user = request.user
           action = f'Noise Analysis Form {nA.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = nA.id
           if "submit_and_view" in request.POST:
@@ -2800,7 +2800,7 @@ def noiseMonitoring_edit_update(request,pk):
           nA.save()
           user = request.user
           action = f'Noise Analysis Form {nA.lab_report_no} edited by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = nA.id
           if "submit_and_view" in request.POST:
@@ -4462,7 +4462,7 @@ def noiseAnalysiscloneSave(request,pk):
           existing_Form.save()
           user = request.user
           action = f'Noise Analysis Form {existing_Form.lab_report_no} cloned by {user.username}'
-          AuditLog.objects.create(user=user, action=action, timestamp=local_date)
+          AuditLog.objects.create(user=user, action=action, timestamp=now_pk_str())
           messages.success(request, 'Operation was successful!')
           id = existing_Form.id
           if "submit_and_view" in request.POST:
