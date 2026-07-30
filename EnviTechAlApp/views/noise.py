@@ -2,6 +2,24 @@
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
+def _clear_limit_legends(obj):
+    # decision 31-07-2026: on save under No Limit, clear legend lines that refer to limits
+    import re as _re
+    _pat = _re.compile('seqs|peqs|neqs|keqs|limit', _re.I)
+    n = 0
+    for _i in range(1, 12):
+        _f = 'legend_' + str(_i)
+        _v = getattr(obj, _f, None)
+        if _v and _pat.search(str(_v)):
+            setattr(obj, _f, '')
+            n = n + 1
+    _v = getattr(obj, 'customlegend', None)
+    if _v and _pat.search(str(_v)):
+        obj.customlegend = ''
+        n = n + 1
+    return n
+
+
 def _safe_json_list(_v):
     import json as _json, ast as _ast
     if isinstance(_v, (list, dict)): return _v
@@ -147,6 +165,10 @@ def noiseAnalysis(request):
                                     legend_11=legend_11,editNote=editNote,customlegend=customlegend,location=location,
                                     doc1=doc1,doc2=doc2,doc3=doc3,city_location=city_location,extra_field=extra_field,customer_id=customer_id,
                                     analyst_signature=analyst_sign,assistant_manager_signature=review_sign,lab_manager_signature=approved_sign,**image_data,pdf_heading=pdf_heading,created_by = request.user,industry=industry)
+          if (noiseForm.select1 or '').strip() == 'No Limit':
+              _nlc = _clear_limit_legends(noiseForm)
+              if _nlc:
+                  messages.info(request, 'No Limit selected: ' + str(_nlc) + ' legend line(s) referring to limits were cleared.')
           noiseForm.save()
 
           
@@ -348,6 +370,10 @@ def noiseAnalysisUpdate(request,pk):
                          setattr(nA, desc_key, description)
 
 
+          if (nA.select1 or '').strip() == 'No Limit':
+              _nlc = _clear_limit_legends(nA)
+              if _nlc:
+                  messages.info(request, 'No Limit selected: ' + str(_nlc) + ' legend line(s) referring to limits were cleared.')
           nA.save()
           user = request.user
           action = f'Noise Analysis Form {nA.lab_report_no} edited by {user.username}'
@@ -2342,6 +2368,10 @@ def noisemonitoring(request):
                 test_location=test_location
             )
             
+            if (noiseForm.select1 or '').strip() == 'No Limit':
+                _nlc = _clear_limit_legends(noiseForm)
+                if _nlc:
+                    messages.info(request, 'No Limit selected: ' + str(_nlc) + ' legend line(s) referring to limits were cleared.')
             noiseForm.save()
 
             # Update logging sheet if customer_id exists
@@ -2580,6 +2610,10 @@ def noiseMonitoring_clone_update(request,pk):
                          setattr(nA, desc_key, description)
 
           nA.pk = None
+          if (nA.select1 or '').strip() == 'No Limit':
+              _nlc = _clear_limit_legends(nA)
+              if _nlc:
+                  messages.info(request, 'No Limit selected: ' + str(_nlc) + ' legend line(s) referring to limits were cleared.')
           nA.save()
           user = request.user
           action = f'Noise Analysis Form {nA.lab_report_no} cloned by {user.username}'
@@ -2759,6 +2793,10 @@ def noiseMonitoring_edit_update(request,pk):
                          setattr(nA, desc_key, description)
 
 
+          if (nA.select1 or '').strip() == 'No Limit':
+              _nlc = _clear_limit_legends(nA)
+              if _nlc:
+                  messages.info(request, 'No Limit selected: ' + str(_nlc) + ' legend line(s) referring to limits were cleared.')
           nA.save()
           user = request.user
           action = f'Noise Analysis Form {nA.lab_report_no} edited by {user.username}'
