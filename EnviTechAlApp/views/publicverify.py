@@ -104,6 +104,7 @@ ETAL_LEGACY_SALT = 'etal.legacy.gate'
 # Longest prefixes first so e.g. /ambientAir2-view/ never matches /ambientAir-view/.
 LEGACY_ROUTES = (
     ('/GaseousForm-view-form/', 'gas'),
+    ('/ppwr-view/', 'ppwr'),
     ('/wasteWaterSludge-view/', 'ww1'),
     ('/vehicularEmission-view/', 'veh'),
     ('/packingpolybag-view/', 'pack'),
@@ -126,6 +127,7 @@ LEGACY_ROUTES = (
 _ID_FIELD = {'insp': 'cert_num', 'verif': 'cert_num', 'calib': 'cert_num'}
 
 _MODELS = {
+    'ppwr': 'PPWRAnalysis',
     'aa1': 'AmbientAirForm', 'aa2': 'AmbientAir2', 'dw': 'DrinkingWaterForm',
     'mb': 'MicrobialAnalysis', 'ww1': 'WasteWaterSludge', 'ww2': 'WasteWaterForm2',
     'lux': 'LuxAnalysisForm', 'pack': 'PackingPolyBagForm', 'insp': 'Inspection',
