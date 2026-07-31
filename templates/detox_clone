@@ -9034,7 +9034,7 @@ customLimits.addEventListener('change',()=>{
     }
 })
     </script>
-    <script src="{% static '/js/app.js' %}?v=20260731"></script>
+    <script src="{% static '/js/app.js' %}?v=20260731b"></script>
     {% comment %} <script defer>
         const selectCustomer = async (t)=>{
             const customer = JSON.parse(t.value)

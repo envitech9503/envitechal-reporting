@@ -180,7 +180,7 @@ $(document).ready(function() {
         var detoxdiv = $(".detoxdiv");
         if (detoxdiv.is(":hidden")) {
             detoxdiv.show();
-            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .gasEmDiv, .waterwastediv2, ").hide();
+            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .gasEmDiv, .waterwastediv2, .nosie_monidiv").hide();
         } else {
             detoxdiv.hide();
         }
