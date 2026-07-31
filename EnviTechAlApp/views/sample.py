@@ -9,24 +9,24 @@ from django.views.decorators.http import require_POST
 @login_required(login_url="/login")   
 def sample_reg(request):
      if request.method == 'POST':
-          location = request.POST['location']
-          city_location = request.POST['city_location']
-          lab_no = request.POST['lab_no']
-          issue_date = request.POST['issue_date']
-          issue_no = request.POST['issue_no']
-          sample_id = request.POST['sample_id']
+          location = request.POST.get('location', '')
+          city_location = request.POST.get('city_location', '')
+          lab_no = request.POST.get('lab_no', '')
+          issue_date = request.POST.get('issue_date', '')
+          issue_no = request.POST.get('issue_no', '')
+          sample_id = request.POST.get('sample_id', '')
           checkinp_chemical = request.POST.get('checkinp_chemical') == 'on'
           checkinp_bacteria = request.POST.get('checkinp_bacteria') == 'on'
-          inp1 = request.POST['inp1']
-          inp2 = request.POST['inp2']
-          inp3 = request.POST['inp3']
-          inp4 = request.POST['inp4']
-          inp5 = request.POST['inp5']
-          inp6 = request.POST['inp6']
-          inp7 = request.POST['inp7']
-          inp8 = request.POST['inp8']
-          inp9 = request.POST['inp9']
-          inp10 = request.POST['inp10']
+          inp1 = request.POST.get('inp1', '')
+          inp2 = request.POST.get('inp2', '')
+          inp3 = request.POST.get('inp3', '')
+          inp4 = request.POST.get('inp4', '')
+          inp5 = request.POST.get('inp5', '')
+          inp6 = request.POST.get('inp6', '')
+          inp7 = request.POST.get('inp7', '')
+          inp8 = request.POST.get('inp8', '')
+          inp9 = request.POST.get('inp9', '')
+          inp10 = request.POST.get('inp10', '')
           checkinp11 = request.POST.get('checkinp11') == 'on'
           checkinp12 = request.POST.get('checkinp12') == 'on'
           checkinp13 = request.POST.get('checkinp13') == 'on'
@@ -35,8 +35,8 @@ def sample_reg(request):
           checkinp16 = request.POST.get('checkinp16') == 'on'
           checkinp17 = request.POST.get('checkinp17') == 'on'
           checkinp18 = request.POST.get('checkinp18') == 'on'
-          inp19 = request.POST['inp19']
-          inp20 = request.POST['inp20']
+          inp19 = request.POST.get('inp19', '')
+          inp20 = request.POST.get('inp20', '')
           checkinp21 = request.POST.get('checkinp21') == 'on'
           checkinp22 = request.POST.get('checkinp22') == 'on'
           checkinp23 = request.POST.get('checkinp23') == 'on'
@@ -122,24 +122,24 @@ def sample_reg(request):
           checkinp103 = request.POST.get('checkinp103') == 'on'
           checkinp104 = request.POST.get('checkinp104') == 'on'
           checkinp105 = request.POST.get('checkinp105') == 'on'
-          inp106 = request.POST['inp106']
+          inp106 = request.POST.get('inp106', '')
           checkinp107 = request.POST.get('checkinp107') == 'on'
           checkinp108 = request.POST.get('checkinp108') == 'on'
-          inp109 = request.POST['inp109']
+          inp109 = request.POST.get('inp109', '')
           checkinp110 = request.POST.get('checkinp110') == 'on'
           checkinp111 = request.POST.get('checkinp111') == 'on'
-          inp112 = request.POST['inp112']
+          inp112 = request.POST.get('inp112', '')
           checkinp113 = request.POST.get('checkinp113') == 'on'
           checkinp114 = request.POST.get('checkinp114') == 'on'
-          inp115 = request.POST['inp115']
+          inp115 = request.POST.get('inp115', '')
           checkinp116 = request.POST.get('checkinp116') == 'on'
           checkinp117 = request.POST.get('checkinp117') == 'on'
           # auth_sign = request.FILES['auth_sign']
           # sampling_by = request.FILES['sampling_by']
-          conntrol_1 = request.POST['conntrol_1']
-          conntrol_date = request.POST['conntrol_date']
-          conntrol_no = request.POST['conntrol_no']
-          assign_to = request.POST['assign_to']
+          conntrol_1 = request.POST.get('conntrol_1', '')
+          conntrol_date = request.POST.get('conntrol_date', '')
+          conntrol_no = request.POST.get('conntrol_no', '')
+          assign_to = request.POST.get('assign_to', '')
           other1 = request.POST.get('other1')
           other2 = request.POST.get('other2')
           sample_by_id = request.POST.get('sample_sign')
@@ -221,12 +221,12 @@ def sample_edit(request,pk):
 def sample_update(request,pk):
      sample = get_object_or_404(Sample_registration, id=pk)
      if request.method == 'POST':
-          sample.location = request.POST['location']
-          sample.city_location = request.POST['city_location']
-          sample.lab_no = request.POST['lab_no']
-          sample.issue_date = request.POST['issue_date']
-          sample.issue_no = request.POST['issue_no']
-          sample.sample_id = request.POST['sample_id']
+          sample.location = request.POST.get('location', '')
+          sample.city_location = request.POST.get('city_location', '')
+          sample.lab_no = request.POST.get('lab_no', '')
+          sample.issue_date = request.POST.get('issue_date', '')
+          sample.issue_no = request.POST.get('issue_no', '')
+          sample.sample_id = request.POST.get('sample_id', '')
           
           checkbox_fields = [
                     'checkinp_chemical', 'checkinp_bacteria', 
@@ -249,34 +249,34 @@ def sample_update(request,pk):
                     ]
           checkbox_fields.extend([f"other_param_{i}" for i in range(1, 67)])
           checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 65)])
-          sample.inp1 = request.POST['inp1']
-          sample.inp2 = request.POST['inp2']
-          sample.inp3 = request.POST['inp3']
-          sample.inp4 = request.POST['inp4']
-          sample.inp5 = request.POST['inp5']
-          sample.inp6 = request.POST['inp6']
-          sample.inp7 = request.POST['inp7']
-          sample.inp8 = request.POST['inp8']
-          sample.inp9 = request.POST['inp9']
-          sample.inp10 = request.POST['inp10']
+          sample.inp1 = request.POST.get('inp1', '')
+          sample.inp2 = request.POST.get('inp2', '')
+          sample.inp3 = request.POST.get('inp3', '')
+          sample.inp4 = request.POST.get('inp4', '')
+          sample.inp5 = request.POST.get('inp5', '')
+          sample.inp6 = request.POST.get('inp6', '')
+          sample.inp7 = request.POST.get('inp7', '')
+          sample.inp8 = request.POST.get('inp8', '')
+          sample.inp9 = request.POST.get('inp9', '')
+          sample.inp10 = request.POST.get('inp10', '')
           
-          sample.inp19 = request.POST['inp19']
-          sample.inp20 = request.POST['inp20']
+          sample.inp19 = request.POST.get('inp19', '')
+          sample.inp20 = request.POST.get('inp20', '')
           
-          sample.inp106 = request.POST['inp106']
+          sample.inp106 = request.POST.get('inp106', '')
           
-          sample.inp109 = request.POST['inp109']
+          sample.inp109 = request.POST.get('inp109', '')
           
-          sample.inp112 = request.POST['inp112']
+          sample.inp112 = request.POST.get('inp112', '')
           sample.other1 = request.POST.get('other1')
           sample.other2 = request.POST.get('other2')
           
-          sample.inp115 = request.POST['inp115']
-          sample.assign_to = request.POST['assign_to']
+          sample.inp115 = request.POST.get('inp115', '')
+          sample.assign_to = request.POST.get('assign_to', '')
           # sample.sampling_by = request.FILES['sampling_by']
-          sample.conntrol_1 = request.POST['conntrol_1']
-          sample.conntrol_date = request.POST['conntrol_date']
-          sample.conntrol_no = request.POST['conntrol_no']
+          sample.conntrol_1 = request.POST.get('conntrol_1', '')
+          sample.conntrol_date = request.POST.get('conntrol_date', '')
+          sample.conntrol_no = request.POST.get('conntrol_no', '')
           # sample.auth_sign = request.FILES['auth_sign']
           auth_sign_id =request.POST.get('auth_sign')
           sample_by_id =request.POST.get('sample_sign')
@@ -321,12 +321,12 @@ def sample_clone_update(request,pk):
      except Sample_registration.DoesNotExist:
          return HttpResponse("Form not found", status=404)  
      if request.method == 'POST':
-          sample.location = request.POST['location']
-          sample.city_location = request.POST['city_location']
-          sample.lab_no = request.POST['lab_no']
-          sample.issue_date = request.POST['issue_date']
-          sample.issue_no = request.POST['issue_no']
-          sample.sample_id = request.POST['sample_id']
+          sample.location = request.POST.get('location', '')
+          sample.city_location = request.POST.get('city_location', '')
+          sample.lab_no = request.POST.get('lab_no', '')
+          sample.issue_date = request.POST.get('issue_date', '')
+          sample.issue_no = request.POST.get('issue_no', '')
+          sample.sample_id = request.POST.get('sample_id', '')
           
           checkbox_fields = [
                     'checkinp_chemical', 'checkinp_bacteria', 
@@ -349,34 +349,34 @@ def sample_clone_update(request,pk):
                     ]
           checkbox_fields.extend([f"other_param_{i}" for i in range(1, 67)])
           checkbox_fields.extend([f"ww_other_param_{i}" for i in range(1, 65)])
-          sample.inp1 = request.POST['inp1']
-          sample.inp2 = request.POST['inp2']
-          sample.inp3 = request.POST['inp3']
-          sample.inp4 = request.POST['inp4']
-          sample.inp5 = request.POST['inp5']
-          sample.inp6 = request.POST['inp6']
-          sample.inp7 = request.POST['inp7']
-          sample.inp8 = request.POST['inp8']
-          sample.inp9 = request.POST['inp9']
-          sample.inp10 = request.POST['inp10']
+          sample.inp1 = request.POST.get('inp1', '')
+          sample.inp2 = request.POST.get('inp2', '')
+          sample.inp3 = request.POST.get('inp3', '')
+          sample.inp4 = request.POST.get('inp4', '')
+          sample.inp5 = request.POST.get('inp5', '')
+          sample.inp6 = request.POST.get('inp6', '')
+          sample.inp7 = request.POST.get('inp7', '')
+          sample.inp8 = request.POST.get('inp8', '')
+          sample.inp9 = request.POST.get('inp9', '')
+          sample.inp10 = request.POST.get('inp10', '')
           
-          sample.inp19 = request.POST['inp19']
-          sample.inp20 = request.POST['inp20']
+          sample.inp19 = request.POST.get('inp19', '')
+          sample.inp20 = request.POST.get('inp20', '')
           
-          sample.inp106 = request.POST['inp106']
+          sample.inp106 = request.POST.get('inp106', '')
           
-          sample.inp109 = request.POST['inp109']
+          sample.inp109 = request.POST.get('inp109', '')
           
-          sample.inp112 = request.POST['inp112']
+          sample.inp112 = request.POST.get('inp112', '')
           sample.other1 = request.POST.get('other1')
           sample.other2 = request.POST.get('other2')
           
-          sample.inp115 = request.POST['inp115']
-          sample.assign_to = request.POST['assign_to']
+          sample.inp115 = request.POST.get('inp115', '')
+          sample.assign_to = request.POST.get('assign_to', '')
           # sample.sampling_by = request.FILES['sampling_by']
-          sample.conntrol_1 = request.POST['conntrol_1']
-          sample.conntrol_date = request.POST['conntrol_date']
-          sample.conntrol_no = request.POST['conntrol_no']
+          sample.conntrol_1 = request.POST.get('conntrol_1', '')
+          sample.conntrol_date = request.POST.get('conntrol_date', '')
+          sample.conntrol_no = request.POST.get('conntrol_no', '')
           # sample.auth_sign = request.FILES['auth_sign']
           auth_sign_id =request.POST.get('auth_sign')
           sample_by_id =request.POST.get('sample_sign')
