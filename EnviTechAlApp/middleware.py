@@ -27,7 +27,7 @@ class CustomExceptionHandlerMiddleware:
 
 class GlobalLoginRequiredMiddleware:
     """Require authentication for every request except an explicit public allowlist."""
-    PUBLIC_PREFIXES = ('/login', '/logout', '/static/', '/media/', '/admin/login', '/admin/logout', '/favicon', '/verify/')
+    PUBLIC_PREFIXES = ('/login', '/logout', '/static/', '/media/', '/admin/login', '/admin/logout', '/favicon', '/verify/', '/verify-document/')
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -38,5 +38,15 @@ class GlobalLoginRequiredMiddleware:
             path = request.path
             if not any(path.startswith(p) for p in self.PUBLIC_PREFIXES):
                 from django.shortcuts import redirect
+                # QR codes on already-issued documents point at the staff URL.  Send
+                # those scans to the document-verification gate rather than the login
+                # page, so the holder can still verify them. (31-07-2026)
+                try:
+                    from EnviTechAlApp.views.publicverify import legacy_gate_redirect
+                    gate = legacy_gate_redirect(path)
+                except Exception:
+                    gate = None
+                if gate:
+                    return redirect(gate)
                 return redirect('/login/?next=' + request.path)
         return self.get_response(request)

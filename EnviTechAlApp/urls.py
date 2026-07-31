@@ -27,6 +27,7 @@ handler500 = 'EnviTechAlApp.views.custom_500'
 urlpatterns = [
     # Public QR verification: opens one report/certificate read-only, no login (31-07-2026)
     path('verify/<str:token>/', views.public_verify, name='public_verify'),
+    path('verify-document/<str:token>/', views.legacy_verify, name='legacy_verify'),
     path('dashboard/costing/', include('costing.urls')),
     path('admin/', admin.site.urls),
     path('detox/', include('detox.urls')),
