@@ -2241,7 +2241,7 @@ def samplePdf1(request,pk):
      except (ValueError, TypeError, AttributeError):
           given_date = None
      if given_date is not None:
-          date_five_days_ahead = given_date + timedelta(days=6)
+          date_five_days_ahead = given_date + timedelta(days=5)
           date_five_days_ahead_str = date_five_days_ahead.strftime("%d-%m-%Y")
      else:
           date_five_days_ahead_str = ""
