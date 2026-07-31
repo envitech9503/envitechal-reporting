@@ -285,7 +285,7 @@ def machineOilUpdate(request,pk):
 
 def machineOilView(request,pk):
      machineOil = MachineOilForm.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'moil', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{machineOil.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)

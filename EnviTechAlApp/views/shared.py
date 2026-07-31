@@ -22,6 +22,20 @@ from reportlab.lib.pagesizes import letter
 from django.template.loader import get_template
 import pdfkit
 import qrcode
+from django.core import signing
+
+# --- Public QR verification (31-07-2026) -------------------------------------
+# Reports/certificates carry a QR so a client or regulator can open the document
+# without a portal account.  The QR used to encode request.build_absolute_uri()
+# (the staff URL), which sits behind GlobalLoginRequiredMiddleware, so every scan
+# landed on the login page.  It now encodes a signed token that resolves to
+# exactly one document and cannot be forged or enumerated.
+ETAL_QR_SALT = 'etal.public.verify'
+
+def public_verify_url(request, kind, pk):
+    """Absolute, unguessable URL that opens just this document's view form."""
+    token = signing.dumps({'k': kind, 'p': str(pk)}, salt=ETAL_QR_SALT)
+    return request.build_absolute_uri('/verify/' + token + '/')
 from xhtml2pdf import pisa
 import json
 from distutils.util import strtobool

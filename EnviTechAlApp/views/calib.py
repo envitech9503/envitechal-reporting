@@ -157,7 +157,7 @@ def calibration(request):
 def calib_view(request,pk):
      from PIL import Image
      calib = Calibration.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'calib', pk)
      calib.extra_field = calib.extra_field.replace("'", "\"")
      calib.extra_field = json.loads(calib.extra_field)
      calib.extra_field1 = calib.extra_field1.replace("'", "\"")

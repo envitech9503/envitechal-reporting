@@ -396,7 +396,7 @@ def verif_clone_update(request,pk):
 def verif_view(request,pk):
      from PIL import Image
      verif = Verification.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'verif', pk)
      verif.extra_field = verif.extra_field.replace("'", "\"")
      verif.extra_field = json.loads(verif.extra_field)
      verif.extra_field1 = verif.extra_field1.replace("'", "\"")

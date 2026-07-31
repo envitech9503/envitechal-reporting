@@ -251,7 +251,7 @@ def viscousLiquidUpdate(request,pk):
 
 def viscousLiquidview(request,pk):
      vL =ViscousLiquid.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'visc', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{vL.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)

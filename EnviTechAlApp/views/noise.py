@@ -401,7 +401,7 @@ def noiseAnalysisView(request,pk):
                _e['methods'] = (str(_e.get('methods') or '').strip() or 'ASTM E1686-16')
                _e['unit'] = (str(_e.get('unit') or '').strip() or 'dB')
                _e['sr'] = str(_e.get('sr') or '').strip()
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'na', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{nA.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
@@ -2414,7 +2414,7 @@ def noisemonitoring(request):
 def noiseMonitoring_view(request,pk):
      nM =NoiseMonitoring.objects.get(id=pk)
      leq_value = calculate_leq(nM.start_time, nM.end_time, nM.interval, nM.table_data)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'nm', pk)
      qr_filename = f"qr_{nM.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
 

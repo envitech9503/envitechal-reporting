@@ -352,7 +352,7 @@ def luxAnalysisUpdate(request,pk):
 def luxAnalysisView(request,pk):
      luxAnalysis = LuxAnalysisForm.objects.get(id=pk)
      luxAnalysis.extra_field = _safe_json_list(luxAnalysis.extra_field)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'lux', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{luxAnalysis.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)

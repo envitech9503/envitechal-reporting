@@ -348,7 +348,7 @@ def microbialUpdate(request,pk):
 def microbialView(request,pk):
      mba = MicrobialAnalysis.objects.get(id=pk)
      mba.extra_field = _safe_json_list(mba.extra_field)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'mb', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{mba.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)

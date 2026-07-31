@@ -238,7 +238,7 @@ def packingPolyBagUpdate(request,pk):
 
 def packingPolyBagView(request,pk):
      ppb = PackingPolyBagForm.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'pack', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{ppb.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)

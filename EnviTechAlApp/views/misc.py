@@ -889,7 +889,7 @@ def drinkWaterReport(request, pk):
     except DrinkingWaterForm.DoesNotExist:
         raise Http404("Drinking water report not found.")
     
-    current_url = request.build_absolute_uri()
+    current_url = public_verify_url(request, 'dw', pk)
     
     # Process extra_field safely
     try:

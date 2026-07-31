@@ -182,7 +182,7 @@ def gaseousEmissionReport(request,pk):
      except GaseousEmissionForm.DoesNotExist:
           raise Http404("Gaseous Emission report not found.")
           
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'gas', pk)
      
      try:
           gaseousReport.extra_field = _safe_json_list(gaseousReport.extra_field)

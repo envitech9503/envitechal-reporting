@@ -26,6 +26,7 @@ from .noise import *  # noqa: F401,F403
 from .ambient import *  # noqa: F401,F403
 from .waste import *  # noqa: F401,F403
 from .misc import *  # noqa: F401,F403
+from .publicverify import *  # noqa: F401,F403
 
 _FAMILY_MODULES = ['logviews', 'job', 'drinking', 'gaseous', 'verif', 'packing', 'viscous', 'microbial', 'vehicular', 'inspection', 'machine', 'lux', 'calib', 'generate', 'sample', 'noise', 'ambient', 'waste', 'misc']
 

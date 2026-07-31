@@ -307,7 +307,7 @@ def vehicularEmissionUpdate(request,pk):
 
 def vehicularEmissionView(request,pk):
      vem = VehiculEmissionForm.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'veh', pk)
      vem.extra_field = _safe_json_list(vem.extra_field)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{vem.lab_report_no}.png"

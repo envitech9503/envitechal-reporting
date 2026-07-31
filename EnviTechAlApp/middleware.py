@@ -27,7 +27,7 @@ class CustomExceptionHandlerMiddleware:
 
 class GlobalLoginRequiredMiddleware:
     """Require authentication for every request except an explicit public allowlist."""
-    PUBLIC_PREFIXES = ('/login', '/logout', '/static/', '/media/', '/admin/login', '/admin/logout', '/favicon')
+    PUBLIC_PREFIXES = ('/login', '/logout', '/static/', '/media/', '/admin/login', '/admin/logout', '/favicon', '/verify/')
 
     def __init__(self, get_response):
         self.get_response = get_response

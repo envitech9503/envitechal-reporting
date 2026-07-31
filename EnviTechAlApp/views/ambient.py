@@ -776,7 +776,7 @@ def ambientAirUpdateRecord(request,pk):
 def ambientAirview(request,pk):
      ambientAir = AmbientAirForm.objects.get(id=pk)
      ambientAir.extra_field = _safe_json_list(ambientAir.extra_field)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'aa1', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{ambientAir.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
@@ -2173,7 +2173,7 @@ def ambientAir2Update(request,pk):
 
 def ambientAir2View(request,pk):
      AA = AmbientAir2.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'aa2', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{AA.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)

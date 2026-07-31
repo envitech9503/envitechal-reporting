@@ -573,7 +573,7 @@ def inspect_clone_update(request,pk):
 def inspect_view(request,pk):
      from PIL import Image
      inspect = Inspection.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'insp', pk)
      inspect.extra_field = inspect.extra_field.replace("'", "\"")
      inspect.extra_field = json.loads(inspect.extra_field)
      inspect.extra_field1 = inspect.extra_field1.replace("'", "\"")

@@ -680,7 +680,7 @@ def wasteWaterUpdate(request,pk):
 
 def wasteWaterView(request,pk):
      wasteWaterForm =  WasteWaterSludge.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'ww1', pk)
      # Generate a unique file name for the QR code
      qr_filename = f"qr_{wasteWaterForm.lab_report_no}.png"
      qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
@@ -2319,7 +2319,7 @@ def wasteWAter2Update(request,pk):
 
 def wasteWAter2View(request,pk):
      ww = WasteWaterForm2.objects.get(id=pk)
-     current_url = request.build_absolute_uri()
+     current_url = public_verify_url(request, 'ww2', pk)
      ww.extra_field = _safe_json_list(ww.extra_field)
 
      # Generate a unique file name for the QR code
