@@ -464,7 +464,7 @@ def verif_pdf(request,pk):
      pdf.text(43,56,txt=verif.cert_num)
 
 
-     target_url = request.build_absolute_uri(reverse('verif_view', kwargs={'pk': pk}))
+     target_url = public_verify_url(request, 'verif', pk)
     
      # Generate the QR code for the target URL
      qr_filename = f"qr_{pk}.png"
@@ -729,7 +729,7 @@ def verif_pdf1(request,pk):
      pdf.set_font("Calibri","", 11)
      pdf.text(43,56,txt=verif.cert_num)
 
-     target_url = request.build_absolute_uri(reverse('verif_view', kwargs={'pk': pk}))
+     target_url = public_verify_url(request, 'verif', pk)
     
      # Generate the QR code for the target URL
      qr_filename = f"qr_{pk}.png"

@@ -5,6 +5,18 @@ import qrcode
 import os
 from fpdf import FPDF
 
+# --- Public QR verification in PDFs (31-07-2026) ------------------------------
+# The QR printed on a PDF is the one clients and regulators actually scan.  It
+# used to encode the staff URL (e.g. /microbial-view/265/), which sits behind
+# GlobalLoginRequiredMiddleware, so a scan could not open the document directly.
+# It now encodes the same signed, unguessable token the on-screen view form
+# uses, so a scan opens exactly that report read-only and nothing else.
+# Imported lazily to keep pdf_common free of import cycles.
+def _etal_verify_url(request, kind, pk):
+    from EnviTechAlApp.views.shared import public_verify_url
+    return public_verify_url(request, kind, pk)
+
+
 
 class EtalReportPDF(FPDF):
      def header(self):
@@ -166,7 +178,7 @@ class PDF_generatePDF(FPDF):
 
 
 
-          target_url = self._rq_request.build_absolute_uri(reverse('DrinkingWaterform-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'dw', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self.report_number}.png"
@@ -390,7 +402,7 @@ class PDF_generatePDF_report(FPDF):
 
 
 
-          target_url = self._rq_request.build_absolute_uri(reverse('DrinkingWaterform-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'dw', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self.report_number}.png"
@@ -588,7 +600,7 @@ class PDF_gaseousReportgeneratePDF(FPDF):
 
 
 
-          target_url = self._rq_request.build_absolute_uri(reverse('GaseousForm-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'gas', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self.lab_report_no}.png"
@@ -804,7 +816,7 @@ class PDF_gaseousReportgeneratePDF1(FPDF):
           self.line(34,54,60,54)
           self.text(34,53,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('GaseousForm-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'gas', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self.lab_report_no}.png"
@@ -1007,7 +1019,7 @@ class PDF_ambientAirGeneratePDF(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('ambientAir-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'aa1', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -1213,7 +1225,7 @@ class PDF_ambientAirGeneratePDF1(FPDF):
           self.line(34,52,60,52)
           self.text(34,51,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('ambientAir-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'aa1', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -1389,7 +1401,7 @@ class PDF_wasteWaterPdf0(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('wastewater-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'ww1', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -1606,7 +1618,7 @@ class PDF_wasteWaterPdf1(FPDF):
           self.line(34,52,60,52)
           self.text(34,51,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('wastewater-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'ww1', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -1826,7 +1838,7 @@ class PDF_vehicularEmissionReport(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('vehicularEmission-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'veh', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -2027,7 +2039,7 @@ class PDF_vehicularEmissionReport1(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('vehicularEmission-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'veh', self._rq_pk)
           print('request url------------->>>>>>',target_url)
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -2212,7 +2224,7 @@ class PDF_luxAnalysisReportPdf(FPDF):
           self.line(34,50,60,50)
           self.text(34,49,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('luxAnalysis-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'lux', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -2405,7 +2417,7 @@ class PDF_luxAnalysisReportPdf1(FPDF):
           self.text(34,54,txt=self.invoice_bill_no_number)
 
 
-          target_url = self._rq_request.build_absolute_uri(reverse('luxAnalysis-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'lux', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -2588,7 +2600,7 @@ class PDF_packingPolyBagReport(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('packingpolybag-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'pack', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -2795,7 +2807,7 @@ class PDF_packingPolyBagReport1(FPDF):
           self.text(34,52,txt=self.invoice_bill_no_number)
 
 
-          target_url = self._rq_request.build_absolute_uri(reverse('packingpolybag-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'pack', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -2988,7 +3000,7 @@ class PDF_noiseAnalysisReport(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('noiseAnalysis-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'na', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -3184,7 +3196,7 @@ class PDF_noiseAnalysisReport1(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('noiseAnalysis-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'na', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -3370,7 +3382,7 @@ class PDF_machineOilReportPdf(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('machineOil-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'moil', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -3572,7 +3584,7 @@ class PDF_machineOilReportPdf1(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('machineOil-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'moil', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -3761,7 +3773,7 @@ class PDF_microbialAnalysisPdf(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('microbial-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'mb', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -3972,7 +3984,7 @@ class PDF_microbialAnalysisPdf1(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('microbial-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'mb', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -4168,7 +4180,7 @@ class PDF_viscousLiquidPdf(FPDF):
           self.line(34,44,60,44)
           self.text(34,43,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('viscousLiquid-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'visc', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -4380,7 +4392,7 @@ class PDF_viscousLiquidPdf1(FPDF):
           self.line(34,54,60,54)
           self.text(34,53,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('viscousLiquid-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'visc', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -4577,7 +4589,7 @@ class PDF_ambientAir2Pdf(FPDF):
           self.line(34,52,60,52)
           self.text(34,51,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('ambientAir2-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'aa2', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -4778,7 +4790,7 @@ class PDF_ambientAir2Pdf1(FPDF):
           self.line(34,52,60,52)
           self.text(34,51,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('ambientAir2-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'aa2', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -4967,7 +4979,7 @@ class PDF_wasteWater2Pdf(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('wasteWater2-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'ww2', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -5187,7 +5199,7 @@ class PDF_wasteWater2Pdf1(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('wasteWater2-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'ww2', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -5394,7 +5406,7 @@ class PDF_noiseMonitoring_print(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('noiseMonitoring_view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'nm', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -5605,7 +5617,7 @@ class PDF_noiseMonitoring_report(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('noiseMonitoring_view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'nm', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -5906,7 +5918,7 @@ class PDF_calib_pdf(FPDF):
           self.text(43,52,txt=self._rq_calib.cert_num)
 
 
-          target_url = self._rq_request.build_absolute_uri(reverse('calib_view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'calib', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -5966,7 +5978,7 @@ class PDF_calib_pdf1(FPDF):
           self.set_font("Calibri","", 11)
           self.text(43,52,txt=self._rq_calib.cert_num)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('calib_view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'calib', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -6116,7 +6128,7 @@ class PDF_inspect_pdf(FPDF):
           self.set_font("Calibri","", 11)
           self.text(43,60,txt=(self._rq_inspect.cert_num or ""))
 
-          target_url = self._rq_request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'insp', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -6232,7 +6244,7 @@ class PDF_inspect_pdf1(FPDF):
           self.set_font("Calibri","", 11)
           self.text(43,60,txt=(self._rq_inspect.cert_num or ""))
 
-          target_url = self._rq_request.build_absolute_uri(reverse('inspect_view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'insp', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -6359,7 +6371,7 @@ class PDF_ppwrAnalysisPdf(FPDF):
           self.line(34,48,60,48)
           self.text(34,47,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('ppwr-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'ppwr', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
@@ -6570,7 +6582,7 @@ class PDF_ppwrAnalysisPdf1(FPDF):
           self.line(34,53,60,53)
           self.text(34,52,txt=self.invoice_bill_no_number)
 
-          target_url = self._rq_request.build_absolute_uri(reverse('ppwr-view', kwargs={'pk': self._rq_pk}))
+          target_url = _etal_verify_url(self._rq_request, 'ppwr', self._rq_pk)
 
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
