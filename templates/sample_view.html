@@ -2,11 +2,11 @@
 {% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
-<head>{% endblock %}{% block w2_head %}<link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
-    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
 
     <title>Lab Report - Envi Tech AL</title>
 {% endblock %}{% block w2_mid %}</head>
@@ -84,7 +84,7 @@
     
     <div class="w-full flex justify-around items-center">
         <div class="">
-            <img class="w-20" src="/static/assets/0x0-removebg-preview.png" alt="">
+            <img class="w-20" src="{% static 'assets/0x0-removebg-preview.png' %}" alt="">
         </div>
         <div class="">
             <h4 class="text-center text-lg font-bold" style="font-family: Pussycat, Algerian, Broadway, fantasy; color:#0301AD;">Envi Tech AL</h4>
@@ -1997,27 +1997,27 @@
         <div class="w-8/12 flex justify-between">
             {% if data.city_location == 'Karachi' %}
             <div class="flex gap-2 items-center">
-                <img class="w-8 " src="{% static "assets/phone.PNG" %}" alt="">
+                <img class="w-8 " src="{% static 'assets/phone.PNG' %}" alt="">
                 <p>+92 310 2288801</p>
             </div>
             <div class="flex items-center gap-2">
-                <img class="w-12 " src="{% static "assets/office.PNG" %}" alt="">
+                <img class="w-12 " src="{% static 'assets/office.PNG' %}" alt="">
                 <p><b>Head Office:</b> 345,First Floor, Street-15,Block-3 <br>Bahadurabad, Karachi, 75900, Pakistan</p>
             </div>
             {% endif %}
             {% if data.city_location == 'Lahore' %}
             <div class="flex gap-2 items-center">
-                <img class="w-8 " src="{% static "assets/phone.PNG" %}" alt="">
+                <img class="w-8 " src="{% static 'assets/phone.PNG' %}" alt="">
                 <p>+92 42 32296099</p>
             </div>
             <div class="flex items-center gap-2">
-                <img class="w-12 " src="{% static "assets/office.PNG" %}" alt="">
+                <img class="w-12 " src="{% static 'assets/office.PNG' %}" alt="">
                 <p><b>Lahore Office:</b> 87-E Madina Height, Office # A/30 & A/31 <br>8th Floor,Johar Town, Lahore</p>
             </div>
             {% endif %}
 
             <div class="rectangle flex items-center">
-                <img class="w-8 absolute z-100" style="left:-65px; top:9px;" src="{% static "assets/earth.png" %}" alt="">
+                <img class="w-8 absolute z-100" style="left:-65px; top:9px;" src="{% static 'assets/earth.png' %}" alt="">
                 <div class="z-100 absolute text-white" style="left:-13px">
                     <p>info@envitechal.com</p>
                     <p>www.envitechal.com</p>

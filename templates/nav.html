@@ -1,24 +1,24 @@
-<!doctype html>
+{% load static %}<!doctype html>
 <html lang="en">
-<head><link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head><link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   {% if user.is_authenticated %}
   {% load static %}
 
   <title>Envi Tech AL</title>
-  <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
-  <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
-  <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
-  <link rel="stylesheet" href={% static "style.css" %}>
+  <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/datatables/jquery.dataTables.min.css' %}">
+  <link rel="stylesheet" href={% static 'style.css' %}>
 
-  <script src="/static/vendor/jquery-3.6.4.min.js"></script>
-  <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
+  <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
 
   <style>
     html { scroll-behavior: smooth; }
   </style>
-<link rel="stylesheet" href="/static/css/etal-theme.css?v=20260731c">
+<link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">
@@ -29,7 +29,7 @@
   <section class="pt-24 pb-12 bg-gray-200 relative h-screen">
     <div class="max-w-7xl mx-auto text-center relative">
       <img class="h-72 mx-auto opacity-20 select-none" 
-           src="/static/assets/0x0-removebg-preview.png" 
+           src="{% static 'assets/0x0-removebg-preview.png' %}" 
            alt="">
       <h1 class="text-5xl md:text-6xl font-bold text-green-900 opacity-20 tracking-widest font-serif mt-6">
         ENVI TECH AL
@@ -88,7 +88,7 @@
     </div>
   </section>
 
-  <script src={% static '/js/app.js' %}?v=20260731c defer></script>
+  <script src={% static 'js/app.js' %} defer></script>
   {% else %}
   <script>window.location='/login/'</script>
   {% endif %}

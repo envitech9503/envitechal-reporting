@@ -1,7 +1,7 @@
-{% extends "base_app.html" %}
+{% extends "base_app.html" %}{% load static %}
 {% block title %}EnviTechAL - Regulatory Limits{% endblock %}
 {% block brand_sub %}Regulatory Limits - SEQS / PEQS / NEQS / WHO / GOTS / ZDHC / STeP{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="/static/css/limits.css">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/limits.css' %}">{% endblock %}
 {% block content %}
 <main>
   <div class="grid">

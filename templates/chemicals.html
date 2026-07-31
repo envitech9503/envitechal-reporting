@@ -1,7 +1,7 @@
-{% extends "base_app.html" %}
+{% extends "base_app.html" %}{% load static %}
 {% block title %}EnviTechAL - Chemical &amp; Consumable Inventory{% endblock %}
 {% block brand_sub %}Chemical &amp; Consumable Inventory{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="/static/css/chemicals.css">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/chemicals.css' %}">{% endblock %}
 {% block content %}
 <main>
   <div class="tools">

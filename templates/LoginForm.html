@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     {% load static %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+    <link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <title>Sign in - Envi Tech AL</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -40,7 +40,7 @@
     <div class="grid-overlay"></div>
     <div class="card">
         <div class="logos">
-            <img src="{% static '/assets/EnviTechAL_LOGO-removebg-preview.png' %}" alt="Envi Tech AL">
+            <img src="{% static 'assets/EnviTechAL_LOGO-removebg-preview.png' %}" alt="Envi Tech AL">
         </div>
         <h1>Envi Tech AL</h1>
         <p class="sub">Laboratory Reporting System</p>

@@ -2,22 +2,22 @@
 {% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
-<head>{% endblock %}{% block w2_head %}<link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
     <!-- jQuery (only once, and FIRST) -->
-    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+    <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
     
     <!-- DataTables (optional) -->
-    <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
     
     <!-- Select2 -->
     <!-- ✅ Select2 CSS -->
-    <link href="/static/vendor/select2/select2.min.css" rel="stylesheet" />
+    <link href="{% static 'vendor/select2/select2.min.css' %}" rel="stylesheet" />
 
     <!-- ✅ Select2 JS -->
-    <script src="/static/vendor/select2/select2.min.js"></script>
+    <script src="{% static 'vendor/select2/select2.min.js' %}"></script>
     
     <!-- jQuery UI (optional) -->
     <title>Lab Report - Envi Tech AL</title>
@@ -40,7 +40,7 @@
     
         <div class="w-full flex justify-around items-center">
             <div class="">
-                <img class="w-20" src="/static/assets/0x0-removebg-preview.png" alt="">
+                <img class="w-20" src="{% static 'assets/0x0-removebg-preview.png' %}" alt="">
             </div>
             <div class="">
                 <h4 class="text-center text-lg font-bold">Envi Tech AL</h4>
@@ -66,7 +66,7 @@
                 <div class="alert w-52 flex flex-col justify-around my-6">
                 
                     <div class="">
-                        <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static "/assets/loader.gif" %}"/></p>
+                        <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="{% static 'assets/loader.gif' %}"/></p>
                     </div>
                     <div class="">
                         <input class="SEQS-value" type="checkbox" value="SEQS_">

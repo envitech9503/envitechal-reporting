@@ -5,19 +5,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>{% endblock %}{% block w2_head %}
-  <script src="/static/js/csrf.js"></script><link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+  <script src="{% static 'js/csrf.js' %}"></script><link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
-    <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
-    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{%static "style.css" %}">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/datatables/jquery.dataTables.min.css' %}">
+    <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <title>Noise Monitoring Continuos</title>
-    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
-    <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
-    <link href="/static/vendor/select2/select2.min.css" rel="stylesheet" />
-    <script src="/static/vendor/select2/select2.min.js"></script>
+    <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <link href="{% static 'vendor/select2/select2.min.css' %}" rel="stylesheet" />
+    <script src="{% static 'vendor/select2/select2.min.js' %}"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <!-- For mobile menu toggle functionality -->
@@ -103,7 +103,7 @@
         box-sizing: border-box;
     }
     </style>
-<link rel="stylesheet" href="/static/css/etal-theme.css?v=20260731c">
+<link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
 {% endblock %}{% block w2_mid %}</head>
 <body class="bg-gray-100 font-sans overflow-hidden">{% endblock %}{% block w2_content %}<!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}
     {% include "_unified_nav.html" with fixed=1 %}
@@ -118,7 +118,7 @@
         <!-- Sidebar -->
         <div id="sidebar" class="transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 w-64 h-full bg-gray-900 text-white flex-shrink-0">
             <div class="p-4 border-b border-gray-700">
-                <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static '/assets/logo-light.png'%} alt="image"></a>
+                <a href="{% url "nav" %}"><img class="h-14 ml-10" src={% static 'assets/logo-light.png' %} alt="image"></a>
             </div>
             <nav class="p-4">
                 <ul class="w-48 ">
@@ -1068,6 +1068,6 @@
         // })
 
                 </script>
-        <script src="{% static '/js/app.js' %}?v=20260731c" defer></script>
+        <script src="{% static 'js/app.js' %}" defer></script>
     
 {% endblock %}

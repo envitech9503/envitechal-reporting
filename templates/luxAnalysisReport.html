@@ -2,14 +2,14 @@
 {% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
-<head>{% endblock %}{% block w2_head %}<link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
   {% load static %}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link type="text/css" rel="stylesheet" media="all"
-    href="/static/vendor/tailwind.min.css" />
-  <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
-  <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+    href="{% static 'vendor/tailwind.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+  <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
   <title>Lab Report - Envi Tech AL</title>
 {% endblock %}{% block w2_mid %}</head>
 
@@ -113,11 +113,11 @@
   
 
   <table id="header-content" class="header relative w-full" style=" display: inline-block;top: -163px;">
-    <img class="" src="/static/assets/Header watermark.jpg" alt="" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; max-height: 15%;
+    <img class="" src="{% static 'assets/Header watermark.jpg' %}" alt="" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; max-height: 15%;
                  opacity: 0.5; background-position: center; background-size: cover; ">
     <tbody style="display: flex; justify-content: space-around; ">
       <tr>
-        <td><img class="logo" src="/static/assets/0x0-removebg-preview.png" alt="" style="width: 60px; opacity: 12;">
+        <td><img class="logo" src="{% static 'assets/0x0-removebg-preview.png' %}" alt="" style="width: 60px; opacity: 12;">
         </td>
       </tr>
       <tr class="mt-8 flex flex-col items-center">
@@ -128,7 +128,7 @@
 
       </tr>
       <tr class="mt-4">
-        <td><img src="/static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png" alt=""
+        <td><img src="{% static 'assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png' %}" alt=""
             style="width: 70px;"></td>
       </tr>
     </tbody>
@@ -139,7 +139,7 @@
   </div>
   
  
-  <div class="background-image" style="background-image: url('{% static "/assets/18271682-laboratory-glassware-over-white-background.jpg" %}');">
+  <div class="background-image" style="background-image: url('{% static 'assets/18271682-laboratory-glassware-over-white-background.jpg' %}');">
   </div>
   
   <section id="img1">
@@ -535,7 +535,7 @@
         </div>
         <div class="flex text-center justify-between">
           <div class=" flex items-center flex-col">
-            <img class="h-16 w-20" src="{% static '/assets/ISO-9001_2015 LOGO.png' %}" alt="">
+            <img class="h-16 w-20" src="{% static 'assets/ISO-9001_2015 LOGO.png' %}" alt="">
             {%if data.lux_doc_con1%}
             <p style="font-size: 8px;">(Certificate # 080177324-QMS)</p>
             <div class="border border-black w-28 p-1" style="font-size: 9px;">
@@ -545,13 +545,13 @@
           </div>
           <div class="text-center flex flex-col items-center">
             {% if data.location == 'SEQS' %}
-            <img class="h-16 w-20" src="{% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %}" alt="">
+            <img class="h-16 w-20" src="{% static 'assets/SEPA-Sindh-LOGO-removebg-preview.png' %}" alt="">
             {% endif %}
             {% if data.location == 'PEQS' %}
-            <img class="h-16 w-20" src="{% static '/assets/EPA_updated.png' %}" alt="">
+            <img class="h-16 w-20" src="{% static 'assets/EPA_updated.png' %}" alt="">
             {% endif %}
             {% if data.location == 'NEQS' %}
-            <img class="h-16 w-20" src="{% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %}" alt="">
+            <img class="h-16 w-20" src="{% static 'assets/SEPA-Sindh-LOGO-removebg-preview.png' %}" alt="">
             {% endif %}
                         
             {%if data.location == 'PEQS'%}
@@ -568,7 +568,7 @@
 
           </div>
           <div class="text-center flex flex-col items-center">
-            <img class="h-16 w-20" src="{% static '/assets/ISO-14001_2015 LOGO.png' %}" alt="">
+            <img class="h-16 w-20" src="{% static 'assets/ISO-14001_2015 LOGO.png' %}" alt="">
             {%if data.lux_doc_con3%}
             <p style="font-size: 8px;">(certificate # 080177424-EMS)</p>
             <div class="border border-black w-28 p-1 " style="font-size: 9px;">
@@ -598,7 +598,7 @@
     <div class="w-full">
       <div class="flex justify-between ml-4 mr-4">
         <div class="flex justify-center py-2 items-center">
-          <img class="h-10 text-center" src="/static/assets/Picture1.png" alt="">
+          <img class="h-10 text-center" src="{% static 'assets/Picture1.png' %}" alt="">
           <div class=" flex flex-col text-gray-200" style="font-size: 10px;">
             <span><strong>Head Office:</strong> First Floor, 345, Street 15, Bahadurabad Bahadur Yar Jang CHS, Karachi,
               Karachi City, Sindh 75900</span>

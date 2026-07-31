@@ -1,7 +1,7 @@
-{% extends "base_app.html" %}
+{% extends "base_app.html" %}{% load static %}
 {% block title %}EnviTechAL - Sample Lifecycle{% endblock %}
 {% block brand_sub %}Sample Lifecycle Board{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="/static/css/lifecycle.css">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/lifecycle.css' %}">{% endblock %}
 {% block content %}
 <main>
   <div class="topline">

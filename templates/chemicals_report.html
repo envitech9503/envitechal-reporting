@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"><title>Chemical Inventory - {{ loc }}</title>
@@ -34,7 +34,7 @@ tr:nth-child(even) td{background:#f8fafc}
 </div>
 <div class="sheet">
   <div class="hd">
-    <img src="/static/assets/EnviTechAL_LOGO-removebg-preview.png" alt="logo">
+    <img src="{% static 'assets/EnviTechAL_LOGO-removebg-preview.png' %}" alt="logo">
     <div class="mid">
       <h1>Envi Tech AL</h1>
       <h2>CHEMICAL &amp; CONSUMABLE INVENTORY - {{ loc|upper }} LABORATORY</h2>

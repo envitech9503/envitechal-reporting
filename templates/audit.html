@@ -1,7 +1,7 @@
-{% extends "base_app.html" %}
+{% extends "base_app.html" %}{% load static %}
 {% block title %}EnviTechAL - Audit Trail{% endblock %}
 {% block brand_sub %}Audit Trail — who did what, when{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="/static/css/audit.css">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/audit.css' %}">{% endblock %}
 {% block content %}
 <main>
   <div class="filters">

@@ -158,6 +158,29 @@ STATICFILES_DIRS = [
     
 ]
 
+# --- Static asset versioning (01-08-2026) -------------------------------------
+# collectstatic writes every file a second time with a hash of its contents in
+# the name (app.4f9c2b1e.js) and records the mapping in staticfiles.json;
+# {% static %} then resolves to the hashed name. Two consequences worth stating:
+#
+#   * the URL changes by itself whenever a file's contents change, so browsers
+#     pick up new CSS and JavaScript immediately and no ?v= stamp has to be
+#     maintained by hand - forgetting that stamp is what hid the PPWR menu
+#     behind a 30-day cache on 31-07-2026; and
+#   * if collectstatic has not been run, a page raises a missing-manifest error
+#     instead of quietly serving a stale file. The failure becomes visible.
+#
+# Every asset reference therefore has to go through {% static %}; a hard-coded
+# /static/... path bypasses the manifest and would never be versioned.
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
+
 MEDIAFILE_DIRS = [
     BASE_DIR / "media",
     

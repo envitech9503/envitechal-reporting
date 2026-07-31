@@ -1,14 +1,14 @@
 {% extends "report_base.html" %}{% load static %}
 {% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
-<head>{% endblock %}{% block w2_head %}<link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
     <title>Inspection</title>
     {% load static %}
 {% endblock %}{% block w2_content %}
@@ -410,17 +410,17 @@
                     <div class="flex  w-full justify-around" style="column-gap: 20px; font-size: 12px;">
 
                         <div class="flex flex-col items-center">
-                            <img class="h-24 w-28" src={% static "/assets/SEPA-Sindh-LOGO-removebg-preview.png" %} alt="">
+                            <img class="h-24 w-28" src={% static 'assets/SEPA-Sindh-LOGO-removebg-preview.png' %} alt="">
                             <p>(License # R-KC)</p>
                         </div>
                         <div class="flex flex-col items-center">
-                            <img class="h-24 w-28" src={% static "/assets/ISO-9001_2015 LOGO.png" %} alt="">
+                            <img class="h-24 w-28" src={% static 'assets/ISO-9001_2015 LOGO.png' %} alt="">
                             <p>(Certificate # 080177324-QMS)</p>
 
                         </div>
 
                         <div class="flex flex-col items-center">
-                            <img class="h-24 w-28" src={% static "/assets/ISO-14001_2015 LOGO.png" %} alt="">
+                            <img class="h-24 w-28" src={% static 'assets/ISO-14001_2015 LOGO.png' %} alt="">
                             <p>(Certificate # 080177424-EMS)</p>
                         </div>
 
@@ -450,7 +450,7 @@
     </section>
     {% endif %}
 {% endblock %}{% block w2_tail %}</body>
-<script src="/static/vendor/jquery-3.6.4.min.js"></script>
+<script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
 <script>
     
 

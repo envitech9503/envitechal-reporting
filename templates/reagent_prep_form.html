@@ -2,14 +2,14 @@
 {% block w2_prefix %}{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>{% endblock %}{% block w2_head %}<link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head>{% endblock %}{% block w2_head %}<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <title>Reagent &amp; Standards Preparation</title>
-    <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+    <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
     <style>
       body{background:#f4f6f8;font-family:Calibri,Arial,sans-serif;color:#1f2937;margin:0}
       .wrap{max-width:1180px;margin:20px auto;padding:0 16px}

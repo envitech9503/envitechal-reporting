@@ -1,7 +1,7 @@
-{% extends "base_app.html" %}
+{% extends "base_app.html" %}{% load static %}
 {% block title %}EnviTechAL - Management Dashboard{% endblock %}
 {% block brand_sub %}Management Dashboard{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="/static/css/mgmt_dashboard.css">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/mgmt_dashboard.css' %}">{% endblock %}
 {% block extra_head %}<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>{% endblock %}
 {% block content %}
 <main>

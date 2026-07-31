@@ -1,8 +1,8 @@
-
+{% load static %}
 
 <!doctype html>
 <html>
-<head><link rel="icon" href="/static/assets/favicon.ico?v=20260731c" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32.png?v=20260731c"><link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png?v=20260731c">
+<head><link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
 
   <meta charset="UTF-8">
   
@@ -10,15 +10,15 @@
   {% if user.is_authenticated %}
   {% load static %}
   
-  <link rel="stylesheet" href="/static/vendor/fontawesome/css/all.min.css">
-  <link rel="stylesheet" href="/static/vendor/tailwind.min.css">
-  <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
-    <link rel="stylesheet" href= "{% static 'style.css'%}">
+  <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/datatables/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" href= "{% static 'style.css' %}">
     <title>Envi Tech AL</title>
   
-  <script src="/static/vendor/jquery-3.6.4.min.js"></script>
+  <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
   
-  <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
   
     
     <style>
@@ -129,7 +129,7 @@
         }
     </style>
 
-<link rel="stylesheet" href="/static/css/etal-theme.css?v=20260731c">
+<link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
 <style>/* etal-cert-theme */#myTable thead{background:#111827 !important}#myTable thead th{background:#111827;color:#f9fafb;border-bottom:2px solid #00A651;padding:9px 8px;font-size:13px}#myTable td{padding:7px 8px;border:1px solid #e5e7eb;font-size:13.5px}#myTable tbody tr:nth-child(even){background:#f8fafc}#myTable tbody tr:hover{background:#ecfdf5}form input[type="submit"]{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:8px;padding:9px 26px;font-weight:600;cursor:pointer;transition:filter .15s}form input[type="submit"]:hover{filter:brightness(1.08)}#merge-cert button{background:linear-gradient(135deg,#0f172a,#059669) !important;color:#fff !important;border:none !important;border-radius:8px;padding:9px 22px;font-weight:600}</style>
 </head>
 
