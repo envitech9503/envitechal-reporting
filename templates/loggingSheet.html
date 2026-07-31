@@ -75,11 +75,24 @@
                     </select>
                 </div>
                 <div class="">
-                    <label for="selected_month">Select Month:</label>
-                    <input class="border border-2 w-82 px-2 py-1 border-black " type="month" id="selected_month" name="selected_month" value="{{ selected_month|default:'' }}" style="
-                    border-top-left-radius: 6px;
-                    border-bottom-left-radius: 6px;
-                    border-right: none;">
+                    <label for="etal_month_sel">Select Month:</label>
+                    <select class="border border-2 px-2 py-1 border-black" id="etal_month_sel" required style="height: 2.28rem; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border-right: none;">
+                        <option value="">Month</option>
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select class="border border-2 px-2 py-1 border-black" id="etal_year_sel" required style="height: 2.28rem; border-right: none;"></select>
+                    <input type="hidden" id="selected_month" name="selected_month" value="{{ selected_month|default:'' }}">
                 </div>
                 <div class=" space-x-8">
                     
@@ -154,15 +167,9 @@
                     <p><b>Month: December</b></p>
                 {% endif %}
             </div>
-            <div class="w-full flex justify-center ">
+            <div class="w-full flex justify-center flex-wrap">
                 {% if dt and yr %} 
-            <section class="text-xl flex" style="
-                left: 90px;
-                height: fit-content;
-                padding-left: -3px;
-                position: absolute;
-                top: 574px;
-                z-index: 1;">
+            <section id="etal-toolbar" class="text-xl">
 
                      <style>
 .etal-icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08);transition:background .15s,border-color .15s,box-shadow .15s;cursor:pointer;line-height:0;}
@@ -171,6 +178,10 @@
 button.dt-button.btn-excel{background:#fff !important;border:1px solid #cbd5e1 !important;border-radius:8px !important;padding:6px !important;box-shadow:0 1px 2px rgba(0,0,0,.08);transition:background .15s,border-color .15s,box-shadow .15s;}
 button.dt-button.btn-excel:hover{background:#f1f5f9 !important;border-color:#94a3b8 !important;box-shadow:0 2px 6px rgba(0,0,0,.15);}
 button.dt-button.btn-excel img{width:28px;height:28px;object-fit:contain;margin:0;}
+#etal-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;margin:6px 0 10px 0;}
+#etal-toolbar .dt-buttons{float:none !important;margin:0 !important;padding:0 !important;display:inline-flex;align-items:center;gap:10px;}
+#etal-toolbar .dt-buttons .dt-button{margin:0 !important;}
+#etal-toolbar a.etal-icon-btn,#etal-toolbar button.dt-button.btn-excel{height:42px;width:42px;box-sizing:border-box;}
 </style>
                      <a class="etal-icon-btn" title="Download PDF" target="_blank" href="{% url "log-pdf" %}?dt={{dt}}&yr={{yr}}&loc={{selected_location}}"><img src="{% static "/assets/pdf-removebg-preview.png" %}" alt="PDF"></a>
 
@@ -238,6 +249,32 @@ button.dt-button.btn-excel img{width:28px;height:28px;object-fit:contain;margin:
         {% endblock %}
         </div>
 <script>
+    // Cross-browser month selector: input[type=month] is not supported in Firefox,
+    // so month/year are chosen via selects and combined into YYYY-MM for the backend.
+    $(document).ready(function() {
+        (function () {
+            var $m = $('#etal_month_sel'), $y = $('#etal_year_sel'), $h = $('#selected_month');
+            if (!$m.length || !$y.length || !$h.length) { return; }
+            var cur = String($h.val() || '').match(/^(\d{4})-(\d{2})$/);
+            var thisYear = new Date().getFullYear();
+            var years = [];
+            for (var i = thisYear + 1; i >= 2020; i--) { years.push(i); }
+            if (cur && years.indexOf(parseInt(cur[1], 10)) === -1) { years.push(parseInt(cur[1], 10)); }
+            years.sort(function (a, b) { return b - a; });
+            $y.empty();
+            for (var j = 0; j < years.length; j++) {
+                $y.append($('<option>').val(String(years[j])).text(String(years[j])));
+            }
+            if (cur) { $y.val(cur[1]); $m.val(cur[2]); } else { $y.val(String(thisYear)); }
+            function sync() {
+                var mv = $m.val(), yv = $y.val();
+                $h.val(mv && yv ? (yv + '-' + mv) : '');
+            }
+            $m.on('change', sync);
+            $y.on('change', sync);
+            sync();
+        })();
+    });
     $(document).ready(function() {
         // Initialize DataTable with demo data
         var table = $('#example').DataTable({
@@ -253,6 +290,12 @@ button.dt-button.btn-excel img{width:28px;height:28px;object-fit:contain;margin:
                     },
                 ]
         });
+
+        // Keep PDF and Excel export buttons together in one aligned toolbar row
+        var $etalToolbar = $('#etal-toolbar');
+        if ($etalToolbar.length) {
+            table.buttons().container().appendTo($etalToolbar);
+        }
 
         // Add event listeners for the search fields
         $('#searchName').on('keyup', function() {
