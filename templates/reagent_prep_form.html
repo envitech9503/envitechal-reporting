@@ -80,7 +80,7 @@
       <h3>Preparation Details</h3>
       <div class="grid">
         <div class="fld"><label>Location</label><select id="location" onchange="onLoc()"></select></div>
-        <div class="fld"><label>Month <input type="month" id="monthPick" onchange="onMonthPick()" title="Pick a month" style="font-size:11px;padding:1px 3px;margin-left:4px;width:auto"></label><input id="month" placeholder="e.g. July 2026"></div>
+        <div class="fld"><label>Month <select id="monthPickM" onchange="etalMonthPickSync()" title="Pick a month" style="font-size:11px;padding:1px 3px;margin-left:4px;width:auto"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="monthPickY" onchange="etalMonthPickSync()" title="Pick a year" style="font-size:11px;padding:1px 3px;margin-left:2px;width:auto"></select><input type="hidden" id="monthPick"></label><input id="month" placeholder="e.g. July 2026"></div>
         <div class="fld"><label>Type</label><select id="rtype" onchange="onType()">
           <option>Reagent</option><option>Standard</option><option>Multi-component reagent</option><option>Standardised titrant</option><option>Buffer</option><option>% solution</option>
         </select></div>
@@ -212,8 +212,14 @@ function initLoc(){var s=el('location');s.innerHTML='';LOCS.forEach(function(l){
 function curDoc(){return DOCCTRL[el('location').value]||{doc_no:'',issue_date:'',issue_no:'01',rev_no:'00'};}
 function onLoc(){var d=curDoc();el('ctrlNo').textContent=d.doc_no?(d.doc_no+'  |  Issue '+(d.issue_no||'01')+'  Rev '+(d.rev_no||'00')+(d.issue_date?('  |  '+d.issue_date):'')):'not set yet - office to enter';if(IS_ADMIN){el('ctrlEditLink').classList.remove('hidden');el('d_no').value=d.doc_no||'';el('d_date').value=d.issue_date||'';el('d_iss').value=d.issue_no||'01';el('d_rev').value=d.rev_no||'00';}buildNoList();}
 function buildNoList(){buildInvList();var loc=el('location').value;var arr=(NEXTNO&&NEXTNO[loc])||[];var dl=el('noList');if(dl){dl.innerHTML=arr.map(function(x){return '<option value="'+esc(x)+'">';}).join('');}var hint=el('noHint');if(hint){hint.textContent=arr.length?('· suggested: '+arr.join(', ')):'';}}
+// Cross-browser month picker: input[type=month] is unsupported in Firefox, so the
+// visible control is a month+year select pair that feeds the same hidden YYYY-MM value.
+function etalEnsureYear(y){var ys=el('monthPickY');if(!ys)return;for(var i=0;i<ys.options.length;i++){if(ys.options[i].value===y)return;}var o=document.createElement('option');o.value=y;o.text=y;ys.appendChild(o);var arr=[].slice.call(ys.options).sort(function(a,b){return parseInt(b.value,10)-parseInt(a.value,10);});ys.innerHTML='';arr.forEach(function(x){ys.appendChild(x);});}
+function etalInitMonthPick(){var ys=el('monthPickY');if(!ys||ys.options.length)return;var ty=new Date().getFullYear();for(var y=ty+1;y>=2020;y--){var o=document.createElement('option');o.value=String(y);o.text=String(y);ys.appendChild(o);}ys.value=String(ty);}
+function etalMonthPickToSelects(){var mp=el('monthPick'),ms=el('monthPickM'),ys=el('monthPickY');if(!mp||!ms||!ys)return;var m=(mp.value||'').match(/^(\d{4})-(\d{2})$/);if(!m)return;etalEnsureYear(m[1]);ys.value=m[1];ms.value=m[2];}
+function etalMonthPickSync(){var mp=el('monthPick'),ms=el('monthPickM'),ys=el('monthPickY');if(!mp||!ms||!ys)return;if(ms.value&&ys.value){mp.value=ys.value+'-'+ms.value;onMonthPick();}}
 function onMonthPick(){var v=el('monthPick').value;if(!v)return;var m=v.match(/(\d{4})-(\d{2})/);if(m){el('month').value=MONTHS[parseInt(m[2],10)-1]+' '+m[1];markDirty();renderPreview();}}
-function syncMonthPick(){var t=(el('month').value||'').trim();var mp=el('monthPick');if(!mp)return;for(var i=0;i<12;i++){var m=t.match(new RegExp('^'+MONTHS[i]+'\\s+(\\d{4})$','i'));if(m){mp.value=m[1]+'-'+('0'+(i+1)).slice(-2);return;}}}
+function syncMonthPick(){var t=(el('month').value||'').trim();var mp=el('monthPick');if(!mp)return;for(var i=0;i<12;i++){var m=t.match(new RegExp('^'+MONTHS[i]+'\\s+(\\d{4})$','i'));if(m){mp.value=m[1]+'-'+('0'+(i+1)).slice(-2);etalMonthPickToSelects();return;}}}
 function toggleDocEdit(){el('ctrlEdit').classList.toggle('hidden');}
 function saveDoc(){var loc=el('location').value;var fd=new FormData();fd.append('location',loc);fd.append('doc_no',el('d_no').value);fd.append('issue_date',el('d_date').value);fd.append('issue_no',el('d_iss').value);fd.append('rev_no',el('d_rev').value);fetch('/qc/reagent_prep_doc_save/',{method:'POST',credentials:'include',body:fd}).then(function(r){return r.json();}).then(function(j){if(j&&j.ok){DOCCTRL[j.location]=j.doc;onLoc();el('ctrlEdit').classList.add('hidden');flash('Control number saved for '+j.location+'.',true);}else{flash((j&&j.error)||'Could not save control number.',false);}}).catch(function(){flash('Network error saving control number.',false);});}
 function onType(){el('stdPanel').classList.toggle('hidden', el('rtype').value!=='Standardised titrant');renderStdHist();if(typeof postCtx==='function'){try{postCtx();}catch(_e){}}}
@@ -495,7 +501,7 @@ function prefill(){
   el('modeTag').textContent=RECORD.id?('(editing #'+RECORD.id+')'):'(clone - new record)';
 }
 
-initLoc();buildInvList();prefill();onLoc();onType();setCrumb();syncMonthPick();renderVerify();
+initLoc();buildInvList();prefill();onLoc();onType();setCrumb();etalInitMonthPick();syncMonthPick();renderVerify();
 if(RECORD&&RECORD.id){el('histBtn').style.display='';}
 if((!RECORD||!RECORD.id)&&!el('prepared_by').value){el('prepared_by').value=ME||'';}
 applyViewOnly();
