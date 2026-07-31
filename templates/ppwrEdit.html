@@ -115,11 +115,19 @@
                                                                 </div>
                                                                 <hr class=" border-blue-200">
                                                                 <ul>
-                                                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>PPWR Analysis</button>
+                                                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
                                                                     <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
                                                                     <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis Analysis</a></li>
-                                                                    <li><a class="ppwrFormBtn" href="/ppwrAnalysis">Add PPWR Analysis</a></li>
-                                                                    <li><a class="ppwrListBtn" href="/ppwrList">List PPWR Analysis</a></li>
+                                                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                                                    </div>
+                                                                </ul>
+                                                                <hr class=" border-blue-200">
+                                                                <ul>
+                                                                    <button class="ppwrSecBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>PPWR</button>
+
+                                                                    <div class="ppwrSecDiv hidden text-blue-100 pl-6 space-y-2">
+                                                                    <li><a class="ppwrFormBtn" href="/ppwrAnalysis">Add PPWR</a></li>
+                                                                    <li><a class="ppwrListBtn" href="/ppwrList/">List PPWR</a></li>
                                                                     </div>
                                                                 </ul>
                                                                 <hr class=" border-blue-200">
@@ -454,6 +462,17 @@
                                                                     <label class="font-bold text-lg" for="">Custom Legend (if any):</label>
                                                                     <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_custom_legend" style="width: 35rem;" type="text" value="{{data.ppwr_custom_legend}}">
                                                                 </div>
+                                                                <div id="ppwrExLg" class="flex flex-col mt-4">
+                                                                    <label class="font-bold text-lg" for="">Additional Custom Legends:</label>
+                                                                    <input class="border-2 border-black p-2 h-10 rounded text-lg hidden mt-2" style="width: 35rem;" type="text" name="ppwr_legend_3" value="{{data.ppwr_legend_3|default_if_none:''}}">
+                                                                    <input class="border-2 border-black p-2 h-10 rounded text-lg hidden mt-2" style="width: 35rem;" type="text" name="ppwr_legend_4" value="{{data.ppwr_legend_4|default_if_none:''}}">
+                                                                    <input class="border-2 border-black p-2 h-10 rounded text-lg hidden mt-2" style="width: 35rem;" type="text" name="ppwr_legend_5" value="{{data.ppwr_legend_5|default_if_none:''}}">
+                                                                    <button type="button" id="ppwrAddLgBtn" class="border-2 border-black rounded p-2 mt-2 font-bold" style="width: 16rem;" onclick="ppwrAddLegend()">+ Add Custom Legend</button>
+                                                                </div>
+                                                                <script>
+                                                                function ppwrAddLegend(){var d=document.getElementById("ppwrExLg");var els=d.querySelectorAll("input.hidden");if(els.length){els[0].classList.remove("hidden");}else{alert("Maximum additional legends reached");}}
+                                                                document.addEventListener("DOMContentLoaded",function(){var d=document.getElementById("ppwrExLg");if(d){d.querySelectorAll("input").forEach(function(e){if(e.value){e.classList.remove("hidden");}});}});
+                                                                </script>
                                                                 
                                                             </div>
                                     

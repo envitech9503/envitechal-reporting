@@ -138,6 +138,9 @@ def ppwrAnalysis(request):
                                             ppwr_p1=ppwr_p1,ppwr_p2=ppwr_p2,ppwr_p3=ppwr_p3,ppwr_p4=ppwr_p4,ppwr_p5=ppwr_p5,ppwr_p6=ppwr_p6,
                                             city_location=city_location,customer_id=customer_id,analyst_signature=analyst_sign,assistant_manager_signature=review_sign,
                                             lab_manager_signature=approved_sign,**image_data,pdf_heading=pdf_heading,created_by = request.user,industry=industry,unit_head=unit_head,unit_1=unit_1,unit_2=unit_2,unit_3=unit_3,unit_4=unit_4,unit_5=unit_5,unit_6=unit_6,extra_field=extra_field)
+          ppwrForm.ppwr_legend_3 = request.POST.get('ppwr_legend_3')
+          ppwrForm.ppwr_legend_4 = request.POST.get('ppwr_legend_4')
+          ppwrForm.ppwr_legend_5 = request.POST.get('ppwr_legend_5')
           ppwrForm.save()
           
           
@@ -251,6 +254,9 @@ def ppwrUpdate(request,pk):
           mba.ppwr_p6 = request.POST.get('p6')
           mba.ppwr_legend_1 = request.POST.get('ppwr_legend_1')
           mba.ppwr_legend_2 = request.POST.get('ppwr_legend_2')
+          mba.ppwr_legend_3 = request.POST.get('ppwr_legend_3')
+          mba.ppwr_legend_4 = request.POST.get('ppwr_legend_4')
+          mba.ppwr_legend_5 = request.POST.get('ppwr_legend_5')
           mba.ppwr_editnote = request.POST.get('ppwr_editnote')
           mba.ppwr_custom_legend = request.POST.get('ppwr_custom_legend')
           mba.ppwr_doc1 = request.POST.get('ppwr_doc1')
@@ -506,6 +512,15 @@ def ppwrAnalysisPdf(request,pk):
           
      if ppwr.ppwr_legend_2:
           a = [ppwr.ppwr_legend_2]
+          Table_data_legend.append(a)
+     if ppwr.ppwr_legend_3:
+          a = [ppwr.ppwr_legend_3]
+          Table_data_legend.append(a)
+     if ppwr.ppwr_legend_4:
+          a = [ppwr.ppwr_legend_4]
+          Table_data_legend.append(a)
+     if ppwr.ppwr_legend_5:
+          a = [ppwr.ppwr_legend_5]
           Table_data_legend.append(a)
 
      if ppwr.ppwr_custom_legend:
@@ -942,6 +957,15 @@ def ppwrAnalysisPdf1(request,pk,return_bytes=False):
      if ppwr.ppwr_legend_2:
           a = [ppwr.ppwr_legend_2]
           Table_data_legend.append(a)
+     if ppwr.ppwr_legend_3:
+          a = [ppwr.ppwr_legend_3]
+          Table_data_legend.append(a)
+     if ppwr.ppwr_legend_4:
+          a = [ppwr.ppwr_legend_4]
+          Table_data_legend.append(a)
+     if ppwr.ppwr_legend_5:
+          a = [ppwr.ppwr_legend_5]
+          Table_data_legend.append(a)
 
      if ppwr.ppwr_custom_legend:
           a = [ppwr.ppwr_custom_legend]
@@ -1320,6 +1344,9 @@ def ppwrcloneSave(request,pk):
           existing_Form.ppwr_p6 = request.POST.get('p6')
           existing_Form.ppwr_legend_1 = request.POST.get('ppwr_legend_1')
           existing_Form.ppwr_legend_2 = request.POST.get('ppwr_legend_2')
+          existing_Form.ppwr_legend_3 = request.POST.get('ppwr_legend_3')
+          existing_Form.ppwr_legend_4 = request.POST.get('ppwr_legend_4')
+          existing_Form.ppwr_legend_5 = request.POST.get('ppwr_legend_5')
           existing_Form.ppwr_editnote = request.POST.get('ppwr_editnote')
           existing_Form.ppwr_custom_legend = request.POST.get('ppwr_custom_legend')
           existing_Form.ppwr_doc1 = request.POST.get('ppwr_doc1')

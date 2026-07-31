@@ -71,49 +71,49 @@ $(document).ready(function() {
     $(".sideNavFormBtn").click(function () {
         $(".formMainDiv").toggle(function () {
             if ($(".formMainDiv").is(":visible")) {
-                $(".wasteWaterDiv, .luxDiv, .noiseDiv, .ppbagDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+                $(".wasteWaterDiv, .luxDiv, .noiseDiv, .ppbagDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
             }
         });
     });
 
     $(".DWaterBtn").click(function () {
         $(".DWaterDiv").toggle();
-        $(".ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".ambientBtn").click(function () {
         $(".ambDiv").toggle();
-        $(".waterFromDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".wasteWaterBtn").click(function () {
         $(".wasteWaterDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".vehicEmBtn").click(function () {
         $(".vehicEmDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".luxBtn").click(function () {
         $(".luxDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".noiseBtn").click(function () {
         $(".noiseDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".ppbagBtn").click(function () {
         $(".ppbagDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     $(".machineOilBtn").click(function () {
         $(".machineOilDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
     });
 
     // $(".microBtn").click(function () {
@@ -130,16 +130,26 @@ $(document).ready(function() {
         }
     });
 
+    $(".ppwrSecBtn").click(function () {
+        var ambientAirDiv = $(".ppwrSecDiv");
+        if (ambientAirDiv.is(":hidden")) {
+            ambientAirDiv.show();
+            $(".microDiv, .waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .viscDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide();
+        } else {
+            ambientAirDiv.hide();
+        }
+    });
+
     $(".viscBtn").click(function () {
         $(".viscDiv").toggle();
-        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide()
+        $(".waterFromDiv, .ambDiv, .wasteWaterDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .ambientAirDiv, .waterwastediv2, .gasEmDiv").hide()
   
     });
     $(".ambientAirBtn").click(function () {
         var ambientAirDiv = $(".ambientAirDiv");
         if (ambientAirDiv.is(":hidden")) {
             ambientAirDiv.show();
-            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .waterwastediv2, .gasEmDiv").hide();
+            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .waterwastediv2, .gasEmDiv").hide();
         } else {
             ambientAirDiv.hide();
         }
@@ -150,7 +160,7 @@ $(document).ready(function() {
         var waterwastediv2 = $(".waterwastediv2");
         if (waterwastediv2.is(":hidden")) {
             waterwastediv2.show();
-            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .gasEmDiv").hide();
+            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .gasEmDiv").hide();
         } else {
             waterwastediv2.hide();
         }
@@ -161,7 +171,7 @@ $(document).ready(function() {
         var gasEmDiv = $(".gasEmDiv");
         if (gasEmDiv.is(":hidden")) {
             gasEmDiv.show();
-            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .viscDiv, .ambientAirDiv, .waterwastediv2").hide();
+            $(".waterFromDiv, .ambDiv, .vehicEmDiv, .luxDiv, .noiseDiv, .ppbagDiv, .machineOilDiv, .microDiv, .ppwrSecDiv, .viscDiv, .ambientAirDiv, .waterwastediv2").hide();
         } else {
             gasEmDiv.hide();
         }
