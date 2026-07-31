@@ -60,7 +60,15 @@ def compress_image(uploaded_file, max_size_kb=500):
 
 
 envitech_logo = '/home/django/EnviTechAlApp/static/assets/approvedby-removebg-preview.png'
-logo = '/static/assets/approvedby-removebg-preview.png'
+from django.templatetags.static import static as _static
+from django.utils.functional import lazy as _lazy
+_static_lazy = _lazy(_static, str)
+
+# Resolved through the staticfiles storage rather than hard-coded, so this stamp
+# gets the same content hash as every other asset. lazy() defers the manifest
+# lookup to first use: resolving it at import time would take the whole site down
+# if a deploy ever ran before collectstatic.
+logo = _static_lazy('assets/approvedby-removebg-preview.png')
 active_users = User.objects.filter(is_active=True)
 signs = Signatures.objects.filter(user__in=active_users)
 
