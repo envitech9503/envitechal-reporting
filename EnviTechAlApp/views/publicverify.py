@@ -76,7 +76,9 @@ def public_verify(request, token):
     try:
         if hasattr(response, 'content') and 'text/html' in (response.get('Content-Type', '') or ''):
             html = response.content.decode('utf-8', 'ignore')
-            css = '<style>section.sticky,.noprint{display:none !important;}</style>'
+            # visibility (not display) so the toolbar keeps its layout box: the report
+            # header sits at top:-163px and relies on that 164px of space above it.
+            css = '<style>section.sticky,.noprint{visibility:hidden !important;}</style>'
             if '</head>' in html:
                 html = html.replace('</head>', css + '</head>', 1)
             else:
