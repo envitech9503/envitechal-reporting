@@ -167,8 +167,10 @@ STATICFILES_DIRS = [
 #     pick up new CSS and JavaScript immediately and no ?v= stamp has to be
 #     maintained by hand - forgetting that stamp is what hid the PPWR menu
 #     behind a 30-day cache on 31-07-2026; and
-#   * if collectstatic has not been run, a page raises a missing-manifest error
-#     instead of quietly serving a stale file. The failure becomes visible.
+#   * a newly added asset that has not been collected fails loudly with a
+#     manifest error rather than 404ing quietly, and an edited-but-not-collected
+#     asset keeps serving the previous build rather than a half-updated mixture.
+#     Running deploy.sh removes the question either way.
 #
 # Every asset reference therefore has to go through {% static %}; a hard-coded
 # /static/... path bypasses the manifest and would never be versioned.
