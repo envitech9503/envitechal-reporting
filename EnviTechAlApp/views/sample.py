@@ -408,7 +408,7 @@ def sample_clone_update(request,pk):
              # context = {'list': new_dw}
               return redirect(to='sample_list')
           else:
-               return HttpResponse("Invalid request method", status=400)
+               return redirect(to='sample_list')
      # context = {'list': existing_dw}
      return render(request, "sample_clone.html")
 
@@ -454,7 +454,7 @@ def samplePdf(request,pk):
      pdf.text(130,44,txt="Sample ID:")
      pdf.line(150,44.5,185,44.5)
      pdf.set_font("Calibri","", 11)
-     pdf.text(150,44,txt=sample.sample_id)
+     pdf.text(150,44,txt=(sample.sample_id or ''))
 
 
      pdf.rect(10,47,190,16)
@@ -485,64 +485,64 @@ def samplePdf(request,pk):
      pdf.line(150,58.5,195,58.5)
      if sample.inp1:
           pdf.set_font("Calibri","", 11)
-          pdf.text(153,58,txt=sample.inp1)
+          pdf.text(153,58,txt=(sample.inp1 or ''))
 
      pdf.rect(10,63,190,53)
      pdf.set_font("Calibri","B", 11)
      pdf.text(12,69,txt="Sampling By :")
      pdf.set_font("Calibri","", 11)
      pdf.line(36,69.5,90,69.5)
-     pdf.text(39,69,txt=sample.inp2)
+     pdf.text(39,69,txt=(sample.inp2 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(110,69,txt="Registration Date & Time:")
      pdf.set_font("Calibri","", 11)
      pdf.line(153,69.5,195,69.5)
-     pdf.text(156,69,txt=sample.inp3)
+     pdf.text(156,69,txt=(sample.inp3 or ''))
 
      
      pdf.set_font("Calibri","B", 11)
      pdf.text(12,76,txt="Location Of Sample:")
      pdf.set_font("Calibri","", 11)
      pdf.line(47,76.5,90,76.5)
-     pdf.text(50,76,txt=sample.inp4)
+     pdf.text(50,76,txt=(sample.inp4 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(110,76,txt="Sample Method:")
      pdf.set_font("Calibri","", 11)
      pdf.line(138,76.5,195,76.5)
-     pdf.text(141,76,txt=sample.inp5)
+     pdf.text(141,76,txt=(sample.inp5 or ''))
 
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(12,83,txt="Sample Collected By:")
      pdf.set_font("Calibri","", 11)
      pdf.line(47,83.5,90,83.5)
-     pdf.text(50,83,txt=sample.inp6)
+     pdf.text(50,83,txt=(sample.inp6 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(110,83,txt="Sampling/Receiving Date:")
      pdf.set_font("Calibri","", 11)
      pdf.line(152,83.5,195,83.5)
-     pdf.text(155,83,txt=sample.inp7)
+     pdf.text(155,83,txt=(sample.inp7 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(12,90,txt="Sampling/Receiving Time:")
      pdf.set_font("Calibri","", 11)
      pdf.line(55,90.5,90,90.5)
-     pdf.text(58,90,txt=sample.inp8)
+     pdf.text(58,90,txt=(sample.inp8 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(110,90,txt="Estimated Reporting Date:")
      pdf.set_font("Calibri","", 11)
      pdf.line(155,90.5,195,90.5)
-     pdf.text(158,90,txt=sample.inp9)
+     pdf.text(158,90,txt=(sample.inp9 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(12,97,txt="No. of Samples:")
      pdf.set_font("Calibri","", 11)
      pdf.line(38,97.5,90,97.5)
-     pdf.text(41,97,txt=sample.inp10)
+     pdf.text(41,97,txt=(sample.inp10 or ''))
 
      pdf.set_font("Calibri","B", 11)
      pdf.text(92,97,txt="Types of Sample:")
@@ -600,10 +600,10 @@ def samplePdf(request,pk):
           pdf.image(unchecked,70,100.8,4,4) 
 
      pdf.text(12,111,txt="Environmental Conditions (When Sample Received): Temp:")
-     pdf.text(111,111,txt=sample.inp19)
+     pdf.text(111,111,txt=(sample.inp19 or ''))
      pdf.line(107,111.5,130,111.5)
      pdf.text(132,111,txt="pH")    
-     pdf.text(140,111,txt=sample.inp20)  
+     pdf.text(140,111,txt=(sample.inp20 or ''))  
      pdf.line(137,111.5,159,111.5)   
 
 
@@ -1302,7 +1302,7 @@ def samplePdf(request,pk):
      pdf.text(78,228,txt="Other") 
      pdf.set_font("Calibri","B", 9)
      if sample.other1:
-          pdf.text(88,228,txt=sample.other1)
+          pdf.text(88,228,txt=(sample.other1 or ''))
      
      
      
@@ -1651,7 +1651,7 @@ def samplePdf(request,pk):
 
      pdf.set_font("Calibri", "B", 9)
      if sample.other2:
-          pdf.text(28, 181, txt=sample.other2)
+          pdf.text(28, 181, txt=(sample.other2 or ''))
 
      pdf.set_font("Calibri", "B", 11)
      
@@ -1921,7 +1921,7 @@ def samplePdf(request,pk):
           pdf.image(checked, 12, 142.8, 4, 4)
      else:
           pdf.image(unchecked, 12, 142.8, 4, 4)
-     pdf.text(18, 146, txt="free Chlorine")
+     pdf.text(18, 146, txt="Free Chlorine")
 
      if sample.other_param_44:
           pdf.image(checked, 42, 142.8, 4, 4)
@@ -2090,7 +2090,7 @@ def samplePdf(request,pk):
      pdf.text(91, 205, txt="Not Required")
 
      pdf.text(120, 205, txt="Detail (if required):")
-     pdf.text(153, 205, txt=sample.inp106)
+     pdf.text(153, 205, txt=(sample.inp106 or ''))
      pdf.line(152, 206, 192, 206)
 
      pdf.text(12, 211, txt="Measurement of Uncertainty:")  # Changed Y from 237 to 211
@@ -2107,7 +2107,7 @@ def samplePdf(request,pk):
      pdf.text(91, 211, txt="Not Required")
 
      pdf.text(120, 211, txt="Detail (if required):")
-     pdf.text(153, 211, txt=sample.inp109)
+     pdf.text(153, 211, txt=(sample.inp109 or ''))
      pdf.line(152, 212, 192, 212)
 
      pdf.text(12, 217, txt="Statement of Conformity:")  # Changed Y from 243 to 217
@@ -2124,7 +2124,7 @@ def samplePdf(request,pk):
      pdf.text(91, 217, txt="Not Required")
 
      pdf.text(120, 217, txt="Detail (if required):")
-     pdf.text(153, 217, txt=sample.inp112)
+     pdf.text(153, 217, txt=(sample.inp112 or ''))
      pdf.line(152, 218, 192, 218)
 
      pdf.text(12, 223, txt="Opinion & Interpretations:")  # Changed Y from 249 to 123
@@ -2141,7 +2141,7 @@ def samplePdf(request,pk):
      pdf.text(91, 223, txt="Not Required")
 
      pdf.text(120, 223, txt="Detail (if required):")
-     pdf.text(153, 223, txt=sample.inp115)
+     pdf.text(153, 223, txt=(sample.inp115 or ''))
      pdf.line(152, 224, 192, 224)
 
 
@@ -2149,7 +2149,7 @@ def samplePdf(request,pk):
      pdf.set_draw_color(25, 27, 2)
      pdf.rect(10,252,190,8,'DF')
      if sample.assign_to:
-          pdf.text(12,257,txt="Assigned to(Analyst Name): "+sample.assign_to)
+          pdf.text(12,257,txt="Assigned to(Analyst Name): "+(sample.assign_to or ''))
      else:
           pdf.text(12,257,txt="Assigned to:")
      pdf.rect(10,260,190,19)
@@ -2250,16 +2250,16 @@ def samplePdf1(request,pk):
      pdf.set_font("Calibri","B", 8 )
      pdf.rect(158,16,30,9)
      if sample.conntrol_1:
-          pdf.text(160,19,txt=sample.conntrol_1)
-          pdf.text(160,21.5,txt=sample.conntrol_date)
-          pdf.text(160,24,txt=sample.conntrol_no)
+          pdf.text(160,19,txt=(sample.conntrol_1 or ''))
+          pdf.text(160,21.5,txt=(sample.conntrol_date or ''))
+          pdf.text(160,24,txt=(sample.conntrol_no or ''))
 
 
 
      pdf.set_y(26)
      pdf.set_x(30)
      pdf.cell(40,7,txt="Sample ID",border=1)
-     pdf.cell(40,7,txt=sample.sample_id,border=1)
+     pdf.cell(40,7,txt=(sample.sample_id or ''),border=1)
      if sample.checkinp11:
           pdf.cell(40,7,txt="Sample Type",border=1)
           pdf.cell(40,7,txt="Drinking Water",border=1,ln=True)
@@ -2284,9 +2284,9 @@ def samplePdf1(request,pk):
      
      pdf.set_x(30)
      pdf.cell(40,7,txt="Sampling Date & Time",border=1)
-     pdf.cell(40,7,txt=sample.inp7+", "+sample.inp8,border=1)
+     pdf.cell(40,7,txt=(sample.inp7 or '')+", "+(sample.inp8 or ''),border=1)
      pdf.cell(40,7,txt="Sampling Location",border=1)
-     pdf.cell(40,7,txt=sample.inp4,border=1,ln=True)
+     pdf.cell(40,7,txt=(sample.inp4 or ''),border=1,ln=True)
 
      pdf.set_x(30)
      pdf.cell(40,8,txt="Env.Condition @ Receiving Time",border=1)
@@ -2294,17 +2294,17 @@ def samplePdf1(request,pk):
      pdf.set_font("Calibri","B", 8 )
      pdf.text(72,43,txt="Temp:")
      pdf.text(72,46.5,txt="pH:")
-     pdf.text(80,43,txt=sample.inp19)
-     pdf.text(78,46.5,txt=sample.inp20)
+     pdf.text(80,43,txt=(sample.inp19 or ''))
+     pdf.text(78,46.5,txt=(sample.inp20 or ''))
      pdf.set_x(110)
      pdf.cell(40,8,txt="Registration Date & Time",border=1)
-     pdf.cell(40,8,txt=sample.inp3,border=1,ln=True)
+     pdf.cell(40,8,txt=(sample.inp3 or ''),border=1,ln=True)
 
      pdf.set_x(30)
      pdf.cell(40,7,txt="Estimated Disposal Date",border=1)
      pdf.cell(40,7,txt=date_five_days_ahead_str,border=1)
      pdf.cell(40,7,txt="Sample Collected By",border=1)
-     pdf.cell(40,7,txt=sample.inp6,border=1,ln=True)
+     pdf.cell(40,7,txt=(sample.inp6 or ''),border=1,ln=True)
 
      pdf.set_x(30)
      pdf.cell(40,7,txt="Received By/Sign",border=1)

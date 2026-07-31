@@ -164,7 +164,15 @@
                 top: 574px;
                 z-index: 1;">
 
-                     <a class="text-lg pl-4 pointer" target="_blank" href="{% url "log-pdf" %}?dt={{dt}}&yr={{yr}}&loc={{selected_location}}"><img src="{% static "/assets/pdf-removebg-preview.png" %}" alt="" style="width:40px"></a>
+                     <style>
+.etal-icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08);transition:background .15s,border-color .15s,box-shadow .15s;cursor:pointer;line-height:0;}
+.etal-icon-btn:hover{background:#f1f5f9;border-color:#94a3b8;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.etal-icon-btn img{width:28px;height:28px;object-fit:contain;margin:0;}
+button.dt-button.btn-excel{background:#fff !important;border:1px solid #cbd5e1 !important;border-radius:8px !important;padding:6px !important;box-shadow:0 1px 2px rgba(0,0,0,.08);transition:background .15s,border-color .15s,box-shadow .15s;}
+button.dt-button.btn-excel:hover{background:#f1f5f9 !important;border-color:#94a3b8 !important;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+button.dt-button.btn-excel img{width:28px;height:28px;object-fit:contain;margin:0;}
+</style>
+                     <a class="etal-icon-btn" title="Download PDF" target="_blank" href="{% url "log-pdf" %}?dt={{dt}}&yr={{yr}}&loc={{selected_location}}"><img src="{% static "/assets/pdf-removebg-preview.png" %}" alt="PDF"></a>
 
                      <!--a class="text-lg pl-2" target="_blank" href="#"><i class="fa-solid fa-file-pdf text-3xl text-red-600 hover:text-red-500" style="box-shadow: 4px 8px 12px -2px"></i>EXCEL</a-->
 
@@ -241,7 +249,7 @@
                         extend: 'excelHtml5',
                         text: '<img src="{% static "/assets/excel-removebg-preview.png" %}" alt="Excel Image">', // Custom button text with icon
                         titleAttr: 'Export to Excel', // Tooltip for the button
-                        className: 'btn-excel', // Custom class for styling
+                        className: 'btn-excel etal-icon-btn', // Custom class for styling
                     },
                 ]
         });
