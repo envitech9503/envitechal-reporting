@@ -81,20 +81,25 @@ sleep 4
 systemctl is-active gunicorn django
 
 # ---------------------------------------------------------------- 6. smoke test
+# Test the real path a visitor takes - TLS, nginx, gunicorn - by resolving the
+# site's own hostname to this machine. A plain http://127.0.0.1 request answers
+# from nginx's default server block (404) or gets redirected to https (301),
+# neither of which tells you whether the site actually works.
 say "Checking the site responds"
-code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 http://127.0.0.1/login/ || echo 000)
-case "$code" in
-    200|301|302) printf '    /login/ -> %s\n' "$code" ;;
-    *) die "/login/ returned $code - check: journalctl -u gunicorn -n 50" ;;
-esac
+HOST=report.envitechal.com
+probe() { curl -sS -o /dev/null --max-time 25 --resolve "$HOST:443:127.0.0.1" -w '%{http_code}' "https://$HOST$1" || echo 000; }
+
+code=$(probe /login/)
+[ "$code" = 200 ] || die "/login/ returned $code - check: journalctl -u gunicorn -n 50"
+printf '    /login/ -> %s\n' "$code"
 
 asset=$($PY - <<'PYEOF'
 import json
 print(json.load(open('staticfiles/staticfiles.json'))['paths']['js/app.js'])
 PYEOF
 )
-code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "http://127.0.0.1/static/$asset" || echo 000)
-[ "$code" = 200 ] || die "hashed asset /static/$asset returned $code - check the nginx static alias."
+code=$(probe "/static/$asset")
+[ "$code" = 200 ] || die "hashed asset /static/$asset returned $code - check the nginx /static/ alias."
 printf '    /static/%s -> %s\n' "$asset" "$code"
 
 say "Deployed."
