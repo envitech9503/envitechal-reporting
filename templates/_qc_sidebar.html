@@ -1,0 +1,134 @@
+{% load static %}{% comment %}
+Envi Tech AL — QC module sidebar (31-07-2026).
+
+Every QC page includes this one partial, so the QC menu cannot drift between
+pages the way the Reports sidebar did. Markup, styling and behaviour are all
+self-contained: the accordion script below is inline vanilla JavaScript, so a
+stale cached app.js can never leave a section unclickable.
+
+Pass `with fixed=1` on pages that have no flex sidebar column of their own; the
+partial then pins itself to the left edge and indents the page body to match.
+{% endcomment %}<style>
+ .etqc{width:16rem;flex-shrink:0;background:#111827;color:#fff;display:flex;flex-direction:column;max-height:100vh}
+ .etqc-fixed{position:fixed;top:5rem;left:0;bottom:0;z-index:30;max-height:none}
+ .etqc-logo{padding:1rem;border-bottom:1px solid #374151;text-align:center;flex:0 0 auto}
+ .etqc-logo img{height:3.5rem;display:inline-block}
+ .etqc-nav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:.9rem 1rem 1.5rem}
+ .etqc-title{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#9ca3af;margin:0 0 .7rem}
+ .etqc-sec{width:100%;text-align:left;font-size:.9rem;font-weight:600;color:#e5e7eb;padding:.45rem 0;display:flex;align-items:center;gap:.55rem;background:none;border:0;cursor:pointer}
+ .etqc-sec:hover{color:#fff}
+ .etqc-sec .fa-chevron-right{margin-left:auto;font-size:.65rem;transition:transform .15s ease}
+ .etqc-sec[aria-expanded="true"] .fa-chevron-right{transform:rotate(90deg)}
+ .etqc-panel{display:none;padding-left:1.45rem;padding-bottom:.2rem}
+ .etqc-panel.etqc-open{display:block}
+ .etqc-panel a{display:block;padding:.3rem 0;font-size:.84rem;color:#bfdbfe;text-decoration:none}
+ .etqc-panel a:hover{color:#fff;text-decoration:underline}
+ .etqc-panel a.etqc-here{color:#fff;font-weight:700}
+ .etqc-hr{border:0;border-top:1px solid #1f2937;margin:.3rem 0}
+ .etqc-nav{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.38) rgba(255,255,255,.07)}
+ .etqc-nav::-webkit-scrollbar{width:10px}
+ .etqc-nav::-webkit-scrollbar-track{background:rgba(255,255,255,.07)}
+ .etqc-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.38);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+ .etqc-nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.60);background-clip:padding-box}
+ @media (max-width:767px){
+   .etqc{display:none}
+   .etqc.etqc-mobile-open{display:flex;position:fixed;top:5rem;left:0;bottom:0;z-index:40;width:16rem;max-height:none;box-shadow:0 0 24px rgba(0,0,0,.45)}
+ }
+</style>
+{% if fixed %}<style>@media (min-width:768px){body{padding-left:16rem}}</style>{% endif %}
+<div class="etqc{% if fixed %} etqc-fixed{% endif %}" id="etqcSidebar">
+  <div class="etqc-logo">
+    <a href="{% url 'nav' %}"><img src="{% static '/assets/logo-light.png' %}" alt="Envi Tech AL"></a>
+  </div>
+  <nav class="etqc-nav">
+    <p class="etqc-title">QC Forms</p>
+
+    <button type="button" class="etqc-sec" data-etqc="etqcRdsDw" aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical"></i>RDS DW<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcRdsDw">
+      {% if dw_audit_url %}<a href="{% url 'create_dw_qc_manual' %}">Add RDS DW</a>
+      {% else %}<a href="{% url 'create_dw_qc' %}">Add RDS DW</a>{% endif %}
+      <a href="{% url 'dw_rds_list' %}">List RDS DW</a>
+    </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcRdsWw" aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical"></i>RDS WW<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcRdsWw">
+      {% if ww_audit_url %}<a href="{% url 'create_ww_qc_manual' %}">Add RDS WW</a>
+      {% else %}<a href="{% url 'create_ww_qc' %}">Add RDS WW</a>{% endif %}
+      <a href="{% url 'ww_rds_list' %}">List RDS WW</a>
+    </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcTrDw" aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical"></i>RDS Testing Results DW<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcTrDw">
+      <a href="{% url 'dw_testing_results_sample' %}">Add Testing Results DW</a>
+      <a href="{% url 'dw_testing_results_sample_list' %}">List Testing Results DW</a>
+    </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcTrWw" aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical"></i>RDS Testing Results WW<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcTrWw">
+      <a href="{% url 'ww_testing_results_sample' %}">Add Testing Results WW</a>
+      <a href="{% url 'ww_testing_results_sample_list' %}">List Testing Results WW</a>
+    </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcReagent" aria-expanded="false">
+      <i class="fa-solid fa-ellipsis-vertical"></i>Reagent Preparation<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcReagent">
+      <a href="{% url 'reagent_prep' %}">Add Preparation</a>
+      <a href="{% url 'reagent_prep_list' %}">List Preparations</a>
+      <a href="{% url 'reagent_prep_calculator' %}">Preparation Calculator</a>
+      <a href="{% url 'reagent_prep_manual' %}" target="_blank" rel="noopener">User Manual</a>
+    </div>
+  </nav>
+</div>
+<script>
+(function(){
+  var root = document.getElementById('etqcSidebar');
+  if (!root) return;
+  root.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('.etqc-sec') : null;
+    if (!b || !root.contains(b)) return;
+    var p = document.getElementById(b.getAttribute('data-etqc'));
+    if (!p) return;
+    var open = p.classList.toggle('etqc-open');
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  // The pages that carry this partial also render the mobile hamburger, which
+  // used to toggle the old #sidebar element. Keep it working.
+  var mb = document.getElementById('menu-button');
+  if (mb) mb.addEventListener('click', function(){ root.classList.toggle('etqc-mobile-open'); });
+
+  // Open the section the visitor is currently in and mark the page they are on.
+  var here = location.pathname.replace(/\/+$/, '');
+  var links = root.querySelectorAll('.etqc-panel a');
+  for (var i = 0; i < links.length; i++) {
+    var href = (links[i].getAttribute('href') || '').replace(/\/+$/, '');
+    if (href && href === here) {
+      links[i].className += ' etqc-here';
+      var panel = links[i].parentNode;
+      panel.classList.add('etqc-open');
+      var btn = root.querySelector('[data-etqc="' + panel.id + '"]');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+  // Nothing matched (a form page reached from elsewhere): show the first section
+  // so the menu never reads as empty.
+  if (!root.querySelector('.etqc-panel.etqc-open')) {
+    var first = root.querySelector('.etqc-panel');
+    var firstBtn = root.querySelector('.etqc-sec');
+    if (first) first.classList.add('etqc-open');
+    if (firstBtn) firstBtn.setAttribute('aria-expanded', 'true');
+  }
+})();
+</script>

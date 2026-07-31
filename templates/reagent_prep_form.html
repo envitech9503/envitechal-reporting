@@ -52,6 +52,7 @@
 {% endblock %}{% block w2_content %}
 <body>
 {% include "_unified_nav.html" %}
+{% include "_qc_sidebar.html" with fixed=1 %}
 <div style="max-width:1180px;margin:12px auto 0;padding:0 16px;font-size:12px;color:#64748b">
   <a href="/qc/qc_main/" style="color:#0f5132;text-decoration:none">QC</a> &rsaquo;
   <a href="/qc/reagent-prep-list/" style="color:#0f5132;text-decoration:none">Reagent &amp; Standards Prep</a> &rsaquo;

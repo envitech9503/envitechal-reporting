@@ -21,3 +21,30 @@ a{transition:color .15s ease, background .15s ease}
 ::-webkit-scrollbar-thumb:hover{background:var(--etal)}
 /* Headings colour discipline */
 h1,h2{color:var(--etal-ink)}
+
+/* --- Sidebar scrolling (31-07-2026) -----------------------------------------
+   The Forms menu is now taller than the viewport on most screens, and both
+   sidebar shapes were fixed-height with no vertical overflow, so the sections
+   at the bottom could not be reached at all. Both shapes now scroll, with a
+   slim scrollbar styled to suit the dark panel. */
+.side-nav{
+  height:calc(100vh - 5rem);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+#sidebar{
+  display:flex;
+  flex-direction:column;
+  max-height:100vh;
+}
+#sidebar > nav{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.side-nav,#sidebar > nav{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.38) rgba(255,255,255,.07)}
+.side-nav::-webkit-scrollbar,#sidebar > nav::-webkit-scrollbar{width:10px}
+.side-nav::-webkit-scrollbar-track,#sidebar > nav::-webkit-scrollbar-track{background:rgba(255,255,255,.07)}
+.side-nav::-webkit-scrollbar-thumb,#sidebar > nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.38);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+.side-nav::-webkit-scrollbar-thumb:hover,#sidebar > nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.60);background-clip:padding-box}
