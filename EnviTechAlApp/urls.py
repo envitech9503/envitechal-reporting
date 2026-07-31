@@ -17,6 +17,7 @@ Including another URLconf
 from django import views
 from django.contrib import admin
 from django.urls import include, path,re_path
+from django.views.generic.base import RedirectView
 from EnviTechAlApp import settings, views
 from django.conf.urls.static import static
 # from django.conf.urls import url, include
@@ -25,6 +26,9 @@ from django.views.static import serve
 handler500 = 'EnviTechAlApp.views.custom_500'
 
 urlpatterns = [
+    # Browsers request /favicon.ico directly for bookmarks and history.
+    path('favicon.ico', RedirectView.as_view(
+        url='/static/assets/favicon.ico', permanent=True), name='favicon'),
     # Public QR verification: opens one report/certificate read-only, no login (31-07-2026)
     path('verify/<str:token>/', views.public_verify, name='public_verify'),
     path('verify-document/<str:token>/', views.legacy_verify, name='legacy_verify'),
