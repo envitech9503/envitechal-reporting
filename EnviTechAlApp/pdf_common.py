@@ -6287,3 +6287,412 @@ class PDF_inspect_pdf1(FPDF):
           self.rect(10,275,190,6,"F")
           self.set_text_color(255, 255, 255)
           self.text(12,278.5,txt=self._rq_inspect.disc)
+
+
+class PDF_ppwrAnalysisPdf(FPDF):
+     def __init__(self,lab_report_no,invoice_bill_no,reporting_date,address,attention,email,sample_id,ppwr_sample_col_date,
+                  ppwr_sample_col_by,ppwr_sample_type,ppwr_sample_desc,report_to,ppwr_test_desc,ppwr_date_analysis_from,ppwr_date_analysis_to,*args, **kwargs):
+          super().__init__(*args, **kwargs)
+          self.show_full_header = True
+          self.lab_report_no = lab_report_no
+          self.invoice_bill_no_number = invoice_bill_no
+          self.reporting_date = reporting_date
+          self.address = address
+          self.attention = attention
+          self.email = email
+          self.sample_id = sample_id
+          self.ppwr_sample_col_date = ppwr_sample_col_date
+          self.ppwr_sample_col_by = ppwr_sample_col_by
+          self.ppwr_sample_type = ppwr_sample_type
+          self.ppwr_sample_desc = ppwr_sample_desc
+          self.report_to = report_to
+          self.ppwr_test_desc = ppwr_test_desc
+          self.ppwr_date_analysis_from = ppwr_date_analysis_from
+          self.ppwr_date_analysis_to = ppwr_date_analysis_to
+          self.date_of_analysis = ppwr_date_analysis_from +" to "+ ppwr_date_analysis_to
+
+
+
+     def header(self):
+          self.set_y(0)
+          self.set_x(0)
+          # self.image("static/assets/header.PNG",0,0,self.w,22.5)
+
+
+          #
+          self.set_text_color(0, 0, 0)
+          self.alias_nb_pages()
+          old_x = self.get_x()
+          old_y = self.get_y()
+          self.set_x(130)
+          self.set_y(39)
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          page_number = f"{self.page_no()}s: of {{nb}}"
+          self.set_font("Calibri","B", 10)
+          self.text(159.5,40,txt="Page No:")
+          self.set_font("Calibri","", 10)
+          self.line(175,41,178+self.get_string_width(page_number),41)
+          self.cell(self.w - 25, 0, f'{self.page_no()} of {{nb}}',border=False, align='R')
+          self.set_x(old_x)
+          self.set_y(old_y)
+
+
+          #header table
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","", 10)
+
+          self.set_font("Calibri","B", 10)
+          self.text(10,40,txt="Lab Report No:")
+          self.set_font("Calibri","", 10)
+          self.line(34,41,60,41)
+          self.text(34,40,txt=self.lab_report_no)
+
+          self.set_font("Calibri","B", 10)
+          self.text(10,47,txt="Invoice Bill No:")
+          self.set_font("Calibri","", 10)
+          self.line(34,48,60,48)
+          self.text(34,47,txt=self.invoice_bill_no_number)
+
+          target_url = self._rq_request.build_absolute_uri(reverse('ppwr-view', kwargs={'pk': self._rq_pk}))
+
+          # Generate the QR code for the target URL
+          qr_filename = f"qr_{self._rq_pk}.png"
+          qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
+
+          qr = qrcode.QRCode(
+               version=1,
+               error_correction=qrcode.constants.ERROR_CORRECT_L,
+               box_size=10,
+               border=6,
+          )
+          qr.add_data(target_url)  # Add the dynamically generated URL
+          qr.make(fit=True)
+          img = qr.make_image(fill_color="black", back_color="white")
+          img.save(qr_file_path)
+
+          self.image(qr_file_path,"C",y=33,w=20,h=20)
+
+          self.set_font("Calibri","B", 10)
+          self.text(150,47,txt="Reporting Date:")
+          self.set_font("Calibri","", 10)
+          self.line(175,48,199,48)
+          self.text(175,47,txt=self.reporting_date)
+
+
+
+          if self.show_full_header:
+               self.rect(10,52,190,13)
+               self.set_font("Calibri","B", 10)
+               self.text(12,57, txt="Report to:")
+               self.line(30,52,30,65)
+               self.text(31,57,txt='M/s.')
+               self.set_font("Calibri","", 10)
+               self.text(46,57,txt=self.report_to)
+               self.set_font("Calibri","B", 10)
+               self.text(31,62,txt='Address')
+               self.set_font("Calibri","", 10)
+               self.text(46,62,txt=self.address)
+
+               self.rect(10,67,190,13)
+               self.set_font("Calibri","B", 10)
+               self.text(12,72, txt="Attention:")
+               self.line(30,67,30,80)
+               self.text(31,72,txt='Mr/Ms.')
+               self.set_font("Calibri","", 10)
+               self.text(46,72,txt=self.attention)
+               self.set_font("Calibri","B", 10)
+               self.text(31,77,txt='Email')
+               self.set_font("Calibri","", 10)
+               self.text(46,77,txt=self.email)
+
+
+               self.rect(10,82,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(86,86,txt="Sample ID:")
+               self.text(110,86,txt=self.sample_id)
+
+               self.rect(10,88,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(68,92,txt="Sample collected Date:")
+               self.text(110,92,txt=self.ppwr_sample_col_date)
+
+
+               self.rect(10,94.1,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(72.2,98,txt="Sample Description:")
+               self.set_font("Calibri","", 10)
+               self.text(110,98,txt=self.ppwr_sample_desc)
+
+               self.line(105,82,105,124)
+
+               self.rect(10,100,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(81.8,104,txt="Sample Type:")
+               self.set_font("Calibri","", 10)
+               self.text(110,104,txt=self.ppwr_sample_type)
+
+               self.rect(10,106,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(53.8,110,txt="Sample Collected/Submitted By:")
+               self.set_font("Calibri","", 10)
+               self.text(110,110,txt=self.ppwr_sample_col_by)
+
+               self.rect(10,112,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(76,116,txt="Date Of Analysis:")
+               self.set_font("Calibri","", 10)
+               self.text(110,116,txt=self.date_of_analysis)
+
+               self.rect(10,118,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(76.5,122,txt="Test Description:")
+               self.set_font("Calibri","", 10)
+               self.text(110,122,txt=self.ppwr_test_desc)
+               #table header
+               self.rect(10,126,190,7)
+               self.set_font("Calibri","B", 12)
+               self.text(89,130,txt="Test Report")
+
+          #water mark
+          with self.local_context(fill_opacity=0.5):
+               self.set_font("Arial", "B", 50)
+               self.set_text_color(192, 192, 180) # Light gray text
+               # self.set_xy(50, 260)
+               self.rotate(45)
+               self.text(-120, 180,self.lab_report_no)
+
+               self.rotate(0)
+
+
+          self.set_y(133)
+
+class PDF_ppwrAnalysisPdf1(FPDF):
+     def __init__(self,lab_report_no,invoice_bill_no,reporting_date,address,attention,email,sample_id,ppwr_sample_col_date,
+                  ppwr_sample_col_by,ppwr_sample_type,ppwr_sample_desc,report_to,ppwr_test_desc,ppwr_date_analysis_from,ppwr_date_analysis_to,*args, **kwargs):
+          super().__init__(*args, **kwargs)
+          self.show_full_header = True
+          self.lab_report_no = lab_report_no
+          self.invoice_bill_no_number = invoice_bill_no
+          self.reporting_date = reporting_date
+          self.address = address
+          self.attention = attention
+          self.email = email
+          self.sample_id = sample_id
+          self.ppwr_sample_col_date = ppwr_sample_col_date
+          self.ppwr_sample_col_by = ppwr_sample_col_by
+          self.ppwr_sample_type = ppwr_sample_type
+          self.ppwr_sample_desc = ppwr_sample_desc
+          self.report_to = report_to
+          self.ppwr_test_desc = ppwr_test_desc
+          self.ppwr_date_analysis_from = ppwr_date_analysis_from
+          self.ppwr_date_analysis_to = ppwr_date_analysis_to
+          self.date_of_analysis = ppwr_date_analysis_from +" to "+ ppwr_date_analysis_to
+
+
+
+     def header(self):
+          self.set_y(0)
+          self.set_x(0)
+          # self.image("static/assets/header.PNG",0,0,self.w,22.5)
+          self.image("static/assets/Header watermark.jpg",0,0,self.w,35)
+          self.image("static/assets/EnviTechAL LOGO.png",16,5,26,28)
+          self.set_line_width(0.5)
+          self.set_draw_color(26, 84, 26)
+          self.line(0,35,self.w,35)
+          font_path_alger = "static/fonts/ALGER.TTF"
+          self.add_font("Algerian","",font_path_alger)
+          self.set_font("Algerian","", 16)
+          self.set_text_color(13, 46, 145)
+          self.text(85,20,txt="ENVI TECH AL")
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","B", 11)
+          self.set_text_color(26, 84, 26)
+          self.text(55,28,txt="We strive for Pragmatic approach to achieve quality Excellence")
+          self.image('static/assets/GreenLab-Gold-LOGO-S-e1578648052937-removebg-preview.png',168,5,27,28)
+
+
+          #body watermark
+
+          self.image('static/assets/report water mark.png',0,35,self.w,self.h)
+
+
+          self.set_line_width(0.2)
+          self.set_draw_color(0,0,0)
+
+
+
+          self.set_text_color(0, 0, 0)
+          self.alias_nb_pages()
+          old_x = self.get_x()
+          old_y = self.get_y()
+          self.set_x(130)
+          self.set_y(44)
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          page_number = f"{self.page_no()}s: of {{nb}}"
+          self.set_font("Calibri","B", 10)
+          self.text(159.5,45,txt="Page No:")
+          self.set_font("Calibri","", 10)
+          self.line(175,46,178+self.get_string_width(page_number),46)
+          self.cell(self.w - 25, 0, f'{self.page_no()} of {{nb}}',border=False, align='R')
+          self.set_x(old_x)
+          self.set_y(old_y)
+
+
+
+          #header table
+          self.set_text_color(0, 0, 0)
+          font_path = "static/fonts/calibri.ttf"
+          font_path_bold = "static/fonts/calibrib.ttf"
+          self.add_font("Calibri","",font_path,uni=True)
+          self.add_font("Calibri","B",font_path_bold,uni=True)
+          self.set_font("Calibri","", 10)
+
+          self.set_font("Calibri","B", 10)
+          self.text(10,45,txt="Lab Report No:")
+          self.set_font("Calibri","", 10)
+          self.line(34,46,60,46)
+          self.text(34,45,txt=self.lab_report_no)
+
+          self.set_font("Calibri","B", 10)
+          self.text(10,52,txt="Invoice Bill No:")
+          self.set_font("Calibri","", 10)
+          self.line(34,53,60,53)
+          self.text(34,52,txt=self.invoice_bill_no_number)
+
+          target_url = self._rq_request.build_absolute_uri(reverse('ppwr-view', kwargs={'pk': self._rq_pk}))
+
+          # Generate the QR code for the target URL
+          qr_filename = f"qr_{self._rq_pk}.png"
+          qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
+
+          qr = qrcode.QRCode(
+               version=1,
+               error_correction=qrcode.constants.ERROR_CORRECT_L,
+               box_size=10,
+               border=6,
+          )
+          qr.add_data(target_url)  # Add the dynamically generated URL
+          qr.make(fit=True)
+          img = qr.make_image(fill_color="black", back_color="white")
+          img.save(qr_file_path)
+
+          self.image(qr_file_path,"C",y=37,w=20,h=20)
+
+          self.set_font("Calibri","B", 10)
+          self.text(150,52,txt="Reporting Date:")
+          self.set_font("Calibri","", 10)
+          self.line(175,53,199,53)
+          self.text(175,52,txt=self.reporting_date)
+
+
+          if self.show_full_header:
+               self.rect(10,57,190,13)
+               self.set_font("Calibri","B", 10)
+               self.text(12,62, txt="Report to:")
+               self.line(30,57,30,70)
+               self.text(31,62,txt='M/s.')
+               self.set_font("Calibri","", 10)
+               self.text(46,62,txt=self.report_to)
+               self.set_font("Calibri","B", 10)
+               self.text(31,67,txt='Address')
+               self.set_font("Calibri","", 10)
+               self.text(46,67,txt=self.address)
+
+               self.rect(10,72,190,13)
+               self.set_font("Calibri","B", 10)
+               self.text(12,77, txt="Attention:")
+               self.line(30,72,30,85)
+               self.text(31,77,txt='Mr/Ms.')
+               self.set_font("Calibri","", 10)
+               self.text(46,77,txt=self.attention)
+               self.set_font("Calibri","B", 10)
+               self.text(31,82,txt='Email')
+               self.set_font("Calibri","", 10)
+               self.text(46,82,txt=self.email)
+
+
+               self.rect(10,87,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(86,91,txt="Sample ID:")
+               self.text(110,91,txt=self.sample_id)
+
+               self.rect(10,93,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(68,97,txt="Sample collected Date:")
+               self.text(110,97,txt=self.ppwr_sample_col_date)
+
+
+               self.rect(10,99.1,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(72.2,103,txt="Sample Description:")
+               self.set_font("Calibri","", 10)
+               self.text(110,103,txt=self.ppwr_sample_desc)
+
+               self.line(105,87,105,129)
+
+               self.rect(10,105,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(81.8,109,txt="Sample Type:")
+               self.set_font("Calibri","", 10)
+               self.text(110,109,txt=self.ppwr_sample_type)
+
+               self.rect(10,111,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(53.8,115,txt="Sample Collected/Submitted By:")
+               self.set_font("Calibri","", 10)
+               self.text(110,115,txt=self.ppwr_sample_col_by)
+
+               self.rect(10,117,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(76,121,txt="Date Of Analysis:")
+               self.set_font("Calibri","", 10)
+               self.text(110,121,txt=self.date_of_analysis)
+
+               self.rect(10,123,190,6)
+               self.set_font("Calibri","B", 10)
+               self.text(76.5,127,txt="Test Description:")
+               self.set_font("Calibri","", 10)
+               self.text(110,127,txt=self.ppwr_test_desc)
+               #table header
+               self.rect(10,131,190,7)
+               self.set_font("Calibri","B", 12)
+               self.text(89,136,txt="Test Report")
+
+          #water mark
+          with self.local_context(fill_opacity=0.5):
+               self.set_font("Arial", "B", 50)
+               self.set_text_color(192, 192, 180) # Light gray text
+               # self.set_xy(50, 260)
+               self.rotate(45)
+               self.text(-120, 180,self.lab_report_no)
+
+               self.rotate(0)
+
+          self.set_y(-10)
+          self.set_x(0)
+          # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
+          self.set_fill_color(40, 25, 105)    
+          self.rect(0,self.h-14,self.w,12,"F")
+          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
+          self.set_text_color(255, 255, 255)
+          self.set_font("Calibri","", 9)
+          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
+          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
+          self.set_fill_color(255, 255, 255)   
+          self.image("static/assets/earth.png",165,self.h-12,7,7)
+          self.text(175,self.h-7,txt="info@envitechal.com")
+          self.text(175,self.h-10,txt="www.envitechal.com")
+
+
+          self.set_y(138)
