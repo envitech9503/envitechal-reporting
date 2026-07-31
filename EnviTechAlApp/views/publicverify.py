@@ -21,6 +21,15 @@ from .shared import ETAL_QR_SALT
 _INVALID = ('This verification link is not valid. If you received this QR code on '
             'an Envi Tech AL report or certificate, please contact the laboratory.')
 
+# A lab report is a fixed-layout document: header, tables and signature blocks are
+# positioned to line up exactly. Reflowing it to a phone's width breaks that
+# alignment - on an iPhone the header rendered 390px wide while the body laid out
+# at 865px, leaving a large gap and squeezed tables. The public view is therefore
+# served with a fixed layout viewport, so the phone scales the whole document down
+# to fit the way it would a PDF: complete, correctly aligned, still pinch-zoomable.
+ETAL_VERIFY_VIEWPORT = 1200
+_VIEWPORT_RE = re.compile(r'<meta[^>]+name=["\']viewport["\'][^>]*>', re.I)
+
 
 def _verify_targets():
     """Resolve target views by module path.
@@ -78,11 +87,16 @@ def public_verify(request, token):
             html = response.content.decode('utf-8', 'ignore')
             # visibility (not display) so the toolbar keeps its layout box: the report
             # header sits at top:-163px and relies on that 164px of space above it.
-            css = '<style>section.sticky,.noprint{visibility:hidden !important;}</style>'
+            css = ('<style>html{-webkit-text-size-adjust:100% !important;}'
+                   'section.sticky,.noprint{visibility:hidden !important;}</style>')
+            # Replace whatever viewport the report template declares with a fixed
+            # one, so the document keeps its alignment on a phone (see above).
+            html = _VIEWPORT_RE.sub('', html)
+            head = '<meta name="viewport" content="width=%d">' % ETAL_VERIFY_VIEWPORT
             if '</head>' in html:
-                html = html.replace('</head>', css + '</head>', 1)
+                html = html.replace('</head>', head + css + '</head>', 1)
             else:
-                html = css + html
+                html = head + css + html
             response.content = html.encode('utf-8')
             if response.has_header('Content-Length'):
                 response['Content-Length'] = str(len(response.content))
