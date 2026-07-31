@@ -40,6 +40,7 @@ def _verify_targets():
         'aa2': _v('ambient', 'ambientAir2View'),
         'dw': _v('misc', 'drinkWaterReport'),
         'mb': _v('microbial', 'microbialView'),
+        'ppwr': _v('ppwr', 'ppwrView'),
         'ww1': _v('waste', 'wasteWaterView'),
         'ww2': _v('waste', 'wasteWAter2View'),
         'lux': _v('lux', 'luxAnalysisView'),
@@ -178,8 +179,6 @@ def legacy_verify(request, token):
             ctx['error'] = ('Too many attempts from this connection. Please wait a few minutes '
                             'and try again, or contact the laboratory.')
             return render(request, 'verify_gate.html', ctx, status=429)
-        cache.set(cache_key, attempts + 1, 900)
-
         supplied = _norm(request.POST.get('docno'))
         actual = ''
         try:
@@ -191,9 +190,13 @@ def legacy_verify(request, token):
             actual = ''
 
         if supplied and actual and supplied == actual:
+            # Only failures are rate-limited: a client or auditor verifying a whole
+            # batch of documents from one office connection must never be locked out.
+            cache.delete(cache_key)
             good = signing.dumps({'k': kind, 'p': str(pk)}, salt=ETAL_QR_SALT)
             return redirect('/verify/' + good + '/')
 
+        cache.set(cache_key, attempts + 1, 900)
         # Deliberately identical wording whether or not the record exists.
         ctx['error'] = 'That number does not match this document. Please check and try again.'
 

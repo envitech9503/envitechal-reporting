@@ -2879,3 +2879,106 @@ class ReagentStandardisationHistory(models.Model):
 
     def __str__(self):
         return 'Std #%s factor=%s @ %s' % (self.prep_id, self.factor, self.std_date)
+
+
+class PPWRAnalysis(models.Model):
+    form_name = "PPWR Analysis Form"    
+    id = models.AutoField(primary_key=True)
+    analyst_signature = models.ForeignKey(Signatures, on_delete=models.SET_NULL, null=True, related_name='analyst_reports_ppwr')
+    assistant_manager_signature = models.ForeignKey(Signatures, on_delete=models.SET_NULL, null=True, related_name='assistant_reports_ppwr')
+    lab_manager_signature = models.ForeignKey(Signatures, on_delete=models.SET_NULL, null=True, related_name='lab_manager_reports_ppwr')
+    report_type = models.CharField(default="ppwr",max_length=500,null=True,blank=True)
+    lab_report_no = models.CharField(max_length=150,null=True,blank=True)
+    invoice_bill_no = models.CharField(max_length=150,null=True,blank=True)
+    reporting_date = models.CharField(max_length=150,null=True,blank=True)
+    report_to = models.CharField(max_length=150,null=True,blank=True)
+    address = models.CharField(max_length=150,null=True,blank=True)
+    attention = models.CharField(max_length=150,null=True,blank=True)
+    email = models.CharField(max_length=150,null=True,blank=True)
+    sample_id = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sample_col_date = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sample_desc = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sample_type = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sample_col_by = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_date_analysis_from = models.CharField(max_length=150,null=True)
+    ppwr_date_analysis_to = models.CharField(max_length=150,null=True)
+    ppwr_test_desc = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sr1 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sr2 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sr3 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sr4 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sr5 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_sr6 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_ex_1_1 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_2 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_3 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_4 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_5 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_6 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_7 = models.CharField(max_length=150,null=True)
+    ppwr_ex_1_1 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_1 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_2 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_3 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_4 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_5 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_6 = models.CharField(max_length=150,null=True)
+    ppwr_ex_2_7 = models.CharField(max_length=150,null=True)
+    unit_head = models.CharField(max_length=150,null=True)
+    unit_1 = models.CharField(max_length=150,null=True)
+    unit_2 = models.CharField(max_length=150,null=True)
+    unit_3 = models.CharField(max_length=150,null=True)
+    unit_4 = models.CharField(max_length=150,null=True)
+    unit_5 = models.CharField(max_length=150,null=True)
+    unit_6 = models.CharField(max_length=150,null=True)
+    ppwr_p1 = models.CharField(max_length=150,null=True)
+    ppwr_p2 = models.CharField(max_length=150,null=True)
+    ppwr_p3 = models.CharField(max_length=150,null=True)
+    ppwr_p4 = models.CharField(max_length=150,null=True)
+    ppwr_p5 = models.CharField(max_length=150,null=True)
+    ppwr_p6 = models.CharField(max_length=150,null=True)
+    ppwr_p7 = models.CharField(max_length=150,null=True)
+    ppwr_legend_1 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_legend_2 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_editnote = models.CharField(max_length=250,null=True,blank=True)
+    ppwr_custom_legend = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_doc1 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_doc2 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_doc3 = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_analyzedby = models.ImageField(default="")
+    ppwr_reviewedby = models.ImageField(default="")
+    ppwr_approvedby = models.ImageField(default="")
+    ppwr_approvedby1 = models.ImageField(default="",null=True)
+    location =models.CharField(max_length=500,null=True)
+    city_location =models.CharField(max_length=500,null=True)
+    customer_id =models.CharField(max_length=500,null=True)
+    pdf_heading = models.CharField(max_length=200,null=True)
+    pdf_image_1 = models.TextField(null=True,blank=True)  # base64 string
+    pdf_desc_1 = models.TextField(null=True,blank=True)
+    pdf_image_2 = models.TextField(null=True,blank=True)  # base64 string
+    pdf_desc_2 = models.TextField(null=True,blank=True)
+    pdf_image_3 = models.TextField(null=True,blank=True)  # base64 string
+    pdf_desc_3 = models.TextField(null=True,blank=True)
+    pdf_image_4 = models.TextField(null=True,blank=True)  # base64 string
+    pdf_desc_4 = models.TextField(null=True,blank=True)
+    pdf_image_5 = models.TextField(null=True,blank=True)  # base64 string
+    pdf_desc_5 = models.TextField(null=True,blank=True)
+    pdf_image_6 = models.TextField(null=True,blank=True)  # base64 string
+    pdf_desc_6 = models.TextField(null=True,blank=True)
+    extra_field = models.TextField(default=[])
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="ppwr_reports_created")
+    industry = models.ForeignKey(Industry_sector,on_delete=models.SET_NULL,null=True)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['reporting_date']),
+            models.Index(fields=['report_to']),
+            models.Index(fields=['sample_id']),
+            models.Index(fields=['city_location']),
+            models.Index(fields=['lab_report_no']),
+        ]
+    
+    def __str__(self):
+        return self.form_name +" - "+ self.lab_report_no 
+    

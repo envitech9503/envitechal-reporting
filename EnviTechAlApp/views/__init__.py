@@ -15,6 +15,7 @@ from .verif import *  # noqa: F401,F403
 from .packing import *  # noqa: F401,F403
 from .viscous import *  # noqa: F401,F403
 from .microbial import *  # noqa: F401,F403
+from .ppwr import *  # noqa: F401,F403
 from .vehicular import *  # noqa: F401,F403
 from .inspection import *  # noqa: F401,F403
 from .machine import *  # noqa: F401,F403

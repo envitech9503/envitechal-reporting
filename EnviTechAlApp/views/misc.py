@@ -252,6 +252,14 @@ def search_all_reports(name_input, from_date, to_date, location_search, sample_s
              'report_type': 'ma'
          },
          {
+             'model': PPWRAnalysis,
+             'name_fields': ['report_to', 'attention', 'customer_id'],
+             'date_fields': ['reporting_date', 'created_at'],
+             'location_fields': ['city_location', 'location'],
+             'sample_fields': ['sample_id', 'lab_report_no', 'invoice_bill_no'],
+             'report_type': 'ppwr'
+         },
+         {
              'model': ViscousLiquid,
              'name_fields': ['report_to', 'attention', 'customer_id'],
              'date_fields': ['reporting_date', 'created_at'],

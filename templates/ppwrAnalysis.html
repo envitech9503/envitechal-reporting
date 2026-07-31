@@ -148,11 +148,11 @@
                                                                 </div>
                                                                 <hr class=" border-blue-200">
                                                                 <ul>
-                                                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                                                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>PPWR Analysis</button>
                                                                     <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
-                                                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
-                                                                    <li><a class="ppwrFormBtn" href="/ppwrAnalysis">Add PPWR</a></li>
-                                                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis Analysis</a></li>
+                                                                    <li><a class="ppwrFormBtn" href="/ppwrAnalysis">Add PPWR Analysis</a></li>
+                                                                    <li><a class="ppwrListBtn" href="/ppwrList">List PPWR Analysis</a></li>
                                                                     </div>
                                                                 </ul>
                                                                 <hr class=" border-blue-200">
@@ -192,12 +192,12 @@
                                             
                                         </nav>
                                 
-                                        <div class="microbialAnalysis h-full w-10/12 flex flex-col items-center " style="margin-left:18rem;max-width:calc(100vw - 19rem)"><div class="crumbtrail text-sm text-gray-500 self-start mt-2 pl-4 w-full"><a href="/" class="text-green-600 hover:underline">Home</a> &rsaquo; <a href="{% url 'home' %}" class="text-green-600 hover:underline">Reports</a> &rsaquo; <span>Form</span></div>
+                                        <div class="ppwrAnalysis h-full w-10/12 flex flex-col items-center " style="margin-left:18rem;max-width:calc(100vw - 19rem)"><div class="crumbtrail text-sm text-gray-500 self-start mt-2 pl-4 w-full"><a href="/" class="text-green-600 hover:underline">Home</a> &rsaquo; <a href="{% url 'home' %}" class="text-green-600 hover:underline">Reports</a> &rsaquo; <span>Form</span></div>
                                                         
                                 
-                                            <form action="/microbialAnalysis" method="post" enctype="multipart/form-data" class="flex flex-col justify-around w-11/12 mt-10 ">
+                                            <form action="/ppwrAnalysis" method="post" enctype="multipart/form-data" class="flex flex-col justify-around w-11/12 mt-10 ">
                                                 {% csrf_token %}
-                                                <h1 class="text-center mt-10 text-3xl py-16">Microbial Analysis</h1>
+                                                <h1 class="text-center mt-10 text-3xl py-16">PPWR Analysis</h1>
 
                                                 <div class="alert w-10/12 flex flex-col justify-around my-6">
                     
@@ -248,16 +248,16 @@
                                                 <div class="flex justify-between">
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Lab Report No</label>
-                                                        <input class="date border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_lab_report_no" type="text" value="">
+                                                        <input class="date border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_lab_report_no" type="text" value="">
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Invoice Bill No</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_invoice_bill" type="text" >
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_invoice_bill" type="text" >
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Reporting Date</label>
-                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_rep_date" type="text" >
-                                                        <!-- <input type="text" class="formattedDateOutput hidden" name="micro_rep_date"> -->
+                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_rep_date" type="text" >
+                                                        <!-- <input type="text" class="formattedDateOutput hidden" name="ppwr_rep_date"> -->
                                                     </div>
                                                 </div>
                                                 <hr class="broder border-black mt-10">
@@ -265,11 +265,11 @@
                                                 <div class="flex justify-between mt-4">
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Report To :</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_rep_to" style="width: 35rem;" type="text" >
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_rep_to" style="width: 35rem;" type="text" >
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Address</label>
-                                                        <input class="border-2 border-black p-2 h-10 rounded text-lg" name="micro_address" style="width: 35rem;" type="text" >
+                                                        <input class="border-2 border-black p-2 h-10 rounded text-lg" name="ppwr_address" style="width: 35rem;" type="text" >
                                                     </div>
                                                     
                                                     
@@ -278,11 +278,11 @@
                                                 <div class="flex justify-between mt-4">
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Attention</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_attention" style="width: 35rem;" type="text" >
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_attention" style="width: 35rem;" type="text" >
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Email</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_email" style="width: 35rem;" type="text" >
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_email" style="width: 35rem;" type="text" >
                                                     </div>
                                                 </div>
                                     
@@ -291,15 +291,15 @@
                                                 <div class="flex justify-between mt-4">
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Sample ID</label>
-                                                        <input id="date" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_sampleId" style="width: 24rem;" type="text" value="">
+                                                        <input id="date" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sampleId" style="width: 24rem;" type="text" value="">
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Sample Collection Date </label>
-                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_sample_col_date" style="width: 24rem;" type="text">
+                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sample_col_date" style="width: 24rem;" type="text">
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Sample Description</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_sample_desc" style="width: 24rem;" type="text" value="">
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sample_desc" style="width: 24rem;" type="text" value="">
                                                     </div>
                                                 </div>
                                     
@@ -307,27 +307,27 @@
                                                     
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Sample Type</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_sample_type" style="width: 24rem;" type="text" value="Drinking Water">
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sample_type" style="width: 24rem;" type="text" value="Drinking Water">
                                                     </div>
                                                     <div class="flex flex-col ">
                                                         <label class="font-bold text-lg" for="">Sample Collected By</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_sample_col_by" style="width: 24rem;" type="text" value="Envi Tech AL">
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sample_col_by" style="width: 24rem;" type="text" value="Envi Tech AL">
                                                     </div>
                                                     <div class="flex flex-col ">
                                                         <label class="font-bold text-lg" for="">Test Description</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_test_desc" style="width: 24rem;" type="text" value="Microbiological Testing">
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_test_desc" style="width: 24rem;" type="text" value="Packaging Material Testing">
                                                     </div>
                                                     
                                                 </div>
                                                 <div class="flex justify-between mt-4">
                                                     <div class="flex flex-col ">
                                                         <label class="font-bold text-lg" for="">Date Of Analysis From</label>
-                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_date_analysis_from" style="width: 24rem;" type="text">
+                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_date_analysis_from" style="width: 24rem;" type="text">
                                                         <!-- <input type="text" class="formattedDateOutput3 hidden" > -->
                                                     </div>
                                                     <div class="flex flex-col ">
                                                         <label class="font-bold text-lg" for="">Date Of Analysis To</label>
-                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_date_analysis_to" style="width: 24rem;" type="text">
+                                                        <input class="datepicker border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_date_analysis_to" style="width: 24rem;" type="text">
                                                         <!-- <input type="text" class="formattedDateOutput4 hidden"> -->
                                                     </div>
                                                     
@@ -344,10 +344,10 @@
                                                             <tr class="text-center">
                                                                 <th>Sr.#</th>
                                                                 <th>Parameter/Analytes Description</th>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Unit" name="unit_head"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_1"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Method / Technique" name="unit_head"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Unit" name="ex_1_1"></td>
                                                                 <th>Test Result</th>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_1"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="PPWR Limits" name="ex_2_1"></td>
                                                                 
                                                                 
                                                                 
@@ -357,51 +357,51 @@
                                                         <tbody class="">
                                                             <tr class="text-center border h-16">
                                                                 <td>01</td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Total Colony Count" name="p1"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="CFU/100ml" name="unit_1"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_2"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" name="micro_sr1" type="text"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_2"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Lead (Pb)" name="p1"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="EPA 3052 / ICP-OES" name="unit_1"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="mg/Kg" name="ex_1_2"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" value="N.D." name="ppwr_sr1" type="text"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="≤ 100 mg/Kg" name="ex_2_2"></td>
                                                             </tr>
                                                             <tr class="text-center border h-16">
                                                                 <td>02</td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Total Coliform" name="p2"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="CFU/100ml" name="unit_2"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_3"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" name="micro_sr2" type="text"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_3"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Cadmium (Cd)" name="p2"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="EPA 3052 / ICP-OES" name="unit_2"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="mg/Kg" name="ex_1_3"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" value="N.D." name="ppwr_sr2" type="text"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="≤ 100 mg/Kg" name="ex_2_3"></td>
                                                             </tr>
                                                             <tr class="text-center border h-16">
                                                                 <td>03</td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Faecal E.coli" name="p3"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="CFU/100ml" name="unit_3"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_4"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" name="micro_sr3" type="text"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_4"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Mercury (Hg)" name="p3"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="EPA 3052 / ICP-OES" name="unit_3"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="mg/Kg" name="ex_1_4"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" value="N.D." name="ppwr_sr3" type="text"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="≤ 100 mg/Kg" name="ex_2_4"></td>
                                                             </tr>
                                                             <tr class="text-center border h-16">
                                                                 <td>04</td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Faecal Enterococci" name="p4"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="CFU/100ml" name="unit_4"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_5"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" name="micro_sr4" type="text"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_5"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Hexavalent Chromium (Cr VI)" name="p4"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="ISO 15192 / UV Vis" name="unit_4"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="mg/Kg" name="ex_1_5"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" value="N.D." name="ppwr_sr4" type="text"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="≤ 100 mg/Kg" name="ex_2_5"></td>
                                                             </tr>
                                                             <tr class="text-center border h-16">
                                                                 <td>05</td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Pseudomonas aeruginosa" name="p5"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="CFU/100ml" name="unit_5"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_6"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" name="micro_sr5" type="text"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_6"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="" name="p5"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="" name="unit_5"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="" name="ex_1_6"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" value="" name="ppwr_sr5" type="text"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="" name="ex_2_6"></td>
                                                             </tr>
                                                             <tr class="text-center border h-16">
                                                                 <td>06</td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="Faecal Coliform" name="p6"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="CFU/100ml" name="unit_6"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_1_7"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" name="micro_sr6" type="text"></td>
-                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" name="ex_2_7"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="" name="p6"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text"  value="" name="unit_6"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="" name="ex_1_7"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" value="" name="ppwr_sr6" type="text"></td>
+                                                                <td><input class="border-2 border-black w-52 h-10 rounded p-2" type="text" value="" name="ex_2_7"></td>
                                                             </tr>
                                                             
                                                             
@@ -431,18 +431,18 @@
                                                         
 
                                                         <div class="legends w-full flex flex-col space-y-10 border-2 border-gray-200 p-8 mt-10">
-                                                            <input class="legend-1 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="micro_legend_1" maxlength="150" value="">
-                                                            <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="micro_legend_2" maxlength="150" value="">
+                                                            <input class="legend-1 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="ppwr_legend_1" maxlength="150" value="N.D. = Not Detected.">
+                                                            <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="ppwr_legend_2" maxlength="150" value="PPWR = EU Packaging and Packaging Waste Regulation">
                                                         </div>
                                     
                                                             <div class="flex flex-col justify-between mt-6">
                                                                 <div class="flex flex-col">
                                                                     <label class="font-bold text-lg" for="">Edit Note</label>
-                                                                    <input class="border-2 border-black p-2 h-10 rounded text-sm" name="micro_editnote" style="width: 79rem;" type="text" value="Measurement of uncertainty or Statement of conformity will be provided on customer Demand. Environmental Conditions at the time of Testing; Temperature: 25 ⁰C (± 3⁰C) & Humidity: 51 % (± 9%).">
+                                                                    <input class="border-2 border-black p-2 h-10 rounded text-sm" name="ppwr_editnote" style="width: 79rem;" type="text" value="Measurement of uncertainty or Statement of conformity will be provided on customer Demand. Environmental Conditions at the time of Testing; Temperature: 25 °C (± 3°C) & Humidity: 51 % (± 9%).">
                                                                 </div>
                                                                 <div class="flex flex-col mt-4">
                                                                     <label class="font-bold text-lg" for="">Custom Legend (if any):</label>
-                                                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_custom_legend" style="width: 35rem;" type="text" value="">
+                                                                    <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_custom_legend" style="width: 35rem;" type="text" value="">
                                                                 </div>
                                                                 
                                                             </div>
@@ -450,15 +450,15 @@
                                                             <div class="flex justify-between mt-6">
                                                                 <div class="flex flex-col">
                                                                     <label class="font-bold text-lg" for=""> Doc. Controller 1:</label>
-                                                                    <input id="doc_1" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="micro_doc1" type="text" value="">
+                                                                    <input id="doc_1" class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_doc1" type="text" value="ETAL-LAB-708-FF-21">
                                                                 </div>
                                                                 <div class="flex flex-col">
                                                                     <label class="font-bold text-lg" for="">Doc. Controller 2:</label>
-                                                                    <input id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="micro_doc2" value="">
+                                                                    <input id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="ppwr_doc2" value="Issue Date: 30-07-26">
                                                                 </div>
                                                                 <div class="flex flex-col">
                                                                     <label class="font-bold text-lg" for="">Doc. Controller 3:</label>
-                                                                    <input id="doc_3" class="doc_issue border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="micro_doc3" value="">
+                                                                    <input id="doc_3" class="doc_issue border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="ppwr_doc3" value="Issue:01 Rev:00">
                                                                 </div>
                                                             </div>
                                 
@@ -785,14 +785,14 @@ const doc_3 = document.querySelector('#doc_3')
                     // const customer = t.value
                     console.log('pk',customer_id)
                     $("input[name='customer_id']").val(customer_id)
-                    $("input[name='micro_lab_report_no']").val(customer.sample_id)
-                    $("input[name='micro_sampleId']").val(customer.sample_id)
-                    $("input[name='micro_rep_to']").val(customer.client_name)
-                    $("input[name='micro_attention']").val(customer.att_person)
-                    $("input[name='micro_address']").val(customer.address)
-                    $("input[name='micro_email']").val(customer.email)
-                    $("input[name='micro_sample_col_date']").val(customer.rec_date)
-                    $("input[name='micro_rep_date']").val(customer.rep_date)
+                    $("input[name='ppwr_lab_report_no']").val(customer.sample_id)
+                    $("input[name='ppwr_sampleId']").val(customer.sample_id)
+                    $("input[name='ppwr_rep_to']").val(customer.client_name)
+                    $("input[name='ppwr_attention']").val(customer.att_person)
+                    $("input[name='ppwr_address']").val(customer.address)
+                    $("input[name='ppwr_email']").val(customer.email)
+                    $("input[name='ppwr_sample_col_date']").val(customer.rec_date)
+                    $("input[name='ppwr_rep_date']").val(customer.rep_date)
                 }
     
                 loadCustomers()

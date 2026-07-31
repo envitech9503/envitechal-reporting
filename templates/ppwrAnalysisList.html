@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/vendor/datatables/jquery.dataTables.min.css">
   <link rel="stylesheet" href={%static "style.css"%}>
 
-    <title>List of Viscous Liquid Form</title>
+    <title>List of PPWR Analysis Form</title>
   <script src="/static/vendor/jquery-3.6.4.min.js"></script>
   
   <script src="/static/vendor/datatables/jquery.dataTables.min.js"></script>
@@ -137,11 +137,11 @@
                                 </div>
                                 <hr class=" border-blue-200">
                                 <ul>
-                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>Microbial Analysis</button>
+                                    <button class="microBtn pb-2"><i class="fa-solid fa-ellipsis-vertical p-2"></i>PPWR Analysis</button>
                                     <div class="microDiv hidden text-blue-100 pl-6 space-y-2">
-                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis</a></li>
-                                    <li><a class="ppwrFormBtn" href="/ppwrAnalysis">Add PPWR</a></li>
-                                    <li><a class="microbialListBtn" href="/microbialList">List Microbial Analysis</a></li>
+                                    <li><a class="microbialFormBtn" href="/microbialAnalysis">Add Microbial Analysis Analysis</a></li>
+                                    <li><a class="ppwrFormBtn" href="/ppwrAnalysis">Add PPWR Analysis</a></li>
+                                    <li><a class="ppwrListBtn" href="/ppwrList">List PPWR Analysis</a></li>
                                     </div>
                                 </ul>
                                 <hr class=" border-blue-200">
@@ -183,7 +183,7 @@
 
         <div class="drinkingwaterform  w-10/12 flex flex-col items-center mt-36">
 
-            <h1 class="text-4xl font-bold">Viscous Liquid List</h1>
+            <h1 class="text-4xl font-bold">PPWR Analysis List</h1>
 
             {% block content %}
             
@@ -210,7 +210,7 @@
                 </thead>
                 
                 <tbody>
-                    {%if data %}
+                    {%if data%}
                     {% for data in  data %}
                     <tr> 
                         
@@ -221,10 +221,10 @@
                         <td>{{data.attention}}</td>
                         <td>{{data.email}}</td>
                         <td>{{data.sample_id}}</td>
-                        <td><a href="{% url 'viscousLiquid-view' data.id %}"><i class="file-icon fa-solid fa-file   cursor-pointer shadow-xl"></i></a></td>
-                        <td><a href="{% url 'viscousLiquid-edit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600  cursor-pointer shadow-xl"></i></a></td>
-                        <td><a id="gasemdltBtn" href="{% url 'viscousLiquid-delete' data.id%}"><i class="fa-solid fa-trash text-red-500  cursor-pointer shadow-xl"></i></a></td>
-                        <td><a id="" href="{% url 'viscousLiquid-clone' data.id%}"><i class="fa-solid fa-copy  cursor-pointer shadow-xl" style="color:#f97316;"></i></a></td>
+                        <td><a href="{% url 'ppwr-view' data.id %}"><i class="file-icon fa-solid fa-file  text-3xl cursor-pointer shadow-xl"></i></a></td>
+                        <td><a href="{% url 'ppwr-edit' data.id%}"><i class="fa-solid fa-user-pen text-blue-600 text-3xl cursor-pointer shadow-xl"></i></a></td>
+                        <td><a id="gasemdltBtn" href="{% url 'ppwr-delete' data.id%}"><i class="fa-solid fa-trash text-red-500 text-3xl cursor-pointer shadow-xl"></i></a></td>
+                        <td><a id="" href="{% url 'ppwr-clone' data.id%}"><i class="fa-solid fa-copy text-3xl cursor-pointer shadow-xl" style="color:#f97316;"></i></a></td>
                     </tr>
                     {% endfor %}
                     {% endif %}
@@ -269,7 +269,7 @@
 <!-- etal-bulk-pdf -->
 <script>
 (function(){
- var KEY='vl';
+ var KEY='ma';
  function etalIds(){var out=[];document.querySelectorAll('.etal-row-sel:checked').forEach(function(cb){var tr=cb.closest('tr');if(!tr)return;var a=tr.querySelector('a[href*="delete" i]');if(!a)return;var m=(a.getAttribute('href')||'').match(/(\d+)\/?$/);if(m)out.push(parseInt(m[1],10));});return out;}
  function ensure(){var bar=document.getElementById('etalBulkBar');if(!bar||document.getElementById('etalPdfBtn'))return;
   var b=document.createElement('button');b.id='etalPdfBtn';b.type='button';b.textContent='Download PDF (merged)';
@@ -295,7 +295,7 @@
 <!-- etal-approve -->
 <script>
 (function(){
- var KEY='vl';
+ var KEY='ma';
  function idOf(tr){var a=tr.querySelector('a[href*="delete" i]');if(!a)return null;var m=(a.getAttribute('href')||'').match(/(\d+)\/?$/);return m?parseInt(m[1],10):null;}
  function refresh(){var map={},all=[];document.querySelectorAll('tr').forEach(function(tr){if(!tr.querySelector('.etal-row-sel'))return;var i=idOf(tr);if(i){map[i]=tr;all.push(i);}});
   if(!all.length)return;
