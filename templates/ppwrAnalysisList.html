@@ -162,7 +162,7 @@
 <!-- etal-bulk-pdf -->
 <script>
 (function(){
- var KEY='ma';
+ var KEY='ppwr';
  function etalIds(){var out=[];document.querySelectorAll('.etal-row-sel:checked').forEach(function(cb){var tr=cb.closest('tr');if(!tr)return;var a=tr.querySelector('a[href*="delete" i]');if(!a)return;var m=(a.getAttribute('href')||'').match(/(\d+)\/?$/);if(m)out.push(parseInt(m[1],10));});return out;}
  function ensure(){var bar=document.getElementById('etalBulkBar');if(!bar||document.getElementById('etalPdfBtn'))return;
   var b=document.createElement('button');b.id='etalPdfBtn';b.type='button';b.textContent='Download PDF (merged)';
@@ -188,7 +188,7 @@
 <!-- etal-approve -->
 <script>
 (function(){
- var KEY='ma';
+ var KEY='ppwr';
  function idOf(tr){var a=tr.querySelector('a[href*="delete" i]');if(!a)return null;var m=(a.getAttribute('href')||'').match(/(\d+)\/?$/);return m?parseInt(m[1],10):null;}
  function refresh(){var map={},all=[];document.querySelectorAll('tr').forEach(function(tr){if(!tr.querySelector('.etal-row-sel'))return;var i=idOf(tr);if(i){map[i]=tr;all.push(i);}});
   if(!all.length)return;

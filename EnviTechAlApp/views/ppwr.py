@@ -516,15 +516,18 @@ def ppwrAnalysisPdf(request,pk):
      if ppwr.ppwr_legend_3:
           a = [ppwr.ppwr_legend_3]
           Table_data_legend.append(a)
+
+     # Custom Legend comes before the Additional Custom Legends: the analyst found
+     # them printing the other way round (01-08-2026).
+     if ppwr.ppwr_custom_legend:
+          a = [ppwr.ppwr_custom_legend]
+          Table_data_legend.append(a)
+
      if ppwr.ppwr_legend_4:
           a = [ppwr.ppwr_legend_4]
           Table_data_legend.append(a)
      if ppwr.ppwr_legend_5:
           a = [ppwr.ppwr_legend_5]
-          Table_data_legend.append(a)
-
-     if ppwr.ppwr_custom_legend:
-          a = [ppwr.ppwr_custom_legend]
           Table_data_legend.append(a)
      for k in range(0,len(Table_data_legend)):
                data_row = Table_data_legend[k]
@@ -532,7 +535,9 @@ def ppwrAnalysisPdf(request,pk):
                for i in range(0,len(data_row)):
                     datum = data_row[i]
                     row.cell(datum)
-                    pdf.cell(190, 4, datum, border=0, ln=True, align='L')
+                    # multi_cell wraps within the 190mm text width; cell() would
+                    # print one long line straight past the right margin.
+                    pdf.multi_cell(190, 4, datum, border=0, ln=True, align='L')
 
      # if ppwr.ppwr_editnote:
      #      pdf.set_font("Calibri","B", 10)
@@ -615,13 +620,16 @@ def ppwrAnalysisPdf(request,pk):
      # pdf.text(182,281,txt="(Certificate # 080177424-EMS)")
      
      
-     if ppwr.location == "NEQS" and ppwr.city_location.lower() == "karachi":
+     _std = ppwr.etal_standard
+     _city = (ppwr.city_location or '').strip().lower()
+
+     if _std == "NEQS" and _city == "karachi":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 263, 19, 15)
           pdf.text(152,280,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,266,txt="Disclaimer:")
 
-     elif ppwr.location == "NEQS" and ppwr.city_location.lower() == "lahore":
+     elif _std == "NEQS" and _city == "lahore":
           pdf.image('static/assets/EPA_updated.png', 153, 264, 25, 16)
           pdf.text(155,281,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)
@@ -629,13 +637,13 @@ def ppwrAnalysisPdf(request,pk):
           pdf.set_font("Calibri","", 8)
           pdf.text(10,267,txt="• Regulated by EPA Punjab under Certificate No. 82/Dir/(ML&I)/EPA/03/2025.")
 
-     elif ppwr.location == "SEQS":
+     elif _std == "SEQS":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 263, 19, 15)
           pdf.text(152,280,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,266,txt="Disclaimer:")
 
-     elif ppwr.location == "PEQS":
+     elif _std == "PEQS":
           pdf.image('static/assets/EPA_updated.png', 153, 264, 25, 16)
           pdf.text(155,281,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)
@@ -960,15 +968,18 @@ def ppwrAnalysisPdf1(request,pk,return_bytes=False):
      if ppwr.ppwr_legend_3:
           a = [ppwr.ppwr_legend_3]
           Table_data_legend.append(a)
+
+     # Custom Legend comes before the Additional Custom Legends: the analyst found
+     # them printing the other way round (01-08-2026).
+     if ppwr.ppwr_custom_legend:
+          a = [ppwr.ppwr_custom_legend]
+          Table_data_legend.append(a)
+
      if ppwr.ppwr_legend_4:
           a = [ppwr.ppwr_legend_4]
           Table_data_legend.append(a)
      if ppwr.ppwr_legend_5:
           a = [ppwr.ppwr_legend_5]
-          Table_data_legend.append(a)
-
-     if ppwr.ppwr_custom_legend:
-          a = [ppwr.ppwr_custom_legend]
           Table_data_legend.append(a)
      for k in range(0,len(Table_data_legend)):
                data_row = Table_data_legend[k]
@@ -976,7 +987,9 @@ def ppwrAnalysisPdf1(request,pk,return_bytes=False):
                for i in range(0,len(data_row)):
                     datum = data_row[i]
                     row.cell(datum)
-                    pdf.cell(190, 4, datum, border=0, ln=True, align='L')
+                    # multi_cell wraps within the 190mm text width; cell() would
+                    # print one long line straight past the right margin.
+                    pdf.multi_cell(190, 4, datum, border=0, ln=True, align='L')
 
      # if ppwr.ppwr_editnote:
      #      pdf.set_font("Calibri","B", 10)
@@ -1061,25 +1074,28 @@ def ppwrAnalysisPdf1(request,pk,return_bytes=False):
      
      
      
-     if ppwr.location == "NEQS" and ppwr.city_location.lower() == "karachi":
+     _std = ppwr.etal_standard
+     _city = (ppwr.city_location or '').strip().lower()
+
+     if _std == "NEQS" and _city == "karachi":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png', 156, 259, 19, 15)
           pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,261,txt="Disclaimer:")
 
-     elif ppwr.location == "NEQS" and ppwr.city_location.lower() == "lahore":
+     elif _std == "NEQS" and _city == "lahore":
           pdf.image('static/assets/EPA_updated.png', 153, 259, 25, 16)
           pdf.text(155,276,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,259,txt="Disclaimer:")
           pdf.set_font("Calibri","", 8)
           pdf.text(10,262,txt="• Regulated by EPA Punjab under Certificate No. 82/Dir/(ML&I)/EPA/03/2025.")
-     elif ppwr.location == "SEQS":
+     elif _std == "SEQS":
           pdf.image('static/assets/SEPA-Sindh-LOGO.png',156,259,19,15)
           pdf.text(149,276,txt="(LAB/L.C/ENVI TECH AL-2/20/2020/580/26)")
           pdf.set_font("Calibri","B", 9)
           pdf.text(10,261,txt="Disclaimer:")
-     elif ppwr.location == "PEQS":
+     elif _std == "PEQS":
           pdf.image('static/assets/EPA_updated.png',153,259,25,16)
           pdf.text(155,276,txt="(82/Dir/(ML&I)/EPA/03/2025)")
           pdf.set_font("Calibri","B", 9)

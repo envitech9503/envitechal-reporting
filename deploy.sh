@@ -63,12 +63,32 @@ if [ "$DO_MIGRATE" = 1 ]; then
     # Without USE_POSTGRES=1 the settings fall back to a local sqlite file, so a
     # migration run here would quietly build a throwaway database instead of
     # touching the real one. Refuse rather than do that.
+    #
+    # The service reads its database settings from a systemd drop-in, so read the
+    # same file rather than asking anyone to retype a password. Only the four
+    # expected keys are taken, the values are never printed, and nothing is
+    # eval'd - a password containing a space or a shell character is safe here.
+    if [ "${USE_POSTGRES:-}" != "1" ]; then
+        DROPIN=$(ls /etc/systemd/system/gunicorn.service.d/*.conf 2>/dev/null | head -1 || true)
+        if [ -n "${DROPIN:-}" ] && [ -r "$DROPIN" ]; then
+            while IFS= read -r line; do
+                line=${line#Environment=}
+                line=${line#\"}; line=${line%\"}
+                key=${line%%=*}; val=${line#*=}
+                case "$key" in
+                    USE_POSTGRES|PG_NAME|PG_USER|PG_PASSWORD|PG_HOST|PG_PORT)
+                        export "$key=$val" ;;
+                esac
+            done < <(grep '^Environment=' "$DROPIN" || true)
+            printf '  read the database environment from %s\n' "$DROPIN"
+        fi
+    fi
     if [ "${USE_POSTGRES:-}" != "1" ]; then
         die "--migrate needs the PostgreSQL environment (USE_POSTGRES=1 and the PG_* variables).
     Without it Django falls back to sqlite and would migrate the wrong database.
-    Run migrations the way the service does, with that environment set."
+    Expected them in a systemd drop-in under /etc/systemd/system/gunicorn.service.d/."
     fi
-    say "Applying database migrations"
+    say "Applying database migrations to PostgreSQL database ${PG_NAME:-django}"
     $PY manage.py migrate --noinput
 else
     warn "Skipping migrations. If this release changes any model, run: sudo ./deploy.sh --migrate"

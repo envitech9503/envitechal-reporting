@@ -435,6 +435,9 @@
           {%if data.ppwr_legend_3%}
           <p>{{data.ppwr_legend_3}}</p>
           {%endif%}
+          {%if data.ppwr_custom_legend%}
+          <p>{{data.ppwr_custom_legend}}</p>
+          {%endif%}
           {%if data.ppwr_legend_4%}
           <p>{{data.ppwr_legend_4}}</p>
           {%endif%}
@@ -495,16 +498,16 @@
             {%endif%}
           </div>
           <div class="text-center flex flex-col items-center">
-            {% if data.location == 'SEQS' %}
+            {% if data.etal_standard == 'SEQS' %}
             <img class="h-16 w-20" src="{% static 'assets/SEPA-Sindh-LOGO-removebg-preview.png' %}" alt="">
             {% endif %}
-            {% if data.location == 'PEQS' %}
+            {% if data.etal_standard == 'PEQS' %}
             <img class="h-16 w-20" src="{% static 'assets/EPA_updated.png' %}" alt="">
             {% endif %}
-            {% if data.location == 'NEQS' %}
+            {% if data.etal_standard == 'NEQS' %}
             <img class="h-16 w-20" src="{% static 'assets/SEPA-Sindh-LOGO-removebg-preview.png' %}" alt="">
             {% endif %}
-            {%if data.location == 'PEQS'%}
+            {%if data.etal_standard == 'PEQS'%}
               <p style="font-size: 8px;">(82/Dir/(ML&I)/EPA/03/2025)</p>
             {%else%}
               <p style="font-size: 8px;">LAB/L.C/ENVI TECH AL-2/20/93/2024</p>

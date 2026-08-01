@@ -26,6 +26,7 @@ def get_report_mapping():
         viscousLiquidPdf1,
         ambientAir2Pdf1,
         wasteWater2Pdf1,
+        ppwrAnalysisPdf1,
     )
     # etal-bulkpdf lazy imports (12-07-2026)
     from detox.models import Detox as _EtalDetox
@@ -45,6 +46,7 @@ def get_report_mapping():
         'vl':  (ViscousLiquid,       viscousLiquidPdf1,            'Viscous Liquid'),
         'aa2': (AmbientAir2,         ambientAir2Pdf1,              'Ambient Air 2'),
         'ww2': (WasteWaterForm2,     wasteWater2Pdf1,              'Waste Water 2'),
+        'ppwr': (PPWRAnalysis,       ppwrAnalysisPdf1,             'PPWR Analysis'),
         'dtx':  (_EtalDetox,        _etal_detox_pdf,   'Detox'),
         'nm':   (NoiseMonitoring,   _etal_nm_print,    'Noise Monitoring (LAeq)'),
     }

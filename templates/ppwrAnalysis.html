@@ -16,9 +16,6 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
   <style>
-    .NEQS,.PEQS{
-    display: none;
-    }
     @media screen and (min-width: 768px) and (max-width: 1024px) {
         .side-nav {
             width: 100%; /* Make the navigation full width */
@@ -96,21 +93,7 @@
                     
                                                     <div class="">
                                                        
-                                                        <p style="display: flex;">Filling Report For? <img id="loc_err" style="overflow: hidden;height: 50px;width:50px;margin-top:-12px;" src="static/assets/loader.gif"/></p>
                                                     </div>
-                                                    <div class="">
-                                                        <input class="SEQS-value" type="checkbox" value="SEQS">
-                                                        <label for="">SEQS</label>
-                                                    </div>
-                                                    <div class="">
-                                                        <input class="PEQS-value" type="checkbox" value="PEQS">
-                                                        <label for="">PEQS</label>
-                                                    </div>
-                                                    <div class="">
-                                                        <input class="NEQS-value" type="checkbox" value="NEQS">
-                                                        <label for="">NEQS</label>
-                                                    </div>
-                                
                                                 </div>
                                                 <input id="checkinput" type="text" name="location" value="" style="display: none;">
                                                 <div class="mt-4 flex gap-6">
@@ -200,7 +183,7 @@
                                                     
                                                     <div class="flex flex-col">
                                                         <label class="font-bold text-lg" for="">Sample Type</label>
-                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sample_type" style="width: 24rem;" type="text" value="Drinking Water">
+                                                        <input class="border-2 border-black p-2 h-10 w-96 rounded text-lg" name="ppwr_sample_type" style="width: 24rem;" type="text" value="Solid Sample">
                                                     </div>
                                                     <div class="flex flex-col ">
                                                         <label class="font-bold text-lg" for="">Sample Collected By</label>
@@ -325,7 +308,8 @@
 
                                                         <div class="legends w-full flex flex-col space-y-10 border-2 border-gray-200 p-8 mt-10">
                                                             <input class="legend-1 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="ppwr_legend_1" maxlength="150" value="N.D. = Not Detected.">
-                                                            <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="ppwr_legend_2" maxlength="150" value="PPWR = EU Packaging and Packaging Waste Regulation">
+                                                            <input class="legend-2 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="ppwr_legend_2" maxlength="150" value="PPWR = EU Packaging and Packaging Waste Regulation.">
+                                                            <input class="legend-3 h-12 px-2 py-3 border-2 border-black w-full" type="text " name="ppwr_legend_3" maxlength="250" value="PPWR Limits* = The combined concentration of Lead (Pb), Cadmium (Cd), Mercury (Hg), and Hexavalent Chromium [Cr (VI)] shall not exceed 100 mg/kg as specified in the Packaging and Packaging Waste Regulation (PPWR).">
                                                         </div>
                                     
                                                             <div class="flex flex-col justify-between mt-6">
@@ -339,7 +323,6 @@
                                                                 </div>
                                                                 <div id="ppwrExLg" class="flex flex-col mt-4">
                                                                     <label class="font-bold text-lg" for="">Additional Custom Legends:</label>
-                                                                    <input class="border-2 border-black p-2 h-10 rounded text-lg hidden mt-2" style="width: 35rem;" type="text" name="ppwr_legend_3" value="">
                                                                     <input class="border-2 border-black p-2 h-10 rounded text-lg hidden mt-2" style="width: 35rem;" type="text" name="ppwr_legend_4" value="">
                                                                     <input class="border-2 border-black p-2 h-10 rounded text-lg hidden mt-2" style="width: 35rem;" type="text" name="ppwr_legend_5" value="">
                                                                     <button type="button" id="ppwrAddLgBtn" class="border-2 border-black rounded p-2 mt-2 font-bold" style="width: 16rem;" onclick="ppwrAddLegend()">+ Add Custom Legend</button>
@@ -358,7 +341,7 @@
                                                                 </div>
                                                                 <div class="flex flex-col">
                                                                     <label class="font-bold text-lg" for="">Doc. Controller 2:</label>
-                                                                    <input id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="ppwr_doc2" value="Issue Date: 30-07-26">
+                                                                    <input id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="ppwr_doc2" value="Issue Date: 29-06-26">
                                                                 </div>
                                                                 <div class="flex flex-col">
                                                                     <label class="font-bold text-lg" for="">Doc. Controller 3:</label>
@@ -568,109 +551,17 @@
 
 
     <script>
-        var seqs_value = document.querySelector(".SEQS-value")
-        var peqs_value = document.querySelector(".PEQS-value")
-        var neqs_value = document.querySelector(".NEQS-value")
-        var leg_1 = document.querySelector(".legend-1")
-        var leg_2 = document.querySelector(".legend-2")
-        var checkinput = document.querySelector("#checkinput")
-        var doc_date = document.querySelector(".doc_date")
-        var doc_issue = document.querySelector(".doc_issue")
-        const doc_1 = document.querySelector('#doc_1')
-const doc_2 = document.querySelector('#doc_2')
-const doc_3 = document.querySelector('#doc_3')
+        // The SEQS / PEQS / NEQS selector was inherited when this form was cloned from
+        // an environmental-standards report. PPWR reports are made against an EU
+        // regulation, so those standards do not apply; ticking one used to overwrite
+        // the document controllers and the legends with Sindh/Punjab text. Removed
+        // 01-08-2026 on the analyst's finding.
         
         
         
-        seqs_value.addEventListener("change",()=>{
-            if(seqs_value.checked){
-                checkinput.value = "SEQS"
-                doc_1.value = "ETAL-LAB-708-FF-03"
-                    doc_2.value = "Issue Date: 03-10-22"
-                    doc_3.value = "Issue:03 Rev:02" 
-                peqs_value.disabled=true
-                neqs_value.disabled=true
-                leg_1.value="SEQS Limits = Sindh Environmental Quality Standard (Reference: SEQS 2016)."
-                leg_2.value="N.D. = Not Detected."
-                
-        
-            }else {
-                checkinput.value = ""
-                
-                peqs_value.disabled=false
-                neqs_value.disabled=false
-
-                
-            }
-            
-        
-        })
-        peqs_value.addEventListener("change",()=>{
-            
-            if(peqs_value.checked){
-                checkinput.value = "PEQS"
-                doc_1.value = "ETAL-LAB-708-FF-03"
-                    doc_2.value = "Issue Date: 25-03-25"
-                    doc_3.value = "Issue:02 Rev:01"
-                seqs_value.disabled=true
-                neqs_value.disabled=true
-                leg_1.value="PEQS Limits = Punjab Environmental Quality Standard (Reference: PEQS 2016)."
-                leg_2.value="N.D. = Not Detected."
-        
-            }else{
-                checkinput.value = ""
-                
-                 neqs_value.disabled=false
-                seqs_value.disabled=false
-                
-               
-            }
-        })
-        neqs_value.addEventListener("change",()=>{
-            if(neqs_value.checked){
-                checkinput.value = "NEQS"
-                doc_1.value = "ETAL-LAB-708-FF-03"
-                    doc_2.value = "Issue Date: 03-10-22"
-                    doc_3.value = "Issue:03 Rev:02" 
-                seqs_value.disabled=true
-                peqs_value.disabled=true
-                leg_1.value="NEQS Limits = National Environmental Quality Standard."
-                leg_2.value="N.D. = Not Detected."
-        
-            }else{
-                checkinput.value = ""
-                
-                peqs_value.disabled=false
-                seqs_value.disabled=false
-               
-            }
-        })
-        
-        
-                $(document).ready(async () => {
-                    $("#loc_err").show()
-                    const req_pip = await fetch('https://api.ipify.org?format=json');
-                    var public_ip = await req_pip.json();
-                    public_ip = public_ip.ip ? public_ip.ip : null;
-                    if (public_ip) {
-                        let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
-                        const req_loc_ip = await fetch(url);
-                        var location = await req_loc_ip.json();
-                        console.log(location)
-                        if (location) {
-                            let region = location.region.toLowerCase();
-                            switch (region) {
-                                case "sindh": $("input[value='SEQS']").trigger("click"); break;
-                                case "punjab": $("input[value='PEQS']").trigger("click"); break;
-                                case "kpk": $("input[value='NEQS']").trigger("click"); break;
-                            }
-                            setTimeout(function(){
-                                $("#loc_err").hide()
-                            },1000)
-                          
-                        }
-                    }
-                })
+                // The region lookup drove the SEQS / PEQS / NEQS selector, which was
+                // removed on 01-08-2026; the footer now resolves from the Location
+                // field instead. Two third-party calls per form load went with it.
                 $(document).ready(function() {
                     $('select').select2();
                 });

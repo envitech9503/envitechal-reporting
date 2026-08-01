@@ -2941,7 +2941,23 @@ class PPWRAnalysis(models.Model):
     ppwr_legend_1 = models.CharField(max_length=150,null=True,blank=True)
     ppwr_legend_2 = models.CharField(max_length=150,null=True,blank=True)
     ppwr_editnote = models.CharField(max_length=250,null=True,blank=True)
-    ppwr_custom_legend = models.CharField(max_length=150,null=True,blank=True)
+    ppwr_custom_legend = models.CharField(max_length=500,null=True,blank=True)
+
+    @property
+    def etal_standard(self):
+        """Which accreditation mark the footer prints.
+
+        The SEQS / PEQS / NEQS selector was removed from the PPWR form on
+        01-08-2026 - PPWR reports are made against an EU regulation, not a
+        provincial standard - but the footer logo, the laboratory licence number
+        and the Disclaimer heading were keyed off it. Records created before that
+        date still carry the value and print exactly as they always have; records
+        created after it fall back to the city the report was filled for.
+        """
+        chosen = (self.location or '').strip().upper()
+        if chosen in ('SEQS', 'PEQS', 'NEQS'):
+            return chosen
+        return 'PEQS' if 'lahore' in (self.city_location or '').lower() else 'SEQS'
     ppwr_legend_3 = models.CharField(max_length=250,null=True,blank=True)
     ppwr_legend_4 = models.CharField(max_length=250,null=True,blank=True)
     ppwr_legend_5 = models.CharField(max_length=250,null=True,blank=True)
@@ -2985,3 +3001,9 @@ class PPWRAnalysis(models.Model):
     def __str__(self):
         return self.form_name +" - "+ self.lab_report_no 
     
+
+
+# PPWR was never registered with the approval guard, so approved PPWR reports
+# could still be edited and deleted. It is wired here rather than with the block
+# above because the class is declared further down this file (01-08-2026).
+_etal_wire({PPWRAnalysis: 'ppwr'})
