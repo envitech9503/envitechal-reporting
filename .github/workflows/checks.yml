@@ -1,0 +1,50 @@
+name: checks
+
+# Runs on every push and every pull request. Nothing here touches the server or
+# the database; these are the checks that would have caught the faults that
+# reached production during the 31-07-2026 session.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Provide a throwaway secret key
+        # settings.py reads the key from /etc/django_secret_key on the server.
+        run: |
+          sudo mkdir -p /etc
+          python -c "import secrets,pathlib; pathlib.Path('/tmp/key').write_text(secrets.token_urlsafe(50))"
+          sudo cp /tmp/key /etc/django_secret_key
+
+      - name: Django system check
+        run: python manage.py check
+
+      - name: Template and static-asset guard
+        run: python scripts/check_templates.py
+
+      - name: Collect static files
+        # Proves the manifest can be built: a {% static %} key with no matching
+        # file, or a broken url() inside a stylesheet, fails here rather than on
+        # the server after a deploy.
+        run: python manage.py collectstatic --noinput
+
+      - name: Unit tests
+        run: python manage.py test costing dashboard --verbosity 2

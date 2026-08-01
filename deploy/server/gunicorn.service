@@ -1,0 +1,22 @@
+[Unit]
+Description=gunicorn daemon for Django
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=django
+Group=www-data
+WorkingDirectory=/home/django/EnviTechAlApp
+ExecStart=/home/django/EnviTechAlApp/venv/bin/gunicorn \
+    --access-logfile - \
+    --error-logfile - \
+    --workers 3 \
+    --timeout 7200 \
+    --bind unix:/run/gunicorn.sock \
+    EnviTechAlApp.wsgi:application
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

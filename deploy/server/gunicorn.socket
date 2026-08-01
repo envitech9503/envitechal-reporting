@@ -1,0 +1,22 @@
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+SocketMode=0660
+SocketUser=www-data
+SocketGroup=www-data
+
+
+ExecStart=/home/django/EnviTechAlApp/venv/bin/gunicorn \
+    --workers 3 \
+    --timeout 7200 \
+    --access-logfile /var/log/gunicorn/access.log \
+    --error-logfile /var/log/gunicorn/error.log \
+    --capture-output \
+    EnviTechAlApp.wsgi:application
+
+
+
+[Install]
+WantedBy=sockets.target

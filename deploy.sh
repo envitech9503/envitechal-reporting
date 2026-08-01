@@ -45,6 +45,7 @@ say "Deploying $(git log --oneline -1)"
 # ---------------------------------------------------------------- 2. checks
 say "Checking the project"
 $PY manage.py check
+$PY scripts/check_templates.py
 
 # ---------------------------------------------------------------- 3. static
 # ManifestStaticFilesStorage rebuilds every asset with a content hash in its

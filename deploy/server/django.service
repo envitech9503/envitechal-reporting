@@ -1,0 +1,19 @@
+[Unit]
+Description=Gunicorn instance for Django
+After=network.target
+
+[Service]
+User=django
+Group=www-data
+WorkingDirectory=/home/django/EnviTechAlApp
+ExecStart=/home/django/EnviTechAlApp/venv/bin/gunicorn \
+          --workers=2 \
+          --threads=1 \
+          --timeout=120 \
+          --bind unix:/home/django/myproject/django.sock \
+          myproject.wsgi:application
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
