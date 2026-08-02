@@ -37,6 +37,20 @@ jobs:
       - name: Django system check
         run: python manage.py check
 
+      - name: PDF and merge modules import
+        # These are imported lazily at runtime, so a missing dependency used to
+        # surface only when someone pressed "merge PDF" in the portal.
+        run: |
+          python -c "
+          import os, django
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EnviTechAlApp.settings')
+          django.setup()
+          import EnviTechAlApp.merger_pdf, EnviTechAlApp.merger_cert, EnviTechAlApp.pdf_common
+          import fpdf
+          assert fpdf.__version__.startswith('2'), fpdf.__version__
+          print('pdf modules import cleanly, fpdf', fpdf.__version__)
+          "
+
       - name: Template and static-asset guard
         run: python scripts/check_templates.py
 

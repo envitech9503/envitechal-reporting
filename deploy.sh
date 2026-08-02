@@ -46,6 +46,7 @@ say "Deploying $(git log --oneline -1)"
 say "Checking the project"
 $PY manage.py check
 $PY scripts/check_templates.py
+$PY -c "import os, django; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EnviTechAlApp.settings'); django.setup(); import EnviTechAlApp.merger_pdf, EnviTechAlApp.merger_cert, EnviTechAlApp.pdf_common; from fpdf import FPDF; import fpdf as _f; assert _f.__version__.startswith('2'), 'fpdf resolves to the old library: ' + _f.__version__; print('  pdf and merge modules import cleanly (fpdf %s)' % _f.__version__)"
 
 # ---------------------------------------------------------------- 3. static
 # ManifestStaticFilesStorage rebuilds every asset with a content hash in its
