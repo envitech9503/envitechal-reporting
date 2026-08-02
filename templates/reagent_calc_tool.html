@@ -278,6 +278,19 @@ function setRec(o){
    preparation form, push the same record up to the parent so "Fill preparation
    record" actually writes into the form (previously it only redrew the
    calculator's own preview pane). */
+/* The working shown on screen, captured verbatim so the controlled record can
+   print it. Before this the derivation existed only on the calculator panel and
+   never reached the PDF (analyst finding, 02-08-2026). */
+function workingOf(outId){
+  var o=document.getElementById(outId);if(!o)return '';
+  var lines=[];
+  var f=o.querySelector('.formula');if(f)lines.push((f.textContent||'').trim());
+  var b=o.querySelector('.big');if(b)lines.push('result = '+(b.textContent||'').trim().replace(/\s+/g,' '));
+  Array.prototype.forEach.call(o.querySelectorAll('li'),function(li){
+    lines.push('- '+(li.textContent||'').trim());});
+  return lines.filter(function(x){return x;}).join('\n');
+}
+
 function pushRecord(o){
   setRec(o);
   try{
@@ -388,7 +401,10 @@ function calcSolid(){
 }
 function toRec_solid(){if(!RES.solid){alert('Compute a valid mass first, then fill the record.');return;}
  const g=RES.solid.g;const vol=val('s_vol'),volu=val('s_volu')==='1'?'L':'mL';
- pushRecord({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`,
+ var _asEl=(val('s_unit')==='ppmEl');
+ var _basis=_asEl?` This is a ${val('s_conc')} ppm standard expressed as ${val('s_el')||'the element/ion'}; the mass includes the gravimetric factor salt MW / element MW.`:'';
+ pushRecord({name:val('s_name'),no:val('s_no'),desc:`Weigh ${g} g of ${val('s_name')||'reagent'} and dissolve in DI water; make up to ${vol} ${volu}.`+_basis,
+   calc:workingOf('s_out'),
    chem:[{name:val('s_name')||'',qty:g+' g'}],dop:today(),doe:todayPlusYears(1)});
 }
 
@@ -484,7 +500,7 @@ function calcMulti(){
 function toRec_multi(){if(!RES.multi){alert('Complete the component table first, then fill the record.');return;}
  var r=RES.multi;
  var desc='Multi-component preparation: '+r.rows.map(function(c){return c.qty+' of '+c.name;}).join('; ')+'. Dissolve sequentially in DI water and make up to '+r.vol+' '+r.volu+'.';
- pushRecord({name:val('m_name'),no:val('m_no'),desc:desc,chem:r.rows.map(function(c){return {name:c.name,qty:c.qty};}),dop:today(),doe:todayPlusYears(1),rtype:'Multi-component reagent'});
+ pushRecord({name:val('m_name'),no:val('m_no'),desc:desc,calc:workingOf('m_out'),chem:r.rows.map(function(c){return {name:c.name,qty:c.qty};}),dop:today(),doe:todayPlusYears(1),rtype:'Multi-component reagent'});
 }
 
 PANELS.dilute=function(){
@@ -540,6 +556,7 @@ function toRec_dil(){if(!RES.dilute){alert('Compute a valid dilution first, then
  const v1=RES.dilute.v1,v2=val('d_v2'),u=RES.dilute.u;
  pushRecord({name:val('d_name'),no:'',
   desc:`Take ${v1} mL of ${val('d_c1')} ${u} stock, dilute with DI water and make up to ${v2} mL (final strength ${val('d_c2')} ${u}).`,
+  calc:workingOf('d_out'),
   chem:[{name:val('d_name')||'',qty:v1+' mL'}],dop:today(),doe:todayPlusYears(1)});}
 
 PANELS.series=function(){
@@ -590,6 +607,7 @@ function toRec_ser(){if(!RES.series){alert('Compute a valid standard series firs
  const list=r.rows.map(function(x){return x.conc+' '+r.unit+' → '+x.aliquot+' mL';}).join('; ');
  pushRecord({name:`Calibration standard series ${r.pts[0]}–${r.pts[r.pts.length-1]} ${r.unit}`,no:'',
   desc:`From a ${r.stock} ${r.unit} stock, pipette the aliquot for each point into a ${fmtVol(r.fv)} mL volumetric flask and make up to the mark with DI water: ${list}.`,
+  calc:workingOf('c_out'),
   chem:[{name:'Stock standard '+r.stock+' '+r.unit,qty:fmtVol(r.rows.reduce(function(s,x){return s+parseFloat(x.aliquot);},0))+' mL total'}],
   dop:today(),doe:todayPlusDays(30)});}
 
@@ -655,6 +673,7 @@ function toRec_std(){
  const days=(s.preset&&ETAL_STD.INTERVAL[s.preset])?ETAL_STD.INTERVAL[s.preset]:30;
  pushRecord({name:s.titrant+' '+(s.nom!==null&&s.nom!==undefined?s.nom+' '+s.U:'')+' — standardised',no:'',
   desc:`Standardised against ${s.ps}. True ${(s.U==='M')?'molarity':'normality'} ${s.N} ${s.U}; correction factor ${s.factor||'—'} (nominal ${s.nom!==null&&s.nom!==undefined?s.nom:'—'} ${s.U}).`,
+  calc:workingOf('st_out'),
   chem:[{name:s.ps,qty:num('st_m')!==null?num('st_m')+' g':''}],
   dop:today(),doe:todayPlusDays(days),
   true_N:s.N,
@@ -683,6 +702,7 @@ function toRec_pct(){
  const r=RES.pct;
  pushRecord({name:r.name||`${r.pct} % ${r.lbl} solution`,no:'',
   desc:r.instruction,
+  calc:workingOf('p_out'),
   chem:[{name:r.name||'',qty:r.q+' '+r.un}],dop:today(),doe:todayPlusYears(1)});
 }
 function calcPct(){const t=val('p_t'),pc=num('p_pct'),v=num('p_v'),purIn=num('p_pur'),o=document.getElementById('p_out');

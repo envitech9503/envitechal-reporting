@@ -2773,6 +2773,9 @@ class ReagentPrep(models.Model):
     reagent_no = models.CharField(max_length=40, blank=True, default='')
     rtype = models.CharField(max_length=30, choices=RTYPES, default='Reagent')
     description = models.TextField(blank=True, default='')
+    # The calculator's working, kept with the record so the controlled PDF
+    # can show how a mass or a factor was derived (analyst finding, 02-08-2026).
+    calculation = models.TextField(blank=True, default='')
     final_volume = models.CharField(max_length=40, blank=True, default='')
     conc_value = models.CharField(max_length=40, blank=True, default='')
     conc_unit = models.CharField(max_length=20, blank=True, default='')

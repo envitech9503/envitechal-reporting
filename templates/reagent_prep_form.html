@@ -158,6 +158,8 @@
     <div class="sec" style="border-top:1px solid #eef2f6">
       <h3>Description / Method of Preparation</h3>
       <textarea id="description" placeholder="Describe the preparation steps, dilutions, standardisation, storage..."></textarea>
+      <label style="display:block;margin-top:14px;font-weight:600">Calculation / working</label>
+      <textarea id="calculation" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px" placeholder="Filled by the calculator - the formula, the numbers and the result. Printed on the controlled PDF."></textarea>
       <div class="grid" style="margin-top:12px">
         <div class="fld"><label>Prepared By</label><input id="prepared_by"></div>
         <div class="fld"><label>Verified By</label><input id="verified_by"></div>
@@ -314,7 +316,8 @@ function onCalcResult(d){
   var tr=_calcTargetRow((d.targetRow!=null)?d.targetRow:linkedRow);
   var placed=false;
   if(tr&&d.quantity){var q=tr.querySelector('.c_qty');if(q){q.value=d.quantity;placed=true;}}
-  if(d.note){var ds=el('description');if(ds&&!ds.value.trim()){ds.value=d.note;placed=true;}}
+  if(d.note){if(addToDesc(d.note))placed=true;}
+  if(d.calc){if(addToCalc(d.calc))placed=true;}
   if(d.true_N&&el('s_true_N')){el('s_true_N').value=d.true_N;placed=true;}
   if(d.factor&&el('s_factor')){el('s_factor').value=d.factor;placed=true;}
   if(!placed){flash('Nothing to insert — compute a value in the calculator first.',false);return;}
@@ -326,10 +329,32 @@ function onCalcResult(d){
 // "Fill preparation record" in the calculator: write the whole proposed record
 // into this form (name, description, dates, chemical rows, standardisation),
 // not just the calculator's own preview pane.
+// A preparation procedure and a calculator sentence are different records of
+// different facts. The calculator's sentence is added below whatever the analyst
+// wrote; it never replaces it. (Analyst finding, 02-08-2026: filling a
+// standardisation replaced the whole EDTA procedure with a one-line summary.)
+function addToDesc(text){return addTo('description',text,'\n');}
+
+// The working is accumulated the same way: a standardised titrant has both a
+// preparation calculation and a standardisation calculation, and the controlled
+// record should show each of them.
+function addToCalc(text){return addTo('calculation',text,'\n\n');}
+
+function addTo(id,text,sep){
+  var f=el(id);if(!f||!text)return false;
+  var cur=f.value.replace(/\s+$/,'');
+  if(!cur.trim()){f.value=text;return true;}
+  if(cur.indexOf(text.trim())>=0)return false;
+  f.value=cur+sep+text;return true;
+}
+
 function onCalcRecord(rec){
   rec=rec||{};if(rec.rtype){var _tf=el('rtype');if(_tf){var _ok=[].some.call(_tf.options,function(op){return op.value===rec.rtype||op.text===rec.rtype;});if(_ok&&_tf.value!==rec.rtype){_tf.value=rec.rtype;if(typeof onType==='function')onType();}}}
-  var pairs=[['reagent_name',rec.name],['reagent_no',rec.no],['description',rec.desc],
+  var pairs=[['reagent_name',rec.name],['reagent_no',rec.no],
              ['dop',rec.dop],['doe',rec.doe]];
+  // the description is handled separately, below: it is added to, not replaced
+  var descAdded=addToDesc(rec.desc);
+  addToCalc(rec.calc);
   var clash=[];
   pairs.forEach(function(pr){
     var f=el(pr[0]);
@@ -396,7 +421,8 @@ function renderPreview(){var box=el('previewBox');if(!box||el('previewSec').clas
    '<table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-top:10px">'+
      '<thead><tr style="background:#e1e8ed">'+['S.#','Chemical Name','CAT Number','LOT Number','Quantity','Make','Expiry Date'].map(function(h){return '<th style="border:1px solid #b9c6d4;padding:4px 6px">'+h+'</th>';}).join('')+'</tr></thead>'+
      '<tbody>'+rows+'</tbody></table>'+
-   '<div style="font-size:12.5px;margin-top:10px"><b>Description:</b> '+pvEsc(p.description||'-')+'</div>'+std+
+   '<div style="font-size:12.5px;margin-top:10px"><b>Description:</b> '+pvEsc(p.description||'-')+'</div>'+
+   (p.calculation?('<div style="font-size:12.5px;margin-top:8px"><b>Calculation:</b><pre style="margin:4px 0 0;font-size:12px;white-space:pre-wrap">'+pvEsc(p.calculation)+'</pre></div>'):'')+std+
    '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:10px"><div><b>Prepared By:</b> '+pvEsc(p.prepared_by||'-')+'</div><div><b>Verified By:</b> '+pvEsc(p.verified_by||'-')+'</div></div>'+
    '<div style="display:flex;gap:24px;font-size:12.5px;margin-top:4px"><div><b>D.O.P.:</b> '+pvEsc(p.dop||'-')+'</div><div style="'+(doeExp?'color:#c00;font-weight:700':'')+'"><b>D.O.E.:</b> '+pvEsc(p.doe||'-')+'</div></div>'+
    '<div style="border-top:1px solid #0f5132;margin-top:12px;padding-top:6px;font-size:10px;color:#64748b;text-align:center">Tel: +92 310 2288801 &nbsp;|&nbsp; Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan. &nbsp;|&nbsp; info@envitechal.com &nbsp;|&nbsp; www.envitechal.com</div>';
@@ -434,7 +460,7 @@ function applyViewOnly(){if(!VIEW_ONLY)return;el('voBanner').classList.remove('h
 
 function collect(){
   var chems=[];el('chemBody').querySelectorAll('tr').forEach(function(tr,i){var n=tr.querySelector('.c_name').value.trim();if(!n)return;chems.push({s_no:i+1,chemical_name:n,cat_no:tr.querySelector('.c_cat').value,lot_no:tr.querySelector('.c_lot').value,quantity:tr.querySelector('.c_qty').value,make:tr.querySelector('.c_make').value,expiry:tr.querySelector('.c_exp').value,chemical_lot:tr.dataset.lot||null});});
-  var payload={id:RECORD?RECORD.id:null,client_updated_at:(RECORD&&RECORD.updated_at)||'',location:el('location').value,month:el('month').value,reagent_name:el('reagent_name').value,reagent_no:el('reagent_no').value,rtype:el('rtype').value,description:el('description').value,final_volume:el('final_volume').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,prepared_by:el('prepared_by').value,verified_by:el('verified_by').value,dop:el('dop').value,doe:el('doe').value,remarks:el('remarks').value,chemicals:chems};
+  var payload={id:RECORD?RECORD.id:null,client_updated_at:(RECORD&&RECORD.updated_at)||'',location:el('location').value,month:el('month').value,reagent_name:el('reagent_name').value,reagent_no:el('reagent_no').value,rtype:el('rtype').value,description:el('description').value,calculation:el('calculation').value,final_volume:el('final_volume').value,conc_value:el('conc_value').value,conc_unit:el('conc_unit').value,prepared_by:el('prepared_by').value,verified_by:el('verified_by').value,dop:el('dop').value,doe:el('doe').value,remarks:el('remarks').value,chemicals:chems};
   if(el('rtype').value==='Standardised titrant'){payload.standardisation={location:el('location').value,primary_std:el('s_primary_std').value,ps_mass:el('s_ps_mass').value,ps_purity:el('s_ps_purity').value,ps_eqwt:el('s_ps_eqwt').value,vol_made:el('s_vol_made').value,aliquot:el('s_aliquot').value,titrant_ml:el('s_titrant_ml').value,nominal_N:el('s_nominal_N').value,true_N:el('s_true_N').value,factor:el('s_factor').value,unit:el('s_unit').value,std_date:el('s_std_date').value,next_due:el('s_next_due').value};}
   return payload;
 }
@@ -481,7 +507,7 @@ function saveNew(force){
 function resetForNew(){
   // start a fresh record; keep Location & Month for high-throughput entry
   RECORD=null;
-  ['reagent_name','reagent_no','final_volume','conc_value','conc_unit','dop','doe','description','prepared_by','verified_by','remarks'].forEach(function(id){var e=el(id);if(e)e.value='';});
+  ['reagent_name','reagent_no','final_volume','conc_value','conc_unit','dop','doe','description','calculation','prepared_by','verified_by','remarks'].forEach(function(id){var e=el(id);if(e)e.value='';});
   el('rtype').value='Reagent';onType();
   el('chemBody').innerHTML='';addChem();addChem();
   ['s_primary_std','s_ps_mass','s_ps_eqwt','s_vol_made','s_aliquot','s_titrant_ml','s_nominal_N','s_true_N','s_factor','s_std_date','s_next_due'].forEach(function(id){var e=el(id);if(e)e.value='';});
@@ -496,7 +522,7 @@ function prefill(){
   el('location').value=RECORD.location||'Karachi';el('month').value=RECORD.month||'';el('rtype').value=RECORD.rtype||'Reagent';
   el('reagent_name').value=RECORD.reagent_name||'';el('reagent_no').value=RECORD.reagent_no||'';el('final_volume').value=RECORD.final_volume||'';
   el('conc_value').value=RECORD.conc_value||'';el('conc_unit').value=RECORD.conc_unit||'';el('dop').value=RECORD.dop||'';el('doe').value=RECORD.doe||'';
-  el('description').value=RECORD.description||'';el('prepared_by').value=RECORD.prepared_by||'';el('verified_by').value=RECORD.verified_by||'';el('remarks').value=RECORD.remarks||'';
+  el('description').value=RECORD.description||'';el('calculation').value=RECORD.calculation||'';el('prepared_by').value=RECORD.prepared_by||'';el('verified_by').value=RECORD.verified_by||'';el('remarks').value=RECORD.remarks||'';
   (RECORD.chemicals||[]).forEach(function(c){addChem(c);});if(!(RECORD.chemicals||[]).length){addChem();}
   var s=RECORD.standardisation;if(s){el('s_primary_std').value=s.primary_std||'';el('s_ps_mass').value=s.ps_mass||'';el('s_ps_purity').value=s.ps_purity||'100';el('s_ps_eqwt').value=s.ps_eqwt||'';el('s_vol_made').value=s.vol_made||'';el('s_aliquot').value=s.aliquot||'';el('s_titrant_ml').value=s.titrant_ml||'';el('s_nominal_N').value=s.nominal_N||'';el('s_unit').value=s.unit||'N';el('s_true_N').value=s.true_N||'';el('s_factor').value=s.factor||'';el('s_std_date').value=s.std_date||'';el('s_next_due').value=s.next_due||'';}
   el('modeTag').textContent=RECORD.id?('(editing #'+RECORD.id+')'):'(clone - new record)';

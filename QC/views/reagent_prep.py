@@ -252,6 +252,7 @@ def _snapshot(obj):
         'reagent_no': obj.reagent_no, 'rtype': obj.rtype, 'description': obj.description,
         'final_volume': obj.final_volume, 'conc_value': obj.conc_value, 'conc_unit': obj.conc_unit,
         'prepared_by': obj.prepared_by, 'verified_by': obj.verified_by,
+        'calculation': obj.calculation,
         'dop': obj.dop.isoformat() if obj.dop else '', 'doe': obj.doe.isoformat() if obj.doe else '',
         'remarks': obj.remarks, 'chem_count': obj.chemicals.count(), 'std_factor': stdf,
     }
@@ -262,7 +263,8 @@ _DIFF_LABELS = [
     ('location', 'Location'), ('month', 'Month'), ('conc_value', 'Conc value'),
     ('conc_unit', 'Conc unit'), ('final_volume', 'Final volume'), ('dop', 'D.O.P.'),
     ('doe', 'D.O.E.'), ('prepared_by', 'Prepared by'), ('verified_by', 'Verified by'),
-    ('description', 'Description'), ('remarks', 'Remarks'), ('chem_count', 'Chemicals'),
+    ('description', 'Description'), ('calculation', 'Calculation'),
+    ('remarks', 'Remarks'), ('chem_count', 'Chemicals'),
     ('std_factor', 'Std factor'),
 ]
 
@@ -391,7 +393,8 @@ def _record_json(obj):
     return {
         'id': obj.id, 'location': obj.location, 'month': obj.month,
         'reagent_name': obj.reagent_name, 'reagent_no': obj.reagent_no, 'rtype': obj.rtype,
-        'description': obj.description, 'final_volume': obj.final_volume,
+        'description': obj.description, 'calculation': obj.calculation,
+        'final_volume': obj.final_volume,
         'conc_value': obj.conc_value, 'conc_unit': obj.conc_unit,
         'prepared_by': obj.prepared_by, 'verified_by': obj.verified_by,
         'dop': obj.dop.strftime('%Y-%m-%d') if obj.dop else '',
@@ -537,6 +540,7 @@ def reagent_prep_save(request):
         obj.reagent_no = reagent_no
         obj.rtype = rtype
         obj.description = (data.get('description') or '').strip()
+        obj.calculation = (data.get('calculation') or '').strip()
         obj.final_volume = (data.get('final_volume') or '').strip()[:40]
         obj.conc_value = (data.get('conc_value') or '').strip()[:40]
         obj.conc_unit = (data.get('conc_unit') or '').strip()[:20]
@@ -1126,6 +1130,19 @@ def _make_reagent_pdf(location, records, draft=False):
         pdf.multi_cell(0, 5, pdf.t(obj.description or '-'))
         pdf.ln(2)
 
+        # calculation - the working the calculator used, printed line by line so
+        # the derivation survives on the controlled copy (analyst finding, 02-08-2026)
+        if (getattr(obj, 'calculation', '') or '').strip():
+            pdf.set_font(pdf.fam, 'B', 9)
+            pdf.cell(0, 6, 'Calculation:', ln=1)
+            pdf.set_font(pdf.fam, '', 9)
+            for _line in obj.calculation.splitlines():
+                # multi_cell leaves the cursor at the right margin, so the next
+                # call would have no width left: reset to the left margin first.
+                pdf.set_x(pdf.l_margin)
+                pdf.multi_cell(0, 5, pdf.t(_line.rstrip()) or ' ')
+            pdf.ln(2)
+
         # standardisation
         try:
             s = obj.standardisation
@@ -1149,19 +1166,35 @@ def _make_reagent_pdf(location, records, draft=False):
         pdf.set_font(pdf.fam, 'B', 9)
         dop = obj.dop.strftime('%d-%m-%Y') if obj.dop else '-'
         doe = obj.doe.strftime('%d-%m-%Y') if obj.doe else '-'
-        pdf.cell(48, 6, pdf.t('Prepared By: ' + (obj.prepared_by or '-')))
+        # cell() does not clip its text: a name wider than the 48 mm column used
+        # to run straight across the field printed beside it. Measure the pair and
+        # stack them when they cannot both fit (analyst finding, 02-08-2026).
+        _prep = pdf.t('Prepared By: ' + (obj.prepared_by or '-'))
         _vat = getattr(obj, 'verified_at', None)
         if _vat:
             _vname = _user_name(getattr(obj, 'verified_by_user', None)) or (obj.verified_by or '-')
-            pdf.cell(90, 6, pdf.t('Verified By: %s on %s' % (_vname, _vat.strftime('%d-%m-%Y'))))
+            _ver = pdf.t('Verified By: %s on %s' % (_vname, _vat.strftime('%d-%m-%Y')))
         else:
-            pdf.cell(90, 6, pdf.t('Verified By: ' + (obj.verified_by or '-')))
-        pdf.ln(6)
-        pdf.cell(48, 6, 'D.O.P.: ' + dop)
-        if obj.doe and obj.doe < today:
-            pdf.set_text_color(200, 0, 0)
-        pdf.cell(48, 6, 'D.O.E.: ' + doe)
-        pdf.set_text_color(0, 0, 0)
+            _ver = pdf.t('Verified By: ' + (obj.verified_by or '-'))
+
+        def _row(left, right, red_right=False):
+            """Two fields on one line, keeping the familiar 48 mm column when the
+            first is short enough, stacked when it is not."""
+            avail = pdf.w - pdf.l_margin - pdf.r_margin
+            wl = max(48, pdf.get_string_width(left) + 6)
+            if wl + pdf.get_string_width(right) + 2 > avail:
+                pdf.cell(0, 6, left, ln=1)
+                wl = 0
+            else:
+                pdf.cell(wl, 6, left)
+            if red_right:
+                pdf.set_text_color(200, 0, 0)
+            pdf.cell(0, 6, right, ln=1)
+            pdf.set_text_color(0, 0, 0)
+
+        _row(_prep, _ver)
+        _row('D.O.P.: ' + dop, 'D.O.E.: ' + doe,
+             red_right=bool(obj.doe and obj.doe < today))
         pdf.ln(10)
 
     pdf.add_page()
