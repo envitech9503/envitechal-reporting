@@ -5,6 +5,89 @@ import qrcode
 import os
 from fpdf import FPDF
 
+
+# --- Client address auto-fit (analyst finding, 05-08-2026) ------------------
+# The report header drew the client address with FPDF.text(), which places a
+# single line at an absolute point with no wrapping and no clipping.  A long
+# address therefore ran past the right edge of the header box and off the page
+# (Soorty Denim Unit-13: 207 characters, 314 mm wide against 152 mm available).
+# _addr_text reproduces the previous output exactly whenever the address already
+# fits.  Only when it does not fit does it reduce the point size and, if still
+# required, wrap onto a second line.  Every header box in this module is
+# rect(10, top, 190, 13) with the address baseline at top+10, so the wrapped
+# pair at top+8.8 and top+11.9 stays inside the box and clear of the row above.
+ADDR_RIGHT_EDGE = 200.0
+ADDR_RIGHT_PAD = 1.5
+ADDR_ONE_LINE_SIZES = (9.5, 9.0, 8.5, 8.0)
+ADDR_TWO_LINE_SIZES = (9.0, 8.5, 8.0, 7.5, 7.0, 6.5, 6.0)
+
+
+def _addr_split(pdf, s, avail):
+    words = s.split(' ')
+    i = len(words)
+    while i > 1:
+        first = ' '.join(words[:i])
+        if pdf.get_string_width(first) <= avail:
+            second = ' '.join(words[i:])
+            if not second:
+                return (first, '')
+            if pdf.get_string_width(second) <= avail:
+                return (first, second)
+        i = i - 1
+    return None
+
+
+def _addr_plan(pdf, x, y, s):
+    fam = pdf.font_family
+    sty = pdf.font_style
+    base = pdf.font_size_pt
+    avail = ADDR_RIGHT_EDGE - float(x) - ADDR_RIGHT_PAD
+    try:
+        if pdf.get_string_width(s) <= avail:
+            return (base, [(x, y, s)])
+        for size in ADDR_ONE_LINE_SIZES:
+            pdf.set_font(fam, sty, size)
+            if pdf.get_string_width(s) <= avail:
+                return (size, [(x, y, s)])
+        for size in ADDR_TWO_LINE_SIZES:
+            pdf.set_font(fam, sty, size)
+            pair = _addr_split(pdf, s, avail)
+            if pair is not None:
+                out = [(x, y - 1.2, pair[0])]
+                if pair[1]:
+                    out.append((x, y + 1.9, pair[1]))
+                return (size, out)
+        size = ADDR_TWO_LINE_SIZES[-1]
+        pdf.set_font(fam, sty, size)
+        cut = s
+        while cut and pdf.get_string_width(cut + '...') > avail:
+            cut = cut[:-1]
+        return (size, [(x, y, cut + '...')])
+    finally:
+        pdf.set_font(fam, sty, base)
+
+
+def _addr_text(pdf, x, y, value):
+    s = '' if value is None else str(value)
+    s = ' '.join(s.replace(chr(10), ' ').replace(chr(13), ' ').split())
+    if not s:
+        return
+    fam = pdf.font_family
+    sty = pdf.font_style
+    base = pdf.font_size_pt
+    try:
+        size, lines = _addr_plan(pdf, x, y, s)
+    except Exception:
+        pdf.text(x, y, s)
+        return
+    if size != base:
+        pdf.set_font(fam, sty, size)
+    for lx, ly, lt in lines:
+        pdf.text(lx, ly, lt)
+    if size != base:
+        pdf.set_font(fam, sty, base)
+# --- end client address auto-fit --------------------------------------------
+
 # --- Public QR verification in PDFs (31-07-2026) ------------------------------
 # The QR printed on a PDF is the one clients and regulators actually scan.  It
 # used to encode the staff URL (e.g. /microbial-view/265/), which sits behind
@@ -220,7 +303,7 @@ class PDF_generatePDF(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,65,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(44,65,txt=self.address)
+               _addr_text(self,44,65,self.address)
 
                self.rect(10,70,190,13)
                self.set_font("Calibri","B", 10)
@@ -444,7 +527,7 @@ class PDF_generatePDF_report(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,65,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(44,65,txt=self.address)
+               _addr_text(self,44,65,self.address)
 
                self.rect(10,70,190,13)
                self.set_font("Calibri","B", 10)
@@ -643,7 +726,7 @@ class PDF_gaseousReportgeneratePDF(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -859,7 +942,7 @@ class PDF_gaseousReportgeneratePDF1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,66,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,66,txt=self.address)
+               _addr_text(self,46,66,self.address)
 
                self.rect(10,71,190,13)
                self.set_font("Calibri","B", 10)
@@ -1061,7 +1144,7 @@ class PDF_ambientAirGeneratePDF(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -1267,7 +1350,7 @@ class PDF_ambientAirGeneratePDF1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,66,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,66,txt=self.address)
+               _addr_text(self,46,66,self.address)
 
                self.rect(10,71,190,13)
                self.set_font("Calibri","B", 10)
@@ -1445,7 +1528,7 @@ class PDF_wasteWaterPdf0(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -1656,7 +1739,7 @@ class PDF_wasteWaterPdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,66,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,66,txt=self.address)
+               _addr_text(self,46,66,self.address)
 
                self.rect(10,71,190,13)
                self.set_font("Calibri","B", 10)
@@ -1876,7 +1959,7 @@ class PDF_vehicularEmissionReport(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -2077,7 +2160,7 @@ class PDF_vehicularEmissionReport1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -2262,7 +2345,7 @@ class PDF_luxAnalysisReportPdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,64,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,64,txt=self.address)
+               _addr_text(self,46,64,self.address)
 
                self.rect(10,69,190,13)
                self.set_font("Calibri","B", 10)
@@ -2456,7 +2539,7 @@ class PDF_luxAnalysisReportPdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,69,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,69,txt=self.address)
+               _addr_text(self,46,69,self.address)
 
                self.rect(10,74,190,13)
                self.set_font("Calibri","B", 10)
@@ -2638,7 +2721,7 @@ class PDF_packingPolyBagReport(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -2846,7 +2929,7 @@ class PDF_packingPolyBagReport1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -3038,7 +3121,7 @@ class PDF_noiseAnalysisReport(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -3234,7 +3317,7 @@ class PDF_noiseAnalysisReport1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -3420,7 +3503,7 @@ class PDF_machineOilReportPdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -3622,7 +3705,7 @@ class PDF_machineOilReportPdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -3811,7 +3894,7 @@ class PDF_microbialAnalysisPdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -4021,7 +4104,7 @@ class PDF_microbialAnalysisPdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -4218,7 +4301,7 @@ class PDF_viscousLiquidPdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,58,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,58,txt=self.address)
+               _addr_text(self,46,58,self.address)
 
                self.rect(10,63,190,13)
                self.set_font("Calibri","B", 10)
@@ -4430,7 +4513,7 @@ class PDF_viscousLiquidPdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,68,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,68,txt=self.address)
+               _addr_text(self,46,68,self.address)
 
                self.rect(10,73,190,13)
                self.set_font("Calibri","B", 10)
@@ -4627,7 +4710,7 @@ class PDF_ambientAir2Pdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,68,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,68,txt=self.address)
+               _addr_text(self,46,68,self.address)
 
                self.rect(10,73,190,13)
                self.set_font("Calibri","B", 10)
@@ -4828,7 +4911,7 @@ class PDF_ambientAir2Pdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,68,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,68,txt=self.address)
+               _addr_text(self,46,68,self.address)
 
                self.rect(10,73,190,13)
                self.set_font("Calibri","B", 10)
@@ -5017,7 +5100,7 @@ class PDF_wasteWater2Pdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -5237,7 +5320,7 @@ class PDF_wasteWater2Pdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -5444,7 +5527,7 @@ class PDF_noiseMonitoring_print(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -5655,7 +5738,7 @@ class PDF_noiseMonitoring_report(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
@@ -6409,7 +6492,7 @@ class PDF_ppwrAnalysisPdf(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,62,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,62,txt=self.address)
+               _addr_text(self,46,62,self.address)
 
                self.rect(10,67,190,13)
                self.set_font("Calibri","B", 10)
@@ -6619,7 +6702,7 @@ class PDF_ppwrAnalysisPdf1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(31,67,txt='Address')
                self.set_font("Calibri","", 10)
-               self.text(46,67,txt=self.address)
+               _addr_text(self,46,67,self.address)
 
                self.rect(10,72,190,13)
                self.set_font("Calibri","B", 10)
