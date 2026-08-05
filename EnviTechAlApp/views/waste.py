@@ -4469,7 +4469,7 @@ def wasteWater2Pdf(request,pk):
      
      else:
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Inlet Results",(ww.outlet_result or "Outlet Result"),"","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),(ww.outlet_result or "Outlet Results"),"","",""],
      ]
           sr_no = 1
 
@@ -7576,7 +7576,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      
      else:
           TABLE_DATA = [
-           ["Sr.#","Parameter/Analytes Description","Methods","Unit","Inlet Results",(ww.outlet_result or "Outlet Result"),"","",""],
+           ["Sr.#","Parameter/Analytes Description","Methods","Unit",(ww.inlet_result or "Inlet Results"),(ww.outlet_result or "Outlet Results"),"","",""],
      ]
           sr_no = 1
 
