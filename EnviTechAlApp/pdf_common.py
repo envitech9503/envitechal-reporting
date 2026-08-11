@@ -776,12 +776,10 @@ class PDF_gaseousReportgeneratePDF(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(86,116,txt="Fuel Types:")
                self.set_font("Calibri","B", 10)
-               if self.GaseEm_types == 'oil_fired':
-                    self.text(110,116,txt='Oil Fired')
-               elif self.GaseEm_types == 'gas_fired':
-                    self.text(110,116,txt='Gas Fired')
-               elif self.GaseEm_types == 'coal_fired':
-                    self.text(110,116,txt='Coal Fired')
+               from EnviTechAlApp.models import GaseousEmissionForm as _GEF
+               _fuel_label = _GEF.GAS_FUEL_LABELS.get(str(self.GaseEm_types or '').strip().lower(), '')
+               if _fuel_label:
+                    self.text(110,116,txt=_fuel_label)
                if self.GasEm_test_type_extra:
                     self.text(125,116,txt="("+self.GasEm_test_type_extra +")")
 
@@ -992,12 +990,10 @@ class PDF_gaseousReportgeneratePDF1(FPDF):
                self.set_font("Calibri","B", 10)
                self.text(86,120,txt="Fuel Types:")
                self.set_font("Calibri","B", 10)
-               if self.GaseEm_types == 'oil_fired':
-                    self.text(110,120,txt='Oil Fired')
-               elif self.GaseEm_types == 'gas_fired':
-                    self.text(110,120,txt='Gas Fired')
-               elif self.GaseEm_types == 'coal_fired':
-                    self.text(110,120,txt='Coal Fired')
+               from EnviTechAlApp.models import GaseousEmissionForm as _GEF
+               _fuel_label = _GEF.GAS_FUEL_LABELS.get(str(self.GaseEm_types or '').strip().lower(), '')
+               if _fuel_label:
+                    self.text(110,120,txt=_fuel_label)
 
                if self.GasEm_test_type_extra:
                     self.text(125,120,txt="("+self.GasEm_test_type_extra +")")

@@ -267,6 +267,17 @@ class GaseousEmissionForm(models.Model):
     ]
 
     GAS_FUEL_ROWS = (2,6)
+    GAS_FUEL_LABELS = {
+        'gas_fired': 'Gas Fired',
+        'oil_fired': 'Oil Fired',
+        'coal_fired': 'Coal Fired',
+        'biomass': 'Biomass Fired',
+    }
+
+    @property
+    def fuel_label(self):
+        key = str(self.GaseEm_types or '').strip().lower()
+        return GaseousEmissionForm.GAS_FUEL_LABELS.get(key, '')
 
     @property
     def limits(self):
