@@ -88,6 +88,79 @@ def _addr_text(pdf, x, y, value):
         pdf.set_font(fam, sty, base)
 # --- end client address auto-fit --------------------------------------------
 
+# --- Header value auto-fit (05-09-2026) ---------------------------------------
+# The certificate header is drawn with absolute coordinates: each row is a 6 mm
+# rect from x=10 to x=200; labels are left-aligned at x=12, the divider is at
+# x=65 and values start at x=68, so a value has 130.5 mm.  fpdf's text() neither
+# wraps nor shrinks, so _fit_text() draws the value unchanged when it fits and
+# otherwise reduces the font size just enough for one line (down to
+# TT_MIN_ONE_LINE pt), and below that breaks it into two lines inside the same
+# row.  Nothing else on the page moves.
+TT_RIGHT_EDGE = 200.0
+TT_RIGHT_PAD = 1.5
+TT_MIN_ONE_LINE = 7.0
+TT_TWO_LINE_SIZES = (7.0, 6.5, 6.0)
+TT_TWO_LINE_UP = 1.6
+TT_TWO_LINE_DOWN = 1.3
+# Header grid shared by every family (single source of truth; the 30 header
+# blocks reference these names rather than literal coordinates).
+HDR_LX = 12.0                                        # label x, left-aligned
+HDR_DX = 65.0                                        # divider x
+HDR_VX = 68.0                                        # value x
+HDR_VALUE_W = TT_RIGHT_EDGE - HDR_VX - TT_RIGHT_PAD  # 130.5 mm for a value
+
+
+def _fit_text(pdf, x, y, value, right_edge=TT_RIGHT_EDGE, pad=TT_RIGHT_PAD):
+    s = '' if value is None else str(value)
+    if not s:
+        return
+    fam = pdf.font_family
+    sty = pdf.font_style
+    base = pdf.font_size_pt
+    avail = float(right_edge) - float(x) - float(pad)
+    changed = False
+    try:
+        if pdf.get_string_width(s) <= avail:
+            pdf.text(x, y, s)
+            return
+        s = ' '.join(s.replace(chr(10), ' ').replace(chr(13), ' ').split())
+        w = pdf.get_string_width(s)
+        if w <= avail:
+            pdf.text(x, y, s)
+            return
+        size = int(base * avail / w * 10) / 10.0
+        if size >= TT_MIN_ONE_LINE:
+            changed = True
+            pdf.set_font(fam, sty, size)
+            while size > TT_MIN_ONE_LINE and pdf.get_string_width(s) > avail:
+                size = round(size - 0.1, 1)
+                pdf.set_font(fam, sty, size)
+            if pdf.get_string_width(s) <= avail:
+                pdf.text(x, y, s)
+                return
+        for size in TT_TWO_LINE_SIZES:
+            changed = True
+            pdf.set_font(fam, sty, size)
+            pair = _addr_split(pdf, s, avail)
+            if pair is not None:
+                pdf.text(x, y - TT_TWO_LINE_UP, pair[0])
+                if pair[1]:
+                    pdf.text(x, y + TT_TWO_LINE_DOWN, pair[1])
+                return
+        cut = s
+        while cut and pdf.get_string_width(cut + '...') > avail:
+            cut = cut[:-1]
+        pdf.text(x, y, cut + '...')
+    except Exception:
+        if changed:
+            pdf.set_font(fam, sty, base)
+            changed = False
+        pdf.text(x, y, s)
+    finally:
+        if changed:
+            pdf.set_font(fam, sty, base)
+# --- end header value auto-fit --------------------------------------------------
+
 # --- Public QR verification in PDFs (31-07-2026) ------------------------------
 # The QR printed on a PDF is the one clients and regulators actually scan.  It
 # used to encode the staff URL (e.g. /microbial-view/265/), which sits behind
@@ -320,44 +393,44 @@ class PDF_generatePDF(FPDF):
 
                self.rect(10,85,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,90,txt="Sample ID:")
-               self.text(110,90,txt=self.sample_id)
+               self.text(HDR_LX,90,txt="Sample ID:")
+               _fit_text(self,HDR_VX,90,self.sample_id)
 
                self.rect(10,91,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(67,95,txt="Sample Collection Date:")
-               self.text(110,95,txt=self.sample_collection_Date)
+               self.text(HDR_LX,95,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,95,self.sample_collection_Date)
 
                self.rect(10,97,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(73,101,txt="Sample Description:")
-               self.text(110,101,f"{self.sample_description}")
+               self.text(HDR_LX,101,txt="Sample Description:")
+               _fit_text(self,HDR_VX,101,f"{self.sample_description}")
 
                self.rect(10,103.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(82,107,txt="Sample Type:")
+               self.text(HDR_LX,107,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,107,txt=self.sample_type)
+               _fit_text(self,HDR_VX,107,self.sample_type)
 
-               self.line(105,85,105,127)
+               self.line(HDR_DX,85,HDR_DX,127)
 
                self.rect(10,109,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53,113,txt="Sample Collected / Submitted By:")
+               self.text(HDR_LX,113,txt="Sample Collected / Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,113,txt=self.sample_collected_by)
+               _fit_text(self,HDR_VX,113,self.sample_collected_by)
 
                self.rect(10,115,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77,119,txt="Date Of Analysis:")
+               self.text(HDR_LX,119,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,119,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,119,self.date_of_analysis)
 
                self.rect(10,121.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77,125,txt="Test Description:")
+               self.text(HDR_LX,125,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,125,txt=self.test_description)
+               _fit_text(self,HDR_VX,125,self.test_description)
 
 
                self.rect(10,130.1,190,7)
@@ -544,44 +617,44 @@ class PDF_generatePDF_report(FPDF):
 
                self.rect(10,85,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(85,90,txt="Sample ID:")
-               self.text(110,90,txt=self.sample_id)
+               self.text(HDR_LX,90,txt="Sample ID:")
+               _fit_text(self,HDR_VX,90,self.sample_id)
 
                self.rect(10,91,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(67,95,txt="Sample Collection Date:")
-               self.text(110,95,txt=self.sample_collection_Date)
+               self.text(HDR_LX,95,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,95,self.sample_collection_Date)
 
                self.rect(10,97,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(73,101,txt="Sample Description:")
-               self.text(110,101,f"{self.sample_description}")
+               self.text(HDR_LX,101,txt="Sample Description:")
+               _fit_text(self,HDR_VX,101,f"{self.sample_description}")
 
                self.rect(10,103.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(82,107,txt="Sample Type:")
+               self.text(HDR_LX,107,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,107,txt=self.sample_type)
+               _fit_text(self,HDR_VX,107,self.sample_type)
 
-               self.line(105,85,105,127)
+               self.line(HDR_DX,85,HDR_DX,127)
 
                self.rect(10,109,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(54,113,txt="Sample Collected / Submitted By:")
+               self.text(HDR_LX,113,txt="Sample Collected / Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,113,txt=self.sample_collected_by)
+               _fit_text(self,HDR_VX,113,self.sample_collected_by)
 
                self.rect(10,115,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77,119,txt="Date Of Analysis:")
+               self.text(HDR_LX,119,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,119,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,119,self.date_of_analysis)
 
                self.rect(10,121.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77,125,txt="Test Description:")
+               self.text(HDR_LX,125,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,125,txt=self.test_description)
+               _fit_text(self,HDR_VX,125,self.test_description)
 
 
                self.rect(10,130.1,190,7)
@@ -743,45 +816,45 @@ class PDF_gaseousReportgeneratePDF(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(91,86,txt="Test ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Test ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(71,92,txt="Test Performed Date:")
-               self.text(110,92,txt=self.GaseEm_test_perf_date)
+               self.text(HDR_LX,92,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,92,self.GaseEm_test_perf_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(87.2,98,txt="Test Type:")
+               self.text(HDR_LX,98,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.GaseEm_test_type)
+               _fit_text(self,HDR_VX,98,self.GaseEm_test_type)
 
-               self.line(105,82,105,118)
+               self.line(HDR_DX,82,HDR_DX,118)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(74.5,104,txt="Test Performed By:")
+               self.text(HDR_LX,104,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.GaseEm_test_perf_by)
+               _fit_text(self,HDR_VX,104,self.GaseEm_test_perf_by)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(78,110,txt="Test Description:")
+               self.text(HDR_LX,110,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.GasEm_test_desc)
+               _fit_text(self,HDR_VX,110,self.GasEm_test_desc)
 
                self.rect(10,112.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,116,txt="Fuel Types:")
+               self.text(HDR_LX,116,txt="Fuel Types:")
                self.set_font("Calibri","B", 10)
                from EnviTechAlApp.models import GaseousEmissionForm as _GEF
                _fuel_label = _GEF.GAS_FUEL_LABELS.get(str(self.GaseEm_types or '').strip().lower(), '')
                if _fuel_label:
-                    self.text(110,116,txt=_fuel_label)
+                    self.text(HDR_VX,116,txt=_fuel_label)
                if self.GasEm_test_type_extra:
-                    self.text(125,116,txt="("+self.GasEm_test_type_extra +")")
+                    _fit_text(self,HDR_VX + (self.get_string_width(_fuel_label) + 2 if _fuel_label else 0),116,"("+self.GasEm_test_type_extra +")")
 
 
                # self.text(110,116,txt=self.GaseEm_types)
@@ -957,46 +1030,46 @@ class PDF_gaseousReportgeneratePDF1(FPDF):
 
                self.rect(10,86,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(91,90,txt="Test ID:")
-               self.text(110,90,txt=self.sample_id)
+               self.text(HDR_LX,90,txt="Test ID:")
+               _fit_text(self,HDR_VX,90,self.sample_id)
 
                self.rect(10,92,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(71,96,txt="Test Performed Date:")
-               self.text(110,96,txt=self.GaseEm_test_perf_date)
+               self.text(HDR_LX,96,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,96,self.GaseEm_test_perf_date)
 
 
                self.rect(10,98.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(87.2,102,txt="Test Type:")
+               self.text(HDR_LX,102,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,102,txt=self.GaseEm_test_type)
+               _fit_text(self,HDR_VX,102,self.GaseEm_test_type)
 
-               self.line(105,86,105,122)
+               self.line(HDR_DX,86,HDR_DX,122)
 
                self.rect(10,104,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(74.5,108,txt="Test Performed By:")
+               self.text(HDR_LX,108,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,108,txt=self.GaseEm_test_perf_by)
+               _fit_text(self,HDR_VX,108,self.GaseEm_test_perf_by)
 
                self.rect(10,110,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(78,114,txt="Test Description:")
+               self.text(HDR_LX,114,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,114,txt=self.GasEm_test_desc)
+               _fit_text(self,HDR_VX,114,self.GasEm_test_desc)
 
                self.rect(10,116.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,120,txt="Fuel Types:")
+               self.text(HDR_LX,120,txt="Fuel Types:")
                self.set_font("Calibri","B", 10)
                from EnviTechAlApp.models import GaseousEmissionForm as _GEF
                _fuel_label = _GEF.GAS_FUEL_LABELS.get(str(self.GaseEm_types or '').strip().lower(), '')
                if _fuel_label:
-                    self.text(110,120,txt=_fuel_label)
+                    self.text(HDR_VX,120,txt=_fuel_label)
 
                if self.GasEm_test_type_extra:
-                    self.text(125,120,txt="("+self.GasEm_test_type_extra +")")
+                    _fit_text(self,HDR_VX + (self.get_string_width(_fuel_label) + 2 if _fuel_label else 0),120,"("+self.GasEm_test_type_extra +")")
 
                #table header
                self.rect(10,124.1,190,7)
@@ -1158,34 +1231,34 @@ class PDF_ambientAirGeneratePDF(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(91,86,txt="Test ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Test ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(71,92,txt="Test Performed Date:")
-               self.text(110,92,txt=self.ambientAir_test_perf_date)
+               self.text(HDR_LX,92,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,92,self.ambientAir_test_perf_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77.8,98,txt="Test Description:")
+               self.text(HDR_LX,98,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.ambienAir_test_desc)
+               _fit_text(self,HDR_VX,98,self.ambienAir_test_desc)
 
-               self.line(105,82,105,112)
+               self.line(HDR_DX,82,HDR_DX,112)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(70.5,104,txt="Test Type & Location:")
+               self.text(HDR_LX,104,txt="Test Type & Location:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.ambientAir_test_type_location)
+               _fit_text(self,HDR_VX,104,self.ambientAir_test_type_location)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(74,110,txt="Test Performed By:")
+               self.text(HDR_LX,110,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.ambientAir_test_perf_by)
+               _fit_text(self,HDR_VX,110,self.ambientAir_test_perf_by)
 
                #table header
                self.rect(10,114.1,190,7)
@@ -1363,34 +1436,34 @@ class PDF_ambientAirGeneratePDF1(FPDF):
 
                self.rect(10,86,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(91,90,txt="Test ID:")
-               self.text(110,90,txt=self.sample_id)
+               self.text(HDR_LX,90,txt="Test ID:")
+               _fit_text(self,HDR_VX,90,self.sample_id)
 
                self.rect(10,92,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(71,96,txt="Test Performed Date:")
-               self.text(110,96,txt=self.ambientAir_test_perf_date)
+               self.text(HDR_LX,96,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,96,self.ambientAir_test_perf_date)
 
 
                self.rect(10,98.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77.8,102,txt="Test Description:")
+               self.text(HDR_LX,102,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,102,txt=self.ambienAir_test_desc)
+               _fit_text(self,HDR_VX,102,self.ambienAir_test_desc)
 
-               self.line(105,86,105,116)
+               self.line(HDR_DX,86,HDR_DX,116)
 
                self.rect(10,104,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(70.5,108,txt="Test Type & Location:")
+               self.text(HDR_LX,108,txt="Test Type & Location:")
                self.set_font("Calibri","", 10)
-               self.text(110,108,txt=self.ambientAir_test_type_location)
+               _fit_text(self,HDR_VX,108,self.ambientAir_test_type_location)
 
                self.rect(10,110,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(74,114,txt="Test Performed By:")
+               self.text(HDR_LX,114,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,114,txt=self.ambientAir_test_perf_by)
+               _fit_text(self,HDR_VX,114,self.ambientAir_test_perf_by)
 
                #table header
                self.rect(10,118.1,190,7)
@@ -1541,46 +1614,46 @@ class PDF_wasteWaterPdf0(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(87,86,txt="Sample ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Sample ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(67.7,92,txt="Sample Collection Date:")
-               self.text(110,92,txt=self.ww_sample_colec_Date)
+               self.text(HDR_LX,92,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,92,self.ww_sample_colec_Date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(73.2,98,txt="Sample Description:")
+               self.text(HDR_LX,98,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.ww_sample_desc)
+               _fit_text(self,HDR_VX,98,self.ww_sample_desc)
 
-               self.line(105,82,105,124)
+               self.line(HDR_DX,82,HDR_DX,124)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(82.8,104,txt="Sample Type:")
+               self.text(HDR_LX,104,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.ww_sample_type)
+               _fit_text(self,HDR_VX,104,self.ww_sample_type)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(55,110,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,110,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.ww_sample_colec_by)
+               _fit_text(self,HDR_VX,110,self.ww_sample_colec_by)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77,116,txt="Date Of Analysis:")
+               self.text(HDR_LX,116,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.ww_date_of_analysis)
+               _fit_text(self,HDR_VX,116,self.ww_date_of_analysis)
 
                self.rect(10,118,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(78,122,txt="Test Description:")
+               self.text(HDR_LX,122,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,122,txt=self.ww_test_desc)
+               _fit_text(self,HDR_VX,122,self.ww_test_desc)
 
                #table header
                self.rect(10,126.1,190,7)
@@ -1752,46 +1825,46 @@ class PDF_wasteWaterPdf1(FPDF):
 
                self.rect(10,86,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(87,90,txt="Sample ID:")
-               self.text(110,90,txt=self.sample_id)
+               self.text(HDR_LX,90,txt="Sample ID:")
+               _fit_text(self,HDR_VX,90,self.sample_id)
 
                self.rect(10,92,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(67.7,96,txt="Sample Collection Date:")
-               self.text(110,96,txt=self.ww_sample_colec_Date)
+               self.text(HDR_LX,96,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,96,self.ww_sample_colec_Date)
 
 
                self.rect(10,98.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(73.2,102,txt="Sample Description:")
+               self.text(HDR_LX,102,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,102,txt=self.ww_sample_desc)
+               _fit_text(self,HDR_VX,102,self.ww_sample_desc)
 
-               self.line(105,86,105,128)
+               self.line(HDR_DX,86,HDR_DX,128)
 
                self.rect(10,104,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(82.8,108,txt="Sample Type:")
+               self.text(HDR_LX,108,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,108,txt=self.ww_sample_type)
+               _fit_text(self,HDR_VX,108,self.ww_sample_type)
 
                self.rect(10,110,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(55,114,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,114,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,114,txt=self.ww_sample_colec_by)
+               _fit_text(self,HDR_VX,114,self.ww_sample_colec_by)
 
                self.rect(10,116,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(77,120,txt="Date Of Analysis:")
+               self.text(HDR_LX,120,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,120,txt=self.ww_date_of_analysis)
+               _fit_text(self,HDR_VX,120,self.ww_date_of_analysis)
 
                self.rect(10,122,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(78,126,txt="Test Description:")
+               self.text(HDR_LX,126,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,126,txt=self.ww_test_desc)
+               _fit_text(self,HDR_VX,126,self.ww_test_desc)
 
                #table header
                self.rect(10,130.1,190,7)
@@ -1972,34 +2045,34 @@ class PDF_vehicularEmissionReport(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,86,txt="Test ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Test ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,92,txt="Test Performed Date:")
-               self.text(110,92,txt=self.vehEm_test_perf_date)
+               self.text(HDR_LX,92,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,92,self.vehEm_test_perf_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.2,98,txt="Test Description:")
+               self.text(HDR_LX,98,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.vehEm_test_desc)
+               _fit_text(self,HDR_VX,98,self.vehEm_test_desc)
 
-               self.line(105,82,105,112)
+               self.line(HDR_DX,82,HDR_DX,112)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,104,txt="Test Type:")
+               self.text(HDR_LX,104,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               _text_fit(self, 110, 104, _vehEm_type_text(self.vehEm_test_type, self.vehEm_test_type_extra), 88)
+               _text_fit(self, HDR_VX, 104, _vehEm_type_text(self.vehEm_test_type, self.vehEm_test_type_extra), HDR_VALUE_W)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,110,txt="Test Performed By:")
+               self.text(HDR_LX,110,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.vehEm_test_perfBy)
+               _fit_text(self,HDR_VX,110,self.vehEm_test_perfBy)
 
                #table header
                self.rect(10,114.1,190,7)
@@ -2173,34 +2246,34 @@ class PDF_vehicularEmissionReport1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,91,txt="Test ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Test ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,97,txt="Test Performed Date:")
-               self.text(110,97,txt=self.vehEm_test_perf_date)
+               self.text(HDR_LX,97,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,97,self.vehEm_test_perf_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.2,103,txt="Test Description:")
+               self.text(HDR_LX,103,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.vehEm_test_desc)
+               _fit_text(self,HDR_VX,103,self.vehEm_test_desc)
 
-               self.line(105,87,105,117)
+               self.line(HDR_DX,87,HDR_DX,117)
 
                self.rect(10,105,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,109,txt="Test Type:")
+               self.text(HDR_LX,109,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               _text_fit(self, 110, 109, _vehEm_type_text(self.vehEm_test_type, self.vehEm_test_type_extra), 88)
+               _text_fit(self, HDR_VX, 109, _vehEm_type_text(self.vehEm_test_type, self.vehEm_test_type_extra), HDR_VALUE_W)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,115,txt="Test Performed By:")
+               self.text(HDR_LX,115,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.vehEm_test_perfBy)
+               _fit_text(self,HDR_VX,115,self.vehEm_test_perfBy)
 
                #table header
                self.rect(10,119.1,190,7)
@@ -2358,34 +2431,34 @@ class PDF_luxAnalysisReportPdf(FPDF):
 
                self.rect(10,84,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,88,txt="Test ID:")
-               self.text(110,88,txt=self.sample_id)
+               self.text(HDR_LX,88,txt="Test ID:")
+               _fit_text(self,HDR_VX,88,self.sample_id)
 
                self.rect(10,90,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,94,txt="Test Performed Date:")
-               self.text(110,94,txt=self.lux_test_perf_date)
+               self.text(HDR_LX,94,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,94,self.lux_test_perf_date)
 
 
                self.rect(10,96.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.2,100,txt="Test Description:")
+               self.text(HDR_LX,100,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,100,txt=self.lux_test_desc)
+               _fit_text(self,HDR_VX,100,self.lux_test_desc)
 
-               self.line(105,84,105,114)
+               self.line(HDR_DX,84,HDR_DX,114)
 
                self.rect(10,102,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,106,txt="Test Type:")
+               self.text(HDR_LX,106,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,106,txt=self.lux_test_type)
+               _fit_text(self,HDR_VX,106,self.lux_test_type)
 
                self.rect(10,108,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,112,txt="Test Performed By:")
+               self.text(HDR_LX,112,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,112,txt=self.lux_test_perfBy)
+               _fit_text(self,HDR_VX,112,self.lux_test_perfBy)
 
                #table header
                self.rect(10,116.1,190,7)
@@ -2552,34 +2625,34 @@ class PDF_luxAnalysisReportPdf1(FPDF):
 
                self.rect(10,89,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,93,txt="Test ID:")
-               self.text(110,93,txt=self.sample_id)
+               self.text(HDR_LX,93,txt="Test ID:")
+               _fit_text(self,HDR_VX,93,self.sample_id)
 
                self.rect(10,95,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,99,txt="Test Performed Date:")
-               self.text(110,99,txt=self.lux_test_perf_date)
+               self.text(HDR_LX,99,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,99,self.lux_test_perf_date)
 
 
                self.rect(10,101.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.2,105,txt="Test Description:")
+               self.text(HDR_LX,105,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,105,txt=self.lux_test_desc)
+               _fit_text(self,HDR_VX,105,self.lux_test_desc)
 
-               self.line(105,89,105,119)
+               self.line(HDR_DX,89,HDR_DX,119)
 
                self.rect(10,107,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,111,txt="Test Type:")
+               self.text(HDR_LX,111,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,111,txt=self.lux_test_type)
+               _fit_text(self,HDR_VX,111,self.lux_test_type)
 
                self.rect(10,113,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,117,txt="Test Performed By:")
+               self.text(HDR_LX,117,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,117,txt=self.lux_test_perfBy)
+               _fit_text(self,HDR_VX,117,self.lux_test_perfBy)
 
                #table header
                self.rect(10,121.1,190,7)
@@ -2734,41 +2807,41 @@ class PDF_packingPolyBagReport(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(85,86,txt="Sample ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Sample ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(52,92,txt="Sample Collected/Received Date:")
-               self.text(110,92,txt=self.pack_sample_colc_date)
+               self.text(HDR_LX,92,txt="Sample Collected/Received Date:")
+               _fit_text(self,HDR_VX,92,self.pack_sample_colc_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(71.2,98,txt="Sample Description:")
+               self.text(HDR_LX,98,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.pack_sample_desc)
+               _fit_text(self,HDR_VX,98,self.pack_sample_desc)
 
-               self.line(105,82,105,118)
+               self.line(HDR_DX,82,HDR_DX,118)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(80.8,104,txt="sample Type:")
+               self.text(HDR_LX,104,txt="sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.pack_sample_type)
+               _fit_text(self,HDR_VX,104,self.pack_sample_type)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53,110,txt="Sample Received/Submitted By:")
+               self.text(HDR_LX,110,txt="Sample Received/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.pack_sample_colc_by)
+               _fit_text(self,HDR_VX,110,self.pack_sample_colc_by)
 
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75,116,txt="Test Description:")
+               self.text(HDR_LX,116,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.pack_test_desc)
+               _fit_text(self,HDR_VX,116,self.pack_test_desc)
 
                #table header
                self.rect(10,122.1,190,7)
@@ -2942,41 +3015,41 @@ class PDF_packingPolyBagReport1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(85,91,txt="Sample ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Sample ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(52,97,txt="Sample Collected/Received Date:")
-               self.text(110,97,txt=self.pack_sample_colc_date)
+               self.text(HDR_LX,97,txt="Sample Collected/Received Date:")
+               _fit_text(self,HDR_VX,97,self.pack_sample_colc_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(71.2,103,txt="Sample Description:")
+               self.text(HDR_LX,103,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.pack_sample_desc)
+               _fit_text(self,HDR_VX,103,self.pack_sample_desc)
 
-               self.line(105,87,105,123)
+               self.line(HDR_DX,87,HDR_DX,123)
 
                self.rect(10,105,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(80.8,109,txt="sample Type:")
+               self.text(HDR_LX,109,txt="sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.pack_sample_type)
+               _fit_text(self,HDR_VX,109,self.pack_sample_type)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53,115,txt="Sample Received/Submitted By:")
+               self.text(HDR_LX,115,txt="Sample Received/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.pack_sample_colc_by)
+               _fit_text(self,HDR_VX,115,self.pack_sample_colc_by)
 
 
                self.rect(10,117,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75,121,txt="Test Description:")
+               self.text(HDR_LX,121,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,121,txt=self.pack_test_desc)
+               _fit_text(self,HDR_VX,121,self.pack_test_desc)
 
                #table header
                self.rect(10,127.1,190,7)
@@ -3134,34 +3207,34 @@ class PDF_noiseAnalysisReport(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,86,txt="Test ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Test ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,92,txt="Test Performed Date:")
-               self.text(110,92,txt=self.test_perf_date)
+               self.text(HDR_LX,92,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,92,self.test_perf_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,98,txt="Test Type:")
+               self.text(HDR_LX,98,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.test_type)
+               _fit_text(self,HDR_VX,98,self.test_type)
 
-               self.line(105,82,105,112)
+               self.line(HDR_DX,82,HDR_DX,112)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,104,txt="Test Performed By:")
+               self.text(HDR_LX,104,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.test_perf_by)
+               _fit_text(self,HDR_VX,104,self.test_perf_by)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.5,110,txt="Test Description:")
+               self.text(HDR_LX,110,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.test_desc)
+               _fit_text(self,HDR_VX,110,self.test_desc)
 
                #table header
                self.rect(10,114.1,190,7)
@@ -3330,34 +3403,34 @@ class PDF_noiseAnalysisReport1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,91,txt="Test ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Test ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,97,txt="Test Performed Date:")
-               self.text(110,97,txt=self.test_perf_date)
+               self.text(HDR_LX,97,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,97,self.test_perf_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,103,txt="Test Type:")
+               self.text(HDR_LX,103,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.test_type)
+               _fit_text(self,HDR_VX,103,self.test_type)
 
-               self.line(105,87,105,117)
+               self.line(HDR_DX,87,HDR_DX,117)
 
                self.rect(10,105,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,109,txt="Test Performed By:")
+               self.text(HDR_LX,109,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.test_perf_by)
+               _fit_text(self,HDR_VX,109,self.test_perf_by)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.5,115,txt="Test Description:")
+               self.text(HDR_LX,115,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.test_desc)
+               _fit_text(self,HDR_VX,115,self.test_desc)
 
                #table header
                self.rect(10,119.1,190,7)
@@ -3516,40 +3589,40 @@ class PDF_machineOilReportPdf(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,86,txt="Sample ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Sample ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(50.7,92,txt="Sample Collected/Received Date:")
-               self.text(110,92,txt=self.machine_sample_col_date)
+               self.text(HDR_LX,92,txt="Sample Collected/Received Date:")
+               _fit_text(self,HDR_VX,92,self.machine_sample_col_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,98,txt="Sample Description:")
+               self.text(HDR_LX,98,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.machine_sample_desc)
+               _fit_text(self,HDR_VX,98,self.machine_sample_desc)
 
-               self.line(105,82,105,118)
+               self.line(HDR_DX,82,HDR_DX,118)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,104,txt="Sample Type:")
+               self.text(HDR_LX,104,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.machine_sample_type)
+               _fit_text(self,HDR_VX,104,self.machine_sample_type)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(54.5,110,txt="Sample submitted/Received By:")
+               self.text(HDR_LX,110,txt="Sample submitted/Received By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.machine_sample_col_by)
+               _fit_text(self,HDR_VX,110,self.machine_sample_col_by)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,116,txt="Test Description:")
+               self.text(HDR_LX,116,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.machine_test_desc)
+               _fit_text(self,HDR_VX,116,self.machine_test_desc)
                #table header
                self.rect(10,120,190,7)
                self.set_font("Calibri","B", 12)
@@ -3718,40 +3791,40 @@ class PDF_machineOilReportPdf1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,91,txt="Sample ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Sample ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(50.7,97,txt="Sample Collected/Received Date:")
-               self.text(110,97,txt=self.machine_sample_col_date)
+               self.text(HDR_LX,97,txt="Sample Collected/Received Date:")
+               _fit_text(self,HDR_VX,97,self.machine_sample_col_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,103,txt="Sample Description:")
+               self.text(HDR_LX,103,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.machine_sample_desc)
+               _fit_text(self,HDR_VX,103,self.machine_sample_desc)
 
-               self.line(105,87,105,123)
+               self.line(HDR_DX,87,HDR_DX,123)
 
                self.rect(10,105,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,109,txt="Sample Type:")
+               self.text(HDR_LX,109,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.machine_sample_type)
+               _fit_text(self,HDR_VX,109,self.machine_sample_type)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(54.5,115,txt="Sample submitted/Received By:")
+               self.text(HDR_LX,115,txt="Sample submitted/Received By:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.machine_sample_col_by)
+               _fit_text(self,HDR_VX,115,self.machine_sample_col_by)
 
                self.rect(10,117,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,121,txt="Test Description:")
+               self.text(HDR_LX,121,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,121,txt=self.machine_test_desc)
+               _fit_text(self,HDR_VX,121,self.machine_test_desc)
                #table header
                self.rect(10,125,190,7)
                self.set_font("Calibri","B", 12)
@@ -3907,46 +3980,46 @@ class PDF_microbialAnalysisPdf(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,86,txt="Sample ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Sample ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68,92,txt="Sample collected Date:")
-               self.text(110,92,txt=self.micro_sample_col_date)
+               self.text(HDR_LX,92,txt="Sample collected Date:")
+               _fit_text(self,HDR_VX,92,self.micro_sample_col_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,98,txt="Sample Description:")
+               self.text(HDR_LX,98,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.micro_sample_desc)
+               _fit_text(self,HDR_VX,98,self.micro_sample_desc)
 
-               self.line(105,82,105,124)
+               self.line(HDR_DX,82,HDR_DX,124)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,104,txt="Sample Type:")
+               self.text(HDR_LX,104,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.micro_sample_type)
+               _fit_text(self,HDR_VX,104,self.micro_sample_type)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53.8,110,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,110,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.micro_sample_col_by)
+               _fit_text(self,HDR_VX,110,self.micro_sample_col_by)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,116,txt="Date Of Analysis:")
+               self.text(HDR_LX,116,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,116,self.date_of_analysis)
 
                self.rect(10,118,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,122,txt="Test Description:")
+               self.text(HDR_LX,122,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,122,txt=self.micro_test_desc)
+               _fit_text(self,HDR_VX,122,self.micro_test_desc)
                #table header
                self.rect(10,126,190,7)
                self.set_font("Calibri","B", 12)
@@ -4117,46 +4190,46 @@ class PDF_microbialAnalysisPdf1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,91,txt="Sample ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Sample ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68,97,txt="Sample collected Date:")
-               self.text(110,97,txt=self.micro_sample_col_date)
+               self.text(HDR_LX,97,txt="Sample collected Date:")
+               _fit_text(self,HDR_VX,97,self.micro_sample_col_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,103,txt="Sample Description:")
+               self.text(HDR_LX,103,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.micro_sample_desc)
+               _fit_text(self,HDR_VX,103,self.micro_sample_desc)
 
-               self.line(105,87,105,129)
+               self.line(HDR_DX,87,HDR_DX,129)
 
                self.rect(10,105,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,109,txt="Sample Type:")
+               self.text(HDR_LX,109,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.micro_sample_type)
+               _fit_text(self,HDR_VX,109,self.micro_sample_type)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53.8,115,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,115,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.micro_sample_col_by)
+               _fit_text(self,HDR_VX,115,self.micro_sample_col_by)
 
                self.rect(10,117,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,121,txt="Date Of Analysis:")
+               self.text(HDR_LX,121,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,121,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,121,self.date_of_analysis)
 
                self.rect(10,123,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,127,txt="Test Description:")
+               self.text(HDR_LX,127,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,127,txt=self.micro_test_desc)
+               _fit_text(self,HDR_VX,127,self.micro_test_desc)
                #table header
                self.rect(10,131,190,7)
                self.set_font("Calibri","B", 12)
@@ -4314,46 +4387,46 @@ class PDF_viscousLiquidPdf(FPDF):
 
                self.rect(10,78,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,82,txt="Sample ID:")
-               self.text(110,82,txt=self.sample_id)
+               self.text(HDR_LX,82,txt="Sample ID:")
+               _fit_text(self,HDR_VX,82,self.sample_id)
 
                self.rect(10,84,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(66.5,88,txt="Sample Collection Date:")
-               self.text(110,88,txt=self.sample_Col_date)
+               self.text(HDR_LX,88,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,88,self.sample_Col_date)
 
 
                self.rect(10,90.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,94,txt="Sample Description:")
+               self.text(HDR_LX,94,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,94,txt=self.sample_Desc)
+               _fit_text(self,HDR_VX,94,self.sample_Desc)
 
-               self.line(105,78,105,120)
+               self.line(HDR_DX,78,HDR_DX,120)
 
                self.rect(10,96,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,100,txt="Sample Type:")
+               self.text(HDR_LX,100,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,100,txt=self.sample_type)
+               _fit_text(self,HDR_VX,100,self.sample_type)
 
                self.rect(10,102,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53.5,106,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,106,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,106,txt=self.sample_col_by)
+               _fit_text(self,HDR_VX,106,self.sample_col_by)
 
                self.rect(10,108,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,112,txt="Date Of Analysis:")
+               self.text(HDR_LX,112,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,112,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,112,self.date_of_analysis)
 
                self.rect(10,114,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,118,txt="Test Description:")
+               self.text(HDR_LX,118,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,118,txt=self.test_desc)
+               _fit_text(self,HDR_VX,118,self.test_desc)
                #table header
                self.rect(10,123.1,190,7)
                self.set_font("Calibri","B", 12)
@@ -4526,46 +4599,46 @@ class PDF_viscousLiquidPdf1(FPDF):
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,92,txt="Sample ID:")
-               self.text(110,92,txt=self.sample_id)
+               self.text(HDR_LX,92,txt="Sample ID:")
+               _fit_text(self,HDR_VX,92,self.sample_id)
 
                self.rect(10,94,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(66.5,98,txt="Sample Collection Date:")
-               self.text(110,98,txt=self.sample_Col_date)
+               self.text(HDR_LX,98,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,98,self.sample_Col_date)
 
 
                self.rect(10,100.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,104,txt="Sample Description:")
+               self.text(HDR_LX,104,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.sample_Desc)
+               _fit_text(self,HDR_VX,104,self.sample_Desc)
 
-               self.line(105,88,105,130)
+               self.line(HDR_DX,88,HDR_DX,130)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,110,txt="Sample Type:")
+               self.text(HDR_LX,110,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.sample_type)
+               _fit_text(self,HDR_VX,110,self.sample_type)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53.5,116,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,116,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.sample_col_by)
+               _fit_text(self,HDR_VX,116,self.sample_col_by)
 
                self.rect(10,118,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,123,txt="Date Of Analysis:")
+               self.text(HDR_LX,123,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,123,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,123,self.date_of_analysis)
 
                self.rect(10,124,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,128,txt="Test Description:")
+               self.text(HDR_LX,128,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,128,txt=self.test_desc)
+               _fit_text(self,HDR_VX,128,self.test_desc)
                #table header
                self.rect(10,133.1,190,7)
                self.set_font("Calibri","B", 12)
@@ -4723,34 +4796,34 @@ class PDF_ambientAir2Pdf(FPDF):
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(90,92,txt="Test ID:")
-               self.text(110,92,txt=self.sample_id)
+               self.text(HDR_LX,92,txt="Test ID:")
+               _fit_text(self,HDR_VX,92,self.sample_id)
 
                self.rect(10,94,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(69.7,98,txt="Test Performed Date:")
-               self.text(110,98,txt=self.test_perf_date)
+               self.text(HDR_LX,98,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,98,self.test_perf_date)
 
 
                self.rect(10,100.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.5,104,txt="Test Performed By:")
+               self.text(HDR_LX,104,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.test_test_perf_by)
+               _fit_text(self,HDR_VX,104,self.test_test_perf_by)
 
-               self.line(105,88,105,118)
+               self.line(HDR_DX,88,HDR_DX,118)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(85.5,110,txt="Test Type:")
+               self.text(HDR_LX,110,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.test_type)
+               _fit_text(self,HDR_VX,110,self.test_type)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.8,116,txt="Test Description:")
+               self.text(HDR_LX,116,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.test_desc)
+               _fit_text(self,HDR_VX,116,self.test_desc)
 
 
                #table header
@@ -4924,34 +4997,34 @@ class PDF_ambientAir2Pdf1(FPDF):
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(90,92,txt="Test ID:")
-               self.text(110,92,txt=self.sample_id)
+               self.text(HDR_LX,92,txt="Test ID:")
+               _fit_text(self,HDR_VX,92,self.sample_id)
 
                self.rect(10,94,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(69.7,98,txt="Test Performed Date:")
-               self.text(110,98,txt=self.test_perf_date)
+               self.text(HDR_LX,98,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,98,self.test_perf_date)
 
 
                self.rect(10,100.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.5,104,txt="Test Performed By:")
+               self.text(HDR_LX,104,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.test_test_perf_by)
+               _fit_text(self,HDR_VX,104,self.test_test_perf_by)
 
-               self.line(105,88,105,118)
+               self.line(HDR_DX,88,HDR_DX,118)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(85.5,110,txt="Test Type:")
+               self.text(HDR_LX,110,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.test_type)
+               _fit_text(self,HDR_VX,110,self.test_type)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.8,116,txt="Test Description:")
+               self.text(HDR_LX,116,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.test_desc)
+               _fit_text(self,HDR_VX,116,self.test_desc)
 
 
                #table header
@@ -5113,52 +5186,52 @@ class PDF_wasteWater2Pdf(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,86,txt="Sample ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Sample ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(66,92,txt="Sample Collection Date:")
-               self.text(110,92,txt=self.sample_Col_date)
+               self.text(HDR_LX,92,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,92,self.sample_Col_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(74,98,txt="Sampling Method:")
+               self.text(HDR_LX,98,txt="Sampling Method:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.sampling_method)
+               _fit_text(self,HDR_VX,98,self.sampling_method)
 
                self.rect(10,100.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,104,txt="Sample Description:")
+               self.text(HDR_LX,104,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.sample_desc)
+               _fit_text(self,HDR_VX,104,self.sample_desc)
 
-               self.line(105,82,105,130)
+               self.line(HDR_DX,82,HDR_DX,130)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.3,110,txt="Sample Type:")
+               self.text(HDR_LX,110,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.sample_type)
+               _fit_text(self,HDR_VX,110,self.sample_type)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(70.5,116,txt="Sample Collected By:")
+               self.text(HDR_LX,116,txt="Sample Collected By:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.sample_collected_by)
+               _fit_text(self,HDR_VX,116,self.sample_collected_by)
 
                self.rect(10,118,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,122,txt="Date Of Analysis:")
+               self.text(HDR_LX,122,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,122,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,122,self.date_of_analysis)
 
                self.rect(10,124,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,128,txt="Test Description:")
+               self.text(HDR_LX,128,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,128,txt=self.test_description)
+               _fit_text(self,HDR_VX,128,self.test_description)
                #table header
                self.rect(10,132.1,190,7)
                self.set_font("Calibri","B", 12)
@@ -5333,52 +5406,52 @@ class PDF_wasteWater2Pdf1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,91,txt="Sample ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Sample ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(66,97,txt="Sample Collection Date:")
-               self.text(110,97,txt=self.sample_Col_date)
+               self.text(HDR_LX,97,txt="Sample Collection Date:")
+               _fit_text(self,HDR_VX,97,self.sample_Col_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(74,103,txt="Sampling Method:")
+               self.text(HDR_LX,103,txt="Sampling Method:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.sampling_method)
+               _fit_text(self,HDR_VX,103,self.sampling_method)
 
                self.rect(10,105.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,109,txt="Sample Description:")
+               self.text(HDR_LX,109,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.sample_desc)
+               _fit_text(self,HDR_VX,109,self.sample_desc)
 
-               self.line(105,87,105,135)
+               self.line(HDR_DX,87,HDR_DX,135)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.3,115,txt="Sample Type:")
+               self.text(HDR_LX,115,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.sample_type)
+               _fit_text(self,HDR_VX,115,self.sample_type)
 
                self.rect(10,117,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(70.5,121,txt="Sample Collected By:")
+               self.text(HDR_LX,121,txt="Sample Collected By:")
                self.set_font("Calibri","", 10)
-               self.text(110,121,txt=self.sample_collected_by)
+               _fit_text(self,HDR_VX,121,self.sample_collected_by)
 
                self.rect(10,123,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,127,txt="Date Of Analysis:")
+               self.text(HDR_LX,127,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,127,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,127,self.date_of_analysis)
 
                self.rect(10,129,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,133,txt="Test Description:")
+               self.text(HDR_LX,133,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,133,txt=self.test_description)
+               _fit_text(self,HDR_VX,133,self.test_description)
                #table header
                self.rect(10,137.1,190,7)
                self.set_font("Calibri","B", 12)
@@ -5540,46 +5613,46 @@ class PDF_noiseMonitoring_print(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,86,txt="Test ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Test ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,92,txt="Test Performed Date:")
-               self.text(110,92,txt=self.test_perf_date)
+               self.text(HDR_LX,92,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,92,self.test_perf_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,98,txt="Test Type:")
+               self.text(HDR_LX,98,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.test_type)
+               _fit_text(self,HDR_VX,98,self.test_type)
 
                self.rect(10,100.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(80.8,104,txt="Test Method:")
+               self.text(HDR_LX,104,txt="Test Method:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.test_method)
+               _fit_text(self,HDR_VX,104,self.test_method)
 
                self.rect(10,106.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,110,txt="Location:")
+               self.text(HDR_LX,110,txt="Location:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.test_location)
+               _fit_text(self,HDR_VX,110,self.test_location)
 
-               self.line(105,82,105,124)
+               self.line(HDR_DX,82,HDR_DX,124)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,116,txt="Test Performed By:")
+               self.text(HDR_LX,116,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.test_perf_by)
+               _fit_text(self,HDR_VX,116,self.test_perf_by)
 
                self.rect(10,118,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.5,122,txt="Test Description:")
+               self.text(HDR_LX,122,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,122,txt=self.test_desc)
+               _fit_text(self,HDR_VX,122,self.test_desc)
 
                #table header
                self.rect(10,126.1,190,7)
@@ -5751,47 +5824,47 @@ class PDF_noiseMonitoring_report(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(89,91,txt="Test ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Test ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68.7,97,txt="Test Performed Date:")
-               self.text(110,97,txt=self.test_perf_date)
+               self.text(HDR_LX,97,txt="Test Performed Date:")
+               _fit_text(self,HDR_VX,97,self.test_perf_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(84.8,103,txt="Test Type:")
+               self.text(HDR_LX,103,txt="Test Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.test_type)
+               _fit_text(self,HDR_VX,103,self.test_type)
 
                self.rect(10,105.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(80.8,109,txt="Test Method:")
+               self.text(HDR_LX,109,txt="Test Method:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.test_method)
+               _fit_text(self,HDR_VX,109,self.test_method)
 
                self.rect(10,111.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,115,txt="Location:")
+               self.text(HDR_LX,115,txt="Location:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.test_location)
+               _fit_text(self,HDR_VX,115,self.test_location)
 
 
-               self.line(105,87,105,129)
+               self.line(HDR_DX,87,HDR_DX,129)
 
                self.rect(10,117,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72,121,txt="Test Performed By:")
+               self.text(HDR_LX,121,txt="Test Performed By:")
                self.set_font("Calibri","", 10)
-               self.text(110,121,txt=self.test_perf_by)
+               _fit_text(self,HDR_VX,121,self.test_perf_by)
 
                self.rect(10,123,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(75.5,127,txt="Test Description:")
+               self.text(HDR_LX,127,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,127,txt=self.test_desc)
+               _fit_text(self,HDR_VX,127,self.test_desc)
 
                #table header
                self.rect(10,134.1,190,7)
@@ -6505,46 +6578,46 @@ class PDF_ppwrAnalysisPdf(FPDF):
 
                self.rect(10,82,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,86,txt="Sample ID:")
-               self.text(110,86,txt=self.sample_id)
+               self.text(HDR_LX,86,txt="Sample ID:")
+               _fit_text(self,HDR_VX,86,self.sample_id)
 
                self.rect(10,88,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68,92,txt="Sample collected Date:")
-               self.text(110,92,txt=self.ppwr_sample_col_date)
+               self.text(HDR_LX,92,txt="Sample collected Date:")
+               _fit_text(self,HDR_VX,92,self.ppwr_sample_col_date)
 
 
                self.rect(10,94.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,98,txt="Sample Description:")
+               self.text(HDR_LX,98,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,98,txt=self.ppwr_sample_desc)
+               _fit_text(self,HDR_VX,98,self.ppwr_sample_desc)
 
-               self.line(105,82,105,124)
+               self.line(HDR_DX,82,HDR_DX,124)
 
                self.rect(10,100,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,104,txt="Sample Type:")
+               self.text(HDR_LX,104,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,104,txt=self.ppwr_sample_type)
+               _fit_text(self,HDR_VX,104,self.ppwr_sample_type)
 
                self.rect(10,106,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53.8,110,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,110,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,110,txt=self.ppwr_sample_col_by)
+               _fit_text(self,HDR_VX,110,self.ppwr_sample_col_by)
 
                self.rect(10,112,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,116,txt="Date Of Analysis:")
+               self.text(HDR_LX,116,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,116,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,116,self.date_of_analysis)
 
                self.rect(10,118,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,122,txt="Test Description:")
+               self.text(HDR_LX,122,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,122,txt=self.ppwr_test_desc)
+               _fit_text(self,HDR_VX,122,self.ppwr_test_desc)
                #table header
                self.rect(10,126,190,7)
                self.set_font("Calibri","B", 12)
@@ -6715,46 +6788,46 @@ class PDF_ppwrAnalysisPdf1(FPDF):
 
                self.rect(10,87,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(86,91,txt="Sample ID:")
-               self.text(110,91,txt=self.sample_id)
+               self.text(HDR_LX,91,txt="Sample ID:")
+               _fit_text(self,HDR_VX,91,self.sample_id)
 
                self.rect(10,93,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(68,97,txt="Sample collected Date:")
-               self.text(110,97,txt=self.ppwr_sample_col_date)
+               self.text(HDR_LX,97,txt="Sample collected Date:")
+               _fit_text(self,HDR_VX,97,self.ppwr_sample_col_date)
 
 
                self.rect(10,99.1,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(72.2,103,txt="Sample Description:")
+               self.text(HDR_LX,103,txt="Sample Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,103,txt=self.ppwr_sample_desc)
+               _fit_text(self,HDR_VX,103,self.ppwr_sample_desc)
 
-               self.line(105,87,105,129)
+               self.line(HDR_DX,87,HDR_DX,129)
 
                self.rect(10,105,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(81.8,109,txt="Sample Type:")
+               self.text(HDR_LX,109,txt="Sample Type:")
                self.set_font("Calibri","", 10)
-               self.text(110,109,txt=self.ppwr_sample_type)
+               _fit_text(self,HDR_VX,109,self.ppwr_sample_type)
 
                self.rect(10,111,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(53.8,115,txt="Sample Collected/Submitted By:")
+               self.text(HDR_LX,115,txt="Sample Collected/Submitted By:")
                self.set_font("Calibri","", 10)
-               self.text(110,115,txt=self.ppwr_sample_col_by)
+               _fit_text(self,HDR_VX,115,self.ppwr_sample_col_by)
 
                self.rect(10,117,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76,121,txt="Date Of Analysis:")
+               self.text(HDR_LX,121,txt="Date Of Analysis:")
                self.set_font("Calibri","", 10)
-               self.text(110,121,txt=self.date_of_analysis)
+               _fit_text(self,HDR_VX,121,self.date_of_analysis)
 
                self.rect(10,123,190,6)
                self.set_font("Calibri","B", 10)
-               self.text(76.5,127,txt="Test Description:")
+               self.text(HDR_LX,127,txt="Test Description:")
                self.set_font("Calibri","", 10)
-               self.text(110,127,txt=self.ppwr_test_desc)
+               _fit_text(self,HDR_VX,127,self.ppwr_test_desc)
                #table header
                self.rect(10,131,190,7)
                self.set_font("Calibri","B", 12)
