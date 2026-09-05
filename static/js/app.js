@@ -1,3 +1,44 @@
+/* --- Live character counter for header value inputs (05-09-2026) -----------
+   Every input carrying data-charcount="<max>" (with a matching maxlength) gets
+   a small "n / max" line beneath it, updated as the analyst types. Purely
+   additive: no other element or behaviour is touched, and any failure is
+   swallowed so the form itself can never be affected.  Placed at the top of
+   app.js because the page-specific code below can stop on pages it was not
+   written for, and nothing after such a stop would run. */
+(function () {
+  function etalInitCharCount() {
+    try {
+      var inputs = document.querySelectorAll('input[data-charcount]');
+      for (var i = 0; i < inputs.length; i++) {
+        (function (inp) {
+          if (inp.__etalCharCount) { return; }
+          var max = parseInt(inp.getAttribute('data-charcount'), 10) || parseInt(inp.getAttribute('maxlength'), 10) || 0;
+          if (!max) { return; }
+          var el = document.createElement('div');
+          el.className = 'etal-charcount';
+          el.setAttribute('aria-live', 'polite');
+          inp.insertAdjacentElement('afterend', el);
+          inp.__etalCharCount = el;
+          var update = function () {
+            var n = (inp.value || '').length;
+            el.textContent = n + ' / ' + max;
+            el.classList.toggle('is-near', n >= Math.floor(max * 0.85) && n < max);
+            el.classList.toggle('is-full', n >= max);
+          };
+          inp.addEventListener('input', update);
+          inp.addEventListener('change', update);
+          update();
+        })(inputs[i]);
+      }
+    } catch (e) { /* never break the form */ }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', etalInitCharCount);
+  } else {
+    etalInitCharCount();
+  }
+})();
+
 
        
 

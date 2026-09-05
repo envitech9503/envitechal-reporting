@@ -48,3 +48,20 @@ h1,h2{color:var(--etal-ink)}
 .side-nav::-webkit-scrollbar-track,#sidebar > nav::-webkit-scrollbar-track{background:rgba(255,255,255,.07)}
 .side-nav::-webkit-scrollbar-thumb,#sidebar > nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.38);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
 .side-nav::-webkit-scrollbar-thumb:hover,#sidebar > nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.60);background-clip:padding-box}
+
+/* --- Header value inputs (05-09-2026) ---------------------------------------
+   The Test Type / Sample Type box (and the Gaseous / Vehicular 'extra' box)
+   carries data-charcount. The row holding it becomes a size container, so the
+   box is sized from the room that row actually has: never narrower than
+   today's 24rem, never wider than 56rem, and leaving the two neighbouring
+   24rem fields their space - e.g. ~40rem on a 1920px screen, unchanged on
+   1600px and below. Browsers without container queries keep the 24rem box. */
+div.flex.justify-between:has(> div.flex-col > input[data-charcount]){container-type:inline-size}
+@container (min-width: 0px){
+  input[data-charcount]{width:clamp(24rem, 100cqw - 52rem, 56rem) !important}
+  .etal-charcount{width:clamp(24rem, 100cqw - 52rem, 56rem)}
+}
+/* Live "n / max" counter rendered by app.js beneath each such box. */
+.etal-charcount{font-size:.75rem;line-height:1rem;color:#6b7280;text-align:right;margin-top:.15rem;width:24rem}
+.etal-charcount.is-near{color:#b45309}
+.etal-charcount.is-full{color:#b91c1c;font-weight:600}
