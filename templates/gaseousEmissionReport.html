@@ -230,34 +230,34 @@
       <table class="mt-2 text-center w-8/12 border-black border pb-1">
         <tbody>
           <tr>
-            <td class="border border-black text-right pr-2 pt-1 pb-1 w-52">Test ID</td>
-            <td class="border border-black text-left pl-2 pt-1 pb-1 w-52">{{list.sample_id}}</td>
+            <td style="width:29%;white-space:nowrap" class="border border-black text-left pl-2 pt-1 pb-1">Test ID</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1">{{list.sample_id}}</td>
           </tr>
           <tr>
-            <td class="border border-black text-right pr-2 pt-1 pb-1">Test Performed Date:</td>
+            <td style="width:29%;white-space:nowrap" class="border border-black text-left pl-2 pt-1 pb-1">Test Performed Date:</td>
             <td class="border border-black text-left pl-2 pt-1 pb-1">
               {{list.GaseEm_test_perf_date}}
             </td>
           </tr>
           
           <tr>
-            <td class="border border-black text-right pr-2 pt-1 pb-1">Test Type:</td>
+            <td style="width:29%;white-space:nowrap" class="border border-black text-left pl-2 pt-1 pb-1">Test Type:</td>
             <td class="border border-black text-left pl-2 pt-1 pb-1">{{list.GaseEm_test_type}}</td>
           </tr>
           <tr>
-            <td class="border border-black text-right pr-2 pt-1 pb-1">
+            <td style="width:29%;white-space:nowrap" class="border border-black text-left pl-2 pt-1 pb-1">
               Test Performed By:
             </td>
             <td class="border border-black text-left pl-2 pt-1 pb-1">{{list.GaseEm_test_perf_by}}</td>
           </tr>
           
           <tr>
-            <td class="border border-black text-right pr-2 pt-1 pb-1">Test Description:</td>
+            <td style="width:29%;white-space:nowrap" class="border border-black text-left pl-2 pt-1 pb-1">Test Description:</td>
             <td class="border border-black text-left pl-2 pt-1 pb-1">{{list.GasEm_test_desc}}</td>
           </tr>
           <tr>
-            <td class="border border-black text-right pr-2 pt-1 pb-1">Types:</td>
-            <td class="border border-black text-left pl-2 pt-1 pb-1 font-bold">{{ list.fuel_label }}</td>
+            <td style="width:29%;white-space:nowrap" class="border border-black text-left pl-2 pt-1 pb-1">Fuel Types:</td>
+            <td class="border border-black text-left pl-2 pt-1 pb-1 font-bold">{{ list.fuel_label }}{% if list.GasEm_test_type_extra %}&nbsp;&nbsp;({{ list.GasEm_test_type_extra }}){% endif %}</td>
           </tr>
         </tbody>
       </table>
