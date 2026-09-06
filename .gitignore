@@ -36,3 +36,6 @@ logging_sheet_backup.json
 .DS_Store
 *.log.*
 .pdf_owner_pw
+
+# SQLite rollback journal (stale, was tracked by mistake)
+*.sqlite3-journal
