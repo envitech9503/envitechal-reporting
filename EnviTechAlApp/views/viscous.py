@@ -531,9 +531,9 @@ def viscousLiquidPdf(request,pk):
                if base64_str:
                     try:
                          image_bytes = base64.b64decode(base64_str)
-                         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
-                              tmp_file.write(image_bytes)
-                              image_path = tmp_file.name
+                         image_path = BytesIO(image_bytes)  # in-memory; nothing is written to /tmp
+                         # 07-09-2026: was a delete=False temp file, which left one .jpg behind in
+                         # /tmp for every attached photo printed. fpdf2 reads the bytes directly.
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
                          pass
@@ -935,9 +935,9 @@ def viscousLiquidPdf1(request,pk,return_bytes=False):
                if base64_str:
                     try:
                          image_bytes = base64.b64decode(base64_str)
-                         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
-                              tmp_file.write(image_bytes)
-                              image_path = tmp_file.name
+                         image_path = BytesIO(image_bytes)  # in-memory; nothing is written to /tmp
+                         # 07-09-2026: was a delete=False temp file, which left one .jpg behind in
+                         # /tmp for every attached photo printed. fpdf2 reads the bytes directly.
                          images.append({"path": image_path, "desc": desc or ''})
                     except Exception as e:
                          pass

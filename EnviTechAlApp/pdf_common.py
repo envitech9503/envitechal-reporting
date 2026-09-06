@@ -761,7 +761,7 @@ class PDF_gaseousReportgeneratePDF(FPDF):
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self.lab_report_no}.png"
           qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
-          print("qr path-------->>>>",qr_file_path)
+          pass  # debug print removed 07-09-2026
 
           qr = qrcode.QRCode(
                version=1,
@@ -975,7 +975,7 @@ class PDF_gaseousReportgeneratePDF1(FPDF):
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self.lab_report_no}.png"
           qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
-          print("qr path-------->>>>",qr_file_path)
+          pass  # debug print removed 07-09-2026
 
           qr = qrcode.QRCode(
                version=1,
@@ -2192,7 +2192,7 @@ class PDF_vehicularEmissionReport1(FPDF):
           self.text(34,52,txt=self.invoice_bill_no_number)
 
           target_url = _etal_verify_url(self._rq_request, 'veh', self._rq_pk)
-          print('request url------------->>>>>>',target_url)
+          pass  # debug print removed 07-09-2026
           # Generate the QR code for the target URL
           qr_filename = f"qr_{self._rq_pk}.png"
           qr_file_path = os.path.join(settings.MEDIA_ROOT, qr_filename)
@@ -6860,3 +6860,25 @@ class PDF_ppwrAnalysisPdf1(FPDF):
 
 
           self.set_y(138)
+
+
+# --- idempotent font registration (07-09-2026) --------------------------------------
+# Every header()/footer() above re-registers Calibri on each page; fpdf2 then
+# does nothing but warns "Core font or font already added" into the journal.
+# Registering a font key that is already on the document is a silent no-op
+# from here on; the first registration is unchanged. Installed on the base
+# class once, at import; the key mirrors fpdf2's own (family lower-cased,
+# style letters sorted upper-case).
+_orig_add_font = FPDF.add_font
+
+
+def _add_font_once(self, family=None, style="", fname=None, uni="DEPRECATED"):
+    if family is not None:
+        key = family.lower() + "".join(sorted((style or "").upper()))
+        if key in self.fonts:
+            return None
+    return _orig_add_font(self, family, style, fname, uni)
+
+
+if getattr(FPDF.add_font, "__name__", "") != "_add_font_once":
+    FPDF.add_font = _add_font_once
