@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Action not permitted - Envi Tech AL</title>
+  <link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any">
+  <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+  {# Rendered by Django for PermissionDenied (HTTP 403). 23-09-2026: replaces the bare "403 Forbidden" page. #}
+  <div class="bg-white border-2 border-black rounded-lg shadow max-w-xl w-full p-8">
+    <div class="flex items-center gap-4 mb-4">
+      <img src="{% static 'assets/favicon-32.png' %}" alt="" width="32" height="32">
+      <h1 class="text-2xl font-bold">Action not permitted</h1>
+    </div>
+    {% if exception and "approved" in exception|lower %}
+      <p class="text-base mb-3"><strong>This record has been approved and is locked.</strong> Approved reports cannot be edited or deleted by analyst accounts, so that an issued certificate cannot change silently.</p>
+      <p class="text-base mb-3">To make a correction, ask an administrator to <strong>unapprove</strong> the record from its list page (select the record &rarr; Unapprove). Once you have saved the correction, the record can be approved again.</p>
+    {% elif exception %}
+      <p class="text-base mb-3">{{ exception }}</p>
+    {% else %}
+      <p class="text-base mb-3">Your account is not permitted to perform this action. If you believe you should have access, please contact the lab administrator.</p>
+    {% endif %}
+    <p class="text-sm text-gray-600 mb-6">Nothing has been changed. Use your browser's Back button to return to the form; the values you typed are usually still there.</p>
+    <div class="flex gap-3">
+      <a href="javascript:history.back()" class="border-2 border-black rounded-lg px-4 py-2 font-semibold hover:bg-gray-100">Go back</a>
+      <a href="{% url 'login' %}" class="border-2 border-black rounded-lg px-4 py-2 font-semibold hover:bg-gray-100">Home</a>
+    </div>
+  </div>
+</body>
+</html>
