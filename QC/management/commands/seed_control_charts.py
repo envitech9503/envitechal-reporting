@@ -10,7 +10,8 @@ the workbooks, e.g. on a server without the Excel files.
 Idempotent: a chart is matched on (location, activity, parameter, level,
 equipment_id); an existing chart is left untouched (reported as 'exists').
 Baseline values are the 'Results For Base Line' column (D) of each sheet; the
-monthly results column is NOT imported (owner decision, 07-10-2026).
+monthly results column is parsed into 'results' ([date, value] pairs) but only
+imported when --with-results is given (owner decision 07-10-2026: real data only).
 """
 import glob
 import os
@@ -20,7 +21,7 @@ import datetime
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from QC.models import ControlChart, ControlChartBaseline
+from QC.models import ControlChart, ControlChartBaseline, ControlChartResult
 
 
 def _clean(s):
@@ -46,7 +47,7 @@ def parse_sheet(ws):
         unit = u.group(1).strip()
     elif rng and rng.group(3):
         unit = rng.group(3)
-    base = []
+    base, results = [], []
     for r in range(8, ws.max_row + 1):
         a = ws.cell(r, 1).value
         if isinstance(a, str) and a.strip().lower().startswith(('mean', 'standard')):
@@ -54,6 +55,9 @@ def parse_sheet(ws):
         d = ws.cell(r, 4).value
         if isinstance(d, (int, float)):
             base.append(float(d))
+        dt, mv = ws.cell(r, 2).value, ws.cell(r, 3).value
+        if isinstance(dt, datetime.datetime) and isinstance(mv, (int, float)):
+            results.append([dt.date().isoformat(), float(mv)])
     parameter = _clean(par.group(1)) if par else _clean(ws.title)
     parameter = re.split(r'\s+Method\b', parameter)[0].strip(' ,')
     parameter = re.sub(r'\s*\(\s*[\d.]+\s*ppm\s*\)\s*', '', parameter, flags=re.I).strip()  # "(1ppm)" lives in level
@@ -72,7 +76,7 @@ def parse_sheet(ws):
         method=re.split(r'\s*CRM Detail', _clean(meth.group(1)))[0].strip(' ,') if meth else '',
         crm_detail=_clean(crm.group(1)) if crm else '',
         crm_value=('%g' % float(cv.group(1))) if cv else '', crm_range_low=rng.group(1) if rng else '',
-        crm_range_high=rng.group(2) if rng else '', baseline=base, sheet=ws.title,
+        crm_range_high=rng.group(2) if rng else '', baseline=base, results=results, sheet=ws.title,
     )
 
 
@@ -86,6 +90,8 @@ class Command(BaseCommand):
         parser.add_argument('--established', default='2026-02-28',
                             help='baseline established_on date (YYYY-MM-DD)')
         parser.add_argument('--export', default='', help='write the parsed sheets to this JSON file and stop')
+        parser.add_argument('--with-results', action='store_true',
+                            help='also import the monthly results found in the sheets (one per month; existing months kept)')
 
     def handle(self, *args, **o):
         import json
@@ -110,29 +116,54 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('exported %d sheets to %s' % (len(sheets), o['export'])))
             return
         est = datetime.date.fromisoformat(o['established'])
-        created = exists = 0
+        created = exists = imported = 0
         with transaction.atomic():
             for f, d in sheets:
                 if True:
                     key = dict(location=o['location'], activity='CRM', parameter=d['parameter'],
                                level=d['level'], equipment_id=d['equipment_id'])
-                    if ControlChart.objects.filter(**key).exists():
+                    ch = ControlChart.objects.filter(**key).first()
+                    if ch is not None:
                         exists += 1
                         self.stdout.write('exists  %-22s %-8s %-6s' % (d['parameter'], d['level'], d['equipment_id']))
+                        if o['with_results'] and not o['dry_run']:
+                            imported += self._import_results(ch, d.get('results') or [])
+                        elif o['with_results']:
+                            imported += len(d.get('results') or [])
                         continue
                     dec = 4 if d['equipment_id'] == 'AS-13' else (3 if d['parameter'].lower().startswith(('ph', 'fluor', 'nitr')) else 2)
                     self.stdout.write('create  %-22s %-8s %-6s n=%d  %s' % (
                         d['parameter'], d['level'], d['equipment_id'], len(d['baseline']), str(f)[-40:]))
                     if o['dry_run']:
                         continue
-                    fields = {k: v for k, v in d.items() if k not in ('baseline', 'sheet', 'source')}
+                    fields = {k: v for k, v in d.items() if k not in ('baseline', 'results', 'sheet', 'source')}
                     fields.update(key)
                     ch = ControlChart.objects.create(decimals=dec, **fields)
                     b = ControlChartBaseline(chart=ch, version=1, established_on=est, values=d['baseline'],
                                              note='February 2026 intermediate check (seeded from Excel sheet "%s")' % d['sheet'])
                     b.compute(); b.save()
                     created += 1
+                    if o['with_results']:
+                        imported += self._import_results(ch, d.get('results') or [])
             if o['dry_run']:
                 transaction.set_rollback(True)
-        self.stdout.write(self.style.SUCCESS('%s: %d created, %d already existed' % (
-            'DRY RUN' if o['dry_run'] else 'DONE', created, exists)))
+        self.stdout.write(self.style.SUCCESS('%s: %d created, %d already existed, %d monthly results imported' % (
+            'DRY RUN' if o['dry_run'] else 'DONE', created, exists, imported)))
+
+    def _import_results(self, ch, results):
+        """Import [date, value] pairs as monthly results (one per calendar month,
+        existing months are kept). Status is judged against the current baseline;
+        warning/OOC rows get a note that no remark was recorded in the workbook."""
+        b = ch.current_baseline()
+        n = 0
+        for iso, val in results:
+            d = datetime.date.fromisoformat(iso)
+            if ControlChartResult.objects.filter(chart=ch, date__year=d.year, date__month=d.month).exists():
+                continue
+            st = b.classify(val) if b else 'ok'
+            ControlChartResult.objects.create(
+                chart=ch, baseline=b, date=d, value=val, status=st,
+                remark='' if st == 'ok' else 'Imported from the Excel workbook - no remark was recorded there.')
+            self.stdout.write('   result %s %s -> %s' % (d.strftime('%d-%m-%Y'), val, st))
+            n += 1
+        return n

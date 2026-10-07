@@ -97,7 +97,9 @@ partial then pins itself to the left edge and indents the page body to match.
     </button>
     <div class="etqc-panel" id="etqcCC">
       <a href="{% url 'control_chart_list' %}">CRM Control Charts</a>
-      {% if request.user.is_superuser %}<a href="{% url 'control_chart_new' %}">Add Chart (admin)</a>{% endif %}
+      <a href="{% url 'control_chart_archive' %}">Archive / Record List</a>
+      {% if request.user.is_superuser %}<a href="{% url 'control_chart_new' %}">Add Chart (admin)</a>
+      <a href="{% url 'control_chart_reviewers' %}">Laboratory Reviewers (admin)</a>{% endif %}
     </div>
   </nav>
 </div>

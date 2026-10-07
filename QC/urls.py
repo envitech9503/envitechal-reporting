@@ -43,6 +43,8 @@ urlpatterns = [
     # Control Charts (ETAL-LAB-604-FF-11), 07-10-2026
     path('control-charts/', views.control_chart_list, name='control_chart_list'),
     path('control-charts/new/', views.control_chart_edit, name='control_chart_new'),
+    path('control-charts/archive/', views.control_chart_archive, name='control_chart_archive'),
+    path('control-charts/reviewers/', views.control_chart_reviewers, name='control_chart_reviewers'),
     path('control-charts/<int:pk>/', views.control_chart_detail, name='control_chart_detail'),
     path('control-charts/<int:pk>/edit/', views.control_chart_edit, name='control_chart_edit'),
     path('control-charts/<int:pk>/baseline/', views.control_chart_baseline, name='control_chart_baseline'),

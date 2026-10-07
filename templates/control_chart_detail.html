@@ -11,7 +11,7 @@
       </form>
       <a class="btn" href="{% url 'control_chart_list' %}?location={{ chart.location }}&year={{ year }}"><i class="fa-solid fa-arrow-left"></i> All charts</a>
       <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}?year={{ year }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
-      {% if can_approve %}<a class="btn" href="{% url 'control_chart_edit' chart.id %}"><i class="fa-solid fa-pen"></i> Edit master</a>
+      {% if can_admin %}<a class="btn" href="{% url 'control_chart_edit' chart.id %}"><i class="fa-solid fa-pen"></i> Edit master</a>
       <a class="btn" href="{% url 'control_chart_baseline' chart.id %}"><i class="fa-solid fa-ruler"></i> Baseline</a>{% endif %}
     </div>
   </div>

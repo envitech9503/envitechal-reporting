@@ -213,5 +213,23 @@ class ControlChartSignoff(models.Model):
         return bool(self.approved_at)
 
 
-for _m in (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff):
+class ControlChartReviewer(models.Model):
+    """Laboratory assignment of a QC Manager / Lab Manager (added 07-10-2026).
+    A user with one or more assignments may *review* control charts of those
+    laboratories only; a superuser without any assignment (CEO / administrator)
+    reviews and approves globally."""
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='control_chart_labs')
+    location = models.CharField(max_length=20, choices=ControlChart.LOCATIONS)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+
+    class Meta:
+        unique_together = ('user', 'location')
+        ordering = ['location', 'user__username']
+
+    def __str__(self):
+        return '%s - %s' % (self.user.get_username(), self.location)
+
+
+for _m in (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer):
     _sh_register(_m)

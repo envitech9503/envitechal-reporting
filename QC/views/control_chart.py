@@ -14,7 +14,7 @@ from django.db.models import Q as _Q
 from django.contrib import messages as _msg
 from django.views.decorators.http import require_POST as _require_POST
 
-from QC.models import ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff
+from QC.models import ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer
 from QC.control_chart_render import render_chart, month_rows, fmt as _fmt, MONTHS as _MONTHS
 
 _CC_LOCS = ['Karachi', 'Lahore']
@@ -45,12 +45,42 @@ def _uname(user):
         return ''
 
 
-def _can_approve(user):
+def _user_labs(user):
+    """Laboratories this user is assigned to as QC / Lab Manager (empty = none)."""
+    try:
+        if not (user and user.is_authenticated):
+            return set()
+        return set(ControlChartReviewer.objects.filter(user=user).values_list('location', flat=True))
+    except Exception:
+        return set()
+
+
+def _is_admin(user):
     return bool(user and user.is_authenticated and user.is_superuser)
 
 
-def _can_review(user):
-    if _can_approve(user):
+def _can_approve(user, chart=None):
+    """Approve & lock, delete results, edit masters: superusers. A superuser who
+    is assigned to a laboratory is treated as that lab's manager and may not
+    approve the other laboratory's charts (added 07-10-2026)."""
+    if not _is_admin(user):
+        return False
+    if chart is None:
+        return True
+    labs = _user_labs(user)
+    return (not labs) or (chart.location in labs)
+
+
+def _can_review(user, chart=None):
+    """Review: a user assigned to a laboratory reviews that laboratory's charts
+    only; otherwise superusers, the "QC Manager" group or a QC/Manager
+    signature role (global, legacy behaviour)."""
+    if not (user and user.is_authenticated):
+        return False
+    labs = _user_labs(user)
+    if labs:
+        return chart is None or chart.location in labs
+    if _is_admin(user):
         return True
     try:
         if user.groups.filter(name__iexact='QC Manager').exists():
@@ -60,6 +90,23 @@ def _can_review(user):
         return ('qc' in r) or ('manager' in r)
     except Exception:
         return False
+
+
+def _default_loc(request):
+    """Laboratory the selector opens on: the user's last choice (session), else
+    the user's assigned laboratory, else a 'lahore' username hint, else Karachi."""
+    loc = request.session.get('cc_loc')
+    if loc in _CC_LOCS:
+        return loc
+    labs = sorted(_user_labs(request.user))
+    if labs:
+        return labs[0]
+    try:
+        if 'lahore' in (request.user.get_username() or '').lower():
+            return 'Lahore'
+    except Exception:
+        pass
+    return 'Karachi'
 
 
 def _year(request):
@@ -75,17 +122,19 @@ def _signoff(chart, year):
 
 def _year_locked(chart, year, user):
     so = _signoff(chart, year)
-    return bool(so and so.locked and not _can_approve(user))
+    return bool(so and so.locked and not _can_approve(user, chart))
 
 
 # ---------------------------------------------------------------- list
 def control_chart_list(request):
-    loc = request.GET.get('location') or 'Karachi'
+    loc = request.GET.get('location') or _default_loc(request)
+    if loc not in _CC_LOCS:
+        loc = 'Karachi'
+    if request.session.get('cc_loc') != loc:
+        request.session['cc_loc'] = loc
     q = (request.GET.get('q') or '').strip()
     year = _year(request)
-    qs = ControlChart.objects.filter(active=True)
-    if loc in _CC_LOCS:
-        qs = qs.filter(location=loc)
+    qs = ControlChart.objects.filter(active=True, location=loc)
     if q:
         qs = qs.filter(_Q(parameter__icontains=q) | _Q(equipment__icontains=q) | _Q(equipment_id__icontains=q)
                        | _Q(method__icontains=q) | _Q(level__icontains=q))
@@ -108,7 +157,88 @@ def control_chart_list(request):
     years = sorted({d.year for d in ControlChartResult.objects.values_list('date', flat=True)} | {_date.today().year}, reverse=True)
     return render(request, 'control_chart_list.html', {
         'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'q': q, 'year': year, 'years': years,
-        'can_admin': _can_approve(request.user), 'count': len(rows)})
+        'can_admin': _is_admin(request.user), 'count': len(rows)})
+
+
+# ---------------------------------------------------------------- archive (all laboratories / all years)
+def control_chart_archive(request):
+    """Record list: one row per chart-year that holds results or a sign-off,
+    across both laboratories, with filters - the module's 'List' page from
+    which any past record can be recalled (view / PDF). 07-10-2026."""
+    loc = request.GET.get('location') or 'All'
+    q = (request.GET.get('q') or '').strip()
+    ystr = request.GET.get('year') or 'All'
+    status_f = request.GET.get('status') or 'All'
+    sign_f = request.GET.get('signoff') or 'All'
+    charts = {c.id: c for c in ControlChart.objects.all()}
+    pairs = set()
+    stats = {}
+    for cid, d, st in ControlChartResult.objects.values_list('chart_id', 'date', 'status'):
+        pairs.add((cid, d.year))
+        s = stats.setdefault((cid, d.year), {'n': 0, 'warning': 0, 'ooc': 0, 'last': None})
+        s['n'] += 1
+        if st in ('warning', 'ooc'):
+            s[st] += 1
+        if s['last'] is None or d > s['last']:
+            s['last'] = d
+    sos = {}
+    for so in ControlChartSignoff.objects.select_related('reviewed_by', 'approved_by'):
+        pairs.add((so.chart_id, so.year))
+        sos[(so.chart_id, so.year)] = so
+    rows = []
+    for cid, y in pairs:
+        c = charts.get(cid)
+        if not c:
+            continue
+        if loc in _CC_LOCS and c.location != loc:
+            continue
+        if ystr != 'All' and str(y) != ystr:
+            continue
+        if q and not any(q.lower() in (v or '').lower() for v in (c.parameter, c.level, c.equipment, c.equipment_id, c.method)):
+            continue
+        s = stats.get((cid, y), {'n': 0, 'warning': 0, 'ooc': 0, 'last': None})
+        worst = 'ooc' if s['ooc'] else ('warning' if s['warning'] else ('ok' if s['n'] else 'none'))
+        if status_f != 'All' and worst != status_f:
+            continue
+        so = sos.get((cid, y))
+        sign = 'approved' if (so and so.approved_at) else ('reviewed' if (so and so.reviewed_at) else 'open')
+        if sign_f != 'All' and sign != sign_f:
+            continue
+        rows.append({'c': c, 'year': y, 'n': s['n'], 'warn': s['warning'], 'ooc': s['ooc'], 'last': s['last'],
+                     'worst': worst, 'sign': sign, 'so': so})
+    rows.sort(key=lambda r: (-r['year'], r['c'].location, r['c'].parameter.lower(), r['c'].level))
+    years = sorted({y for _, y in pairs}, reverse=True)
+    return render(request, 'control_chart_archive.html', {
+        'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'q': q, 'year': ystr, 'years': years,
+        'status': status_f, 'signoff': sign_f, 'count': len(rows), 'can_admin': _is_admin(request.user)})
+
+
+# ---------------------------------------------------------------- reviewers (admin)
+def control_chart_reviewers(request):
+    """Assign QC / Lab Managers to a laboratory (superuser only)."""
+    if not _is_admin(request.user):
+        return HttpResponse('Reviewer assignments are maintained by an administrator.', status=403)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'add':
+            try:
+                u = User.objects.get(pk=int(request.POST.get('user')))
+            except Exception:
+                _msg.error(request, 'Select a user.')
+                return _redirect('control_chart_reviewers')
+            loc = request.POST.get('location')
+            if loc not in _CC_LOCS:
+                _msg.error(request, 'Select a laboratory.')
+                return _redirect('control_chart_reviewers')
+            _, created = ControlChartReviewer.objects.get_or_create(user=u, location=loc, defaults={'created_by': request.user})
+            _msg.success(request, '%s assigned to %s laboratory.' % (_uname(u), loc) if created else 'Already assigned.')
+        elif action == 'remove':
+            ControlChartReviewer.objects.filter(pk=request.POST.get('id')).delete()
+            _msg.success(request, 'Assignment removed.')
+        return _redirect('control_chart_reviewers')
+    return render(request, 'control_chart_reviewers.html', {
+        'rows': ControlChartReviewer.objects.select_related('user'), 'locs': _CC_LOCS,
+        'users': User.objects.filter(is_active=True).order_by('username')})
 
 
 # ---------------------------------------------------------------- detail
@@ -129,7 +259,8 @@ def control_chart_detail(request, pk):
     return render(request, 'control_chart_detail.html', {
         'chart': chart, 'b': b, 'lim': lim_f, 'rows': rows, 'extra_base': extra_base, 'results': results, 'svg': svg,
         'year': year, 'years': years, 'so': so, 'docctrl': _cc_docctrl(chart.location), 'sop_note': _CC_SOP_NOTE,
-        'locked': _year_locked(chart, year, user), 'can_review': _can_review(user), 'can_approve': _can_approve(user),
+        'locked': _year_locked(chart, year, user), 'can_review': _can_review(user, chart), 'can_approve': _can_approve(user, chart),
+        'can_admin': _is_admin(user),
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
         'base_values': ', '.join(_fmt(v, chart.decimals) for v in (b.values if b else [])),
     })
@@ -183,7 +314,7 @@ def control_chart_result_save(request, pk):
 def control_chart_result_delete(request, pk, rid):
     chart = get_object_or_404(ControlChart, pk=pk)
     r = get_object_or_404(ControlChartResult, pk=rid, chart=chart)
-    if not _can_approve(request.user):
+    if not _can_approve(request.user, chart):
         return HttpResponse('Only an administrator can delete a recorded result.', status=403)
     y = r.date.year
     r.delete()
@@ -203,22 +334,22 @@ def control_chart_signoff(request, pk):
     action = request.POST.get('action')
     so, _ = ControlChartSignoff.objects.get_or_create(chart=chart, year=year)
     if action == 'review':
-        if not _can_review(user):
-            return HttpResponse('Review is reserved for the QC Manager.', status=403)
+        if not _can_review(user, chart):
+            return HttpResponse('Review is reserved for the QC Manager of the %s laboratory.' % chart.location, status=403)
         so.reviewed_by, so.reviewed_at = user, _tz.now()
     elif action == 'approve':
-        if not _can_approve(user):
-            return HttpResponse('Approval is reserved for an administrator.', status=403)
+        if not _can_approve(user, chart):
+            return HttpResponse('Approval of %s laboratory charts is reserved for an administrator of that laboratory.' % chart.location, status=403)
         if not so.reviewed_at:
             _msg.error(request, 'The year must be reviewed before it can be approved.')
             return _redirect(f"/qc/control-charts/{pk}/?year={year}")
         so.approved_by, so.approved_at = user, _tz.now()
     elif action == 'unapprove':
-        if not _can_approve(user):
+        if not _can_approve(user, chart):
             return HttpResponse('Only an administrator can unapprove.', status=403)
         so.approved_by, so.approved_at = None, None
     elif action == 'unreview':
-        if not _can_review(user):
+        if not _can_review(user, chart):
             return HttpResponse(status=403)
         so.reviewed_by, so.reviewed_at = None, None
         so.approved_by, so.approved_at = None, None
@@ -230,7 +361,7 @@ def control_chart_signoff(request, pk):
 # ---------------------------------------------------------------- baseline (admin)
 def control_chart_baseline(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
-    if not _can_approve(request.user):
+    if not _is_admin(request.user):
         return HttpResponse('Baselines are maintained by an administrator.', status=403)
     cur = chart.current_baseline()
     if request.method == 'POST':
@@ -270,7 +401,7 @@ _CC_FIELDS = ['location', 'activity', 'parameter', 'level', 'unit', 'equipment',
 
 
 def control_chart_edit(request, pk=None):
-    if not _can_approve(request.user):
+    if not _is_admin(request.user):
         return HttpResponse('Chart masters are maintained by an administrator.', status=403)
     chart = get_object_or_404(ControlChart, pk=pk) if pk else None
     if request.method == 'POST':
@@ -541,6 +672,6 @@ def control_chart_pdf(request, pk):
     out = pdf.output(dest='S')
     data = bytes(out) if not isinstance(out, str) else out.encode('latin-1')
     resp = HttpResponse(data, content_type='application/pdf')
-    resp['Content-Disposition'] = 'inline; filename="ControlChart_%s_%s_%d.pdf"' % (
-        chart.parameter.replace(' ', '_'), chart.equipment_id or 'NA', year)
+    resp['Content-Disposition'] = 'inline; filename="ControlChart_%s_%s_%s_%d.pdf"' % (
+        chart.location, chart.parameter.replace(' ', '_'), chart.equipment_id or 'NA', year)
     return resp

@@ -1,0 +1,70 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}Control Charts - Archive{% endblock %}
+{% block crumb %} &rsaquo; <span>Archive</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-box-archive"></i> Control Chart Records <span class="muted">(archive &middot; all laboratories &middot; all years)</span></div>
+    <div>
+      <a class="btn" href="{% url 'control_chart_list' %}"><i class="fa-solid fa-chart-line"></i> Current charts</a>
+      <a class="btn" href="/qc/qc_main/"><i class="fa-solid fa-arrow-left"></i> QC Home</a>
+    </div>
+  </div>
+  <form class="toolbar" method="get">
+    <select name="location" onchange="this.form.submit()">
+      <option value="All" {% if loc == 'All' %}selected{% endif %}>All laboratories</option>
+      {% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }} laboratory</option>{% endfor %}
+    </select>
+    <select name="year" onchange="this.form.submit()">
+      <option value="All" {% if year == 'All' %}selected{% endif %}>All years</option>
+      {% for y in years %}<option value="{{ y }}" {% if y|stringformat:"s" == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+    <select name="status" onchange="this.form.submit()">
+      <option value="All" {% if status == 'All' %}selected{% endif %}>Any status</option>
+      <option value="ok" {% if status == 'ok' %}selected{% endif %}>In control</option>
+      <option value="warning" {% if status == 'warning' %}selected{% endif %}>Warning</option>
+      <option value="ooc" {% if status == 'ooc' %}selected{% endif %}>Out of control</option>
+      <option value="none" {% if status == 'none' %}selected{% endif %}>No results</option>
+    </select>
+    <select name="signoff" onchange="this.form.submit()">
+      <option value="All" {% if signoff == 'All' %}selected{% endif %}>Any sign-off</option>
+      <option value="open" {% if signoff == 'open' %}selected{% endif %}>Open</option>
+      <option value="reviewed" {% if signoff == 'reviewed' %}selected{% endif %}>Reviewed</option>
+      <option value="approved" {% if signoff == 'approved' %}selected{% endif %}>Approved (locked)</option>
+    </select>
+    <input type="search" name="q" value="{{ q }}" placeholder="Parameter, level, equipment, ID, method&hellip;" style="min-width:240px">
+    <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    <a class="btn" href="{% url 'control_chart_archive' %}">Clear</a>
+    <span class="muted">{{ count }} record{{ count|pluralize }}</span>
+  </form>
+  <table>
+    <thead><tr>
+      <th>Year</th><th>Laboratory</th><th>Parameter</th><th>Level</th><th>Equipment</th><th>ID</th>
+      <th class="c">Results</th><th class="c">Warn / OOC</th><th>Last result</th><th>Status</th><th>Sign-off</th><th>Reviewed by</th><th>Approved by</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><b>{{ r.year }}</b></td>
+        <td>{{ r.c.location }}</td>
+        <td><a href="{% url 'control_chart_detail' r.c.id %}?year={{ r.year }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.parameter }}</a>{% if not r.c.active %} <span class="pill none">inactive</span>{% endif %}</td>
+        <td>{{ r.c.level }}</td><td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td>
+        <td class="c">{{ r.n }} / 12</td>
+        <td class="c">{{ r.warn }} / {{ r.ooc }}</td>
+        <td>{% if r.last %}{{ r.last|date:"d-m-Y" }}{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
+        <td>{% if r.worst == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">In control</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
+        <td>{% if r.sign == 'approved' %}<span class="pill ok"><i class="fa-solid fa-lock"></i> Approved</span>{% elif r.sign == 'reviewed' %}<span class="pill info">Reviewed</span>{% else %}<span class="pill none">Open</span>{% endif %}</td>
+        <td>{% if r.so and r.so.reviewed_at %}{{ r.so.reviewed_by.get_full_name|default:r.so.reviewed_by.username }}<br><span class="muted">{{ r.so.reviewed_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
+        <td>{% if r.so and r.so.approved_at %}{{ r.so.approved_by.get_full_name|default:r.so.approved_by.username }}<br><span class="muted">{{ r.so.approved_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
+        <td style="white-space:nowrap">
+          <a class="btn" href="{% url 'control_chart_detail' r.c.id %}?year={{ r.year }}" title="Open record"><i class="fa-solid fa-folder-open"></i></a>
+          <a class="btn" href="{% url 'control_chart_pdf' r.c.id %}?year={{ r.year }}" target="_blank" title="PDF"><i class="fa-solid fa-file-pdf"></i></a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="14" class="empty">No control chart records match these filters.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
