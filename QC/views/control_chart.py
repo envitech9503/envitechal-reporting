@@ -7,6 +7,7 @@ An approved year is locked for everyone except superusers.
 """
 from .shared import *  # noqa: F401,F403
 import json as _json
+import math as _math
 from datetime import date as _date, datetime as _dt
 from django.utils import timezone as _tz
 from django.shortcuts import redirect as _redirect
@@ -233,8 +234,11 @@ def control_chart_reviewers(request):
             _, created = ControlChartReviewer.objects.get_or_create(user=u, location=loc, defaults={'created_by': request.user})
             _msg.success(request, '%s assigned to %s laboratory.' % (_uname(u), loc) if created else 'Already assigned.')
         elif action == 'remove':
-            ControlChartReviewer.objects.filter(pk=request.POST.get('id')).delete()
-            _msg.success(request, 'Assignment removed.')
+            try:
+                n, _ = ControlChartReviewer.objects.filter(pk=int(request.POST.get('id') or 0)).delete()
+            except (TypeError, ValueError):
+                n = 0
+            (_msg.success if n else _msg.error)(request, 'Assignment removed.' if n else 'Assignment not found.')
         return _redirect('control_chart_reviewers')
     return render(request, 'control_chart_reviewers.html', {
         'rows': ControlChartReviewer.objects.select_related('user'), 'locs': _CC_LOCS,
@@ -274,9 +278,14 @@ def control_chart_result_save(request, pk):
     try:
         d = _dt.strptime(request.POST.get('date', ''), '%Y-%m-%d').date()
         value = float(str(request.POST.get('value', '')).replace(',', '').strip())
+        if not _math.isfinite(value) or value < 0:
+            raise ValueError('not a valid concentration')
     except Exception:
-        _msg.error(request, 'Date and a numeric result are required.')
+        _msg.error(request, 'Date and a non-negative numeric result are required.')
         return _redirect('control_chart_detail', pk=pk)
+    if d > _date.today() or d.year < 2000:
+        _msg.error(request, 'The result date must be between 01-01-2000 and today.')
+        return _redirect(f"/qc/control-charts/{pk}/?year={_date.today().year}")
     if _year_locked(chart, d.year, user):
         _msg.error(request, 'Results for %d are approved and locked. Ask an administrator to unapprove them.' % d.year)
         return _redirect(f"{request.path.rsplit('/result/', 1)[0]}/?year={d.year}")
@@ -332,10 +341,20 @@ def control_chart_signoff(request, pk):
     except Exception:
         return HttpResponse('year required', status=400)
     action = request.POST.get('action')
-    so, _ = ControlChartSignoff.objects.get_or_create(chart=chart, year=year)
+    if action not in ('review', 'approve', 'unapprove', 'unreview'):
+        return HttpResponse('unknown action', status=400)
+    so = _signoff(chart, year)
+    if action in ('review', 'unreview') and so and so.approved_at:
+        _msg.error(request, 'The %d record is approved and locked - unapprove it before changing the review.' % year)
+        return _redirect(f"/qc/control-charts/{pk}/?year={year}")
+    if so is None:
+        so = ControlChartSignoff(chart=chart, year=year)
     if action == 'review':
         if not _can_review(user, chart):
             return HttpResponse('Review is reserved for the QC Manager of the %s laboratory.' % chart.location, status=403)
+        if not ControlChartResult.objects.filter(chart=chart, date__year=year).exists():
+            _msg.error(request, 'There are no %d results to review yet.' % year)
+            return _redirect(f"/qc/control-charts/{pk}/?year={year}")
         so.reviewed_by, so.reviewed_at = user, _tz.now()
     elif action == 'approve':
         if not _can_approve(user, chart):
@@ -628,7 +647,7 @@ def control_chart_pdf(request, pk):
             performed_users.append(r.performed_by)
     perf_names = ', '.join(_uname(u) for u in performed_users)
     perf_sig = _sig_image(performed_users[0]) if len(performed_users) == 1 else None
-    perf_when = max((r.performed_at for r in results), default=None)
+    perf_when = max((r.performed_at for r in results if r.performed_by), default=None)
     panels = [('Performed By', '(Chemist)', perf_names, perf_sig, perf_when),
               ('Reviewed By', '(QC Manager)', _uname(so.reviewed_by) if so and so.reviewed_at else '',
                _sig_image(so.reviewed_by) if so and so.reviewed_at else None, so.reviewed_at if so and so.reviewed_at else None),
