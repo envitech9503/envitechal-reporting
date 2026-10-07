@@ -44,6 +44,7 @@ urlpatterns = [
     path('control-charts/', views.control_chart_list, name='control_chart_list'),
     path('control-charts/new/', views.control_chart_edit, name='control_chart_new'),
     path('control-charts/archive/', views.control_chart_archive, name='control_chart_archive'),
+    path('control_chart_manual/', views.control_chart_manual, name='control_chart_manual'),
     path('control-charts/reviewers/', views.control_chart_reviewers, name='control_chart_reviewers'),
     path('control-charts/<int:pk>/', views.control_chart_detail, name='control_chart_detail'),
     path('control-charts/<int:pk>/edit/', views.control_chart_edit, name='control_chart_edit'),

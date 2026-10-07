@@ -6,6 +6,7 @@
     <div class="title"><i class="fa-solid fa-chart-line"></i> Control Charts <span class="muted">(ETAL-LAB-604-FF-11)</span></div>
     <div>
       <a class="btn" href="{% url 'control_chart_archive' %}"><i class="fa-solid fa-box-archive"></i> Archive</a>
+      <a class="btn" href="{% url 'control_chart_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> User Manual</a>
       <a class="btn" href="/qc/qc_main/"><i class="fa-solid fa-arrow-left"></i> QC Home</a>
       {% if can_admin %}<a class="btn btn-p" href="{% url 'control_chart_new' %}"><i class="fa-solid fa-plus"></i> Add Chart</a>{% endif %}
     </div>

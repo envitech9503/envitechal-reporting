@@ -214,6 +214,13 @@ def control_chart_archive(request):
         'status': status_f, 'signoff': sign_f, 'count': len(rows), 'can_admin': _is_admin(request.user)})
 
 
+# ---------------------------------------------------------------- user manual
+def control_chart_manual(request):
+    """Self-contained searchable user manual for the module (same pattern as the
+    reagent-preparation manual; rendered so the unified navigation bar appears)."""
+    return render(request, 'control_chart_manual.html', {})
+
+
 # ---------------------------------------------------------------- reviewers (admin)
 def control_chart_reviewers(request):
     """Assign QC / Lab Managers to a laboratory (superuser only)."""
