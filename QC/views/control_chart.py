@@ -356,18 +356,26 @@ def control_chart_pdf(request, pk):
                     self.image(_LOGO, 10, 8, 20, 22)
                 except Exception:
                     pass
-            self.set_xy(34, 9); self.set_font(self.fam, 'B', 15); self.set_text_color(*GREEN)
-            self.cell(110, 7, 'ENVI TECH AL', align='C', ln=1)
-            self.set_x(34); self.set_font(self.fam, '', 8); self.set_text_color(70, 70, 70)
-            self.cell(110, 4.5, 'Analytical Laboratory - Environmental & Water Testing', align='C', ln=1)
-            self.set_x(34); self.set_font(self.fam, 'B', 10.5); self.set_text_color(0, 0, 0)
-            self.cell(110, 5.5, 'CONTROL CHARTS (For Quality Control Activities)', align='C', ln=1)
-            self.set_x(34); self.set_font(self.fam, 'B', 8.5); self.set_text_color(*GREEN)
-            self.cell(110, 4.5, '%s LABORATORY  -  %d' % (chart.location.upper(), year), align='C', ln=1)
+            # Document-control box: sized to its text, flush with the right margin (x = 200)
+            lines = ['Doc. No: %s' % ctrl['doc_no'], 'Issue Date: %s' % ctrl['issue_date'],
+                     'Issue No. %s    Rev. No. %s' % (ctrl['issue_no'], ctrl['rev_no']), 'Page No: %d of {nb}' % self.page_no()]
+            self.set_font(self.fam, '', 7)
+            bw = max(self.get_string_width(l.replace('{nb}', '99')) for l in lines) + 5.0
+            bx, by, lh = 200.0 - bw, 8.0, 4.4
+            self.set_draw_color(*LINE); self.set_fill_color(*GREY_FILL)
+            self.rect(bx, by, bw, lh * len(lines) + 1.6, 'DF')
+            for i, l in enumerate(lines):
+                self.set_xy(bx + 2.0, by + 0.8 + i * lh); self.cell(bw - 4.0, lh, l, 0, 0, 'L')
+            # Title block centred on the page (logo at left, control box at right stay clear of it)
+            self.set_text_color(*GREEN)
+            self.set_xy(10, 8.5); self.set_font(self.fam, 'B', 15); self.cell(190, 7, 'ENVI TECH AL', align='C', ln=1)
+            self.set_x(10); self.set_font(self.fam, '', 8); self.set_text_color(70, 70, 70)
+            self.cell(190, 4.5, 'Analytical Laboratory - Environmental & Water Testing', align='C', ln=1)
+            self.set_x(10); self.set_font(self.fam, 'B', 10.5); self.set_text_color(0, 0, 0)
+            self.cell(190, 5.5, 'CONTROL CHARTS (For Quality Control Activities)', align='C', ln=1)
+            self.set_x(10); self.set_font(self.fam, 'B', 8.5); self.set_text_color(*GREEN)
+            self.cell(190, 4.5, '%s LABORATORY  -  %d' % (chart.location.upper(), year), align='C', ln=1)
             self.set_text_color(0, 0, 0)
-            self.set_font(self.fam, '', 7); self.set_xy(148, 8); self.set_draw_color(*LINE)
-            self.multi_cell(52, 4.6, 'Doc. No: %s\nIssue Date: %s\nIssue No. %s    Rev. No. %s\nPage No: %d of {nb}' % (
-                ctrl['doc_no'], ctrl['issue_date'], ctrl['issue_no'], ctrl['rev_no'], self.page_no()), 1, 'L')
             self.set_draw_color(*GREEN); self.set_line_width(0.5); self.line(10, 33, 200, 33)
             self.set_line_width(0.2); self.set_draw_color(0, 0, 0); self.set_y(36.5)
 
