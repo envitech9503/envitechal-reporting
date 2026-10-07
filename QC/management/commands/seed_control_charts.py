@@ -1,7 +1,11 @@
 """Seed CRM control charts from the laboratory's Excel control-chart workbooks
 (form ETAL-LAB-604-FF-11, one sheet per parameter / level / instrument).
 
-    python manage.py seed_control_charts <folder-with-xlsx> --location Karachi [--dry-run]
+    python manage.py seed_control_charts <folder-with-xlsx | charts.json> --location Karachi [--dry-run]
+    python manage.py seed_control_charts --export charts.json <folder-with-xlsx>   # parse only, write JSON
+
+A JSON file (list of parsed sheets, as written by --export) can be used instead of
+the workbooks, e.g. on a server without the Excel files.
 
 Idempotent: a chart is matched on (location, activity, parameter, level,
 equipment_id); an existing chart is left untouched (reported as 'exists').
@@ -81,21 +85,35 @@ class Command(BaseCommand):
         parser.add_argument('--dry-run', action='store_true')
         parser.add_argument('--established', default='2026-02-28',
                             help='baseline established_on date (YYYY-MM-DD)')
+        parser.add_argument('--export', default='', help='write the parsed sheets to this JSON file and stop')
 
     def handle(self, *args, **o):
-        import openpyxl
-        files = sorted(glob.glob(os.path.join(o['folder'], '*.xlsx')))
-        if not files:
-            raise CommandError('no .xlsx files in %s' % o['folder'])
-        est = datetime.date.fromisoformat(o['established'])
-        created = exists = 0
-        with transaction.atomic():
+        import json
+        sheets = []   # list of (source_label, parsed dict)
+        if o['folder'].lower().endswith('.json'):
+            for d in json.load(open(o['folder'])):
+                sheets.append((d.get('source', 'json'), d))
+        else:
+            import openpyxl
+            files = sorted(glob.glob(os.path.join(o['folder'], '*.xlsx')))
+            if not files:
+                raise CommandError('no .xlsx files in %s' % o['folder'])
             for f in files:
                 wb = openpyxl.load_workbook(f, data_only=True)
                 for ws in wb.worksheets:
                     d = parse_sheet(ws)
-                    if not d:
-                        continue
+                    if d:
+                        d['source'] = os.path.basename(f)
+                        sheets.append((os.path.basename(f), d))
+        if o['export']:
+            json.dump([d for _, d in sheets], open(o['export'], 'w'), indent=1)
+            self.stdout.write(self.style.SUCCESS('exported %d sheets to %s' % (len(sheets), o['export'])))
+            return
+        est = datetime.date.fromisoformat(o['established'])
+        created = exists = 0
+        with transaction.atomic():
+            for f, d in sheets:
+                if True:
                     key = dict(location=o['location'], activity='CRM', parameter=d['parameter'],
                                level=d['level'], equipment_id=d['equipment_id'])
                     if ControlChart.objects.filter(**key).exists():
@@ -104,10 +122,10 @@ class Command(BaseCommand):
                         continue
                     dec = 4 if d['equipment_id'] == 'AS-13' else (3 if d['parameter'].lower().startswith(('ph', 'fluor', 'nitr')) else 2)
                     self.stdout.write('create  %-22s %-8s %-6s n=%d  %s' % (
-                        d['parameter'], d['level'], d['equipment_id'], len(d['baseline']), os.path.basename(f)[-40:]))
+                        d['parameter'], d['level'], d['equipment_id'], len(d['baseline']), str(f)[-40:]))
                     if o['dry_run']:
                         continue
-                    fields = {k: v for k, v in d.items() if k not in ('baseline', 'sheet')}
+                    fields = {k: v for k, v in d.items() if k not in ('baseline', 'sheet', 'source')}
                     fields.update(key)
                     ch = ControlChart.objects.create(decimals=dec, **fields)
                     b = ControlChartBaseline(chart=ch, version=1, established_on=est, values=d['baseline'],
