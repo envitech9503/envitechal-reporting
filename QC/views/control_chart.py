@@ -297,6 +297,26 @@ def control_chart_edit(request, pk=None):
 
 
 # ---------------------------------------------------------------- PDF
+_SIG_W = 62.0          # three signature panels across the 190 mm text width
+_FOOT_TOP = 270.0      # top of the footer band (footer draws at h-20 = 277; keep 7 mm air)
+
+
+def _sig_image(user):
+    """Path of the user's e-signature image, or None."""
+    try:
+        s = Signatures.objects.filter(user=user).first()
+        if s and s.signature and _os_path_exists(s.signature.path):
+            return s.signature.path
+    except Exception:
+        pass
+    return None
+
+
+def _os_path_exists(p):
+    import os
+    return os.path.exists(p)
+
+
 def control_chart_pdf(request, pk):
     import os as _os
     chart = get_object_or_404(ControlChart, pk=pk)
@@ -308,7 +328,8 @@ def control_chart_pdf(request, pk):
     so = _signoff(chart, year)
     ctrl = _cc_docctrl(chart.location)
     _LOGO, _CAL, _CALB = 'static/assets/EnviTechAL LOGO.png', 'static/fonts/calibri.ttf', 'static/fonts/calibrib.ttf'
-    draft = not (so and so.approved_at)
+    approved = bool(so and so.approved_at)
+    GREEN, GREY_FILL, LINE = (15, 81, 50), (242, 245, 243), (120, 120, 120)
 
     class PDF(FPDF):
         def __init__(self):
@@ -322,11 +343,11 @@ def control_chart_pdf(request, pk):
                 pass
 
         def header(self):
-            if draft:
-                self.set_font(self.fam, 'B', 60); self.set_text_color(235, 235, 235)
+            if not approved:
+                self.set_font(self.fam, 'B', 54); self.set_text_color(238, 238, 238)
                 try:
                     with self.rotation(45, self.w / 2, self.h / 2):
-                        self.text(self.w / 2 - self.get_string_width('NOT APPROVED') / 2, self.h / 2 + 12, 'NOT APPROVED')
+                        self.text(self.w / 2 - self.get_string_width('NOT APPROVED') / 2, self.h / 2 + 10, 'NOT APPROVED')
                 except Exception:
                     pass
                 self.set_text_color(0, 0, 0)
@@ -335,112 +356,180 @@ def control_chart_pdf(request, pk):
                     self.image(_LOGO, 10, 8, 20, 22)
                 except Exception:
                     pass
-            self.set_xy(10, 10); self.set_font(self.fam, 'B', 15); self.cell(0, 7, 'ENVI TECH AL', align='C', ln=1)
-            self.set_x(10); self.set_font(self.fam, '', 8)
-            self.cell(0, 5, 'Analytical Laboratory - Environmental & Water Testing', align='C', ln=1)
-            self.set_x(10)
-            _title = 'CONTROL CHARTS (For Quality Control Activities) - %s LABORATORY' % chart.location.upper()
-            _ts = 11.0
-            self.set_font(self.fam, 'B', _ts)
-            while _ts > 7.0 and self.get_string_width(_title) > 84:
-                _ts -= 0.5
-                self.set_font(self.fam, 'B', _ts)
-            self.cell(0, 6, _title, align='C', ln=1)
-            self.set_font(self.fam, '', 7); self.set_xy(148, 8)
+            self.set_xy(34, 9); self.set_font(self.fam, 'B', 15); self.set_text_color(*GREEN)
+            self.cell(110, 7, 'ENVI TECH AL', align='C', ln=1)
+            self.set_x(34); self.set_font(self.fam, '', 8); self.set_text_color(70, 70, 70)
+            self.cell(110, 4.5, 'Analytical Laboratory - Environmental & Water Testing', align='C', ln=1)
+            self.set_x(34); self.set_font(self.fam, 'B', 10.5); self.set_text_color(0, 0, 0)
+            self.cell(110, 5.5, 'CONTROL CHARTS (For Quality Control Activities)', align='C', ln=1)
+            self.set_x(34); self.set_font(self.fam, 'B', 8.5); self.set_text_color(*GREEN)
+            self.cell(110, 4.5, '%s LABORATORY  -  %d' % (chart.location.upper(), year), align='C', ln=1)
+            self.set_text_color(0, 0, 0)
+            self.set_font(self.fam, '', 7); self.set_xy(148, 8); self.set_draw_color(*LINE)
             self.multi_cell(52, 4.6, 'Doc. No: %s\nIssue Date: %s\nIssue No. %s    Rev. No. %s\nPage No: %d of {nb}' % (
                 ctrl['doc_no'], ctrl['issue_date'], ctrl['issue_no'], ctrl['rev_no'], self.page_no()), 1, 'L')
-            self.line(10, 33, 200, 33); self.set_y(36)
+            self.set_draw_color(*GREEN); self.set_line_width(0.5); self.line(10, 33, 200, 33)
+            self.set_line_width(0.2); self.set_draw_color(0, 0, 0); self.set_y(36.5)
 
         def footer(self):
             self.set_y(-20); self.set_font(self.fam, '', 6.5); self.set_text_color(90, 90, 90)
             self.cell(0, 4, 'ENVI TECH AL  -  Controlled document.  Uncontrolled when printed.', align='C', ln=1)
-            self.set_text_color(0, 0, 0); self.set_draw_color(15, 81, 50); self.set_line_width(0.4)
+            self.set_text_color(0, 0, 0); self.set_draw_color(*GREEN); self.set_line_width(0.4)
             yb = self.get_y() + 0.6; self.line(10, yb, 200, yb); self.set_line_width(0.2); self.set_draw_color(0, 0, 0)
             self.set_xy(10, yb + 1.2); self.cell(90, 3.6, 'Tel: +92 310 2288801', align='L')
             self.set_xy(110, yb + 1.2); self.cell(90, 3.6, 'info@envitechal.com   -   www.envitechal.com', align='R')
             self.set_xy(10, yb + 4.8)
             self.cell(0, 3.6, 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan.', align='C')
 
-    pdf = PDF(); pdf.alias_nb_pages(); pdf.set_auto_page_break(True, 24); pdf.add_page()
+    pdf = PDF(); pdf.alias_nb_pages(); pdf.set_auto_page_break(True, 30); pdf.add_page()
     f = pdf.fam
     dec = chart.decimals
-
-    def kv(label, value, w_l, w_v, h=5.2, ln=0):
-        pdf.set_font(f, 'B', 8); pdf.cell(w_l, h, label, 1)
-        pdf.set_font(f, '', 8); pdf.cell(w_v, h, str(value or '-'), 1, ln)
-
     unit = (' %s' % chart.unit) if chart.unit else ''
-    kv('Name of Equipment', chart.equipment, 32, 93); kv('Equipment ID', chart.equipment_id, 28, 37, ln=1)
-    kv('Parameter', chart.title, 32, 48); kv('Method', chart.method, 17, 55); kv('Activity', chart.get_activity_display().split(' (')[0], 16, 22, ln=1)
-    kv('CRM Detail', chart.crm_detail, 32, 93); kv('Year', str(year), 28, 37, ln=1)
-    kv('CRM Value', (chart.crm_value + unit) if chart.crm_value else '', 32, 48)
-    kv('CRM Range', (chart.crm_range + unit) if chart.crm_range else '', 17, 55)
-    kv('Baseline', ('v%d, n=%d' % (b.version, b.n)) if b else '-', 16, 22, ln=1)
-    kv('Description', chart.description, 32, 158, ln=1)
-    pdf.ln(2)
-    # table
-    cols = [('S. No.', 11), ('Date', 20), ('Monthly CRM\nResult%s' % unit, 23), ('Baseline\nResult%s' % unit, 23), ('UL (+3 SD)', 19),
-            ('UWL (+2 SD)', 19), ('LWL (-2 SD)', 19), ('LL (-3 SD)', 19), ('Baseline\nMean', 19), ('Baseline\nSD', 18)]
-    pdf.set_font(f, 'B', 7); pdf.set_fill_color(230, 236, 232)
+
+    # ---- header grid: fixed column widths so every label/value edge lines up
+    L1, V1, L2, V2 = 30.0, 80.0, 28.0, 52.0      # = 190
+    pdf.set_draw_color(*LINE)
+
+    def kv_row(items, h=5.4):
+        """items: list of (label, value, label_w, value_w)."""
+        for lbl, val, wl, wv in items:
+            pdf.set_font(f, 'B', 7.8); pdf.set_fill_color(*GREY_FILL)
+            pdf.cell(wl, h, lbl, 1, 0, 'L', fill=True)
+            pdf.set_font(f, '', 8)
+            txt = str(val) if val not in (None, '') else '-'
+            while pdf.get_string_width(txt) > wv - 2 and len(txt) > 4:
+                txt = txt[:-2]
+            pdf.cell(wv, h, txt, 1, 0, 'L')
+        pdf.ln(h)
+
+    kv_row([('Name of Equipment', chart.equipment, L1, V1), ('Equipment ID', chart.equipment_id, L2, V2)])
+    kv_row([('Parameter', chart.title, L1, V1), ('Method', chart.method, L2, V2)])
+    kv_row([('CRM Detail', chart.crm_detail, L1, V1), ('Activity', chart.get_activity_display().split(' (')[0], L2, V2)])
+    kv_row([('CRM Certified Value', (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
+            ('CRM Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
+            ('Baseline', ('v%d  (n = %d, established %s)' % (b.version, b.n, b.established_on.strftime('%d-%m-%Y') if b.established_on else '-')) if b else 'not established', L2, V2)])
+    kv_row([('Description', chart.description, L1, 160.0)])
+    pdf.ln(2.5)
+
+    # ---- results table
+    cols = [('S. No.', 11), ('Date', 21), ('Monthly CRM\nResult%s' % unit, 24), ('Baseline\nResult%s' % unit, 24), ('UL (+3 SD)', 18.5),
+            ('UWL (+2 SD)', 18.5), ('LWL (-2 SD)', 18.5), ('LL (-3 SD)', 18.5), ('Baseline\nMean', 18), ('Baseline\nSD', 18)]
+    pdf.set_font(f, 'B', 7); pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255)
     x0, y0 = pdf.get_x(), pdf.get_y()
     for lbl, w in cols:
-        x = pdf.get_x(); pdf.multi_cell(w, 4, lbl, 1, 'C', fill=True); pdf.set_xy(x + w, y0)
-    pdf.set_xy(x0, y0 + 8)
+        x = pdf.get_x(); pdf.set_xy(x, y0)
+        pdf.multi_cell(w, 4, lbl if '\n' in lbl else '\n' + lbl, 1, 'C', fill=True); pdf.set_xy(x + w, y0)
+    pdf.set_xy(x0, y0 + 8); pdf.set_text_color(0, 0, 0)
     pdf.set_font(f, '', 7.5)
-    for r in rows:
-        if r['status'] == 'ooc':
-            pdf.set_text_color(185, 28, 28)
-        elif r['status'] == 'warning':
-            pdf.set_text_color(161, 98, 7)
-        vals = [str(r['sno']), r['date'] or r['month'], r['value'], r['base'], r['ul'], r['uwl'], r['lwl'], r['ll'], r['mean'], r['sd']]
-        for (lbl, w), v in zip(cols, vals):
-            pdf.cell(w, 4.6, v, 1, 0, 'C')
-        pdf.ln(4.6); pdf.set_text_color(0, 0, 0)
+    RH = 4.5
+    all_rows = [[str(r['sno']), r['date'] or r['month'], r['value'], r['base'], r['ul'], r['uwl'], r['lwl'], r['ll'], r['mean'], r['sd'], r['status']] for r in rows]
     for i, v in enumerate(extra_base):
-        vals = [str(13 + i), '', '', v, '', '', '', '', '', '']
-        for (lbl, w), vv in zip(cols, vals):
-            pdf.cell(w, 4.6, vv, 1, 0, 'C')
-        pdf.ln(4.6)
-    pdf.set_font(f, 'B', 7.5)
-    pdf.cell(54, 4.6, 'Mean (Baseline)', 1, 0, 'R'); pdf.set_font(f, '', 7.5); pdf.cell(136, 4.6, _fmt(lim['mean'], dec) if lim else '', 1, 1, 'L')
-    pdf.set_font(f, 'B', 7.5)
-    pdf.cell(54, 4.6, 'Standard Deviation (Baseline)', 1, 0, 'R'); pdf.set_font(f, '', 7.5); pdf.cell(136, 4.6, _fmt(lim['sd'], dec + 1) if lim else '', 1, 1, 'L')
-    # chart
+        all_rows.append([str(13 + i), '-', '', v, '', '', '', '', '', '', ''])
+    for i, vals in enumerate(all_rows):
+        st = vals[10]
+        if st == 'ooc':
+            pdf.set_fill_color(254, 226, 226); pdf.set_text_color(153, 27, 27)
+        elif st == 'warning':
+            pdf.set_fill_color(254, 249, 195); pdf.set_text_color(133, 77, 14)
+        else:
+            pdf.set_fill_color(*(GREY_FILL if i % 2 else (255, 255, 255))); pdf.set_text_color(0, 0, 0)
+        for j, ((lbl, w), v) in enumerate(zip(cols, vals[:10])):
+            if j == 2 and v:
+                pdf.set_font(f, 'B', 7.5)
+            pdf.cell(w, RH, v, 1, 0, 'C', fill=True)
+            pdf.set_font(f, '', 7.5)
+        pdf.ln(RH)
+    pdf.set_text_color(0, 0, 0); pdf.set_fill_color(*GREY_FILL)
+    pdf.set_font(f, 'B', 7.5); pdf.cell(56, RH, 'Mean (Baseline)', 1, 0, 'R', fill=True)
+    pdf.set_font(f, '', 7.5); pdf.cell(134, RH, ('  ' + _fmt(lim['mean'], dec)) if lim else '', 1, 1, 'L')
+    pdf.set_font(f, 'B', 7.5); pdf.cell(56, RH, 'Standard Deviation (Baseline)', 1, 0, 'R', fill=True)
+    pdf.set_font(f, '', 7.5); pdf.cell(134, RH, ('  ' + _fmt(lim['sd'], dec + 1)) if lim else '', 1, 1, 'L')
+
+    # ---- chart (width-limited so the whole form stays on one page)
     if b:
-        png = render_chart(chart, b, results, year, 'png', 7.6, 3.1)
+        # size the chart to the space that is left, keeping ~32 mm for the signature block
+        n_rem = sum(1 for r in rows if r['remark'])
+        reserve = 32.0 + 14.0 + n_rem * 3.8 + (4.2 if n_rem else 0)
+        chart_mm = max(62.0, min(100.0, _FOOT_TOP - pdf.get_y() - reserve))
+        png = render_chart(chart, b, results, year, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
         try:
             tmp.write(png); tmp.close()
-            pdf.ln(1.5); pdf.image(tmp.name, x=15, w=180)
+            pdf.ln(1.5); pdf.image(tmp.name, x=17, w=176)
         finally:
             try:
                 _os.unlink(tmp.name)
             except OSError:
                 pass
-    # remarks
+
+    # ---- remarks + SOP note
     rem = [(r['date'], r['status'], r['remark']) for r in rows if r['remark']]
     if rem:
-        pdf.ln(1); pdf.set_font(f, 'B', 7.5); pdf.cell(0, 4.5, 'Remarks / corrective actions', ln=1); pdf.set_font(f, '', 7.2)
+        pdf.ln(0.5); pdf.set_font(f, 'B', 7.5); pdf.set_x(10); pdf.cell(0, 4.2, 'Remarks / corrective actions', ln=1); pdf.set_font(f, '', 7.2)
         for d, st, t in rem:
             pdf.set_x(10)
-            pdf.multi_cell(190, 4, '%s (%s): %s' % (d, 'OOC' if st == 'ooc' else 'Warning' if st == 'warning' else 'note', t),
+            pdf.multi_cell(190, 3.8, '%s  (%s):  %s' % (d, 'Out of control' if st == 'ooc' else 'Warning' if st == 'warning' else 'Note', t),
                            new_x='LMARGIN', new_y='NEXT')
-    pdf.ln(1); pdf.set_font(f, '', 6.8); pdf.set_x(10); pdf.multi_cell(190, 3.5, _CC_SOP_NOTE, new_x='LMARGIN', new_y='NEXT')
-    # signatures (kept on the same page whenever the block fits above the footer)
-    if pdf.get_y() + 22 > 268:
-        pdf.add_page()
-    y = pdf.get_y() + 5
-    pdf.set_y(y)
-    performed = sorted({_uname(r.performed_by) for r in results if r.performed_by} - {''})
-    boxes = [('Performed By', ', '.join(performed) or '', '', '(Chemist)'),
-             ('Reviewed By', _uname(so.reviewed_by) if so and so.reviewed_at else '', so.reviewed_at.strftime('%d-%m-%Y') if so and so.reviewed_at else '', '(QC Manager)'),
-             ('Approved By', _uname(so.approved_by) if so and so.approved_at else '', so.approved_at.strftime('%d-%m-%Y') if so and so.approved_at else '', '(CEO)')]
-    for i, (lbl, who, when, role) in enumerate(boxes):
-        x = 10 + i * 63.3
-        pdf.set_xy(x, y); pdf.set_font(f, 'B', 8); pdf.cell(60, 5, lbl, 0, 0, 'C')
-        pdf.set_xy(x, y + 5); pdf.set_font(f, '', 8); pdf.cell(60, 6, who, 'B', 0, 'C')
-        pdf.set_xy(x, y + 11); pdf.set_font(f, '', 7); pdf.cell(60, 4, (role + ((' ' + when) if when else '')), 0, 0, 'C')
+    pdf.ln(0.8); pdf.set_font(f, '', 6.8); pdf.set_text_color(60, 60, 60); pdf.set_x(10)
+    pdf.multi_cell(190, 3.4, _CC_SOP_NOTE, new_x='LMARGIN', new_y='NEXT'); pdf.set_text_color(0, 0, 0)
+
+    # ---- e-signature block: fills whatever remains above the footer (min 24 mm)
+    MIN_H, MAX_H = 24.0, 46.0
+    top = pdf.get_y() + 2.5
+    avail = _FOOT_TOP - top
+    if avail < MIN_H:
+        pdf.add_page(); top = pdf.get_y() + 2; avail = _FOOT_TOP - top
+    blk_h = max(MIN_H, min(MAX_H, avail))
+    top = _FOOT_TOP - blk_h                      # anchor the block to the footer
+    pdf.set_auto_page_break(False)               # the block is positioned absolutely
+    performed_users = []
+    for r in results:
+        if r.performed_by and r.performed_by not in performed_users:
+            performed_users.append(r.performed_by)
+    perf_names = ', '.join(_uname(u) for u in performed_users)
+    perf_sig = _sig_image(performed_users[0]) if len(performed_users) == 1 else None
+    perf_when = max((r.performed_at for r in results), default=None)
+    panels = [('Performed By', '(Chemist)', perf_names, perf_sig, perf_when),
+              ('Reviewed By', '(QC Manager)', _uname(so.reviewed_by) if so and so.reviewed_at else '',
+               _sig_image(so.reviewed_by) if so and so.reviewed_at else None, so.reviewed_at if so and so.reviewed_at else None),
+              ('Approved By', '(CEO)', _uname(so.approved_by) if approved else '',
+               _sig_image(so.approved_by) if approved else None, so.approved_at if approved else None)]
+    LBL_H, NAME_H, ROLE_H = 5.0, 4.6, 4.0
+    img_h = blk_h - LBL_H - NAME_H - ROLE_H - 2.0
+    pdf.set_draw_color(*LINE)
+    for i, (lbl, role, who, sig, when) in enumerate(panels):
+        x = 10 + i * (_SIG_W + 2.0)
+        pdf.rect(x, top, _SIG_W, blk_h)
+        pdf.set_fill_color(*GREY_FILL); pdf.rect(x, top, _SIG_W, LBL_H, 'F')
+        pdf.set_xy(x, top); pdf.set_font(f, 'B', 8); pdf.cell(_SIG_W, LBL_H, lbl, 0, 0, 'C')
+        iy = top + LBL_H + 1.0
+        if sig:
+            try:
+                from PIL import Image as _Im
+                with _Im.open(sig) as im:
+                    iw, ih = im.size
+                w = _SIG_W - 8; h = w * ih / iw
+                if h > img_h:
+                    h = img_h; w = h * iw / ih
+                pdf.image(sig, x + (_SIG_W - w) / 2, iy + (img_h - h) / 2, w, h)
+            except Exception:
+                sig = None
+        if not sig and who:
+            pdf.set_xy(x, iy + img_h / 2 - 2); pdf.set_font(f, '', 6.5); pdf.set_text_color(110, 110, 110)
+            pdf.cell(_SIG_W, 4, 'Electronically signed', 0, 0, 'C'); pdf.set_text_color(0, 0, 0)
+        ny = top + LBL_H + 1.0 + img_h + 0.5
+        pdf.line(x + 4, ny, x + _SIG_W - 4, ny)
+        pdf.set_xy(x, ny); pdf.set_font(f, 'B', 7.8)
+        nm = who or ''
+        while pdf.get_string_width(nm) > _SIG_W - 4 and len(nm) > 3:
+            nm = nm[:-2]
+        pdf.cell(_SIG_W, NAME_H, nm, 0, 0, 'C')
+        pdf.set_xy(x, ny + NAME_H); pdf.set_font(f, '', 6.8); pdf.set_text_color(70, 70, 70)
+        pdf.cell(_SIG_W, ROLE_H, role + (('   ' + _tz.localtime(when).strftime('%d-%m-%Y %H:%M')) if when else ''), 0, 0, 'C')
+        pdf.set_text_color(0, 0, 0)
+    pdf.set_draw_color(0, 0, 0)
+
     out = pdf.output(dest='S')
     data = bytes(out) if not isinstance(out, str) else out.encode('latin-1')
     resp = HttpResponse(data, content_type='application/pdf')
