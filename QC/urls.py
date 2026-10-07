@@ -39,4 +39,15 @@ urlpatterns = [
 
     path('reagent_prep_doc_save/', views.reagent_prep_doc_save, name='reagent_prep_doc_save'),
     path('reagent_prep_delete/', views.reagent_prep_delete, name='reagent_prep_delete'),
+
+    # Control Charts (ETAL-LAB-604-FF-11), 07-10-2026
+    path('control-charts/', views.control_chart_list, name='control_chart_list'),
+    path('control-charts/new/', views.control_chart_edit, name='control_chart_new'),
+    path('control-charts/<int:pk>/', views.control_chart_detail, name='control_chart_detail'),
+    path('control-charts/<int:pk>/edit/', views.control_chart_edit, name='control_chart_edit'),
+    path('control-charts/<int:pk>/baseline/', views.control_chart_baseline, name='control_chart_baseline'),
+    path('control-charts/<int:pk>/result/', views.control_chart_result_save, name='control_chart_result_save'),
+    path('control-charts/<int:pk>/result/<int:rid>/delete/', views.control_chart_result_delete, name='control_chart_result_delete'),
+    path('control-charts/<int:pk>/signoff/', views.control_chart_signoff, name='control_chart_signoff'),
+    path('control-charts/<int:pk>/pdf/', views.control_chart_pdf, name='control_chart_pdf'),
 ]

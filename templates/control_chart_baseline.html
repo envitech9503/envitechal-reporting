@@ -1,0 +1,24 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}Baseline - {{ chart.title }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'control_chart_detail' chart.id %}" style="color:#0f5132;text-decoration:none">{{ chart.title }}</a> &rsaquo; <span>Baseline</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-ruler"></i> Baseline - {{ chart.title }} [{{ chart.equipment_id|default:"-" }}]</div>
+    <a class="btn" href="{% url 'control_chart_detail' chart.id %}"><i class="fa-solid fa-arrow-left"></i> Back to chart</a></div>
+  <div class="msg warning">A new baseline starts a new version. Limits for new results are taken from the current version; results already recorded keep the version they were judged against. Typically done once a year from the February intermediate-check results (SOP ETAL-LAB-P-604).</div>
+  <form method="post" class="frm" style="flex-direction:column;align-items:stretch">{% csrf_token %}
+    <label>Baseline values (comma- or line-separated, usually 12) <textarea name="values" rows="4" required placeholder="e.g. 6.85, 6.86, 6.87, ...">{{ cur_values }}</textarea></label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <label>Established on <input type="date" name="established_on" value="{{ today }}"></label>
+      <label style="flex:1">Note <input type="text" name="note" maxlength="300" placeholder="e.g. February 2027 intermediate check, after calibration"></label>
+    </div>
+    <div><button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> Establish new baseline v{{ cur.version|add:1|default:1 }}</button></div>
+  </form>
+</div>
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:15px">Baseline history</div></div>
+  <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th><th>Note</th><th>Created</th><th>Current</th></tr></thead><tbody>
+  {% for b in baselines %}<tr><td>v{{ b.version }}</td><td>{{ b.established_on|date:"d-m-Y" }}</td><td class="num">{{ b.n }}</td><td class="num">{{ b.mean|floatformat:chart.decimals }}</td><td class="num">{{ b.sd|floatformat:4 }}</td><td>{{ b.note }}</td><td class="muted">{{ b.created_at|date:"d-m-Y H:i" }} {{ b.created_by.username|default:"" }}</td><td>{% if b.is_current %}<span class="pill ok">current</span>{% endif %}</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}{% if chart %}Edit{% else %}New{% endif %} control chart{% endblock %}
+{% block crumb %} &rsaquo; <span>{% if chart %}Edit {{ chart.title }}{% else %}New chart{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-pen"></i> {% if chart %}Edit chart master{% else %}New control chart{% endif %}</div>
+    <a class="btn" href="{% if chart %}{% url 'control_chart_detail' chart.id %}{% else %}{% url 'control_chart_list' %}{% endif %}"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
+  <form method="post" class="frm" style="display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:10px 18px">{% csrf_token %}
+    <label>Laboratory <select name="location">{% for l in locs %}<option value="{{ l }}" {% if chart and chart.location == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <label>Activity <select name="activity">{% for k, v in activities %}<option value="{{ k }}" {% if chart and chart.activity == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+    <label>Parameter * <input name="parameter" value="{{ chart.parameter|default:'' }}" required placeholder="e.g. Cadmium (Cd)"></label>
+    <label>Level / concentration <input name="level" value="{{ chart.level|default:'' }}" placeholder="e.g. 1 ppm"></label>
+    <label>Unit <input name="unit" value="{{ chart.unit|default:'mg/l' }}"></label>
+    <label>Decimals shown <input type="number" name="decimals" min="0" max="6" value="{{ chart.decimals|default:3 }}"></label>
+    <label>Name of equipment <input name="equipment" value="{{ chart.equipment|default:'' }}"></label>
+    <label>Equipment ID <input name="equipment_id" value="{{ chart.equipment_id|default:'' }}"></label>
+    <label>Method <input name="method" value="{{ chart.method|default:'' }}"></label>
+    <label>CRM detail (product # / lot #) <input name="crm_detail" value="{{ chart.crm_detail|default:'' }}"></label>
+    <label>CRM certified value <input name="crm_value" value="{{ chart.crm_value|default:'' }}"></label>
+    <label>CRM range <span style="display:flex;gap:6px"><input name="crm_range_low" value="{{ chart.crm_range_low|default:'' }}" placeholder="low" style="width:50%"><input name="crm_range_high" value="{{ chart.crm_range_high|default:'' }}" placeholder="high" style="width:50%"></span></label>
+    <label style="grid-column:1/-1">Description <input name="description" value="{{ chart.description|default:'CRM Results during Monthly CRM Exercise' }}"></label>
+    {% if chart %}<label><span><input type="checkbox" name="active" value="1" {% if chart.active %}checked{% endif %}> Active (shown in the list)</span></label>{% endif %}
+    <div style="grid-column:1/-1"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save{% if not chart %} and set baseline{% endif %}</button></div>
+  </form>
+</div>
+{% endblock %}

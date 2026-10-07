@@ -11,8 +11,9 @@ from .dw import *  # noqa: F401,F403
 from .ww import *  # noqa: F401,F403
 from .core import *  # noqa: F401,F403
 from .reagent_prep import *  # noqa: F401,F403
+from .control_chart import *  # noqa: F401,F403
 
-_FAMILY_MODULES = ['dw', 'ww', 'core', 'reagent_prep']
+_FAMILY_MODULES = ['dw', 'ww', 'core', 'reagent_prep', 'control_chart']
 
 
 def _link():

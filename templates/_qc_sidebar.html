@@ -90,6 +90,15 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'reagent_prep_calculator' %}">Preparation Calculator</a>
       <a href="{% url 'reagent_prep_manual' %}" target="_blank" rel="noopener">User Manual</a>
     </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcCC" aria-expanded="false">
+      <i class="fa-solid fa-chart-line"></i>Control Charts<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcCC">
+      <a href="{% url 'control_chart_list' %}">CRM Control Charts</a>
+      {% if request.user.is_superuser %}<a href="{% url 'control_chart_new' %}">Add Chart (admin)</a>{% endif %}
+    </div>
   </nav>
 </div>
 <script>

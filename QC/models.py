@@ -62,3 +62,156 @@ for _m in (Dw_rds, Ww_rds, TestingResultsOfDWSamples, TestingResultsOfWWSamples)
         _sh_register(_m, excluded_fields=_ex)
     else:
         _sh_register(_m)
+
+
+# --- Control Charts (ETAL-LAB-604-FF-11), 07-10-2026 ---------------------------
+# One ControlChart per parameter / concentration level / instrument / laboratory.
+# The limits come from a versioned *baseline* (the ~12 intermediate-check results
+# of the February activity, SOP ETAL-LAB-P-604): mean +/- 2 SD = warning limits,
+# mean +/- 3 SD = action limits. Monthly results are plotted against the current
+# baseline; results are reviewed and approved per calendar year (the printed form).
+import statistics as _stats
+
+
+class ControlChart(models.Model):
+    LOCATIONS = (('Karachi', 'Karachi'), ('Lahore', 'Lahore'))
+    ACTIVITIES = (('CRM', 'CRM (Certified Reference Material)'),
+                  ('RM', 'Reference Material'),
+                  ('IC', 'Intermediate Check'),
+                  ('DUP', 'Duplicate'),
+                  ('SPK', 'Spike / Recovery'))
+    location = models.CharField(max_length=20, choices=LOCATIONS, default='Karachi')
+    activity = models.CharField(max_length=10, choices=ACTIVITIES, default='CRM')
+    parameter = models.CharField(max_length=120)            # e.g. Cadmium (Cd)
+    level = models.CharField(max_length=60, blank=True, default='')   # e.g. 1 ppm
+    unit = models.CharField(max_length=30, blank=True, default='mg/l')
+    equipment = models.CharField(max_length=160, blank=True, default='')
+    equipment_id = models.CharField(max_length=40, blank=True, default='')
+    method = models.CharField(max_length=120, blank=True, default='')
+    crm_detail = models.CharField(max_length=200, blank=True, default='')  # Product # / Lot #
+    crm_value = models.CharField(max_length=40, blank=True, default='')    # certified value
+    crm_range_low = models.CharField(max_length=40, blank=True, default='')
+    crm_range_high = models.CharField(max_length=40, blank=True, default='')
+    description = models.CharField(max_length=200, blank=True,
+                                   default='CRM Results during Monthly CRM Exercise')
+    decimals = models.IntegerField(default=3)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name='+')
+
+    class Meta:
+        ordering = ['location', 'parameter', 'level', 'equipment_id']
+
+    def __str__(self):
+        return '%s %s %s [%s] %s' % (self.activity, self.parameter, self.level,
+                                     self.equipment_id, self.location)
+
+    @property
+    def title(self):
+        return ('%s %s' % (self.parameter, self.level)).strip()
+
+    @property
+    def crm_range(self):
+        if self.crm_range_low or self.crm_range_high:
+            return '%s-%s' % (self.crm_range_low, self.crm_range_high)
+        return ''
+
+    def current_baseline(self):
+        return self.baselines.filter(is_current=True).order_by('-version').first()
+
+
+class ControlChartBaseline(models.Model):
+    chart = models.ForeignKey(ControlChart, on_delete=models.CASCADE, related_name='baselines')
+    version = models.IntegerField(default=1)
+    established_on = models.DateField(null=True, blank=True)
+    note = models.CharField(max_length=300, blank=True, default='')
+    values = models.JSONField(default=list)        # list of floats, in order
+    mean = models.FloatField(null=True, blank=True)
+    sd = models.FloatField(null=True, blank=True)
+    is_current = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                   on_delete=models.SET_NULL, related_name='+')
+
+    class Meta:
+        ordering = ['-version']
+        unique_together = ('chart', 'version')
+
+    def compute(self):
+        vals = [float(v) for v in self.values if v not in (None, '')]
+        self.mean = _stats.mean(vals) if vals else None
+        self.sd = _stats.stdev(vals) if len(vals) > 1 else None   # sample SD = Excel STDEV
+        return self
+
+    @property
+    def n(self):
+        return len([v for v in self.values if v not in (None, '')])
+
+    def limits(self):
+        if self.mean is None or self.sd is None:
+            return None
+        m, s = self.mean, self.sd
+        return {'mean': m, 'sd': s, 'uwl': m + 2 * s, 'lwl': m - 2 * s,
+                'ul': m + 3 * s, 'll': m - 3 * s}
+
+    def classify(self, value):
+        """'ok' | 'warning' (outside +/-2 SD) | 'ooc' (outside +/-3 SD)."""
+        lim = self.limits()
+        if lim is None or value is None:
+            return 'ok'
+        if value > lim['ul'] or value < lim['ll']:
+            return 'ooc'
+        if value > lim['uwl'] or value < lim['lwl']:
+            return 'warning'
+        return 'ok'
+
+    def __str__(self):
+        return 'Baseline v%s of %s' % (self.version, self.chart_id)
+
+
+class ControlChartResult(models.Model):
+    STATUS = (('ok', 'In control'), ('warning', 'Warning (>2 SD)'), ('ooc', 'Out of control (>3 SD)'))
+    chart = models.ForeignKey(ControlChart, on_delete=models.CASCADE, related_name='results')
+    baseline = models.ForeignKey(ControlChartBaseline, null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name='results')
+    date = models.DateField()
+    value = models.FloatField()
+    status = models.CharField(max_length=10, choices=STATUS, default='ok')
+    remark = models.TextField(blank=True, default='')       # mandatory when status != ok
+    performed_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                     on_delete=models.SET_NULL, related_name='+')
+    performed_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date', 'id']
+
+    @property
+    def year(self):
+        return self.date.year
+
+
+class ControlChartSignoff(models.Model):
+    """Review (QC Manager) and approval (CEO) of one chart's results for one
+    calendar year -- the printed form. Approval locks that year's results for
+    non-admin users."""
+    chart = models.ForeignKey(ControlChart, on_delete=models.CASCADE, related_name='signoffs')
+    year = models.IntegerField()
+    reviewed_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name='+')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name='+')
+    approved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('chart', 'year')
+
+    @property
+    def locked(self):
+        return bool(self.approved_at)
+
+
+for _m in (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff):
+    _sh_register(_m)
