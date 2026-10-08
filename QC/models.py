@@ -117,6 +117,9 @@ class ControlChart(models.Model):
     description = models.CharField(max_length=200, blank=True,
                                    default='CRM Results during Monthly CRM Exercise')
     decimals = models.IntegerField(default=3)
+    # First month of the chart's 12-month record cycle (1 = Jan-Dec, 2 = Feb-Jan, 3 = Mar-Feb ...).
+    # Added 08-10-2026: laboratories start a CRM / RM cycle when the baseline is established.
+    start_month = models.IntegerField(default=1)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey('auth.User', null=True, blank=True,
@@ -124,6 +127,42 @@ class ControlChart(models.Model):
 
     class Meta:
         ordering = ['location', 'parameter', 'level', 'equipment_id']
+
+    # ---- record cycle (CRM / RM). Intermediate checks are per calendar month and ignore it.
+    @property
+    def sm(self):
+        try:
+            m = int(self.start_month or 1)
+        except (TypeError, ValueError):
+            m = 1
+        return m if (1 <= m <= 12 and not self.period_is_month) else 1
+
+    def cycle_of(self, d):
+        """Cycle year a date belongs to (the calendar year in which the cycle starts)."""
+        return d.year if d.month >= self.sm else d.year - 1
+
+    def cycle_range(self, year):
+        """(first day, last day) of the cycle that starts in `year`."""
+        import datetime as _d
+        start = _d.date(year, self.sm, 1)
+        end = _d.date(year + 1, self.sm, 1) - _d.timedelta(days=1) if self.sm > 1 else _d.date(year, 12, 31)
+        return start, end
+
+    def cycle_months(self, year):
+        """12 (year, month) pairs of the cycle, in order."""
+        out = []
+        for i in range(12):
+            m = self.sm + i
+            out.append((year + (m - 1) // 12, (m - 1) % 12 + 1))
+        return out
+
+    def cycle_label(self, year):
+        return str(year) if self.sm == 1 else '%d-%s' % (year, str(year + 1)[2:])
+
+    @property
+    def cycle_name(self):
+        from QC.control_chart_render import MONTHS
+        return '%s - %s' % (MONTHS[self.sm - 1], MONTHS[(self.sm + 10) % 12])
 
     def __str__(self):
         return '%s %s %s [%s] %s' % (self.activity, self.parameter, self.level,

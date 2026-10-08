@@ -12,6 +12,7 @@
     <label>Level / concentration <input name="level" value="{{ chart.level|default:'' }}" placeholder="e.g. 1 ppm"></label>
     <label>Unit <input name="unit" value="{{ chart.unit|default:'mg/l' }}"></label>
     <label>Decimals shown <input type="number" name="decimals" min="0" max="6" value="{{ chart.decimals|default:3 }}"></label>
+    <label>Record cycle starts in <span class="muted">(CRM / RM: the 12-month record, e.g. Feb - Jan)</span> <select name="start_month">{% for m in month_names %}<option value="{{ forloop.counter }}" {% if chart and chart.sm == forloop.counter %}selected{% elif not chart and forloop.counter == 1 %}selected{% endif %}>{{ m }}{% if forloop.counter == 1 %} - Dec{% else %} - {{ month_names|slice:forloop.counter0|last }}{% endif %}</option>{% endfor %}</select></label>
     <label>Name of equipment <input name="equipment" value="{{ chart.equipment|default:'' }}"></label>
     <label>Equipment ID <input name="equipment_id" value="{{ chart.equipment_id|default:'' }}"></label>
     <label>Method <input name="method" value="{{ chart.method|default:'' }}"></label>

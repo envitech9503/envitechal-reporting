@@ -151,11 +151,13 @@ def _default_loc(request):
     return 'Karachi'
 
 
-def _year(request):
+def _year(request, chart=None):
+    """Record year: ?year=, else the current cycle of the chart (calendar year for IC)."""
+    today_y = chart.cycle_of(_date.today()) if (chart is not None and not chart.period_is_month) else _date.today().year
     try:
-        return int(request.GET.get('year') or _date.today().year)
+        return int(request.GET.get('year') or today_y)
     except Exception:
-        return _date.today().year
+        return today_y
 
 
 def _month(request, chart, year, results_qs=None):
@@ -176,10 +178,21 @@ def _month(request, chart, year, results_qs=None):
 
 
 def _period_results(chart, year, month=0):
-    qs = ControlChartResult.objects.filter(chart=chart, date__year=year)
-    if chart.period_is_month and month:
-        qs = qs.filter(date__month=month)
+    if chart.period_is_month:
+        qs = ControlChartResult.objects.filter(chart=chart, date__year=year)
+        if month:
+            qs = qs.filter(date__month=month)
+    else:
+        a, b = chart.cycle_range(year)
+        qs = ControlChartResult.objects.filter(chart=chart, date__gte=a, date__lte=b)
     return list(qs.order_by('date', 'id'))
+
+
+def _chart_years(chart):
+    ys = {chart.cycle_of(d) if not chart.period_is_month else d.year
+          for d in ControlChartResult.objects.filter(chart=chart).values_list('date', flat=True)}
+    ys.add(chart.cycle_of(_date.today()) if not chart.period_is_month else _date.today().year)
+    return sorted(ys, reverse=True)
 
 
 def _limits(chart, baseline, results):
@@ -211,7 +224,9 @@ def _year_locked(chart, year, user, month=0):
 
 def _qs_period(chart, d):
     """(year, month) record period a result date belongs to."""
-    return d.year, (d.month if chart.period_is_month else 0)
+    if chart.period_is_month:
+        return d.year, d.month
+    return chart.cycle_of(d), 0
 
 
 def _pq(year, month=0):
@@ -239,9 +254,12 @@ def control_chart_list(request):
                        | _Q(method__icontains=q) | _Q(level__icontains=q))
     charts = list(qs)
     ids = [c.id for c in charts]
+    cmap = {c.id: c for c in charts}
     res = {}
-    for r in ControlChartResult.objects.filter(chart_id__in=ids, date__year=year).order_by('date'):
-        res.setdefault(r.chart_id, []).append(r)
+    for r in ControlChartResult.objects.filter(chart_id__in=ids, date__year__in=[year, year + 1]).order_by('date'):
+        c = cmap[r.chart_id]
+        if (r.date.year if c.period_is_month else c.cycle_of(r.date)) == year:
+            res.setdefault(r.chart_id, []).append(r)
     sos = {}
     for s_ in ControlChartSignoff.objects.filter(chart_id__in=ids, year=year):
         sos.setdefault(s_.chart_id, {})[s_.month] = s_
@@ -265,8 +283,10 @@ def control_chart_list(request):
         rows.append({'c': c, 'n': n, 'of': of, 'runs': runs, 'last': last, 'last_value': _fmt(last.value, c.decimals) if last else '',
                      'worst': worst, 'mean': _fmt(mean, c.decimals) if mean is not None else '', 'sd': _fmt(sd, c.decimals + 1) if sd is not None else '',
                      'bver': b.version if b else '', 'reviewed': bool(so and so.reviewed_at), 'approved': bool(so and so.approved_at),
-                     'month': _MONTHS[last.date.month - 1] if (c.self_limited and last) else ''})
-    years = sorted({d.year for d in ControlChartResult.objects.values_list('date', flat=True)} | {_date.today().year}, reverse=True)
+                     'month': _MONTHS[last.date.month - 1] if (c.self_limited and last) else '', 'cycle': c.cycle_label(year) if not c.period_is_month else str(year)})
+    allc = {c.id: c for c in ControlChart.objects.all()}
+    years = sorted({(allc[cid].cycle_of(d) if (cid in allc and not allc[cid].period_is_month) else d.year)
+                    for cid, d in ControlChartResult.objects.values_list('chart_id', 'date')} | {_date.today().year}, reverse=True)
     counts = {a: ControlChart.objects.filter(active=True, location=loc, activity=a).count() for a in _CC_ACTS}
     return render(request, 'control_chart_list.html', {
         'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'q': q, 'year': year, 'years': years, 'act': act, 'acts': _CC_ACTS, 'counts': counts,
@@ -289,7 +309,7 @@ def control_chart_archive(request):
     stats = {}
     for cid, d, st in ControlChartResult.objects.values_list('chart_id', 'date', 'status'):
         c = charts.get(cid)
-        key = (cid, d.year, d.month if (c and c.period_is_month) else 0)
+        key = (cid, d.year, d.month) if (c and c.period_is_month) else (cid, c.cycle_of(d) if c else d.year, 0)
         pairs.add(key)
         s = stats.setdefault(key, {'n': 0, 'warning': 0, 'ooc': 0, 'last': None})
         s['n'] += 1
@@ -403,7 +423,7 @@ def control_chart_reviewers(request):
 # ---------------------------------------------------------------- detail
 def control_chart_detail(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
-    year = _year(request)
+    year = _year(request, chart)
     month = _month(request, chart, year)
     b = chart.current_baseline()
     results = _period_results(chart, year, month)
@@ -415,7 +435,7 @@ def control_chart_detail(request, pk):
     lim_f = {k: _fmt(v, chart.decimals) for k, v in (lim or {}).items()}
     if lim:
         lim_f['sd'] = _fmt(lim['sd'], chart.decimals + 1)
-    years = sorted({d.year for d in ControlChartResult.objects.filter(chart=chart).values_list('date', flat=True)} | {_date.today().year}, reverse=True)
+    years = [{'y': y, 'label': _plabel(chart, y)} for y in _chart_years(chart)]
     months = []
     if chart.period_is_month:
         have = {d.month for d in ControlChartResult.objects.filter(chart=chart, date__year=year).values_list('date', flat=True)}
@@ -428,7 +448,40 @@ def control_chart_detail(request, pk):
         'can_admin': _is_admin(user), 'can_edit_master': _can_edit_master(user, chart), 'can_set_baseline': _can_set_baseline(user, chart) and not chart.self_limited,
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
         'base_values': ', '.join(_fmt(v, chart.decimals) for v in (b.values if b else [])),
+        'month_names': _MONTHS, 'cycle_name': chart.cycle_name,
     })
+
+
+@_require_POST
+def control_chart_cycle(request, pk):
+    """Set the first month of the chart's 12-month record cycle (any signed-in
+    user, owner decision 08-10-2026). Results keep their dates; they are simply
+    re-grouped into the new cycle. Sign-offs of the old cycle years are cleared
+    because the records they signed no longer exist in that form."""
+    chart = get_object_or_404(ControlChart, pk=pk)
+    if not _can_create(request.user):
+        return HttpResponse(status=403)
+    if chart.period_is_month:
+        _msg.info(request, 'Intermediate-check charts are recorded per calendar month; the cycle setting does not apply.')
+        return _redirect(f"/qc/control-charts/{pk}/")
+    try:
+        m = int(request.POST.get('start_month'))
+        if not 1 <= m <= 12:
+            raise ValueError
+    except Exception:
+        return HttpResponse('start_month 1-12 required', status=400)
+    if m == chart.sm:
+        return _redirect(f"/qc/control-charts/{pk}/")
+    if ControlChartSignoff.objects.filter(chart=chart, approved_at__isnull=False).exists() and not _can_approve(request.user, chart):
+        _msg.error(request, 'This chart has approved (locked) records; only an administrator can change its cycle.')
+        return _redirect(f"/qc/control-charts/{pk}/")
+    chart.start_month = m
+    chart.save()
+    n = ControlChartSignoff.objects.filter(chart=chart, month=0).exclude(reviewed_at=None, approved_at=None).count()
+    ControlChartSignoff.objects.filter(chart=chart, month=0).delete()
+    _msg.success(request, 'Record cycle set to %s. Existing results were re-grouped into the new cycle%s.' % (
+        chart.cycle_name, ('; %d sign-off(s) of the old cycle were cleared and must be redone' % n) if n else ''))
+    return _redirect(f"/qc/control-charts/{pk}/?year={chart.cycle_of(_date.today())}")
 
 
 # ---------------------------------------------------------------- results
@@ -446,7 +499,7 @@ def control_chart_result_save(request, pk):
         return _redirect('control_chart_detail', pk=pk)
     if d > _date.today() or d.year < 2000:
         _msg.error(request, 'The result date must be between 01-01-2000 and today.')
-        return _redirect(f"/qc/control-charts/{pk}/?year={_date.today().year}")
+        return _redirect(f"/qc/control-charts/{pk}/")
     py, pm = _qs_period(chart, d)
     plabel = _plabel(chart, py, pm)
     if _year_locked(chart, py, user, pm):
@@ -633,13 +686,18 @@ def control_chart_edit(request, pk=None):
         for f in _CC_FIELDS:
             setattr(chart, f, data[f])
         chart.active = bool(request.POST.get('active', '1' if pk is None else ''))
+        try:
+            sm = int(request.POST.get('start_month') or chart.start_month or 1)
+            chart.start_month = sm if 1 <= sm <= 12 else 1
+        except ValueError:
+            pass
         chart.save()
         _msg.success(request, 'Chart saved.')
         if chart.current_baseline() is None and not chart.self_limited:
             return _redirect('control_chart_baseline', pk=chart.pk)
         return _redirect(f"/qc/control-charts/{chart.pk}/")
     return render(request, 'control_chart_edit.html', {
-        'chart': chart, 'locs': _CC_LOCS, 'activities': ControlChart.ACTIVITIES, 'fields': _CC_FIELDS})
+        'chart': chart, 'locs': _CC_LOCS, 'activities': ControlChart.ACTIVITIES, 'fields': _CC_FIELDS, 'month_names': _MONTHS})
 
 
 # ---------------------------------------------------------------- PDF
@@ -666,7 +724,7 @@ def _os_path_exists(p):
 def control_chart_pdf(request, pk):
     import os as _os
     chart = get_object_or_404(ControlChart, pk=pk)
-    year = _year(request)
+    year = _year(request, chart)
     month = _month(request, chart, year)
     b = chart.current_baseline()
     results = _period_results(chart, year, month)

@@ -207,6 +207,16 @@
       <div class="tip note"><b>Intermediate checks - a statistical note.</b> Because the limits of a run are computed from the same readings they judge, a single reading can only fall outside &plusmn; 2 SD once the run holds about six readings or more (with three readings no point can ever exceed the limits). Statuses of a run are re-evaluated automatically every time a reading is added, edited or deleted, so a reading that was "in control" when entered may become a warning as the run grows - this mirrors the Excel sheet.</div>
     </section>
 
+    <section class="topic" id="t-cycle" data-cat="concept" data-keywords="record cycle start month february january 12 month period year selector feb-jan mar-feb change cycle calendar year">
+      <h2><span class="cat-tag">How control charts work</span> The 12-month record cycle (Jan-Dec, Feb-Jan, Mar-Feb ...)</h2>
+      <p>A CRM or RM record covers twelve months, but the laboratory does not always start it in January: when the baseline is established in February the record runs <b>Feb - Jan</b>, when it is established in March it runs <b>Mar - Feb</b>. Each chart therefore has a <b>Record cycle</b> (the month its 12-month record starts in). The chart page, the result table, the graph axis, the year selector, the sign-off and the PDF all follow it; a cycle that spans two calendar years is labelled by both, e.g. <b>2026-27</b> for Feb-2026 to Jan-2027.</p>
+      <ul>
+        <li><b>Setting it.</b> Choose <i>Record cycle starts in</i> on the <b>Add Chart / Edit master</b> form, or use the <b>Change cycle</b> control in the header of the chart page (any signed-in user). New charts default to Jan - Dec.</li>
+        <li><b>Changing an existing chart.</b> Results keep their dates and are simply re-grouped into the new cycle. Any review / approval of the old cycle years is cleared and must be redone, so the sign-off always refers to the record as printed. A chart that already has an <i>approved</i> record can only have its cycle changed by an administrator.</li>
+        <li><b>Intermediate checks</b> are recorded per calendar month and are not affected.</li>
+      </ul>
+    </section>
+
     <section class="topic" id="t-baseline" data-cat="concept" data-keywords="baseline mean standard deviation sd twelve values february version how limits calculated stdev sample">
       <h2><span class="cat-tag">How control charts work</span> The baseline and how limits are calculated</h2>
       <p>A <b>baseline</b> is a set of repeat results for the CRM — usually <b>twelve</b> from the February intermediate check. From them the system calculates:</p>

@@ -7,7 +7,7 @@
     <div class="title"><i class="fa-solid fa-chart-line"></i> {{ chart.title }} <span class="muted">&middot; {{ chart.get_activity_display }} &middot; {{ chart.location }} laboratory</span></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
       <form method="get" style="display:inline-flex;gap:6px">
-        <select name="year" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}</select>
+        <select name="year" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for y in years %}<option value="{{ y.y }}" {% if y.y == year %}selected{% endif %}>{{ y.label }}</option>{% endfor %}</select>
         {% if chart.period_is_month %}<select name="month" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for m in months %}<option value="{{ m.m }}" {% if m.m == month %}selected{% endif %}>{{ m.name }}{% if m.has %} &#10003;{% endif %}</option>{% endfor %}</select>{% endif %}
       </form>
       <a class="btn" href="{% url 'control_chart_list' %}?location={{ chart.location }}&year={{ year }}&activity={{ chart.activity }}"><i class="fa-solid fa-arrow-left"></i> All charts</a>
@@ -24,6 +24,10 @@
     {% if chart.self_limited %}<b>Limits ({{ period }})</b><span>{% if lim %}from this run &middot; n = {{ lim_n }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% else %}<span class="pill none">At least 2 readings are needed before limits can be computed</span>{% endif %}</span>
     {% else %}<b>Baseline</b><span>{% if b %}v{{ b.version }} &middot; n = {{ b.n }} &middot; established {{ b.established_on|date:"d-m-Y" }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% if b.note %} &middot; <span class="muted">{{ b.note }}</span>{% endif %}{% else %}<span class="pill bad">No baseline - limits cannot be computed</span>{% endif %}</span>{% endif %}
     <b>Limits</b><span>{% if lim %}UL {{ lim.ul }} &middot; UWL {{ lim.uwl }} &middot; LWL {{ lim.lwl }} &middot; LL {{ lim.ll }}{% else %}-{% endif %}</span>
+    {% if not chart.period_is_month %}<b>Record cycle</b><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">{{ cycle_name }} <span class="muted">(12-month record starts in {{ cycle_name|slice:":3" }})</span>
+      <form method="post" action="{% url 'control_chart_cycle' chart.id %}" style="display:inline-flex;gap:6px;align-items:center" onsubmit="return confirm('Change the record cycle? Results keep their dates and are re-grouped into the new 12-month cycle; any review/approval of the old cycle years will be cleared.')">{% csrf_token %}
+        <select name="start_month" style="border:1px solid #cbd5e1;border-radius:7px;padding:3px 6px;font-size:12px">{% for m in month_names %}<option value="{{ forloop.counter }}" {% if forloop.counter == chart.sm %}selected{% endif %}>{{ m }} - {% if forloop.counter == 1 %}Dec{% else %}{{ month_names|slice:forloop.counter0|last }}{% endif %}</option>{% endfor %}</select>
+        <button class="btn" type="submit" style="padding:3px 8px;font-size:12px"><i class="fa-solid fa-rotate"></i> Change cycle</button></form></span>{% endif %}
     <b>Document control</b><span>{{ docctrl.doc_no }} &middot; Issue {{ docctrl.issue_no }} &middot; Rev. {{ docctrl.rev_no }} &middot; {{ docctrl.issue_date }}{% if not docctrl.set %} <span class="pill warn">number not yet entered for the {{ chart.location }} {{ chart.activity }} form</span>{% endif %}</span>
   </div>
 </div>

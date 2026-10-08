@@ -33,14 +33,16 @@ def fmt(v, dec):
 def period_label(chart, year, month=0):
     if chart.period_is_month and month:
         return '%s-%d' % (MONTHS[month - 1], year)
-    return str(year)
+    return chart.cycle_label(year)
 
 
-def _slots(chart, results):
-    """x positions of the results: month number for monthly charts, 1..n in date
-    order otherwise; plus the number of x slots to draw."""
+def _slots(chart, results, year):
+    """x positions of the results: position of the month within the chart's
+    cycle for monthly charts, 1..n in date order otherwise; plus the number of
+    x slots to draw."""
     if chart.cadence == 'monthly':
-        return [(r.date.month, r) for r in results], 12
+        pos = {ym: i + 1 for i, ym in enumerate(chart.cycle_months(year))}
+        return [(pos.get((r.date.year, r.date.month), ((r.date.month - chart.sm) % 12) + 1), r) for r in results], 12
     rs = sorted(results, key=lambda r: (r.date, r.id))
     return [(i + 1, r) for i, r in enumerate(rs)], max(12, len(rs))
 
@@ -50,12 +52,12 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     `lim` is the limits dict (baseline or run), `results` already filtered."""
     dec = chart.decimals
     fig, ax = plt.subplots(figsize=(width_in, height_in), dpi=150)
-    slots, nx = _slots(chart, results)
+    slots, nx = _slots(chart, results, year)
     xs = list(range(1, nx + 1))
     ax.set_xlim(0.5, nx + 0.5)
     ax.set_xticks(xs)
     if chart.cadence == 'monthly':
-        labels = ['%s-%s' % (m, str(year)[2:]) for m in MONTHS]
+        labels = ['%s-%s' % (MONTHS[m - 1], str(y)[2:]) for y, m in chart.cycle_months(year)]
     else:
         by_x = {x: r for x, r in slots}
         labels = [by_x[x].date.strftime('%d-%m') if x in by_x else '' for x in xs]
@@ -121,8 +123,8 @@ def period_rows(chart, lim, base_values, results, year, month=0):
     if chart.cadence == 'monthly':
         by_month = {}
         for r in results:
-            by_month.setdefault(r.date.month, r)   # first result of the month
-        seq = [(i + 1, '%s-%s' % (MONTHS[i], str(year)[2:]), by_month.get(i + 1)) for i in range(12)]
+            by_month.setdefault((r.date.year, r.date.month), r)   # first result of the month
+        seq = [(i + 1, '%s-%s' % (MONTHS[m - 1], str(y)[2:]), by_month.get((y, m))) for i, (y, m) in enumerate(chart.cycle_months(year))]
     else:
         rs = sorted(results, key=lambda r: (r.date, r.id))
         seq = []
