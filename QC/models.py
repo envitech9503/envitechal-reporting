@@ -153,6 +153,8 @@ def suspect_values(vals):
 #            weekly  = sequential results (week labels) per cycle (RM)
 #            batch   = sequential results per cycle, one per analytical batch (Duplicate, Spike)
 #            run     = one run of readings per calendar month, limits from the run (IC)
+#            reading = monitoring log: several timed readings per day, one sheet per calendar
+#                      month, judged against FIXED acceptance limits (MON, added 10-10-2026)
 ACTIVITY_PROFILE = {
     'CRM': dict(cadence='monthly', ref='CRM', detail='CRM Detail', value='CRM Certified Value', range='CRM Range',
                 result='Monthly CRM result', col='Month', what='TESTING', unit='mg/l',
@@ -187,6 +189,13 @@ ACTIVITY_PROFILE = {
                 note='Matrix spike recovery (procedure ETAL-LAB-P-604): the percent recovery of each spiked sample is plotted against '
                      'the baseline mean and standard deviation (+/- 2 SD warning, +/- 3 SD action).',
                 base_hint='Usually the recoveries of the first twenty spiked samples (at least 12).'),
+    'MON': dict(cadence='reading', ref='Monitoring', detail='Monitoring device', value='Set point / target', range='Acceptance limits',
+                result='Reading', col='Time', what='MONITORING', unit='\u00b0C',
+                desc='Temperature monitoring of the equipment / room',
+                note='Equipment / environmental monitoring: each reading is compared with the fixed acceptance limits of the equipment '
+                     'or room (e.g. visi-cooler 2-8 \u00b0C, laboratory 20-25 \u00b0C, relative humidity 30-70 %). A reading outside '
+                     'the limits is out of limits and needs a remark / corrective action.',
+                base_hint=''),
 }
 
 
@@ -196,7 +205,8 @@ class ControlChart(models.Model):
                   ('RM', 'Reference Material'),
                   ('IC', 'Intermediate Check'),
                   ('DUP', 'Duplicate'),
-                  ('SPK', 'Spike / Recovery'))
+                  ('SPK', 'Spike / Recovery'),
+                  ('MON', 'Monitoring (temperature / humidity)'))
     location = models.CharField(max_length=20, choices=LOCATIONS, default='Karachi')
     activity = models.CharField(max_length=10, choices=ACTIVITIES, default='CRM')
     parameter = models.CharField(max_length=120)            # e.g. Cadmium (Cd)
@@ -298,6 +308,12 @@ class ControlChart(models.Model):
         return self.activity == 'DUP'
 
     def classify(self, lim, value):
+        if self.spec_limited:
+            if not lim or value is None:
+                return 'ok'
+            if (lim['ul'] is not None and value > lim['ul']) or (lim['ll'] is not None and value < lim['ll']):
+                return 'ooc'
+            return 'ok'
         return classify_value(lim, value, self.upper_only)
 
     def within_acceptance(self, value):
@@ -317,7 +333,33 @@ class ControlChart(models.Model):
 
     @property
     def period_is_month(self):
-        return self.cadence == 'run'
+        return self.cadence in ('run', 'reading')
+
+    @property
+    def spec_limited(self):
+        """Monitoring charts: readings are judged against the fixed acceptance limits."""
+        return self.activity == 'MON'
+
+    @property
+    def no_baseline(self):
+        return self.self_limited or self.spec_limited
+
+    def spec_limits(self):
+        """Fixed limits of a monitoring chart (None for an open side)."""
+        def num(x):
+            try:
+                return float(x) if x not in ('', None) else None
+            except ValueError:
+                return None
+        lo, hi, sp = num(self.crm_range_low), num(self.crm_range_high), num(self.crm_value)
+        if lo is None and hi is None:
+            return None
+        mid = sp if sp is not None else ((lo + hi) / 2.0 if (lo is not None and hi is not None) else None)
+        return {'spec': True, 'ul': hi, 'uwl': hi, 'lwl': lo, 'll': lo, 'mean': mid, 'sd': None, 'n': 0}
+
+    @property
+    def ooc_label(self):
+        return 'Out of limits' if self.spec_limited else 'Out of control'
 
     @property
     def ref_label(self):
@@ -395,6 +437,7 @@ class ControlChartResult(models.Model):
     baseline = models.ForeignKey(ControlChartBaseline, null=True, blank=True,
                                  on_delete=models.SET_NULL, related_name='results')
     date = models.DateField()
+    time = models.CharField(max_length=5, blank=True, default='')   # HH:MM - monitoring readings (added 10-10-2026)
     value = models.FloatField()
     status = models.CharField(max_length=10, choices=STATUS, default='ok')
     remark = models.TextField(blank=True, default='')       # mandatory when status != ok
@@ -404,7 +447,7 @@ class ControlChartResult(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['date', 'id']
+        ordering = ['date', 'time', 'id']
 
     @property
     def year(self):

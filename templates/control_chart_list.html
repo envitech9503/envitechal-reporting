@@ -21,10 +21,11 @@
       <option value="IC" {% if act == 'IC' %}selected{% endif %}>Intermediate checks - monthly runs ({{ counts.IC }})</option>
       <option value="DUP" {% if act == 'DUP' %}selected{% endif %}>Duplicates - RPD per batch ({{ counts.DUP }})</option>
       <option value="SPK" {% if act == 'SPK' %}selected{% endif %}>Spike / recovery - per batch ({{ counts.SPK }})</option>
+      <option value="MON" {% if act == 'MON' %}selected{% endif %}>Monitoring - temperature / humidity ({{ counts.MON }})</option>
     </select>
     <input type="search" name="q" value="{{ q }}" placeholder="Parameter, equipment, method&hellip;" style="min-width:240px">
     <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
-    <span class="muted">{{ count }} chart{{ count|pluralize }} &middot; limits = mean &plusmn; 2 SD (warning) / &plusmn; 3 SD (action){% if act == 'IC' %} from each month's own readings{% else %} of the baseline{% endif %}</span>
+    <span class="muted">{{ count }} chart{{ count|pluralize }} &middot; limits = mean &plusmn; 2 SD (warning) / &plusmn; 3 SD (action){% if act == 'IC' %} from each month's own readings{% elif act == 'MON' %} - monitoring charts use fixed acceptance limits{% else %} of the baseline{% endif %}</span>
   </form>
   <table>
     <thead><tr>
@@ -34,13 +35,13 @@
     <tbody>
     {% for r in rows %}
       <tr>
-        <td><span class="pill {% if r.c.activity == 'CRM' %}ok{% elif r.c.activity == 'RM' %}info{% elif r.c.activity == 'IC' %}none{% else %}warn{% endif %}">{{ r.c.activity }}</span></td>
+        <td><span class="pill {% if r.c.activity == 'CRM' %}ok{% elif r.c.activity == 'RM' %}info{% elif r.c.activity == 'IC' %}none{% elif r.c.activity == 'MON' %}info{% else %}warn{% endif %}">{{ r.c.activity }}</span></td>
         <td><a href="{% url 'control_chart_detail' r.c.id %}?year={{ year }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.parameter }}</a></td>
         <td>{{ r.c.level }}</td><td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td><td>{{ r.c.method }}</td>
-        <td class="num">{{ r.mean }}</td><td class="num">{{ r.sd }}</td>
-        <td class="c nw">{{ r.n }}{{ r.of }}{% if r.c.self_limited and r.month %} <span class="muted">({{ r.month }} run{% if r.runs > 1 %}; {{ r.runs }} runs{% endif %})</span>{% endif %}</td>
+        {% if r.limits %}<td class="num" colspan="2">{{ r.limits }}</td>{% else %}<td class="num">{{ r.mean }}</td><td class="num">{{ r.sd }}</td>{% endif %}
+        <td class="c nw">{{ r.n }}{{ r.of }}{% if r.c.period_is_month and r.month %} <span class="muted">({{ r.month }} run{% if r.runs > 1 %}; {{ r.runs }} runs{% endif %})</span>{% endif %}</td>
         <td class="nw">{% if r.last %}{{ r.last.date|date:"d-m-Y" }} &middot; <b>{{ r.last_value }}</b>{% else %}<span class="muted">none yet</span>{% endif %}</td>
-        <td>{% if r.worst == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">In control</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
+        <td>{% if r.worst == 'ooc' %}<span class="pill bad">{{ r.c.ooc_label }}</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">{% if r.c.spec_limited %}Within limits{% else %}In control{% endif %}</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
         <td>{% if r.approved %}<span class="pill ok">Approved</span>{% elif r.reviewed %}<span class="pill info">Reviewed</span>{% else %}<span class="pill none">Open</span>{% endif %}</td>
         <td><a class="btn" href="{% url 'control_chart_pdf' r.c.id %}?year={{ year }}" target="_blank" title="PDF"><i class="fa-solid fa-file-pdf"></i></a></td>
       </tr>

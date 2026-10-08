@@ -22,6 +22,7 @@
       <option value="IC" {% if act == 'IC' %}selected{% endif %}>Intermediate checks</option>
       <option value="DUP" {% if act == 'DUP' %}selected{% endif %}>Duplicates</option>
       <option value="SPK" {% if act == 'SPK' %}selected{% endif %}>Spike / recovery</option>
+      <option value="MON" {% if act == 'MON' %}selected{% endif %}>Monitoring</option>
     </select>
     <select name="year" onchange="this.form.submit()">
       <option value="All" {% if year == 'All' %}selected{% endif %}>All years</option>
@@ -61,7 +62,7 @@
         <td class="c">{{ r.n }}{{ r.of }}</td>
         <td class="c">{{ r.warn }} / {{ r.ooc }}</td>
         <td class="nw">{% if r.last %}{{ r.last|date:"d-m-Y" }}{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
-        <td>{% if r.worst == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">In control</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
+        <td>{% if r.worst == 'ooc' %}<span class="pill bad">{{ r.c.ooc_label }}</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">{% if r.c.spec_limited %}Within limits{% else %}In control{% endif %}</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
         <td>{% if r.sign == 'approved' %}<span class="pill ok"><i class="fa-solid fa-lock"></i> Approved</span>{% elif r.sign == 'reviewed' %}<span class="pill info">Reviewed</span>{% else %}<span class="pill none">Open</span>{% endif %}</td>
         <td>{% if r.so and r.so.reviewed_at %}{{ r.so.reviewed_by.get_full_name|default:r.so.reviewed_by.username }}<br><span class="muted">{{ r.so.reviewed_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
         <td>{% if r.so and r.so.approved_at %}{{ r.so.approved_by.get_full_name|default:r.so.approved_by.username }}<br><span class="muted">{{ r.so.approved_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>

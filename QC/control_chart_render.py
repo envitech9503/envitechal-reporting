@@ -44,7 +44,7 @@ def _slots(chart, results, year):
     if chart.cadence == 'monthly':
         pos = {ym: i + 1 for i, ym in enumerate(chart.cycle_months(year))}
         return [(pos.get((r.date.year, r.date.month), ((r.date.month - chart.sm) % 12) + 1), r) for r in results], 12
-    rs = sorted(results, key=lambda r: (r.date, r.id))
+    rs = sorted(results, key=lambda r: (r.date, getattr(r, 'time', '') or '', r.id))
     return [(i + 1, r) for i, r in enumerate(rs)], max(12, len(rs))
 
 
@@ -61,9 +61,23 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
         labels = ['%s-%s' % (MONTHS[m - 1], str(y)[2:]) for y, m in chart.cycle_months(year)]
     else:
         by_x = {x: r for x, r in slots}
-        labels = [by_x[x].date.strftime('%d-%m') if x in by_x else '' for x in xs]
+        labels, prev = [], None
+        for x in xs:
+            r = by_x.get(x)
+            lbl = r.date.strftime('%d-%m') if r else ''
+            if chart.spec_limited and r is not None:      # several readings a day: label the first one only
+                lbl = '' if r.date == prev else lbl
+                prev = r.date
+            labels.append(lbl)
     ax.set_xticklabels(labels, fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 16 else 60)
-    if lim:
+    if lim and chart.spec_limited:
+        for key, col, lbl, ls in (('ul', C_UL, 'Upper limit', '-'), ('ll', C_UL, 'Lower limit', '-'), ('mean', C_MEAN, 'Set point', '--')):
+            if lim.get(key) is None or (key == 'll' and lim.get('ul') is not None and lim['ll'] == lim['ul']):
+                continue
+            ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.2, ls=ls, label=lbl, zorder=2)
+            ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
+                        fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
+    elif lim:
         mean_lbl = 'Run mean' if chart.self_limited else 'Baseline mean'
         lines = [('ul', C_UL, 'UL (+3 SD)', '-'), ('uwl', C_UWL, 'UWL (+2 SD)', '--'), ('mean', C_MEAN, mean_lbl, '-')]
         if not chart.upper_only:      # duplicates: one-sided chart, no lower limits
@@ -79,11 +93,17 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
         for x, v, st in pts:
             if st != 'ok':
                 ax.plot([x], [v], marker='D', ms=6.5, color=(C_OOC if st == 'ooc' else C_WARN), zorder=5)
-            ax.annotate(fmt(v, dec), xy=(x, v), xytext=(0, 6), textcoords='offset points',
-                        fontsize=6.5 if nx <= 16 else 5.5, ha='center', color='#1f2937')
+            if nx <= 31 or st != 'ok':      # long monitoring logs: label only the out-of-limit points
+                ax.annotate(fmt(v, dec), xy=(x, v), xytext=(0, 6), textcoords='offset points',
+                            fontsize=6.5 if nx <= 16 else 5.5, ha='center', color='#1f2937')
     # y-range: limits +/- 1 SD padding, widened by any result outside
     ys = [p[1] for p in pts]
-    if lim:
+    if lim and chart.spec_limited:
+        vals = ys + [v for v in (lim.get('ul'), lim.get('ll'), lim.get('mean')) if v is not None]
+        lo, hi = min(vals), max(vals)
+        pad = (hi - lo) * 0.12 or abs(hi) * 0.1 or 1.0
+        ax.set_ylim(lo - pad, hi + pad)
+    elif lim:
         lo, hi = (max(0.0, lim['mean'] - 2 * lim['sd']) if chart.upper_only else lim['ll'] - lim['sd']), lim['ul'] + lim['sd']
         if ys:
             lo, hi = min(lo, min(ys) - lim['sd']), max(hi, max(ys) + lim['sd'])
@@ -99,8 +119,8 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     ydec = max(dec, int(_math.ceil(-_math.log10(step) - 1e-9))) if step > 0 else dec
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.' + str(min(ydec, 6)) + 'f'))
     ax.tick_params(axis='y', labelsize=7)
-    ax.set_xlabel('Testing date', fontsize=8)
-    ax.set_ylabel(('Test result (%s)' % chart.unit) if chart.unit else 'Test result', fontsize=8)
+    ax.set_xlabel('Reading date' if chart.spec_limited else 'Testing date', fontsize=8)
+    ax.set_ylabel((('Reading (%s)' if chart.spec_limited else 'Test result (%s)') % chart.unit) if chart.unit else 'Test result', fontsize=8)
     what = chart.profile['what']
     ax.set_title('CONTROL CHART OF %s %s  -  %s' % (chart.title.upper(), what, period_label(chart, year, month)),
                  fontsize=9.5, fontweight='bold', color='#0f5132')
@@ -135,12 +155,14 @@ def period_rows(chart, lim, base_values, results, year, month=0):
             by_month.setdefault((r.date.year, r.date.month), r)   # first result of the month
         seq = [(i + 1, '%s-%s' % (MONTHS[m - 1], str(y)[2:]), by_month.get((y, m))) for i, (y, m) in enumerate(chart.cycle_months(year))]
     else:
-        rs = sorted(results, key=lambda r: (r.date, r.id))
+        rs = sorted(results, key=lambda r: (r.date, getattr(r, 'time', '') or '', r.id))
         seq = []
         for i in range(max(12, len(rs))):
             r = rs[i] if i < len(rs) else None
             if chart.cadence == 'weekly':
                 lbl = ('Wk %02d' % r.date.isocalendar()[1]) if r else ''
+            elif chart.cadence == 'reading':
+                lbl = (r.time or '-') if r else ''
             else:
                 lbl = str(i + 1) if r else ''
             seq.append((i + 1, lbl, r))

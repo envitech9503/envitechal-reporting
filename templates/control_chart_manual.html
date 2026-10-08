@@ -149,7 +149,7 @@
   <main id="main">
     <div class="intro" id="intro">
       <h2>About this manual</h2>
-      <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks a quality-control result against limits calculated from a mean and standard deviation, so the laboratory can see at a glance whether a method and instrument are still performing as expected. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b> and covers three activities: the <b>monthly CRM</b> exercise, the <b>weekly RM</b> exercise and the <b>intermediate checks</b> of equipment - see <a href="#t-activities">The three chart types</a>.</p>
+      <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks a quality-control result against limits calculated from a mean and standard deviation, so the laboratory can see at a glance whether a method and instrument are still performing as expected. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b> and covers six activities: the <b>monthly CRM</b> exercise, the <b>weekly RM</b> exercise, the <b>intermediate checks</b> of equipment, <b>duplicates</b>, <b>spike recoveries</b> and <b>monitoring</b> of equipment and rooms (temperature / humidity) - see <a href="#t-activities">The six chart types</a>.</p>
       <p>If you are new, read the three <b>Getting started</b> topics in order, then <b>Recording a monthly result</b>. If you need to set up a new chart (any chemist can), go straight to <b>Creating a new control chart (step by step)</b>. Use the <b>search box</b> above or press <span class="kbd">/</span> to find any topic. Topics marked <span class="badge b-warn">QC Manager</span> or <span class="badge b-bad">Administrator</span> need those roles; everything else is for every analyst.</p>
     </div>
 
@@ -158,8 +158,8 @@
       <h2><span class="cat-tag">Getting started</span> Opening the module</h2>
       <p>You must be logged in. There are three ways in:</p>
       <ul>
-        <li><b>From QC.</b> Click <span class="path">QC</span> in the top navigation bar. The <b>Control Charts</b> card offers <b>Record Result</b>, <b>View Charts</b>, <b>Archive</b> and <b>User Manual</b>.</li>
-        <li><b>From the QC sidebar.</b> Inside any QC page, open the <b>Control Charts</b> section of the left-hand sidebar: <b>All Control Charts</b> (plus one link per type: CRM, RM, Intermediate Checks), <b>Archive / Record List</b>, <b>Add Chart</b> and, for administrators, <b>Laboratory Reviewers</b>.</li>
+        <li><b>From QC.</b> Click <span class="path">QC</span> in the top navigation bar. The <b>Control Charts</b> card offers <b>Record Result</b>, <b>View Charts</b>, <b>Sign-off</b>, <b>Archive</b> and <b>User Manual</b>.</li>
+        <li><b>From the QC sidebar.</b> Inside any QC page, open the <b>Control Charts</b> section of the left-hand sidebar: <b>All Control Charts</b> (plus one link per type: CRM, RM, Intermediate Checks, Duplicates, Spike / Recovery, Monitoring), <b>Sign-off (bulk signing)</b>, <b>Archive / Record List</b>, <b>User Manual</b>, <b>Add Chart</b> and, for administrators, <b>Laboratory Reviewers</b> and <b>Document Control</b>.</li>
         <li><b>Directly by address.</b> The chart list is at <code>/qc/control-charts/</code>; this manual is at <code>/qc/control_chart_manual/</code>.</li>
       </ul>
       <div class="note">The module has three working areas: the <b>chart list</b> (one laboratory, one year), the <b>chart page</b> (one parameter: the graph, the monthly table, the entry form and the sign-off panel) and the <b>archive</b> (every record of every year and both laboratories).</div>
@@ -195,8 +195,8 @@
       <p>The procedure is <b>ETAL-LAB-P-604</b>. Two intermediate-check exercises are planned each year (one after calibration, one before proficiency testing); the February exercise, performed before PT, provides the baseline for the year.</p>
     </section>
 
-    <section class="topic" id="t-activities" data-cat="concept" data-keywords="five chart types activities crm monthly rm weekly reference material intermediate check ic equipment run readings duplicate rpd spike recovery batch difference which chart">
-      <h2><span class="cat-tag">How control charts work</span> The five chart types (CRM, RM, intermediate checks, duplicates, spikes)</h2>
+    <section class="topic" id="t-activities" data-cat="concept" data-keywords="six chart types monitoring temperature humidity visi-cooler activities crm monthly rm weekly reference material intermediate check ic equipment run readings duplicate rpd spike recovery batch difference which chart">
+      <h2><span class="cat-tag">How control charts work</span> The six chart types (CRM, RM, intermediate checks, duplicates, spikes, monitoring)</h2>
       <table class="g">
         <tr><th>Activity</th><th>What is recorded</th><th>Record period</th><th>Where the limits come from</th><th>Sign-off</th></tr>
         <tr><td><b>CRM</b> - Certified Reference Material</td><td>One result per <b>month</b> (12 rows per year).</td><td>Calendar year</td><td>The <b>baseline</b> (12 February intermediate-check results); mean &plusmn; 2 SD warning, &plusmn; 3 SD action.</td><td>Per year</td></tr>
@@ -204,8 +204,9 @@
         <tr><td><b>IC</b> - Intermediate check of equipment</td><td>A <b>run</b> of daily readings (normally 12) in one month - CRM dilutions on the spectrophotometers and AAS, or physical checks such as oven / water-bath temperature and balance weights.</td><td>Calendar <b>month</b> (choose the month next to the year)</td><td>The run itself: mean and SD of that month's readings, exactly as in the Excel sheet. There is no separate baseline page.</td><td>Per month</td></tr>
         <tr><td><b>Duplicate</b> - duplicate analyses</td><td>The <b>relative percent difference (RPD, %)</b> of each duplicate pair, one per analytical batch (several per month), listed as Run 1, 2, 3 &hellip;</td><td>12-month cycle</td><td>The <b>baseline</b> (RPDs of the first duplicate pairs, at least 12). The chart is <b>one-sided</b>: only RPDs above +2 SD / +3 SD are flagged - a low RPD is good and never out of control. The acceptance limit may be entered as an upper value only (shown as &le; 15 %).</td><td>Per year</td></tr>
         <tr><td><b>Spike / Recovery</b></td><td>The <b>percent recovery</b> of each matrix spike, one per batch, listed as Run 1, 2, 3 &hellip;</td><td>12-month cycle</td><td>The <b>baseline</b> (recoveries of the first spiked samples, at least 12); &plusmn; 2 SD warning, &plusmn; 3 SD action.</td><td>Per year</td></tr>
+        <tr><td><b>Monitoring</b> - temperature / humidity</td><td><b>Timed readings</b> of an equipment or room - visi-cooler, refrigerator, freezer, incubator, laboratory temperature or relative humidity - as many per day as needed (e.g. 09:00 and 16:00). Negative values (freezers) are accepted.</td><td>Calendar <b>month</b></td><td><b>Fixed acceptance limits</b> entered in the chart master (e.g. 2-8 &deg;C, 20-25 &deg;C, 30-70 %RH, or only an upper limit such as &le; -15 &deg;C). A reading outside them is <i>Out of limits</i> and needs a remark. There is no baseline.</td><td>Per month</td></tr>
       </table>
-      <p>Use the <b>Activity</b> selector on the chart list to show one type at a time; the activity pill is shown in the first column. The chart page, the archive and the PDF form adapt their labels (<i>Monthly CRM result</i>, <i>Weekly RM result</i>, <i>Intermediate check reading</i>, <i>Duplicate RPD</i>, <i>Spike recovery</i>) and their period (year, or month-year for intermediate checks).</p>
+      <p>Use the <b>Activity</b> selector on the chart list to show one type at a time; the activity pill is shown in the first column. The chart page, the archive and the PDF form adapt their labels (<i>Monthly CRM result</i>, <i>Weekly RM result</i>, <i>Intermediate check reading</i>, <i>Duplicate RPD</i>, <i>Spike recovery</i>, <i>Reading</i>) and their period (year, or month-year for intermediate checks and monitoring).</p>
       <div class="tip note"><b>Statistical limits and the certificate range.</b> A result can be outside the statistical limits (&plusmn; 2 / 3 SD of the laboratory's own baseline) while still inside the certificate or acceptance range. The entry form says so ("still within the CRM range &hellip;"); a remark is nevertheless required, because the control chart is showing that the method has drifted from its usual performance.</div>
       <div class="tip note"><b>Intermediate checks - a statistical note.</b> Because the limits of a run are computed from the same readings they judge, a single reading can only fall outside &plusmn; 2 SD once the run holds about six readings or more (with three readings no point can ever exceed the limits). Statuses of a run are re-evaluated automatically every time a reading is added, edited or deleted, so a reading that was "in control" when entered may become a warning as the run grows - this mirrors the Excel sheet.</div>
     </section>
@@ -218,6 +219,19 @@
         <li><b>Changing an existing chart.</b> Results keep their dates and are simply re-grouped into the new cycle. Any review / approval of the old cycle years is cleared and must be redone, so the sign-off always refers to the record as printed. A chart that already has an <i>approved</i> record can only have its cycle changed by an administrator.</li>
         <li><b>Intermediate checks</b> are recorded per calendar month and are not affected.</li>
       </ul>
+    </section>
+
+    <section class="topic" id="t-monitoring" data-cat="concept" data-keywords="monitoring visi-cooler fridge refrigerator freezer incubator room laboratory temperature humidity rh log timed readings limits out of limits new requirement">
+      <h2><span class="cat-tag">How control charts work</span> <span class="badge b-ok">All analysts</span> Monitoring charts: visi-cooler, refrigerator, freezer, room temperature and humidity</h2>
+      <p>Use a <b>Monitoring</b> chart for any equipment or room that must stay within fixed limits. Each quantity is its own chart: for a room record <i>Laboratory temperature</i> and <i>Relative humidity</i> as two charts with the same equipment ID (e.g. <b>LAB-KHI-1</b>).</p>
+      <ol>
+        <li><b>Add Chart</b> &rarr; Activity <b>Monitoring (temperature / humidity)</b>. The unit changes to &deg;C (type <b>%</b> for humidity).</li>
+        <li>Fill in <b>Parameter</b> (e.g. <i>Visi-cooler temperature</i>), <b>Name of equipment</b>, <b>Equipment ID</b>, the <b>Monitoring device</b> (thermometer / data logger and its ID), an optional <b>Set point / target</b>, and the <b>Acceptance limits</b> - lower and upper, or only one side (a freezer: upper limit -15 only). Save - there is no baseline step.</li>
+        <li>On the chart page enter <b>Date</b>, <b>Time</b> and the <b>Reading</b>. Several readings per day are allowed (one per time); the same date and time cannot be entered twice.</li>
+        <li>A reading outside the limits shows <span class="pill bad">OUT OF LIMITS - remark required</span>; write the corrective action (e.g. "door left open during sample loading; closed, re-checked after 30 min") and save.</li>
+        <li>The sheet is <b>monthly</b>: choose the month next to the year. The PDF lists every reading with date and time, the limits, the number of readings out of limits and the graph (the limits in red, the set point dashed green); long months continue on a second page.</li>
+      </ol>
+      <div class="tip note">Examples of limits: visi-cooler / refrigerator 2-8 &deg;C, freezer &le; -15 &deg;C (or &le; -18 &deg;C), incubator 35-37 &deg;C, laboratory 20-25 &deg;C, relative humidity 30-70 %. Use the limits in your SOP or the equipment's specification. Ask an administrator to enter the document-control number of the Monitoring form (Document Control page).</div>
     </section>
 
     <section class="topic" id="t-baseline" data-cat="concept" data-keywords="baseline mean standard deviation sd twelve values february version how limits calculated stdev sample">
@@ -279,6 +293,7 @@
         <li><b>the internet drops when you press save</b> — the entry is held and the bar reads <i>"No connection to the server"</i>. It is sent automatically when the connection returns; you may also close the page and it will be restored next time.</li>
         <li><b>your login expired</b> — sign in again and reopen the chart; the entry is restored.</li>
       </ul>
+      <p>If you open <b>Add Chart</b> for a different chart type while an unsaved new chart is still stored, the bar asks instead: <i>"You have an unsaved entry for another chart"</i> with <b>Restore it</b> / <b>Discard it</b> - nothing is filled in until you choose.</p>
       <p>The draft is removed only after the server confirms the save. Use <b>Discard draft</b> on the yellow bar to throw it away. Drafts belong to the signed-in user (another analyst on the same computer does not see them), stay on the computer where they were typed and are cleared after 14 days.</p>
     </section>
 
@@ -290,10 +305,10 @@
     <!-- ============ SIGN-OFF ============ -->
     <section class="topic" id="t-workflow" data-cat="signoff" data-keywords="workflow three step sign-off chemist qc manager ceo review approve lock electronic signature flow">
       <h2><span class="cat-tag">Review &amp; approval</span> The three-step sign-off</h2>
-      <p>Each chart is signed off <b>once per calendar year</b>, mirroring the three signature boxes on the paper form:</p>
+      <p>Each chart is signed off <b>once per record period</b> (the 12-month cycle; one month for intermediate checks and monitoring), mirroring the three signature boxes on the paper form:</p>
       <table class="g">
         <tr><th>Step</th><th>Who</th><th>What it does</th></tr>
-        <tr><td>1. Performed by</td><td>The analyst(s) who recorded results</td><td>Filled automatically from the results.</td></tr>
+        <tr><td>1. Performed by</td><td>The analyst(s) who recorded results</td><td>Filled automatically from the results. Results imported from the Excel workbooks have no analyst: the analyst signs them with <b>Sign as performer</b> (see <i>Signing imported records</i>). Review is possible only when every result is signed.</td></tr>
         <tr><td>2. Reviewed by <span class="badge b-warn">QC Manager</span></td><td>The QC / Lab Manager assigned to that laboratory</td><td>Confirms the results, statuses and remarks have been checked. Needs at least one result in the year.</td></tr>
         <tr><td>3. Approved by <span class="badge b-bad">Administrator</span></td><td>CEO / administrator</td><td>Approves and <b>locks</b> the year. Possible only after review. Removes the "NOT APPROVED" watermark from the PDF.</td></tr>
       </table>
@@ -316,7 +331,30 @@
         <li>Open the chart and year; confirm the badge shows <b>Reviewed</b>.</li>
         <li>Click <b>Approve &amp; lock</b>. The year is locked for analysts and the PDF loses its watermark.</li>
       </ol>
-      <p><b>Unapprove</b> reopens the year (confirmation required). An administrator who is assigned to a laboratory can approve only that laboratory's charts; unassigned administrators can approve either.</p>
+      <p><b>Unapprove</b> reopens the year (confirmation required) - see <a href="#t-unlock">Changing an approved (locked) record</a>. An administrator who is assigned to a laboratory can approve only that laboratory's charts; unassigned administrators can approve either.</p>
+    </section>
+
+    <section class="topic" id="t-signimported" data-cat="signoff" data-keywords="sign imported records signature missing performed by blank excel workbook sign as performer bulk signing page many records at once retrospective">
+      <h2><span class="cat-tag">Review &amp; approval</span> <span class="badge b-ok">All analysts</span> Signing imported records and bulk sign-off</h2>
+      <p>The 2026 results imported from the laboratory's Excel workbooks were entered by the system, so they carry no <i>Performed by</i> analyst and the PDF signature boxes are empty. They are signed in the system as follows:</p>
+      <ol>
+        <li><b>Analyst</b> - open the chart and period; the sign-off panel shows <span class="pill warn">12 results not signed (imported)</span>. Click <b>Sign as performer</b> and confirm. Your e-signature and the <b>actual signing date</b> are printed in the <i>Performed by</i> box.</li>
+        <li><b>QC Manager</b> - click <b>Review</b> (disabled until every result is signed and every out-of-limit result has a remark).</li>
+        <li><b>CEO / administrator</b> - click <b>Approve &amp; lock</b>.</li>
+      </ol>
+      <p><b>Many records at once:</b> open <span class="path">QC &rsaquo; Control Charts &rsaquo; Sign-off (bulk signing)</span>. Choose the laboratory, chart type and view - <i>Needing the analyst's signature</i>, <i>Signed - awaiting review</i>, <i>Reviewed - awaiting approval</i> or <i>All</i> - tick the records (or the box in the header to tick all) and press <b>Sign selected as performer</b>, <b>Review selected</b> or <b>Approve &amp; lock selected</b>. Only the buttons your role allows are shown; each record passes the same checks as on the chart page, and a record that does not pass is skipped with the reason.</p>
+      <div class="note">Analysts sign only for their own laboratory (the office on their e-signature profile). Sign only work you performed or are responsible for. A review that was made before the results were signed is cleared when they are signed.</div>
+    </section>
+
+    <section class="topic" id="t-unlock" data-cat="signoff" data-keywords="unlock unapprove approved locked year change correction edit after approval ceo permission reopen re-approve">
+      <h2><span class="cat-tag">Review &amp; approval</span> <span class="badge b-bad">Administrator</span> Changing an approved (locked) record</h2>
+      <p>An approved record is locked: analysts cannot add, edit or move results in it, and the cycle of the chart cannot be changed. When a correction is needed and the CEO has given permission:</p>
+      <ol>
+        <li>The <b>CEO / administrator</b> opens the chart and period and clicks <b>Unapprove</b> (confirm). The record is unlocked and returns to <i>Reviewed</i>.</li>
+        <li>The <b>analyst</b> makes the correction with the pencil. A changed date, time or value is recorded in the remark, e.g. <i>[Corrected 10-10-2026 by A. Analyst: was 0.520 on 12-05-2026]</i>, and every change is kept in the history log.</li>
+        <li>The change clears the review automatically; the <b>QC Manager</b> reviews again and the <b>CEO</b> approves again, which locks the record once more.</li>
+      </ol>
+      <p>Only an administrator of the chart's laboratory (or an unassigned administrator) sees the <b>Unapprove</b> button.</p>
     </section>
 
     <section class="topic" id="t-reviewers" data-cat="signoff" data-keywords="laboratory reviewers assign qc manager karachi lahore permissions who can review scope assignment page">
@@ -371,12 +409,13 @@
       <p>Each February, after the intermediate check, open the chart and click <b>Baseline</b>. Enter the new values exactly as in Step 3 above and click <b>Establish new baseline v2</b> (the version number increments automatically). From that moment new results are judged against the new limits; the baseline history table at the foot of the page keeps every earlier version, and earlier results keep the version they were recorded against.</p>
     </section>
 
-    <section class="topic" id="t-editmaster" data-cat="admin" data-keywords="edit master change equipment id method crm lot new certificate retire inactive deactivate chart">
-      <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-bad">Administrator</span> Editing or retiring a chart</h2>
+    <section class="topic" id="t-editmaster" data-cat="admin" data-keywords="edit master change equipment id method crm lot new certificate retire inactive deactivate chart delete remove mistake duplicate">
+      <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-bad">Administrator</span> Editing, retiring or deleting a chart</h2>
       <ul>
         <li><b>New CRM lot or certificate</b> — click <b>Edit master</b> on the chart page, update CRM Detail, value and range, save. The change appears on all future PDFs; every edit is logged in the history.</li>
         <li><b>Instrument replaced</b> — if the equipment ID changes, prefer creating a <b>new chart</b> for the new instrument and retiring the old one, so each chart's history belongs to one instrument.</li>
-        <li><b>Retiring a chart</b> — untick <b>Active</b> in Edit master. The chart disappears from the current list but all of its records remain in the <b>Archive</b>, marked "inactive".</li>
+        <li><b>Retiring a chart</b> — untick <b>Active</b> in Edit master. The chart disappears from the current list but all of its records remain in the <b>Archive</b>, marked "inactive". This is the way to withdraw a chart that holds results: results are quality records and are kept.</li>
+        <li><b>Deleting a chart</b> — a chart that holds <b>no results</b> (e.g. created by mistake or duplicated) shows a <b>Delete chart</b> button to an administrator, to the QC / Lab Manager of its laboratory and to the analyst who created it. A chart with results cannot be deleted by anyone; retire it instead.</li>
       </ul>
     </section>
 

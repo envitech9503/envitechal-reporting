@@ -6,9 +6,9 @@
   <div class="hd"><div class="title"><i class="fa-solid fa-pen"></i> {% if chart %}Edit chart master{% else %}New control chart{% endif %}</div>
     <a class="btn" href="{% if chart %}{% url 'control_chart_detail' chart.id %}{% else %}{% url 'control_chart_list' %}{% endif %}"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
   {% if errors %}<div class="msg error" style="margin:12px 18px 0"><b>Please correct the following:</b><ul style="margin:6px 0 0 18px">{% for e in errors %}<li>{{ e|safe }}</li>{% endfor %}</ul></div>{% endif %}
-  <form method="post" class="frm" data-autosave="master:{% if chart %}{{ chart.id }}{% else %}new{% endif %}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 18px">{% csrf_token %}
+  <form method="post" class="frm" data-autosave="master:{% if chart %}{{ chart.id }}{% else %}new{% endif %}" data-autosave-guard="activity" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 18px">{% csrf_token %}
     <label>Laboratory <select name="location">{% for l in locs %}<option value="{{ l }}" {% if f.location == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
-    <label>Activity <select name="activity" id="ccAct" onchange="ccActivityChanged()">{% for k, v in activities %}<option value="{{ k }}" {% if f.activity == k %}selected{% endif %}>{{ v }}{% if k == 'CRM' %} - monthly{% elif k == 'RM' %} - weekly{% elif k == 'IC' %} - monthly run, limits from the run{% elif k == 'DUP' %} - RPD per batch, one-sided{% elif k == 'SPK' %} - % recovery per batch{% endif %}</option>{% endfor %}</select></label>
+    <label>Activity <select name="activity" id="ccAct" onchange="ccActivityChanged()">{% for k, v in activities %}<option value="{{ k }}" {% if f.activity == k %}selected{% endif %}>{{ v }}{% if k == 'CRM' %} - monthly{% elif k == 'RM' %} - weekly{% elif k == 'IC' %} - monthly run, limits from the run{% elif k == 'DUP' %} - RPD per batch, one-sided{% elif k == 'SPK' %} - % recovery per batch{% elif k == 'MON' %} - visi-cooler, fridge, room, fixed limits{% endif %}</option>{% endfor %}</select></label>
     <label>Parameter * <input name="parameter" value="{{ f.parameter|default:'' }}" required placeholder="e.g. Cadmium (Cd)"></label>
     <label>Level / concentration <input name="level" value="{{ f.level|default:'' }}" placeholder="e.g. 1 ppm"></label>
     <label>Unit <input name="unit" id="ccUnit" value="{{ f.unit|default:'' }}" placeholder="mg/l"></label>
@@ -19,7 +19,7 @@
     <label>Method <input name="method" value="{{ f.method|default:'' }}"></label>
     <label><span id="lblDetail">{{ f.label_detail }}</span> <input name="crm_detail" value="{{ f.crm_detail|default:'' }}" placeholder="e.g. Product # / Lot #, PT sample, spike solution"></label>
     <label><span id="lblValue">{{ f.label_value }}</span> <span class="muted">(number only)</span> <input name="crm_value" value="{{ f.crm_value|default:'' }}" inputmode="decimal" placeholder="e.g. 1.000"></label>
-    <label><span id="lblRange">{{ f.label_range }}</span> <span class="muted">(numbers only{% if f.activity == 'DUP' %}; low optional{% endif %})</span> <span style="display:flex;gap:6px"><input name="crm_range_low" value="{{ f.crm_range_low|default:'' }}" inputmode="decimal" placeholder="low" style="width:50%"><input name="crm_range_high" value="{{ f.crm_range_high|default:'' }}" inputmode="decimal" placeholder="high" style="width:50%"></span></label>
+    <label><span id="lblRange">{{ f.label_range }}</span> <span class="muted">(numbers only<span id="ccRangeHint">{% if f.activity == 'DUP' %}; low optional{% elif f.activity == 'MON' %}; one side may be empty{% endif %}</span>)</span> <span style="display:flex;gap:6px"><input name="crm_range_low" value="{{ f.crm_range_low|default:'' }}" inputmode="decimal" placeholder="low" style="width:50%"><input name="crm_range_high" value="{{ f.crm_range_high|default:'' }}" inputmode="decimal" placeholder="high" style="width:50%"></span></label>
     <label style="grid-column:1/-1">Description <input name="description" id="ccDescription" value="{{ f.description|default:'' }}"></label>
     {% if chart %}<label><span><input type="checkbox" name="active" value="1" {% if f.active %}checked{% endif %}> Active (shown in the list)</span></label>{% endif %}
     <div style="grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
@@ -30,7 +30,7 @@
 <script>
 var CC_P = JSON.parse(document.getElementById('cc-profiles').textContent);
 var CC_DESCS = Object.keys(CC_P).map(function(k){return CC_P[k].desc;}).concat(['CRM Results during Monthly CRM Exercise']);
-var CC_UNITS = ['', 'mg/l', '%'];
+var CC_UNITS = ['', 'mg/l', '%', '\u00b0C'];
 function ccActivityChanged(initial){
   var a = document.getElementById('ccAct').value, p = CC_P[a] || CC_P.CRM;
   var d = document.getElementById('ccDescription'), u = document.getElementById('ccUnit');
@@ -40,9 +40,11 @@ function ccActivityChanged(initial){
   document.getElementById('lblDetail').textContent = p.detail;
   document.getElementById('lblValue').textContent = p.value;
   document.getElementById('lblRange').textContent = p.range;
-  document.getElementById('ccCycleLbl').style.display = (p.cadence === 'run') ? 'none' : '';
+  document.getElementById('ccCycleLbl').style.display = (p.cadence === 'run' || p.cadence === 'reading') ? 'none' : '';
+  var rh = document.getElementById('ccRangeHint'); if (rh) rh.textContent = a === 'DUP' ? '; low optional' : (a === 'MON' ? '; one side may be empty' : '');
   var n = document.getElementById('ccNext');
-  if (n) n.textContent = (p.cadence === 'run') ? 'Next: record the readings of the month (limits are calculated from the run itself).'
+  if (n) n.textContent = (p.cadence === 'reading') ? 'Next: record the readings (date, time and value); each is checked against the acceptance limits.' :
+                         (p.cadence === 'run') ? 'Next: record the readings of the month (limits are calculated from the run itself).'
                                                : 'Next: you will be taken to the baseline page to enter the baseline values.';
 }
 ccActivityChanged(true);

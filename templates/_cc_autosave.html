@@ -1,8 +1,10 @@
-{# Draft protection for the control-chart forms (added 09-10-2026).
+{% comment %}
+Draft protection for the control-chart forms (added 09-10-2026).
    Every form marked data-autosave="<name>" is copied to this computer's browser storage
    while the user types, so a power cut, a closed tab, a lost connection or an expired
    login never loses the entry. The draft is restored when the page is opened again and
-   is removed only after the server confirms the save. Drafts are kept per user. #}
+   is removed only after the server confirms the save. Drafts are kept per user.
+{% endcomment %}
 <div id="ccDraftBar" style="display:none;position:sticky;bottom:0;z-index:50;margin:0 auto;max-width:1100px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:10px 10px 0 0;padding:10px 16px;font-size:13px;box-shadow:0 -2px 8px rgba(0,0,0,.08)"></div>
 <script>
 (function(){
@@ -32,20 +34,34 @@
     (m.getAttribute('data-tags') || '').split(/\s+/).forEach(function(t){ if (t.indexOf('ccsaved:') === 0) saved[t.slice(8)] = 1; }); });
   Object.keys(saved).forEach(function(n){ drop(PFX + n); });
 
+  function fill(f, d){
+    fieldsOf(f).forEach(function(e){ if (!(e.name in d.v)) return;
+      if (e.type === 'checkbox' || e.type === 'radio') e.checked = !!d.v[e.name]; else e.value = d.v[e.name];
+      e.dispatchEvent(new Event('input', {bubbles:true})); e.dispatchEvent(new Event('change', {bubbles:true})); });
+    f.dispatchEvent(new CustomEvent('cc-restored', {detail: d.v}));
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('form[data-autosave]'), function(f){
     var key = PFX + f.getAttribute('data-autosave');
     var d = read(key);
     if (d && d.v) {
       var cur = snapshot(f), differs = Object.keys(d.v).some(function(n){ return n in cur && cur[n] !== d.v[n]; });
+      var guard = f.getAttribute('data-autosave-guard');      // e.g. activity: the page was opened for a different chart type
+      if (differs && guard && (guard in d.v) && (guard in cur) && d.v[guard] !== cur[guard]) {
+        show('<i class="fa-solid fa-clock-rotate-left"></i> You have an <b>unsaved entry</b> for another chart (' + String(d.v[guard]).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+             (d.v.parameter ? ' - ' + String(d.v.parameter).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '') + ', typed on ' + fmt(d.ts) + '). ' +
+             '<button type="button" class="btn" id="ccDraftRestore" style="margin-left:6px;padding:3px 10px;font-size:12px">Restore it</button> ' +
+             '<button type="button" class="btn" id="ccDraftDiscard2" style="padding:3px 10px;font-size:12px">Discard it</button> <span style="opacity:.8">(it is replaced if you continue with this new form)</span>');
+        document.getElementById('ccDraftDiscard2').onclick = function(){ drop(key); show(''); };
+        document.getElementById('ccDraftRestore').onclick = function(){ fill(f, d); show('<i class="fa-solid fa-clock-rotate-left"></i> <b>Unsaved entry restored.</b> Check it and press the save button.'); };
+        differs = false; d = null;
+      }
       if (differs) {
-        fieldsOf(f).forEach(function(e){ if (!(e.name in d.v)) return;
-          if (e.type === 'checkbox' || e.type === 'radio') e.checked = !!d.v[e.name]; else e.value = d.v[e.name];
-          e.dispatchEvent(new Event('input', {bubbles:true})); e.dispatchEvent(new Event('change', {bubbles:true})); });
-        f.dispatchEvent(new CustomEvent('cc-restored', {detail: d.v}));
+        fill(f, d);
         show('<i class="fa-solid fa-clock-rotate-left"></i> <b>Unsaved entry restored</b> (typed on ' + fmt(d.ts) + (d.submitted ? ', not confirmed by the server' : '') +
              '). Check it and press the save button. <button type="button" class="btn" id="ccDraftDiscard" style="margin-left:10px;padding:3px 10px;font-size:12px">Discard draft</button>');
         document.getElementById('ccDraftDiscard').onclick = function(){ noSave = true; drop(key); show(''); location.replace(location.href); };
-      } else if (!d.submitted) { /* identical to what the page shows - nothing to restore */ }
+      }
     }
     var t = null;
     function save(){ if (noSave) return; var s = snapshot(f); if (isBlank(f, s)) { var o = read(key); if (o && !o.submitted) drop(key); return; }

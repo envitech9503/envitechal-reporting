@@ -44,6 +44,7 @@ urlpatterns = [
     path('control-charts/', views.control_chart_list, name='control_chart_list'),
     path('control-charts/new/', views.control_chart_edit, name='control_chart_new'),
     path('control-charts/archive/', views.control_chart_archive, name='control_chart_archive'),
+    path('control-charts/signing/', views.control_chart_signing, name='control_chart_signing'),
     path('control_chart_manual/', views.control_chart_manual, name='control_chart_manual'),
     path('control-charts/reviewers/', views.control_chart_reviewers, name='control_chart_reviewers'),
     path('control-charts/doc-control/', views.control_chart_doccontrol, name='control_chart_doccontrol'),
@@ -55,4 +56,5 @@ urlpatterns = [
     path('control-charts/<int:pk>/signoff/', views.control_chart_signoff, name='control_chart_signoff'),
     path('control-charts/<int:pk>/cycle/', views.control_chart_cycle, name='control_chart_cycle'),
     path('control-charts/<int:pk>/pdf/', views.control_chart_pdf, name='control_chart_pdf'),
+    path('control-charts/<int:pk>/delete/', views.control_chart_delete, name='control_chart_delete'),
 ]

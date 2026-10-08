@@ -1,0 +1,67 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}Control Charts - Signing{% endblock %}
+{% block crumb %} &rsaquo; <span>Signing</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-signature"></i> Sign-off of records <span class="muted">({{ loc }} laboratory)</span></div>
+    <div>
+      <a class="btn" href="{% url 'control_chart_list' %}"><i class="fa-solid fa-chart-line"></i> Current charts</a>
+      <a class="btn" href="{% url 'control_chart_archive' %}"><i class="fa-solid fa-box-archive"></i> Archive</a>
+    </div>
+  </div>
+  <div class="msg warning">Sign many records at once. <b>Analysts</b> sign results that carry no <i>Performed by</i> signature (the records imported from the Excel workbooks) - your e-signature and the actual signing date are printed on the form. The <b>QC Manager</b> then reviews and the <b>CEO / administrator</b> approves and locks. Each record goes through the same checks as the buttons on the chart page; a record that does not pass is skipped with the reason.</div>
+  <form class="toolbar" method="get">
+    <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }} laboratory</option>{% endfor %}</select>
+    <select name="activity" onchange="this.form.submit()"><option value="All">All chart types</option>{% for a in acts %}<option value="{{ a }}" {% if a == act %}selected{% endif %}>{% for k, v in activities.items %}{% if k == a %}{{ v }}{% endif %}{% endfor %}</option>{% endfor %}</select>
+    <select name="show" onchange="this.form.submit()">
+      <option value="sign" {% if show == 'sign' %}selected{% endif %}>Needing the analyst's signature</option>
+      <option value="review" {% if show == 'review' %}selected{% endif %}>Signed - awaiting review</option>
+      <option value="approve" {% if show == 'approve' %}selected{% endif %}>Reviewed - awaiting approval</option>
+      <option value="all" {% if show == 'all' %}selected{% endif %}>All records</option>
+    </select>
+    <span class="muted">{{ rows|length }} record{{ rows|length|pluralize }}</span>
+  </form>
+  <form method="post" id="sgForm">{% csrf_token %}
+  <table>
+    <thead><tr><th><input type="checkbox" id="sgAll" title="Select all"></th><th>Type</th><th>Parameter</th><th>Equipment ID</th><th>Record</th><th class="num">Results</th><th>Performed by</th><th>Remarks</th><th>Sign-off</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{% if not r.approved %}<input type="checkbox" name="rec" value="{{ r.key }}" class="sgRec">{% endif %}</td>
+        <td><span class="pill none">{{ r.c.activity }}</span></td>
+        <td><a href="{% url 'control_chart_detail' r.c.id %}{{ r.pq }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.title }}</a>{% if not r.c.active %} <span class="pill none">inactive</span>{% endif %}</td>
+        <td>{{ r.c.equipment_id|default:"-" }}</td>
+        <td>{{ r.period }}</td>
+        <td class="num">{{ r.n }}</td>
+        <td>{% if r.unsigned %}<span class="pill warn">{{ r.unsigned }} not signed</span>{% else %}<span class="pill ok">signed</span>{% endif %}</td>
+        <td>{% if r.missing %}<span class="pill bad">{{ r.missing }} needed</span>{% else %}<span class="muted">-</span>{% endif %}</td>
+        <td>{% if r.approved %}<span class="pill ok"><i class="fa-solid fa-lock"></i> Approved</span>{% elif r.reviewed %}<span class="pill info">Reviewed</span>{% else %}<span class="pill none">Open</span>{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="9" class="empty">Nothing to sign in this view.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if rows %}
+  <div class="frm" style="border-top:1px solid #eef2f6">
+    {% if can_sign %}<button class="btn btn-p" name="action" value="sign" onclick="return ccSg('signed as Performed by you (your e-signature and today\'s date)')"><i class="fa-solid fa-signature"></i> Sign selected as performer</button>{% endif %}
+    {% if can_review %}<button class="btn btn-p" name="action" value="review" onclick="return ccSg('reviewed')"><i class="fa-solid fa-check"></i> Review selected</button>{% endif %}
+    {% if can_approve %}<button class="btn btn-p" name="action" value="approve" onclick="return ccSg('approved and locked')"><i class="fa-solid fa-stamp"></i> Approve &amp; lock selected</button>{% endif %}
+    <span class="muted" id="sgCount">0 selected</span>
+  </div>
+  {% endif %}
+  </form>
+</div>
+<script>
+(function(){
+  var all = document.getElementById('sgAll'), cnt = document.getElementById('sgCount');
+  function upd(){ if (cnt) cnt.textContent = document.querySelectorAll('.sgRec:checked').length + ' selected'; }
+  if (all) all.addEventListener('change', function(){ document.querySelectorAll('.sgRec').forEach(function(c){ c.checked = all.checked; }); upd(); });
+  document.querySelectorAll('.sgRec').forEach(function(c){ c.addEventListener('change', upd); });
+  window.ccSg = function(what){ var n = document.querySelectorAll('.sgRec:checked').length;
+    if (!n) { alert('Tick at least one record.'); return false; }
+    return confirm(n + ' record(s) will be ' + what + '. Continue?'); };
+})();
+</script>
+{% endblock %}
