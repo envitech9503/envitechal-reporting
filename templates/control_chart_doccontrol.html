@@ -1,0 +1,32 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}Control Charts - Document control{% endblock %}
+{% block crumb %} &rsaquo; <span>Document control</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-file-shield"></i> Document-control numbers of the control-chart forms</div>
+    <a class="btn" href="{% url 'control_chart_list' %}"><i class="fa-solid fa-arrow-left"></i> Control charts</a></div>
+  <div class="msg warning">Each laboratory issues its own controlled-document number for each form (CRM monthly chart, weekly RM chart, intermediate-check chart). The number, issue date, issue and revision numbers entered here are printed in the control box of every PDF of that laboratory and form; until a number is entered the PDF shows <b>TBA</b>. The PDF footer address and telephone follow the laboratory automatically (Karachi head office / Lahore office).</div>
+  <table style="--x:0"><style>td input{border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px;font-family:inherit}</style>
+    <thead><tr><th>Laboratory</th><th>Form</th><th>Document No.</th><th>Issue date</th><th>Issue No.</th><th>Rev. No.</th><th>Printed as</th><th>Last updated</th><th></th></tr></thead>
+    <tbody>
+    {% for g in grid %}
+      <tr>
+        <td><b>{{ g.location }}</b><form method="post" id="docf{{ forloop.counter }}">{% csrf_token %}<input type="hidden" name="location" value="{{ g.location }}"><input type="hidden" name="activity" value="{{ g.activity }}"></form></td>
+        <td>{{ g.activity }} <span class="muted">- {{ g.name }}</span></td>
+        <td><input form="docf{{ forloop.counter }}" name="doc_no" value="{{ g.doc_no }}" placeholder="e.g. ETAL-LAB-604-FF-11" style="width:190px"></td>
+        <td><input form="docf{{ forloop.counter }}" name="issue_date" value="{{ g.issue_date }}" placeholder="dd-mm-yyyy" style="width:110px"></td>
+        <td><input form="docf{{ forloop.counter }}" name="issue_no" value="{{ g.issue_no }}" style="width:60px"></td>
+        <td><input form="docf{{ forloop.counter }}" name="rev_no" value="{{ g.rev_no }}" style="width:60px"></td>
+        <td>{% if g.set %}<span class="pill ok">{{ g.shown }}</span>{% else %}<span class="pill warn">TBA</span>{% endif %}</td>
+        <td class="muted">{% if g.updated %}{{ g.updated|date:"d-m-Y H:i" }} {{ g.by.username|default:"" }}{% else %}-{% endif %}</td>
+        <td><button form="docf{{ forloop.counter }}" class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="muted" style="padding:10px 18px">
+    <b>Footer printed on PDFs</b><br>
+    {% for loc, o in office.items %}{{ loc }}: {{ o.tel }} &middot; {{ o.address }}<br>{% endfor %}
+  </div>
+</div>
+{% endblock %}

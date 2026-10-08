@@ -149,7 +149,7 @@
   <main id="main">
     <div class="intro" id="intro">
       <h2>About this manual</h2>
-      <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks the monthly result of a <b>Certified Reference Material (CRM)</b> against limits calculated from a <b>baseline</b>, so the laboratory can see at a glance whether a method and instrument are still performing as they did when the baseline was set. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b>.</p>
+      <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks a quality-control result against limits calculated from a mean and standard deviation, so the laboratory can see at a glance whether a method and instrument are still performing as expected. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b> and covers three activities: the <b>monthly CRM</b> exercise, the <b>weekly RM</b> exercise and the <b>intermediate checks</b> of equipment - see <a href="#t-activities">The three chart types</a>.</p>
       <p>If you are new, read the three <b>Getting started</b> topics in order, then <b>Recording a monthly result</b>. If you need to set up a new chart (any chemist can), go straight to <b>Creating a new control chart (step by step)</b>. Use the <b>search box</b> above or press <span class="kbd">/</span> to find any topic. Topics marked <span class="badge b-warn">QC Manager</span> or <span class="badge b-bad">Administrator</span> need those roles; everything else is for every analyst.</p>
     </div>
 
@@ -193,6 +193,18 @@
       <h2><span class="cat-tag">How control charts work</span> What a control chart is for</h2>
       <p>Each month the laboratory analyses a CRM of known concentration using the same method and instrument as routine samples. If the method is stable, the result should land close to the value obtained when the baseline was established. Plotting every month's result on the same chart turns that check into a picture: a run of points drifting towards a limit is visible long before a result actually fails.</p>
       <p>The procedure is <b>ETAL-LAB-P-604</b>. Two intermediate-check exercises are planned each year (one after calibration, one before proficiency testing); the February exercise, performed before PT, provides the baseline for the year.</p>
+    </section>
+
+    <section class="topic" id="t-activities" data-cat="concept" data-keywords="three chart types activities crm monthly rm weekly reference material intermediate check ic equipment run readings difference which chart">
+      <h2><span class="cat-tag">How control charts work</span> The three chart types (CRM, RM, intermediate checks)</h2>
+      <table class="g">
+        <tr><th>Activity</th><th>What is recorded</th><th>Record period</th><th>Where the limits come from</th><th>Sign-off</th></tr>
+        <tr><td><b>CRM</b> - Certified Reference Material</td><td>One result per <b>month</b> (12 rows per year).</td><td>Calendar year</td><td>The <b>baseline</b> (12 February intermediate-check results); mean &plusmn; 2 SD warning, &plusmn; 3 SD action.</td><td>Per year</td></tr>
+        <tr><td><b>RM</b> - Reference Material (PT sample)</td><td>One result per <b>week</b>, listed in date order with its ISO week number; the form grows beyond 12 rows as the year goes on.</td><td>Calendar year</td><td>The <b>baseline</b> (the first twelve RM results of the exercise, e.g. July).</td><td>Per year</td></tr>
+        <tr><td><b>IC</b> - Intermediate check of equipment</td><td>A <b>run</b> of daily readings (normally 12) in one month - CRM dilutions on the spectrophotometers and AAS, or physical checks such as oven / water-bath temperature and balance weights.</td><td>Calendar <b>month</b> (choose the month next to the year)</td><td>The run itself: mean and SD of that month's readings, exactly as in the Excel sheet. There is no separate baseline page.</td><td>Per month</td></tr>
+      </table>
+      <p>Use the <b>Activity</b> selector on the chart list to show one type at a time; the activity pill is shown in the first column. The chart page, the archive and the PDF form adapt their labels (<i>Monthly CRM result</i>, <i>Weekly RM result</i>, <i>Intermediate check reading</i>) and their period (year, or month-year for intermediate checks).</p>
+      <div class="tip note"><b>Intermediate checks - a statistical note.</b> Because the limits of a run are computed from the same readings they judge, a single reading can only fall outside &plusmn; 2 SD once the run holds about six readings or more (with three readings no point can ever exceed the limits). Statuses of a run are re-evaluated automatically every time a reading is added, edited or deleted, so a reading that was "in control" when entered may become a warning as the run grows - this mirrors the Excel sheet.</div>
     </section>
 
     <section class="topic" id="t-baseline" data-cat="concept" data-keywords="baseline mean standard deviation sd twelve values february version how limits calculated stdev sample">
@@ -240,6 +252,7 @@
       <ul>
         <li><b>Edit</b> — click the pencil on the table row; the entry form loads that result. Change the date, value or remark and save. The status is recalculated.</li>
         <li><b>Delete</b> — only an administrator of that laboratory can delete a result (the bin icon). Deletion is permanent and is recorded in the history log.</li>
+        <li><b>RM and intermediate-check charts</b> accept one result per <b>date</b> (several in one month); CRM charts accept one result per <b>month</b>.</li>
       </ul>
       <div class="warn note">If the year had already been reviewed or approved, <b>any change to a result clears the review and approval</b> and the year goes back to "Open". This is deliberate: a signed form must match the data. The message on screen tells you when this has happened.</div>
     </section>
@@ -359,6 +372,12 @@
     </section>
 
     <!-- ============ PDF ============ -->
+    <section class="topic" id="t-doccontrol" data-cat="admin" data-keywords="document control number doc no issue date revision karachi lahore different numbers per laboratory per form footer address lahore office tba">
+      <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-bad">Administrator</span> Document-control numbers and the laboratory footer</h2>
+      <p>Karachi and Lahore issue <b>different controlled-document numbers</b> for each form (CRM chart, RM chart, intermediate-check chart). An administrator enters them once on <span class="path">QC &rarr; Control Charts &rarr; Document Control (admin)</span>: document number, issue date, issue and revision numbers for each laboratory and form. The control box of every PDF prints the number of the chart's own laboratory and form; until a number has been entered the PDF shows <b>TBA</b> and the chart page shows a reminder.</p>
+      <p>The PDF footer also follows the laboratory automatically: Karachi charts carry the head-office address and telephone, Lahore charts the Lahore office address and telephone.</p>
+    </section>
+
     <section class="topic" id="t-pdf" data-cat="pdf" data-keywords="pdf form print one page layout document control number ETAL-LAB-604-FF-11 signatures graph table filename">
       <h2><span class="cat-tag">PDF form</span> The printed form</h2>
       <p><b>PDF form</b> on the chart page (or the PDF icon in any list) produces a one-page A4 form <b>ETAL-LAB-604-FF-11</b> for the selected year: the document-control box, the chart header, the twelve-month table colour-coded by status, the graph with its limits, the remarks, the SOP note and the three electronic-signature panels. The file name carries the laboratory, parameter, equipment ID and year, e.g. <code>ControlChart_Lahore_Nitrate_VS-03_2026.pdf</code>.</p>

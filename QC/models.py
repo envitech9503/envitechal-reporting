@@ -73,6 +73,28 @@ for _m in (Dw_rds, Ww_rds, TestingResultsOfDWSamples, TestingResultsOfWWSamples)
 import statistics as _stats
 
 
+def run_limits(values):
+    """Mean / sample SD and the +/-2 SD, +/-3 SD limits of a list of values
+    (None when fewer than 2 values). Used for baselines and for Intermediate
+    Check runs, whose limits come from the run's own readings."""
+    vals = [float(v) for v in values if v not in (None, '')]
+    if len(vals) < 2:
+        return None
+    m, s = _stats.mean(vals), _stats.stdev(vals)
+    return {'mean': m, 'sd': s, 'n': len(vals), 'uwl': m + 2 * s, 'lwl': m - 2 * s, 'ul': m + 3 * s, 'll': m - 3 * s}
+
+
+def classify_value(lim, value):
+    """'ok' | 'warning' (outside +/-2 SD) | 'ooc' (outside +/-3 SD)."""
+    if lim is None or value is None:
+        return 'ok'
+    if value > lim['ul'] or value < lim['ll']:
+        return 'ooc'
+    if value > lim['uwl'] or value < lim['lwl']:
+        return 'warning'
+    return 'ok'
+
+
 class ControlChart(models.Model):
     LOCATIONS = (('Karachi', 'Karachi'), ('Lahore', 'Lahore'))
     ACTIVITIES = (('CRM', 'CRM (Certified Reference Material)'),
@@ -120,6 +142,38 @@ class ControlChart(models.Model):
     def current_baseline(self):
         return self.baselines.filter(is_current=True).order_by('-version').first()
 
+    # ---- activity-driven behaviour (08-10-2026: RM and Intermediate Check charts)
+    @property
+    def cadence(self):
+        """'monthly' (CRM: 12 month rows per year), 'weekly' (RM: sequential weekly
+        results per year) or 'run' (IC: one run of ~12 readings per calendar month,
+        limits computed from the run itself)."""
+        return {'RM': 'weekly', 'IC': 'run'}.get(self.activity, 'monthly')
+
+    @property
+    def self_limited(self):
+        return self.activity == 'IC'
+
+    @property
+    def period_is_month(self):
+        return self.cadence == 'run'
+
+    @property
+    def ref_label(self):
+        return {'RM': 'RM', 'IC': 'CRM/RM'}.get(self.activity, 'CRM')
+
+    @property
+    def result_label(self):
+        return {'RM': 'Weekly RM result', 'IC': 'Intermediate check reading'}.get(self.activity, 'Monthly CRM result')
+
+    @property
+    def period_col(self):
+        return {'RM': 'Week', 'IC': 'Reading'}.get(self.activity, 'Month')
+
+    @property
+    def activity_short(self):
+        return self.get_activity_display().split(' (')[0]
+
 
 class ControlChartBaseline(models.Model):
     chart = models.ForeignKey(ControlChart, on_delete=models.CASCADE, related_name='baselines')
@@ -156,15 +210,7 @@ class ControlChartBaseline(models.Model):
                 'ul': m + 3 * s, 'll': m - 3 * s}
 
     def classify(self, value):
-        """'ok' | 'warning' (outside +/-2 SD) | 'ooc' (outside +/-3 SD)."""
-        lim = self.limits()
-        if lim is None or value is None:
-            return 'ok'
-        if value > lim['ul'] or value < lim['ll']:
-            return 'ooc'
-        if value > lim['uwl'] or value < lim['lwl']:
-            return 'warning'
-        return 'ok'
+        return classify_value(self.limits(), value)
 
     def __str__(self):
         return 'Baseline v%s of %s' % (self.version, self.chart_id)
@@ -198,6 +244,7 @@ class ControlChartSignoff(models.Model):
     non-admin users."""
     chart = models.ForeignKey(ControlChart, on_delete=models.CASCADE, related_name='signoffs')
     year = models.IntegerField()
+    month = models.IntegerField(default=0)   # 0 = whole year (CRM / RM); 1-12 = one IC run (added 08-10-2026)
     reviewed_by = models.ForeignKey('auth.User', null=True, blank=True,
                                     on_delete=models.SET_NULL, related_name='+')
     reviewed_at = models.DateTimeField(null=True, blank=True)
@@ -206,7 +253,7 @@ class ControlChartSignoff(models.Model):
     approved_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('chart', 'year')
+        unique_together = ('chart', 'year', 'month')
 
     @property
     def locked(self):

@@ -46,6 +46,7 @@ urlpatterns = [
     path('control-charts/archive/', views.control_chart_archive, name='control_chart_archive'),
     path('control_chart_manual/', views.control_chart_manual, name='control_chart_manual'),
     path('control-charts/reviewers/', views.control_chart_reviewers, name='control_chart_reviewers'),
+    path('control-charts/doc-control/', views.control_chart_doccontrol, name='control_chart_doccontrol'),
     path('control-charts/<int:pk>/', views.control_chart_detail, name='control_chart_detail'),
     path('control-charts/<int:pk>/edit/', views.control_chart_edit, name='control_chart_edit'),
     path('control-charts/<int:pk>/baseline/', views.control_chart_baseline, name='control_chart_baseline'),

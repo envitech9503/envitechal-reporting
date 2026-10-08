@@ -15,6 +15,12 @@
       <option value="All" {% if loc == 'All' %}selected{% endif %}>All laboratories</option>
       {% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }} laboratory</option>{% endfor %}
     </select>
+    <select name="activity" onchange="this.form.submit()">
+      <option value="All" {% if act == 'All' %}selected{% endif %}>All activities</option>
+      <option value="CRM" {% if act == 'CRM' %}selected{% endif %}>CRM</option>
+      <option value="RM" {% if act == 'RM' %}selected{% endif %}>RM</option>
+      <option value="IC" {% if act == 'IC' %}selected{% endif %}>Intermediate checks</option>
+    </select>
     <select name="year" onchange="this.form.submit()">
       <option value="All" {% if year == 'All' %}selected{% endif %}>All years</option>
       {% for y in years %}<option value="{{ y }}" {% if y|stringformat:"s" == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
@@ -39,17 +45,18 @@
   </form>
   <table>
     <thead><tr>
-      <th>Year</th><th>Laboratory</th><th>Parameter</th><th>Level</th><th>Equipment</th><th>ID</th>
+      <th class="nw">Period</th><th>Activity</th><th>Laboratory</th><th>Parameter</th><th>Level</th><th>Equipment</th><th>ID</th>
       <th class="c nw">Results</th><th class="c nw">Warn / OOC</th><th class="nw">Last result</th><th>Status</th><th>Sign-off</th><th>Reviewed by</th><th>Approved by</th><th></th>
     </tr></thead>
     <tbody>
     {% for r in rows %}
       <tr>
-        <td><b>{{ r.year }}</b></td>
+        <td class="nw"><b>{{ r.period }}</b></td>
+        <td>{{ r.c.activity }}</td>
         <td>{{ r.c.location }}</td>
-        <td><a href="{% url 'control_chart_detail' r.c.id %}?year={{ r.year }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.parameter }}</a>{% if not r.c.active %} <span class="pill none">inactive</span>{% endif %}</td>
+        <td><a href="{% url 'control_chart_detail' r.c.id %}{{ r.pq }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.parameter }}</a>{% if not r.c.active %} <span class="pill none">inactive</span>{% endif %}</td>
         <td>{{ r.c.level }}</td><td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td>
-        <td class="c">{{ r.n }} / 12</td>
+        <td class="c">{{ r.n }}{{ r.of }}</td>
         <td class="c">{{ r.warn }} / {{ r.ooc }}</td>
         <td class="nw">{% if r.last %}{{ r.last|date:"d-m-Y" }}{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
         <td>{% if r.worst == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">In control</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
@@ -57,12 +64,12 @@
         <td>{% if r.so and r.so.reviewed_at %}{{ r.so.reviewed_by.get_full_name|default:r.so.reviewed_by.username }}<br><span class="muted">{{ r.so.reviewed_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
         <td>{% if r.so and r.so.approved_at %}{{ r.so.approved_by.get_full_name|default:r.so.approved_by.username }}<br><span class="muted">{{ r.so.approved_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
         <td style="white-space:nowrap">
-          <a class="btn" href="{% url 'control_chart_detail' r.c.id %}?year={{ r.year }}" title="Open record"><i class="fa-solid fa-folder-open"></i></a>
-          <a class="btn" href="{% url 'control_chart_pdf' r.c.id %}?year={{ r.year }}" target="_blank" title="PDF"><i class="fa-solid fa-file-pdf"></i></a>
+          <a class="btn" href="{% url 'control_chart_detail' r.c.id %}{{ r.pq }}" title="Open record"><i class="fa-solid fa-folder-open"></i></a>
+          <a class="btn" href="{% url 'control_chart_pdf' r.c.id %}{{ r.pq }}" target="_blank" title="PDF"><i class="fa-solid fa-file-pdf"></i></a>
         </td>
       </tr>
     {% empty %}
-      <tr><td colspan="14" class="empty">No control chart records match these filters.</td></tr>
+      <tr><td colspan="15" class="empty">No control chart records match these filters.</td></tr>
     {% endfor %}
     </tbody>
   </table>

@@ -6,11 +6,12 @@
   <div class="hd">
     <div class="title"><i class="fa-solid fa-chart-line"></i> {{ chart.title }} <span class="muted">&middot; {{ chart.get_activity_display }} &middot; {{ chart.location }} laboratory</span></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-      <form method="get" style="display:inline">{% for y in years %}{% endfor %}
+      <form method="get" style="display:inline-flex;gap:6px">
         <select name="year" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}</select>
+        {% if chart.period_is_month %}<select name="month" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for m in months %}<option value="{{ m.m }}" {% if m.m == month %}selected{% endif %}>{{ m.name }}{% if m.has %} &#10003;{% endif %}</option>{% endfor %}</select>{% endif %}
       </form>
-      <a class="btn" href="{% url 'control_chart_list' %}?location={{ chart.location }}&year={{ year }}"><i class="fa-solid fa-arrow-left"></i> All charts</a>
-      <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}?year={{ year }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
+      <a class="btn" href="{% url 'control_chart_list' %}?location={{ chart.location }}&year={{ year }}&activity={{ chart.activity }}"><i class="fa-solid fa-arrow-left"></i> All charts</a>
+      <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}{{ pq }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
       {% if can_edit_master %}<a class="btn" href="{% url 'control_chart_edit' chart.id %}"><i class="fa-solid fa-pen"></i> Edit master</a>{% endif %}
       {% if can_set_baseline %}<a class="btn" href="{% url 'control_chart_baseline' chart.id %}"><i class="fa-solid fa-ruler"></i> Baseline</a>{% endif %}
     </div>
@@ -18,27 +19,29 @@
   <div class="kv">
     <b>Name of Equipment</b><span>{{ chart.equipment|default:"-" }}</span><b>Equipment ID</b><span>{{ chart.equipment_id|default:"-" }}</span>
     <b>Parameter</b><span>{{ chart.title }}</span><b>Method</b><span>{{ chart.method|default:"-" }}</span>
-    <b>CRM Detail</b><span>{{ chart.crm_detail|default:"-" }}</span><b>CRM Value</b><span>{{ chart.crm_value }} {{ chart.unit }}</span>
-    <b>CRM Range</b><span>{{ chart.crm_range }} {{ chart.unit }}</span><b>Description</b><span>{{ chart.description }}</span>
-    <b>Baseline</b><span>{% if b %}v{{ b.version }} &middot; n = {{ b.n }} &middot; established {{ b.established_on|date:"d-m-Y" }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% if b.note %} &middot; <span class="muted">{{ b.note }}</span>{% endif %}{% else %}<span class="pill bad">No baseline - limits cannot be computed</span>{% endif %}</span>
-    <b>Limits</b><span>UL {{ lim.ul }} &middot; UWL {{ lim.uwl }} &middot; LWL {{ lim.lwl }} &middot; LL {{ lim.ll }}</span>
+    <b>{{ chart.ref_label }} Detail</b><span>{{ chart.crm_detail|default:"-" }}</span><b>{{ chart.ref_label }} Value</b><span>{{ chart.crm_value|default:"-" }} {{ chart.unit }}</span>
+    <b>{% if chart.self_limited %}Acceptance Range{% else %}{{ chart.ref_label }} Range{% endif %}</b><span>{{ chart.crm_range|default:"-" }} {{ chart.unit }}</span><b>Description</b><span>{{ chart.description }}</span>
+    {% if chart.self_limited %}<b>Limits ({{ period }})</b><span>{% if lim %}from this run &middot; n = {{ lim_n }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% else %}<span class="pill none">At least 2 readings are needed before limits can be computed</span>{% endif %}</span>
+    {% else %}<b>Baseline</b><span>{% if b %}v{{ b.version }} &middot; n = {{ b.n }} &middot; established {{ b.established_on|date:"d-m-Y" }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% if b.note %} &middot; <span class="muted">{{ b.note }}</span>{% endif %}{% else %}<span class="pill bad">No baseline - limits cannot be computed</span>{% endif %}</span>{% endif %}
+    <b>Limits</b><span>{% if lim %}UL {{ lim.ul }} &middot; UWL {{ lim.uwl }} &middot; LWL {{ lim.lwl }} &middot; LL {{ lim.ll }}{% else %}-{% endif %}</span>
+    <b>Document control</b><span>{{ docctrl.doc_no }} &middot; Issue {{ docctrl.issue_no }} &middot; Rev. {{ docctrl.rev_no }} &middot; {{ docctrl.issue_date }}{% if not docctrl.set %} <span class="pill warn">number not yet entered for the {{ chart.location }} {{ chart.activity }} form</span>{% endif %}</span>
   </div>
 </div>
 
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px">Control chart - {{ year }}</div>
+  <div class="hd"><div class="title" style="font-size:15px">Control chart - {{ period }}</div>
     <div>{% if so and so.approved_at %}<span class="pill ok">Approved by {{ so.approved_by.get_full_name|default:so.approved_by.username }} on {{ so.approved_at|date:"d-m-Y" }}</span>
       {% elif so and so.reviewed_at %}<span class="pill info">Reviewed by {{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }} on {{ so.reviewed_at|date:"d-m-Y" }} - awaiting approval</span>
       {% else %}<span class="pill none">Open - not yet reviewed</span>{% endif %}</div>
   </div>
-  <div class="chartbox">{% if svg %}{{ svg|safe }}{% else %}<div class="empty">Establish a baseline to draw the chart.</div>{% endif %}</div>
+  <div class="chartbox">{% if svg %}{{ svg|safe }}{% else %}<div class="empty">{% if chart.self_limited %}Record the readings of {{ period }} to draw the chart.{% else %}Establish a baseline to draw the chart.{% endif %}</div>{% endif %}</div>
 </div>
 
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px">Monthly CRM results - {{ year }}</div></div>
-  {% if locked %}<div class="msg warning"><i class="fa-solid fa-lock"></i> {{ year }} is approved and locked. Ask an administrator to unapprove it before making changes.</div>{% endif %}
+  <div class="hd"><div class="title" style="font-size:15px">{{ chart.result_label }}s - {{ period }}</div></div>
+  {% if locked %}<div class="msg warning"><i class="fa-solid fa-lock"></i> {{ period }} is approved and locked. Ask an administrator to unapprove it before making changes.</div>{% endif %}
   <table>
-    <thead><tr><th>S. No.</th><th>Month</th><th>Date</th><th class="num">Monthly CRM result{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th>Status</th><th>Remark / corrective action</th><th>Performed by</th><th class="num">Baseline result</th><th class="num">UL (+3)</th><th class="num">UWL (+2)</th><th class="num">LWL (-2)</th><th class="num">LL (-3)</th><th></th></tr></thead>
+    <thead><tr><th>S. No.</th><th>{{ chart.period_col }}</th><th>Date</th><th class="num">{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th>Status</th><th>Remark / corrective action</th><th>Performed by</th>{% if not chart.self_limited %}<th class="num">Baseline result</th>{% endif %}<th class="num">UL (+3)</th><th class="num">UWL (+2)</th><th class="num">LWL (-2)</th><th class="num">LL (-3)</th><th></th></tr></thead>
     <tbody>
     {% for r in rows %}
       <tr>
@@ -47,23 +50,24 @@
         <td>{% if r.status == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.status == 'warning' %}<span class="pill warn">Warning</span>{% elif r.status == 'ok' %}<span class="pill ok">In control</span>{% endif %}</td>
         <td style="max-width:260px;font-size:12px">{{ r.remark }}</td>
         <td class="muted">{% if r.result and r.result.performed_by %}{{ r.result.performed_by.get_full_name|default:r.result.performed_by.username }}<br>{{ r.result.performed_at|date:"d-m-Y H:i" }}{% endif %}</td>
-        <td class="num">{{ r.base }}</td><td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td><td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>
+        {% if not chart.self_limited %}<td class="num">{{ r.base }}</td>{% endif %}<td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td><td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>
         <td style="white-space:nowrap">{% if r.result and not locked %}
           <button class="btn" type="button" onclick="ccEdit({{ r.result.id }},'{{ r.result.date|date:"Y-m-d" }}','{{ r.result.value }}',this)" title="Edit"><i class="fa-solid fa-pen"></i></button>
           {% if can_approve %}<form method="post" action="{% url 'control_chart_result_delete' chart.id r.result.id %}" style="display:inline" onsubmit="return confirm('Delete this result?')">{% csrf_token %}<button class="btn" type="submit" title="Delete"><i class="fa-solid fa-trash"></i></button></form>{% endif %}
         {% endif %}</td>
       </tr>
     {% endfor %}
-    {% for v in extra_base %}<tr><td>{{ forloop.counter|add:12 }}</td><td colspan="6" class="muted">(additional baseline value)</td><td class="num">{{ v }}</td><td colspan="5"></td></tr>{% endfor %}
+    {% for v in extra_base %}<tr><td>{{ forloop.counter|add:nrows }}</td><td colspan="6" class="muted">(additional baseline value)</td><td class="num">{{ v }}</td><td colspan="5"></td></tr>{% endfor %}
     </tbody>
   </table>
-  {% if b %}<div class="muted" style="padding:8px 18px">Baseline values (v{{ b.version }}): {{ base_values }}</div>{% endif %}
+  {% if b and not chart.self_limited %}<div class="muted" style="padding:8px 18px">Baseline values (v{{ b.version }}): {{ base_values }}</div>{% endif %}
+  {% if chart.self_limited %}<div class="muted" style="padding:8px 18px">Each reading is judged against the mean and SD of this month's run; statuses are re-evaluated whenever a reading is added, changed or deleted.</div>{% endif %}
 
-  {% if not locked and b %}
+  {% if not locked and b or not locked and chart.self_limited %}
   <form class="frm" method="post" action="{% url 'control_chart_result_save' chart.id %}" id="ccForm" style="border-top:1px solid #eef2f6">
     {% csrf_token %}<input type="hidden" name="result_id" id="ccRid" value="">
     <label>Date <input type="date" name="date" id="ccDate" value="{{ request.GET.date|default:today }}" required></label>
-    <label>Monthly CRM result{% if chart.unit %} ({{ chart.unit }}){% endif %} <input type="number" step="any" name="value" id="ccVal" value="{{ request.GET.value }}" required style="width:140px"></label>
+    <label>{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %} <input type="number" step="any" name="value" id="ccVal" value="{{ request.GET.value }}" required style="width:140px"></label>
     <label style="flex:1;min-width:260px">Remark / corrective action <span class="muted">(required when outside &plusmn;2 SD)</span><input type="text" name="remark" id="ccRem" maxlength="500"></label>
     <span id="ccPreview" class="pill none" style="align-self:center">enter a value</span>
     <button class="btn btn-p" type="submit" id="ccBtn"><i class="fa-solid fa-floppy-disk"></i> Record result</button>
@@ -73,12 +77,13 @@
     var LIM = {ul:{{ lim.ul|default:"null" }}, uwl:{{ lim.uwl|default:"null" }}, lwl:{{ lim.lwl|default:"null" }}, ll:{{ lim.ll|default:"null" }}};
     function ccPreview(){var v=parseFloat(document.getElementById('ccVal').value),p=document.getElementById('ccPreview'),rem=document.getElementById('ccRem');
       if(isNaN(v)){p.className='pill none';p.textContent='enter a value';rem.required=false;return}
+      if(LIM.ul===null){p.className='pill none';p.textContent='{% if chart.self_limited %}judged after saving (limits from this run){% else %}no limits yet{% endif %}';rem.required=false;return}
       if(v>LIM.ul||v<LIM.ll){p.className='pill bad';p.textContent='OUT OF CONTROL (beyond ±3 SD) - remark required';rem.required=true}
       else if(v>LIM.uwl||v<LIM.lwl){p.className='pill warn';p.textContent='WARNING (beyond ±2 SD) - remark required';rem.required=true}
       else{p.className='pill ok';p.textContent='In control';rem.required=false}}
     document.getElementById('ccVal').addEventListener('input',ccPreview);ccPreview();
     function ccEdit(id,d,v,btn){document.getElementById('ccRid').value=id;document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
-      var tr=btn.closest('tr');document.getElementById('ccRem').value=tr.cells[5].textContent.trim();
+      var tr=btn.closest('tr');document.getElementById('ccRem').value=tr.cells[5].textContent.trim();document.getElementById('ccCancel').style.display='';
       document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';ccPreview();document.getElementById('ccForm').scrollIntoView({behavior:'smooth'})}
     function ccReset(){document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview()}
   </script>
@@ -86,19 +91,19 @@
 </div>
 
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px">Sign-off - {{ year }}</div></div>
+  <div class="hd"><div class="title" style="font-size:15px">Sign-off - {{ period }}</div></div>
   <div class="frm" style="align-items:center">
     <div style="min-width:220px"><b>Performed by</b> <span class="muted">(Chemist)</span><br>
       {% regroup results by performed_by as perf %}{% for g in perf %}{% if g.grouper %}{{ g.grouper.get_full_name|default:g.grouper.username }}{% if not forloop.last %}, {% endif %}{% endif %}{% empty %}<span class="muted">-</span>{% endfor %}</div>
     <div style="min-width:220px"><b>Reviewed by</b> <span class="muted">(QC Manager)</span><br>{% if so and so.reviewed_at %}{{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }} &middot; {{ so.reviewed_at|date:"d-m-Y H:i" }}{% else %}<span class="muted">-</span>{% endif %}</div>
     <div style="min-width:220px"><b>Approved by</b> <span class="muted">(CEO)</span><br>{% if so and so.approved_at %}{{ so.approved_by.get_full_name|default:so.approved_by.username }} &middot; {{ so.approved_at|date:"d-m-Y H:i" }}{% else %}<span class="muted">-</span>{% endif %}</div>
-    <form method="post" action="{% url 'control_chart_signoff' chart.id %}" style="display:flex;gap:6px;flex-wrap:wrap">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}">
+    <form method="post" action="{% url 'control_chart_signoff' chart.id %}" style="display:flex;gap:6px;flex-wrap:wrap">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><input type="hidden" name="month" value="{{ month }}">
       {% if can_review and not so.reviewed_at %}<button class="btn btn-p" name="action" value="review" {% if not results %}disabled title="No results yet"{% endif %}><i class="fa-solid fa-check"></i> Review</button>{% endif %}
       {% if can_review and so.reviewed_at and not so.approved_at %}<button class="btn" name="action" value="unreview">Undo review</button>{% endif %}
       {% if can_approve and so.reviewed_at and not so.approved_at %}<button class="btn btn-p" name="action" value="approve"><i class="fa-solid fa-stamp"></i> Approve &amp; lock</button>{% endif %}
-      {% if can_approve and so.approved_at %}<button class="btn btn-w" name="action" value="unapprove" onclick="return confirm('Unapprove {{ year }}? Results become editable again.')"><i class="fa-solid fa-lock-open"></i> Unapprove</button>{% endif %}
+      {% if can_approve and so.approved_at %}<button class="btn btn-w" name="action" value="unapprove" onclick="return confirm('Unapprove {{ period }}? Results become editable again.')"><i class="fa-solid fa-lock-open"></i> Unapprove</button>{% endif %}
     </form>
   </div>
-  <div class="muted" style="padding:0 18px 14px">{{ sop_note }}</div>
+  {% if sop_note %}<div class="muted" style="padding:0 18px 14px">{{ sop_note }}</div>{% endif %}
 </div>
 {% endblock %}
