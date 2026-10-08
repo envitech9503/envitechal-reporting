@@ -13,7 +13,7 @@ partial then pins itself to the left edge and indents the page body to match.
  .etqc-fixed{position:fixed;top:5rem;left:0;bottom:0;z-index:30;max-height:none}
  .etqc-logo{padding:1rem;border-bottom:1px solid #374151;text-align:center;flex:0 0 auto}
  .etqc-logo img{height:3.5rem;display:inline-block}
- .etqc-nav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:.9rem 1rem 1.5rem}
+ .etqc-nav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:1.2rem 1rem 1.5rem}
  .etqc-title{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#9ca3af;margin:0 0 .7rem}
  .etqc-sec{width:100%;text-align:left;font-size:.9rem;font-weight:600;color:#e5e7eb;padding:.45rem 0;display:flex;align-items:center;gap:.55rem;background:none;border:0;cursor:pointer}
  .etqc-sec:hover{color:#fff}
@@ -43,9 +43,8 @@ partial then pins itself to the left edge and indents the page body to match.
  @media (min-width:768px){body{padding-left:16rem} .etnav{margin-left:-16rem}}
 </style>{% endif %}
 <div class="etqc{% if fixed %} etqc-fixed{% endif %}" id="etqcSidebar">
-  <div class="etqc-logo">
-    <a href="{% url 'nav' %}"><img src="{% static 'assets/logo-light.png' %}" alt="Envi Tech AL"></a>
-  </div>
+  {% comment %}08-10-2026: the sidebar no longer repeats the company logo - the unified
+  navigation bar directly above already carries the brand.{% endcomment %}
   <nav class="etqc-nav">
     <p class="etqc-title">QC Forms</p>
 
@@ -114,11 +113,18 @@ partial then pins itself to the left edge and indents the page body to match.
 (function(){
   var root = document.getElementById('etqcSidebar');
   if (!root) return;
-  // keep the pinned sidebar flush under the navigation bar whatever its rendered height
+  // Keep the sidebar flush under the navigation bar whatever its rendered height:
+  // pinned sidebar -> its top edge; flex-column sidebar under a *fixed* nav -> top padding
+  // (the removed logo block used to hide that overlap). An in-flow nav needs nothing.
   (function(){
-    var nav = document.querySelector('.etnav');
-    if (!nav || !root.classList.contains('etqc-fixed')) return;
-    function fit(){ var h = nav.getBoundingClientRect().height; if (h > 0) root.style.top = h + 'px'; }
+    var nav = document.querySelector('.etnav') || document.getElementById('header');  // unified nav or legacy header
+    if (!nav) return;
+    var pinned = root.classList.contains('etqc-fixed');
+    function fit(){
+      var h = Math.max(nav.getBoundingClientRect().height, nav.scrollHeight || 0); if (!(h > 0)) return;
+      if (pinned) { root.style.top = h + 'px'; }
+      else if (getComputedStyle(nav).position === 'fixed') { root.style.paddingTop = h + 'px'; }
+    }
     fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
   })();
   root.addEventListener('click', function(e){
