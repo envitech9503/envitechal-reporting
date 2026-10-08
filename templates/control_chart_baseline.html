@@ -9,7 +9,7 @@
   {% if errors %}<div class="msg error"><b>The baseline was not saved:</b><ul style="margin:6px 0 0 18px">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
   {% if suspects %}<div class="msg error"><b>Please check {{ n_sus }} value{{ n_sus|pluralize }} highlighted below</b> - {{ n_sus|pluralize:"it is,they are" }} far from the others and may be a typing error (for example a misplaced decimal point). Correct the list, or tick <i>"The values are correct"</i> and save again.
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">{% for s in suspects %}<span class="pill {% if s.bad %}bad{% else %}none{% endif %}">{{ s.i }}: {{ s.v }}</span>{% endfor %}</div></div>{% endif %}
-  <form method="post" class="frm" style="flex-direction:column;align-items:stretch">{% csrf_token %}
+  <form method="post" class="frm" data-autosave="baseline:{{ chart.id }}" style="flex-direction:column;align-items:stretch">{% csrf_token %}
     <label>Baseline values <span class="muted">(use a decimal point; separate values with commas, semicolons, spaces or new lines - usually 12)</span>
       <textarea name="values" id="bVals" rows="4" required placeholder="e.g. 1.002, 0.998, 1.005, 0.996, ...">{{ cur_values }}</textarea></label>
     <div id="bPrev" class="muted" style="font-size:12.5px"></div>

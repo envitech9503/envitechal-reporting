@@ -55,6 +55,20 @@ def _cc_docctrl(location, activity='CRM'):
         return d
 
 
+def _post_or_back(view):
+    """POST-only actions: a GET (e.g. returning from the login page after the
+    session expired mid-entry) goes back to the chart instead of a bare 405 page;
+    the unsaved entry is restored there from the browser draft."""
+    from functools import wraps
+
+    @wraps(view)
+    def inner(request, pk, *a, **kw):
+        if request.method != 'POST':
+            return _redirect(f"/qc/control-charts/{pk}/")
+        return view(request, pk, *a, **kw)
+    return inner
+
+
 def _uname(user):
     try:
         return (user.get_full_name() or user.get_username() or '').strip() if user else ''
@@ -458,6 +472,8 @@ def control_chart_detail(request, pk):
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
         'base_values': ', '.join(_fmt(v, chart.decimals) for v in (b.values if b else [])),
         'month_names': _MONTHS, 'cycle_name': chart.cycle_name, 'acc_js': _json.dumps(_acc_range(chart)),
+        'run_js': _json.dumps({str(x.pk): x.value for x in results}) if chart.self_limited else '{}',
+        'n_missing': sum(1 for x in results if x.status != 'ok' and not (x.remark or '').strip()),
     })
 
 
@@ -471,7 +487,7 @@ def _acc_range(chart):
     return out
 
 
-@_require_POST
+@_post_or_back
 def control_chart_cycle(request, pk):
     """Set the first month of the chart's 12-month record cycle (any signed-in
     user, owner decision 08-10-2026). Results keep their dates; they are simply
@@ -504,7 +520,7 @@ def control_chart_cycle(request, pk):
 
 
 # ---------------------------------------------------------------- results
-@_require_POST
+@_post_or_back
 def control_chart_result_save(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
     user = request.user
@@ -557,21 +573,30 @@ def control_chart_result_save(request, pk):
         _msg.error(request, 'This result is %s - a remark / corrective action is required before it can be saved.%s' % (
             'OUT OF CONTROL (beyond %s3 SD)' % ('+' if chart.upper_only else '+/-') if status == 'ooc'
             else 'a WARNING (beyond %s2 SD)' % ('+' if chart.upper_only else '+/-'),
-            (' Note: it is still within the %s %s-%s; the control chart judges it against the laboratory\'s own statistics.' % (
-                chart.label_range, chart.crm_range_low, chart.crm_range_high)) if acc else ''))
+            (' Note: it is still within the %s %s; the control chart judges it against the laboratory\'s own statistics.' % (
+                chart.label_range, chart.crm_range)) if acc else ''))
         return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}&date={d.isoformat()}&value={value}")
     if r is not None:
+        if r.date != d or abs(r.value - value) > 1e-12:
+            # corrections stay traceable: the superseded value is kept in the remark
+            note = '[Corrected %s by %s: was %s on %s]' % (_date.today().strftime('%d-%m-%Y'), _uname(user) or 'user',
+                                                          _fmt(r.value, chart.decimals), r.date.strftime('%d-%m-%Y'))
+            remark = (remark + ' ' + note).strip()
         r.date, r.value, r.status, r.remark, r.baseline = d, value, status, remark, (None if chart.self_limited else b)
         r.save()
-        _msg.success(request, 'Result updated (%s).' % r.get_status_display())
+        _msg.success(request, 'Result updated (%s).' % r.get_status_display(), extra_tags='ccsaved:result:%d' % chart.pk)
     else:
         r = ControlChartResult.objects.create(chart=chart, baseline=(None if chart.self_limited else b), date=d, value=value, status=status,
                                               remark=remark, performed_by=user if user.is_authenticated else None)
-        _msg.success(request, 'Result recorded (%s).' % r.get_status_display())
+        _msg.success(request, 'Result recorded (%s).' % r.get_status_display(), extra_tags='ccsaved:result:%d' % chart.pk)
     if chart.self_limited:
         _restatus_run(chart, py, pm)
         if old_py:
             _restatus_run(chart, old_py, old_pm)
+        r.refresh_from_db()
+        if r.status != status:
+            _msg.info(request, 'With this reading included the run limits changed; it is now judged %s.' % r.get_status_display())
+    _warn_missing_remarks(request, chart, py, pm)
     # a content change after review/approval clears the sign-off (superuser edits included)
     for sy, sm in {(py, pm), (old_py, old_pm)} - {(None, None)}:
         so = _signoff(chart, sy, sm)
@@ -583,7 +608,20 @@ def control_chart_result_save(request, pk):
     return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
 
 
-@_require_POST
+def _missing_remarks(chart, year, month=0):
+    return [x for x in _period_results(chart, year, month) if x.status != 'ok' and not (x.remark or '').strip()]
+
+
+def _warn_missing_remarks(request, chart, year, month=0):
+    miss = _missing_remarks(chart, year, month)
+    if miss:
+        _msg.warning(request, '%d reading%s of %s %s outside the limits without a remark (%s) - the run limits changed as readings '
+                     'were added. Use the pencil to add the remark / corrective action before review.' % (
+                         len(miss), '' if len(miss) == 1 else 's', _plabel(chart, year, month), 'is' if len(miss) == 1 else 'are',
+                         ', '.join(x.date.strftime('%d-%m-%Y') for x in miss[:6])))
+
+
+@_post_or_back
 def control_chart_result_delete(request, pk, rid):
     chart = get_object_or_404(ControlChart, pk=pk)
     r = get_object_or_404(ControlChartResult, pk=rid, chart=chart)
@@ -594,11 +632,12 @@ def control_chart_result_delete(request, pk, rid):
     if chart.self_limited:
         _restatus_run(chart, py, pm)
     _msg.success(request, 'Result deleted.')
+    _warn_missing_remarks(request, chart, py, pm)
     return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
 
 
 # ---------------------------------------------------------------- sign-off
-@_require_POST
+@_post_or_back
 def control_chart_signoff(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
     user = request.user
@@ -625,6 +664,11 @@ def control_chart_signoff(request, pk):
             return HttpResponse('Review is reserved for the QC Manager of the %s laboratory.' % chart.location, status=403)
         if not _period_results(chart, year, month):
             _msg.error(request, 'There are no %s results to review yet.' % plabel)
+            return _redirect(back)
+        miss = _missing_remarks(chart, year, month)
+        if miss:
+            _msg.error(request, 'Cannot review yet: %s outside the limits without a remark / corrective action (%s).' % (
+                '1 result is' if len(miss) == 1 else '%d results are' % len(miss), ', '.join(x.date.strftime('%d-%m-%Y') for x in miss[:6])))
             return _redirect(back)
         so.reviewed_by, so.reviewed_at = user, _tz.now()
     elif action == 'approve':
@@ -683,7 +727,7 @@ def control_chart_baseline(request, pk):
                                  created_by=request.user)
         b.compute(); b.save()
         _msg.success(request, 'Baseline v%d established (n=%d, mean %s, SD %s). Earlier results keep the baseline they were judged against.' % (
-            b.version, b.n, _fmt(b.mean, chart.decimals), _fmt(b.sd, chart.decimals + 1)))
+            b.version, b.n, _fmt(b.mean, chart.decimals), _fmt(b.sd, chart.decimals + 1)), extra_tags='ccsaved:baseline:%d' % chart.pk)
         return _redirect(f"/qc/control-charts/{pk}/")
     return render(request, 'control_chart_baseline.html', ctx)
 
@@ -730,9 +774,12 @@ def control_chart_edit(request, pk=None):
         cv = _num_or_err(prof['value'], data['crm_value'], errors)
         lo = _num_or_err(prof['range'] + ' (low)', data['crm_range_low'], errors)
         hi = _num_or_err(prof['range'] + ' (high)', data['crm_range_high'], errors)
+        if (lo is None) != (hi is None) and not (data['activity'] == 'DUP' and hi is not None):
+            errors.append('%s: enter both the low and the high value (or leave both empty).' % prof['range']
+                          if data['activity'] != 'DUP' else '%s: enter the upper limit (the low value is optional).' % prof['range'])
         if lo is not None and hi is not None and lo >= hi:
             errors.append('%s: the low value (%s) must be smaller than the high value (%s).' % (prof['range'], data['crm_range_low'], data['crm_range_high']))
-        if cv is not None and lo is not None and hi is not None and lo < hi and not (lo <= cv <= hi):
+        if cv is not None and hi is not None and (lo if lo is not None else float('-inf')) < hi and not ((lo if lo is not None else float('-inf')) <= cv <= hi):
             errors.append('%s %s lies outside the %s %s-%s - please check the certificate.' % (
                 prof['value'], data['crm_value'], prof['range'], data['crm_range_low'], data['crm_range_high']))
         if not data['description']:
@@ -770,7 +817,7 @@ def control_chart_edit(request, pk=None):
         target.active = bool(request.POST.get('active', '1' if pk is None else ''))
         target.start_month = sm
         target.save()
-        _msg.success(request, 'Chart saved.')
+        _msg.success(request, 'Chart saved.', extra_tags='ccsaved:master:%s' % (pk or 'new'))
         if target.current_baseline() is None and not target.self_limited:
             return _redirect('control_chart_baseline', pk=target.pk)
         return _redirect(f"/qc/control-charts/{target.pk}/")

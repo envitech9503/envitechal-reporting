@@ -51,7 +51,7 @@
       <tr>
         <td>{{ r.sno }}</td><td>{{ r.month }}</td><td>{{ r.date }}</td>
         <td class="num"><b>{{ r.value }}</b></td>
-        <td>{% if r.status == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.status == 'warning' %}<span class="pill warn">Warning</span>{% elif r.status == 'ok' %}<span class="pill ok">In control</span>{% endif %}</td>
+        <td>{% if r.status == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.status == 'warning' %}<span class="pill warn">Warning</span>{% elif r.status == 'ok' %}<span class="pill ok">In control</span>{% endif %}{% if r.result and r.status != 'ok' and not r.remark %} <span class="pill bad" title="Use the pencil to add the remark / corrective action">remark needed</span>{% endif %}</td>
         <td style="max-width:260px;font-size:12px">{{ r.remark }}</td>
         <td class="muted">{% if r.result and r.result.performed_by %}{{ r.result.performed_by.get_full_name|default:r.result.performed_by.username }}<br>{{ r.result.performed_at|date:"d-m-Y H:i" }}{% endif %}</td>
         {% if not chart.self_limited %}<td class="num">{{ r.base }}</td>{% endif %}<td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td>{% if not chart.upper_only %}<td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>{% endif %}
@@ -68,11 +68,11 @@
   {% if chart.self_limited %}<div class="muted" style="padding:8px 18px">Each reading is judged against the mean and SD of this month's run; statuses are re-evaluated whenever a reading is added, changed or deleted.</div>{% endif %}
 
   {% if not locked and b or not locked and chart.self_limited %}
-  <form class="frm" method="post" action="{% url 'control_chart_result_save' chart.id %}" id="ccForm" style="border-top:1px solid #eef2f6">
+  <form class="frm" method="post" action="{% url 'control_chart_result_save' chart.id %}" id="ccForm" data-autosave="result:{{ chart.id }}" style="border-top:1px solid #eef2f6">
     {% csrf_token %}<input type="hidden" name="result_id" id="ccRid" value="">
-    <label>Date <input type="date" name="date" id="ccDate" value="{{ request.GET.date|default:today }}" required></label>
+    <label>Date <input type="date" name="date" id="ccDate" value="{{ request.GET.date|default:today }}" max="{{ today }}" required></label>
     <label>{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %} <input type="number" step="any" name="value" id="ccVal" value="{{ request.GET.value }}" required style="width:140px"></label>
-    <label style="flex:1;min-width:260px">Remark / corrective action <span class="muted">(required when outside &plusmn;2 SD)</span><input type="text" name="remark" id="ccRem" maxlength="500"></label>
+    <label style="flex:1;min-width:260px">Remark / corrective action <span class="muted">(required when outside &plusmn;2 SD)</span><input type="text" name="remark" id="ccRem" maxlength="1500"></label>
     <span id="ccPreview" class="pill none" style="align-self:center">enter a value</span>
     <button class="btn btn-p" type="submit" id="ccBtn"><i class="fa-solid fa-floppy-disk"></i> Record result</button>
     <button class="btn" type="button" id="ccCancel" style="display:none" onclick="ccReset()">Cancel edit</button>
@@ -81,20 +81,28 @@
     var ONE = {% if chart.upper_only %}true{% else %}false{% endif %};
     var LIM = {ul:{{ lim.ul|default:"null" }}, uwl:{{ lim.uwl|default:"null" }}, lwl:ONE?-Infinity:{{ lim.lwl|default:"null" }}, ll:ONE?-Infinity:{{ lim.ll|default:"null" }}};
     var ACC = {{ acc_js|safe }};
+    var SELF = {% if chart.self_limited %}true{% else %}false{% endif %}, RUN = {{ run_js|safe }}, EDIT_ID = '';
+    function ccRunLim(v){ // IC: limits of the run including the reading being entered (as the server judges it)
+      var a=[]; for (var k in RUN){ if (k!==EDIT_ID) a.push(RUN[k]); } a.push(v); var n=a.length; if (n<2) return null;
+      var m=a.reduce(function(x,y){return x+y;},0)/n, sd=Math.sqrt(a.reduce(function(x,y){return x+(y-m)*(y-m);},0)/(n-1));
+      return {ul:m+3*sd, uwl:m+2*sd, lwl:m-2*sd, ll:m-3*sd}; }
     function ccAccNote(v){ if(ACC.lo===null && ACC.hi===null) return ''; var inside=(ACC.lo===null||v>=ACC.lo)&&(ACC.hi===null||v<=ACC.hi);
       return inside ? ' (still within the {{ chart.label_range }} '+(ACC.lo===null?'':ACC.lo)+'-'+(ACC.hi===null?'':ACC.hi)+')' : ' - also outside the {{ chart.label_range }}'; }
     function ccPreview(){var v=parseFloat(document.getElementById('ccVal').value),p=document.getElementById('ccPreview'),rem=document.getElementById('ccRem');
       if(isNaN(v)){p.className='pill none';p.textContent='enter a value';rem.required=false;return}
+      if(SELF){ var L=ccRunLim(v); if(L){ LIM=L; } else { LIM={ul:null}; } }
       if(LIM.ul===null){p.className='pill none';p.textContent='{% if chart.self_limited %}judged after saving (limits from this run){% else %}no limits yet{% endif %}';rem.required=false;return}
       var sd3=ONE?'+3 SD':'±3 SD', sd2=ONE?'+2 SD':'±2 SD';
       if(v>LIM.ul||v<LIM.ll){p.className='pill bad';p.textContent='OUT OF CONTROL (beyond '+sd3+') - remark required'+ccAccNote(v);rem.required=true}
       else if(v>LIM.uwl||v<LIM.lwl){p.className='pill warn';p.textContent='WARNING (beyond '+sd2+') - remark required'+ccAccNote(v);rem.required=true}
       else{p.className='pill ok';p.textContent='In control';rem.required=false}}
     document.getElementById('ccVal').addEventListener('input',ccPreview);ccPreview();
-    function ccEdit(id,d,v,btn){document.getElementById('ccRid').value=id;document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
+    document.getElementById('ccForm').addEventListener('cc-restored',function(){ var id=document.getElementById('ccRid').value; // a restored correction
+      if(id){EDIT_ID=String(id);document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';} ccPreview(); });
+    function ccEdit(id,d,v,btn){EDIT_ID=String(id);document.getElementById('ccRid').value=id;document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
       var tr=btn.closest('tr');document.getElementById('ccRem').value=tr.cells[5].textContent.trim();document.getElementById('ccCancel').style.display='';
       document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';ccPreview();document.getElementById('ccForm').scrollIntoView({behavior:'smooth'})}
-    function ccReset(){document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview()}
+    function ccReset(){EDIT_ID='';document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview();document.getElementById('ccForm').dispatchEvent(new Event('input'))}
   </script>
   {% endif %}
 </div>
@@ -107,7 +115,7 @@
     <div style="min-width:220px"><b>Reviewed by</b> <span class="muted">(QC Manager)</span><br>{% if so and so.reviewed_at %}{{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }} &middot; {{ so.reviewed_at|date:"d-m-Y H:i" }}{% else %}<span class="muted">-</span>{% endif %}</div>
     <div style="min-width:220px"><b>Approved by</b> <span class="muted">(CEO)</span><br>{% if so and so.approved_at %}{{ so.approved_by.get_full_name|default:so.approved_by.username }} &middot; {{ so.approved_at|date:"d-m-Y H:i" }}{% else %}<span class="muted">-</span>{% endif %}</div>
     <form method="post" action="{% url 'control_chart_signoff' chart.id %}" style="display:flex;gap:6px;flex-wrap:wrap">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><input type="hidden" name="month" value="{{ month }}">
-      {% if can_review and not so.reviewed_at %}<button class="btn btn-p" name="action" value="review" {% if not results %}disabled title="No results yet"{% endif %}><i class="fa-solid fa-check"></i> Review</button>{% endif %}
+      {% if can_review and not so.reviewed_at %}<button class="btn btn-p" name="action" value="review" {% if not results %}disabled title="No results yet"{% elif n_missing %}disabled title="{{ n_missing }} result(s) outside the limits still need a remark"{% endif %}><i class="fa-solid fa-check"></i> Review</button>{% if n_missing %} <span class="pill bad">{{ n_missing }} remark{{ n_missing|pluralize }} needed before review</span>{% endif %}{% endif %}
       {% if can_review and so.reviewed_at and not so.approved_at %}<button class="btn" name="action" value="unreview">Undo review</button>{% endif %}
       {% if can_approve and so.reviewed_at and not so.approved_at %}<button class="btn btn-p" name="action" value="approve"><i class="fa-solid fa-stamp"></i> Approve &amp; lock</button>{% endif %}
       {% if can_approve and so.approved_at %}<button class="btn btn-w" name="action" value="unapprove" onclick="return confirm('Unapprove {{ period }}? Results become editable again.')"><i class="fa-solid fa-lock-open"></i> Unapprove</button>{% endif %}

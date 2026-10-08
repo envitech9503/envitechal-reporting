@@ -269,8 +269,12 @@ class ControlChart(models.Model):
 
     @property
     def crm_range(self):
-        if self.crm_range_low or self.crm_range_high:
+        if self.crm_range_low and self.crm_range_high:
             return '%s-%s' % (self.crm_range_low, self.crm_range_high)
+        if self.crm_range_high:          # one-sided limit (duplicate RPD), e.g. "<= 10"
+            return '\u2264 %s' % self.crm_range_high
+        if self.crm_range_low:
+            return '\u2265 %s' % self.crm_range_low
         return ''
 
     def current_baseline(self):

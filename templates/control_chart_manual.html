@@ -202,7 +202,7 @@
         <tr><td><b>CRM</b> - Certified Reference Material</td><td>One result per <b>month</b> (12 rows per year).</td><td>Calendar year</td><td>The <b>baseline</b> (12 February intermediate-check results); mean &plusmn; 2 SD warning, &plusmn; 3 SD action.</td><td>Per year</td></tr>
         <tr><td><b>RM</b> - Reference Material (PT sample)</td><td>One result per <b>week</b>, listed in date order with its ISO week number; the form grows beyond 12 rows as the year goes on.</td><td>Calendar year</td><td>The <b>baseline</b> (the first twelve RM results of the exercise, e.g. July).</td><td>Per year</td></tr>
         <tr><td><b>IC</b> - Intermediate check of equipment</td><td>A <b>run</b> of daily readings (normally 12) in one month - CRM dilutions on the spectrophotometers and AAS, or physical checks such as oven / water-bath temperature and balance weights.</td><td>Calendar <b>month</b> (choose the month next to the year)</td><td>The run itself: mean and SD of that month's readings, exactly as in the Excel sheet. There is no separate baseline page.</td><td>Per month</td></tr>
-        <tr><td><b>Duplicate</b> - duplicate analyses</td><td>The <b>relative percent difference (RPD, %)</b> of each duplicate pair, one per analytical batch (several per month), listed as Run 1, 2, 3 &hellip;</td><td>12-month cycle</td><td>The <b>baseline</b> (RPDs of the first duplicate pairs, at least 12). The chart is <b>one-sided</b>: only RPDs above +2 SD / +3 SD are flagged - a low RPD is good and never out of control.</td><td>Per year</td></tr>
+        <tr><td><b>Duplicate</b> - duplicate analyses</td><td>The <b>relative percent difference (RPD, %)</b> of each duplicate pair, one per analytical batch (several per month), listed as Run 1, 2, 3 &hellip;</td><td>12-month cycle</td><td>The <b>baseline</b> (RPDs of the first duplicate pairs, at least 12). The chart is <b>one-sided</b>: only RPDs above +2 SD / +3 SD are flagged - a low RPD is good and never out of control. The acceptance limit may be entered as an upper value only (shown as &le; 15 %).</td><td>Per year</td></tr>
         <tr><td><b>Spike / Recovery</b></td><td>The <b>percent recovery</b> of each matrix spike, one per batch, listed as Run 1, 2, 3 &hellip;</td><td>12-month cycle</td><td>The <b>baseline</b> (recoveries of the first spiked samples, at least 12); &plusmn; 2 SD warning, &plusmn; 3 SD action.</td><td>Per year</td></tr>
       </table>
       <p>Use the <b>Activity</b> selector on the chart list to show one type at a time; the activity pill is shown in the first column. The chart page, the archive and the PDF form adapt their labels (<i>Monthly CRM result</i>, <i>Weekly RM result</i>, <i>Intermediate check reading</i>, <i>Duplicate RPD</i>, <i>Spike recovery</i>) and their period (year, or month-year for intermediate checks).</p>
@@ -263,11 +263,23 @@
     <section class="topic" id="t-edit" data-cat="entry" data-keywords="edit correct change result mistake typo delete remove row pencil trash undo">
       <h2><span class="cat-tag">Monthly entry</span> Correcting or deleting a result</h2>
       <ul>
-        <li><b>Edit</b> — click the pencil on the table row; the entry form loads that result. Change the date, value or remark and save. The status is recalculated.</li>
+        <li><b>Edit</b> — click the pencil on the table row; the entry form loads that result. Change the date, value or remark and save. The status is recalculated. When the <b>date or value</b> changes, the system adds a traceable note to the remark, e.g. <i>[Corrected 09-10-2026 by A. Analyst: was 0.520 on 12-05-2026]</i>, so the original result remains visible on the screen and on the PDF form.</li>
+        <li><b>Intermediate checks</b> — the limits come from the run itself, so a reading that looked normal early in the month can fall outside the limits once more readings are added. Such a reading is marked <span class="pill bad">remark needed</span> and a message names its date; open it with the pencil and add the remark / corrective action.</li>
         <li><b>Delete</b> — only an administrator of that laboratory can delete a result (the bin icon). Deletion is permanent and is recorded in the history log.</li>
         <li><b>RM and intermediate-check charts</b> accept one result per <b>date</b> (several in one month); CRM charts accept one result per <b>month</b>.</li>
       </ul>
       <div class="warn note">If the year had already been reviewed or approved, <b>any change to a result clears the review and approval</b> and the year goes back to "Open". This is deliberate: a signed form must match the data. The message on screen tells you when this has happened.</div>
+    </section>
+
+    <section class="topic" id="t-drafts" data-cat="entry" data-keywords="auto save autosave draft lost work power cut internet disconnected browser closed crash restore unsaved entry offline session expired logout">
+      <h2><span class="cat-tag">Monthly entry</span> Automatic draft saving (power cut, lost internet, closed browser)</h2>
+      <p>Everything typed in the <b>new / edit chart</b> form, the <b>baseline</b> page and the <b>result entry</b> form is saved automatically on this computer while you type. Nothing is lost if:</p>
+      <ul>
+        <li><b>the power fails, the browser is closed or the computer restarts</b> — open the same page again: a yellow bar reports <i>"Unsaved entry restored"</i> and the form is filled in exactly as you left it. Check it and press the save button.</li>
+        <li><b>the internet drops when you press save</b> — the entry is held and the bar reads <i>"No connection to the server"</i>. It is sent automatically when the connection returns; you may also close the page and it will be restored next time.</li>
+        <li><b>your login expired</b> — sign in again and reopen the chart; the entry is restored.</li>
+      </ul>
+      <p>The draft is removed only after the server confirms the save. Use <b>Discard draft</b> on the yellow bar to throw it away. Drafts belong to the signed-in user (another analyst on the same computer does not see them), stay on the computer where they were typed and are cleared after 14 days.</p>
     </section>
 
     <section class="topic" id="t-locked" data-cat="entry" data-keywords="locked approved cannot save edit blocked read only year closed unapprove message">
@@ -293,7 +305,7 @@
       <ol>
         <li>Open the chart and choose the <b>year</b>.</li>
         <li>Check the table: every month that was analysed has a result, every amber or red row has a meaningful remark.</li>
-        <li>Click <b>Review</b> in the sign-off panel. The badge changes to "Reviewed by … — awaiting approval".</li>
+        <li>Click <b>Review</b> in the sign-off panel. The badge changes to "Reviewed by … — awaiting approval". The button stays disabled while any amber or red result has no remark (shown as <span class="pill bad">remark needed</span>).</li>
       </ol>
       <p><b>Undo review</b> is available until the year is approved. You can review only charts of the laboratory you are assigned to; the button is hidden on the other laboratory's charts.</p>
     </section>

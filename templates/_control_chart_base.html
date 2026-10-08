@@ -49,9 +49,10 @@
   <a href="{% url 'control_chart_list' %}" style="color:#0f5132;text-decoration:none">Control Charts</a>{% block crumb %}{% endblock %}
 </div>
 <div class="wrap">
-{% if messages %}{% for m in messages %}<div class="card"><div class="msg {{ m.tags }}">{{ m }}</div></div>{% endfor %}{% endif %}
+{% if messages %}{% for m in messages %}<div class="card"><div class="msg {{ m.level_tag }}" data-tags="{{ m.extra_tags }}">{{ m }}</div></div>{% endfor %}{% endif %}
 {% block cc_body %}{% endblock %}
 </div>
+{% include "_cc_autosave.html" %}
 </body>
 </html>
 {% endblock %}

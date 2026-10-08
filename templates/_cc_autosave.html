@@ -1,0 +1,86 @@
+{# Draft protection for the control-chart forms (added 09-10-2026).
+   Every form marked data-autosave="<name>" is copied to this computer's browser storage
+   while the user types, so a power cut, a closed tab, a lost connection or an expired
+   login never loses the entry. The draft is restored when the page is opened again and
+   is removed only after the server confirms the save. Drafts are kept per user. #}
+<div id="ccDraftBar" style="display:none;position:sticky;bottom:0;z-index:50;margin:0 auto;max-width:1100px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:10px 10px 0 0;padding:10px 16px;font-size:13px;box-shadow:0 -2px 8px rgba(0,0,0,.08)"></div>
+<script>
+(function(){
+  var USER = '{{ request.user.pk|default:"anon" }}', PFX = 'ccdraft:' + USER + ':', MAX_AGE = 14 * 864e5;
+  var store = (function(){ try { var t='__cc'; localStorage.setItem(t,t); localStorage.removeItem(t); return localStorage; } catch(e){ return null; } })();
+  if (!store) return;                                   // private window / storage blocked: forms still work normally
+  var bar = document.getElementById('ccDraftBar'), noSave = false;
+  function fmt(ts){ var d=new Date(ts), p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'-'+p(d.getMonth()+1)+'-'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  function show(html){ bar.innerHTML = html; bar.style.display = html ? '' : 'none'; }
+  function read(k){ try { return JSON.parse(store.getItem(k) || 'null'); } catch(e){ return null; } }
+  function write(k, v){ try { store.setItem(k, JSON.stringify(v)); } catch(e){} }
+  function drop(k){ try { store.removeItem(k); } catch(e){} }
+  // housekeeping: forget drafts older than 14 days
+  try { for (var i = store.length - 1; i >= 0; i--) { var kk = store.key(i); if (kk && kk.indexOf('ccdraft:') === 0) { var o = read(kk); if (!o || Date.now() - (o.ts || 0) > MAX_AGE) drop(kk); } } } catch(e){}
+
+  function fieldsOf(f){ return Array.prototype.filter.call(f.elements, function(e){
+    return e.name && e.name !== 'csrfmiddlewaretoken' && e.type !== 'submit' && e.type !== 'button' && e.type !== 'file' && e.type !== 'password'; }); }
+  function snapshot(f){ var o = {}; fieldsOf(f).forEach(function(e){ o[e.name] = (e.type === 'checkbox' || e.type === 'radio') ? !!e.checked : e.value; }); return o; }
+  function isBlank(f, snap){ return !fieldsOf(f).some(function(e){ var v = snap[e.name];
+      if (e.type === 'checkbox' || e.type === 'radio') return v !== e.defaultChecked;
+      if (e.tagName === 'SELECT') { var d = Array.prototype.filter.call(e.options, function(o){return o.defaultSelected;})[0]; return v !== (d ? d.value : (e.options[0]||{}).value); }
+      return v !== e.defaultValue; }); }
+
+  // forms the server has just confirmed as saved (message extra tag "ccsaved:<form name>")
+  var saved = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.msg[data-tags]'), function(m){
+    (m.getAttribute('data-tags') || '').split(/\s+/).forEach(function(t){ if (t.indexOf('ccsaved:') === 0) saved[t.slice(8)] = 1; }); });
+  Object.keys(saved).forEach(function(n){ drop(PFX + n); });
+
+  Array.prototype.forEach.call(document.querySelectorAll('form[data-autosave]'), function(f){
+    var key = PFX + f.getAttribute('data-autosave');
+    var d = read(key);
+    if (d && d.v) {
+      var cur = snapshot(f), differs = Object.keys(d.v).some(function(n){ return n in cur && cur[n] !== d.v[n]; });
+      if (differs) {
+        fieldsOf(f).forEach(function(e){ if (!(e.name in d.v)) return;
+          if (e.type === 'checkbox' || e.type === 'radio') e.checked = !!d.v[e.name]; else e.value = d.v[e.name];
+          e.dispatchEvent(new Event('input', {bubbles:true})); e.dispatchEvent(new Event('change', {bubbles:true})); });
+        f.dispatchEvent(new CustomEvent('cc-restored', {detail: d.v}));
+        show('<i class="fa-solid fa-clock-rotate-left"></i> <b>Unsaved entry restored</b> (typed on ' + fmt(d.ts) + (d.submitted ? ', not confirmed by the server' : '') +
+             '). Check it and press the save button. <button type="button" class="btn" id="ccDraftDiscard" style="margin-left:10px;padding:3px 10px;font-size:12px">Discard draft</button>');
+        document.getElementById('ccDraftDiscard').onclick = function(){ noSave = true; drop(key); show(''); location.replace(location.href); };
+      } else if (!d.submitted) { /* identical to what the page shows - nothing to restore */ }
+    }
+    var t = null;
+    function save(){ if (noSave) return; var s = snapshot(f); if (isBlank(f, s)) { var o = read(key); if (o && !o.submitted) drop(key); return; }
+      var o2 = read(key) || {}; write(key, {v: s, ts: Date.now(), url: location.pathname + location.search, submitted: o2.submitted && JSON.stringify(o2.v) === JSON.stringify(s) ? o2.submitted : 0}); }
+    f.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(save, 300); });
+    f.addEventListener('change', save);
+    window.addEventListener('pagehide', save);
+    document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') save(); });
+
+    // submission: keep the draft until the server confirms; if the connection is down, hold and retry
+    f.addEventListener('submit', function(ev){
+      if (f.__ccSending) return;
+      ev.preventDefault();
+      var s = snapshot(f); write(key, {v: s, ts: Date.now(), url: location.pathname + location.search, submitted: Date.now()});
+      var btns = f.querySelectorAll('button[type=submit], button:not([type])'); var sub = ev.submitter || null;
+      function send(){ f.__ccSending = true; if (sub && sub.name) { var h = document.createElement('input'); h.type='hidden'; h.name=sub.name; h.value=sub.value; f.appendChild(h); }
+        HTMLFormElement.prototype.submit.call(f); }
+      function online(cb){
+        if (navigator.onLine === false) return cb(false);
+        var done = false, timer = setTimeout(function(){ if (!done) { done = true; cb(false); } }, 6000);
+        fetch(location.pathname, {method: 'HEAD', cache: 'no-store', credentials: 'same-origin'})
+          .then(function(r){ if (!done) { done = true; clearTimeout(timer); cb(r.status < 500); } })
+          .catch(function(){ if (!done) { done = true; clearTimeout(timer); cb(false); } });
+      }
+      function attempt(){
+        online(function(ok){
+          if (ok) { show(''); send(); return; }
+          Array.prototype.forEach.call(btns, function(b){ b.disabled = true; });
+          show('<i class="fa-solid fa-wifi"></i> <b>No connection to the server.</b> Your entry is kept safely on this computer and will be sent automatically as soon as the connection returns. You may also close this page - it will be restored next time.');
+          setTimeout(attempt, 15000);
+        });
+      }
+      attempt();
+    });
+  });
+  window.addEventListener('online', function(){ /* the retry loop above picks this up */ });
+})();
+</script>

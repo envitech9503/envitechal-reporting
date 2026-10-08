@@ -15,7 +15,8 @@ import datetime
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib.ticker import FormatStrFormatter  # noqa: E402
+from matplotlib.ticker import FormatStrFormatter, MaxNLocator  # noqa: E402
+import math as _math  # noqa: E402
 
 MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 C_RESULT, C_UL, C_UWL, C_MEAN, C_OK, C_WARN, C_OOC = '#1d4ed8', '#dc2626', '#f59e0b', '#15803d', '#1d4ed8', '#f59e0b', '#dc2626'
@@ -91,7 +92,12 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     elif ys:
         pad = (max(ys) - min(ys) or abs(ys[0]) * 0.05 or 1) * 0.5
         ax.set_ylim(min(ys) - pad, max(ys) + pad)
-    ax.yaxis.set_major_formatter(FormatStrFormatter('%.' + str(dec) + 'f'))
+    # ticks on 1-2-5 steps, labelled with enough decimals for the step (no "1.003" for 1.0025)
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=8, steps=[1, 2, 5, 10]))
+    tk = [t for t in ax.get_yticks()]
+    step = (tk[1] - tk[0]) if len(tk) > 1 else 0
+    ydec = max(dec, int(_math.ceil(-_math.log10(step) - 1e-9))) if step > 0 else dec
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.' + str(min(ydec, 6)) + 'f'))
     ax.tick_params(axis='y', labelsize=7)
     ax.set_xlabel('Testing date', fontsize=8)
     ax.set_ylabel(('Test result (%s)' % chart.unit) if chart.unit else 'Test result', fontsize=8)
