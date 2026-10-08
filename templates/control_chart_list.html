@@ -30,7 +30,7 @@
         <td>{{ r.c.level }}</td><td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td><td>{{ r.c.method }}</td>
         <td class="num">{{ r.mean }}</td><td class="num">{{ r.sd }}</td>
         <td class="c">{{ r.n }} / 12</td>
-        <td>{% if r.last %}{{ r.last.date|date:"d-m-Y" }} &middot; <b>{{ r.last_value }}</b>{% else %}<span class="muted">none yet</span>{% endif %}</td>
+        <td class="nw">{% if r.last %}{{ r.last.date|date:"d-m-Y" }} &middot; <b>{{ r.last_value }}</b>{% else %}<span class="muted">none yet</span>{% endif %}</td>
         <td>{% if r.worst == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">In control</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
         <td>{% if r.approved %}<span class="pill ok">Approved</span>{% elif r.reviewed %}<span class="pill info">Reviewed</span>{% else %}<span class="pill none">Open</span>{% endif %}</td>
         <td><a class="btn" href="{% url 'control_chart_pdf' r.c.id %}?year={{ year }}" target="_blank" title="PDF"><i class="fa-solid fa-file-pdf"></i></a></td>

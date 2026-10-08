@@ -35,7 +35,13 @@ partial then pins itself to the left edge and indents the page body to match.
    .etqc.etqc-mobile-open{display:flex;position:fixed;top:5rem;left:0;bottom:0;z-index:40;width:16rem;max-height:none;box-shadow:0 0 24px rgba(0,0,0,.45)}
  }
 </style>
-{% if fixed %}<style>@media (min-width:768px){body{padding-left:16rem}}</style>{% endif %}
+{% if fixed %}<style>
+ /* Pinned sidebar (08-10-2026): the body is indented by the sidebar width, but the top
+    navigation bar must still span the full window - pull it back out of the indent so
+    no white block appears above the sidebar; the sidebar's top edge is then set from
+    the nav's real height (see script below), so a wrapped/zoomed nav never leaves a gap. */
+ @media (min-width:768px){body{padding-left:16rem} .etnav{margin-left:-16rem}}
+</style>{% endif %}
 <div class="etqc{% if fixed %} etqc-fixed{% endif %}" id="etqcSidebar">
   <div class="etqc-logo">
     <a href="{% url 'nav' %}"><img src="{% static 'assets/logo-light.png' %}" alt="Envi Tech AL"></a>
@@ -108,6 +114,13 @@ partial then pins itself to the left edge and indents the page body to match.
 (function(){
   var root = document.getElementById('etqcSidebar');
   if (!root) return;
+  // keep the pinned sidebar flush under the navigation bar whatever its rendered height
+  (function(){
+    var nav = document.querySelector('.etnav');
+    if (!nav || !root.classList.contains('etqc-fixed')) return;
+    function fit(){ var h = nav.getBoundingClientRect().height; if (h > 0) root.style.top = h + 'px'; }
+    fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+  })();
   root.addEventListener('click', function(e){
     var b = e.target.closest ? e.target.closest('.etqc-sec') : null;
     if (!b || !root.contains(b)) return;

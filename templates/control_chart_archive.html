@@ -40,7 +40,7 @@
   <table>
     <thead><tr>
       <th>Year</th><th>Laboratory</th><th>Parameter</th><th>Level</th><th>Equipment</th><th>ID</th>
-      <th class="c">Results</th><th class="c">Warn / OOC</th><th>Last result</th><th>Status</th><th>Sign-off</th><th>Reviewed by</th><th>Approved by</th><th></th>
+      <th class="c nw">Results</th><th class="c nw">Warn / OOC</th><th class="nw">Last result</th><th>Status</th><th>Sign-off</th><th>Reviewed by</th><th>Approved by</th><th></th>
     </tr></thead>
     <tbody>
     {% for r in rows %}
@@ -51,7 +51,7 @@
         <td>{{ r.c.level }}</td><td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td>
         <td class="c">{{ r.n }} / 12</td>
         <td class="c">{{ r.warn }} / {{ r.ooc }}</td>
-        <td>{% if r.last %}{{ r.last|date:"d-m-Y" }}{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
+        <td class="nw">{% if r.last %}{{ r.last|date:"d-m-Y" }}{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
         <td>{% if r.worst == 'ooc' %}<span class="pill bad">Out of control</span>{% elif r.worst == 'warning' %}<span class="pill warn">Warning</span>{% elif r.worst == 'ok' %}<span class="pill ok">In control</span>{% else %}<span class="pill none">No data</span>{% endif %}</td>
         <td>{% if r.sign == 'approved' %}<span class="pill ok"><i class="fa-solid fa-lock"></i> Approved</span>{% elif r.sign == 'reviewed' %}<span class="pill info">Reviewed</span>{% else %}<span class="pill none">Open</span>{% endif %}</td>
         <td>{% if r.so and r.so.reviewed_at %}{{ r.so.reviewed_by.get_full_name|default:r.so.reviewed_by.username }}<br><span class="muted">{{ r.so.reviewed_at|date:"d-m-Y" }}</span>{% else %}<span class="muted">&mdash;</span>{% endif %}</td>
