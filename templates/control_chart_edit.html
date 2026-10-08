@@ -7,7 +7,7 @@
     <a class="btn" href="{% if chart %}{% url 'control_chart_detail' chart.id %}{% else %}{% url 'control_chart_list' %}{% endif %}"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
   <form method="post" class="frm" style="display:grid;grid-template-columns:repeat(2,minmax(240px,1fr));gap:10px 18px">{% csrf_token %}
     <label>Laboratory <select name="location">{% for l in locs %}<option value="{{ l }}" {% if chart and chart.location == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
-    <label>Activity <select name="activity">{% for k, v in activities %}<option value="{{ k }}" {% if chart and chart.activity == k %}selected{% endif %}>{{ v }}{% if k == 'CRM' %} - monthly{% elif k == 'RM' %} - weekly{% elif k == 'IC' %} - monthly run, limits from the run{% endif %}</option>{% endfor %}</select></label>
+    <label>Activity <select name="activity" id="ccAct" onchange="ccDesc()">{% for k, v in activities %}<option value="{{ k }}" {% if chart and chart.activity == k %}selected{% endif %}>{{ v }}{% if k == 'CRM' %} - monthly{% elif k == 'RM' %} - weekly{% elif k == 'IC' %} - monthly run, limits from the run{% endif %}</option>{% endfor %}</select></label>
     <label>Parameter * <input name="parameter" value="{{ chart.parameter|default:'' }}" required placeholder="e.g. Cadmium (Cd)"></label>
     <label>Level / concentration <input name="level" value="{{ chart.level|default:'' }}" placeholder="e.g. 1 ppm"></label>
     <label>Unit <input name="unit" value="{{ chart.unit|default:'mg/l' }}"></label>
@@ -18,9 +18,15 @@
     <label>CRM / RM detail (product # / lot #, PT sample) <input name="crm_detail" value="{{ chart.crm_detail|default:'' }}"></label>
     <label>Certified value <input name="crm_value" value="{{ chart.crm_value|default:'' }}"></label>
     <label>Acceptance range <span style="display:flex;gap:6px"><input name="crm_range_low" value="{{ chart.crm_range_low|default:'' }}" placeholder="low" style="width:50%"><input name="crm_range_high" value="{{ chart.crm_range_high|default:'' }}" placeholder="high" style="width:50%"></span></label>
-    <label style="grid-column:1/-1">Description <input name="description" value="{{ chart.description|default:'CRM Results during Monthly CRM Exercise' }}"></label>
+    <label style="grid-column:1/-1">Description <input name="description" id="ccDesc" value="{{ chart.description|default:'CRM Results during Monthly CRM Exercise' }}"></label>
     {% if chart %}<label><span><input type="checkbox" name="active" value="1" {% if chart.active %}checked{% endif %}> Active (shown in the list)</span></label>{% endif %}
     <div style="grid-column:1/-1"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save{% if not chart %} (CRM / RM continue to the baseline page){% endif %}</button></div>
   </form>
 </div>
+<script>
+var CC_DEFAULTS={CRM:'CRM Results during Monthly CRM Exercise',RM:'RM Results during Weekly RM Exercise',IC:'Control chart of Intermediate check for the equipment'};
+function ccDesc(){var d=document.getElementById('ccDesc'),a=document.getElementById('ccAct').value,vals=Object.values(CC_DEFAULTS);
+  if(!d.value||vals.indexOf(d.value)>=0){d.value=CC_DEFAULTS[a]||'';}}
+{% if not chart %}ccDesc();{% endif %}
+</script>
 {% endblock %}

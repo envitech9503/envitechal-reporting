@@ -101,7 +101,10 @@ partial then pins itself to the left edge and indents the page body to match.
       <i class="fa-solid fa-chart-line"></i>Control Charts<i class="fa-solid fa-chevron-right"></i>
     </button>
     <div class="etqc-panel" id="etqcCC">
-      <a href="{% url 'control_chart_list' %}">CRM Control Charts</a>
+      <a href="{% url 'control_chart_list' %}?activity=All">All Control Charts</a>
+      <a href="{% url 'control_chart_list' %}?activity=CRM">CRM Charts (monthly)</a>
+      <a href="{% url 'control_chart_list' %}?activity=RM">RM Charts (weekly)</a>
+      <a href="{% url 'control_chart_list' %}?activity=IC">Intermediate Checks</a>
       <a href="{% url 'control_chart_archive' %}">Archive / Record List</a>
       <a href="{% url 'control_chart_manual' %}" target="_blank" rel="noopener">User Manual</a>
       <a href="{% url 'control_chart_new' %}">Add Chart</a>
