@@ -60,6 +60,33 @@ def _is_admin(user):
     return bool(user and user.is_authenticated and user.is_superuser)
 
 
+def _can_create(user):
+    """Any signed-in laboratory user (chemist) may add a new control chart
+    (opened 08-10-2026 at the owner's request)."""
+    return bool(user and user.is_authenticated and user.is_active)
+
+
+def _can_edit_master(user, chart):
+    """Chart masters: administrators; additionally the chemist who created the
+    chart, until its first result has been recorded."""
+    if _is_admin(user):
+        return True
+    if not (user and user.is_authenticated and chart is not None):
+        return False
+    return chart.created_by_id == user.id and not ControlChartResult.objects.filter(chart=chart).exists()
+
+
+def _can_set_baseline(user, chart):
+    """Baselines: administrators; additionally the chemist who created the
+    chart may establish its FIRST baseline (v1). Re-baselining stays with
+    administrators."""
+    if _is_admin(user):
+        return True
+    if not (user and user.is_authenticated and chart is not None):
+        return False
+    return chart.created_by_id == user.id and chart.current_baseline() is None
+
+
 def _can_approve(user, chart=None):
     """Approve & lock, delete results, edit masters: superusers. A superuser who
     is assigned to a laboratory is treated as that lab's manager and may not
@@ -158,7 +185,7 @@ def control_chart_list(request):
     years = sorted({d.year for d in ControlChartResult.objects.values_list('date', flat=True)} | {_date.today().year}, reverse=True)
     return render(request, 'control_chart_list.html', {
         'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'q': q, 'year': year, 'years': years,
-        'can_admin': _is_admin(request.user), 'count': len(rows)})
+        'can_admin': _is_admin(request.user), 'can_create': _can_create(request.user), 'count': len(rows)})
 
 
 # ---------------------------------------------------------------- archive (all laboratories / all years)
@@ -271,7 +298,7 @@ def control_chart_detail(request, pk):
         'chart': chart, 'b': b, 'lim': lim_f, 'rows': rows, 'extra_base': extra_base, 'results': results, 'svg': svg,
         'year': year, 'years': years, 'so': so, 'docctrl': _cc_docctrl(chart.location), 'sop_note': _CC_SOP_NOTE,
         'locked': _year_locked(chart, year, user), 'can_review': _can_review(user, chart), 'can_approve': _can_approve(user, chart),
-        'can_admin': _is_admin(user),
+        'can_admin': _is_admin(user), 'can_edit_master': _can_edit_master(user, chart), 'can_set_baseline': _can_set_baseline(user, chart),
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
         'base_values': ', '.join(_fmt(v, chart.decimals) for v in (b.values if b else [])),
     })
@@ -387,8 +414,8 @@ def control_chart_signoff(request, pk):
 # ---------------------------------------------------------------- baseline (admin)
 def control_chart_baseline(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
-    if not _is_admin(request.user):
-        return HttpResponse('Baselines are maintained by an administrator.', status=403)
+    if not _can_set_baseline(request.user, chart):
+        return HttpResponse('Baselines are maintained by an administrator (the chemist who created a chart may set its first baseline).', status=403)
     cur = chart.current_baseline()
     if request.method == 'POST':
         raw = request.POST.get('values', '')
@@ -427,9 +454,12 @@ _CC_FIELDS = ['location', 'activity', 'parameter', 'level', 'unit', 'equipment',
 
 
 def control_chart_edit(request, pk=None):
-    if not _is_admin(request.user):
-        return HttpResponse('Chart masters are maintained by an administrator.', status=403)
     chart = get_object_or_404(ControlChart, pk=pk) if pk else None
+    if chart is None:
+        if not _can_create(request.user):
+            return HttpResponse('Please sign in to add a control chart.', status=403)
+    elif not _can_edit_master(request.user, chart):
+        return HttpResponse('Chart masters are maintained by an administrator once results have been recorded.', status=403)
     if request.method == 'POST':
         data = {f: (request.POST.get(f) or '').strip() for f in _CC_FIELDS}
         try:

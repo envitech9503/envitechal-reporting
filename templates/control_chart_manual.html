@@ -150,7 +150,7 @@
     <div class="intro" id="intro">
       <h2>About this manual</h2>
       <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks the monthly result of a <b>Certified Reference Material (CRM)</b> against limits calculated from a <b>baseline</b>, so the laboratory can see at a glance whether a method and instrument are still performing as they did when the baseline was set. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b>.</p>
-      <p>If you are new, read the three <b>Getting started</b> topics in order, then <b>Recording a monthly result</b>. If you are an administrator setting up a new chart, go straight to <b>Creating a new control chart (step by step)</b>. Use the <b>search box</b> above or press <span class="kbd">/</span> to find any topic. Topics marked <span class="badge b-warn">QC Manager</span> or <span class="badge b-bad">Administrator</span> need those roles; everything else is for every analyst.</p>
+      <p>If you are new, read the three <b>Getting started</b> topics in order, then <b>Recording a monthly result</b>. If you need to set up a new chart (any chemist can), go straight to <b>Creating a new control chart (step by step)</b>. Use the <b>search box</b> above or press <span class="kbd">/</span> to find any topic. Topics marked <span class="badge b-warn">QC Manager</span> or <span class="badge b-bad">Administrator</span> need those roles; everything else is for every analyst.</p>
     </div>
 
     <!-- ============ GETTING STARTED ============ -->
@@ -159,7 +159,7 @@
       <p>You must be logged in. There are three ways in:</p>
       <ul>
         <li><b>From QC.</b> Click <span class="path">QC</span> in the top navigation bar. The <b>Control Charts</b> card offers <b>Record Result</b>, <b>View Charts</b>, <b>Archive</b> and <b>User Manual</b>.</li>
-        <li><b>From the QC sidebar.</b> Inside any QC page, open the <b>Control Charts</b> section of the left-hand sidebar: <b>CRM Control Charts</b>, <b>Archive / Record List</b> and, for administrators, <b>Add Chart</b> and <b>Laboratory Reviewers</b>.</li>
+        <li><b>From the QC sidebar.</b> Inside any QC page, open the <b>Control Charts</b> section of the left-hand sidebar: <b>CRM Control Charts</b>, <b>Archive / Record List</b>, <b>Add Chart</b> and, for administrators, <b>Laboratory Reviewers</b>.</li>
         <li><b>Directly by address.</b> The chart list is at <code>/qc/control-charts/</code>; this manual is at <code>/qc/control_chart_manual/</code>.</li>
       </ul>
       <div class="note">The module has three working areas: the <b>chart list</b> (one laboratory, one year), the <b>chart page</b> (one parameter: the graph, the monthly table, the entry form and the sign-off panel) and the <b>archive</b> (every record of every year and both laboratories).</div>
@@ -179,7 +179,7 @@
       <h2><span class="cat-tag">Getting started</span> A quick tour of a chart page</h2>
       <p>Click any parameter name in the list to open its chart page. From the top down you will find:</p>
       <ol>
-        <li><b>Header</b> — the parameter and level (e.g. <i>Copper 1 ppm</i>), the laboratory, a <b>year</b> selector, and buttons for <b>All charts</b>, <b>PDF form</b> and (administrators) <b>Edit master</b> and <b>Baseline</b>.</li>
+        <li><b>Header</b> — the parameter and level (e.g. <i>Copper 1 ppm</i>), the laboratory, a <b>year</b> selector, and buttons for <b>All charts</b>, <b>PDF form</b> and, when you are allowed to change them, <b>Edit master</b> and <b>Baseline</b> (administrators; also the chemist who created the chart until its first result / first baseline).</li>
         <li><b>Chart details</b> — equipment and ID, method, CRM detail, certified value and range, description, the current baseline version with its mean and standard deviation, and the four limits.</li>
         <li><b>The graph</b> — monthly results plotted as blue diamonds against the green baseline mean, the amber warning limits (&plusmn;2 SD) and the red action limits (&plusmn;3 SD). A point that falls outside a limit is filled amber or red.</li>
         <li><b>Monthly table</b> — twelve rows, January to December, with the date, result, status, remark, who performed it, and the baseline result and limits for that row.</li>
@@ -293,11 +293,11 @@
     </section>
 
     <!-- ============ ADMIN: CREATING CHARTS ============ -->
-    <section class="topic" id="t-create" data-cat="admin" data-keywords="create new control chart step by step add chart master parameter level equipment method crm detail certified value range decimals how to set up new chart administrator">
-      <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-bad">Administrator</span> Creating a new control chart (step by step)</h2>
+    <section class="topic" id="t-create" data-cat="admin" data-keywords="create new control chart step by step add chart master parameter level equipment method crm detail certified value range decimals how to set up new chart chemist analyst">
+      <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-ok">All analysts</span> Creating a new control chart (step by step)</h2>
       <p>You need a new chart whenever the laboratory starts monitoring a new parameter, a new concentration level of an existing parameter, or the same parameter on a different instrument. Have these to hand before you begin: the CRM certificate (product and lot numbers, certified value and acceptable range), the method reference, the equipment ID and the February baseline results.</p>
       <h3>Step 1 — Open the chart master form</h3>
-      <p>Go to <span class="path">QC → Control Charts → Add Chart (admin)</span> (sidebar) or the <b>+ Add Chart</b> button at the top-right of the chart list. Only administrators see these.</p>
+      <p>Go to <span class="path">QC → Control Charts → Add Chart</span> (sidebar) or the <b>+ Add Chart</b> button at the top-right of the chart list. Any signed-in chemist can add a chart for their laboratory; choose the correct <b>Location</b> (Karachi or Lahore) in the form.</p>
       <h3>Step 2 — Fill in the chart master</h3>
       <table class="g">
         <tr><th>Field</th><th>What to enter</th><th>Example</th></tr>
@@ -314,7 +314,7 @@
         <tr><td>Decimals</td><td>How many decimal places results are shown to.</td><td>2 (3 for pH, fluoride, nitrate; 4 for AS-13)</td></tr>
         <tr><td>Active</td><td>Leave ticked. Untick later to retire a chart without deleting its history.</td><td>&#10003;</td></tr>
       </table>
-      <p>Click <b>Save</b>. Because a new chart has no baseline yet, the system takes you straight to the baseline page.</p>
+      <p>Click <b>Save</b>. Because a new chart has no baseline yet, the system takes you straight to the baseline page. The chemist who created the chart may establish its <b>first</b> baseline (v1) and correct the master details until the first monthly result is recorded; after that, changes to the master and new baseline versions are made by an administrator.</p>
       <h3>Step 3 — Establish the baseline</h3>
       <ol>
         <li>Paste or type the baseline results in the <b>Baseline values</b> box — one per line or comma-separated, normally the twelve February intermediate-check results.</li>
@@ -380,7 +380,7 @@
       <h3>I cannot see the Review or Approve button.</h3>
       <p>Review needs a laboratory assignment (or the QC Manager role) for that chart's laboratory; approval needs administrator rights for that laboratory. Also, Review is disabled until the year has at least one result, and Approve appears only after review.</p>
       <h3>The chart I need is not in the list.</h3>
-      <p>Check the laboratory selector and the year. If the chart has been retired, find it in the Archive. If it has never been created, an administrator can add it — see <a href="#t-create">Creating a new control chart</a>.</p>
+      <p>Check the laboratory selector and the year. If the chart has been retired, find it in the Archive. If it has never been created, add it yourself — see <a href="#t-create">Creating a new control chart</a>.</p>
       <h3>The year was approved but now shows "Open".</h3>
       <p>Someone changed a result after approval; the sign-off is cleared automatically so that the signed form always matches the data. Review and approve again.</p>
       <h3>The limits look different from last year.</h3>
