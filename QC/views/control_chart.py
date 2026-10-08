@@ -15,17 +15,19 @@ from django.db.models import Q as _Q
 from django.contrib import messages as _msg
 from django.views.decorators.http import require_POST as _require_POST
 
-from QC.models import ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer, run_limits, classify_value
+from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer,
+                       run_limits, classify_value, parse_values, suspect_values, ACTIVITY_PROFILE)
 from QC.control_chart_render import render_chart, period_rows, period_label as _plabel, fmt as _fmt, MONTHS as _MONTHS
 
 _CC_LOCS = ['Karachi', 'Lahore']
-_CC_ACTS = ['CRM', 'RM', 'IC']
+_CC_ACTS = ['CRM', 'RM', 'IC', 'DUP', 'SPK']
 _CC_FORM = {'doc_no': 'ETAL-LAB-604-FF-11', 'issue_date': '19-03-2022', 'issue_no': '01', 'rev_no': '00'}
 # Document-control rows are kept per laboratory AND per form type (CRM / RM / IC):
 # InventoryDocControl(module=<key below>, location=<lab>). Only the Karachi CRM form
 # number is known to the system; the others are entered by an administrator on
 # the Document control page and show as 'TBA' until then (08-10-2026).
-_CC_DOC_MODULES = {'CRM': 'control_chart', 'RM': 'control_chart_rm', 'IC': 'control_chart_ic'}
+_CC_DOC_MODULES = {'CRM': 'control_chart', 'RM': 'control_chart_rm', 'IC': 'control_chart_ic',
+                   'DUP': 'control_chart_dup', 'SPK': 'control_chart_spk'}
 _CC_OFFICE = {
     'Karachi': {'tel': 'Tel: +92 310 2288801',
                 'address': 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan.'},
@@ -136,13 +138,20 @@ def _can_review(user, chart=None):
 
 def _default_loc(request):
     """Laboratory the selector opens on: the user's last choice (session), else
-    the user's assigned laboratory, else a 'lahore' username hint, else Karachi."""
+    the user's assigned laboratory, else the office on the user's e-signature
+    profile (e.g. Lahore chemists), else a 'lahore' username hint, else Karachi."""
     loc = request.session.get('cc_loc')
     if loc in _CC_LOCS:
         return loc
     labs = sorted(_user_labs(request.user))
     if labs:
         return labs[0]
+    try:
+        office = (Signatures.objects.filter(user=request.user).values_list('office', flat=True).first() or '').strip().title()
+        if office in _CC_LOCS:
+            return office
+    except Exception:
+        pass
     try:
         if 'lahore' in (request.user.get_username() or '').lower():
             return 'Lahore'
@@ -207,7 +216,7 @@ def _restatus_run(chart, year, month):
     rs = _period_results(chart, year, month)
     lim = run_limits([r.value for r in rs])
     for r in rs:
-        st = classify_value(lim, r.value)
+        st = chart.classify(lim, r.value)
         if st != r.status:
             ControlChartResult.objects.filter(pk=r.pk).update(status=st)
     return lim
@@ -443,13 +452,23 @@ def control_chart_detail(request, pk):
     return render(request, 'control_chart_detail.html', {
         'chart': chart, 'b': b, 'lim': lim_f, 'lim_n': (lim or {}).get('n', 0), 'rows': rows, 'nrows': len(rows), 'extra_base': extra_base, 'results': results, 'svg': svg,
         'year': year, 'years': years, 'month': month, 'months': months, 'period': _plabel(chart, year, month), 'pq': _pq(year, month),
-        'so': so, 'docctrl': _cc_docctrl(chart.location, chart.activity), 'sop_note': _CC_SOP_NOTE if chart.activity == 'CRM' else '',
+        'so': so, 'docctrl': _cc_docctrl(chart.location, chart.activity), 'sop_note': chart.profile['note'],
         'locked': _year_locked(chart, year, user, month), 'can_review': _can_review(user, chart), 'can_approve': _can_approve(user, chart),
         'can_admin': _is_admin(user), 'can_edit_master': _can_edit_master(user, chart), 'can_set_baseline': _can_set_baseline(user, chart) and not chart.self_limited,
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
         'base_values': ', '.join(_fmt(v, chart.decimals) for v in (b.values if b else [])),
-        'month_names': _MONTHS, 'cycle_name': chart.cycle_name,
+        'month_names': _MONTHS, 'cycle_name': chart.cycle_name, 'acc_js': _json.dumps(_acc_range(chart)),
     })
+
+
+def _acc_range(chart):
+    out = {}
+    for k, v in (('lo', chart.crm_range_low), ('hi', chart.crm_range_high)):
+        try:
+            out[k] = float(v) if v not in ('', None) else None
+        except ValueError:
+            out[k] = None
+    return out
 
 
 @_require_POST
@@ -489,9 +508,13 @@ def control_chart_cycle(request, pk):
 def control_chart_result_save(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
     user = request.user
+    raw_value = str(request.POST.get('value', '')).strip()
+    if ',' in raw_value:
+        _msg.error(request, 'Use a decimal point in the result (e.g. 1.005), not a comma ("%s").' % raw_value[:20])
+        return _redirect('control_chart_detail', pk=pk)
     try:
         d = _dt.strptime(request.POST.get('date', ''), '%Y-%m-%d').date()
-        value = float(str(request.POST.get('value', '')).replace(',', '').strip())
+        value = float(raw_value)
         if not _math.isfinite(value) or value < 0:
             raise ValueError('not a valid concentration')
     except Exception:
@@ -507,30 +530,35 @@ def control_chart_result_save(request, pk):
         return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
     rid = request.POST.get('result_id')
     r = get_object_or_404(ControlChartResult, pk=rid, chart=chart) if rid else None
-    if r is None:
-        if chart.cadence == 'monthly' and ControlChartResult.objects.filter(chart=chart, date__year=d.year, date__month=d.month).exists():
-            _msg.error(request, 'A result for %s %d already exists - edit it instead.' % (_MONTHS[d.month - 1], d.year))
-            return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
-        if chart.cadence != 'monthly' and ControlChartResult.objects.filter(chart=chart, date=d).exists():
-            _msg.error(request, 'A result dated %s already exists - edit it instead.' % d.strftime('%d-%m-%Y'))
-            return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
+    old_py = old_pm = None
+    if r is not None and _qs_period(chart, r.date) != (py, pm):
+        old_py, old_pm = _qs_period(chart, r.date)
+        if _year_locked(chart, old_py, user, old_pm):
+            _msg.error(request, 'This result belongs to %s, which is approved and locked; it cannot be moved.' % _plabel(chart, old_py, old_pm))
+            return _redirect(f"/qc/control-charts/{pk}/{_pq(old_py, old_pm)}")
+    same = ControlChartResult.objects.filter(chart=chart).exclude(pk=r.pk if r else None)
+    if chart.cadence == 'monthly' and same.filter(date__year=d.year, date__month=d.month).exists():
+        _msg.error(request, 'A result for %s %d already exists - edit that one instead (one result per month).' % (_MONTHS[d.month - 1], d.year))
+        return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
+    if chart.cadence != 'monthly' and same.filter(date=d).exists():
+        _msg.error(request, 'A result dated %s already exists - edit it instead.' % d.strftime('%d-%m-%Y'))
+        return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
     b = chart.current_baseline()
     if chart.self_limited:
         # IC: limits come from the run itself, including this reading
         others = [x.value for x in _period_results(chart, py, pm) if not (r and x.pk == r.pk)]
         lim = run_limits(others + [value])
-        status = classify_value(lim, value)
-        if r is not None and _qs_period(chart, r.date) != (py, pm):
-            old_py, old_pm = _qs_period(chart, r.date)
-        else:
-            old_py = old_pm = None
     else:
-        status = b.classify(value) if b else 'ok'
-        old_py = old_pm = None
+        lim = b.limits() if b else None
+    status = chart.classify(lim, value)
     remark = (request.POST.get('remark') or '').strip()
     if status != 'ok' and not remark:
-        _msg.error(request, 'This result is %s - a remark / corrective action is required before it can be saved.' % (
-            'OUT OF CONTROL (beyond +/-3 SD)' if status == 'ooc' else 'a WARNING (beyond +/-2 SD)'))
+        acc = chart.within_acceptance(value)
+        _msg.error(request, 'This result is %s - a remark / corrective action is required before it can be saved.%s' % (
+            'OUT OF CONTROL (beyond %s3 SD)' % ('+' if chart.upper_only else '+/-') if status == 'ooc'
+            else 'a WARNING (beyond %s2 SD)' % ('+' if chart.upper_only else '+/-'),
+            (' Note: it is still within the %s %s-%s; the control chart judges it against the laboratory\'s own statistics.' % (
+                chart.label_range, chart.crm_range_low, chart.crm_range_high)) if acc else ''))
         return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}&date={d.isoformat()}&value={value}")
     if r is not None:
         r.date, r.value, r.status, r.remark, r.baseline = d, value, status, remark, (None if chart.self_limited else b)
@@ -629,20 +657,22 @@ def control_chart_baseline(request, pk):
     if not _can_set_baseline(request.user, chart):
         return HttpResponse('Baselines are maintained by an administrator (the chemist who created a chart may set its first baseline).', status=403)
     cur = chart.current_baseline()
+    ctx = {'chart': chart, 'cur': cur, 'baselines': chart.baselines.all(), 'today': _date.today().strftime('%Y-%m-%d'),
+           'cur_values': ', '.join(_fmt(v, chart.decimals) for v in (cur.values if cur else [])), 'hint': chart.profile['base_hint']}
     if request.method == 'POST':
         raw = request.POST.get('values', '')
-        vals = []
-        for tok in raw.replace('\n', ',').replace(';', ',').split(','):
-            tok = tok.strip()
-            if tok:
-                try:
-                    vals.append(float(tok))
-                except ValueError:
-                    _msg.error(request, 'Not a number: %r' % tok)
-                    return _redirect('control_chart_baseline', pk=pk)
-        if len(vals) < 3:
-            _msg.error(request, 'At least 3 baseline values are required.')
-            return _redirect('control_chart_baseline', pk=pk)
+        ctx.update(cur_values=raw, est_value=request.POST.get('established_on', ''), note_value=request.POST.get('note', ''))
+        vals, errors = parse_values(raw)
+        if not errors and len(vals) < 3:
+            errors.append('At least 3 baseline values are required (12 are recommended); %d found.' % len(vals))
+        if errors:
+            ctx['errors'] = errors
+            return render(request, 'control_chart_baseline.html', ctx)
+        sus = suspect_values(vals)
+        if sus and request.POST.get('confirm') != '1':
+            ctx['suspects'] = [{'i': i + 1, 'v': _fmt(v, chart.decimals), 'bad': i in sus} for i, v in enumerate(vals)]
+            ctx['n_sus'] = len(sus)
+            return render(request, 'control_chart_baseline.html', ctx)
         try:
             est = _dt.strptime(request.POST.get('established_on', ''), '%Y-%m-%d').date()
         except Exception:
@@ -655,14 +685,25 @@ def control_chart_baseline(request, pk):
         _msg.success(request, 'Baseline v%d established (n=%d, mean %s, SD %s). Earlier results keep the baseline they were judged against.' % (
             b.version, b.n, _fmt(b.mean, chart.decimals), _fmt(b.sd, chart.decimals + 1)))
         return _redirect(f"/qc/control-charts/{pk}/")
-    return render(request, 'control_chart_baseline.html', {
-        'chart': chart, 'cur': cur, 'baselines': chart.baselines.all(), 'today': _date.today().strftime('%Y-%m-%d'),
-        'cur_values': ', '.join(_fmt(v, chart.decimals) for v in (cur.values if cur else []))})
+    return render(request, 'control_chart_baseline.html', ctx)
 
 
 # ---------------------------------------------------------------- chart master (admin)
 _CC_FIELDS = ['location', 'activity', 'parameter', 'level', 'unit', 'equipment', 'equipment_id', 'method',
               'crm_detail', 'crm_value', 'crm_range_low', 'crm_range_high', 'description', 'decimals']
+
+
+def _num_or_err(label, txt, errors):
+    if txt in ('', None):
+        return None
+    try:
+        v = float(str(txt).strip())
+        if not _math.isfinite(v):
+            raise ValueError
+        return v
+    except ValueError:
+        errors.append('%s must be a number (e.g. 1.05), not "%s". Put the unit in the Unit field.' % (label, txt))
+        return None
 
 
 def control_chart_edit(request, pk=None):
@@ -672,32 +713,78 @@ def control_chart_edit(request, pk=None):
             return HttpResponse('Please sign in to add a control chart.', status=403)
     elif not _can_edit_master(request.user, chart):
         return HttpResponse('Chart masters are maintained by an administrator once results have been recorded.', status=403)
+    errors = []
     if request.method == 'POST':
         data = {f: (request.POST.get(f) or '').strip() for f in _CC_FIELDS}
         try:
             data['decimals'] = max(0, min(6, int(data['decimals'] or 3)))
         except ValueError:
             data['decimals'] = 3
+        if data['location'] not in _CC_LOCS:
+            errors.append('Choose the laboratory.')
+        if data['activity'] not in _CC_ACTS:
+            errors.append('Choose the activity.')
         if not data['parameter']:
-            _msg.error(request, 'Parameter is required.')
-            return _redirect(request.path)
-        if chart is None:
-            chart = ControlChart(created_by=request.user)
-        for f in _CC_FIELDS:
-            setattr(chart, f, data[f])
-        chart.active = bool(request.POST.get('active', '1' if pk is None else ''))
+            errors.append('Parameter is required.')
+        prof = ACTIVITY_PROFILE.get(data['activity'], ACTIVITY_PROFILE['CRM'])
+        cv = _num_or_err(prof['value'], data['crm_value'], errors)
+        lo = _num_or_err(prof['range'] + ' (low)', data['crm_range_low'], errors)
+        hi = _num_or_err(prof['range'] + ' (high)', data['crm_range_high'], errors)
+        if lo is not None and hi is not None and lo >= hi:
+            errors.append('%s: the low value (%s) must be smaller than the high value (%s).' % (prof['range'], data['crm_range_low'], data['crm_range_high']))
+        if cv is not None and lo is not None and hi is not None and lo < hi and not (lo <= cv <= hi):
+            errors.append('%s %s lies outside the %s %s-%s - please check the certificate.' % (
+                prof['value'], data['crm_value'], prof['range'], data['crm_range_low'], data['crm_range_high']))
+        if not data['description']:
+            data['description'] = prof['desc']
+        # the same chart must not exist twice (lab + activity + parameter + level + equipment ID)
+        if not errors:
+            same = ControlChart.objects.filter(location=data['location'], activity=data['activity'],
+                                               parameter__iexact=data['parameter'], level__iexact=data['level'],
+                                               equipment_id__iexact=data['equipment_id'])
+            if chart is not None:
+                same = same.exclude(pk=chart.pk)
+            other = same.first()
+            if other:
+                errors.append('This chart already exists: <a href="/qc/control-charts/%d/" style="color:#991b1b;font-weight:700">%s %s [%s] - %s %s%s</a>. '
+                              'Open it to record results instead of creating a duplicate (a different level or equipment ID makes a new chart).' % (
+                                  other.pk, other.parameter, other.level, other.equipment_id or '-', other.location, other.activity,
+                                  '' if other.active else ', inactive'))
         try:
-            sm = int(request.POST.get('start_month') or chart.start_month or 1)
-            chart.start_month = sm if 1 <= sm <= 12 else 1
+            sm = int(request.POST.get('start_month') or 1)
+            sm = sm if 1 <= sm <= 12 else 1
         except ValueError:
-            pass
-        chart.save()
+            sm = 1
+        target = chart if chart is not None else ControlChart(created_by=request.user)
+        if errors:
+            f = ControlChart(**{k: data[k] for k in _CC_FIELDS}, start_month=sm,
+                             active=bool(request.POST.get('active')) if chart else True)
+            return render(request, 'control_chart_edit.html', {
+                'chart': chart, 'f': f, 'errors': errors, 'locs': _CC_LOCS, 'activities': ControlChart.ACTIVITIES,
+                'month_names': _MONTHS, 'profiles': ACTIVITY_PROFILE})
+        if chart is not None and chart.activity != data['activity'] and (chart.results.exists() or chart.baselines.exists()):
+            data['activity'] = chart.activity   # never change the type of a chart that already holds records
+            _msg.warning(request, 'The activity of a chart with recorded data cannot be changed; create a new chart instead.')
+        for k in _CC_FIELDS:
+            setattr(target, k, data[k])
+        target.active = bool(request.POST.get('active', '1' if pk is None else ''))
+        target.start_month = sm
+        target.save()
         _msg.success(request, 'Chart saved.')
-        if chart.current_baseline() is None and not chart.self_limited:
-            return _redirect('control_chart_baseline', pk=chart.pk)
-        return _redirect(f"/qc/control-charts/{chart.pk}/")
+        if target.current_baseline() is None and not target.self_limited:
+            return _redirect('control_chart_baseline', pk=target.pk)
+        return _redirect(f"/qc/control-charts/{target.pk}/")
+    if chart is not None:
+        f = chart
+    else:   # new chart: open on the laboratory and activity the user is working in
+        act = request.GET.get('activity') or request.session.get('cc_act')
+        act = act if act in _CC_ACTS else 'CRM'
+        prof = ACTIVITY_PROFILE[act]
+        f = ControlChart(location=_default_loc(request), activity=act, unit=prof['unit'], decimals=3, start_month=1,
+                         description=prof['desc'])
     return render(request, 'control_chart_edit.html', {
-        'chart': chart, 'locs': _CC_LOCS, 'activities': ControlChart.ACTIVITIES, 'fields': _CC_FIELDS, 'month_names': _MONTHS})
+        'chart': chart, 'f': f, 'locs': _CC_LOCS, 'activities': ControlChart.ACTIVITIES, 'month_names': _MONTHS,
+        'profiles': ACTIVITY_PROFILE})
 
 
 # ---------------------------------------------------------------- PDF
@@ -820,21 +907,21 @@ def control_chart_pdf(request, pk):
 
     kv_row([('Name of Equipment', chart.equipment, L1, V1), ('Equipment ID', chart.equipment_id, L2, V2)])
     kv_row([('Parameter', chart.title, L1, V1), ('Method', chart.method, L2, V2)])
-    kv_row([('%s Detail' % ref, chart.crm_detail, L1, V1), ('Activity', chart.activity_short, L2, V2)])
+    kv_row([(chart.label_detail, chart.crm_detail, L1, V1), ('Activity', chart.activity_short, L2, V2)])
     if chart.self_limited:
         lim_txt = ('run n=%d, mean %s, SD %s' % (lim['n'], _fmt(lim['mean'], dec), _fmt(lim['sd'], dec + 1))) if lim else 'fewer than 2 readings'
-        kv_row([('%s Value' % ref, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
+        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
                 ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
                 ('Limits', lim_txt, L2, V2)])
     else:
-        kv_row([('%s Certified Value' % ref, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
-                ('%s Range' % ref, (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
+        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
+                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
                 ('Baseline', ('v%d  (n = %d, established %s)' % (b.version, b.n, b.established_on.strftime('%d-%m-%Y') if b.established_on else '-')) if b else 'not established', L2, V2)])
     kv_row([('Description', chart.description, L1, 160.0)])
     pdf.ln(2.5)
 
     # ---- results table
-    rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
+    rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
     if chart.self_limited:
         cols = [('S. No.', 11), ('Date', 27), (rl, 30), ('UL (+3 SD)', 20.5), ('UWL (+2 SD)', 20.5), ('LWL (-2 SD)', 20.5),
                 ('LL (-3 SD)', 20.5), ('Run\nMean', 20), ('Run\nSD', 20)]
@@ -903,11 +990,7 @@ def control_chart_pdf(request, pk):
             pdf.set_x(10)
             pdf.multi_cell(190, 3.8, '%s  (%s):  %s' % (d, 'Out of control' if st == 'ooc' else 'Warning' if st == 'warning' else 'Note', t),
                            new_x='LMARGIN', new_y='NEXT')
-    note = {'CRM': _CC_SOP_NOTE,
-            'RM': 'The baseline results were established from the first twelve RM results of the exercise (procedure ETAL-LAB-P-604); '
-                  'the weekly RM results are plotted against this baseline (mean +/- 2 SD warning, +/- 3 SD action).',
-            'IC': 'Intermediate check of the equipment (procedure ETAL-LAB-P-604): the readings of the month are plotted against the mean '
-                  'and standard deviation of that run (+/- 2 SD warning, +/- 3 SD action).'}.get(chart.activity, '')
+    note = chart.profile['note']
     pdf.ln(0.8); pdf.set_font(f, '', 6.8); pdf.set_text_color(60, 60, 60); pdf.set_x(10)
     pdf.multi_cell(190, 3.4, note, new_x='LMARGIN', new_y='NEXT'); pdf.set_text_color(0, 0, 0)
 

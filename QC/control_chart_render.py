@@ -64,9 +64,10 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     ax.set_xticklabels(labels, fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 16 else 60)
     if lim:
         mean_lbl = 'Run mean' if chart.self_limited else 'Baseline mean'
-        for key, col, lbl, ls in (('ul', C_UL, 'UL (+3 SD)', '-'), ('uwl', C_UWL, 'UWL (+2 SD)', '--'),
-                                  ('mean', C_MEAN, mean_lbl, '-'),
-                                  ('lwl', C_UWL, 'LWL (-2 SD)', '--'), ('ll', C_UL, 'LL (-3 SD)', '-')):
+        lines = [('ul', C_UL, 'UL (+3 SD)', '-'), ('uwl', C_UWL, 'UWL (+2 SD)', '--'), ('mean', C_MEAN, mean_lbl, '-')]
+        if not chart.upper_only:      # duplicates: one-sided chart, no lower limits
+            lines += [('lwl', C_UWL, 'LWL (-2 SD)', '--'), ('ll', C_UL, 'LL (-3 SD)', '-')]
+        for key, col, lbl, ls in lines:
             ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.1, ls=ls, label=lbl, zorder=2)
             ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
                         fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
@@ -82,7 +83,7 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     # y-range: limits +/- 1 SD padding, widened by any result outside
     ys = [p[1] for p in pts]
     if lim:
-        lo, hi = lim['ll'] - lim['sd'], lim['ul'] + lim['sd']
+        lo, hi = (max(0.0, lim['mean'] - 2 * lim['sd']) if chart.upper_only else lim['ll'] - lim['sd']), lim['ul'] + lim['sd']
         if ys:
             lo, hi = min(lo, min(ys) - lim['sd']), max(hi, max(ys) + lim['sd'])
         if hi > lo:
@@ -94,7 +95,7 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     ax.tick_params(axis='y', labelsize=7)
     ax.set_xlabel('Testing date', fontsize=8)
     ax.set_ylabel(('Test result (%s)' % chart.unit) if chart.unit else 'Test result', fontsize=8)
-    what = {'RM': 'RM EXERCISE', 'IC': 'INTERMEDIATE CHECK'}.get(chart.activity, 'TESTING')
+    what = chart.profile['what']
     ax.set_title('CONTROL CHART OF %s %s  -  %s' % (chart.title.upper(), what, period_label(chart, year, month)),
                  fontsize=9.5, fontweight='bold', color='#0f5132')
     ax.grid(True, color='#e5e7eb', lw=0.6)
@@ -119,6 +120,8 @@ def period_rows(chart, lim, base_values, results, year, month=0):
     sd_dec = dec + 1 if dec < 4 else dec
     common = {'ul': fmt(lim.get('ul'), dec), 'uwl': fmt(lim.get('uwl'), dec), 'lwl': fmt(lim.get('lwl'), dec),
               'll': fmt(lim.get('ll'), dec), 'mean': fmt(lim.get('mean'), dec), 'sd': fmt(lim.get('sd'), sd_dec)}
+    if chart.upper_only and lim:
+        common['lwl'] = common['ll'] = '-'
     rows = []
     if chart.cadence == 'monthly':
         by_month = {}

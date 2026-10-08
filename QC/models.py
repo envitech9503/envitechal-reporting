@@ -84,15 +84,110 @@ def run_limits(values):
     return {'mean': m, 'sd': s, 'n': len(vals), 'uwl': m + 2 * s, 'lwl': m - 2 * s, 'ul': m + 3 * s, 'll': m - 3 * s}
 
 
-def classify_value(lim, value):
-    """'ok' | 'warning' (outside +/-2 SD) | 'ooc' (outside +/-3 SD)."""
+def classify_value(lim, value, upper_only=False):
+    """'ok' | 'warning' (outside +/-2 SD) | 'ooc' (outside +/-3 SD).
+    upper_only: one-sided chart (duplicate RPD) - only high values are out of control."""
     if lim is None or value is None:
         return 'ok'
-    if value > lim['ul'] or value < lim['ll']:
+    if value > lim['ul'] or (not upper_only and value < lim['ll']):
         return 'ooc'
-    if value > lim['uwl'] or value < lim['lwl']:
+    if value > lim['uwl'] or (not upper_only and value < lim['lwl']):
         return 'warning'
     return 'ok'
+
+
+import re as _re
+
+
+def parse_values(raw):
+    """Parse a list of numbers typed or pasted by a user.
+    Separators: comma, semicolon, new line, tab, space.  A decimal comma typed by
+    mistake ("1.002, 0,996" or "1,002 1,004") is REJECTED with a clear message - it
+    used to be split silently into two numbers (0 and 996).  Returns (values, errors)."""
+    raw = (raw or '').strip()
+    errors = []
+    isolated = _re.findall(r'(?<![\d.])\d+,\d+(?![\d.])', raw)
+    ws_tokens = [t for t in _re.split(r'\s+', raw) if t]
+    decimal_comma = bool(isolated) and (
+        '.' in raw or                                               # mixed: 1.002, 0,996
+        (len(ws_tokens) > 1 and all(_re.fullmatch(r'-?\d+,\d+[;]?', t) for t in ws_tokens)))   # 1,002 1,004
+    if decimal_comma:
+        errors.append('Use a decimal point, not a comma, inside numbers (found: %s). Separate values with commas, '
+                      'semicolons, spaces or new lines.' % ', '.join(sorted(set(isolated))[:5]))
+        return [], errors
+    vals = []
+    for tok in _re.split(r'[;,\s]+', raw):
+        tok = tok.strip()
+        if not tok:
+            continue
+        try:
+            v = float(tok)
+        except ValueError:
+            errors.append('Not a number: "%s".' % tok[:30])
+            continue
+        if v != v or v in (float('inf'), float('-inf')):
+            errors.append('Not a valid number: "%s".' % tok[:30])
+            continue
+        vals.append(v)
+    return vals, errors
+
+
+def suspect_values(vals):
+    """Indices of values that are far from the rest (likely typing errors):
+    more than 10 robust SDs (MAD based) and more than 50 % of the median away."""
+    if len(vals) < 4:
+        return []
+    srt = sorted(vals)
+    med = _stats.median(srt)
+    mad = _stats.median([abs(v - med) for v in srt]) * 1.4826
+    out = []
+    for i, v in enumerate(vals):
+        d = abs(v - med)
+        if d > max(10 * mad, 0.5 * abs(med), 1e-12) and (mad > 0 or d > 0.5 * abs(med)):
+            out.append(i)
+    return out
+
+
+# Behaviour and wording of each QC activity (08-10-2026 / 09-10-2026).
+#   cadence: monthly = one result per month, 12 rows per cycle (CRM)
+#            weekly  = sequential results (week labels) per cycle (RM)
+#            batch   = sequential results per cycle, one per analytical batch (Duplicate, Spike)
+#            run     = one run of readings per calendar month, limits from the run (IC)
+ACTIVITY_PROFILE = {
+    'CRM': dict(cadence='monthly', ref='CRM', detail='CRM Detail', value='CRM Certified Value', range='CRM Range',
+                result='Monthly CRM result', col='Month', what='TESTING', unit='mg/l',
+                desc='CRM Results during Monthly CRM Exercise',
+                note='The baseline results were established using data from the February intermediate check activity, as per the '
+                     'procedure ETAL-LAB-P-604 (two intermediate check activities are planned: one after calibration and the other '
+                     'before PT). Accordingly, the results from the February activity (conducted before PT) were used to establish '
+                     'the baseline, and the monthly results are plotted against this baseline.',
+                base_hint='Usually the twelve February intermediate-check results (SOP ETAL-LAB-P-604).'),
+    'RM': dict(cadence='weekly', ref='RM', detail='RM Detail', value='RM Value', range='RM Range',
+               result='Weekly RM result', col='Week', what='RM EXERCISE', unit='mg/l',
+               desc='RM Results during Weekly RM Exercise',
+               note='The baseline results were established from the first twelve RM results of the exercise (procedure '
+                    'ETAL-LAB-P-604); the weekly RM results are plotted against this baseline (mean +/- 2 SD warning, +/- 3 SD action).',
+               base_hint='Usually the first twelve results of the RM exercise.'),
+    'IC': dict(cadence='run', ref='CRM/RM', detail='CRM/RM Detail', value='CRM/RM Value', range='Acceptance Range',
+               result='Intermediate check reading', col='Reading', what='INTERMEDIATE CHECK', unit='mg/l',
+               desc='Control chart of Intermediate check for the equipment',
+               note='Intermediate check of the equipment (procedure ETAL-LAB-P-604): the readings of the month are plotted against '
+                    'the mean and standard deviation of that run (+/- 2 SD warning, +/- 3 SD action).',
+               base_hint=''),
+    'DUP': dict(cadence='batch', ref='Duplicate', detail='Sample / batch detail', value='Target RPD', range='Acceptance limit (RPD)',
+                result='Duplicate RPD', col='Run', what='DUPLICATE ANALYSIS', unit='%',
+                desc='Relative percent difference (RPD) of duplicate analyses',
+                note='Duplicate analyses (procedure ETAL-LAB-P-604): the relative percent difference of each duplicate pair is plotted '
+                     'against the baseline mean and standard deviation. The chart is one-sided - only RPD values above the upper '
+                     'warning (+2 SD) and action (+3 SD) limits are out of control.',
+                base_hint='Usually the RPD of the first twenty duplicate pairs (at least 12).'),
+    'SPK': dict(cadence='batch', ref='Spike', detail='Spike detail', value='Expected recovery', range='Acceptance range (recovery)',
+                result='Spike recovery', col='Run', what='SPIKE RECOVERY', unit='%',
+                desc='Percent recovery of matrix spikes',
+                note='Matrix spike recovery (procedure ETAL-LAB-P-604): the percent recovery of each spiked sample is plotted against '
+                     'the baseline mean and standard deviation (+/- 2 SD warning, +/- 3 SD action).',
+                base_hint='Usually the recoveries of the first twenty spiked samples (at least 12).'),
+}
 
 
 class ControlChart(models.Model):
@@ -187,7 +282,30 @@ class ControlChart(models.Model):
         """'monthly' (CRM: 12 month rows per year), 'weekly' (RM: sequential weekly
         results per year) or 'run' (IC: one run of ~12 readings per calendar month,
         limits computed from the run itself)."""
-        return {'RM': 'weekly', 'IC': 'run'}.get(self.activity, 'monthly')
+        return self.profile['cadence']
+
+    @property
+    def profile(self):
+        return ACTIVITY_PROFILE.get(self.activity, ACTIVITY_PROFILE['CRM'])
+
+    @property
+    def upper_only(self):
+        """One-sided chart: duplicate RPD (a low RPD is good, never out of control)."""
+        return self.activity == 'DUP'
+
+    def classify(self, lim, value):
+        return classify_value(lim, value, self.upper_only)
+
+    def within_acceptance(self, value):
+        """True / False when the certificate / acceptance range is numeric, else None."""
+        try:
+            lo = float(self.crm_range_low) if self.crm_range_low not in ('', None) else None
+            hi = float(self.crm_range_high) if self.crm_range_high not in ('', None) else None
+        except ValueError:
+            return None
+        if lo is None and hi is None:
+            return None
+        return (lo is None or value >= lo) and (hi is None or value <= hi)
 
     @property
     def self_limited(self):
@@ -199,15 +317,27 @@ class ControlChart(models.Model):
 
     @property
     def ref_label(self):
-        return {'RM': 'RM', 'IC': 'CRM/RM'}.get(self.activity, 'CRM')
+        return self.profile['ref']
 
     @property
     def result_label(self):
-        return {'RM': 'Weekly RM result', 'IC': 'Intermediate check reading'}.get(self.activity, 'Monthly CRM result')
+        return self.profile['result']
 
     @property
     def period_col(self):
-        return {'RM': 'Week', 'IC': 'Reading'}.get(self.activity, 'Month')
+        return self.profile['col']
+
+    @property
+    def label_detail(self):
+        return self.profile['detail']
+
+    @property
+    def label_value(self):
+        return self.profile['value']
+
+    @property
+    def label_range(self):
+        return self.profile['range']
 
     @property
     def activity_short(self):
@@ -249,7 +379,7 @@ class ControlChartBaseline(models.Model):
                 'ul': m + 3 * s, 'll': m - 3 * s}
 
     def classify(self, value):
-        return classify_value(self.limits(), value)
+        return classify_value(self.limits(), value, self.chart.upper_only)
 
     def __str__(self):
         return 'Baseline v%s of %s' % (self.version, self.chart_id)

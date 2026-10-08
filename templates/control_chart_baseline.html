@@ -3,22 +3,56 @@
 {% block crumb %} &rsaquo; <a href="{% url 'control_chart_detail' chart.id %}" style="color:#0f5132;text-decoration:none">{{ chart.title }}</a> &rsaquo; <span>Baseline</span>{% endblock %}
 {% block cc_body %}
 <div class="card">
-  <div class="hd"><div class="title"><i class="fa-solid fa-ruler"></i> Baseline - {{ chart.title }} [{{ chart.equipment_id|default:"-" }}]</div>
+  <div class="hd"><div class="title"><i class="fa-solid fa-ruler"></i> Baseline - {{ chart.title }} [{{ chart.equipment_id|default:"-" }}] <span class="muted">&middot; {{ chart.activity_short }} &middot; {{ chart.location }}</span></div>
     <a class="btn" href="{% url 'control_chart_detail' chart.id %}"><i class="fa-solid fa-arrow-left"></i> Back to chart</a></div>
-  <div class="msg warning">A new baseline starts a new version. Limits for new results are taken from the current version; results already recorded keep the version they were judged against. Typically done once a year from the February intermediate-check results (SOP ETAL-LAB-P-604).</div>
+  <div class="msg warning">The baseline gives the mean and standard deviation from which the warning (&plusmn;2 SD) and action (&plusmn;3 SD) limits are calculated{% if chart.upper_only %} - for duplicates only the upper limits are used{% endif %}. {{ hint }} A new baseline starts a new version; results already recorded keep the version they were judged against.</div>
+  {% if errors %}<div class="msg error"><b>The baseline was not saved:</b><ul style="margin:6px 0 0 18px">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+  {% if suspects %}<div class="msg error"><b>Please check {{ n_sus }} value{{ n_sus|pluralize }} highlighted below</b> - {{ n_sus|pluralize:"it is,they are" }} far from the others and may be a typing error (for example a misplaced decimal point). Correct the list, or tick <i>"The values are correct"</i> and save again.
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">{% for s in suspects %}<span class="pill {% if s.bad %}bad{% else %}none{% endif %}">{{ s.i }}: {{ s.v }}</span>{% endfor %}</div></div>{% endif %}
   <form method="post" class="frm" style="flex-direction:column;align-items:stretch">{% csrf_token %}
-    <label>Baseline values (comma- or line-separated, usually 12) <textarea name="values" rows="4" required placeholder="e.g. 6.85, 6.86, 6.87, ...">{{ cur_values }}</textarea></label>
+    <label>Baseline values <span class="muted">(use a decimal point; separate values with commas, semicolons, spaces or new lines - usually 12)</span>
+      <textarea name="values" id="bVals" rows="4" required placeholder="e.g. 1.002, 0.998, 1.005, 0.996, ...">{{ cur_values }}</textarea></label>
+    <div id="bPrev" class="muted" style="font-size:12.5px"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <label>Established on <input type="date" name="established_on" value="{{ today }}"></label>
-      <label style="flex:1">Note <input type="text" name="note" maxlength="300" placeholder="e.g. February 2027 intermediate check, after calibration"></label>
+      <label>Established on <input type="date" name="established_on" value="{{ est_value|default:today }}"></label>
+      <label style="flex:1">Note <input type="text" name="note" maxlength="300" value="{{ note_value|default:'' }}" placeholder="e.g. February 2027 intermediate check, after calibration"></label>
     </div>
-    <div><button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> Establish new baseline v{{ cur.version|add:1|default:1 }}</button></div>
+    {% if suspects %}<label style="flex-direction:row;gap:6px;align-items:center"><input type="checkbox" name="confirm" value="1"> The values are correct - establish the baseline anyway</label>{% endif %}
+    <div><button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> Establish {% if cur %}new {% endif %}baseline v{{ cur.version|add:1|default:1 }}</button></div>
   </form>
 </div>
 <div class="card">
   <div class="hd"><div class="title" style="font-size:15px">Baseline history</div></div>
   <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th><th>Note</th><th>Created</th><th>Current</th></tr></thead><tbody>
-  {% for b in baselines %}<tr><td>v{{ b.version }}</td><td>{{ b.established_on|date:"d-m-Y" }}</td><td class="num">{{ b.n }}</td><td class="num">{{ b.mean|floatformat:chart.decimals }}</td><td class="num">{{ b.sd|floatformat:4 }}</td><td>{{ b.note }}</td><td class="muted">{{ b.created_at|date:"d-m-Y H:i" }} {{ b.created_by.username|default:"" }}</td><td>{% if b.is_current %}<span class="pill ok">current</span>{% endif %}</td></tr>{% endfor %}
+  {% for b in baselines %}<tr><td>v{{ b.version }}</td><td>{{ b.established_on|date:"d-m-Y" }}</td><td class="num">{{ b.n }}</td><td class="num">{{ b.mean|floatformat:chart.decimals }}</td><td class="num">{{ b.sd|floatformat:4 }}</td><td>{{ b.note }}</td><td class="muted">{{ b.created_at|date:"d-m-Y H:i" }} {{ b.created_by.username|default:"" }}</td><td>{% if b.is_current %}<span class="pill ok">current</span>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="8" class="empty">No baseline yet.</td></tr>{% endfor %}
   </tbody></table>
 </div>
+<script>
+(function(){
+  var t=document.getElementById('bVals'), out=document.getElementById('bPrev'), dec={{ chart.decimals|default:3 }};
+  function parse(raw){
+    var iso = raw.match(/(^|[^\d.])\d+,\d+(?![\d.])/g);
+    var ws = raw.trim().split(/\s+/).filter(Boolean);
+    if (iso && (raw.indexOf('.')>=0 || (ws.length>1 && ws.every(function(x){return /^-?\d+,\d+;?$/.test(x);}))))
+      return {err:'Decimal comma found ('+iso.map(function(x){return x.replace(/^[^\d]/,'');}).slice(0,3).join(', ')+') - use a decimal point.'};
+    var vals=[], bad=[];
+    raw.split(/[;,\s]+/).forEach(function(x){ if(!x) return; var v=Number(x); if(isFinite(v)) vals.push(v); else bad.push(x); });
+    return {vals:vals, bad:bad};
+  }
+  function upd(){
+    var r=parse(t.value);
+    if (r.err){ out.innerHTML='<span style="color:#991b1b">'+r.err+'</span>'; return; }
+    var v=r.vals, n=v.length;
+    if (!n){ out.textContent=''; return; }
+    var m=v.reduce(function(a,b){return a+b;},0)/n, sd=0;
+    if (n>1){ sd=Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m);},0)/(n-1)); }
+    var s='Read <b>'+n+'</b> value'+(n>1?'s':'')+' &middot; mean <b>'+m.toFixed(dec)+'</b>'+(n>1?' &middot; SD <b>'+sd.toFixed(dec+1)+'</b>':'');
+    if (r.bad.length) s+=' &middot; <span style="color:#991b1b">not numbers: '+r.bad.slice(0,3).join(', ')+'</span>';
+    if (n<3) s+=' &middot; <span style="color:#92400e">at least 3 needed</span>';
+    out.innerHTML=s;
+  }
+  t.addEventListener('input', upd); upd();
+})();
+</script>
 {% endblock %}

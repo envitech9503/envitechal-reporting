@@ -8,7 +8,7 @@
       <a class="btn" href="{% url 'control_chart_archive' %}"><i class="fa-solid fa-box-archive"></i> Archive</a>
       <a class="btn" href="{% url 'control_chart_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> User Manual</a>
       <a class="btn" href="/qc/qc_main/"><i class="fa-solid fa-arrow-left"></i> QC Home</a>
-      {% if can_create %}<a class="btn btn-p" href="{% url 'control_chart_new' %}"><i class="fa-solid fa-plus"></i> Add Chart</a>{% endif %}
+      {% if can_create %}<a class="btn btn-p" href="{% url 'control_chart_new' %}{% if act != 'All' %}?activity={{ act }}{% endif %}"><i class="fa-solid fa-plus"></i> Add Chart</a>{% endif %}
     </div>
   </div>
   <form class="toolbar" method="get">
@@ -19,6 +19,8 @@
       <option value="CRM" {% if act == 'CRM' %}selected{% endif %}>CRM - monthly ({{ counts.CRM }})</option>
       <option value="RM" {% if act == 'RM' %}selected{% endif %}>RM - weekly ({{ counts.RM }})</option>
       <option value="IC" {% if act == 'IC' %}selected{% endif %}>Intermediate checks - monthly runs ({{ counts.IC }})</option>
+      <option value="DUP" {% if act == 'DUP' %}selected{% endif %}>Duplicates - RPD per batch ({{ counts.DUP }})</option>
+      <option value="SPK" {% if act == 'SPK' %}selected{% endif %}>Spike / recovery - per batch ({{ counts.SPK }})</option>
     </select>
     <input type="search" name="q" value="{{ q }}" placeholder="Parameter, equipment, method&hellip;" style="min-width:240px">
     <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
@@ -32,7 +34,7 @@
     <tbody>
     {% for r in rows %}
       <tr>
-        <td><span class="pill {% if r.c.activity == 'CRM' %}ok{% elif r.c.activity == 'RM' %}info{% else %}none{% endif %}">{{ r.c.activity }}</span></td>
+        <td><span class="pill {% if r.c.activity == 'CRM' %}ok{% elif r.c.activity == 'RM' %}info{% elif r.c.activity == 'IC' %}none{% else %}warn{% endif %}">{{ r.c.activity }}</span></td>
         <td><a href="{% url 'control_chart_detail' r.c.id %}?year={{ year }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.parameter }}</a></td>
         <td>{{ r.c.level }}</td><td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td><td>{{ r.c.method }}</td>
         <td class="num">{{ r.mean }}</td><td class="num">{{ r.sd }}</td>
