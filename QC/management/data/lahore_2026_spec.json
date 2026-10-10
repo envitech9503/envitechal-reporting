@@ -1,0 +1,7478 @@
+{
+ "location": "Lahore",
+ "created": "2026-10-10",
+ "charts": [
+  {
+   "key": "CRM Alkalinity",
+   "activity": "CRM",
+   "target_id": 92,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Alkalinity"
+   },
+   "master": {
+    "parameter": "Alkalinity",
+    "level": "100 ppm",
+    "unit": "mg/l",
+    "equipment": "Not Applicable",
+    "equipment_id": "",
+    "method": "APHA 2320 B",
+    "crm_detail": "Product # ALK500-0500ML (Lot # LTR586741)",
+    "crm_value": "100",
+    "crm_range_low": "96.534",
+    "crm_range_high": "103.466",
+    "description": "CRM by using 100 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 2,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      102.5,
+      97.5,
+      100,
+      102.5,
+      102.5,
+      97.5,
+      100,
+      102.5,
+      97.5,
+      97.5,
+      100,
+      102.5
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-17",
+     "value": 99.68,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-18",
+     "value": 98.8,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 101.99,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 99.5,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 102.49,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-17",
+     "value": 101.49,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-07-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM Calcium Hardness",
+   "activity": "CRM",
+   "target_id": 167,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Calcium Hardness"
+   },
+   "master": {
+    "parameter": "Calcium Hardness",
+    "level": "100 ppm",
+    "unit": "mg/l",
+    "equipment": "Not Applicable",
+    "equipment_id": "",
+    "method": "ASTM D 1126",
+    "crm_detail": "Product # HARD1000-500ML (Lot # LRAD9804)",
+    "crm_value": "100",
+    "crm_range_low": "94.42",
+    "crm_range_high": "105.58",
+    "description": "CRM by using 100 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 1,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      102.4,
+      96,
+      102.4,
+      100,
+      96,
+      96,
+      104,
+      102.4,
+      96,
+      100,
+      104,
+      100.8
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-09",
+     "value": 102,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 97,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 103,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 102,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-18",
+     "value": 98,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 104,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-09-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM Chloride",
+   "activity": "CRM",
+   "target_id": 164,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Chloride"
+   },
+   "master": {
+    "parameter": "Chloride",
+    "level": "100 ppm",
+    "unit": "mg/l",
+    "equipment": "Not Applicable",
+    "equipment_id": "",
+    "method": "APHA 4500 Cl- B",
+    "crm_detail": "Product # 1.19897.0500ML (Lot # HC44297397)",
+    "crm_value": "100",
+    "crm_range_low": "96.038",
+    "crm_range_high": "103.962",
+    "description": "CRM by using 100 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 2,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      99.97,
+      100.97,
+      100.47,
+      99.97,
+      99.97,
+      100.47,
+      100.97,
+      100.47,
+      99.97,
+      100.97,
+      100.47,
+      99.97
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-09",
+     "value": 100.3,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-14",
+     "value": 100.05,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 100.97,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 100.02,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 99.91,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 100.87,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 100.84,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 99.98,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-08-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM Nitrate",
+   "activity": "CRM",
+   "target_id": 170,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Nitrate"
+   },
+   "master": {
+    "parameter": "Nitrate",
+    "level": "0.1 ppm",
+    "unit": "mg/l",
+    "equipment": "Spectrophotometer",
+    "equipment_id": "ENVI-LAB-EQP-09",
+    "method": "APHA 4500 NO3- B",
+    "crm_detail": "Product # 1.25037.0100 (Lot # HC5217249)",
+    "crm_value": "0.1",
+    "crm_range_low": "0.096",
+    "crm_range_high": "0.104",
+    "description": "CRM by using 0.1 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 3,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      0.12,
+      0.1,
+      0.09,
+      0.12,
+      0.12,
+      0.13,
+      0.1,
+      0.09,
+      0.12,
+      0.1,
+      0.13,
+      0.09
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-17",
+     "value": 0.098,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-10",
+     "value": 0.1,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 0.13,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-08",
+     "value": 0.12,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 0.095,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 0.13,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-10",
+     "value": 0.097,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-07-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM Sulfate",
+   "activity": "CRM",
+   "target_id": 168,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Sulfate"
+   },
+   "master": {
+    "parameter": "Sulfate",
+    "level": "4 ppm",
+    "unit": "mg/l",
+    "equipment": "Spectrophotometer",
+    "equipment_id": "ENVI-LAB-EQP-09",
+    "method": "APHA 4500-SO42- E",
+    "crm_detail": "Product # 1.25050.0100 (Lot # HC56823350)",
+    "crm_value": "4",
+    "crm_range_low": "3.378",
+    "crm_range_high": "4.622",
+    "description": "CRM by using 4 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 3,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      4.26,
+      4.11,
+      3.89,
+      4.05,
+      4.28,
+      4.15,
+      3.99,
+      4.18,
+      4.06,
+      3.95,
+      3.89,
+      4.25
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-09",
+     "value": 4.167,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 4.203,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 3.974,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-20",
+     "value": 3.891,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 4.189,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-06-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM TDS",
+   "activity": "CRM",
+   "target_id": null,
+   "match": {
+    "activity": "CRM",
+    "parameter": "TDS"
+   },
+   "master": {
+    "parameter": "TDS",
+    "level": "250 ppm",
+    "unit": "mg/l",
+    "equipment": "Drying Oven, Analytical Balance",
+    "equipment_id": "ENVI-LAB-EQP-05, ENVI-LAB-EQP-02",
+    "method": "APHA 2540 C",
+    "crm_detail": "Product # TDS1000-0500ML (Lot # LRAD8703)",
+    "crm_value": "250",
+    "crm_range_low": "247.398",
+    "crm_range_high": "252.602",
+    "description": "CRM by using 250 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 0,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      252,
+      250,
+      248,
+      254,
+      252,
+      248,
+      250,
+      252,
+      248,
+      250,
+      254,
+      248
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-09",
+     "value": 252,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-09",
+     "value": 248,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 252,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 250,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 248,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 248,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 252,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-07-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM Total Hardness",
+   "activity": "CRM",
+   "target_id": 166,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Total Hardness"
+   },
+   "master": {
+    "parameter": "Total Hardness",
+    "level": "100 ppm",
+    "unit": "mg/l",
+    "equipment": "Not Applicable",
+    "equipment_id": "",
+    "method": "ASTM D 1126",
+    "crm_detail": "Product # THRD1000-500ML (Lot # LRAD8034)",
+    "crm_value": "100",
+    "crm_range_low": "95.984",
+    "crm_range_high": "104.016",
+    "description": "CRM by using 100 ppm dilution - results during Monthly CRM Exercise",
+    "decimals": 0,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      98,
+      102,
+      104,
+      100,
+      98,
+      102,
+      104,
+      102,
+      98,
+      102,
+      100,
+      100
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-17",
+     "value": 100,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-14",
+     "value": 100,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 102,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 98,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 102,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 99,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-13",
+     "value": 101,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-07-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM Turbidity",
+   "activity": "CRM",
+   "target_id": 171,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Turbidity"
+   },
+   "master": {
+    "parameter": "Turbidity",
+    "level": "",
+    "unit": "NTU",
+    "equipment": "Spectrophotometer",
+    "equipment_id": "ENVI-LAB-EQP-09",
+    "method": "USEPA 180.1, APHA 2130 B",
+    "crm_detail": "Product # TURB10-0500ML (Lot # HC5407587)",
+    "crm_value": "10",
+    "crm_range_low": "9.847",
+    "crm_range_high": "10.153",
+    "description": "CRM Results during Monthly CRM Exercise",
+    "decimals": 2,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      10.08,
+      10.1,
+      10,
+      9.96,
+      10.1,
+      9.96,
+      10.13,
+      10.1,
+      10.08,
+      10,
+      9.96,
+      10.09
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-17",
+     "value": 9.96,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-09",
+     "value": 10.1,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 10.13,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 9.98,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 9.99,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 10.09,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-07-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "CRM pH",
+   "activity": "CRM",
+   "target_id": null,
+   "match": {
+    "activity": "CRM",
+    "parameter": "pH",
+    "equipment_id": "ENVI-LAB-EQP-01"
+   },
+   "master": {
+    "parameter": "pH",
+    "level": "",
+    "unit": "",
+    "equipment": "Multiparameter Meter",
+    "equipment_id": "ENVI-LAB-EQP-01",
+    "method": "APHA 4500-H B",
+    "crm_detail": "Product # 1.07202.0105 (Lot # HC5318753)",
+    "crm_value": "6.86",
+    "crm_range_low": "6.852",
+    "crm_range_high": "6.868",
+    "description": "CRM Results during Monthly CRM Exercise",
+    "decimals": 3,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [
+    {
+     "key": "wb",
+     "established_on": "2026-01-01",
+     "values": [
+      6.857,
+      6.859,
+      6.86,
+      6.863,
+      6.862,
+      6.857,
+      6.858,
+      6.86,
+      6.863,
+      6.862,
+      6.858,
+      6.859
+     ],
+     "note": "Baseline per laboratory workbook (CRM Exercise 2026)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-09",
+     "value": 6.858,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-02-09",
+     "value": 6.862,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 6.86,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 6.863,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 6.857,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 6.859,
+     "baseline": "wb"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 6.861,
+     "baseline": "wb"
+    }
+   ],
+   "coverage": [
+    "2026-01-01",
+    "2026-07-28"
+   ],
+   "cover_unit": "month"
+  },
+  {
+   "key": "IC Analytical Balance",
+   "activity": "IC",
+   "target_id": 173,
+   "match": {
+    "activity": "IC",
+    "parameter": "weight"
+   },
+   "master": {
+    "parameter": "Weight",
+    "level": "200 g",
+    "unit": "g",
+    "equipment": "Analytical Balance",
+    "equipment_id": "ENVI-LAB-EQP-02",
+    "method": "Not Applicable",
+    "crm_detail": "Dead weight 200 g",
+    "crm_value": "200",
+    "crm_range_low": "199.9997",
+    "crm_range_high": "200.0003",
+    "description": "Control charts of intermediate check for Analytical Balance (by using Dead weight)",
+    "decimals": 4,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 199.9999
+    },
+    {
+     "date": "2026-02-17",
+     "value": 200.0002
+    },
+    {
+     "date": "2026-02-18",
+     "value": 200.0003
+    },
+    {
+     "date": "2026-02-19",
+     "value": 199.9997
+    },
+    {
+     "date": "2026-02-20",
+     "value": 199.9998
+    },
+    {
+     "date": "2026-02-21",
+     "value": 200.0003
+    },
+    {
+     "date": "2026-02-23",
+     "value": 200.0002
+    },
+    {
+     "date": "2026-02-24",
+     "value": 200.0004
+    },
+    {
+     "date": "2026-02-25",
+     "value": 199.9998
+    },
+    {
+     "date": "2026-02-26",
+     "value": 199.9999
+    },
+    {
+     "date": "2026-02-27",
+     "value": 200.0003
+    },
+    {
+     "date": "2026-02-28",
+     "value": 199.9997
+    },
+    {
+     "date": "2026-04-16",
+     "value": 199.9998
+    },
+    {
+     "date": "2026-04-17",
+     "value": 200.0002
+    },
+    {
+     "date": "2026-04-18",
+     "value": 200.0001
+    },
+    {
+     "date": "2026-04-20",
+     "value": 199.9998
+    },
+    {
+     "date": "2026-04-21",
+     "value": 199.9999
+    },
+    {
+     "date": "2026-04-22",
+     "value": 200.0002
+    },
+    {
+     "date": "2026-04-23",
+     "value": 199.9999
+    },
+    {
+     "date": "2026-04-24",
+     "value": 199.9997
+    },
+    {
+     "date": "2026-04-25",
+     "value": 199.9998
+    },
+    {
+     "date": "2026-04-27",
+     "value": 200.0003
+    },
+    {
+     "date": "2026-04-28",
+     "value": 200.0002
+    },
+    {
+     "date": "2026-04-29",
+     "value": 199.9998
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "IC pH",
+   "activity": "IC",
+   "target_id": 169,
+   "match": {
+    "activity": "IC",
+    "parameter": "pH",
+    "equipment_id": "ETAL-LAB-EQP-01"
+   },
+   "master": {
+    "parameter": "pH",
+    "level": "",
+    "unit": "",
+    "equipment": "Multiparameter Meter",
+    "equipment_id": "ENVI-LAB-EQP-01",
+    "method": "APHA 4500-H B",
+    "crm_detail": "CRM pH 6.86 buffer",
+    "crm_value": "6.86",
+    "crm_range_low": "6.852",
+    "crm_range_high": "6.868",
+    "description": "Control charts of intermediate check for pH meter (by using CRM)",
+    "decimals": 3,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 6.857
+    },
+    {
+     "date": "2026-02-17",
+     "value": 6.863
+    },
+    {
+     "date": "2026-02-18",
+     "value": 6.856
+    },
+    {
+     "date": "2026-02-19",
+     "value": 6.858
+    },
+    {
+     "date": "2026-02-20",
+     "value": 6.862
+    },
+    {
+     "date": "2026-02-21",
+     "value": 6.865
+    },
+    {
+     "date": "2026-02-23",
+     "value": 6.864
+    },
+    {
+     "date": "2026-02-24",
+     "value": 6.856
+    },
+    {
+     "date": "2026-02-25",
+     "value": 6.855
+    },
+    {
+     "date": "2026-02-26",
+     "value": 6.864
+    },
+    {
+     "date": "2026-02-27",
+     "value": 6.866
+    },
+    {
+     "date": "2026-02-28",
+     "value": 6.856
+    },
+    {
+     "date": "2026-04-16",
+     "value": 6.863
+    },
+    {
+     "date": "2026-04-17",
+     "value": 6.858
+    },
+    {
+     "date": "2026-04-18",
+     "value": 6.865
+    },
+    {
+     "date": "2026-04-20",
+     "value": 6.866
+    },
+    {
+     "date": "2026-04-21",
+     "value": 6.859
+    },
+    {
+     "date": "2026-04-22",
+     "value": 6.856
+    },
+    {
+     "date": "2026-04-23",
+     "value": 6.858
+    },
+    {
+     "date": "2026-04-24",
+     "value": 6.864
+    },
+    {
+     "date": "2026-04-25",
+     "value": 6.865
+    },
+    {
+     "date": "2026-04-27",
+     "value": 6.859
+    },
+    {
+     "date": "2026-04-28",
+     "value": 6.857
+    },
+    {
+     "date": "2026-04-29",
+     "value": 6.864
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "IC Nitrate",
+   "activity": "IC",
+   "target_id": null,
+   "match": {
+    "activity": "IC",
+    "parameter": "Nitrate"
+   },
+   "master": {
+    "parameter": "Nitrate",
+    "level": "0.1 ppm",
+    "unit": "mg/l",
+    "equipment": "Spectrophotometer",
+    "equipment_id": "ENVI-LAB-EQP-09",
+    "method": "APHA 4500 NO3- B",
+    "crm_detail": "CRM (0.1 mg/L)",
+    "crm_value": "0.1",
+    "crm_range_low": "0.04",
+    "crm_range_high": "0.16",
+    "description": "Control charts of intermediate check for spectrophotometer (by using CRM)",
+    "decimals": 3,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 0.13
+    },
+    {
+     "date": "2026-02-17",
+     "value": 0.09
+    },
+    {
+     "date": "2026-02-18",
+     "value": 0.08
+    },
+    {
+     "date": "2026-02-19",
+     "value": 0.14
+    },
+    {
+     "date": "2026-02-20",
+     "value": 0.1
+    },
+    {
+     "date": "2026-02-21",
+     "value": 0.09
+    },
+    {
+     "date": "2026-02-23",
+     "value": 0.14
+    },
+    {
+     "date": "2026-02-24",
+     "value": 0.12
+    },
+    {
+     "date": "2026-02-25",
+     "value": 0.13
+    },
+    {
+     "date": "2026-02-26",
+     "value": 0.08
+    },
+    {
+     "date": "2026-02-27",
+     "value": 0.12
+    },
+    {
+     "date": "2026-02-28",
+     "value": 0.1
+    },
+    {
+     "date": "2026-04-16",
+     "value": 0.1
+    },
+    {
+     "date": "2026-04-17",
+     "value": 0.14
+    },
+    {
+     "date": "2026-04-18",
+     "value": 0.08
+    },
+    {
+     "date": "2026-04-20",
+     "value": 0.13
+    },
+    {
+     "date": "2026-04-21",
+     "value": 0.12
+    },
+    {
+     "date": "2026-04-22",
+     "value": 0.14
+    },
+    {
+     "date": "2026-04-23",
+     "value": 0.07
+    },
+    {
+     "date": "2026-04-24",
+     "value": 0.08
+    },
+    {
+     "date": "2026-04-25",
+     "value": 0.12
+    },
+    {
+     "date": "2026-04-27",
+     "value": 0.14
+    },
+    {
+     "date": "2026-04-28",
+     "value": 0.07
+    },
+    {
+     "date": "2026-04-29",
+     "value": 0.12
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "IC Turbidity",
+   "activity": "IC",
+   "target_id": null,
+   "match": {
+    "activity": "IC",
+    "parameter": "Turbidity"
+   },
+   "master": {
+    "parameter": "Turbidity",
+    "level": "",
+    "unit": "NTU",
+    "equipment": "Spectrophotometer",
+    "equipment_id": "ENVI-LAB-EQP-09",
+    "method": "USEPA 180.1, APHA 2130 B",
+    "crm_detail": "CRM (10 NTU)",
+    "crm_value": "10",
+    "crm_range_low": "9.847",
+    "crm_range_high": "10.153",
+    "description": "Control charts of intermediate check for spectrophotometer (by using CRM)",
+    "decimals": 2,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 10.06
+    },
+    {
+     "date": "2026-02-17",
+     "value": 10.11
+    },
+    {
+     "date": "2026-02-18",
+     "value": 10.02
+    },
+    {
+     "date": "2026-02-19",
+     "value": 9.98
+    },
+    {
+     "date": "2026-02-20",
+     "value": 9.96
+    },
+    {
+     "date": "2026-02-21",
+     "value": 10.12
+    },
+    {
+     "date": "2026-02-23",
+     "value": 9.98
+    },
+    {
+     "date": "2026-02-24",
+     "value": 10.13
+    },
+    {
+     "date": "2026-02-25",
+     "value": 10.11
+    },
+    {
+     "date": "2026-02-26",
+     "value": 10
+    },
+    {
+     "date": "2026-02-27",
+     "value": 9.98
+    },
+    {
+     "date": "2026-02-28",
+     "value": 10.1
+    },
+    {
+     "date": "2026-04-16",
+     "value": 10.11
+    },
+    {
+     "date": "2026-04-17",
+     "value": 9.98
+    },
+    {
+     "date": "2026-04-18",
+     "value": 10
+    },
+    {
+     "date": "2026-04-20",
+     "value": 10.11
+    },
+    {
+     "date": "2026-04-21",
+     "value": 10.13
+    },
+    {
+     "date": "2026-04-22",
+     "value": 9.98
+    },
+    {
+     "date": "2026-04-23",
+     "value": 10.12
+    },
+    {
+     "date": "2026-04-24",
+     "value": 9.96
+    },
+    {
+     "date": "2026-04-25",
+     "value": 9.98
+    },
+    {
+     "date": "2026-04-27",
+     "value": 10.02
+    },
+    {
+     "date": "2026-04-28",
+     "value": 10.11
+    },
+    {
+     "date": "2026-04-29",
+     "value": 9.97
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "IC Sulphate",
+   "activity": "IC",
+   "target_id": null,
+   "match": {
+    "activity": "IC",
+    "parameter": "Sulphate"
+   },
+   "master": {
+    "parameter": "Sulphate",
+    "level": "4 ppm",
+    "unit": "mg/l",
+    "equipment": "Spectrophotometer",
+    "equipment_id": "ENVI-LAB-EQP-09",
+    "method": "APHA 4500-SO42- E",
+    "crm_detail": "CRM (4 mg/L)",
+    "crm_value": "4",
+    "crm_range_low": "3.378",
+    "crm_range_high": "4.622",
+    "description": "Control charts of intermediate check for spectrophotometer (by using CRM)",
+    "decimals": 3,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 4.32
+    },
+    {
+     "date": "2026-02-17",
+     "value": 4.25
+    },
+    {
+     "date": "2026-02-18",
+     "value": 3.87
+    },
+    {
+     "date": "2026-02-19",
+     "value": 3.85
+    },
+    {
+     "date": "2026-02-20",
+     "value": 3.97
+    },
+    {
+     "date": "2026-02-21",
+     "value": 4.22
+    },
+    {
+     "date": "2026-02-23",
+     "value": 3.88
+    },
+    {
+     "date": "2026-02-24",
+     "value": 4.24
+    },
+    {
+     "date": "2026-02-25",
+     "value": 4.3
+    },
+    {
+     "date": "2026-02-26",
+     "value": 3.95
+    },
+    {
+     "date": "2026-02-27",
+     "value": 3.86
+    },
+    {
+     "date": "2026-02-28",
+     "value": 4.28
+    },
+    {
+     "date": "2026-04-16",
+     "value": 4.22
+    },
+    {
+     "date": "2026-04-17",
+     "value": 3.88
+    },
+    {
+     "date": "2026-04-18",
+     "value": 4.24
+    },
+    {
+     "date": "2026-04-20",
+     "value": 4.3
+    },
+    {
+     "date": "2026-04-21",
+     "value": 3.95
+    },
+    {
+     "date": "2026-04-22",
+     "value": 3.86
+    },
+    {
+     "date": "2026-04-23",
+     "value": 4.32
+    },
+    {
+     "date": "2026-04-24",
+     "value": 4.25
+    },
+    {
+     "date": "2026-04-25",
+     "value": 3.87
+    },
+    {
+     "date": "2026-04-27",
+     "value": 3.85
+    },
+    {
+     "date": "2026-04-28",
+     "value": 3.97
+    },
+    {
+     "date": "2026-04-29",
+     "value": 4.23
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "IC Oven 105",
+   "activity": "IC",
+   "target_id": null,
+   "match": {
+    "activity": "IC",
+    "parameter": "Temperature",
+    "level": "105 \u00b0C",
+    "equipment_id": "ENVI-LAB-EQP-05"
+   },
+   "master": {
+    "parameter": "Temperature",
+    "level": "105 \u00b0C",
+    "unit": "\u00b0C",
+    "equipment": "Drier Box (Oven)",
+    "equipment_id": "ENVI-LAB-EQP-05",
+    "method": "Not Applicable",
+    "crm_detail": "Reference thermometer",
+    "crm_value": "105",
+    "crm_range_low": "104",
+    "crm_range_high": "106",
+    "description": "Control charts of intermediate check for Oven (by using thermometer)",
+    "decimals": 1,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 106
+    },
+    {
+     "date": "2026-02-17",
+     "value": 104
+    },
+    {
+     "date": "2026-02-18",
+     "value": 105
+    },
+    {
+     "date": "2026-02-19",
+     "value": 104
+    },
+    {
+     "date": "2026-02-20",
+     "value": 106
+    },
+    {
+     "date": "2026-02-21",
+     "value": 106
+    },
+    {
+     "date": "2026-02-23",
+     "value": 104
+    },
+    {
+     "date": "2026-02-24",
+     "value": 106
+    },
+    {
+     "date": "2026-02-25",
+     "value": 104
+    },
+    {
+     "date": "2026-02-26",
+     "value": 104
+    },
+    {
+     "date": "2026-02-27",
+     "value": 105
+    },
+    {
+     "date": "2026-02-28",
+     "value": 106
+    },
+    {
+     "date": "2026-04-16",
+     "value": 105
+    },
+    {
+     "date": "2026-04-17",
+     "value": 106
+    },
+    {
+     "date": "2026-04-18",
+     "value": 104
+    },
+    {
+     "date": "2026-04-20",
+     "value": 104
+    },
+    {
+     "date": "2026-04-21",
+     "value": 105
+    },
+    {
+     "date": "2026-04-22",
+     "value": 106
+    },
+    {
+     "date": "2026-04-23",
+     "value": 106
+    },
+    {
+     "date": "2026-04-24",
+     "value": 106
+    },
+    {
+     "date": "2026-04-25",
+     "value": 104
+    },
+    {
+     "date": "2026-04-27",
+     "value": 105
+    },
+    {
+     "date": "2026-04-28",
+     "value": 104
+    },
+    {
+     "date": "2026-04-29",
+     "value": 106
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "IC Oven 180",
+   "activity": "IC",
+   "target_id": null,
+   "match": {
+    "activity": "IC",
+    "parameter": "Temperature",
+    "level": "180 \u00b0C",
+    "equipment_id": "ENVI-LAB-EQP-05"
+   },
+   "master": {
+    "parameter": "Temperature",
+    "level": "180 \u00b0C",
+    "unit": "\u00b0C",
+    "equipment": "Drier Box (Oven)",
+    "equipment_id": "ENVI-LAB-EQP-05",
+    "method": "Not Applicable",
+    "crm_detail": "Reference thermometer",
+    "crm_value": "180",
+    "crm_range_low": "179",
+    "crm_range_high": "181",
+    "description": "Control charts of intermediate check for Oven (by using thermometer)",
+    "decimals": 1,
+    "limit_mode": "",
+    "start_month": 1
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-02-16",
+     "value": 180.2
+    },
+    {
+     "date": "2026-02-17",
+     "value": 180.5
+    },
+    {
+     "date": "2026-02-18",
+     "value": 180
+    },
+    {
+     "date": "2026-02-19",
+     "value": 179.2
+    },
+    {
+     "date": "2026-02-20",
+     "value": 179.5
+    },
+    {
+     "date": "2026-02-21",
+     "value": 180.4
+    },
+    {
+     "date": "2026-02-23",
+     "value": 180.3
+    },
+    {
+     "date": "2026-02-24",
+     "value": 179.3
+    },
+    {
+     "date": "2026-02-25",
+     "value": 180.5
+    },
+    {
+     "date": "2026-02-26",
+     "value": 179.2
+    },
+    {
+     "date": "2026-02-27",
+     "value": 179.5
+    },
+    {
+     "date": "2026-02-28",
+     "value": 180.4
+    },
+    {
+     "date": "2026-04-16",
+     "value": 180.5
+    },
+    {
+     "date": "2026-04-17",
+     "value": 180.1
+    },
+    {
+     "date": "2026-04-18",
+     "value": 179.4
+    },
+    {
+     "date": "2026-04-20",
+     "value": 179.7
+    },
+    {
+     "date": "2026-04-21",
+     "value": 179.2
+    },
+    {
+     "date": "2026-04-22",
+     "value": 180.4
+    },
+    {
+     "date": "2026-04-23",
+     "value": 180.6
+    },
+    {
+     "date": "2026-04-24",
+     "value": 179.2
+    },
+    {
+     "date": "2026-04-25",
+     "value": 180.4
+    },
+    {
+     "date": "2026-04-27",
+     "value": 179.8
+    },
+    {
+     "date": "2026-04-28",
+     "value": 179.3
+    },
+    {
+     "date": "2026-04-29",
+     "value": 180.7
+    }
+   ],
+   "coverage_months": [
+    "2026-02",
+    "2026-04"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "MON Laboratory temperature",
+   "activity": "MON",
+   "target_id": 174,
+   "match": {
+    "activity": "MON",
+    "parameter": "Temperature",
+    "equipment_id": "ENVI-LAB-EQP-20"
+   },
+   "master": {
+    "parameter": "Laboratory temperature",
+    "level": "",
+    "unit": "\u00b0C",
+    "equipment": "Digital Thermo-Humidity Meter",
+    "equipment_id": "ENVI-LAB-EQP-20",
+    "method": "Not Applicable",
+    "crm_detail": "Digital weather station",
+    "crm_value": "",
+    "crm_range_low": "22",
+    "crm_range_high": "28",
+    "description": "Temperature (\u00b0C) of the laboratory - daily average of the 1st-half and 2nd-half readings (range per ETAL-LAB-603-FF-08)",
+    "decimals": 1,
+    "start_month": 1,
+    "doc_no": "ETAL-LAB-603-FF-07",
+    "limit_mode": "baseline"
+   },
+   "baselines": [
+    {
+     "key": "Summer",
+     "established_on": "2026-05-01",
+     "values": [
+      25.2,
+      26.4,
+      25.8,
+      26.5,
+      24.3,
+      26.6,
+      23.9,
+      25.2,
+      24,
+      25.5,
+      25.3,
+      26.8
+     ],
+     "note": "Summer season baseline (May-26 to September-26)"
+    },
+    {
+     "key": "Spring",
+     "established_on": "2026-03-01",
+     "values": [
+      24.2,
+      23.5,
+      25,
+      26.5,
+      24.5,
+      25.2,
+      23.7,
+      26,
+      24,
+      25.5,
+      23.6,
+      26.2
+     ],
+     "note": "Spring season baseline (March-26 to April-26)"
+    },
+    {
+     "key": "Winter",
+     "established_on": "2025-12-01",
+     "values": [
+      23,
+      25.8,
+      23.8,
+      24,
+      24.5,
+      26,
+      25,
+      25.4,
+      24.5,
+      23.5,
+      25.8,
+      25
+     ],
+     "note": "Winter season baseline (December-25 to February-26)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-01",
+     "value": 23.5,
+     "r1": 23,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-02",
+     "value": 24.2,
+     "r1": 23.4,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-03",
+     "value": 25.6,
+     "r1": 26,
+     "r2": 25.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-05",
+     "value": 25.8,
+     "r1": 25.6,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-06",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-07",
+     "value": 23.4,
+     "r1": 22.8,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-08",
+     "value": 24.6,
+     "r1": 25,
+     "r2": 24.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-09",
+     "value": 25.8,
+     "r1": 25.4,
+     "r2": 26.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-10",
+     "value": 24,
+     "r1": 23,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-12",
+     "value": 23.6,
+     "r1": 23.2,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-13",
+     "value": 23.9,
+     "r1": 23.4,
+     "r2": 24.4,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-14",
+     "value": 25.2,
+     "r1": 24.4,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-15",
+     "value": 25.5,
+     "r1": 25,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-16",
+     "value": 24.8,
+     "r1": 24.6,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-17",
+     "value": 24,
+     "r1": 23,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-19",
+     "value": 25.5,
+     "r1": 25,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-20",
+     "value": 23.8,
+     "r1": 23.4,
+     "r2": 24.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-21",
+     "value": 24.2,
+     "r1": 23.4,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-22",
+     "value": 25.8,
+     "r1": 25.4,
+     "r2": 26.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-23",
+     "value": 25.2,
+     "r1": 25,
+     "r2": 25.4,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-24",
+     "value": 23.6,
+     "r1": 23.2,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-26",
+     "value": 24,
+     "r1": 25,
+     "r2": 23,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-27",
+     "value": 26,
+     "r1": 26.6,
+     "r2": 25.4,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-28",
+     "value": 25.4,
+     "r1": 25,
+     "r2": 25.8,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-29",
+     "value": 25.8,
+     "r1": 25.6,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-30",
+     "value": 24.1,
+     "r1": 23.2,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-31",
+     "value": 23.4,
+     "r1": 23,
+     "r2": 23.8,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-02",
+     "value": 25.2,
+     "r1": 24.4,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-03",
+     "value": 23.4,
+     "r1": 22.8,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-04",
+     "value": 24.8,
+     "r1": 24.6,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-09",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-10",
+     "value": 25.5,
+     "r1": 25,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-11",
+     "value": 23.8,
+     "r1": 23.4,
+     "r2": 24.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-12",
+     "value": 23.5,
+     "r1": 23,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-13",
+     "value": 25.2,
+     "r1": 26,
+     "r2": 24.4,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-14",
+     "value": 25.8,
+     "r1": 25.6,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-16",
+     "value": 24,
+     "r1": 23,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-17",
+     "value": 25.5,
+     "r1": 26,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-18",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-19",
+     "value": 25.6,
+     "r1": 25.2,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-20",
+     "value": 23.7,
+     "r1": 23.4,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-21",
+     "value": 24,
+     "r1": 23,
+     "r2": 25,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-23",
+     "value": 25.6,
+     "r1": 25.2,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-24",
+     "value": 25.2,
+     "r1": 26,
+     "r2": 24.4,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-25",
+     "value": 23.9,
+     "r1": 23.8,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-26",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-27",
+     "value": 24.2,
+     "r1": 24,
+     "r2": 24.4,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-28",
+     "value": 24.5,
+     "r1": 25,
+     "r2": 24,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-03-02",
+     "value": 24.5,
+     "r1": 24,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-03",
+     "value": 23.6,
+     "r1": 23.2,
+     "r2": 24,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-04",
+     "value": 25.5,
+     "r1": 25,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-05",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 25.2,
+     "r1": 25,
+     "r2": 25.4,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 23.5,
+     "r1": 23,
+     "r2": 24,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-09",
+     "value": 24.2,
+     "r1": 24,
+     "r2": 24.4,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-10",
+     "value": 26.1,
+     "r1": 26,
+     "r2": 26.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-11",
+     "value": 25.4,
+     "r1": 25.6,
+     "r2": 25.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-12",
+     "value": 23.8,
+     "r1": 23,
+     "r2": 24.6,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-13",
+     "value": 24,
+     "r1": 25,
+     "r2": 23,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-14",
+     "value": 24.4,
+     "r1": 23.8,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-16",
+     "value": 25.8,
+     "r1": 25.6,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-17",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-18",
+     "value": 24,
+     "r1": 25,
+     "r2": 23,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-19",
+     "value": 23.5,
+     "r1": 24,
+     "r2": 23,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-24",
+     "value": 25.6,
+     "r1": 25,
+     "r2": 26.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-25",
+     "value": 23.9,
+     "r1": 23.8,
+     "r2": 24,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-26",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-27",
+     "value": 25.8,
+     "r1": 26.6,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-28",
+     "value": 25.2,
+     "r1": 26,
+     "r2": 24.4,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-30",
+     "value": 24,
+     "r1": 23,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-31",
+     "value": 24.5,
+     "r1": 25,
+     "r2": 24,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-01",
+     "value": 25.5,
+     "r1": 26,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-02",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-03",
+     "value": 23.6,
+     "r1": 24,
+     "r2": 23.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-04",
+     "value": 24.2,
+     "r1": 24.6,
+     "r2": 23.8,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-06",
+     "value": 26.4,
+     "r1": 26.2,
+     "r2": 26.6,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 25.5,
+     "r1": 26,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-08",
+     "value": 25.8,
+     "r1": 26.2,
+     "r2": 25.4,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-09",
+     "value": 23.6,
+     "r1": 23.2,
+     "r2": 24,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-10",
+     "value": 24.2,
+     "r1": 23.6,
+     "r2": 24.8,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-11",
+     "value": 25.8,
+     "r1": 26,
+     "r2": 25.6,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-13",
+     "value": 23.9,
+     "r1": 24.2,
+     "r2": 23.6,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-14",
+     "value": 25.6,
+     "r1": 26,
+     "r2": 25.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-15",
+     "value": 26.2,
+     "r1": 26.4,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-16",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-17",
+     "value": 24.2,
+     "r1": 24.6,
+     "r2": 23.8,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-18",
+     "value": 23.4,
+     "r1": 23.8,
+     "r2": 23,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-20",
+     "value": 25.8,
+     "r1": 25.4,
+     "r2": 26.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-21",
+     "value": 25.5,
+     "r1": 26,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-22",
+     "value": 23.6,
+     "r1": 24,
+     "r2": 23.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-23",
+     "value": 24,
+     "r1": 23,
+     "r2": 25,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-24",
+     "value": 24.5,
+     "r1": 25,
+     "r2": 24,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-25",
+     "value": 25.9,
+     "r1": 26.2,
+     "r2": 25.6,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-27",
+     "value": 26,
+     "r1": 26,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-28",
+     "value": 23.8,
+     "r1": 24,
+     "r2": 23.6,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-29",
+     "value": 25.6,
+     "r1": 25.2,
+     "r2": 26,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-30",
+     "value": 24,
+     "r1": 25,
+     "r2": 23,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-05-02",
+     "value": 26.3,
+     "r1": 24.5,
+     "r2": 28.1,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-04",
+     "value": 26.6,
+     "r1": 26.4,
+     "r2": 26.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 24.8,
+     "r1": 24.6,
+     "r2": 25,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 24.2,
+     "r1": 24.8,
+     "r2": 23.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-07",
+     "value": 26.4,
+     "r1": 26.2,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-08",
+     "value": 26.8,
+     "r1": 27,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-09",
+     "value": 26.3,
+     "r1": 26.1,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-11",
+     "value": 24.7,
+     "r1": 24.9,
+     "r2": 24.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-12",
+     "value": 24.3,
+     "r1": 24.1,
+     "r2": 24.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-13",
+     "value": 26.5,
+     "r1": 26.3,
+     "r2": 26.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-14",
+     "value": 26.7,
+     "r1": 26.9,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-15",
+     "value": 24.2,
+     "r1": 24,
+     "r2": 24.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-16",
+     "value": 26.2,
+     "r1": 26.4,
+     "r2": 26,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-18",
+     "value": 26,
+     "r1": 25.8,
+     "r2": 26.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-19",
+     "value": 24.2,
+     "r1": 24.6,
+     "r2": 23.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-20",
+     "value": 26.3,
+     "r1": 26.1,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-21",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-22",
+     "value": 26.7,
+     "r1": 26.9,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-23",
+     "value": 26.2,
+     "r1": 26.4,
+     "r2": 26,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-25",
+     "value": 26.4,
+     "r1": 26.6,
+     "r2": 26.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-26",
+     "value": 24.4,
+     "r1": 24.2,
+     "r2": 24.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-27",
+     "value": 26.7,
+     "r1": 26.9,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-28",
+     "value": 26.4,
+     "r1": 26.4,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-29",
+     "value": 24.2,
+     "r1": 24,
+     "r2": 24.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-30",
+     "value": 26.3,
+     "r1": 26.7,
+     "r2": 25.9,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-01",
+     "value": 26.2,
+     "r1": 24.3,
+     "r2": 28.1,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-02",
+     "value": 26.8,
+     "r1": 26.4,
+     "r2": 27.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-03",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-04",
+     "value": 24.2,
+     "r1": 24.8,
+     "r2": 23.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-05",
+     "value": 26.6,
+     "r1": 26.6,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-06",
+     "value": 24.4,
+     "r1": 24,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-08",
+     "value": 26,
+     "r1": 26.2,
+     "r2": 25.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-09",
+     "value": 26.2,
+     "r1": 26.9,
+     "r2": 25.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-10",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-11",
+     "value": 26.8,
+     "r1": 26.9,
+     "r2": 26.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-12",
+     "value": 26.4,
+     "r1": 26.3,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-13",
+     "value": 24.3,
+     "r1": 24.2,
+     "r2": 24.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-15",
+     "value": 24.7,
+     "r1": 24.6,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-16",
+     "value": 26.2,
+     "r1": 25.8,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-17",
+     "value": 26.8,
+     "r1": 26.6,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-18",
+     "value": 26.4,
+     "r1": 26.2,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-19",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-20",
+     "value": 24.8,
+     "r1": 24.9,
+     "r2": 24.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-22",
+     "value": 26.7,
+     "r1": 26.4,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 26.1,
+     "r1": 26,
+     "r2": 26.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-25",
+     "value": 24.7,
+     "r1": 24.5,
+     "r2": 24.9,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-26",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-27",
+     "value": 24.9,
+     "r1": 24.8,
+     "r2": 25,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-29",
+     "value": 26.6,
+     "r1": 26.6,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-30",
+     "value": 24.3,
+     "r1": 24.4,
+     "r2": 24.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-01",
+     "value": 26.2,
+     "r1": 25.8,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-02",
+     "value": 26.8,
+     "r1": 26.6,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-03",
+     "value": 26.4,
+     "r1": 26.2,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-04",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-06",
+     "value": 24.8,
+     "r1": 24.9,
+     "r2": 24.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-07",
+     "value": 26.7,
+     "r1": 26.4,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-08",
+     "value": 26.1,
+     "r1": 26,
+     "r2": 26.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-10",
+     "value": 24.7,
+     "r1": 24.5,
+     "r2": 24.9,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-11",
+     "value": 26.5,
+     "r1": 25.7,
+     "r2": 27.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-13",
+     "value": 24.7,
+     "r1": 24.4,
+     "r2": 25,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-14",
+     "value": 24.2,
+     "r1": 24.3,
+     "r2": 24.1,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-15",
+     "value": 26.8,
+     "r1": 26.4,
+     "r2": 27.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-16",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-17",
+     "value": 24.2,
+     "r1": 24.8,
+     "r2": 23.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-18",
+     "value": 26.6,
+     "r1": 26.6,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-20",
+     "value": 24.4,
+     "r1": 24,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-21",
+     "value": 26,
+     "r1": 26.2,
+     "r2": 25.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-22",
+     "value": 26.2,
+     "r1": 26.9,
+     "r2": 25.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-23",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-24",
+     "value": 26.8,
+     "r1": 26.9,
+     "r2": 26.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-25",
+     "value": 26.4,
+     "r1": 26.3,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-27",
+     "value": 24.3,
+     "r1": 24.2,
+     "r2": 24.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-28",
+     "value": 24.7,
+     "r1": 24.6,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-29",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-30",
+     "value": 24.7,
+     "r1": 24.5,
+     "r2": 24.9,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-31",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-01",
+     "value": 26.8,
+     "r1": 26.4,
+     "r2": 27.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-03",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-04",
+     "value": 24.2,
+     "r1": 24.8,
+     "r2": 23.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-05",
+     "value": 26.6,
+     "r1": 26.6,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-06",
+     "value": 24.4,
+     "r1": 24,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-07",
+     "value": 26,
+     "r1": 26.2,
+     "r2": 25.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-08",
+     "value": 26.2,
+     "r1": 26.9,
+     "r2": 25.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-10",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-11",
+     "value": 24.7,
+     "r1": 24.5,
+     "r2": 24.9,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-12",
+     "value": 26.5,
+     "r1": 25.7,
+     "r2": 27.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-13",
+     "value": 24.7,
+     "r1": 24.4,
+     "r2": 25,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 24.2,
+     "r1": 24.3,
+     "r2": 24.1,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-17",
+     "value": 26.8,
+     "r1": 26.9,
+     "r2": 26.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-18",
+     "value": 26.4,
+     "r1": 26.3,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-19",
+     "value": 24.3,
+     "r1": 24.2,
+     "r2": 24.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-20",
+     "value": 24.7,
+     "r1": 24.6,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-21",
+     "value": 26.8,
+     "r1": 26.6,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-22",
+     "value": 26.4,
+     "r1": 26.2,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-24",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-26",
+     "value": 24.8,
+     "r1": 24.9,
+     "r2": 24.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-27",
+     "value": 26.7,
+     "r1": 26.4,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-28",
+     "value": 26.1,
+     "r1": 26,
+     "r2": 26.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-29",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-31",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-01",
+     "value": 26.5,
+     "r1": 25.7,
+     "r2": 27.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-02",
+     "value": 24.7,
+     "r1": 24.4,
+     "r2": 25,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 24.2,
+     "r1": 24.3,
+     "r2": 24.1,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-04",
+     "value": 26.8,
+     "r1": 26.4,
+     "r2": 27.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-05",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-07",
+     "value": 24.2,
+     "r1": 24.8,
+     "r2": 23.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-08",
+     "value": 26.6,
+     "r1": 26.6,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-09",
+     "value": 24.4,
+     "r1": 24,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-10",
+     "value": 26,
+     "r1": 26.2,
+     "r2": 25.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-11",
+     "value": 26.2,
+     "r1": 26.9,
+     "r2": 25.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-12",
+     "value": 24.2,
+     "r1": 24.1,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-14",
+     "value": 26.8,
+     "r1": 26.9,
+     "r2": 26.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-15",
+     "value": 26.4,
+     "r1": 26.3,
+     "r2": 26.5,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-16",
+     "value": 24.3,
+     "r1": 24.2,
+     "r2": 24.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-17",
+     "value": 24.7,
+     "r1": 24.6,
+     "r2": 24.8,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-18",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-19",
+     "value": 24.7,
+     "r1": 24.5,
+     "r2": 24.9,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-21",
+     "value": 26.2,
+     "r1": 25.8,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-22",
+     "value": 26.8,
+     "r1": 26.6,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-23",
+     "value": 26.4,
+     "r1": 26.2,
+     "r2": 26.6,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-24",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-25",
+     "value": 24.8,
+     "r1": 24.9,
+     "r2": 24.7,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-26",
+     "value": 26.7,
+     "r1": 26.4,
+     "r2": 27,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-28",
+     "value": 26.1,
+     "r1": 26,
+     "r2": 26.2,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-29",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-30",
+     "value": 24.7,
+     "r1": 24.5,
+     "r2": 24.9,
+     "baseline": "Summer"
+    }
+   ],
+   "coverage_months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "MON Laboratory humidity",
+   "activity": "MON",
+   "target_id": 177,
+   "match": {
+    "activity": "MON",
+    "parameter": "Humidity (%)",
+    "equipment_id": "ENVI-LAB-EQP-20"
+   },
+   "master": {
+    "parameter": "Laboratory humidity",
+    "level": "",
+    "unit": "%",
+    "equipment": "Digital Thermo-Humidity Meter",
+    "equipment_id": "ENVI-LAB-EQP-20",
+    "method": "Not Applicable",
+    "crm_detail": "Digital weather station",
+    "crm_value": "",
+    "crm_range_low": "40",
+    "crm_range_high": "60",
+    "description": "Relative humidity (%) of the laboratory - daily average of the 1st-half and 2nd-half readings (range per ETAL-LAB-603-FF-08)",
+    "decimals": 1,
+    "start_month": 1,
+    "doc_no": "ETAL-LAB-603-FF-07A",
+    "limit_mode": "baseline"
+   },
+   "baselines": [
+    {
+     "key": "Spring",
+     "established_on": "2026-03-01",
+     "values": [
+      44.2,
+      46.5,
+      48.6,
+      45,
+      50,
+      52.5,
+      46.4,
+      54.2,
+      56.8,
+      55.8,
+      44.4,
+      47
+     ],
+     "note": "Spring season baseline (March-26 to April-26)"
+    },
+    {
+     "key": "Summer",
+     "established_on": "2026-05-01",
+     "values": [
+      47,
+      44,
+      55,
+      48,
+      50,
+      53,
+      49,
+      54,
+      56,
+      57,
+      44,
+      48
+     ],
+     "note": "Summer season baseline (May-26 to September-26)"
+    },
+    {
+     "key": "Winter",
+     "established_on": "2025-12-01",
+     "values": [
+      46.8,
+      47.2,
+      50,
+      52.5,
+      54.2,
+      48.5,
+      56.3,
+      52.8,
+      56.2,
+      57.6,
+      48,
+      50.5
+     ],
+     "note": "Winter season baseline (December-25 to February-26)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-01-01",
+     "value": 48.2,
+     "r1": 47.6,
+     "r2": 48.8,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-02",
+     "value": 46.5,
+     "r1": 46,
+     "r2": 47,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-03",
+     "value": 54.4,
+     "r1": 55,
+     "r2": 53.8,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-05",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-06",
+     "value": 47.2,
+     "r1": 46.6,
+     "r2": 47.8,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-07",
+     "value": 55,
+     "r1": 54,
+     "r2": 56,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-08",
+     "value": 54.2,
+     "r1": 54.4,
+     "r2": 54,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-09",
+     "value": 51,
+     "r1": 52,
+     "r2": 50,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-10",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-12",
+     "value": 52,
+     "r1": 51,
+     "r2": 53,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-13",
+     "value": 53.6,
+     "r1": 54,
+     "r2": 53.2,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-14",
+     "value": 55,
+     "r1": 56,
+     "r2": 54,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-15",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-16",
+     "value": 46.6,
+     "r1": 46.2,
+     "r2": 47,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-17",
+     "value": 49,
+     "r1": 50,
+     "r2": 48,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-19",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-20",
+     "value": 56,
+     "r1": 57,
+     "r2": 55,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-21",
+     "value": 50,
+     "r1": 49,
+     "r2": 51,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-22",
+     "value": 53,
+     "r1": 54,
+     "r2": 52,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-23",
+     "value": 54.8,
+     "r1": 55.8,
+     "r2": 53.8,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-24",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-26",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-27",
+     "value": 50,
+     "r1": 50,
+     "r2": 50,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-28",
+     "value": 53.5,
+     "r1": 53,
+     "r2": 54,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-29",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-30",
+     "value": 56,
+     "r1": 55,
+     "r2": 57,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-01-31",
+     "value": 49,
+     "r1": 50,
+     "r2": 48,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-02",
+     "value": 55,
+     "r1": 54,
+     "r2": 56,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-03",
+     "value": 48,
+     "r1": 49,
+     "r2": 47,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-04",
+     "value": 56,
+     "r1": 56,
+     "r2": 56,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-09",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-10",
+     "value": 49,
+     "r1": 50,
+     "r2": 48,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-11",
+     "value": 47,
+     "r1": 48,
+     "r2": 46,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-12",
+     "value": 50,
+     "r1": 49,
+     "r2": 51,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-13",
+     "value": 56,
+     "r1": 56,
+     "r2": 56,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-14",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-16",
+     "value": 54,
+     "r1": 53,
+     "r2": 55,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-17",
+     "value": 56,
+     "r1": 57,
+     "r2": 55,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-18",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-19",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-20",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-21",
+     "value": 53,
+     "r1": 52,
+     "r2": 54,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-23",
+     "value": 56,
+     "r1": 56,
+     "r2": 56,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-24",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-25",
+     "value": 54,
+     "r1": 53,
+     "r2": 55,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-26",
+     "value": 56,
+     "r1": 57,
+     "r2": 55,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-27",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-02-28",
+     "value": 50,
+     "r1": 51,
+     "r2": 49,
+     "baseline": "Winter"
+    },
+    {
+     "date": "2026-03-02",
+     "value": 45,
+     "r1": 46,
+     "r2": 44,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-03",
+     "value": 49,
+     "r1": 50,
+     "r2": 48,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-04",
+     "value": 52,
+     "r1": 51,
+     "r2": 53,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-05",
+     "value": 44,
+     "r1": 45,
+     "r2": 43,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 46,
+     "r1": 47,
+     "r2": 45,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 45,
+     "r1": 44,
+     "r2": 46,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-09",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-10",
+     "value": 51,
+     "r1": 52,
+     "r2": 50,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-11",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-12",
+     "value": 45,
+     "r1": 44,
+     "r2": 46,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-13",
+     "value": 52,
+     "r1": 53,
+     "r2": 51,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-14",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-16",
+     "value": 55,
+     "r1": 54,
+     "r2": 56,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-17",
+     "value": 47,
+     "r1": 48,
+     "r2": 46,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-18",
+     "value": 46,
+     "r1": 47,
+     "r2": 45,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-19",
+     "value": 55,
+     "r1": 56,
+     "r2": 54,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-24",
+     "value": 51,
+     "r1": 50,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-25",
+     "value": 46.5,
+     "r1": 47,
+     "r2": 46,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-26",
+     "value": 44.8,
+     "r1": 44.4,
+     "r2": 45.2,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-27",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-28",
+     "value": 53,
+     "r1": 52,
+     "r2": 54,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-30",
+     "value": 51,
+     "r1": 50,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-03-31",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-01",
+     "value": 52,
+     "r1": 53,
+     "r2": 51,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-02",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-03",
+     "value": 46,
+     "r1": 45,
+     "r2": 47,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-04",
+     "value": 55,
+     "r1": 56,
+     "r2": 54,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-06",
+     "value": 53,
+     "r1": 52,
+     "r2": 54,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-08",
+     "value": 44,
+     "r1": 45,
+     "r2": 43,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-09",
+     "value": 45,
+     "r1": 44,
+     "r2": 46,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-10",
+     "value": 52,
+     "r1": 51,
+     "r2": 53,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-11",
+     "value": 55,
+     "r1": 56,
+     "r2": 54,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-13",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-14",
+     "value": 54,
+     "r1": 55,
+     "r2": 53,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-15",
+     "value": 48,
+     "r1": 47,
+     "r2": 49,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-16",
+     "value": 46,
+     "r1": 45,
+     "r2": 47,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-17",
+     "value": 53,
+     "r1": 54,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-18",
+     "value": 55,
+     "r1": 56,
+     "r2": 54,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-20",
+     "value": 51,
+     "r1": 50,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-21",
+     "value": 46,
+     "r1": 45,
+     "r2": 47,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-22",
+     "value": 44,
+     "r1": 44,
+     "r2": 44,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-23",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-24",
+     "value": 54,
+     "r1": 53,
+     "r2": 55,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-25",
+     "value": 53,
+     "r1": 54,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-27",
+     "value": 47,
+     "r1": 48,
+     "r2": 46,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-28",
+     "value": 51,
+     "r1": 50,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-29",
+     "value": 53,
+     "r1": 54,
+     "r2": 52,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-04-30",
+     "value": 46,
+     "r1": 47,
+     "r2": 45,
+     "baseline": "Spring"
+    },
+    {
+     "date": "2026-05-02",
+     "value": 45,
+     "r1": 46,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-04",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-07",
+     "value": 46,
+     "r1": 44,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-08",
+     "value": 52,
+     "r1": 52,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-09",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-11",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-12",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-13",
+     "value": 44,
+     "r1": 42,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-14",
+     "value": 55,
+     "r1": 53,
+     "r2": 57,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-15",
+     "value": 52,
+     "r1": 54,
+     "r2": 50,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-16",
+     "value": 45,
+     "r1": 47,
+     "r2": 43,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-18",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-19",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-20",
+     "value": 54,
+     "r1": 54,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-21",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-22",
+     "value": 49,
+     "r1": 47,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-23",
+     "value": 46,
+     "r1": 44,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-25",
+     "value": 52,
+     "r1": 50,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-26",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-27",
+     "value": 53,
+     "r1": 51,
+     "r2": 55,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-28",
+     "value": 47,
+     "r1": 45,
+     "r2": 49,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-29",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-05-30",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-01",
+     "value": 55,
+     "r1": 57,
+     "r2": 53,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-02",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-03",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-04",
+     "value": 48,
+     "r1": 52,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-05",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-06",
+     "value": 53,
+     "r1": 53,
+     "r2": 53,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-08",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-09",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-10",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-11",
+     "value": 54,
+     "r1": 52,
+     "r2": 56,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-12",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-13",
+     "value": 48,
+     "r1": 48,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-15",
+     "value": 54,
+     "r1": 52,
+     "r2": 56,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-16",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-17",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-18",
+     "value": 54,
+     "r1": 54,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-19",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-20",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-22",
+     "value": 46,
+     "r1": 44,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 55,
+     "r1": 57,
+     "r2": 53,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-25",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-26",
+     "value": 56,
+     "r1": 58,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-27",
+     "value": 53,
+     "r1": 51,
+     "r2": 55,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-29",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-06-30",
+     "value": 48,
+     "r1": 48,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-01",
+     "value": 54,
+     "r1": 54,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-02",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-03",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-04",
+     "value": 46,
+     "r1": 44,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-06",
+     "value": 55,
+     "r1": 57,
+     "r2": 53,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-07",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-08",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 56,
+     "r1": 58,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-10",
+     "value": 53,
+     "r1": 51,
+     "r2": 55,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-11",
+     "value": 48,
+     "r1": 46,
+     "r2": 50,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-13",
+     "value": 46,
+     "r1": 41,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-14",
+     "value": 53,
+     "r1": 50,
+     "r2": 56,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-15",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-16",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-17",
+     "value": 48,
+     "r1": 52,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-18",
+     "value": 54,
+     "r1": 56,
+     "r2": 52,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-20",
+     "value": 53,
+     "r1": 53,
+     "r2": 53,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-21",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-22",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-23",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-24",
+     "value": 54,
+     "r1": 52,
+     "r2": 56,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-25",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-27",
+     "value": 48,
+     "r1": 48,
+     "r2": 48,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-28",
+     "value": 54,
+     "r1": 52,
+     "r2": 56,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-29",
+     "value": 48,
+     "r1": 50,
+     "r2": 46,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-30",
+     "value": 46,
+     "r1": 48,
+     "r2": 44,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-07-31",
+     "value": 54,
+     "r1": 54,
+     "r2": 54,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-01",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-03",
+     "value": 53.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-04",
+     "value": 56.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-05",
+     "value": 53.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-06",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-07",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-08",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-10",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-11",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-12",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-13",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-17",
+     "value": 53.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-18",
+     "value": 56.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-19",
+     "value": 53.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-20",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-21",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-22",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-24",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-26",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-27",
+     "value": 48.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-28",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-29",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-08-31",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-01",
+     "value": 52.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-02",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-04",
+     "value": 49.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-05",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-07",
+     "value": 49.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-08",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-09",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-10",
+     "value": 50.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-11",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-12",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-14",
+     "value": 49.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-15",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-16",
+     "value": 49.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-17",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-18",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-19",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-21",
+     "value": 55.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-22",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-23",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-24",
+     "value": 49.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-25",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-26",
+     "value": 46.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-28",
+     "value": 54.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-29",
+     "value": 49.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    },
+    {
+     "date": "2026-09-30",
+     "value": 47.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer"
+    }
+   ],
+   "coverage_months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "MON Visi-cooler temperature",
+   "activity": "MON",
+   "target_id": 178,
+   "match": {
+    "activity": "MON",
+    "parameter": "Temperature",
+    "equipment_id": "ENVI-LAB-EQP-12"
+   },
+   "master": {
+    "parameter": "Visi-cooler temperature",
+    "level": "",
+    "unit": "\u00b0C",
+    "equipment": "Visi-cooler (refrigerator) - Thermometer",
+    "equipment_id": "ENVI-LAB-EQP-12",
+    "method": "Not Applicable",
+    "crm_detail": "Thermometer",
+    "crm_value": "5",
+    "crm_range_low": "2",
+    "crm_range_high": "8",
+    "description": "Temperature (\u00b0C) of the visi-cooler - daily average; range 2-8 \u00b0C per APHA 1060 B & C",
+    "decimals": 1,
+    "start_month": 1,
+    "doc_no": "ETAL-LAB-603-FF-07B",
+    "limit_mode": "run"
+   },
+   "baselines": [],
+   "results": [
+    {
+     "date": "2026-01-01",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-02",
+     "value": 4.2,
+     "r1": 3.8,
+     "r2": 4.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-03",
+     "value": 3,
+     "r1": 3,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-05",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-06",
+     "value": 3.2,
+     "r1": 3,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-07",
+     "value": 4.8,
+     "r1": 5,
+     "r2": 4.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-08",
+     "value": 5,
+     "r1": 6,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-09",
+     "value": 3,
+     "r1": 3,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-10",
+     "value": 3.2,
+     "r1": 3.4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-12",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-13",
+     "value": 4.2,
+     "r1": 4.4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-14",
+     "value": 4.8,
+     "r1": 4.4,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-15",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-16",
+     "value": 3,
+     "r1": 3,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-17",
+     "value": 4.6,
+     "r1": 4.8,
+     "r2": 4.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-19",
+     "value": 3.3,
+     "r1": 3.6,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-20",
+     "value": 4.8,
+     "r1": 5,
+     "r2": 4.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-21",
+     "value": 5,
+     "r1": 5,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-22",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-23",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-24",
+     "value": 3,
+     "r1": 3,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-26",
+     "value": 4,
+     "r1": 3,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-27",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-28",
+     "value": 3.8,
+     "r1": 4,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-29",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-30",
+     "value": 3.2,
+     "r1": 3.4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-01-31",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-02",
+     "value": 3.2,
+     "r1": 3,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-03",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-04",
+     "value": 5,
+     "r1": 5,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-06",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-07",
+     "value": 3.2,
+     "r1": 3,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-09",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-10",
+     "value": 4.5,
+     "r1": 4,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-11",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-12",
+     "value": 3.5,
+     "r1": 3.8,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-13",
+     "value": 4.6,
+     "r1": 5,
+     "r2": 4.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-14",
+     "value": 3,
+     "r1": 3,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-16",
+     "value": 3.4,
+     "r1": 3,
+     "r2": 3.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-17",
+     "value": 4.8,
+     "r1": 5,
+     "r2": 4.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-18",
+     "value": 4.2,
+     "r1": 4,
+     "r2": 4.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-19",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-20",
+     "value": 3.5,
+     "r1": 4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-21",
+     "value": 3.2,
+     "r1": 3.4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-23",
+     "value": 4.6,
+     "r1": 4.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-24",
+     "value": 3.2,
+     "r1": 3.4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-25",
+     "value": 4,
+     "r1": 4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-26",
+     "value": 4.5,
+     "r1": 4,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-27",
+     "value": 3.2,
+     "r1": 3,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-02-28",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-02",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-03",
+     "value": 4.5,
+     "r1": 4,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-04",
+     "value": 4.2,
+     "r1": 4.4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-05",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-06",
+     "value": 3.4,
+     "r1": 3,
+     "r2": 3.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-07",
+     "value": 3.5,
+     "r1": 4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-09",
+     "value": 4.4,
+     "r1": 4,
+     "r2": 4.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-10",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-11",
+     "value": 3.4,
+     "r1": 3.8,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-12",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-13",
+     "value": 4.6,
+     "r1": 4.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-14",
+     "value": 4.2,
+     "r1": 4.4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-16",
+     "value": 3.4,
+     "r1": 3.8,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-17",
+     "value": 3.6,
+     "r1": 3.2,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-18",
+     "value": 4.6,
+     "r1": 5,
+     "r2": 4.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-19",
+     "value": 3.4,
+     "r1": 3.8,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-24",
+     "value": 4.5,
+     "r1": 4,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-25",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-26",
+     "value": 3.6,
+     "r1": 3.4,
+     "r2": 3.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-27",
+     "value": 4,
+     "r1": 4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-28",
+     "value": 4.6,
+     "r1": 4.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-30",
+     "value": 4.2,
+     "r1": 3.8,
+     "r2": 4.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-03-31",
+     "value": 3.5,
+     "r1": 4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-01",
+     "value": 4.6,
+     "r1": 5,
+     "r2": 4.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-02",
+     "value": 5,
+     "r1": 4,
+     "r2": 6,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-03",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-04",
+     "value": 3.3,
+     "r1": 3,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-06",
+     "value": 3.6,
+     "r1": 3.2,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-07",
+     "value": 5.2,
+     "r1": 5.4,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-08",
+     "value": 5.5,
+     "r1": 6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-09",
+     "value": 4.5,
+     "r1": 5,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-10",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-11",
+     "value": 5,
+     "r1": 5,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-13",
+     "value": 5.8,
+     "r1": 5.4,
+     "r2": 6.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-14",
+     "value": 5.5,
+     "r1": 6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-15",
+     "value": 3.8,
+     "r1": 4,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-16",
+     "value": 4,
+     "r1": 3,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-17",
+     "value": 5.2,
+     "r1": 5,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-18",
+     "value": 3.5,
+     "r1": 4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-20",
+     "value": 4.9,
+     "r1": 4.6,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-21",
+     "value": 5.4,
+     "r1": 5,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-22",
+     "value": 3.8,
+     "r1": 3.4,
+     "r2": 4.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-23",
+     "value": 4,
+     "r1": 4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-24",
+     "value": 3.5,
+     "r1": 3,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-25",
+     "value": 5,
+     "r1": 5,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-27",
+     "value": 5.5,
+     "r1": 6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-28",
+     "value": 3.4,
+     "r1": 3.8,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-29",
+     "value": 3.8,
+     "r1": 4,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-04-30",
+     "value": 3.5,
+     "r1": 4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-02",
+     "value": 3.9,
+     "r1": 4,
+     "r2": 3.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-04",
+     "value": 5.1,
+     "r1": 4,
+     "r2": 6.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-05",
+     "value": 3.4,
+     "r1": 3,
+     "r2": 3.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-06",
+     "value": 3.7,
+     "r1": 4.1,
+     "r2": 3.3,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-07",
+     "value": 3.6,
+     "r1": 3.2,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-08",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-09",
+     "value": 5.6,
+     "r1": 6,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-11",
+     "value": 4.8,
+     "r1": 5.6,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-12",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-13",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-14",
+     "value": 5.7,
+     "r1": 5.4,
+     "r2": 6,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-15",
+     "value": 5.4,
+     "r1": 5.8,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-16",
+     "value": 3.8,
+     "r1": 4,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-18",
+     "value": 4,
+     "r1": 3,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-19",
+     "value": 5.2,
+     "r1": 5,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-20",
+     "value": 3.5,
+     "r1": 4,
+     "r2": 3,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-21",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-22",
+     "value": 5.5,
+     "r1": 5,
+     "r2": 6,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-23",
+     "value": 3.7,
+     "r1": 3.4,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-25",
+     "value": 4.1,
+     "r1": 4,
+     "r2": 4.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-26",
+     "value": 3.6,
+     "r1": 3,
+     "r2": 4.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-27",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-28",
+     "value": 5.6,
+     "r1": 6.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-29",
+     "value": 3.5,
+     "r1": 3.8,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-05-30",
+     "value": 3.7,
+     "r1": 4.1,
+     "r2": 3.3,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-01",
+     "value": 5.6,
+     "r1": 5.4,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-02",
+     "value": 4.8,
+     "r1": 5,
+     "r2": 4.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-03",
+     "value": 3.6,
+     "r1": 3.2,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-04",
+     "value": 5.1,
+     "r1": 5.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-06",
+     "value": 4.8,
+     "r1": 4.2,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-07",
+     "value": 5.4,
+     "r1": 5.2,
+     "r2": 5.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-08",
+     "value": 3.3,
+     "r1": 3.4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-09",
+     "value": 5,
+     "r1": 5,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-10",
+     "value": 5.2,
+     "r1": 5,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-11",
+     "value": 3.5,
+     "r1": 3.5,
+     "r2": 3.5,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-13",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-14",
+     "value": 5.5,
+     "r1": 5.3,
+     "r2": 5.7,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-15",
+     "value": 3.7,
+     "r1": 3.8,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-16",
+     "value": 3.6,
+     "r1": 3.8,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-17",
+     "value": 5.1,
+     "r1": 4.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-18",
+     "value": 5.6,
+     "r1": 5.3,
+     "r2": 5.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-20",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-21",
+     "value": 3.6,
+     "r1": 3.8,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-22",
+     "value": 3.9,
+     "r1": 3.7,
+     "r2": 4.1,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-23",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-24",
+     "value": 3.4,
+     "r1": 3.2,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-25",
+     "value": 3.7,
+     "r1": 3.5,
+     "r2": 3.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-27",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-28",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-29",
+     "value": 5.2,
+     "r1": 5.4,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-30",
+     "value": 5.6,
+     "r1": 5.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-07-31",
+     "value": 3.7,
+     "r1": 3.5,
+     "r2": 3.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-01",
+     "value": 5.5,
+     "r1": 5.3,
+     "r2": 5.7,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-03",
+     "value": 3.7,
+     "r1": 3.8,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-04",
+     "value": 3.6,
+     "r1": 3.8,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-05",
+     "value": 5.1,
+     "r1": 4.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-06",
+     "value": 5.6,
+     "r1": 5.3,
+     "r2": 5.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-07",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-08",
+     "value": 3.6,
+     "r1": 3.8,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-10",
+     "value": 3.9,
+     "r1": 3.7,
+     "r2": 4.1,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-11",
+     "value": 5.6,
+     "r1": 5.4,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-12",
+     "value": 3.4,
+     "r1": 3.2,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-13",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-15",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-17",
+     "value": 5.6,
+     "r1": 5.4,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-18",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-19",
+     "value": 3.7,
+     "r1": 3.5,
+     "r2": 3.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-20",
+     "value": 5.5,
+     "r1": 5.2,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-21",
+     "value": 5.7,
+     "r1": 5.6,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-22",
+     "value": 5.3,
+     "r1": 5.1,
+     "r2": 5.5,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-24",
+     "value": 3.6,
+     "r1": 3.2,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-26",
+     "value": 5.1,
+     "r1": 5.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-27",
+     "value": 5.6,
+     "r1": 5.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-28",
+     "value": 5.4,
+     "r1": 5.2,
+     "r2": 5.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-29",
+     "value": 3.5,
+     "r1": 3.6,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-08-31",
+     "value": 5.2,
+     "r1": 5.2,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-01",
+     "value": 5.7,
+     "r1": 5.6,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-02",
+     "value": 5.3,
+     "r1": 5.1,
+     "r2": 5.5,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-03",
+     "value": 3.6,
+     "r1": 3.2,
+     "r2": 4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-04",
+     "value": 5.1,
+     "r1": 5.2,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-05",
+     "value": 5.6,
+     "r1": 5.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-07",
+     "value": 5.4,
+     "r1": 5.2,
+     "r2": 5.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-08",
+     "value": 3.5,
+     "r1": 3.6,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-09",
+     "value": 5.2,
+     "r1": 5.2,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-10",
+     "value": 5.6,
+     "r1": 5.4,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-11",
+     "value": 3.4,
+     "r1": 3.2,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-12",
+     "value": 3.6,
+     "r1": 4,
+     "r2": 3.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-14",
+     "value": 5.1,
+     "r1": 5,
+     "r2": 5.2,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-15",
+     "value": 5.6,
+     "r1": 5.4,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-16",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-17",
+     "value": 3.7,
+     "r1": 3.5,
+     "r2": 3.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-18",
+     "value": 5.5,
+     "r1": 5.2,
+     "r2": 5.8,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-19",
+     "value": 5.5,
+     "r1": 5.3,
+     "r2": 5.7,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-21",
+     "value": 3.7,
+     "r1": 3.8,
+     "r2": 3.6,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-22",
+     "value": 3.6,
+     "r1": 3.8,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-23",
+     "value": 5.1,
+     "r1": 4.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-24",
+     "value": 5.6,
+     "r1": 5.3,
+     "r2": 5.9,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-25",
+     "value": 4.8,
+     "r1": 4.6,
+     "r2": 5,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-26",
+     "value": 3.6,
+     "r1": 3.8,
+     "r2": 3.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-28",
+     "value": 3.9,
+     "r1": 3.7,
+     "r2": 4.1,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-29",
+     "value": 5.6,
+     "r1": 5.8,
+     "r2": 5.4,
+     "baseline": null
+    },
+    {
+     "date": "2026-09-30",
+     "value": 5.4,
+     "r1": 5.2,
+     "r2": 5.6,
+     "baseline": null
+    }
+   ],
+   "coverage_months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "MON Analytical balance daily check 200 g",
+   "activity": "MON",
+   "target_id": null,
+   "match": {
+    "activity": "MON",
+    "parameter": "Weight",
+    "level": "200 g",
+    "equipment_id": "ENVI-LAB-EQP-02"
+   },
+   "master": {
+    "parameter": "Weight",
+    "level": "200 g",
+    "unit": "g",
+    "equipment": "Analytical Balance",
+    "equipment_id": "ENVI-LAB-EQP-02",
+    "method": "Not Applicable",
+    "crm_detail": "Dead weight 200 g",
+    "crm_value": "200",
+    "crm_range_low": "199.9997",
+    "crm_range_high": "200.0003",
+    "description": "Monthly control charts for analytical balance performance (daily check with 200 g dead weight)",
+    "decimals": 4,
+    "start_month": 1,
+    "limit_mode": "baseline",
+    "doc_no": ""
+   },
+   "baselines": [
+    {
+     "key": "Apr",
+     "established_on": "2026-04-16",
+     "values": [
+      199.9998,
+      200.0002,
+      200.0001,
+      199.9998,
+      199.9999,
+      200.0002,
+      199.9999,
+      199.9997,
+      199.9998,
+      200.0003,
+      200.0002,
+      199.9998
+     ],
+     "note": "April intermediate check (after calibration)"
+    },
+    {
+     "key": "Feb",
+     "established_on": "2026-02-01",
+     "values": [
+      199.9999,
+      200.0002,
+      200.0003,
+      199.9997,
+      199.9998,
+      200.0003,
+      200.0002,
+      200.0004,
+      199.9998,
+      199.9999,
+      200.0003,
+      199.9997
+     ],
+     "note": "February intermediate check (before PT)"
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-03-02",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-03",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-04",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-05",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-06",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-07",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-09",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-10",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-11",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-12",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-13",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-14",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-16",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-17",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-18",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-19",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-24",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-25",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-26",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-27",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-28",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-30",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-03-31",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-01",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-02",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-03",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-04",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-06",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-08",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-09",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-10",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-11",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-13",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-14",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-15",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-16",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-17",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-18",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-20",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-21",
+     "value": 199.9999,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-22",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-23",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-24",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-25",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-27",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-28",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-29",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-04-30",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-05-02",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-04",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-07",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-08",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-09",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-11",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-12",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-13",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-14",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-15",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-16",
+     "value": 199.9999,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-18",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-19",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-20",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-21",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-22",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-23",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-25",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-26",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-27",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-28",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-29",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-05-30",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-01",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-02",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-03",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-04",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-05",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-06",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-08",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-09",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-10",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-11",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-12",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-13",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-15",
+     "value": 199.9999,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-16",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-17",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-18",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-19",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-20",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-22",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-27",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-29",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-06-30",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-01",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-02",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-03",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-04",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-06",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-07",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-08",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-10",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-11",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-13",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-14",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-15",
+     "value": 199.9999,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-16",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-17",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-18",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-20",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-21",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-22",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-23",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-24",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-25",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-27",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-28",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-29",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-30",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-07-31",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-01",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-03",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-04",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-05",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-06",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-07",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-08",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-10",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-11",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-12",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-13",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-17",
+     "value": 199.9999,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-18",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-19",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-20",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-21",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-22",
+     "value": 200.0002,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-24",
+     "value": 199.9997,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-26",
+     "value": 199.9999,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-27",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-28",
+     "value": 200.0003,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-29",
+     "value": 199.9998,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-08-31",
+     "value": 200.0001,
+     "baseline": "Apr"
+    },
+    {
+     "date": "2026-09-01",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-02",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-04",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-05",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-07",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-08",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-09",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-10",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-11",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-12",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-14",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-15",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-16",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-17",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-18",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-19",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-21",
+     "value": 199.9999,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-22",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-23",
+     "value": 200.0002,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-24",
+     "value": 200.0003,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-25",
+     "value": 199.9998,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-26",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-28",
+     "value": 200.0004,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-29",
+     "value": 199.9997,
+     "baseline": "Feb"
+    },
+    {
+     "date": "2026-09-30",
+     "value": 200.0003,
+     "baseline": "Feb"
+    }
+   ],
+   "coverage_months": [
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  }
+ ],
+ "retire": [
+  {
+   "id": 95,
+   "match": {
+    "activity": "CRM",
+    "parameter": "Chloride"
+   },
+   "reason": "duplicate of the Chloride CRM chart (06-06 typo for 24-06)"
+  },
+  {
+   "id": 172,
+   "match": {
+    "activity": "IC",
+    "parameter": "pH",
+    "equipment_id": "ENVI-LAB-EQP-01"
+   },
+   "reason": "duplicate pH intermediate check (April run also on the main pH chart)"
+  }
+ ],
+ "delete_empty": [
+  {
+   "id": 179,
+   "match": {
+    "activity": "IC",
+    "parameter": "pH",
+    "equipment_id": "ETAL-EQP-LAB-001"
+   },
+   "reason": "empty duplicate pH chart"
+  }
+ ],
+ "retire_placeholders": true,
+ "doc_control": [
+  {
+   "module": "control_chart_ic",
+   "location": "Lahore",
+   "doc_no": "ETAL-LAB-604-FF-11"
+  }
+ ]
+}

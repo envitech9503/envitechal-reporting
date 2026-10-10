@@ -194,8 +194,11 @@ ACTIVITY_PROFILE = {
                 desc='Temperature monitoring of the equipment / room',
                 note='Equipment / environmental monitoring: each reading is compared with the fixed acceptance limits of the equipment '
                      'or room (e.g. visi-cooler 2-8 \u00b0C, laboratory 20-25 \u00b0C, relative humidity 30-70 %). A reading outside '
-                     'the limits is out of limits and needs a remark / corrective action.',
-                base_hint=''),
+                     'the limits is out of limits and needs a remark / corrective action. Charts that use a baseline (e.g. a '
+                     'seasonal baseline) or the month\'s own readings also show the +/- 2 SD warning and +/- 3 SD action limits.',
+                base_hint='For a seasonal baseline enter the season\'s baseline readings and set "Established on" to the first day of '
+                          'the season (e.g. 01-12-2025 for Winter); each season is a new version and readings are judged against the '
+                          'version in force on their date.'),
 }
 
 
@@ -222,6 +225,14 @@ class ControlChart(models.Model):
     description = models.CharField(max_length=200, blank=True,
                                    default='CRM Results during Monthly CRM Exercise')
     decimals = models.IntegerField(default=3)
+    # Monitoring charts (MON): how readings are judged (added 10-10-2026, Lahore environmental sheets)
+    #   ''/'fixed' = fixed acceptance limits only; 'baseline' = baseline mean +/- 2/3 SD (versioned, e.g. seasonal)
+    #   plus the fixed range; 'run' = the month's own readings +/- 2/3 SD plus the fixed range
+    LIMIT_MODES = (('fixed', 'Fixed acceptance limits'), ('baseline', 'Baseline (+/- 2/3 SD), e.g. seasonal'),
+                   ('run', "The month's own readings (+/- 2/3 SD)"))
+    limit_mode = models.CharField(max_length=10, blank=True, default='', choices=LIMIT_MODES)
+    # Document number printed on this chart's form when it differs from the laboratory's form number
+    doc_no = models.CharField(max_length=60, blank=True, default='')
     # First month of the chart's 12-month record cycle (1 = Jan-Dec, 2 = Feb-Jan, 3 = Mar-Feb ...).
     # Added 08-10-2026: laboratories start a CRM / RM cycle when the baseline is established.
     start_month = models.IntegerField(default=1)
@@ -307,13 +318,19 @@ class ControlChart(models.Model):
         """One-sided chart: duplicate RPD (a low RPD is good, never out of control)."""
         return self.activity == 'DUP'
 
+    def outside_range(self, value):
+        sl = self.spec_limits()
+        return bool(sl and value is not None and ((sl['ul'] is not None and value > sl['ul']) or (sl['ll'] is not None and value < sl['ll'])))
+
     def classify(self, lim, value):
         if self.spec_limited:
-            if not lim or value is None:
+            if value is None:
                 return 'ok'
-            if (lim['ul'] is not None and value > lim['ul']) or (lim['ll'] is not None and value < lim['ll']):
+            if self.outside_range(value):          # outside the fixed acceptance range: always out of limits
                 return 'ooc'
-            return 'ok'
+            if self.fixed_limits or not lim:
+                return 'ok'
+            return classify_value(lim, value)      # baseline / run limits: warning beyond 2 SD, out of control beyond 3 SD
         return classify_value(lim, value, self.upper_only)
 
     def within_acceptance(self, value):
@@ -328,8 +345,19 @@ class ControlChart(models.Model):
         return (lo is None or value >= lo) and (hi is None or value <= hi)
 
     @property
+    def mon_mode(self):
+        if self.activity != 'MON':
+            return ''
+        return self.limit_mode if self.limit_mode in ('baseline', 'run') else 'fixed'
+
+    @property
+    def fixed_limits(self):
+        """Monitoring chart judged only against its fixed acceptance limits."""
+        return self.mon_mode == 'fixed'
+
+    @property
     def self_limited(self):
-        return self.activity == 'IC'
+        return self.activity == 'IC' or self.mon_mode == 'run'
 
     @property
     def period_is_month(self):
@@ -337,12 +365,13 @@ class ControlChart(models.Model):
 
     @property
     def spec_limited(self):
-        """Monitoring charts: readings are judged against the fixed acceptance limits."""
+        """Monitoring charts (any limit mode): fixed acceptance range always checked, timed readings,
+        negative values allowed, Within / Out of limits wording."""
         return self.activity == 'MON'
 
     @property
     def no_baseline(self):
-        return self.self_limited or self.spec_limited
+        return self.self_limited or self.fixed_limits
 
     def spec_limits(self):
         """Fixed limits of a monitoring chart (None for an open side)."""
@@ -360,6 +389,12 @@ class ControlChart(models.Model):
     @property
     def ooc_label(self):
         return 'Out of limits' if self.spec_limited else 'Out of control'
+
+    def baseline_for(self, d):
+        """Baseline in force on date d: the latest version established on or before d (seasonal
+        baselines of monitoring charts), else the current one."""
+        b = self.baselines.filter(established_on__lte=d).order_by('-established_on', '-version').first()
+        return b or self.current_baseline()
 
     @property
     def ref_label(self):
@@ -438,6 +473,8 @@ class ControlChartResult(models.Model):
                                  on_delete=models.SET_NULL, related_name='results')
     date = models.DateField()
     time = models.CharField(max_length=5, blank=True, default='')   # HH:MM - monitoring readings (added 10-10-2026)
+    reading_1 = models.FloatField(null=True, blank=True)            # monitoring: 1st-half reading (value = average)
+    reading_2 = models.FloatField(null=True, blank=True)            # monitoring: 2nd-half reading
     value = models.FloatField()
     status = models.CharField(max_length=10, choices=STATUS, default='ok')
     remark = models.TextField(blank=True, default='')       # mandatory when status != ok

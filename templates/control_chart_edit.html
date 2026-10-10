@@ -20,6 +20,9 @@
     <label><span id="lblDetail">{{ f.label_detail }}</span> <input name="crm_detail" value="{{ f.crm_detail|default:'' }}" placeholder="e.g. Product # / Lot #, PT sample, spike solution"></label>
     <label><span id="lblValue">{{ f.label_value }}</span> <span class="muted">(number only)</span> <input name="crm_value" value="{{ f.crm_value|default:'' }}" inputmode="decimal" placeholder="e.g. 1.000"></label>
     <label><span id="lblRange">{{ f.label_range }}</span> <span class="muted">(numbers only<span id="ccRangeHint">{% if f.activity == 'DUP' %}; low optional{% elif f.activity == 'MON' %}; one side may be empty{% endif %}</span>)</span> <span style="display:flex;gap:6px"><input name="crm_range_low" value="{{ f.crm_range_low|default:'' }}" inputmode="decimal" placeholder="low" style="width:50%"><input name="crm_range_high" value="{{ f.crm_range_high|default:'' }}" inputmode="decimal" placeholder="high" style="width:50%"></span></label>
+    <label id="ccModeLbl">Readings are judged against <select name="limit_mode" id="ccMode">{% for k, v in limit_modes %}<option value="{{ k }}" {% if f.mon_mode == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+      <span class="muted">(the acceptance range is always checked as well)</span></label>
+    <label>Document No. of this form <span class="muted">(only if different from the laboratory's form number, e.g. ETAL-LAB-603-FF-07)</span><input name="doc_no" value="{{ f.doc_no|default:'' }}" maxlength="60"></label>
     <label style="grid-column:1/-1">Description <input name="description" id="ccDescription" value="{{ f.description|default:'' }}"></label>
     {% if chart %}<label><span><input type="checkbox" name="active" value="1" {% if f.active %}checked{% endif %}> Active (shown in the list)</span></label>{% endif %}
     <div style="grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
@@ -40,6 +43,7 @@ function ccActivityChanged(initial){
   document.getElementById('lblDetail').textContent = p.detail;
   document.getElementById('lblValue').textContent = p.value;
   document.getElementById('lblRange').textContent = p.range;
+  document.getElementById('ccModeLbl').style.display = (a === 'MON') ? '' : 'none';
   document.getElementById('ccCycleLbl').style.display = (p.cadence === 'run' || p.cadence === 'reading') ? 'none' : '';
   var rh = document.getElementById('ccRangeHint'); if (rh) rh.textContent = a === 'DUP' ? '; low optional' : (a === 'MON' ? '; one side may be empty' : '');
   var n = document.getElementById('ccNext');

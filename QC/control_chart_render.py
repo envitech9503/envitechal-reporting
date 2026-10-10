@@ -70,7 +70,7 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
                 prev = r.date
             labels.append(lbl)
     ax.set_xticklabels(labels, fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 16 else 60)
-    if lim and chart.spec_limited:
+    if lim and chart.fixed_limits:
         for key, col, lbl, ls in (('ul', C_UL, 'Upper limit', '-'), ('ll', C_UL, 'Lower limit', '-'), ('mean', C_MEAN, 'Set point', '--')):
             if lim.get(key) is None or (key == 'll' and lim.get('ul') is not None and lim['ll'] == lim['ul']):
                 continue
@@ -86,6 +86,13 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
             ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.1, ls=ls, label=lbl, zorder=2)
             ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
                         fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
+    rng = chart.spec_limits() if (chart.spec_limited and not chart.fixed_limits) else None
+    if rng:
+        rl = 'Acceptance range (%s)' % ' - '.join(fmt(rng[k], dec) for k in ('ll', 'ul') if rng.get(k) is not None)
+        for key in ('ul', 'll'):
+            if rng.get(key) is not None:
+                ax.plot([0.5, nx + 0.5], [rng[key], rng[key]], color='#6b7280', lw=1.0, ls=':', label=rl, zorder=1)
+                rl = None
     pts = sorted((x, r.value, r.status) for x, r in slots)
     if pts:
         ax.plot([p[0] for p in pts], [p[1] for p in pts], color=C_RESULT, lw=1.3, marker='D', ms=5,
@@ -98,7 +105,7 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
                             fontsize=6.5 if nx <= 16 else 5.5, ha='center', color='#1f2937')
     # y-range: limits +/- 1 SD padding, widened by any result outside
     ys = [p[1] for p in pts]
-    if lim and chart.spec_limited:
+    if lim and chart.fixed_limits:
         vals = ys + [v for v in (lim.get('ul'), lim.get('ll'), lim.get('mean')) if v is not None]
         lo, hi = min(vals), max(vals)
         pad = (hi - lo) * 0.12 or abs(hi) * 0.1 or 1.0
@@ -107,6 +114,11 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
         lo, hi = (max(0.0, lim['mean'] - 2 * lim['sd']) if chart.upper_only else lim['ll'] - lim['sd']), lim['ul'] + lim['sd']
         if ys:
             lo, hi = min(lo, min(ys) - lim['sd']), max(hi, max(ys) + lim['sd'])
+        if rng:
+            ext = [v for v in (rng.get('ul'), rng.get('ll')) if v is not None]
+            if ext:
+                pad = (max(ext + [hi]) - min(ext + [lo])) * 0.04
+                lo, hi = min([lo] + [v - pad for v in ext]), max([hi] + [v + pad for v in ext])
         if hi > lo:
             ax.set_ylim(lo, hi)
     elif ys:
@@ -127,9 +139,12 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     ax.grid(True, color='#e5e7eb', lw=0.6)
     for s in ('top', 'right'):
         ax.spines[s].set_visible(False)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.22 if nx <= 16 else -0.34), ncol=6, fontsize=6.5, frameon=False)
     fig.tight_layout()
     fig.subplots_adjust(right=0.9)
+    # legend just below the x-axis label (measured after layout, so rotated date labels never overlap it)
+    fig.canvas.draw()
+    lb = ax.xaxis.label.get_window_extent(fig.canvas.get_renderer()).transformed(ax.transAxes.inverted())
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, lb.y0 - 0.02), ncol=6, fontsize=6.5, frameon=False)
     buf = io.BytesIO()
     fig.savefig(buf, format=fmt_out, bbox_inches='tight')
     plt.close(fig)
@@ -170,6 +185,7 @@ def period_rows(chart, lim, base_values, results, year, month=0):
         row = {'sno': sno, 'month': lbl, 'result': r,
                'date': r.date.strftime('%d-%m-%Y') if r else '', 'value': fmt(r.value, dec) if r else '',
                'status': r.status if r else '', 'remark': r.remark if r else '',
+               'r1': fmt(getattr(r, 'reading_1', None), dec) if r else '', 'r2': fmt(getattr(r, 'reading_2', None), dec) if r else '',
                'base': fmt(vals[sno - 1], dec) if sno - 1 < len(vals) else ''}
         row.update(common)
         rows.append(row)

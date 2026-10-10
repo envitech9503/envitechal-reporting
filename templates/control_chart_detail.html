@@ -22,10 +22,10 @@
     <b>Parameter</b><span>{{ chart.title }}</span><b>Method</b><span>{{ chart.method|default:"-" }}</span>
     <b>{{ chart.label_detail }}</b><span>{{ chart.crm_detail|default:"-" }}</span><b>{{ chart.label_value }}</b><span>{% if chart.crm_value %}{{ chart.crm_value }} {{ chart.unit }}{% else %}-{% endif %}</span>
     <b>{{ chart.label_range }}</b><span>{% if chart.crm_range %}{{ chart.crm_range }} {{ chart.unit }}{% else %}-{% endif %}</span><b>Description</b><span>{{ chart.description }}</span>
-    {% if chart.spec_limited %}<b>Limits</b><span>{% if chart.crm_range %}fixed acceptance limits <b>{{ chart.crm_range }} {{ chart.unit }}</b> &middot; every reading outside them is <i>out of limits</i> and needs a remark{% else %}<span class="pill bad">No acceptance limits - ask an administrator to enter them in the chart master</span>{% endif %}</span>
+    {% if chart.fixed_limits %}<b>Limits</b><span>{% if chart.crm_range %}fixed acceptance limits <b>{{ chart.crm_range }} {{ chart.unit }}</b> &middot; every reading outside them is <i>out of limits</i> and needs a remark{% else %}<span class="pill bad">No acceptance limits - ask an administrator to enter them in the chart master</span>{% endif %}</span>
     {% elif chart.self_limited %}<b>Limits ({{ period }})</b><span>{% if lim %}from this run &middot; n = {{ lim_n }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% else %}<span class="pill none">At least 2 readings are needed before limits can be computed</span>{% endif %}</span>
     {% else %}<b>Baseline</b><span>{% if b %}v{{ b.version }} &middot; n = {{ b.n }} &middot; established {{ b.established_on|date:"d-m-Y" }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% if b.note %} &middot; <span class="muted">{{ b.note }}</span>{% endif %}{% else %}<span class="pill bad">No baseline - limits cannot be computed</span>{% endif %}</span>{% endif %}
-    {% if not chart.spec_limited %}<b>Limits</b><span>{% if lim %}UL {{ lim.ul }} &middot; UWL {{ lim.uwl }}{% if chart.upper_only %} <span class="muted">(one-sided: a low RPD is never out of control)</span>{% else %} &middot; LWL {{ lim.lwl }} &middot; LL {{ lim.ll }}{% endif %}{% else %}-{% endif %}</span>{% endif %}
+    {% if not chart.fixed_limits %}<b>Limits</b><span>{% if lim %}UL {{ lim.ul }} &middot; UWL {{ lim.uwl }}{% if chart.upper_only %} <span class="muted">(one-sided: a low RPD is never out of control)</span>{% else %} &middot; LWL {{ lim.lwl }} &middot; LL {{ lim.ll }}{% endif %}{% else %}-{% endif %}{% if chart.spec_limited and chart.crm_range %} <span class="muted">&middot; a reading outside the acceptance range {{ chart.crm_range }} {{ chart.unit }} is always out of limits</span>{% endif %}</span>{% endif %}
     {% if not chart.period_is_month %}<b>Record cycle</b><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">{{ cycle_name }} <span class="muted">(12-month record starts in {{ cycle_name|slice:":3" }})</span>
       <form method="post" action="{% url 'control_chart_cycle' chart.id %}" style="display:inline-flex;gap:6px;align-items:center" onsubmit="return confirm('Change the record cycle? Results keep their dates and are re-grouped into the new 12-month cycle; any review/approval of the old cycle years will be cleared.')">{% csrf_token %}
         <select name="start_month" style="border:1px solid #cbd5e1;border-radius:7px;padding:3px 6px;font-size:12px">{% for m in month_names %}<option value="{{ forloop.counter }}" {% if forloop.counter == chart.sm %}selected{% endif %}>{{ m }} - {% if forloop.counter == 1 %}Dec{% else %}{{ month_names|slice:forloop.counter0|last }}{% endif %}</option>{% endfor %}</select>
@@ -47,16 +47,16 @@
   <div class="hd"><div class="title" style="font-size:15px">{{ chart.result_label }}s - {{ period }}</div></div>
   {% if locked %}<div class="msg warning"><i class="fa-solid fa-lock"></i> {{ period }} is approved and locked. Ask an administrator to unapprove it before making changes.</div>{% endif %}
   <table>
-    <thead><tr><th>S. No.</th>{% if chart.spec_limited %}<th>Date</th><th>Time</th>{% else %}<th>{{ chart.period_col }}</th><th>Date</th>{% endif %}<th class="num">{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th>Status</th><th>Remark / corrective action</th><th>Performed by</th>{% if chart.spec_limited %}<th class="num">Lower limit</th><th class="num">Upper limit</th>{% else %}{% if not chart.self_limited %}<th class="num">Baseline result</th>{% endif %}<th class="num">UL (+3)</th><th class="num">UWL (+2)</th>{% if not chart.upper_only %}<th class="num">LWL (-2)</th><th class="num">LL (-3)</th>{% endif %}{% endif %}<th></th></tr></thead>
+    <thead><tr><th>S. No.</th>{% if chart.spec_limited %}<th>Date</th><th>Time</th>{% else %}<th>{{ chart.period_col }}</th><th>Date</th>{% endif %}<th class="num">{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th>Status</th><th>Remark / corrective action</th><th>Performed by</th>{% if chart.fixed_limits %}<th class="num">Lower limit</th><th class="num">Upper limit</th>{% else %}{% if not chart.self_limited %}<th class="num">Baseline result</th>{% endif %}<th class="num">UL (+3)</th><th class="num">UWL (+2)</th>{% if not chart.upper_only %}<th class="num">LWL (-2)</th><th class="num">LL (-3)</th>{% endif %}{% endif %}<th></th></tr></thead>
     <tbody>
     {% for r in rows %}
-      <tr data-time="{{ r.result.time|default:'' }}">
+      <tr data-time="{{ r.result.time|default:'' }}" data-r1="{{ r.result.reading_1|default_if_none:'' }}" data-r2="{{ r.result.reading_2|default_if_none:'' }}">
         <td>{{ r.sno }}</td>{% if chart.spec_limited %}<td>{{ r.date }}</td><td>{% if r.result %}{{ r.result.time|default:'-' }}{% endif %}</td>{% else %}<td>{{ r.month }}</td><td>{{ r.date }}</td>{% endif %}
-        <td class="num"><b>{{ r.value }}</b></td>
+        <td class="num"><b>{{ r.value }}</b>{% if r.r1 or r.r2 %}<br><span class="muted" style="font-size:11px" title="1st-half / 2nd-half readings">{{ r.r1|default:"-" }} / {{ r.r2|default:"-" }}</span>{% endif %}</td>
         <td>{% if r.status == 'ooc' %}<span class="pill bad">{{ chart.ooc_label }}</span>{% elif r.status == 'warning' %}<span class="pill warn">Warning</span>{% elif r.status == 'ok' %}<span class="pill ok">{% if chart.spec_limited %}Within limits{% else %}In control{% endif %}</span>{% endif %}{% if r.result and r.status != 'ok' and not r.remark %} <span class="pill bad" title="Use the pencil to add the remark / corrective action">remark needed</span>{% endif %}</td>
         <td style="max-width:260px;font-size:12px">{{ r.remark }}</td>
         <td class="muted">{% if r.result and r.result.performed_by %}{{ r.result.performed_by.get_full_name|default:r.result.performed_by.username }}<br>{{ r.result.performed_at|date:"d-m-Y H:i" }}{% endif %}</td>
-        {% if chart.spec_limited %}<td class="num">{% if r.result %}{{ r.ll|default:'-' }}{% endif %}</td><td class="num">{% if r.result %}{{ r.ul|default:'-' }}{% endif %}</td>{% else %}{% if not chart.self_limited %}<td class="num">{{ r.base }}</td>{% endif %}<td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td>{% if not chart.upper_only %}<td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>{% endif %}{% endif %}
+        {% if chart.fixed_limits %}<td class="num">{% if r.result %}{{ r.ll|default:'-' }}{% endif %}</td><td class="num">{% if r.result %}{{ r.ul|default:'-' }}{% endif %}</td>{% else %}{% if not chart.self_limited %}<td class="num">{{ r.base }}</td>{% endif %}<td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td>{% if not chart.upper_only %}<td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>{% endif %}{% endif %}
         <td style="white-space:nowrap">{% if r.result and not locked %}
           <button class="btn" type="button" onclick="ccEdit({{ r.result.id }},'{{ r.result.date|date:"Y-m-d" }}','{{ r.result.value }}',this)" title="Edit"><i class="fa-solid fa-pen"></i></button>
           {% if can_approve %}<form method="post" action="{% url 'control_chart_result_delete' chart.id r.result.id %}" style="display:inline" onsubmit="return confirm('Delete this result?')">{% csrf_token %}<button class="btn" type="submit" title="Delete"><i class="fa-solid fa-trash"></i></button></form>{% endif %}
@@ -73,7 +73,9 @@
   <form class="frm" method="post" action="{% url 'control_chart_result_save' chart.id %}" id="ccForm" data-autosave="result:{{ chart.id }}" style="border-top:1px solid #eef2f6">
     {% csrf_token %}<input type="hidden" name="result_id" id="ccRid" value="">
     <label>Date <input type="date" name="date" id="ccDate" value="{{ request.GET.date|default:today }}" max="{{ today }}" required></label>
-    {% if chart.spec_limited %}<label>Time <input type="time" name="time" id="ccTime" value="{{ request.GET.time }}" required style="width:110px"></label>{% endif %}
+    {% if chart.spec_limited %}<label>Time <span class="muted">(optional)</span><input type="time" name="time" id="ccTime" value="{{ request.GET.time }}" style="width:110px"></label>
+    <label>1st half <input type="number" step="any" name="reading_1" id="ccR1" style="width:95px"></label>
+    <label>2nd half <input type="number" step="any" name="reading_2" id="ccR2" style="width:95px"></label>{% endif %}
     <label>{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %} <input type="number" step="any" name="value" id="ccVal" value="{{ request.GET.value }}" required style="width:140px"></label>
     <label style="flex:1;min-width:260px">Remark / corrective action <span class="muted">(required when {% if chart.spec_limited %}outside the limits{% else %}outside &plusmn;2 SD{% endif %})</span><input type="text" name="remark" id="ccRem" maxlength="1500"></label>
     <span id="ccPreview" class="pill none" style="align-self:center">enter a value</span>
@@ -84,7 +86,12 @@
     var ONE = {% if chart.upper_only %}true{% else %}false{% endif %};
     var LIM = {ul:{{ lim.ul|default:"null" }}, uwl:{{ lim.uwl|default:"null" }}, lwl:ONE?-Infinity:{{ lim.lwl|default:"null" }}, ll:ONE?-Infinity:{{ lim.ll|default:"null" }}};
     var ACC = {{ acc_js|safe }};
-    var SPEC = {% if chart.spec_limited %}true{% else %}false{% endif %};
+    var SPEC = {% if chart.fixed_limits %}true{% else %}false{% endif %}, MON = {% if chart.spec_limited %}true{% else %}false{% endif %};
+    function ccOut(v){ return (ACC.lo!==null&&v<ACC.lo)||(ACC.hi!==null&&v>ACC.hi); }
+    (function(){ var a=document.getElementById('ccR1'), b=document.getElementById('ccR2'); if(!a) return;   // daily value = average of the two half-day readings
+      function avg(){ var x=parseFloat(a.value), y=parseFloat(b.value); if(!isNaN(x)&&!isNaN(y)){ document.getElementById('ccVal').value=+(((x+y)/2).toFixed({{ chart.decimals|add:2 }})); }
+        else if(!isNaN(x)||!isNaN(y)){ if(!document.getElementById('ccVal').value) document.getElementById('ccVal').value=isNaN(x)?y:x; } ccPreview(); }
+      a.addEventListener('input',avg); b.addEventListener('input',avg); })();
     var SELF = {% if chart.self_limited %}true{% else %}false{% endif %}, RUN = {{ run_js|safe }}, EDIT_ID = '';
     function ccRunLim(v){ // IC: limits of the run including the reading being entered (as the server judges it)
       var a=[]; for (var k in RUN){ if (k!==EDIT_ID) a.push(RUN[k]); } a.push(v); var n=a.length; if (n<2) return null;
@@ -99,6 +106,7 @@
         if(out){p.className='pill bad';p.textContent='OUT OF LIMITS - remark required';rem.required=true}else{p.className='pill ok';p.textContent='Within limits';rem.required=false}
         return }
       if(SELF){ var L=ccRunLim(v); if(L){ LIM=L; } else { LIM={ul:null}; } }
+      if(MON && ccOut(v)){p.className='pill bad';p.textContent='OUT OF LIMITS (outside the acceptance range) - remark required';rem.required=true;return}
       if(LIM.ul===null){p.className='pill none';p.textContent='{% if chart.self_limited %}judged after saving (limits from this run){% else %}no limits yet{% endif %}';rem.required=false;return}
       var sd3=ONE?'+3 SD':'±3 SD', sd2=ONE?'+2 SD':'±2 SD';
       if(v>LIM.ul||v<LIM.ll){p.className='pill bad';p.textContent='OUT OF CONTROL (beyond '+sd3+') - remark required'+ccAccNote(v);rem.required=true}
@@ -107,10 +115,10 @@
     document.getElementById('ccVal').addEventListener('input',ccPreview);ccPreview();
     document.getElementById('ccForm').addEventListener('cc-restored',function(){ var id=document.getElementById('ccRid').value; // a restored correction
       if(id){EDIT_ID=String(id);document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';} ccPreview(); });
-    function ccEdit(id,d,v,btn){EDIT_ID=String(id);document.getElementById('ccRid').value=id;var tt=document.getElementById('ccTime');if(tt){tt.value=btn.closest('tr').dataset.time||''}document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
+    function ccEdit(id,d,v,btn){EDIT_ID=String(id);document.getElementById('ccRid').value=id;var tt=document.getElementById('ccTime');if(tt){var trr=btn.closest('tr');tt.value=trr.dataset.time||'';document.getElementById('ccR1').value=trr.dataset.r1||'';document.getElementById('ccR2').value=trr.dataset.r2||''}document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
       var tr=btn.closest('tr');document.getElementById('ccRem').value=tr.cells[5].textContent.trim();document.getElementById('ccCancel').style.display='';
       document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';ccPreview();document.getElementById('ccForm').scrollIntoView({behavior:'smooth'})}
-    function ccReset(){EDIT_ID='';document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview();document.getElementById('ccForm').dispatchEvent(new Event('input'))}
+    function ccReset(){EDIT_ID='';['ccR1','ccR2','ccTime'].forEach(function(i){var e=document.getElementById(i);if(e)e.value=''});document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview();document.getElementById('ccForm').dispatchEvent(new Event('input'))}
   </script>
   {% endif %}
 </div>
