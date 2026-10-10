@@ -9,11 +9,12 @@
       <form method="get" style="display:inline-flex;gap:6px">
         <select name="year" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for y in years %}<option value="{{ y.y }}" {% if y.y == year %}selected{% endif %}>{{ y.label }}</option>{% endfor %}</select>
         {% if chart.period_is_month %}<select name="month" onchange="this.form.submit()" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for m in months %}<option value="{{ m.m }}" {% if m.m == month %}selected{% endif %}>{{ m.name }}{% if m.has %} &#10003;{% endif %}</option>{% endfor %}</select>{% endif %}
+        {% if versions %}<select name="bv" onchange="this.form.submit()" title="Baseline version of this chart" style="border:1px solid #cbd5e1;border-radius:7px;padding:5px 8px;font-size:13px">{% for v in versions %}<option value="{{ v.v }}" {% if v.sel %}selected{% endif %}>{{ v.label }} ({{ v.n }} result{{ v.n|pluralize }})</option>{% endfor %}</select>{% endif %}
       </form>
       <a class="btn" href="{% url 'control_chart_list' %}?location={{ chart.location }}&year={{ year }}&activity={{ chart.activity }}"><i class="fa-solid fa-arrow-left"></i> All charts</a>
       <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}{{ pq }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
       {% if can_edit_master %}<a class="btn" href="{% url 'control_chart_edit' chart.id %}"><i class="fa-solid fa-pen"></i> Edit master</a>{% endif %}
-      {% if can_set_baseline %}<a class="btn" href="{% url 'control_chart_baseline' chart.id %}"><i class="fa-solid fa-ruler"></i> Baseline</a>{% endif %}
+      {% if not chart.self_limited and chart.mon_mode != 'fixed' %}<a class="btn" href="{% url 'control_chart_baseline' chart.id %}"><i class="fa-solid fa-ruler"></i> Baselines{% if baseline_list|length > 1 %} ({{ baseline_list|length }}){% endif %}</a>{% endif %}
       {% if can_delete %}<form method="post" action="{% url 'control_chart_delete' chart.id %}" style="display:inline" onsubmit="return confirm('Delete this chart? It holds no results. This cannot be undone.')">{% csrf_token %}<button class="btn" type="submit" title="Delete this empty chart"><i class="fa-solid fa-trash"></i> Delete chart</button></form>{% endif %}
     </div>
   </div>
@@ -24,7 +25,7 @@
     <b>{{ chart.label_range }}</b><span>{% if chart.crm_range %}{{ chart.crm_range }} {{ chart.unit }}{% else %}-{% endif %}</span><b>Description</b><span>{{ chart.description }}</span>
     {% if chart.fixed_limits %}<b>Limits</b><span>{% if chart.crm_range %}fixed acceptance limits <b>{{ chart.crm_range }} {{ chart.unit }}</b> &middot; every reading outside them is <i>out of limits</i> and needs a remark{% else %}<span class="pill bad">No acceptance limits - ask an administrator to enter them in the chart master</span>{% endif %}</span>
     {% elif chart.self_limited %}<b>Limits ({{ period }})</b><span>{% if lim %}from this run &middot; n = {{ lim_n }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% else %}<span class="pill none">At least 2 readings are needed before limits can be computed</span>{% endif %}</span>
-    {% else %}<b>Baseline</b><span>{% if b %}v{{ b.version }} &middot; n = {{ b.n }} &middot; established {{ b.established_on|date:"d-m-Y" }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% if b.note %} &middot; <span class="muted">{{ b.note }}</span>{% endif %}{% else %}<span class="pill bad">No baseline - limits cannot be computed</span>{% endif %}</span>{% endif %}
+    {% else %}<b>Baseline</b><span>{% if b %}v{{ b.version }} &middot; n = {{ b.n_text }} &middot; established {{ b.established_label }} &middot; mean <b>{{ lim.mean }}</b> &middot; SD <b>{{ lim.sd }}</b>{% if b.note %} &middot; <span class="muted">{{ b.note }}</span>{% endif %}{% else %}<span class="pill bad">No baseline - limits cannot be computed</span>{% endif %}</span>{% endif %}
     {% if not chart.fixed_limits %}<b>Limits</b><span>{% if lim %}UL {{ lim.ul }} &middot; UWL {{ lim.uwl }}{% if chart.upper_only %} <span class="muted">(one-sided: a low RPD is never out of control)</span>{% else %} &middot; LWL {{ lim.lwl }} &middot; LL {{ lim.ll }}{% endif %}{% else %}-{% endif %}{% if chart.spec_limited and chart.crm_range %} <span class="muted">&middot; a reading outside the acceptance range {{ chart.crm_range }} {{ chart.unit }} is always out of limits</span>{% endif %}</span>{% endif %}
     {% if not chart.period_is_month %}<b>Record cycle</b><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">{{ cycle_name }} <span class="muted">(12-month record starts in {{ cycle_name|slice:":3" }})</span>
       <form method="post" action="{% url 'control_chart_cycle' chart.id %}" style="display:inline-flex;gap:6px;align-items:center" onsubmit="return confirm('Change the record cycle? Results keep their dates and are re-grouped into the new 12-month cycle; any review/approval of the old cycle years will be cleared.')">{% csrf_token %}
@@ -35,11 +36,12 @@
 </div>
 
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px">Control chart - {{ period }}</div>
-    <div>{% if so and so.approved_at %}<span class="pill ok">Approved by {{ so.approved_by.get_full_name|default:so.approved_by.username }} on {{ so.approved_at|date:"d-m-Y" }}</span>
-      {% elif so and so.reviewed_at %}<span class="pill info">Reviewed by {{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }} on {{ so.reviewed_at|date:"d-m-Y" }} - awaiting approval</span>
+  <div class="hd"><div class="title" style="font-size:15px">Control chart - {{ period }}{% if versions %} &middot; baseline v{{ b.version|default:"-" }}{% endif %}</div>
+    <div>{% if so and so.approved_at %}<span class="pill ok">Approved by {{ so.approved_by.get_full_name|default:so.approved_by.username }}</span>
+      {% elif so and so.reviewed_at %}<span class="pill info">Reviewed by {{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }} - awaiting approval</span>
       {% else %}<span class="pill none">Open - not yet reviewed</span>{% endif %}</div>
   </div>
+  {% if versions %}<div class="msg info" style="margin:0 18px 8px">{{ period }} holds results judged against {{ versions|length }} baselines. Each baseline has its own chart and form - choose the version next to the year{% if chart.period_is_month %} and month{% endif %}. Sign-off covers the whole record.</div>{% endif %}
   <div class="chartbox">{% if svg %}{{ svg|safe }}{% else %}<div class="empty">{% if chart.self_limited %}Record the readings of {{ period }} to draw the chart.{% else %}Establish a baseline to draw the chart.{% endif %}</div>{% endif %}</div>
 </div>
 
@@ -47,15 +49,15 @@
   <div class="hd"><div class="title" style="font-size:15px">{{ chart.result_label }}s - {{ period }}</div></div>
   {% if locked %}<div class="msg warning"><i class="fa-solid fa-lock"></i> {{ period }} is approved and locked. Ask an administrator to unapprove it before making changes.</div>{% endif %}
   <table>
-    <thead><tr><th>S. No.</th>{% if chart.spec_limited %}<th>Date</th><th>Time</th>{% else %}<th>{{ chart.period_col }}</th><th>Date</th>{% endif %}<th class="num">{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th>Status</th><th>Remark / corrective action</th><th>Performed by</th>{% if chart.fixed_limits %}<th class="num">Lower limit</th><th class="num">Upper limit</th>{% else %}{% if not chart.self_limited %}<th class="num">Baseline result</th>{% endif %}<th class="num">UL (+3)</th><th class="num">UWL (+2)</th>{% if not chart.upper_only %}<th class="num">LWL (-2)</th><th class="num">LL (-3)</th>{% endif %}{% endif %}<th></th></tr></thead>
+    <thead><tr><th>S. No.</th>{% if chart.spec_limited %}<th>Date</th>{% else %}<th>{{ chart.period_col }}</th><th>Date</th>{% endif %}<th class="num">{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th>Status</th><th>Remark / corrective action</th><th>Performed by</th>{% if chart.fixed_limits %}<th class="num">Lower limit</th><th class="num">Upper limit</th>{% else %}{% if not chart.self_limited %}<th class="num">Baseline result</th>{% endif %}<th class="num">UL (+3)</th><th class="num">UWL (+2)</th>{% if not chart.upper_only %}<th class="num">LWL (-2)</th><th class="num">LL (-3)</th>{% endif %}{% endif %}<th></th></tr></thead>
     <tbody>
     {% for r in rows %}
-      <tr data-time="{{ r.result.time|default:'' }}" data-r1="{{ r.result.reading_1|default_if_none:'' }}" data-r2="{{ r.result.reading_2|default_if_none:'' }}">
-        <td>{{ r.sno }}</td>{% if chart.spec_limited %}<td>{{ r.date }}</td><td>{% if r.result %}{{ r.result.time|default:'-' }}{% endif %}</td>{% else %}<td>{{ r.month }}</td><td>{{ r.date }}</td>{% endif %}
+      <tr data-r1="{{ r.result.reading_1|default_if_none:'' }}" data-r2="{{ r.result.reading_2|default_if_none:'' }}">
+        <td>{{ r.sno }}</td>{% if chart.spec_limited %}<td>{{ r.date }}</td>{% else %}<td>{{ r.month }}</td><td>{{ r.date }}</td>{% endif %}
         <td class="num"><b>{{ r.value }}</b>{% if r.r1 or r.r2 %}<br><span class="muted" style="font-size:11px" title="1st-half / 2nd-half readings">{{ r.r1|default:"-" }} / {{ r.r2|default:"-" }}</span>{% endif %}</td>
         <td>{% if r.status == 'ooc' %}<span class="pill bad">{{ chart.ooc_label }}</span>{% elif r.status == 'warning' %}<span class="pill warn">Warning</span>{% elif r.status == 'ok' %}<span class="pill ok">{% if chart.spec_limited %}Within limits{% else %}In control{% endif %}</span>{% endif %}{% if r.result and r.status != 'ok' and not r.remark %} <span class="pill bad" title="Use the pencil to add the remark / corrective action">remark needed</span>{% endif %}</td>
         <td style="max-width:260px;font-size:12px">{{ r.remark }}</td>
-        <td class="muted">{% if r.result and r.result.performed_by %}{{ r.result.performed_by.get_full_name|default:r.result.performed_by.username }}<br>{{ r.result.performed_at|date:"d-m-Y H:i" }}{% endif %}</td>
+        <td class="muted">{% if r.result and r.result.performed_by %}{{ r.result.performed_by.get_full_name|default:r.result.performed_by.username }}{% endif %}</td>
         {% if chart.fixed_limits %}<td class="num">{% if r.result %}{{ r.ll|default:'-' }}{% endif %}</td><td class="num">{% if r.result %}{{ r.ul|default:'-' }}{% endif %}</td>{% else %}{% if not chart.self_limited %}<td class="num">{{ r.base }}</td>{% endif %}<td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td>{% if not chart.upper_only %}<td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>{% endif %}{% endif %}
         <td style="white-space:nowrap">{% if r.result and not locked %}
           <button class="btn" type="button" onclick="ccEdit({{ r.result.id }},'{{ r.result.date|date:"Y-m-d" }}','{{ r.result.value }}',this)" title="Edit"><i class="fa-solid fa-pen"></i></button>
@@ -63,18 +65,18 @@
         {% endif %}</td>
       </tr>
     {% endfor %}
-    {% for v in extra_base %}<tr><td>{{ forloop.counter|add:nrows }}</td><td colspan="6" class="muted">(additional baseline value)</td><td class="num">{{ v }}</td><td colspan="5"></td></tr>{% endfor %}
+    {% for v in extra_base %}<tr><td>{{ forloop.counter|add:nrows }}</td><td colspan="{% if chart.spec_limited %}5{% else %}6{% endif %}" class="muted">(additional baseline value)</td><td class="num">{{ v }}</td><td colspan="5"></td></tr>{% endfor %}
     </tbody>
   </table>
   {% if b and not chart.no_baseline %}<div class="muted" style="padding:8px 18px">Baseline values (v{{ b.version }}): {{ base_values }}</div>{% endif %}
   {% if chart.self_limited %}<div class="muted" style="padding:8px 18px">Each reading is judged against the mean and SD of this month's run; statuses are re-evaluated whenever a reading is added, changed or deleted.</div>{% endif %}
 
-  {% if not locked and b or not locked and chart.no_baseline %}
-  <form class="frm" method="post" action="{% url 'control_chart_result_save' chart.id %}" id="ccForm" data-autosave="result:{{ chart.id }}" style="border-top:1px solid #eef2f6">
+  {% if old_version and not locked %}<div class="msg info" style="margin:8px 18px">This is the chart of baseline v{{ b.version }}. Corrections made here (pencil) stay on v{{ b.version }}; a new result is always recorded under the current baseline v{{ cur.version }} - <a href="?year={{ year }}{% if month %}&month={{ month }}{% endif %}&bv={{ cur.version }}">open its chart</a>.</div>{% endif %}
+  {% if can_enter and not locked and b or can_enter and not locked and chart.no_baseline or can_enter and not locked and chart.mon_mode == 'baseline' %}
+  <form class="frm" method="post" action="{% url 'control_chart_result_save' chart.id %}" id="ccForm" data-autosave="result:{{ chart.id }}" style="border-top:1px solid #eef2f6{% if old_version %};display:none{% endif %}">
     {% csrf_token %}<input type="hidden" name="result_id" id="ccRid" value="">
     <label>Date <input type="date" name="date" id="ccDate" value="{{ request.GET.date|default:today }}" max="{{ today }}" required></label>
-    {% if chart.spec_limited %}<label>Time <span class="muted">(optional)</span><input type="time" name="time" id="ccTime" value="{{ request.GET.time }}" style="width:110px"></label>
-    <label>1st half <input type="number" step="any" name="reading_1" id="ccR1" style="width:95px"></label>
+    {% if chart.spec_limited %}<label>1st half <input type="number" step="any" name="reading_1" id="ccR1" style="width:95px"></label>
     <label>2nd half <input type="number" step="any" name="reading_2" id="ccR2" style="width:95px"></label>{% endif %}
     <label>{{ chart.result_label }}{% if chart.unit %} ({{ chart.unit }}){% endif %} <input type="number" step="any" name="value" id="ccVal" value="{{ request.GET.value }}" required style="width:140px"></label>
     <label style="flex:1;min-width:260px">Remark / corrective action <span class="muted">(required when {% if chart.spec_limited %}outside the limits{% else %}outside &plusmn;2 SD{% endif %})</span><input type="text" name="remark" id="ccRem" maxlength="1500"></label>
@@ -115,10 +117,10 @@
     document.getElementById('ccVal').addEventListener('input',ccPreview);ccPreview();
     document.getElementById('ccForm').addEventListener('cc-restored',function(){ var id=document.getElementById('ccRid').value; // a restored correction
       if(id){EDIT_ID=String(id);document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';} ccPreview(); });
-    function ccEdit(id,d,v,btn){EDIT_ID=String(id);document.getElementById('ccRid').value=id;var tt=document.getElementById('ccTime');if(tt){var trr=btn.closest('tr');tt.value=trr.dataset.time||'';document.getElementById('ccR1').value=trr.dataset.r1||'';document.getElementById('ccR2').value=trr.dataset.r2||''}document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
-      var tr=btn.closest('tr');document.getElementById('ccRem').value=tr.cells[5].textContent.trim();document.getElementById('ccCancel').style.display='';
+    function ccEdit(id,d,v,btn){document.getElementById('ccForm').style.display='';EDIT_ID=String(id);document.getElementById('ccRid').value=id;var r1e=document.getElementById('ccR1');if(r1e){var trr=btn.closest('tr');r1e.value=trr.dataset.r1||'';document.getElementById('ccR2').value=trr.dataset.r2||''}document.getElementById('ccDate').value=d;document.getElementById('ccVal').value=v;
+      var tr=btn.closest('tr');document.getElementById('ccRem').value=tr.cells[{% if chart.spec_limited %}4{% else %}5{% endif %}].textContent.trim();document.getElementById('ccCancel').style.display='';
       document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Update result';document.getElementById('ccCancel').style.display='';ccPreview();document.getElementById('ccForm').scrollIntoView({behavior:'smooth'})}
-    function ccReset(){EDIT_ID='';['ccR1','ccR2','ccTime'].forEach(function(i){var e=document.getElementById(i);if(e)e.value=''});document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview();document.getElementById('ccForm').dispatchEvent(new Event('input'))}
+    function ccReset(){EDIT_ID='';['ccR1','ccR2'].forEach(function(i){var e=document.getElementById(i);if(e)e.value=''});document.getElementById('ccRid').value='';document.getElementById('ccVal').value='';document.getElementById('ccRem').value='';document.getElementById('ccBtn').innerHTML='<i class="fa-solid fa-floppy-disk"></i> Record result';document.getElementById('ccCancel').style.display='none';ccPreview();document.getElementById('ccForm').dispatchEvent(new Event('input'))}
   </script>
   {% endif %}
 </div>
@@ -127,11 +129,11 @@
   <div class="hd"><div class="title" style="font-size:15px">Sign-off - {{ period }}</div></div>
   <div class="frm" style="align-items:center">
     <div style="min-width:220px"><b>Performed by</b> <span class="muted">(Chemist)</span><br>
-      {% regroup results by performed_by as perf %}{% for g in perf %}{% if g.grouper %}{{ g.grouper.get_full_name|default:g.grouper.username }}{% if not forloop.last %}, {% endif %}{% endif %}{% empty %}<span class="muted">-</span>{% endfor %}{% if n_unsigned %}<br><span class="pill warn" title="Results imported from the workbooks carry no analyst signature">{{ n_unsigned }} result{{ n_unsigned|pluralize }} not signed (imported)</span>{% endif %}</div>
-    <div style="min-width:220px"><b>Reviewed by</b> <span class="muted">(QC Manager)</span><br>{% if so and so.reviewed_at %}{{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }} &middot; {{ so.reviewed_at|date:"d-m-Y H:i" }}{% else %}<span class="muted">-</span>{% endif %}</div>
-    <div style="min-width:220px"><b>Approved by</b> <span class="muted">(CEO)</span><br>{% if so and so.approved_at %}{{ so.approved_by.get_full_name|default:so.approved_by.username }} &middot; {{ so.approved_at|date:"d-m-Y H:i" }}{% else %}<span class="muted">-</span>{% endif %}</div>
+      {% regroup all_results by performed_by as perf %}{% for g in perf %}{% if g.grouper %}{{ g.grouper.get_full_name|default:g.grouper.username }}{% if not forloop.last %}, {% endif %}{% endif %}{% empty %}<span class="muted">-</span>{% endfor %}{% if n_unsigned %}<br><span class="pill warn" title="Results imported from the workbooks carry no analyst signature">{{ n_unsigned }} result{{ n_unsigned|pluralize }} not signed (imported)</span>{% endif %}</div>
+    <div style="min-width:220px"><b>Reviewed by</b> <span class="muted">(QC Manager)</span><br>{% if so and so.reviewed_at %}{{ so.reviewed_by.get_full_name|default:so.reviewed_by.username }}{% else %}<span class="muted">-</span>{% endif %}</div>
+    <div style="min-width:220px"><b>Approved by</b> <span class="muted">(CEO)</span><br>{% if so and so.approved_at %}{{ so.approved_by.get_full_name|default:so.approved_by.username }}{% else %}<span class="muted">-</span>{% endif %}</div>
     <form method="post" action="{% url 'control_chart_signoff' chart.id %}" style="display:flex;gap:6px;flex-wrap:wrap">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><input type="hidden" name="month" value="{{ month }}">
-      {% if n_unsigned and my_office_ok and not so.approved_at and user.is_authenticated %}<button class="btn btn-p" name="action" value="sign" onclick="return confirm('Sign the {{ n_unsigned }} unsigned result(s) of {{ period }} as Performed by you? Your e-signature and today\'s date will be printed on the form.')"><i class="fa-solid fa-signature"></i> Sign as performer</button>{% endif %}
+      {% if n_unsigned and my_office_ok and not so.approved_at and user.is_authenticated %}<button class="btn btn-p" name="action" value="sign" onclick="return confirm('Sign the {{ n_unsigned }} unsigned result(s) of {{ period }} as Performed by you? Your e-signature will be printed on the form.')"><i class="fa-solid fa-signature"></i> Sign as performer</button>{% endif %}
       {% if can_review and not so.reviewed_at %}<button class="btn btn-p" name="action" value="review" {% if not results %}disabled title="No results yet"{% elif n_unsigned %}disabled title="The analyst must sign the imported results first"{% elif n_missing %}disabled title="{{ n_missing }} result(s) outside the limits still need a remark"{% endif %}><i class="fa-solid fa-check"></i> Review</button>{% if n_missing %} <span class="pill bad">{{ n_missing }} remark{{ n_missing|pluralize }} needed before review</span>{% endif %}{% endif %}
       {% if can_review and so.reviewed_at and not so.approved_at %}<button class="btn" name="action" value="unreview">Undo review</button>{% endif %}
       {% if can_approve and so.reviewed_at and not so.approved_at %}<button class="btn btn-p" name="action" value="approve"><i class="fa-solid fa-stamp"></i> Approve &amp; lock</button>{% endif %}
@@ -140,4 +142,12 @@
   </div>
   {% if sop_note %}<div class="muted" style="padding:0 18px 14px">{{ sop_note }}</div>{% endif %}
 </div>
+{% if baseline_list %}<div class="card">
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-ruler"></i> Baselines of this chart ({{ baseline_list|length }})</div>
+    <a class="btn" href="{% url 'control_chart_baseline' chart.id %}">Open baselines</a></div>
+  <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th>{% if chart.spec_limited %}<th>Acceptance range</th>{% endif %}<th class="num">Results judged</th><th>Note</th><th></th></tr></thead><tbody>
+  {% for x in baseline_list %}<tr{% if b and x.b.pk == b.pk %} style="background:#f0fdf4"{% endif %}><td>v{{ x.b.version }}{% if x.b.is_current %} <span class="pill ok">current</span>{% endif %}</td><td>{{ x.b.established_label }}</td><td class="num">{{ x.b.n_text }}</td><td class="num">{{ x.b.mean|floatformat:chart.decimals }}</td><td class="num">{{ x.b.sd|floatformat:4 }}</td>{% if chart.spec_limited %}<td>{{ x.range|default:"-" }}</td>{% endif %}<td class="num">{{ x.n_res }}</td><td style="max-width:260px;font-size:12px">{{ x.b.note }}</td>
+    <td style="white-space:nowrap"><a class="btn" href="{{ x.q }}" title="Control chart of this baseline"><i class="fa-solid fa-chart-line"></i></a> <a class="btn" href="{% url 'control_chart_baseline' chart.id %}?v={{ x.b.version }}" title="Baseline data points and graph"><i class="fa-solid fa-eye"></i></a> <a class="btn" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ x.b.version }}" target="_blank" title="Baseline form (PDF)"><i class="fa-solid fa-file-pdf"></i></a></td></tr>{% endfor %}
+  </tbody></table>
+</div>{% endif %}
 {% endblock %}

@@ -99,6 +99,44 @@ def classify_value(lim, value, upper_only=False):
 import re as _re
 
 
+_DATE_TOK = _re.compile(r'^\s*(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})\s*[,;\t ]\s*(\S+)\s*$')
+
+
+def parse_dated_values(raw):
+    """Baseline values with their dates (item 4, 10-10-2026): one "dd-mm-yyyy value" per line.
+    Returns (dates, values, errors); dates is [] when the text holds plain values only."""
+    lines = [ln for ln in (raw or '').splitlines() if ln.strip()]
+    if not lines or not any(_DATE_TOK.match(ln) for ln in lines):
+        vals, errs = parse_values(raw)
+        return [], vals, errs
+    import datetime as _d
+    dates, vals, errs = [], [], []
+    for i, ln in enumerate(lines, 1):
+        m = _DATE_TOK.match(ln)
+        if not m:
+            errs.append('Line %d: use "dd-mm-yyyy value" on every line when dates are given ("%s").' % (i, ln.strip()[:40]))
+            continue
+        dd, mm, yy, tok = m.groups()
+        yy = int(yy) + (2000 if len(yy) == 2 else 0)
+        try:
+            d = _d.date(yy, int(mm), int(dd))
+        except ValueError:
+            errs.append('Line %d: not a valid date ("%s").' % (i, ln.strip()[:40]))
+            continue
+        if ',' in tok and '.' not in tok and _re.fullmatch(r'-?\d+,\d+', tok):
+            errs.append('Line %d: use a decimal point, not a comma ("%s").' % (i, tok))
+            continue
+        try:
+            v = float(tok)
+            if v != v or v in (float('inf'), float('-inf')):
+                raise ValueError
+        except ValueError:
+            errs.append('Line %d: not a number ("%s").' % (i, tok[:30]))
+            continue
+        dates.append(d.isoformat()); vals.append(v)
+    return dates, vals, errs
+
+
 def parse_values(raw):
     """Parse a list of numbers typed or pasted by a user.
     Separators: comma, semicolon, new line, tab, space.  A decimal comma typed by
@@ -288,15 +326,28 @@ class ControlChart(models.Model):
     def title(self):
         return ('%s %s' % (self.parameter, self.level)).strip()
 
+    def range_pair(self, b=None):
+        """(low, high) text of the acceptance / certificate range. Monitoring charts can carry the
+        range per baseline version (owner decision 11-10-2026): the given baseline, else the one the
+        page is showing (_view_baseline), overrides the chart master when it has a range of its own."""
+        src = b if b is not None else getattr(self, '_view_baseline', None)
+        if self.activity == 'MON' and src is not None and (getattr(src, 'range_low', '') or getattr(src, 'range_high', '')):
+            return src.range_low or '', src.range_high or ''
+        return self.crm_range_low or '', self.crm_range_high or ''
+
+    def range_text(self, b=None):
+        lo, hi = self.range_pair(b)
+        if lo and hi:
+            return '%s-%s' % (lo, hi)
+        if hi:                           # one-sided limit (duplicate RPD), e.g. "<= 10"
+            return '\u2264 %s' % hi
+        if lo:
+            return '\u2265 %s' % lo
+        return ''
+
     @property
     def crm_range(self):
-        if self.crm_range_low and self.crm_range_high:
-            return '%s-%s' % (self.crm_range_low, self.crm_range_high)
-        if self.crm_range_high:          # one-sided limit (duplicate RPD), e.g. "<= 10"
-            return '\u2264 %s' % self.crm_range_high
-        if self.crm_range_low:
-            return '\u2265 %s' % self.crm_range_low
-        return ''
+        return self.range_text()
 
     def current_baseline(self):
         return self.baselines.filter(is_current=True).order_by('-version').first()
@@ -318,15 +369,15 @@ class ControlChart(models.Model):
         """One-sided chart: duplicate RPD (a low RPD is good, never out of control)."""
         return self.activity == 'DUP'
 
-    def outside_range(self, value):
-        sl = self.spec_limits()
+    def outside_range(self, value, b=None):
+        sl = self.spec_limits(b)
         return bool(sl and value is not None and ((sl['ul'] is not None and value > sl['ul']) or (sl['ll'] is not None and value < sl['ll'])))
 
-    def classify(self, lim, value):
+    def classify(self, lim, value, b=None):
         if self.spec_limited:
             if value is None:
                 return 'ok'
-            if self.outside_range(value):          # outside the fixed acceptance range: always out of limits
+            if self.outside_range(value, b):          # outside the fixed acceptance range: always out of limits
                 return 'ooc'
             if self.fixed_limits or not lim:
                 return 'ok'
@@ -335,9 +386,10 @@ class ControlChart(models.Model):
 
     def within_acceptance(self, value):
         """True / False when the certificate / acceptance range is numeric, else None."""
+        rlo, rhi = self.range_pair()
         try:
-            lo = float(self.crm_range_low) if self.crm_range_low not in ('', None) else None
-            hi = float(self.crm_range_high) if self.crm_range_high not in ('', None) else None
+            lo = float(rlo) if rlo not in ('', None) else None
+            hi = float(rhi) if rhi not in ('', None) else None
         except ValueError:
             return None
         if lo is None and hi is None:
@@ -352,8 +404,9 @@ class ControlChart(models.Model):
 
     @property
     def fixed_limits(self):
-        """Monitoring chart judged only against its fixed acceptance limits."""
-        return self.mon_mode == 'fixed'
+        """Monitoring chart judged only against its fixed acceptance limits. A baseline-mode chart
+        shows a period before its first baseline as a fixed-limit sheet (_view_fixed, set per page)."""
+        return self.mon_mode == 'fixed' or bool(getattr(self, '_view_fixed', False))
 
     @property
     def self_limited(self):
@@ -373,14 +426,15 @@ class ControlChart(models.Model):
     def no_baseline(self):
         return self.self_limited or self.fixed_limits
 
-    def spec_limits(self):
-        """Fixed limits of a monitoring chart (None for an open side)."""
+    def spec_limits(self, b=None):
+        """Fixed limits of a monitoring chart (None for an open side); per-baseline range if set."""
         def num(x):
             try:
                 return float(x) if x not in ('', None) else None
             except ValueError:
                 return None
-        lo, hi, sp = num(self.crm_range_low), num(self.crm_range_high), num(self.crm_value)
+        rlo, rhi = self.range_pair(b)
+        lo, hi, sp = num(rlo), num(rhi), num(self.crm_value)
         if lo is None and hi is None:
             return None
         mid = sp if sp is not None else ((lo + hi) / 2.0 if (lo is not None and hi is not None) else None)
@@ -392,9 +446,20 @@ class ControlChart(models.Model):
 
     def baseline_for(self, d):
         """Baseline in force on date d: the latest version established on or before d (seasonal
-        baselines of monitoring charts), else the current one."""
+        baselines of monitoring charts). Before the first baseline a monitoring chart has none (its
+        readings are judged against the acceptance range only); other charts fall back to the current."""
         b = self.baselines.filter(established_on__lte=d).order_by('-established_on', '-version').first()
+        if b is None and self.activity == 'MON':
+            return None
         return b or self.current_baseline()
+
+    def effective_baseline(self, r):
+        """Baseline a result belongs to (None for charts without baselines / before the first one)."""
+        if self.self_limited or self.mon_mode == 'fixed':
+            return None
+        if r.baseline_id:
+            return r.baseline
+        return self.baseline_for(r.date) if self.mon_mode == 'baseline' else self.current_baseline()
 
     @property
     def ref_label(self):
@@ -431,6 +496,14 @@ class ControlChartBaseline(models.Model):
     established_on = models.DateField(null=True, blank=True)
     note = models.CharField(max_length=300, blank=True, default='')
     values = models.JSONField(default=list)        # list of floats, in order
+    # 11-10-2026: date of each baseline value (ISO, parallel to values; may be empty for old versions)
+    dates = models.JSONField(default=list, blank=True)
+    # monitoring charts: acceptance range in force with this baseline (blank = the chart master's range)
+    range_low = models.CharField(max_length=40, blank=True, default='')
+    range_high = models.CharField(max_length=40, blank=True, default='')
+    # mean / SD entered from a printed record whose data points were not supplied
+    stats_only = models.BooleanField(default=False)
+    n_points = models.IntegerField(null=True, blank=True)
     mean = models.FloatField(null=True, blank=True)
     sd = models.FloatField(null=True, blank=True)
     is_current = models.BooleanField(default=True)
@@ -443,6 +516,8 @@ class ControlChartBaseline(models.Model):
         unique_together = ('chart', 'version')
 
     def compute(self):
+        if self.stats_only:
+            return self
         vals = [float(v) for v in self.values if v not in (None, '')]
         self.mean = _stats.mean(vals) if vals else None
         self.sd = _stats.stdev(vals) if len(vals) > 1 else None   # sample SD = Excel STDEV
@@ -450,7 +525,34 @@ class ControlChartBaseline(models.Model):
 
     @property
     def n(self):
+        if self.stats_only:
+            return self.n_points or 0
         return len([v for v in self.values if v not in (None, '')])
+
+    @property
+    def n_text(self):
+        return '-' if (self.stats_only and not self.n_points) else str(self.n)
+
+    @property
+    def established_label(self):
+        """Month and year only (item 3, 10-10-2026): Mmm-yyyy."""
+        return self.established_on.strftime('%b-%Y') if self.established_on else '-'
+
+    def points(self):
+        """[(date or None, value)] of the baseline data points."""
+        ds = list(self.dates or [])
+        out = []
+        for i, v in enumerate(self.values or []):
+            if v in (None, ''):
+                continue
+            d = ds[i] if i < len(ds) else None
+            try:
+                import datetime as _d
+                d = _d.date.fromisoformat(d) if d else None
+            except (TypeError, ValueError):
+                d = None
+            out.append((d, float(v)))
+        return out
 
     def limits(self):
         if self.mean is None or self.sd is None:

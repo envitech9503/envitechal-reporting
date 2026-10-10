@@ -9,34 +9,48 @@
   {% if errors %}<div class="msg error"><b>The baseline was not saved:</b><ul style="margin:6px 0 0 18px">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
   {% if suspects %}<div class="msg error"><b>Please check {{ n_sus }} value{{ n_sus|pluralize }} highlighted below</b> - {{ n_sus|pluralize:"it is,they are" }} far from the others and may be a typing error (for example a misplaced decimal point). Correct the list, or tick <i>"The values are correct"</i> and save again.
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">{% for s in suspects %}<span class="pill {% if s.bad %}bad{% else %}none{% endif %}">{{ s.i }}: {{ s.v }}</span>{% endfor %}</div></div>{% endif %}
-  <form method="post" class="frm" data-autosave="baseline:{{ chart.id }}" style="flex-direction:column;align-items:stretch">{% csrf_token %}
-    <label>Baseline values <span class="muted">(use a decimal point; separate values with commas, semicolons, spaces or new lines - usually 12)</span>
-      <textarea name="values" id="bVals" rows="4" required placeholder="e.g. 1.002, 0.998, 1.005, 0.996, ...">{{ cur_values }}</textarea></label>
+  {% if can_set %}<form method="post" class="frm" data-autosave="baseline:{{ chart.id }}" style="flex-direction:column;align-items:stretch">{% csrf_token %}
+    <label>Baseline values with their dates <span class="muted">(one per line as <b>dd-mm-yyyy value</b>, e.g. <code>03-02-2026 1.002</code>; use a decimal point - usually 12. Values without dates are also accepted.)</span>
+      <textarea name="values" id="bVals" rows="7" required placeholder="03-02-2026 1.002&#10;04-02-2026 0.998&#10;05-02-2026 1.005&#10;...">{{ cur_values }}</textarea></label>
     <div id="bPrev" class="muted" style="font-size:12.5px"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <label>Established on <input type="date" name="established_on" value="{{ est_value|default:today }}"></label>
+      <label>Established on <input type="date" name="established_on" value="{{ est_value|default:today }}"> <span class="muted" style="font-size:11px">(printed as month and year{% if chart.mon_mode == 'baseline' %}; readings from this date onwards use it{% endif %})</span></label>
+      {% if chart.spec_limited %}<label>Acceptance range with this baseline <span style="display:flex;gap:4px;align-items:center"><input type="text" name="range_low" value="{{ rlo }}" style="width:70px" placeholder="low"> - <input type="text" name="range_high" value="{{ rhi }}" style="width:70px" placeholder="high"> {{ chart.unit }}</span></label>{% endif %}
       <label style="flex:1">Note <input type="text" name="note" maxlength="300" value="{{ note_value|default:'' }}" placeholder="e.g. February 2027 intermediate check, after calibration"></label>
     </div>
     {% if suspects %}<label style="flex-direction:row;gap:6px;align-items:center"><input type="checkbox" name="confirm" value="1"> The values are correct - establish the baseline anyway</label>{% endif %}
     <div><button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> Establish {% if cur %}new {% endif %}baseline v{{ cur.version|add:1|default:1 }}</button></div>
-  </form>
+  </form>{% else %}<div class="muted" style="padding:10px 18px">Baselines are established by an administrator (or by the analyst who created the chart, for its first baseline).</div>{% endif %}
 </div>
+{% if sel %}<div class="card">
+  <div class="hd"><div class="title" style="font-size:15px">Baseline v{{ sel.version }} &middot; established {{ sel.established_label }}{% if sel.is_current %} <span class="pill ok">current</span>{% endif %}</div>
+    <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ sel.version }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> Baseline form (PDF)</a></div>
+  <div class="kv"><b>Results</b><span>n = {{ sel.n_text }}</span><b>Mean</b><span>{{ sel.mean|floatformat:chart.decimals }}</span>
+    <b>Standard deviation</b><span>{{ sel.sd|floatformat:4 }}</span><b>{% if chart.spec_limited %}Acceptance range{% else %}Note{% endif %}</b><span>{% if chart.spec_limited %}{{ sel_range|default:"-" }} {{ chart.unit }}{% else %}{{ sel.note|default:"-" }}{% endif %}</span></div>
+  <div class="chartbox">{% if sel_svg %}{{ sel_svg|safe }}{% endif %}</div>
+  <table><thead><tr><th>S. No.</th><th>Date</th><th class="num">Result{% if chart.unit %} ({{ chart.unit }}){% endif %}</th></tr></thead><tbody>
+  {% for p in sel_points %}<tr><td>{{ p.i }}</td><td>{% if p.d %}{{ p.d|date:"d-m-Y" }}{% else %}<span class="muted">-</span>{% endif %}</td><td class="num"><b>{{ p.v }}</b></td></tr>
+  {% empty %}<tr><td colspan="3" class="empty">Data points not supplied - mean and SD were entered from the printed laboratory record{% if sel.note %} ({{ sel.note }}){% endif %}.</td></tr>{% endfor %}
+  </tbody></table>
+</div>{% endif %}
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px">Baseline history</div></div>
-  <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th><th>Note</th><th>Created</th><th>Current</th></tr></thead><tbody>
-  {% for b in baselines %}<tr><td>v{{ b.version }}</td><td>{{ b.established_on|date:"d-m-Y" }}</td><td class="num">{{ b.n }}</td><td class="num">{{ b.mean|floatformat:chart.decimals }}</td><td class="num">{{ b.sd|floatformat:4 }}</td><td>{{ b.note }}</td><td class="muted">{{ b.created_at|date:"d-m-Y H:i" }} {{ b.created_by.username|default:"" }}</td><td>{% if b.is_current %}<span class="pill ok">current</span>{% endif %}</td></tr>
-  {% empty %}<tr><td colspan="8" class="empty">No baseline yet.</td></tr>{% endfor %}
+  <div class="hd"><div class="title" style="font-size:15px">All baselines of this chart ({{ blist|length }})</div></div>
+  <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th>{% if chart.spec_limited %}<th>Acceptance range</th>{% endif %}<th class="num">Results judged</th><th>Note</th><th>Created by</th><th></th></tr></thead><tbody>
+  {% for x in blist %}<tr{% if sel and x.b.pk == sel.pk %} style="background:#f0fdf4"{% endif %}><td>v{{ x.b.version }}{% if x.b.is_current %} <span class="pill ok">current</span>{% endif %}</td><td>{{ x.b.established_label }}</td><td class="num">{{ x.b.n_text }}</td><td class="num">{{ x.b.mean|floatformat:chart.decimals }}</td><td class="num">{{ x.b.sd|floatformat:4 }}</td>{% if chart.spec_limited %}<td>{{ x.range|default:"-" }}</td>{% endif %}<td class="num">{{ x.n_res }}</td><td style="max-width:240px;font-size:12px">{{ x.b.note }}</td><td class="muted">{{ x.b.created_by.username|default:"import" }}</td>
+    <td style="white-space:nowrap"><a class="btn" href="?v={{ x.b.version }}" title="Data points and graph"><i class="fa-solid fa-eye"></i></a> <a class="btn" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ x.b.version }}" target="_blank" title="Baseline form"><i class="fa-solid fa-file-pdf"></i></a> <a class="btn" href="{% url 'control_chart_detail' chart.id %}{{ x.q }}" title="Control chart of this baseline"><i class="fa-solid fa-chart-line"></i></a></td></tr>
+  {% empty %}<tr><td colspan="10" class="empty">No baseline yet.</td></tr>{% endfor %}
   </tbody></table>
 </div>
 <script>
 (function(){
-  var t=document.getElementById('bVals'), out=document.getElementById('bPrev'), dec={{ chart.decimals|default:3 }};
+  var t=document.getElementById('bVals'), out=document.getElementById('bPrev'), dec={{ chart.decimals|default:3 }}; if(!t) return;
   function parse(raw){
     var iso = raw.match(/(^|[^\d.])\d+,\d+(?![\d.])/g);
     var ws = raw.trim().split(/\s+/).filter(Boolean);
     if (iso && (raw.indexOf('.')>=0 || (ws.length>1 && ws.every(function(x){return /^-?\d+,\d+;?$/.test(x);}))))
       return {err:'Decimal comma found ('+iso.map(function(x){return x.replace(/^[^\d]/,'');}).slice(0,3).join(', ')+') - use a decimal point.'};
     var vals=[], bad=[];
+    raw = raw.replace(/(^|\s)\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}(?=[\s,;])/g, ' ');   // dates of the dated form
     raw.split(/[;,\s]+/).forEach(function(x){ if(!x) return; var v=Number(x); if(isFinite(v)) vals.push(v); else bad.push(x); });
     return {vals:vals, bad:bad};
   }

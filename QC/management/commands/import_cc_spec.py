@@ -172,10 +172,21 @@ class Command(BaseCommand):
         bmap = {}
         existing = list(c.baselines.all().order_by('version'))
         for b in sorted(item.get('baselines', []), key=lambda x: x['established_on']):
-            hit = next((x for x in existing if self.same_values(x.values, b['values'])), None)
+            if b.get('stats_only'):
+                hit = next((x for x in existing if x.stats_only and x.mean is not None and abs(x.mean - b['mean']) < 1e-9
+                            and abs((x.sd or 0) - b['sd']) < 1e-9), None)
+            else:
+                hit = next((x for x in existing if self.same_values(x.values, b['values'])), None)
             est = date.fromisoformat(b['established_on'])
             if hit:
                 upd = []
+                if b.get('dates') and list(hit.dates or []) != b['dates']:
+                    hit.dates = b['dates']
+                    upd.append('dates')
+                for fk in ('range_low', 'range_high'):
+                    if fk in b and (getattr(hit, fk) or '') != (b[fk] or ''):
+                        upd.append('%s %r -> %r' % (fk, getattr(hit, fk), b[fk]))
+                        setattr(hit, fk, b[fk] or '')
                 if c.mon_mode == 'baseline' and hit.established_on != est:
                     upd.append('established_on %s -> %s' % (hit.established_on, est))
                     hit.established_on = est
@@ -189,7 +200,10 @@ class Command(BaseCommand):
             else:
                 ver = (max([x.version for x in existing]) if existing else 0) + 1
                 nb = ControlChartBaseline(chart=c, version=ver, established_on=est, note=b.get('note', '')[:300],
-                                          values=[float(v) for v in b['values']], is_current=False, created_by=None)
+                                          values=[float(v) for v in b.get('values', [])], dates=b.get('dates', []),
+                                          range_low=b.get('range_low', ''), range_high=b.get('range_high', ''),
+                                          stats_only=bool(b.get('stats_only')), n_points=b.get('n'),
+                                          mean=b.get('mean'), sd=b.get('sd'), is_current=False, created_by=None)
                 nb.compute()
                 nb.save()
                 existing.append(nb)
@@ -215,10 +229,13 @@ class Command(BaseCommand):
                 hit = next((x for x in sys_res if x.pk not in used and (x.date.year, x.date.month) == (d.year, d.month)), None)
             else:
                 hit = next((x for x in sys_res if x.pk not in used and x.date == d), None)
-            base = bmap.get(r.get('baseline')) if r.get('baseline') else None
             if c.no_baseline:
                 base = None
-            elif base is None:
+            elif r.get('baseline'):
+                base = bmap[r['baseline']]
+            elif c.mon_mode == 'baseline':
+                base = c.baseline_for(d)          # None before the first baseline: acceptance range only
+            else:
                 base = c.current_baseline()
             val = float(r['value'])
             if hit:

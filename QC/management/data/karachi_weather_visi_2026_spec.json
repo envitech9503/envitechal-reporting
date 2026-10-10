@@ -1,0 +1,5500 @@
+{
+ "location": "Karachi",
+ "created": "2026-10-10",
+ "charts": [
+  {
+   "key": "MON Laboratory temperature (Karachi)",
+   "activity": "MON",
+   "target_id": 165,
+   "match": {
+    "activity": "MON",
+    "parameter": "Temperature",
+    "equipment_id": "DS-21"
+   },
+   "master": {
+    "parameter": "Laboratory temperature",
+    "level": "",
+    "unit": "\u00b0C",
+    "equipment": "Weather Station",
+    "equipment_id": "DS-21",
+    "method": "Not Applicable",
+    "crm_detail": "Digital weather station",
+    "crm_value": "",
+    "crm_range_low": "22",
+    "crm_range_high": "28",
+    "description": "Temperature (\u00b0C) results of Lab",
+    "decimals": 2,
+    "start_month": 1,
+    "doc_no": "",
+    "limit_mode": "baseline"
+   },
+   "baselines": [
+    {
+     "key": "Winter 2025-26",
+     "established_on": "2025-12-01",
+     "values": [
+      23.15,
+      23.16,
+      23.37,
+      23.15,
+      22.87,
+      22.93,
+      23.67,
+      23.77,
+      24.12,
+      23.48,
+      23.91,
+      23.42
+     ],
+     "dates": [
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31",
+      "2025-12-31"
+     ],
+     "note": "Winter season baseline (Dec-24 to Jan-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Spring 2026",
+     "established_on": "2026-02-01",
+     "values": [
+      23.925,
+      23.54,
+      23.975,
+      23.75,
+      23.675,
+      23.76,
+      23.36,
+      23.225,
+      23.65,
+      23.3875,
+      23.46,
+      23.5
+     ],
+     "dates": [
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31"
+     ],
+     "note": "Spring season baseline (Feb-25 to Mar-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Summer 2026",
+     "established_on": "2026-04-01",
+     "values": [
+      24.65,
+      24.8,
+      24.75,
+      24.5,
+      24.7,
+      25.5,
+      25.9,
+      26.65,
+      25.8,
+      25.4,
+      26.2,
+      25.85
+     ],
+     "dates": [
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31"
+     ],
+     "note": "Summer season baseline (Apr-25 to Aug-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Autumn 2026",
+     "established_on": "2026-09-01",
+     "values": [
+      24.95,
+      26.8,
+      26.65,
+      24.3,
+      25,
+      25.4,
+      24.65,
+      26.75,
+      25.2,
+      26.4,
+      25.8,
+      24.7
+     ],
+     "dates": [
+      "2025-09-11",
+      "2025-09-16",
+      "2025-09-24",
+      "2025-09-30",
+      "2025-10-02",
+      "2025-10-14",
+      "2025-10-24",
+      "2025-10-30",
+      "2025-11-06",
+      "2025-11-12",
+      "2025-11-20",
+      "2025-11-28"
+     ],
+     "note": "Autumn season baseline (Sep-25 to Nov-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Spring 2025 (2024 data)",
+     "established_on": "2025-02-01",
+     "stats_only": true,
+     "mean": 23.591667,
+     "sd": 0.97282,
+     "n": null,
+     "values": [],
+     "dates": [],
+     "range_low": "18",
+     "range_high": "26",
+     "note": "Spring season baseline (Feb-24 to Mar-24) - data points not supplied - mean and SD as printed on the Feb/Mar-2025 records"
+    },
+    {
+     "key": "Autumn 2025 (2024 data)",
+     "established_on": "2025-09-01",
+     "stats_only": true,
+     "mean": 26.0875,
+     "sd": 1.243917,
+     "n": null,
+     "values": [],
+     "dates": [],
+     "range_low": "22",
+     "range_high": "28",
+     "note": "Autumn season baseline (Sep-24 to Nov-24) - data points not supplied - mean and SD as printed on the Oct/Nov-2025 records"
+    }
+   ],
+   "results": [
+    {
+     "date": "2025-02-01",
+     "value": 23.35,
+     "r1": 23,
+     "r2": 23.7,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-03",
+     "value": 23,
+     "r1": 22.7,
+     "r2": 23.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-04",
+     "value": 23.9,
+     "r1": 23.7,
+     "r2": 24.1,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-06",
+     "value": 23.2,
+     "r1": 23.3,
+     "r2": 23.1,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-07",
+     "value": 23.1,
+     "r1": 22.9,
+     "r2": 23.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-08",
+     "value": 23.9,
+     "r1": 23.8,
+     "r2": 24,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-10",
+     "value": 22.85,
+     "r1": 22.5,
+     "r2": 23.2,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-11",
+     "value": 23.05,
+     "r1": 22.8,
+     "r2": 23.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-12",
+     "value": 23.3,
+     "r1": 23,
+     "r2": 23.6,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-13",
+     "value": 24.15,
+     "r1": 23.9,
+     "r2": 24.4,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-14",
+     "value": 22.8,
+     "r1": 22.4,
+     "r2": 23.2,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-15",
+     "value": 24.35,
+     "r1": 23.9,
+     "r2": 24.8,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-17",
+     "value": 22.9,
+     "r1": 22.6,
+     "r2": 23.2,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-18",
+     "value": 23.35,
+     "r1": 23.1,
+     "r2": 23.6,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-19",
+     "value": 23.15,
+     "r1": 22.9,
+     "r2": 23.4,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-20",
+     "value": 24.15,
+     "r1": 23.8,
+     "r2": 24.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-21",
+     "value": 23.1,
+     "r1": 22.7,
+     "r2": 23.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-22",
+     "value": 23.45,
+     "r1": 23.2,
+     "r2": 23.7,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-24",
+     "value": 23.95,
+     "r1": 23.8,
+     "r2": 24.1,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-25",
+     "value": 23.35,
+     "r1": 23.2,
+     "r2": 23.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-26",
+     "value": 23.05,
+     "r1": 22.9,
+     "r2": 23.2,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-27",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-28",
+     "value": 23.35,
+     "r1": 22.3,
+     "r2": 24.4,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-01",
+     "value": 24.35,
+     "r1": 24.2,
+     "r2": 24.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-03",
+     "value": 23,
+     "r1": 22.7,
+     "r2": 23.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-04",
+     "value": 23.9,
+     "r1": 23.7,
+     "r2": 24.1,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-05",
+     "value": 24.45,
+     "r1": 24,
+     "r2": 24.9,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-06",
+     "value": 23.1,
+     "r1": 22.9,
+     "r2": 23.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-07",
+     "value": 23.9,
+     "r1": 23.8,
+     "r2": 24,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-08",
+     "value": 24.35,
+     "r1": 23.9,
+     "r2": 24.8,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-10",
+     "value": 23.05,
+     "r1": 22.8,
+     "r2": 23.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-11",
+     "value": 23.3,
+     "r1": 23,
+     "r2": 23.6,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-12",
+     "value": 24.15,
+     "r1": 23.9,
+     "r2": 24.4,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-13",
+     "value": 24.1,
+     "r1": 23.9,
+     "r2": 24.3,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-14",
+     "value": 24.35,
+     "r1": 23.9,
+     "r2": 24.8,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-15",
+     "value": 23.3,
+     "r1": 23,
+     "r2": 23.6,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-17",
+     "value": 23.35,
+     "r1": 23.1,
+     "r2": 23.6,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-18",
+     "value": 24.3,
+     "r1": 24,
+     "r2": 24.6,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-19",
+     "value": 24.15,
+     "r1": 23.8,
+     "r2": 24.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-20",
+     "value": 23.1,
+     "r1": 22.7,
+     "r2": 23.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-21",
+     "value": 23.45,
+     "r1": 23.2,
+     "r2": 23.7,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-22",
+     "value": 24.05,
+     "r1": 24,
+     "r2": 24.1,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-24",
+     "value": 23.35,
+     "r1": 23.2,
+     "r2": 23.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-25",
+     "value": 23.05,
+     "r1": 22.9,
+     "r2": 23.2,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-26",
+     "value": 24.25,
+     "r1": 24,
+     "r2": 24.5,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-27",
+     "value": 23.35,
+     "r1": 22.3,
+     "r2": 24.4,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-28",
+     "value": 24.55,
+     "r1": 24.2,
+     "r2": 24.9,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-29",
+     "value": 23.4,
+     "r1": 23.1,
+     "r2": 23.7,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-01",
+     "value": 25.65,
+     "r1": 25.7,
+     "r2": 25.6,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-02",
+     "value": 27.05,
+     "r1": 27,
+     "r2": 27.1,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-03",
+     "value": 26.75,
+     "r1": 26.5,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-04",
+     "value": 26.55,
+     "r1": 25.9,
+     "r2": 27.2,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-06",
+     "value": 25.45,
+     "r1": 25,
+     "r2": 25.9,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-07",
+     "value": 26.65,
+     "r1": 26,
+     "r2": 27.3,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-08",
+     "value": 27.3,
+     "r1": 27.2,
+     "r2": 27.4,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-09",
+     "value": 24.65,
+     "r1": 24.4,
+     "r2": 24.9,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-10",
+     "value": 25.4,
+     "r1": 24.9,
+     "r2": 25.9,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-11",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-13",
+     "value": 25.2,
+     "r1": 24.4,
+     "r2": 26,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-14",
+     "value": 26.5,
+     "r1": 26.6,
+     "r2": 26.4,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-15",
+     "value": 26.45,
+     "r1": 25.9,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-16",
+     "value": 24.85,
+     "r1": 24.4,
+     "r2": 25.3,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-17",
+     "value": 26.85,
+     "r1": 26.6,
+     "r2": 27.1,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-18",
+     "value": 25,
+     "r1": 24.4,
+     "r2": 25.6,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-20",
+     "value": 25.4,
+     "r1": 24.2,
+     "r2": 26.6,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-21",
+     "value": 25.6,
+     "r1": 24.2,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-22",
+     "value": 26.45,
+     "r1": 27.1,
+     "r2": 25.8,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-23",
+     "value": 26.9,
+     "r1": 26.8,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-24",
+     "value": 27.1,
+     "r1": 27.2,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-25",
+     "value": 24.95,
+     "r1": 24.8,
+     "r2": 25.1,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-27",
+     "value": 25.35,
+     "r1": 24.9,
+     "r2": 25.8,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-28",
+     "value": 24.15,
+     "r1": 24,
+     "r2": 24.3,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-29",
+     "value": 26.75,
+     "r1": 27.1,
+     "r2": 26.4,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-30",
+     "value": 25.35,
+     "r1": 25,
+     "r2": 25.7,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-31",
+     "value": 27.1,
+     "r1": 26.9,
+     "r2": 27.3,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-01",
+     "value": 26.95,
+     "r1": 26.9,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-03",
+     "value": 25.8,
+     "r1": 26.1,
+     "r2": 25.5,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-04",
+     "value": 24.5,
+     "r1": 25,
+     "r2": 24,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-05",
+     "value": 24.7,
+     "r1": 24.3,
+     "r2": 25.1,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-06",
+     "value": 26.95,
+     "r1": 26.9,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-07",
+     "value": 26.65,
+     "r1": 26,
+     "r2": 27.3,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-08",
+     "value": 26.45,
+     "r1": 25.5,
+     "r2": 27.4,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-10",
+     "value": 25.35,
+     "r1": 25.8,
+     "r2": 24.9,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-11",
+     "value": 25.4,
+     "r1": 24.9,
+     "r2": 25.9,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-12",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-13",
+     "value": 25.2,
+     "r1": 24.4,
+     "r2": 26,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-14",
+     "value": 24.6,
+     "r1": 24.2,
+     "r2": 25,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-15",
+     "value": 24.15,
+     "r1": 24,
+     "r2": 24.3,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-17",
+     "value": 26.4,
+     "r1": 26.6,
+     "r2": 26.2,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-18",
+     "value": 24.5,
+     "r1": 25,
+     "r2": 24,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-19",
+     "value": 25,
+     "r1": 24.4,
+     "r2": 25.6,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-20",
+     "value": 25.4,
+     "r1": 24.2,
+     "r2": 26.6,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-21",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-22",
+     "value": 26.45,
+     "r1": 27.1,
+     "r2": 25.8,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-24",
+     "value": 26.9,
+     "r1": 26.8,
+     "r2": 27,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-25",
+     "value": 25.45,
+     "r1": 25,
+     "r2": 25.9,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-26",
+     "value": 24.95,
+     "r1": 24.8,
+     "r2": 25.1,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-27",
+     "value": 25.35,
+     "r1": 24.9,
+     "r2": 25.8,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-28",
+     "value": 26.35,
+     "r1": 26.1,
+     "r2": 26.6,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-29",
+     "value": 26.75,
+     "r1": 27.1,
+     "r2": 26.4,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-12-01",
+     "value": 23.85,
+     "r1": 23.7,
+     "r2": 24,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-02",
+     "value": 23.65,
+     "r1": 23.4,
+     "r2": 23.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-03",
+     "value": 23.25,
+     "r1": 22.8,
+     "r2": 23.7,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-04",
+     "value": 22.85,
+     "r1": 22.5,
+     "r2": 23.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-05",
+     "value": 24.05,
+     "r1": 23.5,
+     "r2": 24.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-06",
+     "value": 23.3,
+     "r1": 23,
+     "r2": 23.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-08",
+     "value": 23.8,
+     "r1": 23,
+     "r2": 24.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-09",
+     "value": 23.55,
+     "r1": 22.9,
+     "r2": 24.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-10",
+     "value": 23.3,
+     "r1": 23,
+     "r2": 23.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-11",
+     "value": 23.4,
+     "r1": 23.1,
+     "r2": 23.7,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-12",
+     "value": 23.8,
+     "r1": 22.9,
+     "r2": 24.7,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-13",
+     "value": 23.3,
+     "r1": 23,
+     "r2": 23.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-15",
+     "value": 23.15,
+     "r1": 22.9,
+     "r2": 23.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-16",
+     "value": 24.05,
+     "r1": 23.6,
+     "r2": 24.5,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-17",
+     "value": 23.15,
+     "r1": 22.9,
+     "r2": 23.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-18",
+     "value": 23,
+     "r1": 22.8,
+     "r2": 23.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-19",
+     "value": 23.8,
+     "r1": 23.1,
+     "r2": 24.5,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-20",
+     "value": 23.75,
+     "r1": 23,
+     "r2": 24.5,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-22",
+     "value": 22.85,
+     "r1": 22,
+     "r2": 23.7,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-23",
+     "value": 23.6,
+     "r1": 23.2,
+     "r2": 24,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-24",
+     "value": 23.75,
+     "r1": 22.6,
+     "r2": 24.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-26",
+     "value": 22.8,
+     "r1": 22.5,
+     "r2": 23.1,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-27",
+     "value": 23.35,
+     "r1": 22.3,
+     "r2": 24.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-29",
+     "value": 23.85,
+     "r1": 22.8,
+     "r2": 24.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-30",
+     "value": 23.4,
+     "r1": 23.1,
+     "r2": 23.7,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-31",
+     "value": 23.15,
+     "r1": 22.9,
+     "r2": 23.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-01",
+     "value": 23.25,
+     "r1": 22.8,
+     "r2": 23.7,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-02",
+     "value": 23.55,
+     "r1": 23,
+     "r2": 24.1,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-03",
+     "value": 23.85,
+     "r1": 23.1,
+     "r2": 24.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-05",
+     "value": 22.9,
+     "r1": 22,
+     "r2": 23.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-06",
+     "value": 23.95,
+     "r1": 23.5,
+     "r2": 24.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-07",
+     "value": 23.85,
+     "r1": 22.7,
+     "r2": 25,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-08",
+     "value": 23.95,
+     "r1": 23.7,
+     "r2": 24.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-09",
+     "value": 22.8,
+     "r1": 22,
+     "r2": 23.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-10",
+     "value": 23.9,
+     "r1": 23.4,
+     "r2": 24.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-12",
+     "value": 22.85,
+     "r1": 22.7,
+     "r2": 23,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-13",
+     "value": 23.35,
+     "r1": 22.9,
+     "r2": 23.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-14",
+     "value": 23.5,
+     "r1": 23,
+     "r2": 24,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-15",
+     "value": 23.3,
+     "r1": 22.8,
+     "r2": 23.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-16",
+     "value": 23.95,
+     "r1": 23.5,
+     "r2": 24.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-17",
+     "value": 23.75,
+     "r1": 23.3,
+     "r2": 24.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-19",
+     "value": 23.9,
+     "r1": 23.4,
+     "r2": 24.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-20",
+     "value": 22.95,
+     "r1": 22.5,
+     "r2": 23.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-21",
+     "value": 23.9,
+     "r1": 23.5,
+     "r2": 24.3,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-22",
+     "value": 23.8,
+     "r1": 24,
+     "r2": 23.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-23",
+     "value": 23.2,
+     "r1": 22.5,
+     "r2": 23.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-24",
+     "value": 23.65,
+     "r1": 23,
+     "r2": 24.3,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-26",
+     "value": 23.55,
+     "r1": 22.7,
+     "r2": 24.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-27",
+     "value": 23.75,
+     "r1": 23.4,
+     "r2": 24.1,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-28",
+     "value": 22.95,
+     "r1": 22,
+     "r2": 23.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-29",
+     "value": 23.98,
+     "r1": 23.76,
+     "r2": 24.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-30",
+     "value": 23.55,
+     "r1": 23.1,
+     "r2": 24,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-31",
+     "value": 22.9,
+     "r1": 22.2,
+     "r2": 23.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-04-01",
+     "value": 24.9,
+     "r1": 24.5,
+     "r2": 25.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-02",
+     "value": 26.15,
+     "r1": 25.5,
+     "r2": 26.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-03",
+     "value": 24.85,
+     "r1": 24.2,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-04",
+     "value": 24.65,
+     "r1": 23.9,
+     "r2": 25.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-06",
+     "value": 26,
+     "r1": 25,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 25.85,
+     "r1": 25,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-08",
+     "value": 24.6,
+     "r1": 23.4,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-09",
+     "value": 25.8,
+     "r1": 25,
+     "r2": 26.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-10",
+     "value": 25.35,
+     "r1": 24.7,
+     "r2": 26,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-11",
+     "value": 24.7,
+     "r1": 23.8,
+     "r2": 25.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-13",
+     "value": 25.7,
+     "r1": 25,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-14",
+     "value": 25.25,
+     "r1": 25,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-15",
+     "value": 25.7,
+     "r1": 26,
+     "r2": 25.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-16",
+     "value": 24.65,
+     "r1": 24.6,
+     "r2": 24.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-17",
+     "value": 25.55,
+     "r1": 26.1,
+     "r2": 25,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-18",
+     "value": 26,
+     "r1": 25.6,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-20",
+     "value": 24.6,
+     "r1": 23.8,
+     "r2": 25.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-21",
+     "value": 24.8,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-22",
+     "value": 26.3,
+     "r1": 26.8,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-23",
+     "value": 26,
+     "r1": 25.4,
+     "r2": 26.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-24",
+     "value": 24.8,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-25",
+     "value": 25.2,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-27",
+     "value": 26.35,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-28",
+     "value": 24.7,
+     "r1": 24.4,
+     "r2": 25,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-29",
+     "value": 24.9,
+     "r1": 24.1,
+     "r2": 25.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-30",
+     "value": 25.7,
+     "r1": 24.7,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-02",
+     "value": 25.15,
+     "r1": 24.7,
+     "r2": 25.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-04",
+     "value": 25.7,
+     "r1": 25.1,
+     "r2": 26.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 24.95,
+     "r1": 24.4,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 24.45,
+     "r1": 23.5,
+     "r2": 25.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-07",
+     "value": 26.3,
+     "r1": 25.6,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-08",
+     "value": 25.75,
+     "r1": 24.8,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-09",
+     "value": 25.55,
+     "r1": 25.3,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-11",
+     "value": 24.8,
+     "r1": 25,
+     "r2": 24.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-12",
+     "value": 25.7,
+     "r1": 25.4,
+     "r2": 26,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-13",
+     "value": 25.05,
+     "r1": 23.8,
+     "r2": 26.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-14",
+     "value": 25.2,
+     "r1": 24,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-15",
+     "value": 25.8,
+     "r1": 25,
+     "r2": 26.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-16",
+     "value": 24.9,
+     "r1": 24.4,
+     "r2": 25.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-18",
+     "value": 24.65,
+     "r1": 24.2,
+     "r2": 25.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-19",
+     "value": 25.7,
+     "r1": 25.3,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-20",
+     "value": 26.35,
+     "r1": 26.6,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-21",
+     "value": 24.95,
+     "r1": 24.2,
+     "r2": 25.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-22",
+     "value": 24.85,
+     "r1": 24,
+     "r2": 25.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-23",
+     "value": 25.95,
+     "r1": 25.2,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-25",
+     "value": 24.8,
+     "r1": 24.1,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-30",
+     "value": 25.3,
+     "r1": 24.7,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-01",
+     "value": 24.9,
+     "r1": 24.5,
+     "r2": 25.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-02",
+     "value": 25.6,
+     "r1": 24.8,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-03",
+     "value": 25.9,
+     "r1": 25.1,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-04",
+     "value": 24.85,
+     "r1": 24.2,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-05",
+     "value": 26,
+     "r1": 25.2,
+     "r2": 26.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-06",
+     "value": 25.25,
+     "r1": 24.4,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-08",
+     "value": 25.7,
+     "r1": 25.1,
+     "r2": 26.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-09",
+     "value": 25.3,
+     "r1": 24.9,
+     "r2": 25.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-10",
+     "value": 26.05,
+     "r1": 25.4,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-11",
+     "value": 24.7,
+     "r1": 23.6,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-12",
+     "value": 25.15,
+     "r1": 24.2,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-13",
+     "value": 25.6,
+     "r1": 24.8,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-15",
+     "value": 25.5,
+     "r1": 25.1,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-16",
+     "value": 24.8,
+     "r1": 24.6,
+     "r2": 25,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-17",
+     "value": 25.6,
+     "r1": 25.3,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-18",
+     "value": 26.2,
+     "r1": 25.4,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-19",
+     "value": 24.65,
+     "r1": 24.2,
+     "r2": 25.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-20",
+     "value": 25.2,
+     "r1": 24.9,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-22",
+     "value": 25.75,
+     "r1": 25,
+     "r2": 26.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 25.65,
+     "r1": 24.8,
+     "r2": 26.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 26,
+     "r1": 25,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-27",
+     "value": 24.9,
+     "r1": 24.2,
+     "r2": 25.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-29",
+     "value": 25,
+     "r1": 24.7,
+     "r2": 25.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-30",
+     "value": 25.7,
+     "r1": 25,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-01",
+     "value": 24.75,
+     "r1": 24,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-02",
+     "value": 25.9,
+     "r1": 25,
+     "r2": 26.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-03",
+     "value": 25.45,
+     "r1": 25,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-04",
+     "value": 25.15,
+     "r1": 24.8,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-06",
+     "value": 25.85,
+     "r1": 25.6,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-07",
+     "value": 26,
+     "r1": 25.5,
+     "r2": 26.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-08",
+     "value": 25.7,
+     "r1": 25.1,
+     "r2": 26.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 24.9,
+     "r1": 24.3,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-10",
+     "value": 26.05,
+     "r1": 25.4,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-11",
+     "value": 25.35,
+     "r1": 24.9,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-13",
+     "value": 26.7,
+     "r1": 26,
+     "r2": 27.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-14",
+     "value": 25.4,
+     "r1": 24.9,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-15",
+     "value": 25.7,
+     "r1": 25.3,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-16",
+     "value": 25.9,
+     "r1": 25,
+     "r2": 26.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-17",
+     "value": 24.85,
+     "r1": 24.7,
+     "r2": 25,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-18",
+     "value": 25.45,
+     "r1": 25,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-20",
+     "value": 25.25,
+     "r1": 24.9,
+     "r2": 25.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-21",
+     "value": 26,
+     "r1": 25.2,
+     "r2": 26.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-22",
+     "value": 25.1,
+     "r1": 24.9,
+     "r2": 25.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-23",
+     "value": 25.75,
+     "r1": 25.2,
+     "r2": 26.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-24",
+     "value": 25.5,
+     "r1": 24.6,
+     "r2": 26.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-25",
+     "value": 26,
+     "r1": 25.1,
+     "r2": 26.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-27",
+     "value": 25,
+     "r1": 24.7,
+     "r2": 25.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-28",
+     "value": 25.4,
+     "r1": 25,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-29",
+     "value": 26.05,
+     "r1": 25.3,
+     "r2": 26.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-30",
+     "value": 24.95,
+     "r1": 24.9,
+     "r2": 25,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-31",
+     "value": 25.45,
+     "r1": 24.8,
+     "r2": 26.1,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-01",
+     "value": 25,
+     "r1": 24.2,
+     "r2": 25.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-03",
+     "value": 25.9,
+     "r1": 24.8,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-04",
+     "value": 25.25,
+     "r1": 25,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-05",
+     "value": 26.3,
+     "r1": 25.3,
+     "r2": 27.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-06",
+     "value": 24.45,
+     "r1": 24.1,
+     "r2": 24.8,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-07",
+     "value": 26.25,
+     "r1": 25.6,
+     "r2": 26.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-08",
+     "value": 26.4,
+     "r1": 25.8,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-10",
+     "value": 25,
+     "r1": 24.1,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-11",
+     "value": 26.3,
+     "r1": 25.9,
+     "r2": 26.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-12",
+     "value": 25.35,
+     "r1": 25,
+     "r2": 25.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-13",
+     "value": 24.65,
+     "r1": 24.3,
+     "r2": 25,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 25.9,
+     "r1": 25.5,
+     "r2": 26.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-17",
+     "value": 26.4,
+     "r1": 25.9,
+     "r2": 26.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-18",
+     "value": 24.95,
+     "r1": 24.2,
+     "r2": 25.7,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-19",
+     "value": 24.7,
+     "r1": 24,
+     "r2": 25.4,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-20",
+     "value": 24.8,
+     "r1": 24.3,
+     "r2": 25.3,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-21",
+     "value": 26.2,
+     "r1": 25.5,
+     "r2": 26.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-22",
+     "value": 25.15,
+     "r1": 24.4,
+     "r2": 25.9,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-24",
+     "value": 25.8,
+     "r1": 25.6,
+     "r2": 26,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-25",
+     "value": 26,
+     "r1": 25,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-27",
+     "value": 24.8,
+     "r1": 24.1,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-28",
+     "value": 25.9,
+     "r1": 25.8,
+     "r2": 26,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-29",
+     "value": 26.5,
+     "r1": 26,
+     "r2": 27,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-31",
+     "value": 25.1,
+     "r1": 24.7,
+     "r2": 25.5,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-09-01",
+     "value": 25.4,
+     "r1": 24.9,
+     "r2": 25.9,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-02",
+     "value": 26.15,
+     "r1": 25,
+     "r2": 27.3,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 25.95,
+     "r1": 25.5,
+     "r2": 26.4,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-04",
+     "value": 25.15,
+     "r1": 24.2,
+     "r2": 26.1,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-05",
+     "value": 24.9,
+     "r1": 24.5,
+     "r2": 25.3,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-07",
+     "value": 25.95,
+     "r1": 25.6,
+     "r2": 26.3,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-08",
+     "value": 26.05,
+     "r1": 25.3,
+     "r2": 26.8,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-09",
+     "value": 24.7,
+     "r1": 25,
+     "r2": 24.4,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-10",
+     "value": 24.85,
+     "r1": 24,
+     "r2": 25.7,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-11",
+     "value": 25.35,
+     "r1": 24.8,
+     "r2": 25.9,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-12",
+     "value": 26.05,
+     "r1": 25.5,
+     "r2": 26.6,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-14",
+     "value": 25.2,
+     "r1": 24.7,
+     "r2": 25.7,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-15",
+     "value": 26.3,
+     "r1": 26,
+     "r2": 26.6,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-16",
+     "value": 24.5,
+     "r1": 24.1,
+     "r2": 24.9,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-17",
+     "value": 24.95,
+     "r1": 24.6,
+     "r2": 25.3,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-18",
+     "value": 26.35,
+     "r1": 26,
+     "r2": 26.7,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-19",
+     "value": 25.6,
+     "r1": 24.9,
+     "r2": 26.3,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-21",
+     "value": 25,
+     "r1": 24.3,
+     "r2": 25.7,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-22",
+     "value": 26.15,
+     "r1": 26,
+     "r2": 26.3,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-23",
+     "value": 25.95,
+     "r1": 26.4,
+     "r2": 25.5,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-24",
+     "value": 25.4,
+     "r1": 24.8,
+     "r2": 26,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-25",
+     "value": 26.1,
+     "r1": 25.7,
+     "r2": 26.5,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-26",
+     "value": 24.85,
+     "r1": 24.6,
+     "r2": 25.1,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-28",
+     "value": 26.25,
+     "r1": 25.5,
+     "r2": 27,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-29",
+     "value": 26.4,
+     "r1": 26,
+     "r2": 26.8,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-30",
+     "value": 25.2,
+     "r1": 24.9,
+     "r2": 25.5,
+     "baseline": "Autumn 2026"
+    }
+   ],
+   "coverage_months": [
+    "2025-02",
+    "2025-03",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "MON Laboratory humidity (Karachi)",
+   "activity": "MON",
+   "target_id": null,
+   "match": {
+    "activity": "MON",
+    "parameter": "Laboratory humidity",
+    "equipment_id": "DS-21"
+   },
+   "master": {
+    "parameter": "Laboratory humidity",
+    "level": "",
+    "unit": "%",
+    "equipment": "Weather Station",
+    "equipment_id": "DS-21",
+    "method": "Not Applicable",
+    "crm_detail": "Digital weather station",
+    "crm_value": "",
+    "crm_range_low": "42",
+    "crm_range_high": "60",
+    "description": "Humidity (%) results of Lab",
+    "decimals": 2,
+    "start_month": 1,
+    "doc_no": "",
+    "limit_mode": "baseline"
+   },
+   "baselines": [
+    {
+     "key": "Winter 2025-26",
+     "established_on": "2025-12-01",
+     "values": [
+      44.5,
+      44,
+      45.2,
+      44.1,
+      44.5,
+      44.3,
+      44.9,
+      46,
+      44.8,
+      46.3,
+      46,
+      46
+     ],
+     "dates": [
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31",
+      "2025-01-31"
+     ],
+     "note": "Winter season baseline (Dec-24 to Jan-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Spring 2026",
+     "established_on": "2026-02-01",
+     "values": [
+      44.58,
+      46.6,
+      48.85,
+      49.25,
+      51.1,
+      44.6,
+      46.25,
+      47.16,
+      48.25,
+      49.16,
+      51.25,
+      51.3
+     ],
+     "dates": [
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31",
+      "2025-03-31"
+     ],
+     "note": "Spring season baseline (Feb-25 to Mar-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Summer 2026",
+     "established_on": "2026-04-01",
+     "values": [
+      52,
+      49.5,
+      50.5,
+      49.5,
+      54.5,
+      51.5,
+      50,
+      51,
+      53,
+      46,
+      49,
+      51
+     ],
+     "dates": [
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31",
+      "2025-08-31"
+     ],
+     "note": "Summer season baseline (Apr-25 to Aug-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Autumn 2026",
+     "established_on": "2026-09-01",
+     "values": [
+      49,
+      47.5,
+      55,
+      51,
+      49.5,
+      53,
+      46.5,
+      52,
+      51.5,
+      54.5,
+      46,
+      57
+     ],
+     "dates": [
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30",
+      "2025-11-30"
+     ],
+     "note": "Autumn season baseline (Sep-25 to Nov-25)",
+     "range_low": "",
+     "range_high": ""
+    },
+    {
+     "key": "Spring 2025 (2024 data)",
+     "established_on": "2025-02-01",
+     "stats_only": true,
+     "mean": 47.69625,
+     "sd": 3.695681,
+     "n": null,
+     "values": [],
+     "dates": [],
+     "range_low": "40",
+     "range_high": "60",
+     "note": "Spring season baseline (Feb-24 to Mar-24) - data points not supplied - mean and SD as printed on the Feb/Mar-2025 records"
+    },
+    {
+     "key": "Autumn 2025 (2024 data)",
+     "established_on": "2025-09-01",
+     "stats_only": true,
+     "mean": 52.388333,
+     "sd": 3.952331,
+     "n": null,
+     "values": [],
+     "dates": [],
+     "range_low": "42",
+     "range_high": "60",
+     "note": "Autumn season baseline (Sep-24 to Nov-24) - data points not supplied - mean and SD as printed on the Oct/Nov-2025 records"
+    }
+   ],
+   "results": [
+    {
+     "date": "2025-02-01",
+     "value": 45,
+     "r1": 44,
+     "r2": 46,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-03",
+     "value": 46,
+     "r1": 43,
+     "r2": 49,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-04",
+     "value": 48,
+     "r1": 45,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-06",
+     "value": 49.5,
+     "r1": 48,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-07",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-08",
+     "value": 44.5,
+     "r1": 44,
+     "r2": 45,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-10",
+     "value": 49.5,
+     "r1": 47,
+     "r2": 52,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-11",
+     "value": 45,
+     "r1": 42,
+     "r2": 48,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-12",
+     "value": 50.5,
+     "r1": 49,
+     "r2": 52,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-13",
+     "value": 48.5,
+     "r1": 48,
+     "r2": 49,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-14",
+     "value": 46.5,
+     "r1": 47,
+     "r2": 46,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-15",
+     "value": 43,
+     "r1": 43,
+     "r2": 43,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-17",
+     "value": 45,
+     "r1": 49,
+     "r2": 41,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-18",
+     "value": 52,
+     "r1": 53,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-19",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-20",
+     "value": 52,
+     "r1": 51,
+     "r2": 53,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-21",
+     "value": 47,
+     "r1": 44,
+     "r2": 50,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-22",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-24",
+     "value": 45,
+     "r1": 44,
+     "r2": 46,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-25",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-26",
+     "value": 50,
+     "r1": 49,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-27",
+     "value": 46.5,
+     "r1": 44,
+     "r2": 49,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-02-28",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-01",
+     "value": 46.5,
+     "r1": 46,
+     "r2": 47,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-03",
+     "value": 46,
+     "r1": 43,
+     "r2": 49,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-04",
+     "value": 48,
+     "r1": 45,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-05",
+     "value": 49.5,
+     "r1": 48,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-06",
+     "value": 47,
+     "r1": 46,
+     "r2": 48,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-07",
+     "value": 46.5,
+     "r1": 48,
+     "r2": 45,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-08",
+     "value": 49.5,
+     "r1": 47,
+     "r2": 52,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-10",
+     "value": 48.5,
+     "r1": 49,
+     "r2": 48,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-11",
+     "value": 50.5,
+     "r1": 49,
+     "r2": 52,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-12",
+     "value": 45,
+     "r1": 44,
+     "r2": 46,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-13",
+     "value": 46.5,
+     "r1": 47,
+     "r2": 46,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-14",
+     "value": 47.5,
+     "r1": 46,
+     "r2": 49,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-15",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-17",
+     "value": 52,
+     "r1": 53,
+     "r2": 51,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-18",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-19",
+     "value": 46,
+     "r1": 45,
+     "r2": 47,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-20",
+     "value": 47,
+     "r1": 44,
+     "r2": 50,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-21",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-22",
+     "value": 51.5,
+     "r1": 50,
+     "r2": 53,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-24",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-25",
+     "value": 46,
+     "r1": 45,
+     "r2": 47,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-26",
+     "value": 46.5,
+     "r1": 44,
+     "r2": 49,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-27",
+     "value": 49,
+     "r1": 48,
+     "r2": 50,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-28",
+     "value": 44.5,
+     "r1": 42,
+     "r2": 47,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-03-29",
+     "value": 46,
+     "r1": 47,
+     "r2": 45,
+     "baseline": "Spring 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-01",
+     "value": 56,
+     "r1": 55,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-02",
+     "value": 50.5,
+     "r1": 51,
+     "r2": 50,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-03",
+     "value": 52,
+     "r1": 49,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-04",
+     "value": 47.5,
+     "r1": 45,
+     "r2": 50,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-06",
+     "value": 55,
+     "r1": 53,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-07",
+     "value": 50.5,
+     "r1": 49,
+     "r2": 52,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-08",
+     "value": 50,
+     "r1": 49,
+     "r2": 51,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-09",
+     "value": 56.5,
+     "r1": 58,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-10",
+     "value": 53.5,
+     "r1": 51,
+     "r2": 56,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-11",
+     "value": 55.5,
+     "r1": 54,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-13",
+     "value": 47.5,
+     "r1": 46,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-14",
+     "value": 52,
+     "r1": 49,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-15",
+     "value": 56.5,
+     "r1": 57,
+     "r2": 56,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-16",
+     "value": 56.5,
+     "r1": 58,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-17",
+     "value": 51.5,
+     "r1": 50,
+     "r2": 53,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-18",
+     "value": 47,
+     "r1": 45,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-20",
+     "value": 49.5,
+     "r1": 50,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-21",
+     "value": 54.5,
+     "r1": 54,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-22",
+     "value": 57,
+     "r1": 56,
+     "r2": 58,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-23",
+     "value": 53.5,
+     "r1": 52,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-24",
+     "value": 46.5,
+     "r1": 44,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-25",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-27",
+     "value": 55,
+     "r1": 54,
+     "r2": 56,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-28",
+     "value": 50,
+     "r1": 51,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-29",
+     "value": 53,
+     "r1": 52,
+     "r2": 54,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-30",
+     "value": 56.5,
+     "r1": 56,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-10-31",
+     "value": 50.5,
+     "r1": 48,
+     "r2": 53,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-01",
+     "value": 48.5,
+     "r1": 48,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-03",
+     "value": 50.5,
+     "r1": 51,
+     "r2": 50,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-04",
+     "value": 48.5,
+     "r1": 46,
+     "r2": 51,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-05",
+     "value": 56,
+     "r1": 55,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-06",
+     "value": 46,
+     "r1": 43,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-07",
+     "value": 50,
+     "r1": 49,
+     "r2": 51,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-08",
+     "value": 51.5,
+     "r1": 50,
+     "r2": 53,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-10",
+     "value": 53,
+     "r1": 49,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-11",
+     "value": 53.5,
+     "r1": 51,
+     "r2": 56,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-12",
+     "value": 55.5,
+     "r1": 54,
+     "r2": 57,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-13",
+     "value": 47.5,
+     "r1": 49,
+     "r2": 46,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-14",
+     "value": 46,
+     "r1": 43,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-15",
+     "value": 47,
+     "r1": 50,
+     "r2": 44,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-17",
+     "value": 54.5,
+     "r1": 54,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-18",
+     "value": 51.5,
+     "r1": 50,
+     "r2": 53,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-19",
+     "value": 47,
+     "r1": 45,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-20",
+     "value": 49.5,
+     "r1": 50,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-21",
+     "value": 54.5,
+     "r1": 54,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-22",
+     "value": 57,
+     "r1": 56,
+     "r2": 58,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-24",
+     "value": 53.5,
+     "r1": 52,
+     "r2": 55,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-25",
+     "value": 46.5,
+     "r1": 44,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-26",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-27",
+     "value": 55,
+     "r1": 54,
+     "r2": 56,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-28",
+     "value": 50,
+     "r1": 51,
+     "r2": 49,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-11-29",
+     "value": 53,
+     "r1": 52,
+     "r2": 54,
+     "baseline": "Autumn 2025 (2024 data)"
+    },
+    {
+     "date": "2025-12-01",
+     "value": 45.5,
+     "r1": 43,
+     "r2": 48,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-02",
+     "value": 46.05,
+     "r1": 45,
+     "r2": 47.1,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-03",
+     "value": 44,
+     "r1": 42,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-04",
+     "value": 44.5,
+     "r1": 41,
+     "r2": 48,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-05",
+     "value": 45.5,
+     "r1": 42,
+     "r2": 49,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-06",
+     "value": 46.1,
+     "r1": 43,
+     "r2": 49.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-08",
+     "value": 44,
+     "r1": 40,
+     "r2": 48,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-09",
+     "value": 46,
+     "r1": 40,
+     "r2": 52,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-10",
+     "value": 45.7,
+     "r1": 42,
+     "r2": 49.4,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-11",
+     "value": 44.5,
+     "r1": 38,
+     "r2": 51,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-12",
+     "value": 43.9,
+     "r1": 41,
+     "r2": 46.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-13",
+     "value": 46.35,
+     "r1": 42.2,
+     "r2": 50.5,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-15",
+     "value": 43.9,
+     "r1": 37.8,
+     "r2": 50,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-16",
+     "value": 44.5,
+     "r1": 42.8,
+     "r2": 46.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-17",
+     "value": 44,
+     "r1": 41,
+     "r2": 47,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-18",
+     "value": 45.45,
+     "r1": 44.9,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-19",
+     "value": 46,
+     "r1": 42,
+     "r2": 50,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-20",
+     "value": 43.85,
+     "r1": 37.8,
+     "r2": 49.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-22",
+     "value": 44,
+     "r1": 42,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-23",
+     "value": 45.5,
+     "r1": 39,
+     "r2": 52,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-24",
+     "value": 43.95,
+     "r1": 40.9,
+     "r2": 47,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-26",
+     "value": 45.5,
+     "r1": 42,
+     "r2": 49,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-27",
+     "value": 46.15,
+     "r1": 43.1,
+     "r2": 49.2,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-29",
+     "value": 43.8,
+     "r1": 40.8,
+     "r2": 46.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-30",
+     "value": 46,
+     "r1": 41,
+     "r2": 51,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2025-12-31",
+     "value": 44.7,
+     "r1": 40.4,
+     "r2": 49,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-01",
+     "value": 45.5,
+     "r1": 42,
+     "r2": 49,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-02",
+     "value": 44.3,
+     "r1": 43.6,
+     "r2": 45,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-03",
+     "value": 46,
+     "r1": 42,
+     "r2": 50,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-05",
+     "value": 44.95,
+     "r1": 44,
+     "r2": 45.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-06",
+     "value": 44.45,
+     "r1": 42.9,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-07",
+     "value": 45.5,
+     "r1": 43,
+     "r2": 48,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-08",
+     "value": 46,
+     "r1": 44.2,
+     "r2": 47.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-09",
+     "value": 43.7,
+     "r1": 42.8,
+     "r2": 44.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-10",
+     "value": 45.25,
+     "r1": 43.5,
+     "r2": 47,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-12",
+     "value": 45.5,
+     "r1": 44.1,
+     "r2": 46.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-13",
+     "value": 46,
+     "r1": 44.2,
+     "r2": 47.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-14",
+     "value": 44.5,
+     "r1": 43.5,
+     "r2": 45.5,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-15",
+     "value": 44.9,
+     "r1": 43.8,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-16",
+     "value": 45.95,
+     "r1": 42.9,
+     "r2": 49,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-17",
+     "value": 45.5,
+     "r1": 44,
+     "r2": 47,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-19",
+     "value": 44.6,
+     "r1": 43.2,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-20",
+     "value": 45.9,
+     "r1": 41.8,
+     "r2": 50,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-21",
+     "value": 46.3,
+     "r1": 44.6,
+     "r2": 48,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-22",
+     "value": 44.1,
+     "r1": 42.2,
+     "r2": 46,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-23",
+     "value": 46.05,
+     "r1": 44,
+     "r2": 48.1,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-24",
+     "value": 44.4,
+     "r1": 42.9,
+     "r2": 45.9,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-26",
+     "value": 44.15,
+     "r1": 43.5,
+     "r2": 44.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-27",
+     "value": 45.9,
+     "r1": 44,
+     "r2": 47.8,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-28",
+     "value": 45.55,
+     "r1": 43.1,
+     "r2": 48,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-29",
+     "value": 43.95,
+     "r1": 38.9,
+     "r2": 49,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-30",
+     "value": 46.25,
+     "r1": 41.5,
+     "r2": 51,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-01-31",
+     "value": 46.15,
+     "r1": 42.7,
+     "r2": 49.6,
+     "baseline": "Winter 2025-26"
+    },
+    {
+     "date": "2026-04-01",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-02",
+     "value": 49.3,
+     "r1": 45.6,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-03",
+     "value": 52,
+     "r1": 49,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-04",
+     "value": 52.5,
+     "r1": 56,
+     "r2": 49,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-06",
+     "value": 53,
+     "r1": 51,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-07",
+     "value": 47.8,
+     "r1": 50,
+     "r2": 45.6,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-08",
+     "value": 50,
+     "r1": 47,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-09",
+     "value": 52.5,
+     "r1": 48,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-10",
+     "value": 49.5,
+     "r1": 49,
+     "r2": 50,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-11",
+     "value": 52,
+     "r1": 48,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-13",
+     "value": 51.3,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-14",
+     "value": 52,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-15",
+     "value": 48.8,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-16",
+     "value": 49.8,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-17",
+     "value": 52.5,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-18",
+     "value": 54,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-20",
+     "value": 49.8,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-21",
+     "value": 48.3,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-22",
+     "value": 51.5,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-23",
+     "value": 49.8,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-24",
+     "value": 52.3,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-25",
+     "value": 53,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-27",
+     "value": 48.3,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-28",
+     "value": 51.3,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-29",
+     "value": 52,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-04-30",
+     "value": 49.5,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-02",
+     "value": 48.5,
+     "r1": 45,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-04",
+     "value": 50,
+     "r1": 48,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-05",
+     "value": 52.5,
+     "r1": 47,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-06",
+     "value": 48,
+     "r1": 44,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-07",
+     "value": 53.5,
+     "r1": 51,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-08",
+     "value": 49,
+     "r1": 47,
+     "r2": 51,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-09",
+     "value": 48,
+     "r1": 45,
+     "r2": 51,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-11",
+     "value": 51,
+     "r1": 42,
+     "r2": 60,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-12",
+     "value": 52,
+     "r1": 46,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-13",
+     "value": 49,
+     "r1": 47,
+     "r2": 51,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-14",
+     "value": 51.5,
+     "r1": 49,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-15",
+     "value": 52,
+     "r1": 45,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-16",
+     "value": 49,
+     "r1": 42,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-18",
+     "value": 50.5,
+     "r1": 44,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-19",
+     "value": 47.5,
+     "r1": 43,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-20",
+     "value": 51.5,
+     "r1": 48,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-21",
+     "value": 53,
+     "r1": 46,
+     "r2": 60,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-22",
+     "value": 48.5,
+     "r1": 43,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-23",
+     "value": 49.5,
+     "r1": 46,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-25",
+     "value": 53,
+     "r1": 44,
+     "r2": 62,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-05-30",
+     "value": 49,
+     "r1": 43,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-01",
+     "value": 50.5,
+     "r1": 47,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-02",
+     "value": 48,
+     "r1": 45,
+     "r2": 51,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-03",
+     "value": 52.5,
+     "r1": 48,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-04",
+     "value": 54,
+     "r1": 47,
+     "r2": 61,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-05",
+     "value": 48,
+     "r1": 45,
+     "r2": 51,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-06",
+     "value": 47.5,
+     "r1": 46,
+     "r2": 49,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-08",
+     "value": 53,
+     "r1": 49,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-09",
+     "value": 48,
+     "r1": 42,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-10",
+     "value": 50.5,
+     "r1": 46,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-11",
+     "value": 52.5,
+     "r1": 47,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-12",
+     "value": 49.5,
+     "r1": 44,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-13",
+     "value": 53.5,
+     "r1": 49,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-15",
+     "value": 51.5,
+     "r1": 46,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-16",
+     "value": 53,
+     "r1": 47,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-17",
+     "value": 50,
+     "r1": 45,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-18",
+     "value": 52.5,
+     "r1": 46,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-19",
+     "value": 53,
+     "r1": 46,
+     "r2": 60,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-20",
+     "value": 48.5,
+     "r1": 43,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-22",
+     "value": 49.5,
+     "r1": 46,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-23",
+     "value": 53,
+     "r1": 47,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-24",
+     "value": 49.5,
+     "r1": 44,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-27",
+     "value": 48.5,
+     "r1": 45,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-29",
+     "value": 53,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-06-30",
+     "value": 50.5,
+     "r1": 46,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-01",
+     "value": 48,
+     "r1": 44,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-02",
+     "value": 48.5,
+     "r1": 42,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-03",
+     "value": 54,
+     "r1": 50,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-04",
+     "value": 49,
+     "r1": 43,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-06",
+     "value": 52,
+     "r1": 46,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-07",
+     "value": 50.5,
+     "r1": 42,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-08",
+     "value": 52,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-09",
+     "value": 48,
+     "r1": 41,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-10",
+     "value": 51,
+     "r1": 44,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-11",
+     "value": 53.5,
+     "r1": 49,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-13",
+     "value": 48.5,
+     "r1": 43,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-14",
+     "value": 54,
+     "r1": 50,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-15",
+     "value": 53,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-16",
+     "value": 51,
+     "r1": 43,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-17",
+     "value": 49,
+     "r1": 42,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-18",
+     "value": 52.5,
+     "r1": 46,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-20",
+     "value": 47.5,
+     "r1": 40,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-21",
+     "value": 49,
+     "r1": 43,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-22",
+     "value": 54.5,
+     "r1": 46,
+     "r2": 63,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-23",
+     "value": 52,
+     "r1": 46,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-24",
+     "value": 49,
+     "r1": 47,
+     "r2": 51,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-25",
+     "value": 49.5,
+     "r1": 44,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-27",
+     "value": 53,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-28",
+     "value": 50.5,
+     "r1": 46,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-29",
+     "value": 52.5,
+     "r1": 48,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-30",
+     "value": 48,
+     "r1": 43,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-07-31",
+     "value": 54,
+     "r1": 46,
+     "r2": 62,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-01",
+     "value": 53,
+     "r1": 48,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-03",
+     "value": 52,
+     "r1": 49,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-04",
+     "value": 54,
+     "r1": 54,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-05",
+     "value": 48.5,
+     "r1": 44,
+     "r2": 53,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-06",
+     "value": 54,
+     "r1": 49,
+     "r2": 59,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-07",
+     "value": 49.5,
+     "r1": 47,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-08",
+     "value": 54,
+     "r1": 48,
+     "r2": 60,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-10",
+     "value": 52,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-11",
+     "value": 50.5,
+     "r1": 46,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-12",
+     "value": 54.5,
+     "r1": 52,
+     "r2": 57,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-13",
+     "value": 53,
+     "r1": 50,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 47.5,
+     "r1": 43,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-17",
+     "value": 54,
+     "r1": 53,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-18",
+     "value": 49,
+     "r1": 46,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-19",
+     "value": 51.5,
+     "r1": 49,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-20",
+     "value": 53,
+     "r1": 48,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-21",
+     "value": 49,
+     "r1": 42,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-22",
+     "value": 51,
+     "r1": 47,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-24",
+     "value": 54.5,
+     "r1": 53,
+     "r2": 56,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-25",
+     "value": 53,
+     "r1": 51,
+     "r2": 55,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-27",
+     "value": 47.5,
+     "r1": 43,
+     "r2": 52,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-28",
+     "value": 54,
+     "r1": null,
+     "r2": null,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-29",
+     "value": 52,
+     "r1": 50,
+     "r2": 54,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-08-31",
+     "value": 51,
+     "r1": 44,
+     "r2": 58,
+     "baseline": "Summer 2026"
+    },
+    {
+     "date": "2026-09-01",
+     "value": 52,
+     "r1": 49,
+     "r2": 55,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-02",
+     "value": 48,
+     "r1": 45,
+     "r2": 51,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 51,
+     "r1": 46,
+     "r2": 56,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-04",
+     "value": 53.5,
+     "r1": 48,
+     "r2": 59,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-05",
+     "value": 48.5,
+     "r1": 43,
+     "r2": 54,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-07",
+     "value": 50,
+     "r1": 48,
+     "r2": 52,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-08",
+     "value": 50.5,
+     "r1": 46,
+     "r2": 55,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-09",
+     "value": 55.5,
+     "r1": 53,
+     "r2": 58,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-10",
+     "value": 47.5,
+     "r1": 51,
+     "r2": 44,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-11",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-12",
+     "value": 55,
+     "r1": 53,
+     "r2": 57,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-14",
+     "value": 50.5,
+     "r1": 46,
+     "r2": 55,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-15",
+     "value": 51,
+     "r1": 49,
+     "r2": 53,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-16",
+     "value": 46.5,
+     "r1": 44,
+     "r2": 49,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-17",
+     "value": 52,
+     "r1": 48,
+     "r2": 56,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-18",
+     "value": 54,
+     "r1": 53,
+     "r2": 55,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-19",
+     "value": 46.5,
+     "r1": 44,
+     "r2": 49,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-21",
+     "value": 50.5,
+     "r1": 48,
+     "r2": 53,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-22",
+     "value": 54,
+     "r1": 51,
+     "r2": 57,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-23",
+     "value": 55,
+     "r1": 52,
+     "r2": 58,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-24",
+     "value": 50,
+     "r1": 46,
+     "r2": 54,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-25",
+     "value": 52,
+     "r1": 49,
+     "r2": 55,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-26",
+     "value": 56,
+     "r1": 53,
+     "r2": 59,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-28",
+     "value": 49.5,
+     "r1": 51,
+     "r2": 48,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-29",
+     "value": 53,
+     "r1": 55,
+     "r2": 51,
+     "baseline": "Autumn 2026"
+    },
+    {
+     "date": "2026-09-30",
+     "value": 51.5,
+     "r1": 48,
+     "r2": 55,
+     "baseline": "Autumn 2026"
+    }
+   ],
+   "coverage_months": [
+    "2025-02",
+    "2025-03",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  },
+  {
+   "key": "MON Visi-cooler temperature (Karachi)",
+   "activity": "MON",
+   "target_id": null,
+   "match": {
+    "activity": "MON",
+    "parameter": "Visi-cooler temperature",
+    "equipment_id": "DS-21"
+   },
+   "master": {
+    "parameter": "Visi-cooler temperature",
+    "level": "",
+    "unit": "\u00b0C",
+    "equipment": "Visi Cooler (Refrigerator)",
+    "equipment_id": "DS-21",
+    "method": "Not Applicable",
+    "crm_detail": "Digital weather station",
+    "crm_value": "",
+    "crm_range_low": "4",
+    "crm_range_high": "6",
+    "description": "Temperature (\u00b0C) results of Refrigerator",
+    "decimals": 2,
+    "start_month": 1,
+    "doc_no": "",
+    "limit_mode": "baseline"
+   },
+   "baselines": [
+    {
+     "key": "Visi-cooler 2026-27",
+     "established_on": "2026-08-01",
+     "values": [
+      4.5,
+      4.1,
+      4.2,
+      5.5,
+      4.2,
+      4.8,
+      5.1,
+      4,
+      4.3,
+      5.2,
+      4.7,
+      4.3
+     ],
+     "dates": [
+      "2025-08-29",
+      "2025-09-29",
+      "2025-10-29",
+      "2025-11-29",
+      "2025-12-29",
+      "2026-01-29",
+      "2026-02-28",
+      "2026-03-29",
+      "2026-04-29",
+      "2026-05-29",
+      "2026-06-29",
+      "2026-07-29"
+     ],
+     "note": "Visi-cooler baseline (Aug-25 to Jul-26)",
+     "range_low": "",
+     "range_high": ""
+    }
+   ],
+   "results": [
+    {
+     "date": "2026-05-02",
+     "value": 4.8,
+     "r1": 4.2,
+     "r2": 5.4
+    },
+    {
+     "date": "2026-05-04",
+     "value": 4.5,
+     "r1": 4,
+     "r2": 5
+    },
+    {
+     "date": "2026-05-05",
+     "value": 4.85,
+     "r1": 4.3,
+     "r2": 5.4
+    },
+    {
+     "date": "2026-05-06",
+     "value": 5.05,
+     "r1": 4.4,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-05-07",
+     "value": 4.6,
+     "r1": 4,
+     "r2": 5.2
+    },
+    {
+     "date": "2026-05-08",
+     "value": 5,
+     "r1": 4.5,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-05-09",
+     "value": 4.85,
+     "r1": 4.6,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-05-11",
+     "value": 4.6,
+     "r1": 4.2,
+     "r2": 5
+    },
+    {
+     "date": "2026-05-12",
+     "value": 5.1,
+     "r1": 4.2,
+     "r2": 6
+    },
+    {
+     "date": "2026-05-13",
+     "value": 4.75,
+     "r1": 4,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-05-14",
+     "value": 4.65,
+     "r1": 4.3,
+     "r2": 5
+    },
+    {
+     "date": "2026-05-15",
+     "value": 5,
+     "r1": 4,
+     "r2": 6
+    },
+    {
+     "date": "2026-05-16",
+     "value": 4.8,
+     "r1": 4.1,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-05-18",
+     "value": 4.55,
+     "r1": 4,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-05-19",
+     "value": 5.05,
+     "r1": 4.4,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-05-20",
+     "value": 4.65,
+     "r1": 4.2,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-05-21",
+     "value": 4.7,
+     "r1": 4,
+     "r2": 5.4
+    },
+    {
+     "date": "2026-05-22",
+     "value": 5,
+     "r1": 4.3,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-05-23",
+     "value": 5.1,
+     "r1": 4.2,
+     "r2": 6
+    },
+    {
+     "date": "2026-05-25",
+     "value": 4.55,
+     "r1": 4.2,
+     "r2": 4.9
+    },
+    {
+     "date": "2026-05-30",
+     "value": 5.05,
+     "r1": 4.2,
+     "r2": 5.9
+    },
+    {
+     "date": "2026-06-01",
+     "value": 4.6,
+     "r1": 4,
+     "r2": 5.2
+    },
+    {
+     "date": "2026-06-02",
+     "value": 4.35,
+     "r1": 3.9,
+     "r2": 4.8
+    },
+    {
+     "date": "2026-06-03",
+     "value": 4.8,
+     "r1": 4.1,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-06-04",
+     "value": 5,
+     "r1": 4.3,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-06-05",
+     "value": 4.35,
+     "r1": 4,
+     "r2": 4.7
+    },
+    {
+     "date": "2026-06-06",
+     "value": 4.65,
+     "r1": 4.2,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-06-08",
+     "value": 4.75,
+     "r1": 4.2,
+     "r2": 5.3
+    },
+    {
+     "date": "2026-06-09",
+     "value": 4.4,
+     "r1": 4,
+     "r2": 4.8
+    },
+    {
+     "date": "2026-06-10",
+     "value": 4.9,
+     "r1": 4.2,
+     "r2": 5.6
+    },
+    {
+     "date": "2026-06-11",
+     "value": 4.5,
+     "r1": 3.9,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-06-12",
+     "value": 4.75,
+     "r1": 4.2,
+     "r2": 5.3
+    },
+    {
+     "date": "2026-06-13",
+     "value": 4.9,
+     "r1": 4.1,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-06-15",
+     "value": 4.6,
+     "r1": 4.2,
+     "r2": 5
+    },
+    {
+     "date": "2026-06-16",
+     "value": 4.3,
+     "r1": 3.8,
+     "r2": 4.8
+    },
+    {
+     "date": "2026-06-17",
+     "value": 4.35,
+     "r1": 4,
+     "r2": 4.7
+    },
+    {
+     "date": "2026-06-18",
+     "value": 4.65,
+     "r1": 4.2,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-06-19",
+     "value": 4.9,
+     "r1": 4.3,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-06-20",
+     "value": 4.25,
+     "r1": 4,
+     "r2": 4.5
+    },
+    {
+     "date": "2026-06-22",
+     "value": 5,
+     "r1": 4.2,
+     "r2": 5.8
+    },
+    {
+     "date": "2026-06-23",
+     "value": 4.7,
+     "r1": 4.1,
+     "r2": 5.3
+    },
+    {
+     "date": "2026-06-24",
+     "value": 4.4,
+     "r1": 4.2,
+     "r2": 4.6
+    },
+    {
+     "date": "2026-06-27",
+     "value": 4.85,
+     "r1": 4,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-06-29",
+     "value": 4.8,
+     "r1": 4.4,
+     "r2": 5.2
+    },
+    {
+     "date": "2026-06-30",
+     "value": 4.5,
+     "r1": 4.2,
+     "r2": 4.8
+    },
+    {
+     "date": "2026-07-01",
+     "value": 4.8,
+     "r1": 4.1,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-07-02",
+     "value": 4.35,
+     "r1": 4,
+     "r2": 4.7
+    },
+    {
+     "date": "2026-07-03",
+     "value": 4.75,
+     "r1": 4.3,
+     "r2": 5.2
+    },
+    {
+     "date": "2026-07-04",
+     "value": 4.55,
+     "r1": 4,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-07-06",
+     "value": 4.8,
+     "r1": 4.2,
+     "r2": 5.4
+    },
+    {
+     "date": "2026-07-07",
+     "value": 4.15,
+     "r1": 3.8,
+     "r2": 4.5
+    },
+    {
+     "date": "2026-07-08",
+     "value": 5,
+     "r1": 4.4,
+     "r2": 5.6
+    },
+    {
+     "date": "2026-07-09",
+     "value": 4.7,
+     "r1": 4.3,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-07-10",
+     "value": 4.55,
+     "r1": 4,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-07-11",
+     "value": 5.05,
+     "r1": 4.1,
+     "r2": 6
+    },
+    {
+     "date": "2026-07-13",
+     "value": 4.4,
+     "r1": 4,
+     "r2": 4.8
+    },
+    {
+     "date": "2026-07-14",
+     "value": 4.9,
+     "r1": 4.1,
+     "r2": 5.7
+    },
+    {
+     "date": "2026-07-15",
+     "value": 4.55,
+     "r1": 4,
+     "r2": 5.1
+    },
+    {
+     "date": "2026-07-16",
+     "value": 4.2,
+     "r1": 4,
+     "r2": 4.4
+    },
+    {
+     "date": "2026-07-17",
+     "value": 5.1,
+     "r1": 4.7,
+     "r2": 5.5
+    },
+    {
+     "date": "2026-07-18",
+     "value": 4.9,
+     "r1": 4,
+     "r2": 5.8
+    },
+    {
+     "date": "2026-07-20",
+     "value": 4.9,
+     "r1": 3.9,
+     "r2": 5.9
+    },
+    {
+     "date": "2026-07-21",
+     "value": 4.45,
+     "r1": 4.2,
+     "r2": 4.7
+    },
+    {
+     "date": "2026-07-22",
+     "value": 5.15,
+     "r1": 4.3,
+     "r2": 6
+    },
+    {
+     "date": "2026-07-23",
+     "value": 4.9,
+     "r1": 4,
+     "r2": 5.8
+    },
+    {
+     "date": "2026-07-24",
+     "value": 4.4,
+     "r1": 4.2,
+     "r2": 4.6
+    },
+    {
+     "date": "2026-07-25",
+     "value": 4.7,
+     "r1": 4.2,
+     "r2": 5.2
+    },
+    {
+     "date": "2026-07-27",
+     "value": 4.15,
+     "r1": 3.9,
+     "r2": 4.4
+    },
+    {
+     "date": "2026-07-28",
+     "value": 4.95,
+     "r1": 4,
+     "r2": 5.9
+    },
+    {
+     "date": "2026-07-29",
+     "value": 5.05,
+     "r1": 4.2,
+     "r2": 5.9
+    },
+    {
+     "date": "2026-07-30",
+     "value": 4.5,
+     "r1": 4.2,
+     "r2": 4.8
+    },
+    {
+     "date": "2026-07-31",
+     "value": 4.8,
+     "r1": 4,
+     "r2": 5.6
+    },
+    {
+     "date": "2026-08-01",
+     "value": 4.6,
+     "r1": 4.1,
+     "r2": 5.1,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-03",
+     "value": 5.15,
+     "r1": 4,
+     "r2": 6.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-04",
+     "value": 4.35,
+     "r1": 4.2,
+     "r2": 4.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-05",
+     "value": 4.75,
+     "r1": 4,
+     "r2": 5.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-06",
+     "value": 4.5,
+     "r1": 3.8,
+     "r2": 5.2,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-07",
+     "value": 5,
+     "r1": 4.1,
+     "r2": 5.9,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-08",
+     "value": 4.35,
+     "r1": 4,
+     "r2": 4.7,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-10",
+     "value": 4.7,
+     "r1": 3.8,
+     "r2": 5.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-11",
+     "value": 5,
+     "r1": 4,
+     "r2": 6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-12",
+     "value": 4.85,
+     "r1": 4,
+     "r2": 5.7,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-13",
+     "value": 4.2,
+     "r1": 4.1,
+     "r2": 4.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-15",
+     "value": 5.1,
+     "r1": 4,
+     "r2": 6.2,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-17",
+     "value": 4.7,
+     "r1": 3.9,
+     "r2": 5.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-18",
+     "value": 4.2,
+     "r1": 4,
+     "r2": 4.4,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-19",
+     "value": 4.85,
+     "r1": 4.2,
+     "r2": 5.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-20",
+     "value": 4.15,
+     "r1": 4,
+     "r2": 4.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-21",
+     "value": 4.95,
+     "r1": 4.3,
+     "r2": 5.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-22",
+     "value": 4.8,
+     "r1": 4.1,
+     "r2": 5.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-24",
+     "value": 4.1,
+     "r1": 3.9,
+     "r2": 4.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-25",
+     "value": 4.95,
+     "r1": 4,
+     "r2": 5.9,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-27",
+     "value": 4.95,
+     "r1": 4.2,
+     "r2": 5.7,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-28",
+     "value": 4.2,
+     "r1": 4.1,
+     "r2": 4.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-29",
+     "value": 5.25,
+     "r1": 4.3,
+     "r2": 6.2,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-08-31",
+     "value": 4.95,
+     "r1": 3.9,
+     "r2": 6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-01",
+     "value": 4.6,
+     "r1": 4,
+     "r2": 5.2,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-02",
+     "value": 4.3,
+     "r1": 4.1,
+     "r2": 4.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-03",
+     "value": 4.95,
+     "r1": 4.2,
+     "r2": 5.7,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-04",
+     "value": 4.15,
+     "r1": 4,
+     "r2": 4.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-05",
+     "value": 4.25,
+     "r1": 3.9,
+     "r2": 4.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-07",
+     "value": 4.9,
+     "r1": 4.2,
+     "r2": 5.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-08",
+     "value": 4.65,
+     "r1": 4.4,
+     "r2": 4.9,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-09",
+     "value": 4.25,
+     "r1": 4.1,
+     "r2": 4.4,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-10",
+     "value": 4.75,
+     "r1": 4,
+     "r2": 5.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-11",
+     "value": 5.1,
+     "r1": 4.3,
+     "r2": 5.9,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-12",
+     "value": 4.5,
+     "r1": 4,
+     "r2": 5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-14",
+     "value": 4.6,
+     "r1": 4.1,
+     "r2": 5.1,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-15",
+     "value": 5.2,
+     "r1": 4.2,
+     "r2": 6.2,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-16",
+     "value": 4.3,
+     "r1": 4,
+     "r2": 4.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-17",
+     "value": 5.1,
+     "r1": 4.4,
+     "r2": 5.8,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-18",
+     "value": 4.35,
+     "r1": 4.1,
+     "r2": 4.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-19",
+     "value": 4.45,
+     "r1": 4,
+     "r2": 4.9,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-21",
+     "value": 4.75,
+     "r1": 4.3,
+     "r2": 5.2,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-22",
+     "value": 4.1,
+     "r1": 3.8,
+     "r2": 4.4,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-23",
+     "value": 5,
+     "r1": 4.4,
+     "r2": 5.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-24",
+     "value": 4.8,
+     "r1": 4.1,
+     "r2": 5.5,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-25",
+     "value": 4.95,
+     "r1": 4,
+     "r2": 5.9,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-26",
+     "value": 4.2,
+     "r1": 4.1,
+     "r2": 4.3,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-28",
+     "value": 4.4,
+     "r1": 4.2,
+     "r2": 4.6,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-29",
+     "value": 4.85,
+     "r1": 4,
+     "r2": 5.7,
+     "baseline": "Visi-cooler 2026-27"
+    },
+    {
+     "date": "2026-09-30",
+     "value": 4.35,
+     "r1": 4,
+     "r2": 4.7,
+     "baseline": "Visi-cooler 2026-27"
+    }
+   ],
+   "coverage_months": [
+    "2026-05",
+    "2026-06",
+    "2026-07",
+    "2026-08",
+    "2026-09"
+   ],
+   "cover_unit": "date"
+  }
+ ]
+}

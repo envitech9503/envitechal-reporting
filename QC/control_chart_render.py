@@ -10,7 +10,9 @@ line with diamonds, action limits (+/-3 SD) red, warning limits (+/-2 SD)
 amber, mean green; out-of-limit points are filled red / amber.
 """
 import io
+import re
 import datetime
+import textwrap
 
 import matplotlib
 matplotlib.use('Agg')
@@ -29,6 +31,22 @@ def fmt(v, dec):
         return ('%.' + str(int(dec)) + 'f') % float(v)
     except Exception:
         return str(v)
+
+
+_NOTE_TIME = re.compile(r'( on \d{2}-\d{2}-\d{4}) \d{1,2}:\d{2}(?=\])')
+
+
+def clean_remark(text):
+    """Item 1 (10-10-2026): no time stamps on the forms - drop the time from older correction notes."""
+    return _NOTE_TIME.sub(r'\1', text or '')
+
+
+def chart_heading(chart, suffix):
+    """Item 5 (10-10-2026): the graph heading is the Description of the form, followed by the period."""
+    base = (chart.description or '').strip()
+    if not base:
+        base = 'Control chart of %s %s' % (chart.title, chart.profile['what'].lower())
+    return '\n'.join(textwrap.wrap('%s  -  %s' % (base, suffix), 95))
 
 
 def period_label(chart, year, month=0):
@@ -133,9 +151,7 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     ax.tick_params(axis='y', labelsize=7)
     ax.set_xlabel('Reading date' if chart.spec_limited else 'Testing date', fontsize=8)
     ax.set_ylabel((('Reading (%s)' if chart.spec_limited else 'Test result (%s)') % chart.unit) if chart.unit else 'Test result', fontsize=8)
-    what = chart.profile['what']
-    ax.set_title('CONTROL CHART OF %s %s  -  %s' % (chart.title.upper(), what, period_label(chart, year, month)),
-                 fontsize=9.5, fontweight='bold', color='#0f5132')
+    ax.set_title(chart_heading(chart, period_label(chart, year, month)), fontsize=9.5, fontweight='bold', color='#0f5132')
     ax.grid(True, color='#e5e7eb', lw=0.6)
     for s in ('top', 'right'):
         ax.spines[s].set_visible(False)
@@ -177,14 +193,14 @@ def period_rows(chart, lim, base_values, results, year, month=0):
             if chart.cadence == 'weekly':
                 lbl = ('Wk %02d' % r.date.isocalendar()[1]) if r else ''
             elif chart.cadence == 'reading':
-                lbl = (r.time or '-') if r else ''
+                lbl = ''
             else:
                 lbl = str(i + 1) if r else ''
             seq.append((i + 1, lbl, r))
     for sno, lbl, r in seq:
         row = {'sno': sno, 'month': lbl, 'result': r,
                'date': r.date.strftime('%d-%m-%Y') if r else '', 'value': fmt(r.value, dec) if r else '',
-               'status': r.status if r else '', 'remark': r.remark if r else '',
+               'status': r.status if r else '', 'remark': clean_remark(r.remark) if r else '',
                'r1': fmt(getattr(r, 'reading_1', None), dec) if r else '', 'r2': fmt(getattr(r, 'reading_2', None), dec) if r else '',
                'base': fmt(vals[sno - 1], dec) if sno - 1 < len(vals) else ''}
         row.update(common)
@@ -196,3 +212,64 @@ def period_rows(chart, lim, base_values, results, year, month=0):
 def month_rows(chart, baseline, results, year):
     """Backward-compatible wrapper (CRM form)."""
     return period_rows(chart, baseline.limits() if baseline else None, baseline.values if baseline else [], results, year)
+
+
+def render_baseline(chart, b, fmt_out='svg', width_in=7.6, height_in=3.2):
+    """Item 4 (10-10-2026): the baseline data points, date-wise, against their own mean and limits."""
+    dec = chart.decimals
+    pts = b.points() if b else []
+    lim = b.limits() if b else None
+    fig, ax = plt.subplots(figsize=(width_in, height_in), dpi=150)
+    nx = max(len(pts), 1)
+    xs = list(range(1, nx + 1))
+    ax.set_xlim(0.5, nx + 0.5)
+    ax.set_xticks(xs)
+    ax.set_xticklabels([(d.strftime('%d-%m-%y') if d else str(i + 1)) for i, (d, _v) in enumerate(pts)] or [''],
+                       fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 12 else 60)
+    if lim:
+        lines = [('ul', C_UL, 'UL (+3 SD)', '-'), ('uwl', C_UWL, 'UWL (+2 SD)', '--'), ('mean', C_MEAN, 'Mean', '-')]
+        if not chart.upper_only:
+            lines += [('lwl', C_UWL, 'LWL (-2 SD)', '--'), ('ll', C_UL, 'LL (-3 SD)', '-')]
+        for key, col, lbl, ls in lines:
+            ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.1, ls=ls, label=lbl, zorder=2)
+            ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
+                        fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
+    if pts:
+        ax.plot(xs[:len(pts)], [v for _d, v in pts], color=C_RESULT, lw=1.3, marker='D', ms=5, mfc='white', mec=C_RESULT,
+                label='Baseline result', zorder=4)
+        for x, (_d, v) in zip(xs, pts):
+            ax.annotate(fmt(v, dec), xy=(x, v), xytext=(0, 6), textcoords='offset points', fontsize=6.5 if nx <= 16 else 5.5,
+                        ha='center', color='#1f2937')
+    ys = [v for _d, v in pts]
+    if lim and lim.get('sd'):
+        lo, hi = lim['ll'] - lim['sd'], lim['ul'] + lim['sd']
+        if ys:
+            lo, hi = min(lo, min(ys) - lim['sd']), max(hi, max(ys) + lim['sd'])
+        if hi > lo:
+            ax.set_ylim(lo, hi)
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=8, steps=[1, 2, 5, 10]))
+    tk = [t for t in ax.get_yticks()]
+    step = (tk[1] - tk[0]) if len(tk) > 1 else 0
+    ydec = max(dec, int(_math.ceil(-_math.log10(step) - 1e-9))) if step > 0 else dec
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.' + str(min(ydec, 6)) + 'f'))
+    ax.tick_params(axis='y', labelsize=7)
+    ax.set_xlabel('Baseline date', fontsize=8)
+    ax.set_ylabel(('Result (%s)' % chart.unit) if chart.unit else 'Result', fontsize=8)
+    ax.set_title(chart_heading(chart, 'Baseline v%d (established %s)' % (b.version, b.established_label) if b else 'Baseline'),
+                 fontsize=9.5, fontweight='bold', color='#0f5132')
+    ax.grid(True, color='#e5e7eb', lw=0.6)
+    for sp in ('top', 'right'):
+        ax.spines[sp].set_visible(False)
+    if not pts:
+        ax.text(0.5, 0.5, 'Data points not supplied - mean and SD entered from the printed record', transform=ax.transAxes,
+                ha='center', va='center', fontsize=8, color='#6b7280')
+    fig.tight_layout()
+    fig.subplots_adjust(right=0.9)
+    fig.canvas.draw()
+    lb = ax.xaxis.label.get_window_extent(fig.canvas.get_renderer()).transformed(ax.transAxes.inverted())
+    if lim or pts:
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, lb.y0 - 0.02), ncol=6, fontsize=6.5, frameon=False)
+    buf = io.BytesIO()
+    fig.savefig(buf, format=fmt_out, bbox_inches='tight')
+    plt.close(fig)
+    return buf.getvalue()

@@ -235,9 +235,9 @@
           </ul>
           With either statistical mode the acceptance limits are still checked - a reading outside them is always <i>Out of limits</i>, and the graph shows them as a grey dotted <i>Acceptance range</i> line.</li>
         <li>If the monitoring form carries its own controlled number (e.g. <b>ETAL-LAB-603-FF-07</b> for laboratory temperature, <b>-07A</b> for humidity, <b>-07B</b> for the visi-cooler), enter it in <b>Document No. of this form</b>; it then replaces the laboratory's form number on the chart page and the PDF.</li>
-        <li>On the chart page enter the <b>Date</b>, optionally the <b>Time</b>, and either the <b>Reading</b> or the two readings <b>1st half</b> and <b>2nd half</b> of the day: the daily value is their average, filled in automatically, and both readings are kept and printed. The same date and time cannot be entered twice.</li>
+        <li>On the chart page enter the <b>Date</b> and either the <b>Reading</b> or the two readings <b>1st half</b> and <b>2nd half</b> of the day: the daily value is their average, filled in automatically. Both readings are kept and shown on the screen under the daily value; the printed form shows the daily value only. One reading is recorded per day.</li>
         <li>A reading outside the limits shows <span class="pill bad">OUT OF LIMITS - remark required</span>; write the corrective action (e.g. "door left open during sample loading; closed, re-checked after 30 min") and save.</li>
-        <li>The sheet is <b>monthly</b>: choose the month next to the year. The PDF lists every reading with date, time and (when entered) the 1st-half and 2nd-half readings, the limits that applied (for a seasonal baseline, the version of that season), the mean and SD, the acceptance range and the number of readings outside it, and the graph; long months continue on a second page.</li>
+        <li>The sheet is <b>monthly</b>: choose the month next to the year. The PDF lists every daily reading with its date (no time and no half-day readings), the limits that applied (for a seasonal baseline, the version of that season), the mean and SD, the acceptance range and the number of readings outside it, and the graph; long months continue on a second page.</li>
       </ol>
       <div class="tip note">Examples of limits: visi-cooler / refrigerator 2-8 &deg;C, freezer &le; -15 &deg;C (or &le; -18 &deg;C), incubator 35-37 &deg;C, laboratory 20-25 &deg;C (Lahore: 22-28 &deg;C), relative humidity 30-70 % (Lahore: 40-60 %), analytical balance daily check with a 200 g weight 199.9997-200.0003 g. Use the limits in your SOP or the equipment's specification. Ask an administrator to enter the document-control number of the Monitoring form (Document Control page), or enter the form's own number on the chart master as described above.</div>
     </section>
@@ -253,6 +253,15 @@
         <tr><td>UL / LL (action)</td><td>Mean &plusmn; 3 &times; SD</td><td>Red dashed lines</td></tr>
       </table>
       <p>Baselines are <b>versioned</b>. When an administrator establishes a new baseline (normally once a year), it becomes version 2, 3 and so on; results that were recorded under the earlier version keep the limits they were judged against, so history is never rewritten.</p>
+      <ul>
+        <li><b>One chart per baseline.</b> Each version has its own chart and form. A newly established baseline starts <b>empty</b>: results recorded under the earlier version are not plotted on it. When a record period holds results of more than one version, a <b>baseline selector</b> appears next to the year (and month); each version is shown, plotted and printed separately. The sign-off (signature, review, approval) covers the whole record period.</li>
+        <li><b>Corrections</b> made with the pencil on an earlier version's chart stay on that version; a new result is always recorded under the current baseline.</li>
+        <li><b>Established</b> is shown as month and year only (e.g. <i>established Feb-2026</i>).</li>
+        <li><b>Baseline values with dates.</b> Enter one value per line as <code>dd-mm-yyyy value</code>; the baseline form then lists the data points date-wise with their graph. Open it from <b>Baselines</b> on the chart page (eye icon = data points and graph on screen, PDF icon = the printed baseline form).</li>
+        <li><b>List of baselines.</b> The foot of every chart page and the Baselines page list all versions of the chart - established month, n, mean, SD, (monitoring) acceptance range, how many results were judged against it - with links to the chart and the baseline form of each version.</li>
+        <li><b>Monitoring charts</b> can carry the acceptance range per baseline (e.g. 18-26 &deg;C with an older season, 22-28 &deg;C later); each form prints the range of its own baseline. Before the first baseline of a monitoring chart, its months are judged against the acceptance range only and print as fixed-limit sheets.</li>
+        <li>A baseline whose data points were not supplied (only mean and SD on a printed record) is shown as <i>"data points not supplied"</i>; its limits still apply.</li>
+      </ul>
       <div class="tip note">The numbers you see on screen are the same ones the Excel workbooks produced — the seeded baselines were checked against the original sheets value by value.</div>
     </section>
 
@@ -276,7 +285,7 @@
         <li>Enter the <b>date</b> the CRM was analysed. Today's date is pre-filled.</li>
         <li>Type the <b>result</b> in the chart's unit (shown beside the box). As you type, the form previews the status — green, amber or red — against the current limits.</li>
         <li>If the preview is amber or red, the <b>remark</b> box becomes mandatory: record what was observed and what corrective action was taken.</li>
-        <li>Click <b>Record result</b>. The point appears on the graph and the table row fills in, stamped with your name and the time.</li>
+        <li>Click <b>Record result</b>. The point appears on the graph and the table row fills in with your name.</li>
       </ol>
       <div class="warn note"><b>One result per calendar month.</b> If a result already exists for that month the save is refused — use the <b>Edit</b> (pencil) button on that row instead. The date cannot be in the future.</div>
       <div class="note">Values are accepted with up to the chart's configured number of decimals (usually 2; 3 for pH, fluoride and nitrate; 4 for the AS-13 absorption spectrometer).</div>
@@ -320,7 +329,7 @@
         <tr><td>2. Reviewed by <span class="badge b-warn">QC Manager</span></td><td>The QC / Lab Manager assigned to that laboratory</td><td>Confirms the results, statuses and remarks have been checked. Needs at least one result in the year.</td></tr>
         <tr><td>3. Approved by <span class="badge b-bad">Administrator</span></td><td>CEO / administrator</td><td>Approves and <b>locks</b> the year. Possible only after review. Removes the "NOT APPROVED" watermark from the PDF.</td></tr>
       </table>
-      <p>Each step stamps the user's name and the date and time, and places that user's electronic signature image on the PDF.</p>
+      <p>Each step records the user's name (the date and time are kept in the audit history) and places that user's electronic signature image on the PDF. Forms print the name and signature only - no date or time stamp.</p>
     </section>
 
     <section class="topic" id="t-review" data-cat="signoff" data-keywords="review button qc manager undo review reviewed badge how to review">
@@ -346,7 +355,7 @@
       <h2><span class="cat-tag">Review &amp; approval</span> <span class="badge b-ok">All analysts</span> Signing imported records and bulk sign-off</h2>
       <p>The 2026 results imported from the laboratory's Excel workbooks were entered by the system, so they carry no <i>Performed by</i> analyst and the PDF signature boxes are empty. They are signed in the system as follows:</p>
       <ol>
-        <li><b>Analyst</b> - open the chart and period; the sign-off panel shows <span class="pill warn">12 results not signed (imported)</span>. Click <b>Sign as performer</b> and confirm. Your e-signature and the <b>actual signing date</b> are printed in the <i>Performed by</i> box.</li>
+        <li><b>Analyst</b> - open the chart and period; the sign-off panel shows <span class="pill warn">12 results not signed (imported)</span>. Click <b>Sign as performer</b> and confirm. Your name and e-signature are printed in the <i>Performed by</i> box (the signing date and time are kept in the audit history but are not printed).</li>
         <li><b>QC Manager</b> - click <b>Review</b> (disabled until every result is signed and every out-of-limit result has a remark).</li>
         <li><b>CEO / administrator</b> - click <b>Approve &amp; lock</b>.</li>
       </ol>
@@ -455,11 +464,12 @@
       <h2><span class="cat-tag">PDF form</span> The printed form</h2>
       <p><b>PDF form</b> on the chart page (or the PDF icon in any list) produces a one-page A4 form <b>ETAL-LAB-604-FF-11</b> for the selected year: the document-control box, the chart header, the twelve-month table colour-coded by status, the graph with its limits, the remarks, the SOP note and the three electronic-signature panels. The file name carries the laboratory, parameter, equipment ID and year, e.g. <code>ControlChart_Lahore_Nitrate_VS-03_2026.pdf</code>.</p>
       <p>The document-control number, issue date, issue and revision numbers are maintained per laboratory by an administrator in the document-control register.</p>
+      <p>The heading of the graph is the chart's <b>Description</b> (as printed in the header of the form) followed by the period, so the graph and the form always carry the same title. Edit the description in <b>Edit master</b> to change both.</p>
     </section>
 
     <section class="topic" id="t-watermark" data-cat="pdf" data-keywords="not approved watermark diagonal provisional signature images electronically signed">
       <h2><span class="cat-tag">PDF form</span> The "NOT APPROVED" watermark and signatures</h2>
-      <p>Until the year has been approved, every PDF carries a diagonal <b>NOT APPROVED</b> watermark so a provisional print can never be mistaken for a controlled record. After approval the watermark disappears and the three signature panels show the signature image, name and date-time of the analyst, the QC Manager and the approver. A user without a signature image on file is shown as "Electronically signed".</p>
+      <p>Until the year has been approved, every PDF carries a diagonal <b>NOT APPROVED</b> watermark so a provisional print can never be mistaken for a controlled record. After approval the watermark disappears and the three signature panels show the signature image and name of the analyst, the QC Manager and the approver (no date or time is printed). A user without a signature image on file is shown as "Electronically signed".</p>
     </section>
 
     <!-- ============ HELP ============ -->
@@ -504,7 +514,7 @@
 
 <footer>
   <div><b>Envi Tech AL — Control Charts module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories. Form ETAL-LAB-604-FF-11; procedure ETAL-LAB-P-604.</div>
-  <div style="margin-top:4px">Revision 2 — 10-10-2026. This document reflects the module as deployed on 10-10-2026 (monitoring limit modes with seasonal baselines, 1st/2nd-half readings, per-chart document numbers and the Lahore 2026 import included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
+  <div style="margin-top:4px">Revision 3 — 11-10-2026. This document reflects the module as deployed on 11-10-2026 (one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
 </footer>
 
 <script>

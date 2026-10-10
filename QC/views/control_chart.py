@@ -7,6 +7,7 @@ An approved year is locked for everyone except superusers.
 """
 from .shared import *  # noqa: F401,F403
 import json as _json
+import re as _re
 import math as _math
 from datetime import date as _date, datetime as _dt
 from django.utils import timezone as _tz
@@ -16,7 +17,7 @@ from django.contrib import messages as _msg
 from django.views.decorators.http import require_POST as _require_POST
 
 from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer,
-                       run_limits, classify_value, parse_values, suspect_values, ACTIVITY_PROFILE)
+                       run_limits, classify_value, parse_values, parse_dated_values, suspect_values, ACTIVITY_PROFILE)
 from QC.control_chart_render import render_chart, period_rows, period_label as _plabel, fmt as _fmt, MONTHS as _MONTHS
 
 _CC_LOCS = ['Karachi', 'Lahore']
@@ -254,6 +255,66 @@ def _period_baseline(chart, results, year, month=0):
     return chart.current_baseline()
 
 
+def _period_view(request, chart, year, month=0):
+    """Results, baseline and limits of the record period shown on the page / form.
+    Owner decision 11-10-2026 (item 2): one chart per baseline version - a period holding results
+    judged against several versions is shown one version at a time (?bv=<version>, 0 = before the
+    first baseline of a monitoring chart); a newly established baseline starts empty."""
+    import calendar as _cal
+    all_r = _period_results(chart, year, month)
+    out = {'all': all_r, 'versions': [], 'bv': None}
+    if chart.self_limited or chart.mon_mode == 'fixed':
+        out.update(results=all_r, b=None, lim=_limits(chart, None, all_r))
+        return out
+    groups = {}
+    for r in all_r:
+        eb = chart.effective_baseline(r)
+        groups.setdefault(eb.pk if eb else 0, [eb, []])[1].append(r)
+    if chart.period_is_month:
+        start, end = _date(year, month or 1, 1), _date(year, month or 12, _cal.monthrange(year, month or 12)[1])
+    else:
+        start, end = chart.cycle_range(year)
+    if chart.mon_mode == 'baseline':
+        if groups:
+            dkey = max(groups, key=lambda k: len(groups[k][1]))
+        else:
+            fb = chart.baseline_for(end)
+            dkey = fb.pk if fb else 0
+            groups.setdefault(dkey, [fb, []])
+    else:
+        cur = chart.current_baseline()
+        if cur and start <= _date.today() <= end:
+            dkey = cur.pk                       # the open record: the version new results go to
+        elif groups:
+            dkey = max(groups, key=lambda k: (groups[k][0].version if groups[k][0] else 0))
+        else:
+            dkey = cur.pk if cur else 0
+        if dkey not in groups:
+            groups[dkey] = [cur if (cur and cur.pk == dkey) else None, []]
+    key = dkey
+    want = (request.GET.get('bv') or '').strip() if request is not None else ''
+    if want.isdigit():
+        for k, (eb, _rs) in groups.items():
+            if (eb.version if eb else 0) == int(want):
+                key = k
+    b, res = groups[key]
+    for k, (eb, rs) in sorted(groups.items(), key=lambda kv: (kv[1][0].version if kv[1][0] else 0)):
+        out['versions'].append({'v': eb.version if eb else 0, 'sel': k == key, 'n': len(rs),
+                                'label': ('v%d - established %s' % (eb.version, eb.established_label)) if eb else
+                                         'Before the first baseline (acceptance range only)'})
+    if len(out['versions']) < 2:
+        out['versions'] = []
+    if chart.mon_mode == 'baseline' and b is None:
+        chart._view_fixed = True
+    chart._view_baseline = b
+    out.update(results=res, b=b, lim=_limits(chart, b, res), bv=(b.version if b else 0))
+    return out
+
+
+def _pqv(year, month, view):
+    return _pq(year, month) + (('&bv=%d' % view['bv']) if view.get('versions') else '')
+
+
 def _restatus_chart(chart):
     """Re-judge every reading of a monitoring chart (after its limits or limit mode changed)."""
     if chart.mon_mode == 'run':
@@ -262,8 +323,8 @@ def _restatus_chart(chart):
         return
     for r in chart.results.all():
         b = (r.baseline or chart.baseline_for(r.date)) if chart.mon_mode == 'baseline' else None
-        lim = chart.spec_limits() if chart.fixed_limits else (b.limits() if b else None)
-        st = chart.classify(lim, r.value)
+        lim = chart.spec_limits(b) if chart.fixed_limits else (b.limits() if b else None)
+        st = chart.classify(lim, r.value, b)
         upd = {}
         if st != r.status:
             upd['status'] = st
@@ -504,12 +565,12 @@ def control_chart_detail(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
     year = _year(request, chart)
     month = _month(request, chart, year)
-    results = _period_results(chart, year, month)
-    b = _period_baseline(chart, results, year, month)
-    lim = _limits(chart, b, results)
+    view = _period_view(request, chart, year, month)
+    results, b, lim, all_r = view['results'], view['b'], view['lim'], view['all']
     rows, extra_base = period_rows(chart, lim, b.values if (b and not chart.no_baseline) else [], results, year, month)
     svg = render_chart(chart, lim, results, year, month, 'svg').decode('utf-8') if (lim or (chart.self_limited and results)) else ''
     so = _signoff(chart, year, month)
+    cur = chart.current_baseline()
     user = request.user
     lim_f = {k: _fmt(v, chart.decimals) for k, v in (lim or {}).items() if k != 'spec'}
     if lim and lim.get('sd') is not None:
@@ -521,7 +582,10 @@ def control_chart_detail(request, pk):
         months = [{'m': i, 'name': _MONTHS[i - 1], 'has': i in have} for i in range(1, 13)]
     return render(request, 'control_chart_detail.html', {
         'chart': chart, 'b': b, 'lim': lim_f, 'lim_n': (lim or {}).get('n', 0), 'rows': rows, 'nrows': len(rows), 'extra_base': extra_base, 'results': results, 'svg': svg,
-        'year': year, 'years': years, 'month': month, 'months': months, 'period': _plabel(chart, year, month), 'pq': _pq(year, month),
+        'year': year, 'years': years, 'month': month, 'months': months, 'period': _plabel(chart, year, month), 'pq': _pqv(year, month, view),
+        'versions': view['versions'], 'bv': view['bv'], 'all_results': all_r,
+        'can_enter': True, 'old_version': bool(b is not None and cur is not None and b.pk != cur.pk and chart.mon_mode != 'baseline' and not chart.no_baseline),
+        'cur': cur, 'baseline_list': _baseline_list(chart), 'range_txt': chart.range_text(),
         'so': so, 'docctrl': _chart_docctrl(chart), 'sop_note': chart.profile['note'],
         'locked': _year_locked(chart, year, user, month), 'can_review': _can_review(user, chart), 'can_approve': _can_approve(user, chart),
         'can_admin': _is_admin(user), 'can_edit_master': _can_edit_master(user, chart), 'can_set_baseline': _can_set_baseline(user, chart) and not chart.no_baseline,
@@ -529,16 +593,36 @@ def control_chart_detail(request, pk):
         'base_values': ', '.join(_fmt(v, chart.decimals) for v in (b.values if b else [])),
         'month_names': _MONTHS, 'cycle_name': chart.cycle_name, 'acc_js': _json.dumps(_acc_range(chart)),
         'run_js': _json.dumps({str(x.pk): x.value for x in results}) if chart.self_limited else '{}',
-        'n_missing': sum(1 for x in results if x.status != 'ok' and not (x.remark or '').strip()),
-        'n_unsigned': sum(1 for x in results if not x.performed_by_id),
+        'n_missing': sum(1 for x in all_r if x.status != 'ok' and not (x.remark or '').strip()),
+        'n_unsigned': sum(1 for x in all_r if not x.performed_by_id),
         'can_delete': _can_delete_chart(user, chart),
         'my_office_ok': (not _user_office(user)) or _user_office(user) == chart.location or _is_admin(user),
     })
 
 
+def _baseline_list(chart):
+    """All baseline versions of a chart with where to find their charts (item 6, 10-10-2026)."""
+    out = []
+    if chart.self_limited or chart.mon_mode == 'fixed':
+        return out
+    counts = {}
+    for r in chart.results.all().only('id', 'date', 'baseline_id'):
+        if r.baseline_id:
+            counts.setdefault(r.baseline_id, []).append(r.date)
+    for bl in chart.baselines.order_by('version'):
+        ds = sorted(counts.get(bl.pk, []))
+        first = ds[0] if ds else (bl.established_on or _date.today())
+        y, m = _qs_period(chart, first)
+        out.append({'b': bl, 'n_res': len(ds), 'q': _pq(y, m) + '&bv=%d' % bl.version,
+                    'range': chart.range_text(bl) if chart.spec_limited else '',
+                    'first': first, 'last': ds[-1] if ds else None})
+    return out
+
+
 def _acc_range(chart):
     out = {}
-    for k, v in (('lo', chart.crm_range_low), ('hi', chart.crm_range_high)):
+    lo, hi = chart.range_pair()
+    for k, v in (('lo', lo), ('hi', hi)):
         try:
             out[k] = float(v) if v not in ('', None) else None
         except ValueError:
@@ -609,15 +693,9 @@ def control_chart_result_save(request, pk):
         _msg.error(request, 'Date and a numeric reading are required.' if chart.spec_limited else
                    'Date and a non-negative numeric result are required.')
         return _redirect('control_chart_detail', pk=pk)
-    tm = (request.POST.get('time') or '').strip()[:5]
-    if chart.spec_limited:
-        try:
-            tm = _dt.strptime(tm, '%H:%M').strftime('%H:%M') if tm else ''
-        except ValueError:
-            _msg.error(request, 'Time of reading must be HH:MM (e.g. 09:00).')
-            return _redirect(f"/qc/control-charts/{pk}/")
-    else:
-        tm = ''
+    # item 1 (10-10-2026): no time stamps on the forms - one reading per day (the daily average of the
+    # 1st-half and 2nd-half readings); a time recorded earlier is kept only until the reading is edited
+    tm = ''
     if d > _date.today() or d.year < 2000:
         _msg.error(request, 'The result date must be between 01-01-2000 and today.')
         return _redirect(f"/qc/control-charts/{pk}/")
@@ -638,27 +716,26 @@ def control_chart_result_save(request, pk):
     if chart.cadence == 'monthly' and same.filter(date__year=d.year, date__month=d.month).exists():
         _msg.error(request, 'A result for %s %d already exists - edit that one instead (one result per month).' % (_MONTHS[d.month - 1], d.year))
         return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
-    if chart.spec_limited and same.filter(date=d, time=tm).exists():
-        _msg.error(request, 'A reading at %s on %s already exists - edit it instead.' % (tm, d.strftime('%d-%m-%Y')))
-        return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
-    if chart.cadence not in ('monthly', 'reading') and same.filter(date=d).exists():
+    if chart.cadence != 'monthly' and same.filter(date=d).exists():
         _msg.error(request, 'A result dated %s already exists - edit it instead.' % d.strftime('%d-%m-%Y'))
         return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
     b = chart.baseline_for(d) if chart.mon_mode == 'baseline' else chart.current_baseline()
+    if r is not None and r.baseline_id and chart.mon_mode != 'baseline' and not chart.no_baseline:
+        b = r.baseline                  # item 2: a correction stays on the baseline the result was judged against
     if chart.self_limited:
         # IC: limits come from the run itself, including this reading
         others = [x.value for x in _period_results(chart, py, pm) if not (r and x.pk == r.pk)]
         lim = run_limits(others + [value])
     elif chart.fixed_limits:
-        lim = chart.spec_limits()
+        lim = chart.spec_limits(b)
     else:
         lim = b.limits() if b else None
-    status = chart.classify(lim, value)
+    status = chart.classify(lim, value, b)
     remark = (request.POST.get('remark') or '').strip()
-    if status != 'ok' and not remark and chart.spec_limited and chart.outside_range(value):
+    if status != 'ok' and not remark and chart.spec_limited and chart.outside_range(value, b):
         _msg.error(request, 'This reading is OUTSIDE THE ACCEPTANCE LIMITS (%s %s) - a remark / corrective action is required before it can be saved.' % (
-            chart.crm_range, chart.unit))
-        return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}&date={d.isoformat()}&value={value}&time={tm}")
+            chart.range_text(b), chart.unit))
+        return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}&date={d.isoformat()}&value={value}")
     if status != 'ok' and not remark:
         acc = chart.within_acceptance(value)
         _msg.error(request, 'This result is %s - a remark / corrective action is required before it can be saved.%s' % (
@@ -670,10 +747,10 @@ def control_chart_result_save(request, pk):
     if chart.no_baseline:
         b = None
     if r is not None:
-        if r.date != d or abs(r.value - value) > 1e-12 or (r.time or '') != tm:
+        if r.date != d or abs(r.value - value) > 1e-12:
             # corrections stay traceable: the superseded value is kept in the remark
             note = '[Corrected %s by %s: was %s on %s]' % (_date.today().strftime('%d-%m-%Y'), _uname(user) or 'user',
-                                                          _fmt(r.value, chart.decimals), r.date.strftime('%d-%m-%Y') + ((' ' + r.time) if r.time else ''))
+                                                          _fmt(r.value, chart.decimals), r.date.strftime('%d-%m-%Y'))
             remark = (remark + ' ' + note).strip()
         r.date, r.time, r.value, r.status, r.remark, r.baseline = d, tm, value, status, remark, b
         if chart.spec_limited:
@@ -706,7 +783,7 @@ def control_chart_result_save(request, pk):
 def _st(chart, r):
     if chart.fixed_limits:
         return 'Out of limits' if r.status == 'ooc' else 'Within limits'
-    if chart.spec_limited and r.status == 'ooc' and chart.outside_range(r.value):
+    if chart.spec_limited and r.status == 'ooc' and chart.outside_range(r.value, chart.effective_baseline(r)):
         return 'Out of limits'
     return r.get_status_display()
 
@@ -944,15 +1021,30 @@ def control_chart_baseline(request, pk):
                   'its fixed acceptance limits' if chart.fixed_limits else "the month's own readings")) if chart.spec_limited else
                   'Intermediate-check charts have no separate baseline: the limits of each monthly run are computed from its own readings.')
         return _redirect(f"/qc/control-charts/{pk}/")
-    if not _can_set_baseline(request.user, chart):
+    can_set = _can_set_baseline(request.user, chart)
+    if not can_set and request.method == 'POST':
         return HttpResponse('Baselines are maintained by an administrator (the chemist who created a chart may set its first baseline).', status=403)
     cur = chart.current_baseline()
+    sel = None                          # item 4: one version shown with its date-wise points and graph
+    if (request.GET.get('v') or '').isdigit():
+        sel = chart.baselines.filter(version=int(request.GET['v'])).first()
+    sel = sel or cur
+    sel_svg = ''
+    if sel is not None and (sel.points() or sel.limits()):
+        from QC.control_chart_render import render_baseline
+        sel_svg = render_baseline(chart, sel, 'svg').decode('utf-8')
+    rlo, rhi = chart.range_pair(cur)
+    # a new baseline starts empty (item 2): the form is not pre-filled with the previous version's values
     ctx = {'chart': chart, 'cur': cur, 'baselines': chart.baselines.all(), 'today': _date.today().strftime('%Y-%m-%d'),
-           'cur_values': ', '.join(_fmt(v, chart.decimals) for v in (cur.values if cur else [])), 'hint': chart.profile['base_hint']}
+           'cur_values': '', 'hint': chart.profile['base_hint'], 'sel': sel, 'sel_svg': sel_svg,
+           'sel_points': [{'i': i + 1, 'd': d, 'v': _fmt(v, chart.decimals)} for i, (d, v) in enumerate(sel.points())] if sel else [],
+           'sel_range': chart.range_text(sel) if (sel and chart.spec_limited) else '', 'blist': _baseline_list(chart),
+           'rlo': rlo, 'rhi': rhi, 'can_set': can_set}
     if request.method == 'POST':
         raw = request.POST.get('values', '')
-        ctx.update(cur_values=raw, est_value=request.POST.get('established_on', ''), note_value=request.POST.get('note', ''))
-        vals, errors = parse_values(raw)
+        ctx.update(cur_values=raw, est_value=request.POST.get('established_on', ''), note_value=request.POST.get('note', ''),
+                   rlo=request.POST.get('range_low', rlo), rhi=request.POST.get('range_high', rhi))
+        dates, vals, errors = parse_dated_values(raw)
         if not errors and len(vals) < 3:
             errors.append('At least 3 baseline values are required (12 are recommended); %d found.' % len(vals))
         if errors:
@@ -968,9 +1060,14 @@ def control_chart_baseline(request, pk):
         except Exception:
             est = _date.today()
         chart.baselines.update(is_current=False)
+        nrl, nrh = '', ''
+        if chart.spec_limited:
+            nrl, nrh = (request.POST.get('range_low') or '').strip()[:40], (request.POST.get('range_high') or '').strip()[:40]
+            if (nrl, nrh) == (chart.crm_range_low or '', chart.crm_range_high or ''):
+                nrl = nrh = ''               # same as the chart master: keep following the master
         b = ControlChartBaseline(chart=chart, version=(cur.version + 1 if cur else 1), established_on=est,
-                                 note=(request.POST.get('note') or '').strip()[:300], values=vals, is_current=True,
-                                 created_by=request.user)
+                                 note=(request.POST.get('note') or '').strip()[:300], values=vals, dates=dates, is_current=True,
+                                 range_low=nrl, range_high=nrh, created_by=request.user)
         b.compute(); b.save()
         if chart.activity == 'MON' and chart.mon_mode == 'baseline':
             # seasonal baselines: open readings from the season's start date onwards move to the baseline of their date
@@ -1123,16 +1220,23 @@ def _os_path_exists(p):
 def control_chart_pdf(request, pk):
     import os as _os
     chart = get_object_or_404(ControlChart, pk=pk)
+    bl_form = None                      # item 4: the baseline form of one version (?baseline=<version>)
+    if (request.GET.get('baseline') or '').isdigit():
+        bl_form = get_object_or_404(ControlChartBaseline, chart=chart, version=int(request.GET['baseline']))
     year = _year(request, chart)
     month = _month(request, chart, year)
-    results = _period_results(chart, year, month)
-    b = _period_baseline(chart, results, year, month)
-    lim = _limits(chart, b, results)
+    view = _period_view(request, chart, year, month)
+    results, b, lim = view['results'], view['b'], view['lim']
+    if bl_form is not None:
+        b, lim, results = bl_form, bl_form.limits(), []
+        chart._view_baseline, chart._view_fixed = bl_form, False
     rows, extra_base = period_rows(chart, lim, b.values if (b and not chart.no_baseline) else [], results, year, month)
-    so = _signoff(chart, year, month)
+    so = _signoff(chart, year, month) if bl_form is None else None
     ctrl = _chart_docctrl(chart)
     office = _CC_OFFICE.get(chart.location, _CC_OFFICE['Karachi'])
-    plabel = _plabel(chart, year, month)
+    plabel = _plabel(chart, year, month) if bl_form is None else 'BASELINE v%d - %s' % (bl_form.version, bl_form.established_label)
+    if bl_form is None and view['versions'] and b is not None:
+        plabel += '  (baseline v%d)' % b.version
     ref = chart.ref_label
     _LOGO, _CAL, _CALB = 'static/assets/EnviTechAL LOGO.png', 'static/fonts/calibri.ttf', 'static/fonts/calibrib.ttf'
     approved = bool(so and so.approved_at)
@@ -1225,7 +1329,7 @@ def control_chart_pdf(request, pk):
         if chart.mon_mode == 'run':
             lim_txt = ('month: n=%d, mean %s, SD %s' % (lim['n'], _fmt(lim['mean'], dec), _fmt(lim['sd'], dec + 1))) if lim else 'fewer than 2 readings'
         else:
-            lim_txt = ('baseline v%d, est. %s' % (b.version, b.established_on.strftime('%d-%m-%Y') if b.established_on else '-')) if b else 'no baseline'
+            lim_txt = ('baseline v%d, established %s' % (b.version, b.established_label)) if b else 'no baseline'
         kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
                 ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
                 ('Limits', lim_txt, L2, V2)])
@@ -1242,7 +1346,11 @@ def control_chart_pdf(request, pk):
     else:
         kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
                 ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
-                ('Baseline', ('v%d  (n = %d, established %s)' % (b.version, b.n, b.established_on.strftime('%d-%m-%Y') if b.established_on else '-')) if b else 'not established', L2, V2)])
+                ('Baseline', ('v%d  (n = %s, established %s)' % (b.version, b.n_text, b.established_label)) if b else 'not established', L2, V2)])
+    if bl_form is not None:
+        kv_row([('Description', 'Baseline v%d of: %s' % (bl_form.version, chart.description), L1, 160.0)])
+        pdf.ln(2.5)
+        return _baseline_pdf_body(request, chart, bl_form, pdf, f, kv_row, ctrl, plabel, LINE, GREY_FILL, GREEN, _os)
     kv_row([('Description', chart.description, L1, 160.0)])
     pdf.ln(2.5)
 
@@ -1250,14 +1358,14 @@ def control_chart_pdf(request, pk):
     rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
     halves = any(r.reading_1 is not None or r.reading_2 is not None for r in results)
     if mon_stat:
-        cols = [('S. No.', 10), ('Date', 20)] + ([('Time', 12)] if any(r.time for r in results) else []) + \
-               ([('1st half', 16), ('2nd half', 16)] if halves else []) + [('Reading%s' % unit, 20)] + \
+        # item 1 / e-mail 1 (10-10-2026): no Time column and no 1st/2nd-half readings on the printed form
+        cols = [('S. No.', 10), ('Date', 20)] + [('Reading%s' % unit, 20)] + \
                ([('Baseline\nResult', 17)] if chart.mon_mode == 'baseline' else []) + \
                [('UL (+3 SD)', 16), ('UWL (+2 SD)', 16), ('LWL (-2 SD)', 16), ('LL (-3 SD)', 16), ('Mean', 15), ('SD', 15)]
         tw = sum(w for _, w in cols)
         cols = [(lbl, w * 190.0 / tw) for lbl, w in cols]
     elif chart.spec_limited:
-        cols = [('S. No.', 12), ('Date', 28), ('Time', 20), ('Reading%s' % unit, 32), ('Lower\nlimit', 30), ('Upper\nlimit', 30), ('Status', 38)]
+        cols = [('S. No.', 12), ('Date', 38), ('Reading%s' % unit, 40), ('Lower\nlimit', 32), ('Upper\nlimit', 32), ('Status', 36)]
     elif chart.self_limited:
         cols = [('S. No.', 11), ('Date', 27), (rl, 30), ('UL (+3 SD)', 20.5), ('UWL (+2 SD)', 20.5), ('LWL (-2 SD)', 20.5),
                 ('LL (-3 SD)', 20.5), ('Run\nMean', 20), ('Run\nSD', 20)]
@@ -1273,15 +1381,13 @@ def control_chart_pdf(request, pk):
     pdf.set_font(f, '', 7.5)
     RH = 4.5
     if mon_stat:
-        has_t = any(r.time for r in results)
         all_rows = []
         for r in rows:
-            v = [str(r['sno']), r['date']] + ([r['month'] if r['result'] else ''] if has_t else []) + \
-                ([r['r1'], r['r2']] if halves else []) + [r['value']] + ([r['base']] if chart.mon_mode == 'baseline' else []) + \
+            v = [str(r['sno']), r['date']] + [r['value']] + ([r['base']] if chart.mon_mode == 'baseline' else []) + \
                 ([r['ul'], r['uwl'], r['lwl'], r['ll'], r['mean'], r['sd']] if r['result'] else ['', '', '', '', '', '']) + [r['status']]
             all_rows.append(v)
     elif chart.spec_limited:
-        all_rows = [[str(r['sno']), r['date'], r['month'] if r['result'] else '', r['value'], (r['ll'] or '-') if r['result'] else '', (r['ul'] or '-') if r['result'] else '',
+        all_rows = [[str(r['sno']), r['date'], r['value'], (r['ll'] or '-') if r['result'] else '', (r['ul'] or '-') if r['result'] else '',
                      ('' if not r['result'] else 'Out of limits' if r['status'] == 'ooc' else 'Within limits'), r['status']] for r in rows]
     elif chart.self_limited:
         all_rows = [[str(r['sno']), r['date'], r['value'], r['ul'], r['uwl'], r['lwl'], r['ll'], r['mean'], r['sd'], r['status']] for r in rows]
@@ -1344,7 +1450,7 @@ def control_chart_pdf(request, pk):
                 pass
 
     # ---- remarks + SOP note
-    rem = [(r['date'] + ((' ' + r['month']) if chart.spec_limited and r['month'] else ''), r['status'], r['remark']) for r in rows if r['remark']]
+    rem = [(r['date'], r['status'], r['remark']) for r in rows if r['remark']]
     if rem:
         pdf.ln(0.5); pdf.set_font(f, 'B', 7.5); pdf.set_x(10); pdf.cell(0, 4.2, 'Remarks / corrective actions', ln=1); pdf.set_font(f, '', 7.2)
         for d, st, t in rem:
@@ -1370,16 +1476,22 @@ def control_chart_pdf(request, pk):
             performed_users.append(r.performed_by)
     perf_names = ', '.join(_uname(u) for u in performed_users)
     perf_sig = _sig_image(performed_users[0]) if len(performed_users) == 1 else None
-    perf_when = max((r.performed_at for r in results if r.performed_by), default=None)
-    panels = [('Performed By', '(Chemist)', perf_names, perf_sig, perf_when),
+    panels = [('Performed By', '(Chemist)', perf_names, perf_sig),
               ('Reviewed By', '(QC Manager)', _uname(so.reviewed_by) if so and so.reviewed_at else '',
-               _sig_image(so.reviewed_by) if so and so.reviewed_at else None, so.reviewed_at if so and so.reviewed_at else None),
+               _sig_image(so.reviewed_by) if so and so.reviewed_at else None),
               ('Approved By', '(CEO)', _uname(so.approved_by) if approved else '',
-               _sig_image(so.approved_by) if approved else None, so.approved_at if approved else None)]
+               _sig_image(so.approved_by) if approved else None)]
+    _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL)
+    pdf.set_draw_color(0, 0, 0)
+    return _pdf_response(pdf, chart, plabel)
+
+
+def _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL):
+    """Three e-signature panels. Item 1 (10-10-2026): name and signature only - no date / time."""
     LBL_H, NAME_H, ROLE_H = 5.0, 4.6, 4.0
     img_h = blk_h - LBL_H - NAME_H - ROLE_H - 2.0
     pdf.set_draw_color(*LINE)
-    for i, (lbl, role, who, sig, when) in enumerate(panels):
+    for i, (lbl, role, who, sig) in enumerate(panels):
         x = 10 + i * (_SIG_W + 2.0)
         pdf.rect(x, top, _SIG_W, blk_h)
         pdf.set_fill_color(*GREY_FILL); pdf.rect(x, top, _SIG_W, LBL_H, 'F')
@@ -1407,13 +1519,86 @@ def control_chart_pdf(request, pk):
             nm = nm[:-2]
         pdf.cell(_SIG_W, NAME_H, nm, 0, 0, 'C')
         pdf.set_xy(x, ny + NAME_H); pdf.set_font(f, '', 6.8); pdf.set_text_color(70, 70, 70)
-        pdf.cell(_SIG_W, ROLE_H, role + (('   ' + _tz.localtime(when).strftime('%d-%m-%Y %H:%M')) if when else ''), 0, 0, 'C')
+        pdf.cell(_SIG_W, ROLE_H, role, 0, 0, 'C')
         pdf.set_text_color(0, 0, 0)
-    pdf.set_draw_color(0, 0, 0)
 
+
+def _pdf_response(pdf, chart, plabel):
     out = pdf.output(dest='S')
     data = bytes(out) if not isinstance(out, str) else out.encode('latin-1')
     resp = HttpResponse(data, content_type='application/pdf')
     resp['Content-Disposition'] = 'inline; filename="ControlChart_%s_%s_%s_%s_%s.pdf"' % (
-        chart.location, chart.activity, chart.parameter.replace(' ', '_'), chart.equipment_id or 'NA', plabel.replace('-', '_'))
+        chart.location, chart.activity, chart.parameter.replace(' ', '_'), chart.equipment_id or 'NA', _re.sub(r'[^A-Za-z0-9]+', '_', plabel).strip('_'))
     return resp
+
+
+def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, GREY_FILL, GREEN, _os):
+    """Item 4 (10-10-2026): the baseline form - date-wise data points, their statistics and graph."""
+    from QC.control_chart_render import render_baseline
+    dec = chart.decimals
+    lim = bl.limits() or {}
+    pts = bl.points()
+    cols = [('S. No.', 12), ('Date', 26), ('Result%s' % ((' (%s)' % chart.unit) if chart.unit else ''), 26), ('UL (+3 SD)', 21),
+            ('UWL (+2 SD)', 21), ('LWL (-2 SD)', 21), ('LL (-3 SD)', 21), ('Mean', 21), ('SD', 21)]
+    pdf.set_font(f, 'B', 7); pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255)
+    x0, y0 = pdf.get_x(), pdf.get_y()
+    for lbl, w in cols:
+        x = pdf.get_x(); pdf.set_xy(x, y0)
+        pdf.multi_cell(w, 4, '\n' + lbl, 1, 'C', fill=True); pdf.set_xy(x + w, y0)
+    pdf.set_xy(x0, y0 + 8); pdf.set_text_color(0, 0, 0); pdf.set_font(f, '', 7.5)
+    RH = 4.5
+    sd_dec = dec + 1 if dec < 4 else dec
+    common = [_fmt(lim.get('ul'), dec), _fmt(lim.get('uwl'), dec), _fmt(lim.get('lwl'), dec), _fmt(lim.get('ll'), dec),
+              _fmt(lim.get('mean'), dec), _fmt(lim.get('sd'), sd_dec)]
+    for i, (d, v) in enumerate(pts):
+        pdf.set_fill_color(*(GREY_FILL if i % 2 else (255, 255, 255)))
+        vals = [str(i + 1), d.strftime('%d-%m-%Y') if d else '-', _fmt(v, dec)] + common
+        for (lbl, w), t in zip(cols, vals):
+            pdf.set_font(f, 'B' if lbl.startswith('Result') else '', 7.5)
+            pdf.cell(w, RH, t, 1, 0, 'C', fill=True)
+        pdf.ln(RH)
+    if not pts:
+        pdf.set_font(f, '', 7.5); pdf.cell(190, RH, 'Data points not supplied - mean and standard deviation entered from the printed laboratory record.', 1, 1, 'C')
+    pdf.set_fill_color(*GREY_FILL)
+    summ = [('Number of results', bl.n_text), ('Mean', _fmt(bl.mean, dec)), ('Standard Deviation', _fmt(bl.sd, sd_dec)),
+            ('Established', bl.established_label)]
+    if chart.spec_limited:
+        summ.append(('Acceptance range', (chart.range_text(bl) + ((' ' + chart.unit) if chart.unit else '')) if chart.range_text(bl) else '-'))
+    if bl.note:
+        summ.append(('Note', bl.note))
+    for lbl_, val_ in summ:
+        pdf.set_font(f, 'B', 7.5); pdf.cell(56, RH, lbl_, 1, 0, 'R', fill=True)
+        pdf.set_font(f, '', 7.5)
+        txt = '  ' + val_
+        if pdf.get_string_width(txt) > 132:
+            while pdf.get_string_width(txt + '...') > 132 and len(txt) > 10:
+                txt = txt[:-1]
+            txt += '...'
+        pdf.cell(134, RH, txt, 1, 1, 'L')
+    if lim or pts:
+        chart_mm = max(62.0, min(95.0, _FOOT_TOP - pdf.get_y() - 46.0))
+        png = render_baseline(chart, bl, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
+        import tempfile as _tf
+        tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
+        try:
+            tmp.write(png); tmp.close()
+            pdf.ln(1.5); pdf.image(tmp.name, x=17, w=176)
+        finally:
+            try:
+                _os.unlink(tmp.name)
+            except OSError:
+                pass
+    MIN_H, MAX_H = 24.0, 40.0
+    top = pdf.get_y() + 2.5
+    avail = _FOOT_TOP - top
+    if avail < MIN_H:
+        pdf.add_page(); top = pdf.get_y() + 2; avail = _FOOT_TOP - top
+    blk_h = max(MIN_H, min(MAX_H, avail))
+    top = _FOOT_TOP - blk_h
+    pdf.set_auto_page_break(False)
+    who = bl.created_by
+    panels = [('Performed By', '(Chemist)', _uname(who) if who else '', _sig_image(who) if who else None),
+              ('Reviewed By', '(QC Manager)', '', None), ('Approved By', '(CEO)', '', None)]
+    _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL)
+    pdf.set_draw_color(0, 0, 0)
+    return _pdf_response(pdf, chart, plabel)
