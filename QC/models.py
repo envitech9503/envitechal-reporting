@@ -633,5 +633,27 @@ class ControlChartReviewer(models.Model):
         return '%s - %s' % (self.user.get_username(), self.location)
 
 
+class ControlChartDeletion(models.Model):
+    """Audit trail of deleted control-chart records (owner decision 11-10-2026): who deleted what,
+    when and why, with a copy of the deleted data. Deletion is reserved to the laboratory's
+    QC / Lab Manager and the CEO / administrator."""
+    KINDS = (('chart', 'Chart'), ('result', 'Result'), ('baseline', 'Baseline'))
+    kind = models.CharField(max_length=10, choices=KINDS)
+    chart_ref = models.IntegerField(null=True, blank=True)        # id of the chart (it may no longer exist)
+    location = models.CharField(max_length=20, blank=True, default='')
+    activity = models.CharField(max_length=10, blank=True, default='')
+    label = models.CharField(max_length=300, blank=True, default='')
+    reason = models.TextField()
+    snapshot = models.JSONField(default=dict, blank=True)
+    deleted_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    deleted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-deleted_at']
+
+    def __str__(self):
+        return '%s %s deleted %s' % (self.kind, self.label, self.deleted_at)
+
+
 for _m in (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer):
     _sh_register(_m)

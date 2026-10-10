@@ -159,7 +159,7 @@
       <p>You must be logged in. There are three ways in:</p>
       <ul>
         <li><b>From QC.</b> Click <span class="path">QC</span> in the top navigation bar. The <b>Control Charts</b> card offers <b>Record Result</b>, <b>View Charts</b>, <b>Sign-off</b>, <b>Archive</b> and <b>User Manual</b>.</li>
-        <li><b>From the QC sidebar.</b> Inside any QC page, open the <b>Control Charts</b> section of the left-hand sidebar: <b>All Control Charts</b> (plus one link per type: CRM, RM, Intermediate Checks, Duplicates, Spike / Recovery, Monitoring), <b>Sign-off (bulk signing)</b>, <b>Archive / Record List</b>, <b>User Manual</b>, <b>Add Chart</b> and, for administrators, <b>Laboratory Reviewers</b> and <b>Document Control</b>.</li>
+        <li><b>From the QC sidebar.</b> Inside any QC page, open the <b>Control Charts</b> section of the left-hand sidebar: <b>All Control Charts</b> (plus one link per type: CRM, RM, Intermediate Checks, Duplicates, Spike / Recovery, Monitoring), <b>Sign-off (bulk signing)</b>, <b>Archive / Record List</b>, <b>Deletion Log</b> (QC / Lab Managers and administrators), <b>User Manual</b>, <b>Add Chart</b> and, for administrators, <b>Laboratory Reviewers</b> and <b>Document Control</b>.</li>
         <li><b>Directly by address.</b> The chart list is at <code>/qc/control-charts/</code>; this manual is at <code>/qc/control_chart_manual/</code>.</li>
       </ul>
       <div class="note">The module has three working areas: the <b>chart list</b> (one laboratory, one year), the <b>chart page</b> (one parameter: the graph, the monthly table, the entry form and the sign-off panel) and the <b>archive</b> (every record of every year and both laboratories).</div>
@@ -426,13 +426,19 @@
       <p>Each February, after the intermediate check, open the chart and click <b>Baseline</b>. Enter the new values exactly as in Step 3 above and click <b>Establish new baseline v2</b> (the version number increments automatically). From that moment new results are judged against the new limits; the baseline history table at the foot of the page keeps every earlier version, and earlier results keep the version they were recorded against.</p>
     </section>
 
-    <section class="topic" id="t-editmaster" data-cat="admin" data-keywords="edit master change equipment id method crm lot new certificate retire inactive deactivate chart delete remove mistake duplicate">
+    <section class="topic" id="t-editmaster" data-cat="admin" data-keywords="edit master change equipment id method crm lot new certificate retire inactive deactivate chart delete remove mistake duplicate delete chart result baseline reason deletion log lab manager ceo">
       <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-bad">Administrator</span> Editing, retiring or deleting a chart</h2>
       <ul>
         <li><b>New CRM lot or certificate</b> — click <b>Edit master</b> on the chart page, update CRM Detail, value and range, save. The change appears on all future PDFs; every edit is logged in the history.</li>
         <li><b>Instrument replaced</b> — if the equipment ID changes, prefer creating a <b>new chart</b> for the new instrument and retiring the old one, so each chart's history belongs to one instrument.</li>
         <li><b>Retiring a chart</b> — untick <b>Active</b> in Edit master. The chart disappears from the current list but all of its records remain in the <b>Archive</b>, marked "inactive". This is the way to withdraw a chart that holds results: results are quality records and are kept.</li>
-        <li><b>Deleting a chart</b> — a chart that holds <b>no results</b> (e.g. created by mistake or duplicated) shows a <b>Delete chart</b> button to an administrator, to the QC / Lab Manager of its laboratory and to the analyst who created it. A chart with results cannot be deleted by anyone; retire it instead.</li>
+        <li><b>Deleting</b> (owner decision 11-10-2026) — charts of <b>every type</b> (CRM, RM, intermediate checks, duplicates, spikes, monitoring), single <b>results</b> and <b>baselines</b> can be deleted by the laboratory's <b>QC / Lab Manager</b> (as assigned on <i>Laboratory Reviewers</i>) and by the <b>CEO / administrator</b> only. Analysts do not see the delete buttons.
+          <ul>
+            <li><b>Delete chart</b> (chart page header) removes the chart with all its results, baselines and sign-offs. <b>Trash</b> icon on a result row removes that result (a review of its period is cleared). <b>Trash</b> icon in the list of baselines removes a baseline that no result is judged against.</li>
+            <li>A <b>reason</b> (at least 5 characters) is always asked for. Approved (locked) records must be <b>unapproved</b> first.</li>
+            <li>Every deletion is listed in <span class="path">QC sidebar &rarr; Control Charts &rarr; Deletion Log (managers)</span> - who, when, why and a copy of the deleted data - so it can be traced and, if ever needed, restored by the system administrator.</li>
+            <li>To withdraw a chart but keep its records, <b>retire</b> it instead (untick <b>Active</b> in Edit master): it stays in the Archive.</li>
+          </ul></li>
       </ul>
     </section>
 
@@ -514,7 +520,7 @@
 
 <footer>
   <div><b>Envi Tech AL — Control Charts module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories. Form ETAL-LAB-604-FF-11; procedure ETAL-LAB-P-604.</div>
-  <div style="margin-top:4px">Revision 3 — 11-10-2026. This document reflects the module as deployed on 11-10-2026 (one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
+  <div style="margin-top:4px">Revision 4 — 11-10-2026. This document reflects the module as deployed on 11-10-2026 (one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
 </footer>
 
 <script>

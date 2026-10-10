@@ -57,4 +57,6 @@ urlpatterns = [
     path('control-charts/<int:pk>/cycle/', views.control_chart_cycle, name='control_chart_cycle'),
     path('control-charts/<int:pk>/pdf/', views.control_chart_pdf, name='control_chart_pdf'),
     path('control-charts/<int:pk>/delete/', views.control_chart_delete, name='control_chart_delete'),
+    path('control-charts/<int:pk>/baseline/<int:ver>/delete/', views.control_chart_baseline_delete, name='control_chart_baseline_delete'),
+    path('control-charts/deleted/', views.control_chart_deletions, name='control_chart_deletions'),
 ]

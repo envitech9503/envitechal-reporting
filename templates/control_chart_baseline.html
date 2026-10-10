@@ -37,7 +37,7 @@
   <div class="hd"><div class="title" style="font-size:15px">All baselines of this chart ({{ blist|length }})</div></div>
   <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th>{% if chart.spec_limited %}<th>Acceptance range</th>{% endif %}<th class="num">Results judged</th><th>Note</th><th>Created by</th><th></th></tr></thead><tbody>
   {% for x in blist %}<tr{% if sel and x.b.pk == sel.pk %} style="background:#f0fdf4"{% endif %}><td>v{{ x.b.version }}{% if x.b.is_current %} <span class="pill ok">current</span>{% endif %}</td><td>{{ x.b.established_label }}</td><td class="num">{{ x.b.n_text }}</td><td class="num">{{ x.b.mean|floatformat:chart.decimals }}</td><td class="num">{{ x.b.sd|floatformat:4 }}</td>{% if chart.spec_limited %}<td>{{ x.range|default:"-" }}</td>{% endif %}<td class="num">{{ x.n_res }}</td><td style="max-width:240px;font-size:12px">{{ x.b.note }}</td><td class="muted">{{ x.b.created_by.username|default:"import" }}</td>
-    <td style="white-space:nowrap"><a class="btn" href="?v={{ x.b.version }}" title="Data points and graph"><i class="fa-solid fa-eye"></i></a> <a class="btn" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ x.b.version }}" target="_blank" title="Baseline form"><i class="fa-solid fa-file-pdf"></i></a> <a class="btn" href="{% url 'control_chart_detail' chart.id %}{{ x.q }}" title="Control chart of this baseline"><i class="fa-solid fa-chart-line"></i></a></td></tr>
+    <td style="white-space:nowrap"><a class="btn" href="?v={{ x.b.version }}" title="Data points and graph"><i class="fa-solid fa-eye"></i></a> <a class="btn" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ x.b.version }}" target="_blank" title="Baseline form"><i class="fa-solid fa-file-pdf"></i></a> <a class="btn" href="{% url 'control_chart_detail' chart.id %}{{ x.q }}" title="Control chart of this baseline"><i class="fa-solid fa-chart-line"></i></a>{% if can_delete and not x.n_res %} <form method="post" action="{% url 'control_chart_baseline_delete' chart.id x.b.version %}" style="display:inline" onsubmit="return ccDelReason(this, 'Delete baseline v{{ x.b.version }}? No result is judged against it.')">{% csrf_token %}<input type="hidden" name="reason"><button class="btn" type="submit" title="Delete this baseline"><i class="fa-solid fa-trash"></i></button></form>{% endif %}</td></tr>
   {% empty %}<tr><td colspan="10" class="empty">No baseline yet.</td></tr>{% endfor %}
   </tbody></table>
 </div>
@@ -68,5 +68,10 @@
   }
   t.addEventListener('input', upd); upd();
 })();
+</script>
+<script>
+function ccDelReason(f, q){ var r = prompt(q + '\n\nReason for deleting (required):'); if (r === null) return false;
+  r = r.trim(); if (r.length < 5) { alert('A reason of at least 5 characters is required - nothing was deleted.'); return false; }
+  f.reason.value = r; return true; }
 </script>
 {% endblock %}

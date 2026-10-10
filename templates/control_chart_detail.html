@@ -15,7 +15,7 @@
       <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}{{ pq }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
       {% if can_edit_master %}<a class="btn" href="{% url 'control_chart_edit' chart.id %}"><i class="fa-solid fa-pen"></i> Edit master</a>{% endif %}
       {% if not chart.self_limited and chart.mon_mode != 'fixed' %}<a class="btn" href="{% url 'control_chart_baseline' chart.id %}"><i class="fa-solid fa-ruler"></i> Baselines{% if baseline_list|length > 1 %} ({{ baseline_list|length }}){% endif %}</a>{% endif %}
-      {% if can_delete %}<form method="post" action="{% url 'control_chart_delete' chart.id %}" style="display:inline" onsubmit="return confirm('Delete this chart? It holds no results. This cannot be undone.')">{% csrf_token %}<button class="btn" type="submit" title="Delete this empty chart"><i class="fa-solid fa-trash"></i> Delete chart</button></form>{% endif %}
+      {% if can_delete %}<form method="post" action="{% url 'control_chart_delete' chart.id %}" style="display:inline" onsubmit="return ccDelReason(this, 'Delete this chart{% if n_results_all %} together with its {{ n_results_all }} result{{ n_results_all|pluralize }}, baselines and sign-offs{% endif %}? It disappears from every list; a copy is kept in the deletion log.')">{% csrf_token %}<input type="hidden" name="reason"><button class="btn" type="submit" title="Delete this chart (QC / Lab Manager, CEO / administrator)" style="color:#991b1b"><i class="fa-solid fa-trash"></i> Delete chart</button></form>{% endif %}
     </div>
   </div>
   <div class="kv">
@@ -61,7 +61,7 @@
         {% if chart.fixed_limits %}<td class="num">{% if r.result %}{{ r.ll|default:'-' }}{% endif %}</td><td class="num">{% if r.result %}{{ r.ul|default:'-' }}{% endif %}</td>{% else %}{% if not chart.self_limited %}<td class="num">{{ r.base }}</td>{% endif %}<td class="num">{{ r.ul }}</td><td class="num">{{ r.uwl }}</td>{% if not chart.upper_only %}<td class="num">{{ r.lwl }}</td><td class="num">{{ r.ll }}</td>{% endif %}{% endif %}
         <td style="white-space:nowrap">{% if r.result and not locked %}
           <button class="btn" type="button" onclick="ccEdit({{ r.result.id }},'{{ r.result.date|date:"Y-m-d" }}','{{ r.result.value }}',this)" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          {% if can_approve %}<form method="post" action="{% url 'control_chart_result_delete' chart.id r.result.id %}" style="display:inline" onsubmit="return confirm('Delete this result?')">{% csrf_token %}<button class="btn" type="submit" title="Delete"><i class="fa-solid fa-trash"></i></button></form>{% endif %}
+          {% if can_delete %}<form method="post" action="{% url 'control_chart_result_delete' chart.id r.result.id %}" style="display:inline" onsubmit="return ccDelReason(this, 'Delete the result of {{ r.date }} ({{ r.value }})?')">{% csrf_token %}<input type="hidden" name="reason"><button class="btn" type="submit" title="Delete this result"><i class="fa-solid fa-trash"></i></button></form>{% endif %}
         {% endif %}</td>
       </tr>
     {% endfor %}
@@ -147,7 +147,12 @@
     <a class="btn" href="{% url 'control_chart_baseline' chart.id %}">Open baselines</a></div>
   <table><thead><tr><th>Version</th><th>Established</th><th class="num">n</th><th class="num">Mean</th><th class="num">SD</th>{% if chart.spec_limited %}<th>Acceptance range</th>{% endif %}<th class="num">Results judged</th><th>Note</th><th></th></tr></thead><tbody>
   {% for x in baseline_list %}<tr{% if b and x.b.pk == b.pk %} style="background:#f0fdf4"{% endif %}><td>v{{ x.b.version }}{% if x.b.is_current %} <span class="pill ok">current</span>{% endif %}</td><td>{{ x.b.established_label }}</td><td class="num">{{ x.b.n_text }}</td><td class="num">{{ x.b.mean|floatformat:chart.decimals }}</td><td class="num">{{ x.b.sd|floatformat:4 }}</td>{% if chart.spec_limited %}<td>{{ x.range|default:"-" }}</td>{% endif %}<td class="num">{{ x.n_res }}</td><td style="max-width:260px;font-size:12px">{{ x.b.note }}</td>
-    <td style="white-space:nowrap"><a class="btn" href="{{ x.q }}" title="Control chart of this baseline"><i class="fa-solid fa-chart-line"></i></a> <a class="btn" href="{% url 'control_chart_baseline' chart.id %}?v={{ x.b.version }}" title="Baseline data points and graph"><i class="fa-solid fa-eye"></i></a> <a class="btn" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ x.b.version }}" target="_blank" title="Baseline form (PDF)"><i class="fa-solid fa-file-pdf"></i></a></td></tr>{% endfor %}
+    <td style="white-space:nowrap"><a class="btn" href="{{ x.q }}" title="Control chart of this baseline"><i class="fa-solid fa-chart-line"></i></a> <a class="btn" href="{% url 'control_chart_baseline' chart.id %}?v={{ x.b.version }}" title="Baseline data points and graph"><i class="fa-solid fa-eye"></i></a> <a class="btn" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ x.b.version }}" target="_blank" title="Baseline form (PDF)"><i class="fa-solid fa-file-pdf"></i></a>{% if can_delete and not x.n_res %} <form method="post" action="{% url 'control_chart_baseline_delete' chart.id x.b.version %}" style="display:inline" onsubmit="return ccDelReason(this, 'Delete baseline v{{ x.b.version }}? No result is judged against it.')">{% csrf_token %}<input type="hidden" name="reason"><button class="btn" type="submit" title="Delete this baseline"><i class="fa-solid fa-trash"></i></button></form>{% endif %}</td></tr>{% endfor %}
   </tbody></table>
 </div>{% endif %}
+<script>
+function ccDelReason(f, q){ var r = prompt(q + '\n\nReason for deleting (required):'); if (r === null) return false;
+  r = r.trim(); if (r.length < 5) { alert('A reason of at least 5 characters is required - nothing was deleted.'); return false; }
+  f.reason.value = r; return true; }
+</script>
 {% endblock %}

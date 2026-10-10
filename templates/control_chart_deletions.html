@@ -1,0 +1,17 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}Control Charts - Deletion log{% endblock %}
+{% block crumb %} &rsaquo; <span>Deletion log</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-trash-can"></i> Deletion log <span class="muted">({{ labs|join:", " }})</span></div>
+    <a class="btn" href="{% url 'control_chart_list' %}"><i class="fa-solid fa-arrow-left"></i> Control charts</a></div>
+  <div class="msg warning">Charts, results and baselines can be deleted by the laboratory's <b>QC / Lab Manager</b> and the <b>CEO / administrator</b> only, always with a reason. Every deletion is listed here with a copy of the deleted data, so it can be traced - and, if ever needed, restored by the system administrator.</div>
+  <table><thead><tr><th>Deleted</th><th>By</th><th>Laboratory</th><th>What</th><th>Record</th><th>Reason</th><th class="num">Results</th></tr></thead><tbody>
+  {% for d in rows %}<tr><td style="white-space:nowrap">{{ d.deleted_at|date:"d-m-Y H:i" }}</td><td>{{ d.deleted_by.get_full_name|default:d.deleted_by.username|default:"-" }}</td><td>{{ d.location }}</td>
+    <td><span class="pill {% if d.kind == 'chart' %}bad{% elif d.kind == 'baseline' %}warn{% else %}none{% endif %}">{{ d.get_kind_display }}</span> <span class="muted">{{ d.activity }}</span></td>
+    <td style="max-width:320px">{{ d.label }}</td><td style="max-width:320px;font-size:12px">{{ d.reason }}</td>
+    <td class="num">{% if d.kind == 'chart' %}{{ d.snapshot.results|length }}{% elif d.kind == 'result' %}1{% else %}-{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">No deletions recorded.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

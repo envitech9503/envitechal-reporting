@@ -16,7 +16,7 @@ from django.db.models import Q as _Q
 from django.contrib import messages as _msg
 from django.views.decorators.http import require_POST as _require_POST
 
-from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer,
+from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer, ControlChartDeletion,
                        run_limits, classify_value, parse_values, parse_dated_values, suspect_values, ACTIVITY_PROFILE)
 from QC.control_chart_render import render_chart, period_rows, period_label as _plabel, fmt as _fmt, MONTHS as _MONTHS
 
@@ -595,7 +595,7 @@ def control_chart_detail(request, pk):
         'run_js': _json.dumps({str(x.pk): x.value for x in results}) if chart.self_limited else '{}',
         'n_missing': sum(1 for x in all_r if x.status != 'ok' and not (x.remark or '').strip()),
         'n_unsigned': sum(1 for x in all_r if not x.performed_by_id),
-        'can_delete': _can_delete_chart(user, chart),
+        'can_delete': _can_delete(user, chart), 'n_results_all': chart.results.count(),
         'my_office_ok': (not _user_office(user)) or _user_office(user) == chart.location or _is_admin(user),
     })
 
@@ -805,15 +805,29 @@ def _warn_missing_remarks(request, chart, year, month=0):
 def control_chart_result_delete(request, pk, rid):
     chart = get_object_or_404(ControlChart, pk=pk)
     r = get_object_or_404(ControlChartResult, pk=rid, chart=chart)
-    if not _can_approve(request.user, chart):
-        return HttpResponse('Only an administrator can delete a recorded result.', status=403)
     py, pm = _qs_period(chart, r.date)
+    back = _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
+    if not _can_delete(request.user, chart):
+        return HttpResponse(_DEL_DENIED % chart.location, status=403)
+    so = _signoff(chart, py, pm)
+    if so and so.approved_at:
+        _msg.error(request, '%s is approved and locked - it must be unapproved before a result can be deleted.' % _plabel(chart, py, pm))
+        return back
+    reason = _del_reason(request)
+    if not reason:
+        return back
+    _log_deletion(request.user, 'result', chart, '%s - result of %s (%s)' % (chart.title, r.date.strftime('%d-%m-%Y'), _fmt(r.value, chart.decimals)),
+                  reason, {'chart': _snap_chart(chart), 'result': _snap_result(r)})
     r.delete()
     if chart.self_limited:
         _restatus_run(chart, py, pm)
-    _msg.success(request, 'Result deleted.')
+    if so and so.reviewed_at:               # the record changed: its review must be redone
+        so.reviewed_by, so.reviewed_at = None, None
+        so.save()
+        _msg.warning(request, 'The review of %s was cleared because a result was deleted.' % _plabel(chart, py, pm))
+    _msg.success(request, 'Result deleted (reason recorded in the deletion log).')
     _warn_missing_remarks(request, chart, py, pm)
-    return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
+    return back
 
 
 # ---------------------------------------------------------------- sign-off
@@ -987,30 +1001,122 @@ def control_chart_signing(request):
 
 
 # ---------------------------------------------------------------- delete a chart (10-10-2026)
-def _can_delete_chart(user, chart):
-    """A chart that holds NO results may be deleted (e.g. created by mistake) by an
-    administrator, by the QC / Lab Manager of its laboratory, or by the analyst who
-    created it. A chart with results is a quality record: it is retired (made
-    inactive) by an administrator instead, and stays in the archive."""
-    if not (user and user.is_authenticated) or chart.results.exists():
+_DEL_DENIED = 'Deletion is reserved to the %s QC / Lab Manager and the CEO / administrator.'
+
+
+def _can_delete(user, chart):
+    """Owner decision 11-10-2026: charts of every type, their results and baselines may be deleted
+    by the laboratory's QC / Lab Manager (assigned on the Laboratory Reviewers page) and by the
+    CEO / administrator only - always with a reason, kept in the deletion log."""
+    if not (user and user.is_authenticated):
         return False
-    return _is_admin(user) or chart.location in _user_labs(user) or chart.created_by_id == user.id
+    return _can_approve(user, chart) or chart.location in _user_labs(user)
+
+
+def _can_delete_chart(user, chart):
+    return _can_delete(user, chart)
+
+
+def _del_reason(request):
+    reason = (request.POST.get('reason') or '').strip()
+    if len(reason) < 5:
+        _msg.error(request, 'Nothing was deleted: a reason (at least 5 characters) is required.')
+        return ''
+    return reason[:2000]
+
+
+def _snap_chart(c):
+    return {f.name: (getattr(c, f.attname) if not hasattr(getattr(c, f.attname), 'isoformat') else getattr(c, f.attname).isoformat())
+            for f in c._meta.concrete_fields}
+
+
+def _snap_result(r):
+    return {'id': r.pk, 'date': r.date.isoformat(), 'time': r.time, 'value': r.value, 'reading_1': r.reading_1, 'reading_2': r.reading_2,
+            'status': r.status, 'remark': r.remark, 'baseline_version': r.baseline.version if r.baseline_id else None,
+            'performed_by': getattr(r.performed_by, 'username', None),
+            'performed_at': r.performed_at.isoformat() if getattr(r, 'performed_at', None) else None}
+
+
+def _snap_baseline(b):
+    return {'id': b.pk, 'version': b.version, 'established_on': b.established_on.isoformat() if b.established_on else None,
+            'note': b.note, 'values': b.values, 'dates': b.dates, 'mean': b.mean, 'sd': b.sd, 'stats_only': b.stats_only,
+            'n_points': b.n_points, 'range_low': b.range_low, 'range_high': b.range_high, 'is_current': b.is_current,
+            'created_by': getattr(b.created_by, 'username', None)}
+
+
+def _log_deletion(user, kind, chart, label, reason, snapshot):
+    ControlChartDeletion.objects.create(kind=kind, chart_ref=chart.pk, location=chart.location, activity=chart.activity,
+                                        label=label[:300], reason=reason, snapshot=_json.loads(_json.dumps(snapshot, default=str)),
+                                        deleted_by=user if user.is_authenticated else None)
 
 
 @_post_or_back
 def control_chart_delete(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
-    if chart.results.exists():
-        _msg.error(request, 'This chart holds recorded results and cannot be deleted - it is a quality record. '
-                            'An administrator can retire it instead (Edit master > untick "Active"); it then stays in the archive.')
+    if not _can_delete(request.user, chart):
+        return HttpResponse(_DEL_DENIED % chart.location, status=403)
+    locked = [_plabel(chart, so.year, so.month) for so in chart.signoffs.filter(approved_at__isnull=False)]
+    if locked:
+        _msg.error(request, 'This chart has approved (locked) records (%s). They must be unapproved before the chart can be deleted.' % ', '.join(locked[:6]))
         return _redirect(f"/qc/control-charts/{pk}/")
-    if not _can_delete_chart(request.user, chart):
-        return HttpResponse('Only an administrator, the %s QC / Lab Manager or the analyst who created the chart can delete it.' % chart.location, status=403)
+    reason = _del_reason(request)
+    if not reason:
+        return _redirect(f"/qc/control-charts/{pk}/")
     name = '%s %s [%s] - %s %s' % (chart.parameter, chart.level, chart.equipment_id or '-', chart.location, chart.activity)
+    n = chart.results.count()
+    _log_deletion(request.user, 'chart', chart, name, reason, {
+        'chart': _snap_chart(chart), 'results': [_snap_result(r) for r in chart.results.select_related('baseline', 'performed_by')],
+        'baselines': [_snap_baseline(b) for b in chart.baselines.all()],
+        'signoffs': [{'year': so.year, 'month': so.month, 'reviewed_by': getattr(so.reviewed_by, 'username', None),
+                      'reviewed_at': so.reviewed_at.isoformat() if so.reviewed_at else None} for so in chart.signoffs.all()]})
     loc, act = chart.location, chart.activity
     chart.delete()
-    _msg.success(request, 'Chart deleted: %s.' % name)
+    _msg.success(request, 'Chart deleted: %s (%d result%s). The reason and a copy of the data are kept in the deletion log.' % (name, n, '' if n == 1 else 's'))
     return _redirect(f"/qc/control-charts/?location={loc}&activity={act}")
+
+
+@_post_or_back
+def control_chart_baseline_delete(request, pk, ver):
+    chart = get_object_or_404(ControlChart, pk=pk)
+    b = get_object_or_404(ControlChartBaseline, chart=chart, version=ver)
+    back = _redirect(f"/qc/control-charts/{pk}/baseline/")
+    if not _can_delete(request.user, chart):
+        return HttpResponse(_DEL_DENIED % chart.location, status=403)
+    n = b.results.count()
+    if n:
+        _msg.error(request, 'Baseline v%d cannot be deleted: %d result%s %s judged against it. Delete or correct those results first.' % (
+            ver, n, '' if n == 1 else 's', 'is' if n == 1 else 'are'))
+        return back
+    reason = _del_reason(request)
+    if not reason:
+        return back
+    was_current = b.is_current
+    _log_deletion(request.user, 'baseline', chart, '%s - baseline v%d (established %s)' % (chart.title, ver, b.established_label),
+                  reason, {'chart': _snap_chart(chart), 'baseline': _snap_baseline(b)})
+    b.delete()
+    if was_current:
+        nb = chart.baselines.order_by('-established_on', '-version').first() if chart.mon_mode == 'baseline' else chart.baselines.order_by('-version').first()
+        if nb:
+            ControlChartBaseline.objects.filter(pk=nb.pk).update(is_current=True)
+            _msg.info(request, 'Baseline v%d is now the current baseline.' % nb.version)
+    if chart.spec_limited:
+        _restatus_chart(chart)
+    _msg.success(request, 'Baseline v%d deleted (reason recorded in the deletion log).' % ver)
+    return back
+
+
+def control_chart_deletions(request):
+    """Deletion log: administrators see both laboratories, a QC / Lab Manager his own."""
+    user = request.user
+    if not (user and user.is_authenticated):
+        return _redirect('/login/')
+    labs = _user_labs(user)
+    if not (_is_admin(user) or labs):
+        return HttpResponse('The deletion log is available to the QC / Lab Managers and the CEO / administrator.', status=403)
+    qs = ControlChartDeletion.objects.select_related('deleted_by')
+    if labs and not (_is_admin(user) and not labs):
+        qs = qs.filter(location__in=labs)
+    return render(request, 'control_chart_deletions.html', {'rows': qs[:500], 'labs': sorted(labs) or _CC_LOCS})
 
 
 # ---------------------------------------------------------------- baseline (admin)
@@ -1039,7 +1145,7 @@ def control_chart_baseline(request, pk):
            'cur_values': '', 'hint': chart.profile['base_hint'], 'sel': sel, 'sel_svg': sel_svg,
            'sel_points': [{'i': i + 1, 'd': d, 'v': _fmt(v, chart.decimals)} for i, (d, v) in enumerate(sel.points())] if sel else [],
            'sel_range': chart.range_text(sel) if (sel and chart.spec_limited) else '', 'blist': _baseline_list(chart),
-           'rlo': rlo, 'rhi': rhi, 'can_set': can_set}
+           'rlo': rlo, 'rhi': rhi, 'can_set': can_set, 'can_delete': _can_delete(request.user, chart)}
     if request.method == 'POST':
         raw = request.POST.get('values', '')
         ctx.update(cur_values=raw, est_value=request.POST.get('established_on', ''), note_value=request.POST.get('note', ''),
@@ -1439,7 +1545,10 @@ def control_chart_pdf(request, pk):
         rem_txt = ['%s  (%s):  %s' % (r['date'], 'Note', r['remark']) for r in rows if r['remark']]
         text_h = (4.7 + sum(_text_h(pdf, f, 7.2, 3.8, t) for t in rem_txt) if rem_txt else 0.0) + 0.8 + _text_h(pdf, f, 6.8, 3.4, chart.profile['note'])
         space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
-        chart_mm = min(100.0, space) if space >= 36.0 else max(62.0, min(100.0, space))
+        if space < 36.0:                 # no room on this page: the graph starts the next page at full size
+            pdf.add_page()
+            space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
+        chart_mm = max(36.0, min(100.0, space))
         png = render_chart(chart, lim, results, year, month, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
@@ -1580,7 +1689,10 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
         pdf.cell(134, RH, txt, 1, 1, 'L')
     if lim or pts:
         space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
-        chart_mm = min(95.0, space) if space >= 36.0 else max(62.0, min(95.0, space))
+        if space < 36.0:
+            pdf.add_page()
+            space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
+        chart_mm = max(36.0, min(95.0, space))
         png = render_baseline(chart, bl, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
