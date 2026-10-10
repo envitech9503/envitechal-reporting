@@ -1198,6 +1198,7 @@ def control_chart_edit(request, pk=None):
 
 # ---------------------------------------------------------------- PDF
 _SIG_W = 62.0          # three signature panels across the 190 mm text width
+_SIG_MIN = 22.0         # smallest signature block (label, signature, name, role)
 _FOOT_TOP = 270.0      # top of the footer band (footer draws at h-20 = 277; keep 7 mm air)
 
 
@@ -1433,16 +1434,18 @@ def control_chart_pdf(request, pk):
 
     # ---- chart (width-limited so the whole form stays on one page)
     if lim:
-        # size the chart to the space that is left, keeping ~32 mm for the signature block
-        n_rem = sum(1 for r in rows if r['remark'])
-        reserve = 32.0 + 14.0 + n_rem * 3.8 + (4.2 if n_rem else 0)
-        chart_mm = max(62.0, min(100.0, _FOOT_TOP - pdf.get_y() - reserve))
+        # size the chart to the space that is left, measuring the remarks and the SOP note, so that the
+        # signature block (min _SIG_MIN mm) stays on the same page (11-10-2026)
+        rem_txt = ['%s  (%s):  %s' % (r['date'], 'Note', r['remark']) for r in rows if r['remark']]
+        text_h = (4.7 + sum(_text_h(pdf, f, 7.2, 3.8, t) for t in rem_txt) if rem_txt else 0.0) + 0.8 + _text_h(pdf, f, 6.8, 3.4, chart.profile['note'])
+        space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
+        chart_mm = min(100.0, space) if space >= 36.0 else max(62.0, min(100.0, space))
         png = render_chart(chart, lim, results, year, month, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
         try:
             tmp.write(png); tmp.close()
-            pdf.ln(1.5); pdf.image(tmp.name, x=17, w=176)
+            pdf.ln(1.5); _fit_image(pdf, tmp.name, chart_mm)
         finally:
             try:
                 _os.unlink(tmp.name)
@@ -1461,11 +1464,11 @@ def control_chart_pdf(request, pk):
     pdf.ln(0.8); pdf.set_font(f, '', 6.8); pdf.set_text_color(60, 60, 60); pdf.set_x(10)
     pdf.multi_cell(190, 3.4, note, new_x='LMARGIN', new_y='NEXT'); pdf.set_text_color(0, 0, 0)
 
-    # ---- e-signature block: fills whatever remains above the footer (min 24 mm)
-    MIN_H, MAX_H = 24.0, 46.0
+    # ---- e-signature block: fills whatever remains above the footer (min _SIG_MIN mm)
+    MIN_H, MAX_H = _SIG_MIN, 46.0
     top = pdf.get_y() + 2.5
     avail = _FOOT_TOP - top
-    if avail < MIN_H:
+    if avail < MIN_H - 0.05:
         pdf.add_page(); top = pdf.get_y() + 2; avail = _FOOT_TOP - top
     blk_h = max(MIN_H, min(MAX_H, avail))
     top = _FOOT_TOP - blk_h                      # anchor the block to the footer
@@ -1576,22 +1579,23 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
             txt += '...'
         pdf.cell(134, RH, txt, 1, 1, 'L')
     if lim or pts:
-        chart_mm = max(62.0, min(95.0, _FOOT_TOP - pdf.get_y() - 46.0))
+        space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
+        chart_mm = min(95.0, space) if space >= 36.0 else max(62.0, min(95.0, space))
         png = render_baseline(chart, bl, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
         try:
             tmp.write(png); tmp.close()
-            pdf.ln(1.5); pdf.image(tmp.name, x=17, w=176)
+            pdf.ln(1.5); _fit_image(pdf, tmp.name, chart_mm)
         finally:
             try:
                 _os.unlink(tmp.name)
             except OSError:
                 pass
-    MIN_H, MAX_H = 24.0, 40.0
+    MIN_H, MAX_H = _SIG_MIN, 40.0
     top = pdf.get_y() + 2.5
     avail = _FOOT_TOP - top
-    if avail < MIN_H:
+    if avail < MIN_H - 0.05:
         pdf.add_page(); top = pdf.get_y() + 2; avail = _FOOT_TOP - top
     blk_h = max(MIN_H, min(MAX_H, avail))
     top = _FOOT_TOP - blk_h
@@ -1602,3 +1606,27 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
     _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL)
     pdf.set_draw_color(0, 0, 0)
     return _pdf_response(pdf, chart, plabel)
+
+
+def _text_h(pdf, f, size, lh, text):
+    """Height (mm) a 190 mm wide multi_cell of this text will take."""
+    pdf.set_font(f, '', size)
+    try:
+        return len(pdf.multi_cell(190, lh, text, dry_run=True, output='LINES')) * lh
+    except TypeError:                     # older fpdf2: estimate from the string width
+        return (int(pdf.get_string_width(text) / 186.0) + 1) * lh
+
+
+def _fit_image(pdf, path, max_h, max_w=176.0):
+    """Place the chart image at full width, or narrower (centred) when its real height - the legend
+    below the axes adds to it - would exceed the space reserved for it."""
+    try:
+        from PIL import Image as _Im
+        with _Im.open(path) as im:
+            iw, ih = im.size
+        w = max_w
+        if w * ih / iw > max_h:
+            w = max_h * iw / ih
+        pdf.image(path, x=10 + (190.0 - w) / 2, w=w)
+    except Exception:
+        pdf.image(path, x=17, w=max_w)
