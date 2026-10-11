@@ -87,6 +87,9 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
                 lbl = '' if r.date == prev else lbl
                 prev = r.date
             labels.append(lbl)
+        if nx > 45 and not chart.spec_limited:            # long per-batch series (11-10-2026): label every k-th point
+            k = -(-nx // 45)
+            labels = [l if i % k == 0 else '' for i, l in enumerate(labels)]
     ax.set_xticklabels(labels, fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 16 else 60)
     if lim and chart.fixed_limits:
         for key, col, lbl, ls in (('ul', C_UL, 'Upper limit', '-'), ('ll', C_UL, 'Lower limit', '-'), ('mean', C_MEAN, 'Set point', '--')):
@@ -167,6 +170,29 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     return buf.getvalue()
 
 
+RAW_DEC = 3
+
+
+def raw_cells(chart, r):
+    """Raw working of a duplicate / spike result (11-10-2026): sample ID, formatted raw values and a one-line summary."""
+    out = {'sid': '', 'ra': '', 'rb': '', 'rc': '', 'raw': ''}
+    if not (r and getattr(chart, 'raw_mode', False)):
+        return out
+    a, b, c = getattr(r, 'raw_a', None), getattr(r, 'raw_b', None), getattr(r, 'raw_c', None)
+    out.update(sid=getattr(r, 'sample_id', '') or '', ra=fmt(a, RAW_DEC), rb=fmt(b, RAW_DEC), rc=fmt(c, RAW_DEC))
+    u = (' ' + chart.raw_unit) if chart.raw_unit else ''
+    parts = []
+    if out['sid']:
+        parts.append(out['sid'])
+    if a is not None or b is not None:
+        if chart.activity == 'DUP':
+            parts.append('A %s / B %s%s' % (out['ra'] or '-', out['rb'] or '-', u))
+        else:
+            parts.append('unspiked %s, spiked %s, added %s%s' % (out['ra'] or '-', out['rb'] or '-', out['rc'] or '-', u))
+    out['raw'] = '  |  '.join(parts)
+    return out
+
+
 def period_rows(chart, lim, base_values, results, year, month=0):
     """Rows of the printed form for one record period.
     monthly: 12 rows (one per month); weekly / run: one row per result in date
@@ -203,6 +229,7 @@ def period_rows(chart, lim, base_values, results, year, month=0):
                'status': r.status if r else '', 'remark': clean_remark(r.remark) if r else '',
                'r1': fmt(getattr(r, 'reading_1', None), dec) if r else '', 'r2': fmt(getattr(r, 'reading_2', None), dec) if r else '',
                'base': fmt(vals[sno - 1], dec) if sno - 1 < len(vals) else ''}
+        row.update(raw_cells(chart, r))
         row.update(common)
         rows.append(row)
     extra = [fmt(v, dec) for v in vals[len(rows):]]   # baseline values beyond the rows, if any
@@ -242,9 +269,11 @@ def render_baseline(chart, b, fmt_out='svg', width_in=7.6, height_in=3.2):
                         ha='center', color='#1f2937')
     ys = [v for _d, v in pts]
     if lim and lim.get('sd'):
-        lo, hi = lim['ll'] - lim['sd'], lim['ul'] + lim['sd']
+        lo, hi = (max(0.0, lim['mean'] - 2 * lim['sd']) if chart.upper_only else lim['ll'] - lim['sd']), lim['ul'] + lim['sd']
         if ys:
             lo, hi = min(lo, min(ys) - lim['sd']), max(hi, max(ys) + lim['sd'])
+        if chart.upper_only:                       # RPD cannot be negative
+            lo = min(0.0, min(ys or [0.0])) - 0.04 * hi
         if hi > lo:
             ax.set_ylim(lo, hi)
     ax.yaxis.set_major_locator(MaxNLocator(nbins=8, steps=[1, 2, 5, 10]))

@@ -681,6 +681,27 @@ def control_chart_result_save(request, pk):
             raw_value = repr(round((r1 + r2) / 2.0, max(chart.decimals, 0) + 2))
         elif (r1 is not None or r2 is not None) and not raw_value:
             raw_value = repr(r1 if r1 is not None else r2)
+    raw = {}
+    sample_id = ''
+    if chart.raw_mode:
+        # duplicates / spikes (11-10-2026): optional raw working; when complete, the result is computed from it
+        sample_id = (request.POST.get('sample_id') or '').strip()[:60]
+        try:
+            for fld, _lbl in chart.raw_fields:
+                t = (request.POST.get(fld) or '').strip()
+                raw[fld] = float(t) if t else None
+                if raw[fld] is not None and (not _math.isfinite(raw[fld]) or raw[fld] < 0):
+                    raise ValueError(fld)
+        except ValueError:
+            _msg.error(request, 'The raw results must be non-negative numbers (use a decimal point).')
+            return _redirect('control_chart_detail', pk=pk)
+        if any(v is not None for v in raw.values()):
+            cv = chart.raw_value(raw.get('raw_a'), raw.get('raw_b'), raw.get('raw_c'))
+            if cv is None:
+                _msg.error(request, 'Complete the raw working (%s) or leave it blank and enter the %s directly.' % (
+                    ', '.join(l for _f, l in chart.raw_fields), chart.result_label))
+                return _redirect('control_chart_detail', pk=pk)
+            raw_value = repr(round(cv, max(chart.decimals, 0)))
     if ',' in raw_value:
         _msg.error(request, 'Use a decimal point in the result (e.g. 1.005), not a comma ("%s").' % raw_value[:20])
         return _redirect('control_chart_detail', pk=pk)
@@ -755,10 +776,14 @@ def control_chart_result_save(request, pk):
         r.date, r.time, r.value, r.status, r.remark, r.baseline = d, tm, value, status, remark, b
         if chart.spec_limited:
             r.reading_1, r.reading_2 = r1, r2
+        if chart.raw_mode:
+            r.sample_id = sample_id
+            r.raw_a, r.raw_b, r.raw_c = raw.get('raw_a'), raw.get('raw_b'), raw.get('raw_c')
         r.save()
         _msg.success(request, 'Result updated (%s).' % _st(chart, r), extra_tags='ccsaved:result:%d' % chart.pk)
     else:
         r = ControlChartResult.objects.create(chart=chart, baseline=b, date=d, time=tm, value=value, status=status, reading_1=r1, reading_2=r2,
+                                              sample_id=sample_id, raw_a=raw.get('raw_a'), raw_b=raw.get('raw_b'), raw_c=raw.get('raw_c'),
                                               remark=remark, performed_by=user if user.is_authenticated else None)
         _msg.success(request, 'Result recorded (%s).' % _st(chart, r), extra_tags='ccsaved:result:%d' % chart.pk)
     if chart.self_limited:
@@ -1032,6 +1057,7 @@ def _snap_chart(c):
 
 def _snap_result(r):
     return {'id': r.pk, 'date': r.date.isoformat(), 'time': r.time, 'value': r.value, 'reading_1': r.reading_1, 'reading_2': r.reading_2,
+            'sample_id': r.sample_id, 'raw_a': r.raw_a, 'raw_b': r.raw_b, 'raw_c': r.raw_c,
             'status': r.status, 'remark': r.remark, 'baseline_version': r.baseline.version if r.baseline_id else None,
             'performed_by': getattr(r.performed_by, 'username', None),
             'performed_at': r.performed_at.isoformat() if getattr(r, 'performed_at', None) else None}
@@ -1056,7 +1082,7 @@ def control_chart_delete(request, pk):
     if not _can_delete(request.user, chart):
         return HttpResponse(_DEL_DENIED % chart.location, status=403)
     locked = [_plabel(chart, so.year, so.month) for so in chart.signoffs.filter(approved_at__isnull=False)]
-    if locked:
+    if locked and not chart.is_training:     # training / reference charts may be deleted although approved (11-10-2026)
         _msg.error(request, 'This chart has approved (locked) records (%s). They must be unapproved before the chart can be deleted.' % ', '.join(locked[:6]))
         return _redirect(f"/qc/control-charts/{pk}/")
     reason = _del_reason(request)
@@ -1068,7 +1094,9 @@ def control_chart_delete(request, pk):
         'chart': _snap_chart(chart), 'results': [_snap_result(r) for r in chart.results.select_related('baseline', 'performed_by')],
         'baselines': [_snap_baseline(b) for b in chart.baselines.all()],
         'signoffs': [{'year': so.year, 'month': so.month, 'reviewed_by': getattr(so.reviewed_by, 'username', None),
-                      'reviewed_at': so.reviewed_at.isoformat() if so.reviewed_at else None} for so in chart.signoffs.all()]})
+                      'reviewed_at': so.reviewed_at.isoformat() if so.reviewed_at else None,
+                      'approved_by': getattr(so.approved_by, 'username', None),
+                      'approved_at': so.approved_at.isoformat() if so.approved_at else None} for so in chart.signoffs.all()]})
     loc, act = chart.location, chart.activity
     chart.delete()
     _msg.success(request, 'Chart deleted: %s (%d result%s). The reason and a copy of the data are kept in the deletion log.' % (name, n, '' if n == 1 else 's'))
@@ -1191,7 +1219,7 @@ def control_chart_baseline(request, pk):
 
 # ---------------------------------------------------------------- chart master (admin)
 _CC_FIELDS = ['location', 'activity', 'parameter', 'level', 'unit', 'equipment', 'equipment_id', 'method',
-              'crm_detail', 'crm_value', 'crm_range_low', 'crm_range_high', 'description', 'decimals', 'limit_mode', 'doc_no']
+              'crm_detail', 'crm_value', 'crm_range_low', 'crm_range_high', 'description', 'decimals', 'limit_mode', 'doc_no', 'raw_unit']
 
 
 def _num_or_err(label, txt, errors):
@@ -1361,11 +1389,12 @@ def control_chart_pdf(request, pk):
                 pass
 
         def header(self):
-            if not approved:
+            wm = 'TRAINING RECORD' if chart.is_training else ('NOT APPROVED' if not approved else '')
+            if wm:
                 self.set_font(self.fam, 'B', 54); self.set_text_color(238, 238, 238)
                 try:
                     with self.rotation(45, self.w / 2, self.h / 2):
-                        self.text(self.w / 2 - self.get_string_width('NOT APPROVED') / 2, self.h / 2 + 10, 'NOT APPROVED')
+                        self.text(self.w / 2 - self.get_string_width(wm) / 2, self.h / 2 + 10, wm)
                 except Exception:
                     pass
                 self.set_text_color(0, 0, 0)
@@ -1464,6 +1493,9 @@ def control_chart_pdf(request, pk):
     # ---- results table
     rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
     halves = any(r.reading_1 is not None or r.reading_2 is not None for r in results)
+    raw_tab = chart.raw_mode and not chart.self_limited and not chart.spec_limited and \
+        any(r.raw_a is not None or (r.sample_id or '') for r in results)
+    val_col = 2
     if mon_stat:
         # item 1 / e-mail 1 (10-10-2026): no Time column and no 1st/2nd-half readings on the printed form
         cols = [('S. No.', 10), ('Date', 20)] + [('Reading%s' % unit, 20)] + \
@@ -1476,6 +1508,16 @@ def control_chart_pdf(request, pk):
     elif chart.self_limited:
         cols = [('S. No.', 11), ('Date', 27), (rl, 30), ('UL (+3 SD)', 20.5), ('UWL (+2 SD)', 20.5), ('LWL (-2 SD)', 20.5),
                 ('LL (-3 SD)', 20.5), ('Run\nMean', 20), ('Run\nSD', 20)]
+    elif raw_tab:
+        # duplicates / spikes with raw working (11-10-2026): sample ID and raw results before the computed value;
+        # the baseline mean and SD are printed once below the table
+        ru = ' (%s)' % chart.raw_unit if chart.raw_unit else ''
+        short = {'Unspiked sample': 'Unspiked', 'Spiked sample': 'Spiked'}
+        rcols = [('S. No.', 9), ('Date', 17), ('Sample ID', 26)] + [((short.get(lbl, lbl) + ('\n' + ru.strip() if ru else '')), 16) for _f, lbl in chart.raw_fields]
+        rcols += [(rl, 16), ('Baseline\nResult%s' % unit, 16), ('UL\n(+3 SD)', 14.5), ('UWL\n(+2 SD)', 14.5), ('LWL\n(-2 SD)', 14.5), ('LL\n(-3 SD)', 14.5)]
+        val_col = 3 + len(chart.raw_fields)
+        tw = sum(w for _, w in rcols)
+        cols = [(lbl, w * 190.0 / tw) for lbl, w in rcols]
     else:
         cols = [('S. No.', 11), ('Date', 21), (rl, 24), ('Baseline\nResult%s' % unit, 24), ('UL (+3 SD)', 18.5),
                 ('UWL (+2 SD)', 18.5), ('LWL (-2 SD)', 18.5), ('LL (-3 SD)', 18.5), ('Baseline\nMean', 18), ('Baseline\nSD', 18)]
@@ -1498,6 +1540,12 @@ def control_chart_pdf(request, pk):
                      ('' if not r['result'] else 'Out of limits' if r['status'] == 'ooc' else 'Within limits'), r['status']] for r in rows]
     elif chart.self_limited:
         all_rows = [[str(r['sno']), r['date'], r['value'], r['ul'], r['uwl'], r['lwl'], r['ll'], r['mean'], r['sd'], r['status']] for r in rows]
+    elif raw_tab:
+        rk = {'raw_a': 'ra', 'raw_b': 'rb', 'raw_c': 'rc'}
+        all_rows = [[str(r['sno']), r['date'] or r['month'], r['sid']] + [r[rk[f_]] for f_, _l in chart.raw_fields] +
+                    [r['value'], r['base'], r['ul'], r['uwl'], r['lwl'], r['ll'], r['status']] for r in rows]
+        for i, v in enumerate(extra_base):
+            all_rows.append([str(len(rows) + 1 + i), '-', ''] + [''] * len(chart.raw_fields) + ['', v, '', '', '', '', ''])
     else:
         all_rows = [[str(r['sno']), r['date'] or r['month'], r['value'], r['base'], r['ul'], r['uwl'], r['lwl'], r['ll'], r['mean'], r['sd'], r['status']] for r in rows]
         for i, v in enumerate(extra_base):
@@ -1512,7 +1560,7 @@ def control_chart_pdf(request, pk):
         else:
             pdf.set_fill_color(*(GREY_FILL if i % 2 else (255, 255, 255))); pdf.set_text_color(0, 0, 0)
         for j, ((lbl, w), v) in enumerate(zip(cols, vals[:ncol])):
-            if (lbl.startswith('Reading') or (j == 2 and not chart.spec_limited)) and v:
+            if (lbl.startswith('Reading') or (j == val_col and not chart.spec_limited)) and v:
                 pdf.set_font(f, 'B', 7.5)
             pdf.cell(w, RH, v, 1, 0, 'C', fill=True)
             pdf.set_font(f, '', 7.5)
@@ -1542,7 +1590,7 @@ def control_chart_pdf(request, pk):
     if lim:
         # size the chart to the space that is left, measuring the remarks and the SOP note, so that the
         # signature block (min _SIG_MIN mm) stays on the same page (11-10-2026)
-        rem_txt = ['%s  (%s):  %s' % (r['date'], 'Note', r['remark']) for r in rows if r['remark']]
+        rem_txt = ['%s  (%s):  %s' % (r['date'], _rem_label(chart, r['status']), r['remark']) for r in rows if r['remark']]
         text_h = (4.7 + sum(_text_h(pdf, f, 7.2, 3.8, t) for t in rem_txt) if rem_txt else 0.0) + 0.8 + _text_h(pdf, f, 6.8, 3.4, chart.profile['note'])
         space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
         if space < 36.0:                 # no room on this page: the graph starts the next page at full size
@@ -1567,7 +1615,7 @@ def control_chart_pdf(request, pk):
         pdf.ln(0.5); pdf.set_font(f, 'B', 7.5); pdf.set_x(10); pdf.cell(0, 4.2, 'Remarks / corrective actions', ln=1); pdf.set_font(f, '', 7.2)
         for d, st, t in rem:
             pdf.set_x(10)
-            pdf.multi_cell(190, 3.8, '%s  (%s):  %s' % (d, ('Out of limits' if chart.fixed_limits else 'Out of control / limits') if (st == 'ooc' and chart.spec_limited) else 'Out of control' if st == 'ooc' else 'Warning' if st == 'warning' else 'Note', t),
+            pdf.multi_cell(190, 3.8, '%s  (%s):  %s' % (d, _rem_label(chart, st), t),
                            new_x='LMARGIN', new_y='NEXT')
     note = chart.profile['note']
     pdf.ln(0.8); pdf.set_font(f, '', 6.8); pdf.set_text_color(60, 60, 60); pdf.set_x(10)
@@ -1660,7 +1708,8 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
     pdf.set_xy(x0, y0 + 8); pdf.set_text_color(0, 0, 0); pdf.set_font(f, '', 7.5)
     RH = 4.5
     sd_dec = dec + 1 if dec < 4 else dec
-    common = [_fmt(lim.get('ul'), dec), _fmt(lim.get('uwl'), dec), _fmt(lim.get('lwl'), dec), _fmt(lim.get('ll'), dec),
+    one = chart.upper_only            # duplicate RPD: one-sided, no lower limits (11-10-2026)
+    common = [_fmt(lim.get('ul'), dec), _fmt(lim.get('uwl'), dec), '-' if one else _fmt(lim.get('lwl'), dec), '-' if one else _fmt(lim.get('ll'), dec),
               _fmt(lim.get('mean'), dec), _fmt(lim.get('sd'), sd_dec)]
     for i, (d, v) in enumerate(pts):
         pdf.set_fill_color(*(GREY_FILL if i % 2 else (255, 255, 255)))
@@ -1718,6 +1767,13 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
     _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL)
     pdf.set_draw_color(0, 0, 0)
     return _pdf_response(pdf, chart, plabel)
+
+
+def _rem_label(chart, st):
+    """Status label printed before a remark; also used to measure the remarks block (one source of truth)."""
+    if st == 'ooc' and chart.spec_limited:
+        return 'Out of limits' if chart.fixed_limits else 'Out of control / limits'
+    return 'Out of control' if st == 'ooc' else 'Warning' if st == 'warning' else 'Note'
 
 
 def _text_h(pdf, f, size, lh, text):

@@ -3,446 +3,1500 @@
  "created": "2026-10-11",
  "charts": [
   {
-   "key": "Lahore DUP training",
    "activity": "DUP",
-   "target_id": null,
-   "match": {
-    "activity": "DUP",
-    "parameter": "TRAINING - Nitrate-N duplicates",
-    "equipment_id": "TRN-DUP-LAH"
-   },
    "master": {
     "parameter": "TRAINING - Nitrate-N duplicates",
     "level": "",
     "unit": "%",
+    "raw_unit": "mg/L",
     "equipment": "UV-VIS Spectrophotometer",
     "equipment_id": "TRN-DUP-LAH",
-    "method": "APHA 4500-NO3 B",
-    "crm_detail": "Duplicate analysis of a routine wastewater sample - one pair per analytical batch",
+    "method": "APHA 4500-NO3- B (UV)",
+    "crm_detail": "Duplicate of a routine wastewater sample, one pair per batch",
     "crm_value": "",
     "crm_range_low": "",
     "crm_range_high": "10",
-    "description": "TRAINING / REFERENCE CHART - RPD of duplicate analyses (to be deleted by the Lab Manager after training)",
+    "description": "TRAINING / REFERENCE CHART - RPD of duplicate Nitrate-N analyses (to be deleted by the Lab Manager after training)",
     "decimals": 2,
     "start_month": 1
    },
-   "baselines": [
-    {
-     "key": "base",
-     "established_on": "2026-03-02",
-     "values": [
-      1.48,
-      3.76,
-      1.34,
-      5.03,
-      0.02,
-      0.22,
-      4.41,
-      2.08,
-      8.95,
-      2.52,
-      0.55,
-      0.49,
-      5.02
-     ],
-     "dates": [
-      "2026-01-05",
-      "2026-01-08",
-      "2026-01-14",
-      "2026-01-20",
-      "2026-01-23",
-      "2026-01-26",
-      "2026-01-29",
-      "2026-02-04",
-      "2026-02-10",
-      "2026-02-13",
-      "2026-02-16",
-      "2026-02-19",
-      "2026-02-25"
-     ],
-     "note": "Training baseline - 13 duplicate pairs of Jan-Feb 2026"
-    }
-   ],
+   "baseline": {
+    "established_on": "2026-03-02",
+    "values": [
+     0.31,
+     0.59,
+     0.16,
+     1.11,
+     0.09,
+     0.96,
+     0.45,
+     0.29,
+     0.5,
+     0.32,
+     1.61,
+     1.99,
+     1.11,
+     1.67,
+     1.4,
+     1.71,
+     3.73,
+     0.63,
+     1.23,
+     0.34
+    ],
+    "dates": [
+     "2026-01-06",
+     "2026-01-09",
+     "2026-01-12",
+     "2026-01-13",
+     "2026-01-20",
+     "2026-01-21",
+     "2026-01-23",
+     "2026-01-26",
+     "2026-01-27",
+     "2026-02-03",
+     "2026-02-04",
+     "2026-02-06",
+     "2026-02-09",
+     "2026-02-10",
+     "2026-02-12",
+     "2026-02-17",
+     "2026-02-18",
+     "2026-02-19",
+     "2026-02-25",
+     "2026-02-26"
+    ],
+    "note": "Training baseline: 20 duplicate pairs of routine wastewater samples, 06-01-2026 to 26-02-2026"
+   },
    "results": [
     {
+     "date": "2026-03-02",
+     "sample_id": "TRN-LHR-2603-043",
+     "a": 23.666,
+     "b": 23.298,
+     "value": 1.57,
+     "expect": "ok"
+    },
+    {
      "date": "2026-03-03",
-     "value": 4.49,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-048",
+     "a": 24.864,
+     "b": 24.606,
+     "value": 1.04,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-06",
+     "sample_id": "TRN-LHR-2603-055",
+     "a": 9.986,
+     "b": 9.873,
+     "value": 1.14,
+     "expect": "ok"
     },
     {
      "date": "2026-03-10",
-     "value": 0.59,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-063",
+     "a": 3.58,
+     "b": 3.538,
+     "value": 1.18,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-11",
+     "sample_id": "TRN-LHR-2603-072",
+     "a": 5.675,
+     "b": 5.651,
+     "value": 0.42,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-12",
+     "sample_id": "TRN-LHR-2603-079",
+     "a": 7.076,
+     "b": 7.034,
+     "value": 0.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-16",
+     "sample_id": "TRN-LHR-2603-086",
+     "a": 5.079,
+     "b": 4.983,
+     "value": 1.91,
+     "expect": "ok"
     },
     {
      "date": "2026-03-17",
-     "value": 1.33,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-090",
+     "a": 10.622,
+     "b": 10.64,
+     "value": 0.17,
+     "expect": "ok"
     },
     {
      "date": "2026-03-24",
-     "value": 2.46,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-098",
+     "a": 6.335,
+     "b": 6.272,
+     "value": 1.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-03-31",
+     "date": "2026-03-27",
+     "sample_id": "TRN-LHR-2603-102",
+     "a": 11.644,
+     "b": 11.644,
+     "value": 0.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-30",
+     "sample_id": "TRN-LHR-2603-109",
+     "a": 6.316,
+     "b": 6.452,
+     "value": 2.13,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-01",
+     "sample_id": "TRN-LHR-2604-111",
+     "a": 2.671,
+     "b": 2.71,
+     "value": 1.45,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-03",
+     "sample_id": "TRN-LHR-2604-118",
+     "a": 8.765,
+     "b": 8.669,
+     "value": 1.1,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-06",
+     "sample_id": "TRN-LHR-2604-127",
+     "a": 7.292,
+     "b": 7.232,
      "value": 0.83,
-     "baseline": "base"
+     "expect": "ok"
     },
     {
-     "date": "2026-04-07",
-     "value": 5.32,
-     "baseline": "base"
+     "date": "2026-04-09",
+     "sample_id": "TRN-LHR-2604-136",
+     "a": 12.324,
+     "b": 11.939,
+     "value": 3.17,
+     "expect": "warning",
+     "remark": "RPD 3.17 % exceeds the +2 SD warning limit (2.74 %) but is within the <=10 % acceptance criterion. Replicate cuvettes re-checked for scratches and bubbles, both aliquots re-read: confirmed. No bias found; batch results released. Next duplicate to be watched for a trend."
     },
     {
-     "date": "2026-04-14",
-     "value": 1.29,
-     "baseline": "base"
+     "date": "2026-04-13",
+     "sample_id": "TRN-LHR-2604-145",
+     "a": 5.497,
+     "b": 5.528,
+     "value": 0.56,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-21",
-     "value": 1.88,
-     "baseline": "base"
+     "date": "2026-04-16",
+     "sample_id": "TRN-LHR-2604-152",
+     "a": 3.21,
+     "b": 3.187,
+     "value": 0.72,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-28",
-     "value": 6.88,
-     "baseline": "base"
+     "date": "2026-04-23",
+     "sample_id": "TRN-LHR-2604-155",
+     "a": 5.901,
+     "b": 5.829,
+     "value": 1.23,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-24",
+     "sample_id": "TRN-LHR-2604-162",
+     "a": 3.977,
+     "b": 4.032,
+     "value": 1.37,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-27",
+     "sample_id": "TRN-LHR-2604-168",
+     "a": 13.814,
+     "b": 13.833,
+     "value": 0.14,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-30",
+     "sample_id": "TRN-LHR-2604-174",
+     "a": 7.384,
+     "b": 7.353,
+     "value": 0.42,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-04",
+     "sample_id": "TRN-LHR-2605-181",
+     "a": 3.176,
+     "b": 3.183,
+     "value": 0.22,
+     "expect": "ok"
     },
     {
      "date": "2026-05-05",
-     "value": 8.97,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2605-185",
+     "a": 4.075,
+     "b": 3.983,
+     "value": 2.28,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-12",
-     "value": 3.75,
-     "baseline": "base"
+     "date": "2026-05-08",
+     "sample_id": "TRN-LHR-2605-194",
+     "a": 9.402,
+     "b": 9.519,
+     "value": 1.24,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-19",
-     "value": 5.33,
-     "baseline": "base"
+     "date": "2026-05-13",
+     "sample_id": "TRN-LHR-2605-200",
+     "a": 4.017,
+     "b": 3.945,
+     "value": 1.81,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-14",
+     "sample_id": "TRN-LHR-2605-206",
+     "a": 9.211,
+     "b": 9.039,
+     "value": 1.88,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-15",
+     "sample_id": "TRN-LHR-2605-210",
+     "a": 15.46,
+     "b": 15.239,
+     "value": 1.44,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-18",
+     "sample_id": "TRN-LHR-2605-212",
+     "a": 11.283,
+     "b": 11.345,
+     "value": 0.55,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-20",
+     "sample_id": "TRN-LHR-2605-216",
+     "a": 12.635,
+     "b": 12.326,
+     "value": 2.48,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-25",
+     "sample_id": "TRN-LHR-2605-224",
+     "a": 5.118,
+     "b": 5.099,
+     "value": 0.37,
+     "expect": "ok"
     },
     {
      "date": "2026-05-26",
-     "value": 0.77,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2605-232",
+     "a": 17.189,
+     "b": 17.096,
+     "value": 0.54,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-02",
-     "value": 2.16,
-     "baseline": "base"
+     "date": "2026-06-03",
+     "sample_id": "TRN-LHR-2606-237",
+     "a": 5.117,
+     "b": 5.375,
+     "value": 4.92,
+     "expect": "ooc",
+     "remark": "RPD 4.92 % beyond the +3 SD action limit (3.61 %), although within the <=10 % acceptance. Investigation: the second aliquot was filtered through a different 0.45 um membrane lot. Both aliquots re-filtered with the same membrane and re-analysed: RPD 1.9 %. Batch re-run before reporting; analysts reminded to use one membrane lot per duplicate pair (refresher training recorded)."
+    },
+    {
+     "date": "2026-06-04",
+     "sample_id": "TRN-LHR-2606-244",
+     "a": 10.032,
+     "b": 10.002,
+     "value": 0.3,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-05",
+     "sample_id": "TRN-LHR-2606-253",
+     "a": 4.07,
+     "b": 4.08,
+     "value": 0.25,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-08",
+     "sample_id": "TRN-LHR-2606-258",
+     "a": 8.548,
+     "b": 8.389,
+     "value": 1.88,
+     "expect": "ok"
     },
     {
      "date": "2026-06-09",
-     "value": 1.88,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2606-263",
+     "a": 12.406,
+     "b": 12.179,
+     "value": 1.85,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-10",
+     "sample_id": "TRN-LHR-2606-268",
+     "a": 13.014,
+     "b": 13.103,
+     "value": 0.68,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-15",
+     "sample_id": "TRN-LHR-2606-274",
+     "a": 6.734,
+     "b": 6.569,
+     "value": 2.48,
+     "expect": "ok"
     },
     {
      "date": "2026-06-16",
-     "value": 7.09,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2606-279",
+     "a": 10.808,
+     "b": 10.876,
+     "value": 0.63,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-23",
-     "value": 5.8,
-     "baseline": "base"
+     "date": "2026-06-19",
+     "sample_id": "TRN-LHR-2606-282",
+     "a": 3.588,
+     "b": 3.534,
+     "value": 1.52,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-22",
+     "sample_id": "TRN-LHR-2606-284",
+     "a": 3.024,
+     "b": 3.056,
+     "value": 1.05,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-24",
+     "sample_id": "TRN-LHR-2606-287",
+     "a": 1.866,
+     "b": 1.901,
+     "value": 1.86,
+     "expect": "ok"
     },
     {
      "date": "2026-06-30",
-     "value": 3.64,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2606-296",
+     "a": 6.643,
+     "b": 6.703,
+     "value": 0.9,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-01",
+     "sample_id": "TRN-LHR-2607-305",
+     "a": 4.889,
+     "b": 4.874,
+     "value": 0.31,
+     "expect": "ok"
     },
     {
      "date": "2026-07-07",
-     "value": 2.43,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2607-314",
+     "a": 11.234,
+     "b": 11.344,
+     "value": 0.97,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-14",
-     "value": 11.56,
-     "baseline": "base"
+     "date": "2026-07-10",
+     "sample_id": "TRN-LHR-2607-319",
+     "a": 4.327,
+     "b": 4.411,
+     "value": 1.92,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-21",
-     "value": 0.19,
-     "baseline": "base"
+     "date": "2026-07-13",
+     "sample_id": "TRN-LHR-2607-327",
+     "a": 2.698,
+     "b": 2.711,
+     "value": 0.48,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-28",
-     "value": 2.81,
-     "baseline": "base"
+     "date": "2026-07-17",
+     "sample_id": "TRN-LHR-2607-333",
+     "a": 11.121,
+     "b": 11.097,
+     "value": 0.22,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-04",
-     "value": 2.28,
-     "baseline": "base"
+     "date": "2026-07-20",
+     "sample_id": "TRN-LHR-2607-339",
+     "a": 6.546,
+     "b": 6.373,
+     "value": 2.68,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-11",
-     "value": 1.24,
-     "baseline": "base"
+     "date": "2026-07-24",
+     "sample_id": "TRN-LHR-2607-346",
+     "a": 8.984,
+     "b": 8.926,
+     "value": 0.65,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-18",
-     "value": 2.25,
-     "baseline": "base"
+     "date": "2026-07-30",
+     "sample_id": "TRN-LHR-2607-349",
+     "a": 6.629,
+     "b": 7.445,
+     "value": 11.6,
+     "expect": "ooc",
+     "remark": "RPD 11.60 % exceeds the <=10 % acceptance criterion. Sample TRN-LHR-2607-349 had heavy suspended solids; aliquots were not representative. Batch results withheld. Sample re-homogenised (2 min shaking), re-filtered and re-analysed in duplicate on the next batch - see the following entry. Corrective action: shake-and-split step added to the duplicate procedure."
+    },
+    {
+     "date": "2026-07-31",
+     "sample_id": "TRN-LHR-2607-353",
+     "a": 9.835,
+     "b": 9.748,
+     "value": 0.89,
+     "expect": "ok",
+     "remark": "Re-analysis of TRN-LHR-2607-349 (out of control on 30-07-2026) after re-homogenisation: RPD 0.89 % - in control. Withheld batch results reported from this re-analysis."
+    },
+    {
+     "date": "2026-08-05",
+     "sample_id": "TRN-LHR-2608-357",
+     "a": 6.529,
+     "b": 6.602,
+     "value": 1.11,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-06",
+     "sample_id": "TRN-LHR-2608-360",
+     "a": 5.802,
+     "b": 5.824,
+     "value": 0.38,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-07",
+     "sample_id": "TRN-LHR-2608-362",
+     "a": 4.872,
+     "b": 4.83,
+     "value": 0.87,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-12",
+     "sample_id": "TRN-LHR-2608-365",
+     "a": 6.759,
+     "b": 6.763,
+     "value": 0.06,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-13",
+     "sample_id": "TRN-LHR-2608-367",
+     "a": 5.186,
+     "b": 5.054,
+     "value": 2.58,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-19",
+     "sample_id": "TRN-LHR-2608-373",
+     "a": 2.827,
+     "b": 2.816,
+     "value": 0.39,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-20",
+     "sample_id": "TRN-LHR-2608-376",
+     "a": 15.125,
+     "b": 15.513,
+     "value": 2.53,
+     "expect": "ok"
     },
     {
      "date": "2026-08-25",
-     "value": 1.98,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2608-383",
+     "a": 5.769,
+     "b": 5.906,
+     "value": 2.35,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-27",
+     "sample_id": "TRN-LHR-2608-388",
+     "a": 4.611,
+     "b": 4.625,
+     "value": 0.3,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-28",
+     "sample_id": "TRN-LHR-2608-392",
+     "a": 7.737,
+     "b": 7.732,
+     "value": 0.06,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-31",
+     "sample_id": "TRN-LHR-2608-400",
+     "a": 8.738,
+     "b": 8.758,
+     "value": 0.23,
+     "expect": "ok"
     },
     {
      "date": "2026-09-01",
-     "value": 1.38,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-409",
+     "a": 7.037,
+     "b": 7.015,
+     "value": 0.31,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-03",
+     "sample_id": "TRN-LHR-2609-415",
+     "a": 4.008,
+     "b": 4.13,
+     "value": 3.0,
+     "expect": "warning",
+     "remark": "RPD 3.00 % beyond +2 SD (2.74 %), within the <=10 % acceptance. Lamp energy and blank absorbance checked - normal. Isolated point, no trend in the preceding batches; results released."
+    },
+    {
+     "date": "2026-09-07",
+     "sample_id": "TRN-LHR-2609-423",
+     "a": 14.501,
+     "b": 14.829,
+     "value": 2.24,
+     "expect": "ok"
     },
     {
      "date": "2026-09-08",
-     "value": 1.87,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-430",
+     "a": 2.716,
+     "b": 2.734,
+     "value": 0.66,
+     "expect": "ok"
     },
     {
-     "date": "2026-09-15",
-     "value": 4.57,
-     "baseline": "base"
+     "date": "2026-09-09",
+     "sample_id": "TRN-LHR-2609-433",
+     "a": 8.541,
+     "b": 8.673,
+     "value": 1.53,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-14",
+     "sample_id": "TRN-LHR-2609-442",
+     "a": 10.34,
+     "b": 10.348,
+     "value": 0.08,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-17",
+     "sample_id": "TRN-LHR-2609-449",
+     "a": 6.978,
+     "b": 7.109,
+     "value": 1.86,
+     "expect": "ok"
     },
     {
      "date": "2026-09-22",
-     "value": 2.73,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-454",
+     "a": 11.904,
+     "b": 11.752,
+     "value": 1.29,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-23",
+     "sample_id": "TRN-LHR-2609-463",
+     "a": 12.245,
+     "b": 12.057,
+     "value": 1.55,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-24",
+     "sample_id": "TRN-LHR-2609-470",
+     "a": 4.537,
+     "b": 4.585,
+     "value": 1.05,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-28",
+     "sample_id": "TRN-LHR-2609-478",
+     "a": 7.893,
+     "b": 7.927,
+     "value": 0.43,
+     "expect": "ok"
     },
     {
      "date": "2026-09-29",
-     "value": 5.5,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-480",
+     "a": 12.883,
+     "b": 12.989,
+     "value": 0.82,
+     "expect": "ok"
     }
    ],
-   "coverage_months": []
+   "signoffs": [
+    {
+     "year": 2026,
+     "month": 0,
+     "reviewed_on": "2026-10-05",
+     "approved_on": "2026-10-07"
+    }
+   ]
   },
   {
-   "key": "Lahore SPK training",
    "activity": "SPK",
-   "target_id": null,
-   "match": {
-    "activity": "SPK",
-    "parameter": "TRAINING - Lead (Pb) spike recovery",
-    "equipment_id": "TRN-SPK-LAH"
-   },
    "master": {
     "parameter": "TRAINING - Lead (Pb) spike recovery",
     "level": "",
     "unit": "%",
-    "equipment": "Atomic Absorption Spectrophotometer",
+    "raw_unit": "mg/L",
+    "equipment": "Atomic Absorption Spectrophotometer (flame)",
     "equipment_id": "TRN-SPK-LAH",
-    "method": "APHA 3111 B",
-    "crm_detail": "Matrix spike of 0.50 mg/L Pb into a routine wastewater sample - one spike per batch",
+    "method": "APHA 3111 B (flame AAS)",
+    "crm_detail": "0.500 mg/L Pb spiked into a routine wastewater sample, one per batch",
     "crm_value": "100",
     "crm_range_low": "80",
     "crm_range_high": "120",
-    "description": "TRAINING / REFERENCE CHART - percent recovery of matrix spikes (to be deleted by the Lab Manager after training)",
+    "description": "TRAINING / REFERENCE CHART - percent recovery of Pb matrix spikes (to be deleted by the Lab Manager after training)",
     "decimals": 1,
     "start_month": 1
    },
-   "baselines": [
-    {
-     "key": "base",
-     "established_on": "2026-03-02",
-     "values": [
-      100.2,
-      98.0,
-      110.0,
-      100.2,
-      99.2,
-      100.0,
-      96.8,
-      96.1,
-      100.3,
-      97.0,
-      101.2,
-      97.8,
-      92.5,
-      94.1
-     ],
-     "dates": [
-      "2026-01-06",
-      "2026-01-09",
-      "2026-01-12",
-      "2026-01-15",
-      "2026-01-21",
-      "2026-01-27",
-      "2026-01-30",
-      "2026-02-02",
-      "2026-02-05",
-      "2026-02-11",
-      "2026-02-17",
-      "2026-02-20",
-      "2026-02-23",
-      "2026-02-26"
-     ],
-     "note": "Training baseline - 14 spiked samples of Jan-Feb 2026"
-    }
-   ],
+   "baseline": {
+    "established_on": "2026-03-02",
+    "values": [
+     99.2,
+     98.2,
+     102.4,
+     98.0,
+     97.4,
+     96.8,
+     95.4,
+     98.8,
+     96.8,
+     100.0,
+     98.4,
+     101.4,
+     99.4,
+     99.8,
+     99.8,
+     97.4,
+     101.0,
+     99.4,
+     98.0,
+     97.2
+    ],
+    "dates": [
+     "2026-01-06",
+     "2026-01-09",
+     "2026-01-13",
+     "2026-01-14",
+     "2026-01-16",
+     "2026-01-20",
+     "2026-01-21",
+     "2026-01-26",
+     "2026-01-27",
+     "2026-02-02",
+     "2026-02-04",
+     "2026-02-06",
+     "2026-02-11",
+     "2026-02-12",
+     "2026-02-13",
+     "2026-02-19",
+     "2026-02-20",
+     "2026-02-23",
+     "2026-02-25",
+     "2026-02-27"
+    ],
+    "note": "Training baseline: 20 matrix spikes (0.500 mg/L Pb) of routine wastewater samples, 06-01-2026 to 27-02-2026"
+   },
    "results": [
     {
-     "date": "2026-03-04",
-     "value": 95.6,
-     "baseline": "base"
+     "date": "2026-03-03",
+     "sample_id": "TRN-LHR-2603-484",
+     "a": 0.021,
+     "b": 0.518,
+     "c": 0.5,
+     "value": 99.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-05",
+     "sample_id": "TRN-LHR-2603-493",
+     "a": 0.109,
+     "b": 0.615,
+     "c": 0.5,
+     "value": 101.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-06",
+     "sample_id": "TRN-LHR-2603-497",
+     "a": 0.058,
+     "b": 0.545,
+     "c": 0.5,
+     "value": 97.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-09",
+     "sample_id": "TRN-LHR-2603-502",
+     "a": 0.03,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-10",
+     "sample_id": "TRN-LHR-2603-505",
+     "a": 0.034,
+     "b": 0.535,
+     "c": 0.5,
+     "value": 100.2,
+     "expect": "ok"
     },
     {
      "date": "2026-03-11",
-     "value": 91.8,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-514",
+     "a": 0.049,
+     "b": 0.551,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-16",
+     "sample_id": "TRN-LHR-2603-517",
+     "a": 0.063,
+     "b": 0.555,
+     "c": 0.5,
+     "value": 98.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-17",
+     "sample_id": "TRN-LHR-2603-523",
+     "a": 0.048,
+     "b": 0.553,
+     "c": 0.5,
+     "value": 101.0,
+     "expect": "ok"
     },
     {
      "date": "2026-03-18",
-     "value": 98.2,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-530",
+     "a": 0.042,
+     "b": 0.529,
+     "c": 0.5,
+     "value": 97.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-24",
+     "sample_id": "TRN-LHR-2603-538",
+     "a": 0.042,
+     "b": 0.544,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
     },
     {
      "date": "2026-03-25",
-     "value": 97.5,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2603-544",
+     "a": 0.041,
+     "b": 0.537,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-26",
+     "sample_id": "TRN-LHR-2603-550",
+     "a": 0.044,
+     "b": 0.552,
+     "c": 0.5,
+     "value": 101.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-30",
+     "sample_id": "TRN-LHR-2603-552",
+     "a": 0.03,
+     "b": 0.502,
+     "c": 0.5,
+     "value": 94.4,
+     "expect": "warning",
+     "remark": "Recovery 94.4 % below the -2 SD limit (95.3 %), within the 80-120 % acceptance. Burner head cleaned and nebuliser uptake re-checked; calibration verification standard read 0.497 mg/L (99.4 %). Batch released; next spike monitored."
     },
     {
      "date": "2026-04-01",
-     "value": 101.6,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2604-556",
+     "a": 0.026,
+     "b": 0.53,
+     "c": 0.5,
+     "value": 100.8,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-08",
-     "value": 95.6,
-     "baseline": "base"
+     "date": "2026-04-02",
+     "sample_id": "TRN-LHR-2604-559",
+     "a": 0.031,
+     "b": 0.532,
+     "c": 0.5,
+     "value": 100.2,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-15",
-     "value": 97.7,
-     "baseline": "base"
+     "date": "2026-04-06",
+     "sample_id": "TRN-LHR-2604-562",
+     "a": 0.031,
+     "b": 0.525,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-22",
+     "date": "2026-04-09",
+     "sample_id": "TRN-LHR-2604-569",
+     "a": 0.05,
+     "b": 0.531,
+     "c": 0.5,
+     "value": 96.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-13",
+     "sample_id": "TRN-LHR-2604-576",
+     "a": 0.022,
+     "b": 0.517,
+     "c": 0.5,
+     "value": 99.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-17",
+     "sample_id": "TRN-LHR-2604-583",
+     "a": 0.043,
+     "b": 0.545,
+     "c": 0.5,
      "value": 100.4,
-     "baseline": "base"
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-20",
+     "sample_id": "TRN-LHR-2604-591",
+     "a": 0.05,
+     "b": 0.559,
+     "c": 0.5,
+     "value": 101.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-23",
+     "sample_id": "TRN-LHR-2604-599",
+     "a": 0.038,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 97.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-24",
+     "sample_id": "TRN-LHR-2604-603",
+     "a": 0.067,
+     "b": 0.549,
+     "c": 0.5,
+     "value": 96.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-28",
+     "sample_id": "TRN-LHR-2604-611",
+     "a": 0.077,
+     "b": 0.573,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
     },
     {
      "date": "2026-04-29",
-     "value": 89.0,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2604-619",
+     "a": 0.05,
+     "b": 0.53,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-06",
-     "value": 95.1,
-     "baseline": "base"
+     "date": "2026-05-05",
+     "sample_id": "TRN-LHR-2605-628",
+     "a": 0.04,
+     "b": 0.534,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-13",
-     "value": 103.6,
-     "baseline": "base"
+     "date": "2026-05-08",
+     "sample_id": "TRN-LHR-2605-635",
+     "a": 0.043,
+     "b": 0.523,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-11",
+     "sample_id": "TRN-LHR-2605-642",
+     "a": 0.046,
+     "b": 0.553,
+     "c": 0.5,
+     "value": 101.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-12",
+     "sample_id": "TRN-LHR-2605-649",
+     "a": 0.048,
+     "b": 0.538,
+     "c": 0.5,
+     "value": 98.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-15",
+     "sample_id": "TRN-LHR-2605-658",
+     "a": 0.032,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 98.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-18",
+     "sample_id": "TRN-LHR-2605-661",
+     "a": 0.086,
+     "b": 0.578,
+     "c": 0.5,
+     "value": 98.4,
+     "expect": "ok"
     },
     {
      "date": "2026-05-20",
-     "value": 96.4,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2605-663",
+     "a": 0.016,
+     "b": 0.531,
+     "c": 0.5,
+     "value": 103.0,
+     "expect": "warning",
+     "remark": "Recovery 103.0 % above the +2 SD limit (102.2 %), within 80-120 %. Unspiked result close to the detection limit; background correction (D2 lamp) confirmed ON. No trend; results released."
     },
     {
-     "date": "2026-05-27",
-     "value": 102.5,
-     "baseline": "base"
+     "date": "2026-05-22",
+     "sample_id": "TRN-LHR-2605-670",
+     "a": 0.027,
+     "b": 0.525,
+     "c": 0.5,
+     "value": 99.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-03",
-     "value": 97.5,
-     "baseline": "base"
+     "date": "2026-05-25",
+     "sample_id": "TRN-LHR-2605-679",
+     "a": 0.049,
+     "b": 0.552,
+     "c": 0.5,
+     "value": 100.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-10",
-     "value": 97.1,
-     "baseline": "base"
+     "date": "2026-05-26",
+     "sample_id": "TRN-LHR-2605-681",
+     "a": 0.023,
+     "b": 0.531,
+     "c": 0.5,
+     "value": 101.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-17",
-     "value": 94.3,
-     "baseline": "base"
+     "date": "2026-06-01",
+     "sample_id": "TRN-LHR-2606-689",
+     "a": 0.027,
+     "b": 0.526,
+     "c": 0.5,
+     "value": 99.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-02",
+     "sample_id": "TRN-LHR-2606-693",
+     "a": 0.029,
+     "b": 0.525,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-04",
+     "sample_id": "TRN-LHR-2606-702",
+     "a": 0.032,
+     "b": 0.539,
+     "c": 0.5,
+     "value": 101.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-08",
+     "sample_id": "TRN-LHR-2606-707",
+     "a": 0.04,
+     "b": 0.539,
+     "c": 0.5,
+     "value": 99.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-09",
+     "sample_id": "TRN-LHR-2606-716",
+     "a": 0.046,
+     "b": 0.542,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-16",
+     "sample_id": "TRN-LHR-2606-719",
+     "a": 0.02,
+     "b": 0.509,
+     "c": 0.5,
+     "value": 97.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-18",
+     "sample_id": "TRN-LHR-2606-723",
+     "a": 0.039,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 97.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-19",
+     "sample_id": "TRN-LHR-2606-725",
+     "a": 0.022,
+     "b": 0.515,
+     "c": 0.5,
+     "value": 98.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-22",
+     "sample_id": "TRN-LHR-2606-727",
+     "a": 0.033,
+     "b": 0.518,
+     "c": 0.5,
+     "value": 97.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-23",
+     "sample_id": "TRN-LHR-2606-731",
+     "a": 0.028,
+     "b": 0.514,
+     "c": 0.5,
+     "value": 97.2,
+     "expect": "ok"
     },
     {
      "date": "2026-06-24",
-     "value": 98.1,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2606-735",
+     "a": 0.024,
+     "b": 0.509,
+     "c": 0.5,
+     "value": 97.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-01",
-     "value": 109.0,
-     "baseline": "base"
+     "date": "2026-06-29",
+     "sample_id": "TRN-LHR-2606-739",
+     "a": 0.023,
+     "b": 0.503,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-30",
+     "sample_id": "TRN-LHR-2606-748",
+     "a": 0.039,
+     "b": 0.5,
+     "c": 0.5,
+     "value": 92.2,
+     "expect": "ooc",
+     "remark": "Recovery 92.2 % below the -3 SD action limit (93.6 %), within 80-120 %. Spiking pipette (100-1000 uL) checked gravimetrically: delivered 4 % low - removed from use and sent for calibration. Spike repeated with a verified pipette: 98.9 %. Batch re-analysed before reporting."
+    },
+    {
+     "date": "2026-07-02",
+     "sample_id": "TRN-LHR-2607-755",
+     "a": 0.03,
+     "b": 0.532,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
     },
     {
      "date": "2026-07-08",
+     "sample_id": "TRN-LHR-2607-758",
+     "a": 0.075,
+     "b": 0.557,
+     "c": 0.5,
      "value": 96.4,
-     "baseline": "base"
+     "expect": "ok"
     },
     {
-     "date": "2026-07-15",
-     "value": 103.7,
-     "baseline": "base"
+     "date": "2026-07-09",
+     "sample_id": "TRN-LHR-2607-767",
+     "a": 0.023,
+     "b": 0.504,
+     "c": 0.5,
+     "value": 96.2,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-22",
-     "value": 103.0,
-     "baseline": "base"
+     "date": "2026-07-13",
+     "sample_id": "TRN-LHR-2607-771",
+     "a": 0.086,
+     "b": 0.589,
+     "c": 0.5,
+     "value": 100.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-29",
-     "value": 97.2,
-     "baseline": "base"
+     "date": "2026-07-16",
+     "sample_id": "TRN-LHR-2607-779",
+     "a": 0.051,
+     "b": 0.529,
+     "c": 0.5,
+     "value": 95.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-05",
-     "value": 102.2,
-     "baseline": "base"
+     "date": "2026-07-17",
+     "sample_id": "TRN-LHR-2607-788",
+     "a": 0.122,
+     "b": 0.615,
+     "c": 0.5,
+     "value": 98.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-21",
+     "sample_id": "TRN-LHR-2607-795",
+     "a": 0.076,
+     "b": 0.575,
+     "c": 0.5,
+     "value": 99.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-23",
+     "sample_id": "TRN-LHR-2607-801",
+     "a": 0.032,
+     "b": 0.526,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-24",
+     "sample_id": "TRN-LHR-2607-807",
+     "a": 0.076,
+     "b": 0.556,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-28",
+     "sample_id": "TRN-LHR-2607-816",
+     "a": 0.034,
+     "b": 0.522,
+     "c": 0.5,
+     "value": 97.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-31",
+     "sample_id": "TRN-LHR-2607-823",
+     "a": 0.035,
+     "b": 0.52,
+     "c": 0.5,
+     "value": 97.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-04",
+     "sample_id": "TRN-LHR-2608-829",
+     "a": 0.012,
+     "b": 0.511,
+     "c": 0.5,
+     "value": 99.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-06",
+     "sample_id": "TRN-LHR-2608-834",
+     "a": 0.057,
+     "b": 0.545,
+     "c": 0.5,
+     "value": 97.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-11",
+     "sample_id": "TRN-LHR-2608-841",
+     "a": 0.039,
+     "b": 0.529,
+     "c": 0.5,
+     "value": 98.0,
+     "expect": "ok"
     },
     {
      "date": "2026-08-12",
-     "value": 85.3,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2608-849",
+     "a": 0.038,
+     "b": 0.523,
+     "c": 0.5,
+     "value": 97.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-19",
-     "value": 97.5,
-     "baseline": "base"
+     "date": "2026-08-17",
+     "sample_id": "TRN-LHR-2608-851",
+     "a": 0.038,
+     "b": 0.518,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-26",
-     "value": 96.7,
-     "baseline": "base"
+     "date": "2026-08-18",
+     "sample_id": "TRN-LHR-2608-856",
+     "a": 0.03,
+     "b": 0.417,
+     "c": 0.5,
+     "value": 77.4,
+     "expect": "ooc",
+     "remark": "Recovery 77.4 % is outside the 80-120 % acceptance. Sample TRN-LHR-2608-856 - high-TDS textile effluent (matrix suppression). Batch results for this matrix withheld; sample re-analysed after 1:5 dilution and by standard additions on the next batch - see the following entry."
+    },
+    {
+     "date": "2026-08-20",
+     "sample_id": "TRN-LHR-2608-858",
+     "a": 0.065,
+     "b": 0.556,
+     "c": 0.5,
+     "value": 98.2,
+     "expect": "ok",
+     "remark": "Re-analysis of TRN-LHR-2608-856 (outside acceptance on 18-08-2026) after 1:5 dilution: recovery 98.2 % - in control. Corrective action: high-TDS matrices to be diluted before spiking (procedure updated)."
+    },
+    {
+     "date": "2026-08-24",
+     "sample_id": "TRN-LHR-2608-866",
+     "a": 0.029,
+     "b": 0.525,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-25",
+     "sample_id": "TRN-LHR-2608-869",
+     "a": 0.032,
+     "b": 0.534,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-27",
+     "sample_id": "TRN-LHR-2608-872",
+     "a": 0.018,
+     "b": 0.499,
+     "c": 0.5,
+     "value": 96.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-31",
+     "sample_id": "TRN-LHR-2608-881",
+     "a": 0.026,
+     "b": 0.509,
+     "c": 0.5,
+     "value": 96.6,
+     "expect": "ok"
     },
     {
      "date": "2026-09-02",
-     "value": 102.3,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-886",
+     "a": 0.033,
+     "b": 0.534,
+     "c": 0.5,
+     "value": 100.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-04",
+     "sample_id": "TRN-LHR-2609-891",
+     "a": 0.048,
+     "b": 0.543,
+     "c": 0.5,
+     "value": 99.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-08",
+     "sample_id": "TRN-LHR-2609-893",
+     "a": 0.016,
+     "b": 0.506,
+     "c": 0.5,
+     "value": 98.0,
+     "expect": "ok"
     },
     {
      "date": "2026-09-09",
-     "value": 99.7,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-900",
+     "a": 0.05,
+     "b": 0.531,
+     "c": 0.5,
+     "value": 96.2,
+     "expect": "ok"
     },
     {
-     "date": "2026-09-16",
-     "value": 105.6,
-     "baseline": "base"
+     "date": "2026-09-10",
+     "sample_id": "TRN-LHR-2609-909",
+     "a": 0.016,
+     "b": 0.506,
+     "c": 0.5,
+     "value": 98.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-14",
+     "sample_id": "TRN-LHR-2609-911",
+     "a": 0.023,
+     "b": 0.511,
+     "c": 0.5,
+     "value": 97.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-15",
+     "sample_id": "TRN-LHR-2609-915",
+     "a": 0.012,
+     "b": 0.495,
+     "c": 0.5,
+     "value": 96.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-21",
+     "sample_id": "TRN-LHR-2609-922",
+     "a": 0.041,
+     "b": 0.532,
+     "c": 0.5,
+     "value": 98.2,
+     "expect": "ok"
     },
     {
      "date": "2026-09-23",
-     "value": 100.0,
-     "baseline": "base"
+     "sample_id": "TRN-LHR-2609-926",
+     "a": 0.044,
+     "b": 0.541,
+     "c": 0.5,
+     "value": 99.4,
+     "expect": "ok"
     },
     {
-     "date": "2026-09-30",
-     "value": 94.6,
-     "baseline": "base"
+     "date": "2026-09-28",
+     "sample_id": "TRN-LHR-2609-929",
+     "a": 0.038,
+     "b": 0.54,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-29",
+     "sample_id": "TRN-LHR-2609-935",
+     "a": 0.018,
+     "b": 0.505,
+     "c": 0.5,
+     "value": 97.4,
+     "expect": "ok"
     }
    ],
-   "coverage_months": []
+   "signoffs": [
+    {
+     "year": 2026,
+     "month": 0,
+     "reviewed_on": "2026-10-05",
+     "approved_on": "2026-10-07"
+    }
+   ]
+  }
+ ],
+ "replace": [
+  {
+   "activity": "DUP",
+   "equipment_id": "TRN-DUP-LAH",
+   "reason": "Replaced by the revised training chart with raw working, remarks and sign-offs (owner instruction 11-10-2026)"
+  },
+  {
+   "activity": "SPK",
+   "equipment_id": "TRN-SPK-LAH",
+   "reason": "Replaced by the revised training chart with raw working, remarks and sign-offs (owner instruction 11-10-2026)"
   }
  ]
 }

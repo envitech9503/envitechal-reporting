@@ -274,6 +274,11 @@ class ControlChart(models.Model):
     # First month of the chart's 12-month record cycle (1 = Jan-Dec, 2 = Feb-Jan, 3 = Mar-Feb ...).
     # Added 08-10-2026: laboratories start a CRM / RM cycle when the baseline is established.
     start_month = models.IntegerField(default=1)
+    # Training / reference charts (owner decision 11-10-2026): watermarked TRAINING on every form and
+    # deletable by the Lab Manager / CEO even when signed and approved
+    is_training = models.BooleanField(default=False)
+    # Unit of the raw working of duplicate / spike charts (Result A / B, unspiked / spiked / added), e.g. mg/L
+    raw_unit = models.CharField(max_length=30, blank=True, default='')
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey('auth.User', null=True, blank=True,
@@ -325,6 +330,31 @@ class ControlChart(models.Model):
     @property
     def title(self):
         return ('%s %s' % (self.parameter, self.level)).strip()
+
+    # ---- raw working of duplicate / spike charts (11-10-2026)
+    @property
+    def raw_mode(self):
+        return self.activity in ('DUP', 'SPK')
+
+    @property
+    def raw_fields(self):
+        """[(field, label)] of the raw working entered for one result."""
+        if self.activity == 'DUP':
+            return [('raw_a', 'Result A'), ('raw_b', 'Result B')]
+        if self.activity == 'SPK':
+            return [('raw_a', 'Unspiked sample'), ('raw_b', 'Spiked sample'), ('raw_c', 'Spike added')]
+        return []
+
+    def raw_value(self, a, b, c=None):
+        """Computed result from the raw working: RPD % (DUP) or recovery % (SPK); None if incomplete / invalid."""
+        try:
+            if self.activity == 'DUP' and a is not None and b is not None and (a + b) > 0:
+                return abs(a - b) / ((a + b) / 2.0) * 100.0
+            if self.activity == 'SPK' and a is not None and b is not None and c is not None and c > 0:
+                return (b - a) / c * 100.0
+        except (TypeError, ZeroDivisionError):
+            pass
+        return None
 
     def range_pair(self, b=None):
         """(low, high) text of the acceptance / certificate range. Monitoring charts can carry the
@@ -577,6 +607,12 @@ class ControlChartResult(models.Model):
     time = models.CharField(max_length=5, blank=True, default='')   # HH:MM - monitoring readings (added 10-10-2026)
     reading_1 = models.FloatField(null=True, blank=True)            # monitoring: 1st-half reading (value = average)
     reading_2 = models.FloatField(null=True, blank=True)            # monitoring: 2nd-half reading
+    # Raw working of duplicate / spike charts (added 11-10-2026). DUP: raw_a = Result A, raw_b = Result B,
+    # value = RPD %.  SPK: raw_a = unspiked sample, raw_b = spiked sample, raw_c = spike added, value = recovery %.
+    sample_id = models.CharField(max_length=60, blank=True, default='')
+    raw_a = models.FloatField(null=True, blank=True)
+    raw_b = models.FloatField(null=True, blank=True)
+    raw_c = models.FloatField(null=True, blank=True)
     value = models.FloatField()
     status = models.CharField(max_length=10, choices=STATUS, default='ok')
     remark = models.TextField(blank=True, default='')       # mandatory when status != ok

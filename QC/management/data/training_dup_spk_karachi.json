@@ -3,446 +3,1524 @@
  "created": "2026-10-11",
  "charts": [
   {
-   "key": "Karachi DUP training",
    "activity": "DUP",
-   "target_id": null,
-   "match": {
-    "activity": "DUP",
-    "parameter": "TRAINING - Nitrate-N duplicates",
-    "equipment_id": "TRN-DUP-KAR"
-   },
    "master": {
     "parameter": "TRAINING - Nitrate-N duplicates",
     "level": "",
     "unit": "%",
+    "raw_unit": "mg/L",
     "equipment": "UV-VIS Spectrophotometer",
     "equipment_id": "TRN-DUP-KAR",
-    "method": "APHA 4500-NO3 B",
-    "crm_detail": "Duplicate analysis of a routine wastewater sample - one pair per analytical batch",
+    "method": "APHA 4500-NO3- B (UV)",
+    "crm_detail": "Duplicate of a routine wastewater sample, one pair per batch",
     "crm_value": "",
     "crm_range_low": "",
     "crm_range_high": "10",
-    "description": "TRAINING / REFERENCE CHART - RPD of duplicate analyses (to be deleted by the Lab Manager after training)",
+    "description": "TRAINING / REFERENCE CHART - RPD of duplicate Nitrate-N analyses (to be deleted by the Lab Manager after training)",
     "decimals": 2,
     "start_month": 1
    },
-   "baselines": [
-    {
-     "key": "base",
-     "established_on": "2026-03-02",
-     "values": [
-      6.1,
-      2.36,
-      1.54,
-      0.94,
-      0.33,
-      1.21,
-      1.56,
-      4.09,
-      3.9,
-      0.9,
-      3.36,
-      0.32,
-      0.04
-     ],
-     "dates": [
-      "2026-01-05",
-      "2026-01-08",
-      "2026-01-14",
-      "2026-01-20",
-      "2026-01-23",
-      "2026-01-26",
-      "2026-01-29",
-      "2026-02-04",
-      "2026-02-10",
-      "2026-02-13",
-      "2026-02-16",
-      "2026-02-19",
-      "2026-02-25"
-     ],
-     "note": "Training baseline - 13 duplicate pairs of Jan-Feb 2026"
-    }
-   ],
+   "baseline": {
+    "established_on": "2026-03-02",
+    "values": [
+     0.92,
+     0.7,
+     1.56,
+     1.23,
+     0.34,
+     1.11,
+     0.24,
+     3.48,
+     1.0,
+     1.43,
+     0.74,
+     1.0,
+     1.15,
+     0.52,
+     0.14,
+     1.03,
+     2.95,
+     1.23,
+     2.67,
+     1.07
+    ],
+    "dates": [
+     "2026-01-05",
+     "2026-01-06",
+     "2026-01-07",
+     "2026-01-13",
+     "2026-01-16",
+     "2026-01-19",
+     "2026-01-20",
+     "2026-01-22",
+     "2026-01-26",
+     "2026-01-28",
+     "2026-01-29",
+     "2026-02-02",
+     "2026-02-03",
+     "2026-02-06",
+     "2026-02-09",
+     "2026-02-11",
+     "2026-02-18",
+     "2026-02-19",
+     "2026-02-20",
+     "2026-02-24"
+    ],
+    "note": "Training baseline: 20 duplicate pairs of routine wastewater samples, 05-01-2026 to 24-02-2026"
+   },
    "results": [
     {
      "date": "2026-03-03",
-     "value": 0.69,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-068",
+     "a": 6.035,
+     "b": 5.967,
+     "value": 1.13,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-05",
+     "sample_id": "TRN-KHI-2603-077",
+     "a": 13.037,
+     "b": 12.905,
+     "value": 1.02,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-06",
+     "sample_id": "TRN-KHI-2603-082",
+     "a": 6.286,
+     "b": 6.314,
+     "value": 0.44,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-09",
+     "sample_id": "TRN-KHI-2603-087",
+     "a": 5.047,
+     "b": 5.107,
+     "value": 1.18,
+     "expect": "ok"
     },
     {
      "date": "2026-03-10",
-     "value": 1.84,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-090",
+     "a": 2.333,
+     "b": 2.347,
+     "value": 0.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-11",
+     "sample_id": "TRN-KHI-2603-094",
+     "a": 7.286,
+     "b": 7.264,
+     "value": 0.3,
+     "expect": "ok"
     },
     {
      "date": "2026-03-17",
-     "value": 2.87,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-099",
+     "a": 4.077,
+     "b": 4.136,
+     "value": 1.44,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-18",
+     "sample_id": "TRN-KHI-2603-105",
+     "a": 3.641,
+     "b": 3.693,
+     "value": 1.42,
+     "expect": "ok"
     },
     {
      "date": "2026-03-24",
-     "value": 1.63,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-112",
+     "a": 2.949,
+     "b": 2.949,
+     "value": 0.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-03-31",
-     "value": 2.67,
-     "baseline": "base"
+     "date": "2026-03-25",
+     "sample_id": "TRN-KHI-2603-117",
+     "a": 11.518,
+     "b": 11.398,
+     "value": 1.05,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-07",
-     "value": 5.22,
-     "baseline": "base"
+     "date": "2026-03-27",
+     "sample_id": "TRN-KHI-2603-123",
+     "a": 7.457,
+     "b": 7.469,
+     "value": 0.16,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-01",
+     "sample_id": "TRN-KHI-2604-126",
+     "a": 4.599,
+     "b": 4.544,
+     "value": 1.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-02",
+     "sample_id": "TRN-KHI-2604-130",
+     "a": 6.023,
+     "b": 6.043,
+     "value": 0.33,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-03",
+     "sample_id": "TRN-KHI-2604-136",
+     "a": 3.882,
+     "b": 3.795,
+     "value": 2.27,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-08",
+     "sample_id": "TRN-KHI-2604-144",
+     "a": 14.331,
+     "b": 14.828,
+     "value": 3.41,
+     "expect": "warning",
+     "remark": "RPD 3.41 % exceeds the +2 SD warning limit (2.97 %) but is within the <=10 % acceptance criterion. Replicate cuvettes re-checked for scratches and bubbles, both aliquots re-read: confirmed. No bias found; batch results released. Next duplicate to be watched for a trend."
+    },
+    {
+     "date": "2026-04-09",
+     "sample_id": "TRN-KHI-2604-152",
+     "a": 11.912,
+     "b": 11.698,
+     "value": 1.81,
+     "expect": "ok"
     },
     {
      "date": "2026-04-14",
-     "value": 0.15,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2604-161",
+     "a": 3.896,
+     "b": 3.933,
+     "value": 0.95,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-21",
-     "value": 0.29,
-     "baseline": "base"
+     "date": "2026-04-17",
+     "sample_id": "TRN-KHI-2604-163",
+     "a": 5.679,
+     "b": 5.678,
+     "value": 0.02,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-20",
+     "sample_id": "TRN-KHI-2604-165",
+     "a": 10.821,
+     "b": 10.84,
+     "value": 0.18,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-22",
+     "sample_id": "TRN-KHI-2604-167",
+     "a": 8.027,
+     "b": 8.007,
+     "value": 0.25,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-24",
+     "sample_id": "TRN-KHI-2604-176",
+     "a": 2.887,
+     "b": 2.808,
+     "value": 2.77,
+     "expect": "ok"
     },
     {
      "date": "2026-04-28",
-     "value": 2.27,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2604-179",
+     "a": 10.466,
+     "b": 10.517,
+     "value": 0.49,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-05",
-     "value": 6.41,
-     "baseline": "base"
+     "date": "2026-04-29",
+     "sample_id": "TRN-KHI-2604-188",
+     "a": 9.948,
+     "b": 9.999,
+     "value": 0.51,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-30",
+     "sample_id": "TRN-KHI-2604-192",
+     "a": 14.354,
+     "b": 14.551,
+     "value": 1.36,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-04",
+     "sample_id": "TRN-KHI-2605-197",
+     "a": 13.187,
+     "b": 13.386,
+     "value": 1.5,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-07",
+     "sample_id": "TRN-KHI-2605-204",
+     "a": 19.791,
+     "b": 19.973,
+     "value": 0.92,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-08",
+     "sample_id": "TRN-KHI-2605-207",
+     "a": 11.477,
+     "b": 11.359,
+     "value": 1.03,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-11",
+     "sample_id": "TRN-KHI-2605-215",
+     "a": 3.741,
+     "b": 3.68,
+     "value": 1.64,
+     "expect": "ok"
     },
     {
      "date": "2026-05-12",
-     "value": 3.13,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2605-223",
+     "a": 11.721,
+     "b": 11.478,
+     "value": 2.09,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-19",
-     "value": 0.05,
-     "baseline": "base"
+     "date": "2026-05-14",
+     "sample_id": "TRN-KHI-2605-230",
+     "a": 4.958,
+     "b": 5.024,
+     "value": 1.32,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-18",
+     "sample_id": "TRN-KHI-2605-238",
+     "a": 17.88,
+     "b": 17.604,
+     "value": 1.56,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-20",
+     "sample_id": "TRN-KHI-2605-246",
+     "a": 8.022,
+     "b": 8.171,
+     "value": 1.84,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-21",
+     "sample_id": "TRN-KHI-2605-248",
+     "a": 9.278,
+     "b": 8.812,
+     "value": 5.15,
+     "expect": "ooc",
+     "remark": "RPD 5.15 % beyond the +3 SD action limit (3.85 %), although within the <=10 % acceptance. Investigation: the second aliquot was filtered through a different 0.45 um membrane lot. Both aliquots re-filtered with the same membrane and re-analysed: RPD 1.9 %. Batch re-run before reporting; analysts reminded to use one membrane lot per duplicate pair (refresher training recorded)."
+    },
+    {
+     "date": "2026-05-25",
+     "sample_id": "TRN-KHI-2605-254",
+     "a": 7.539,
+     "b": 7.623,
+     "value": 1.11,
+     "expect": "ok"
     },
     {
      "date": "2026-05-26",
-     "value": 0.08,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2605-257",
+     "a": 3.181,
+     "b": 3.256,
+     "value": 2.33,
+     "expect": "ok"
     },
     {
      "date": "2026-06-02",
-     "value": 8.02,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2606-263",
+     "a": 8.239,
+     "b": 8.353,
+     "value": 1.37,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-09",
-     "value": 1.46,
-     "baseline": "base"
+     "date": "2026-06-04",
+     "sample_id": "TRN-KHI-2606-266",
+     "a": 15.806,
+     "b": 15.533,
+     "value": 1.74,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-16",
-     "value": 3.4,
-     "baseline": "base"
+     "date": "2026-06-10",
+     "sample_id": "TRN-KHI-2606-269",
+     "a": 5.245,
+     "b": 5.313,
+     "value": 1.29,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-11",
+     "sample_id": "TRN-KHI-2606-275",
+     "a": 5.949,
+     "b": 6.039,
+     "value": 1.5,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-12",
+     "sample_id": "TRN-KHI-2606-284",
+     "a": 10.201,
+     "b": 10.032,
+     "value": 1.67,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-18",
+     "sample_id": "TRN-KHI-2606-291",
+     "a": 32.405,
+     "b": 31.974,
+     "value": 1.34,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-19",
+     "sample_id": "TRN-KHI-2606-293",
+     "a": 3.476,
+     "b": 3.554,
+     "value": 2.22,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-22",
+     "sample_id": "TRN-KHI-2606-296",
+     "a": 5.096,
+     "b": 5.119,
+     "value": 0.45,
+     "expect": "ok"
     },
     {
      "date": "2026-06-23",
-     "value": 3.6,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2606-299",
+     "a": 3.152,
+     "b": 3.078,
+     "value": 2.38,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-29",
+     "sample_id": "TRN-KHI-2606-308",
+     "a": 17.662,
+     "b": 17.731,
+     "value": 0.39,
+     "expect": "ok"
     },
     {
      "date": "2026-06-30",
-     "value": 3.65,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2606-315",
+     "a": 12.406,
+     "b": 12.451,
+     "value": 0.36,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-07",
-     "value": 6.08,
-     "baseline": "base"
+     "date": "2026-07-01",
+     "sample_id": "TRN-KHI-2607-323",
+     "a": 10.764,
+     "b": 10.562,
+     "value": 1.89,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-14",
-     "value": 8.22,
-     "baseline": "base"
+     "date": "2026-07-06",
+     "sample_id": "TRN-KHI-2607-328",
+     "a": 5.383,
+     "b": 5.312,
+     "value": 1.33,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-21",
-     "value": 1.28,
-     "baseline": "base"
+     "date": "2026-07-09",
+     "sample_id": "TRN-KHI-2607-334",
+     "a": 19.5,
+     "b": 19.152,
+     "value": 1.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-10",
+     "sample_id": "TRN-KHI-2607-341",
+     "a": 4.141,
+     "b": 4.178,
+     "value": 0.89,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-13",
+     "sample_id": "TRN-KHI-2607-347",
+     "a": 14.534,
+     "b": 14.6,
+     "value": 0.45,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-17",
+     "sample_id": "TRN-KHI-2607-356",
+     "a": 7.362,
+     "b": 6.555,
+     "value": 11.6,
+     "expect": "ooc",
+     "remark": "RPD 11.60 % exceeds the <=10 % acceptance criterion. Sample TRN-KHI-2607-356 had heavy suspended solids; aliquots were not representative. Batch results withheld. Sample re-homogenised (2 min shaking), re-filtered and re-analysed in duplicate on the next batch - see the following entry. Corrective action: shake-and-split step added to the duplicate procedure."
+    },
+    {
+     "date": "2026-07-20",
+     "sample_id": "TRN-KHI-2607-364",
+     "a": 6.26,
+     "b": 6.254,
+     "value": 0.1,
+     "expect": "ok",
+     "remark": "Re-analysis of TRN-KHI-2607-356 (out of control on 17-07-2026) after re-homogenisation: RPD 0.10 % - in control. Withheld batch results reported from this re-analysis."
+    },
+    {
+     "date": "2026-07-23",
+     "sample_id": "TRN-KHI-2607-373",
+     "a": 16.244,
+     "b": 16.309,
+     "value": 0.4,
+     "expect": "ok"
     },
     {
      "date": "2026-07-28",
-     "value": 1.56,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2607-379",
+     "a": 4.639,
+     "b": 4.723,
+     "value": 1.79,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-29",
+     "sample_id": "TRN-KHI-2607-382",
+     "a": 4.52,
+     "b": 4.489,
+     "value": 0.69,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-03",
+     "sample_id": "TRN-KHI-2608-388",
+     "a": 14.81,
+     "b": 14.395,
+     "value": 2.84,
+     "expect": "ok"
     },
     {
      "date": "2026-08-04",
-     "value": 3.17,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2608-391",
+     "a": 2.671,
+     "b": 2.709,
+     "value": 1.41,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-07",
+     "sample_id": "TRN-KHI-2608-396",
+     "a": 9.653,
+     "b": 9.495,
+     "value": 1.65,
+     "expect": "ok"
     },
     {
      "date": "2026-08-11",
-     "value": 0.17,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2608-400",
+     "a": 21.376,
+     "b": 21.671,
+     "value": 1.37,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-13",
+     "sample_id": "TRN-KHI-2608-404",
+     "a": 10.078,
+     "b": 9.96,
+     "value": 1.18,
+     "expect": "ok"
     },
     {
      "date": "2026-08-18",
-     "value": 1.48,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2608-413",
+     "a": 3.182,
+     "b": 3.241,
+     "value": 1.84,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-20",
+     "sample_id": "TRN-KHI-2608-421",
+     "a": 20.126,
+     "b": 20.071,
+     "value": 0.27,
+     "expect": "ok"
     },
     {
      "date": "2026-08-25",
-     "value": 1.72,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2608-429",
+     "a": 6.358,
+     "b": 6.398,
+     "value": 0.63,
+     "expect": "ok"
     },
     {
-     "date": "2026-09-01",
-     "value": 0.92,
-     "baseline": "base"
+     "date": "2026-08-27",
+     "sample_id": "TRN-KHI-2608-431",
+     "a": 20.555,
+     "b": 20.266,
+     "value": 1.42,
+     "expect": "ok"
     },
     {
-     "date": "2026-09-08",
-     "value": 0.78,
-     "baseline": "base"
+     "date": "2026-08-31",
+     "sample_id": "TRN-KHI-2608-439",
+     "a": 5.744,
+     "b": 5.826,
+     "value": 1.42,
+     "expect": "ok"
     },
     {
-     "date": "2026-09-15",
-     "value": 2.28,
-     "baseline": "base"
+     "date": "2026-09-04",
+     "sample_id": "TRN-KHI-2609-444",
+     "a": 8.89,
+     "b": 8.986,
+     "value": 1.07,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-09",
+     "sample_id": "TRN-KHI-2609-448",
+     "a": 20.855,
+     "b": 20.191,
+     "value": 3.24,
+     "expect": "warning",
+     "remark": "RPD 3.24 % beyond +2 SD (2.97 %), within the <=10 % acceptance. Lamp energy and blank absorbance checked - normal. Isolated point, no trend in the preceding batches; results released."
+    },
+    {
+     "date": "2026-09-11",
+     "sample_id": "TRN-KHI-2609-454",
+     "a": 4.996,
+     "b": 4.946,
+     "value": 1.01,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-14",
+     "sample_id": "TRN-KHI-2609-459",
+     "a": 2.382,
+     "b": 2.371,
+     "value": 0.46,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-16",
+     "sample_id": "TRN-KHI-2609-468",
+     "a": 9.765,
+     "b": 9.754,
+     "value": 0.11,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-18",
+     "sample_id": "TRN-KHI-2609-477",
+     "a": 8.106,
+     "b": 8.056,
+     "value": 0.62,
+     "expect": "ok"
     },
     {
      "date": "2026-09-22",
-     "value": 4.42,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2609-482",
+     "a": 19.229,
+     "b": 19.101,
+     "value": 0.67,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-23",
+     "sample_id": "TRN-KHI-2609-487",
+     "a": 6.299,
+     "b": 6.307,
+     "value": 0.13,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-24",
+     "sample_id": "TRN-KHI-2609-496",
+     "a": 7.26,
+     "b": 7.244,
+     "value": 0.22,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-28",
+     "sample_id": "TRN-KHI-2609-504",
+     "a": 18.664,
+     "b": 19.02,
+     "value": 1.89,
+     "expect": "ok"
     },
     {
      "date": "2026-09-29",
-     "value": 3.33,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2609-513",
+     "a": 7.074,
+     "b": 7.035,
+     "value": 0.55,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-30",
+     "sample_id": "TRN-KHI-2609-520",
+     "a": 18.353,
+     "b": 18.073,
+     "value": 1.54,
+     "expect": "ok"
     }
    ],
-   "coverage_months": []
+   "signoffs": [
+    {
+     "year": 2026,
+     "month": 0,
+     "reviewed_on": "2026-10-05",
+     "approved_on": "2026-10-07"
+    }
+   ]
   },
   {
-   "key": "Karachi SPK training",
    "activity": "SPK",
-   "target_id": null,
-   "match": {
-    "activity": "SPK",
-    "parameter": "TRAINING - Lead (Pb) spike recovery",
-    "equipment_id": "TRN-SPK-KAR"
-   },
    "master": {
     "parameter": "TRAINING - Lead (Pb) spike recovery",
     "level": "",
     "unit": "%",
-    "equipment": "Atomic Absorption Spectrophotometer",
+    "raw_unit": "mg/L",
+    "equipment": "Atomic Absorption Spectrophotometer (flame)",
     "equipment_id": "TRN-SPK-KAR",
-    "method": "APHA 3111 B",
-    "crm_detail": "Matrix spike of 0.50 mg/L Pb into a routine wastewater sample - one spike per batch",
+    "method": "APHA 3111 B (flame AAS)",
+    "crm_detail": "0.500 mg/L Pb spiked into a routine wastewater sample, one per batch",
     "crm_value": "100",
     "crm_range_low": "80",
     "crm_range_high": "120",
-    "description": "TRAINING / REFERENCE CHART - percent recovery of matrix spikes (to be deleted by the Lab Manager after training)",
+    "description": "TRAINING / REFERENCE CHART - percent recovery of Pb matrix spikes (to be deleted by the Lab Manager after training)",
     "decimals": 1,
     "start_month": 1
    },
-   "baselines": [
-    {
-     "key": "base",
-     "established_on": "2026-03-02",
-     "values": [
-      93.9,
-      99.2,
-      97.6,
-      97.0,
-      101.6,
-      98.7,
-      97.6,
-      104.3,
-      96.9,
-      94.5,
-      94.1,
-      96.8,
-      100.6,
-      101.2
-     ],
-     "dates": [
-      "2026-01-06",
-      "2026-01-09",
-      "2026-01-12",
-      "2026-01-15",
-      "2026-01-21",
-      "2026-01-27",
-      "2026-01-30",
-      "2026-02-02",
-      "2026-02-05",
-      "2026-02-11",
-      "2026-02-17",
-      "2026-02-20",
-      "2026-02-23",
-      "2026-02-26"
-     ],
-     "note": "Training baseline - 14 spiked samples of Jan-Feb 2026"
-    }
-   ],
+   "baseline": {
+    "established_on": "2026-03-02",
+    "values": [
+     100.6,
+     98.0,
+     97.6,
+     104.2,
+     102.2,
+     97.8,
+     99.8,
+     100.6,
+     95.0,
+     100.4,
+     102.6,
+     98.0,
+     98.6,
+     96.2,
+     103.8,
+     93.4,
+     93.6,
+     97.6,
+     100.0,
+     102.6
+    ],
+    "dates": [
+     "2026-01-07",
+     "2026-01-08",
+     "2026-01-09",
+     "2026-01-13",
+     "2026-01-14",
+     "2026-01-19",
+     "2026-01-20",
+     "2026-01-21",
+     "2026-01-26",
+     "2026-01-27",
+     "2026-02-04",
+     "2026-02-06",
+     "2026-02-10",
+     "2026-02-11",
+     "2026-02-13",
+     "2026-02-16",
+     "2026-02-19",
+     "2026-02-20",
+     "2026-02-23",
+     "2026-02-24"
+    ],
+    "note": "Training baseline: 20 matrix spikes (0.500 mg/L Pb) of routine wastewater samples, 07-01-2026 to 24-02-2026"
+   },
    "results": [
     {
-     "date": "2026-03-04",
-     "value": 102.1,
-     "baseline": "base"
+     "date": "2026-03-03",
+     "sample_id": "TRN-KHI-2603-525",
+     "a": 0.056,
+     "b": 0.561,
+     "c": 0.5,
+     "value": 101.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-05",
+     "sample_id": "TRN-KHI-2603-530",
+     "a": 0.045,
+     "b": 0.538,
+     "c": 0.5,
+     "value": 98.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-06",
+     "sample_id": "TRN-KHI-2603-538",
+     "a": 0.043,
+     "b": 0.535,
+     "c": 0.5,
+     "value": 98.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-09",
+     "sample_id": "TRN-KHI-2603-545",
+     "a": 0.019,
+     "b": 0.521,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
     },
     {
      "date": "2026-03-11",
-     "value": 104.4,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-547",
+     "a": 0.053,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 94.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-12",
+     "sample_id": "TRN-KHI-2603-555",
+     "a": 0.029,
+     "b": 0.498,
+     "c": 0.5,
+     "value": 93.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-16",
+     "sample_id": "TRN-KHI-2603-561",
+     "a": 0.025,
+     "b": 0.516,
+     "c": 0.5,
+     "value": 98.2,
+     "expect": "ok"
     },
     {
      "date": "2026-03-18",
-     "value": 104.0,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-570",
+     "a": 0.055,
+     "b": 0.542,
+     "c": 0.5,
+     "value": 97.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-03-19",
+     "sample_id": "TRN-KHI-2603-573",
+     "a": 0.038,
+     "b": 0.54,
+     "c": 0.5,
+     "value": 100.4,
+     "expect": "ok"
     },
     {
      "date": "2026-03-25",
-     "value": 100.6,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2603-578",
+     "a": 0.018,
+     "b": 0.512,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-01",
-     "value": 102.9,
-     "baseline": "base"
+     "date": "2026-03-26",
+     "sample_id": "TRN-KHI-2603-584",
+     "a": 0.023,
+     "b": 0.512,
+     "c": 0.5,
+     "value": 97.8,
+     "expect": "ok"
     },
     {
-     "date": "2026-04-08",
-     "value": 100.7,
-     "baseline": "base"
+     "date": "2026-03-30",
+     "sample_id": "TRN-KHI-2603-586",
+     "a": 0.039,
+     "b": 0.517,
+     "c": 0.5,
+     "value": 95.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-03",
+     "sample_id": "TRN-KHI-2604-588",
+     "a": 0.05,
+     "b": 0.506,
+     "c": 0.5,
+     "value": 91.2,
+     "expect": "warning",
+     "remark": "Recovery 91.2 % below the -2 SD limit (92.9 %), within the 80-120 % acceptance. Burner head cleaned and nebuliser uptake re-checked; calibration verification standard read 0.497 mg/L (99.4 %). Batch released; next spike monitored."
+    },
+    {
+     "date": "2026-04-07",
+     "sample_id": "TRN-KHI-2604-591",
+     "a": 0.029,
+     "b": 0.548,
+     "c": 0.5,
+     "value": 103.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-10",
+     "sample_id": "TRN-KHI-2604-600",
+     "a": 0.062,
+     "b": 0.57,
+     "c": 0.5,
+     "value": 101.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-13",
+     "sample_id": "TRN-KHI-2604-609",
+     "a": 0.024,
+     "b": 0.542,
+     "c": 0.5,
+     "value": 103.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-14",
+     "sample_id": "TRN-KHI-2604-616",
+     "a": 0.05,
+     "b": 0.544,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     },
     {
      "date": "2026-04-15",
-     "value": 96.8,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2604-623",
+     "a": 0.021,
+     "b": 0.503,
+     "c": 0.5,
+     "value": 96.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-21",
+     "sample_id": "TRN-KHI-2604-629",
+     "a": 0.036,
+     "b": 0.53,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     },
     {
      "date": "2026-04-22",
-     "value": 101.3,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2604-631",
+     "a": 0.036,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 97.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-23",
+     "sample_id": "TRN-KHI-2604-638",
+     "a": 0.041,
+     "b": 0.558,
+     "c": 0.5,
+     "value": 103.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-04-27",
+     "sample_id": "TRN-KHI-2604-643",
+     "a": 0.023,
+     "b": 0.537,
+     "c": 0.5,
+     "value": 102.8,
+     "expect": "ok"
     },
     {
      "date": "2026-04-29",
-     "value": 90.9,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2604-649",
+     "a": 0.021,
+     "b": 0.528,
+     "c": 0.5,
+     "value": 101.4,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-06",
-     "value": 98.0,
-     "baseline": "base"
+     "date": "2026-05-04",
+     "sample_id": "TRN-KHI-2605-653",
+     "a": 0.038,
+     "b": 0.537,
+     "c": 0.5,
+     "value": 99.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-07",
+     "sample_id": "TRN-KHI-2605-661",
+     "a": 0.035,
+     "b": 0.543,
+     "c": 0.5,
+     "value": 101.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-08",
+     "sample_id": "TRN-KHI-2605-663",
+     "a": 0.07,
+     "b": 0.583,
+     "c": 0.5,
+     "value": 102.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-12",
+     "sample_id": "TRN-KHI-2605-668",
+     "a": 0.033,
+     "b": 0.527,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     },
     {
      "date": "2026-05-13",
-     "value": 105.1,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2605-670",
+     "a": 0.02,
+     "b": 0.528,
+     "c": 0.5,
+     "value": 101.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-15",
+     "sample_id": "TRN-KHI-2605-679",
+     "a": 0.149,
+     "b": 0.645,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-18",
+     "sample_id": "TRN-KHI-2605-687",
+     "a": 0.044,
+     "b": 0.526,
+     "c": 0.5,
+     "value": 96.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-19",
+     "sample_id": "TRN-KHI-2605-695",
+     "a": 0.029,
+     "b": 0.564,
+     "c": 0.5,
+     "value": 107.0,
+     "expect": "warning",
+     "remark": "Recovery 107.0 % above the +2 SD limit (105.4 %), within 80-120 %. Unspiked result close to the detection limit; background correction (D2 lamp) confirmed ON. No trend; results released."
     },
     {
      "date": "2026-05-20",
-     "value": 101.1,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2605-704",
+     "a": 0.014,
+     "b": 0.485,
+     "c": 0.5,
+     "value": 94.2,
+     "expect": "ok"
     },
     {
-     "date": "2026-05-27",
-     "value": 97.1,
-     "baseline": "base"
+     "date": "2026-05-25",
+     "sample_id": "TRN-KHI-2605-706",
+     "a": 0.04,
+     "b": 0.537,
+     "c": 0.5,
+     "value": 99.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-05-26",
+     "sample_id": "TRN-KHI-2605-709",
+     "a": 0.027,
+     "b": 0.538,
+     "c": 0.5,
+     "value": 102.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-02",
+     "sample_id": "TRN-KHI-2606-716",
+     "a": 0.012,
+     "b": 0.5,
+     "c": 0.5,
+     "value": 97.6,
+     "expect": "ok"
     },
     {
      "date": "2026-06-03",
-     "value": 98.4,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2606-718",
+     "a": 0.031,
+     "b": 0.525,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-04",
+     "sample_id": "TRN-KHI-2606-721",
+     "a": 0.016,
+     "b": 0.537,
+     "c": 0.5,
+     "value": 104.2,
+     "expect": "ok"
     },
     {
      "date": "2026-06-10",
-     "value": 106.2,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2606-723",
+     "a": 0.019,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 101.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-11",
+     "sample_id": "TRN-KHI-2606-732",
+     "a": 0.019,
+     "b": 0.529,
+     "c": 0.5,
+     "value": 102.0,
+     "expect": "ok"
     },
     {
      "date": "2026-06-17",
-     "value": 97.9,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2606-738",
+     "a": 0.02,
+     "b": 0.508,
+     "c": 0.5,
+     "value": 97.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-06-24",
-     "value": 101.1,
-     "baseline": "base"
+     "date": "2026-06-19",
+     "sample_id": "TRN-KHI-2606-743",
+     "a": 0.075,
+     "b": 0.581,
+     "c": 0.5,
+     "value": 101.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-22",
+     "sample_id": "TRN-KHI-2606-746",
+     "a": 0.064,
+     "b": 0.553,
+     "c": 0.5,
+     "value": 97.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-06-23",
+     "sample_id": "TRN-KHI-2606-755",
+     "a": 0.016,
+     "b": 0.495,
+     "c": 0.5,
+     "value": 95.8,
+     "expect": "ok"
     },
     {
      "date": "2026-07-01",
-     "value": 105.7,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2607-764",
+     "a": 0.026,
+     "b": 0.521,
+     "c": 0.5,
+     "value": 99.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-02",
+     "sample_id": "TRN-KHI-2607-771",
+     "a": 0.026,
+     "b": 0.51,
+     "c": 0.5,
+     "value": 96.8,
+     "expect": "ok"
     },
     {
      "date": "2026-07-08",
-     "value": 100.3,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2607-773",
+     "a": 0.053,
+     "b": 0.537,
+     "c": 0.5,
+     "value": 96.8,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-15",
+     "date": "2026-07-09",
+     "sample_id": "TRN-KHI-2607-778",
+     "a": 0.036,
+     "b": 0.475,
+     "c": 0.5,
+     "value": 87.8,
+     "expect": "ooc",
+     "remark": "Recovery 87.8 % below the -3 SD action limit (89.7 %), within 80-120 %. Spiking pipette (100-1000 uL) checked gravimetrically: delivered 4 % low - removed from use and sent for calibration. Spike repeated with a verified pipette: 98.9 %. Batch re-analysed before reporting."
+    },
+    {
+     "date": "2026-07-10",
+     "sample_id": "TRN-KHI-2607-786",
+     "a": 0.093,
+     "b": 0.568,
+     "c": 0.5,
+     "value": 95.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-14",
+     "sample_id": "TRN-KHI-2607-793",
+     "a": 0.02,
+     "b": 0.507,
+     "c": 0.5,
+     "value": 97.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-17",
+     "sample_id": "TRN-KHI-2607-798",
+     "a": 0.022,
+     "b": 0.525,
+     "c": 0.5,
      "value": 100.6,
-     "baseline": "base"
+     "expect": "ok"
     },
     {
      "date": "2026-07-22",
-     "value": 97.1,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2607-804",
+     "a": 0.026,
+     "b": 0.544,
+     "c": 0.5,
+     "value": 103.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-07-29",
-     "value": 97.2,
-     "baseline": "base"
+     "date": "2026-07-23",
+     "sample_id": "TRN-KHI-2607-810",
+     "a": 0.026,
+     "b": 0.506,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-05",
+     "date": "2026-07-27",
+     "sample_id": "TRN-KHI-2607-812",
+     "a": 0.026,
+     "b": 0.517,
+     "c": 0.5,
      "value": 98.2,
-     "baseline": "base"
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-28",
+     "sample_id": "TRN-KHI-2607-820",
+     "a": 0.058,
+     "b": 0.545,
+     "c": 0.5,
+     "value": 97.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-07-30",
+     "sample_id": "TRN-KHI-2607-826",
+     "a": 0.102,
+     "b": 0.582,
+     "c": 0.5,
+     "value": 96.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-03",
+     "sample_id": "TRN-KHI-2608-830",
+     "a": 0.018,
+     "b": 0.514,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-04",
+     "sample_id": "TRN-KHI-2608-833",
+     "a": 0.035,
+     "b": 0.512,
+     "c": 0.5,
+     "value": 95.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-07",
+     "sample_id": "TRN-KHI-2608-839",
+     "a": 0.066,
+     "b": 0.56,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-11",
+     "sample_id": "TRN-KHI-2608-846",
+     "a": 0.012,
+     "b": 0.523,
+     "c": 0.5,
+     "value": 102.2,
+     "expect": "ok"
     },
     {
      "date": "2026-08-12",
-     "value": 88.1,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2608-851",
+     "a": 0.047,
+     "b": 0.528,
+     "c": 0.5,
+     "value": 96.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-17",
+     "sample_id": "TRN-KHI-2608-855",
+     "a": 0.026,
+     "b": 0.532,
+     "c": 0.5,
+     "value": 101.2,
+     "expect": "ok"
     },
     {
      "date": "2026-08-19",
-     "value": 101.3,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2608-858",
+     "a": 0.022,
+     "b": 0.5,
+     "c": 0.5,
+     "value": 95.6,
+     "expect": "ok"
     },
     {
-     "date": "2026-08-26",
-     "value": 103.7,
-     "baseline": "base"
+     "date": "2026-08-20",
+     "sample_id": "TRN-KHI-2608-860",
+     "a": 0.038,
+     "b": 0.522,
+     "c": 0.5,
+     "value": 96.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-08-25",
+     "sample_id": "TRN-KHI-2608-868",
+     "a": 0.016,
+     "b": 0.403,
+     "c": 0.5,
+     "value": 77.4,
+     "expect": "ooc",
+     "remark": "Recovery 77.4 % is outside the 80-120 % acceptance. Sample TRN-KHI-2608-868 - high-TDS textile effluent (matrix suppression). Batch results for this matrix withheld; sample re-analysed after 1:5 dilution and by standard additions on the next batch - see the following entry."
+    },
+    {
+     "date": "2026-08-27",
+     "sample_id": "TRN-KHI-2608-871",
+     "a": 0.043,
+     "b": 0.528,
+     "c": 0.5,
+     "value": 97.0,
+     "expect": "ok",
+     "remark": "Re-analysis of TRN-KHI-2608-868 (outside acceptance on 25-08-2026) after 1:5 dilution: recovery 97.0 % - in control. Corrective action: high-TDS matrices to be diluted before spiking (procedure updated)."
+    },
+    {
+     "date": "2026-08-28",
+     "sample_id": "TRN-KHI-2608-878",
+     "a": 0.025,
+     "b": 0.519,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-01",
+     "sample_id": "TRN-KHI-2609-886",
+     "a": 0.041,
+     "b": 0.52,
+     "c": 0.5,
+     "value": 95.8,
+     "expect": "ok"
     },
     {
      "date": "2026-09-02",
+     "sample_id": "TRN-KHI-2609-891",
+     "a": 0.029,
+     "b": 0.503,
+     "c": 0.5,
+     "value": 94.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-03",
+     "sample_id": "TRN-KHI-2609-895",
+     "a": 0.033,
+     "b": 0.524,
+     "c": 0.5,
+     "value": 98.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-07",
+     "sample_id": "TRN-KHI-2609-901",
+     "a": 0.086,
+     "b": 0.599,
+     "c": 0.5,
+     "value": 102.6,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-08",
+     "sample_id": "TRN-KHI-2609-907",
+     "a": 0.015,
+     "b": 0.511,
+     "c": 0.5,
+     "value": 99.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-14",
+     "sample_id": "TRN-KHI-2609-910",
+     "a": 0.029,
+     "b": 0.526,
+     "c": 0.5,
+     "value": 99.4,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-15",
+     "sample_id": "TRN-KHI-2609-916",
+     "a": 0.03,
+     "b": 0.52,
+     "c": 0.5,
+     "value": 98.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-18",
+     "sample_id": "TRN-KHI-2609-922",
+     "a": 0.036,
+     "b": 0.526,
+     "c": 0.5,
+     "value": 98.0,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-21",
+     "sample_id": "TRN-KHI-2609-925",
+     "a": 0.048,
+     "b": 0.554,
+     "c": 0.5,
+     "value": 101.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-24",
+     "sample_id": "TRN-KHI-2609-929",
+     "a": 0.035,
+     "b": 0.539,
+     "c": 0.5,
+     "value": 100.8,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-25",
+     "sample_id": "TRN-KHI-2609-937",
+     "a": 0.091,
+     "b": 0.602,
+     "c": 0.5,
+     "value": 102.2,
+     "expect": "ok"
+    },
+    {
+     "date": "2026-09-28",
+     "sample_id": "TRN-KHI-2609-944",
+     "a": 0.064,
+     "b": 0.543,
+     "c": 0.5,
      "value": 95.8,
-     "baseline": "base"
+     "expect": "ok"
     },
     {
-     "date": "2026-09-09",
-     "value": 100.5,
-     "baseline": "base"
-    },
-    {
-     "date": "2026-09-16",
-     "value": 95.5,
-     "baseline": "base"
-    },
-    {
-     "date": "2026-09-23",
-     "value": 96.4,
-     "baseline": "base"
+     "date": "2026-09-29",
+     "sample_id": "TRN-KHI-2609-953",
+     "a": 0.036,
+     "b": 0.525,
+     "c": 0.5,
+     "value": 97.8,
+     "expect": "ok"
     },
     {
      "date": "2026-09-30",
-     "value": 97.9,
-     "baseline": "base"
+     "sample_id": "TRN-KHI-2609-956",
+     "a": 0.073,
+     "b": 0.567,
+     "c": 0.5,
+     "value": 98.8,
+     "expect": "ok"
     }
    ],
-   "coverage_months": []
+   "signoffs": [
+    {
+     "year": 2026,
+     "month": 0,
+     "reviewed_on": "2026-10-05",
+     "approved_on": "2026-10-07"
+    }
+   ]
+  }
+ ],
+ "replace": [
+  {
+   "activity": "DUP",
+   "equipment_id": "TRN-DUP-KAR",
+   "reason": "Replaced by the revised training chart with raw working, remarks and sign-offs (owner instruction 11-10-2026)"
+  },
+  {
+   "activity": "SPK",
+   "equipment_id": "TRN-SPK-KAR",
+   "reason": "Replaced by the revised training chart with raw working, remarks and sign-offs (owner instruction 11-10-2026)"
   }
  ]
 }

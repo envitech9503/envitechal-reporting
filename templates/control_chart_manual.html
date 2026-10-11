@@ -291,6 +291,18 @@
       <div class="note">Values are accepted with up to the chart's configured number of decimals (usually 2; 3 for pH, fluoride and nitrate; 4 for the AS-13 absorption spectrometer).</div>
     </section>
 
+    <section class="topic" id="t-raw" data-cat="entry" data-keywords="duplicate spike recovery raw working result a result b unspiked spiked spike added sample id rpd calculation percent recovery batch">
+      <h2><span class="cat-tag">Monthly entry</span> Duplicates and spikes: entering the raw working</h2>
+      <p>Duplicate (RPD) and spike-recovery charts record the working behind every point, so that a reviewer can re-calculate it from the form:</p>
+      <ul>
+        <li><b>Sample ID</b> of the routine sample used for the duplicate or the spike.</li>
+        <li><b>Duplicates:</b> <b>Result A</b> and <b>Result B</b>. The RPD is calculated as |A &minus; B| &divide; ((A + B) &divide; 2) &times; 100.</li>
+        <li><b>Spikes:</b> <b>Unspiked sample</b>, <b>Spiked sample</b> and <b>Spike added</b> (concentration added). The recovery is calculated as (Spiked &minus; Unspiked) &divide; Spike added &times; 100.</li>
+      </ul>
+      <p>As the raw results are typed, the form fills in the RPD or recovery and previews its status. On saving, the server re-calculates the value from the raw results, so the printed value always agrees with the printed working. The unit of the raw results (for example mg/L) is set once per chart in <b>Edit master &rarr; Unit of the raw results</b>.</p>
+      <div class="note">The raw working is optional: a value can still be entered directly. When a period holds raw working, the PDF form prints the Sample ID and raw-result columns before the calculated value; the baseline mean and SD are printed once below the table.</div>
+    </section>
+
     <section class="topic" id="t-edit" data-cat="entry" data-keywords="edit correct change result mistake typo delete remove row pencil trash undo">
       <h2><span class="cat-tag">Monthly entry</span> Correcting or deleting a result</h2>
       <ul>
@@ -435,11 +447,23 @@
         <li><b>Deleting</b> (owner decision 11-10-2026) — charts of <b>every type</b> (CRM, RM, intermediate checks, duplicates, spikes, monitoring), single <b>results</b> and <b>baselines</b> can be deleted by the laboratory's <b>QC / Lab Manager</b> (as assigned on <i>Laboratory Reviewers</i>) and by the <b>CEO / administrator</b> only. Analysts do not see the delete buttons.
           <ul>
             <li><b>Delete chart</b> (chart page header) removes the chart with all its results, baselines and sign-offs. <b>Trash</b> icon on a result row removes that result (a review of its period is cleared). <b>Trash</b> icon in the list of baselines removes a baseline that no result is judged against.</li>
-            <li>A <b>reason</b> (at least 5 characters) is always asked for. Approved (locked) records must be <b>unapproved</b> first.</li>
+            <li>A <b>reason</b> (at least 5 characters) is always asked for. Approved (locked) records must be <b>unapproved</b> first &mdash; except <b>training / reference charts</b>, which the Lab Manager or CEO may delete although approved.</li>
             <li>Every deletion is listed in <span class="path">QC sidebar &rarr; Control Charts &rarr; Deletion Log (managers)</span> - who, when, why and a copy of the deleted data - so it can be traced and, if ever needed, restored by the system administrator.</li>
             <li>To withdraw a chart but keep its records, <b>retire</b> it instead (untick <b>Active</b> in Edit master): it stays in the Archive.</li>
           </ul></li>
       </ul>
+    </section>
+
+    <section class="topic" id="t-training" data-cat="admin" data-keywords="training reference chart worked example duplicate spike learn practice watermark delete after training">
+      <h2><span class="cat-tag">Creating &amp; managing</span> Training / reference charts</h2>
+      <p>Each laboratory has two fully worked training charts &mdash; <b>TRAINING - Nitrate-N duplicates</b> and <b>TRAINING - Lead (Pb) spike recovery</b> &mdash; to show analysts what a complete record looks like:</p>
+      <ul>
+        <li>a dated 20-point baseline and its baseline form;</li>
+        <li>results from March to September 2026, two to three analytical batches a week, each with Sample ID and raw working;</li>
+        <li>worked warning and out-of-control examples, each with a remark and corrective action, including a result outside the acceptance criterion followed by its re-analysis;</li>
+        <li>the complete three-step sign-off: performed by the analyst, reviewed by the Lab Manager and approved by the CEO.</li>
+      </ul>
+      <p>Every printed form of a training chart carries a <b>TRAINING RECORD</b> watermark, and the chart page shows a training banner. Training charts are not laboratory quality records. Once training is complete, the Lab Manager or CEO deletes them with <b>Delete chart</b>; a reason is required and a copy is kept in the deletion log.</p>
     </section>
 
     <section class="topic" id="t-seed" data-cat="admin" data-keywords="seed import excel workbook command bulk create many charts seed_control_charts json">
@@ -520,7 +544,7 @@
 
 <footer>
   <div><b>Envi Tech AL — Control Charts module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories. Form ETAL-LAB-604-FF-11; procedure ETAL-LAB-P-604.</div>
-  <div style="margin-top:4px">Revision 4 — 11-10-2026. This document reflects the module as deployed on 11-10-2026 (one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
+  <div style="margin-top:4px">Revision 5 — 11-10-2026. This document reflects the module as deployed on 11-10-2026 (one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log, raw working for duplicates and spikes, training / reference charts included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
 </footer>
 
 <script>
