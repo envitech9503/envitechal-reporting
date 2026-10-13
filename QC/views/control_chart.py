@@ -21,7 +21,7 @@ from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, C
 from QC.control_chart_render import render_chart, period_rows, period_label as _plabel, fmt as _fmt, MONTHS as _MONTHS
 
 _CC_LOCS = ['Karachi', 'Lahore']
-_CC_ACTS = ['CRM', 'RM', 'IC', 'DUP', 'SPK', 'MON', 'WS']
+_CC_ACTS = ['CRM', 'RM', 'IC', 'EQ', 'DUP', 'SPK', 'MON', 'WS']
 _CC_FORM = {'doc_no': 'ETAL-LAB-604-FF-11', 'issue_date': '19-03-2022', 'issue_no': '01', 'rev_no': '00'}
 # Document-control rows are kept per laboratory AND per form type (CRM / RM / IC):
 # InventoryDocControl(module=<key below>, location=<lab>). Only the Karachi CRM form
@@ -29,7 +29,7 @@ _CC_FORM = {'doc_no': 'ETAL-LAB-604-FF-11', 'issue_date': '19-03-2022', 'issue_n
 # the Document control page and show as 'TBA' until then (08-10-2026).
 _CC_DOC_MODULES = {'CRM': 'control_chart', 'RM': 'control_chart_rm', 'IC': 'control_chart_ic',
                    'DUP': 'control_chart_dup', 'SPK': 'control_chart_spk',
-                   'MON': 'control_chart_mon', 'WS': 'control_chart_ws'}
+                   'MON': 'control_chart_mon', 'WS': 'control_chart_ws', 'EQ': 'control_chart_eq'}
 _CC_OFFICE = {
     'Karachi': {'tel': 'Tel: +92 310 2288801',
                 'address': 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan.'},
@@ -402,7 +402,7 @@ def control_chart_list(request):
     for s_ in ControlChartSignoff.objects.filter(chart_id__in=ids, year=year):
         sos.setdefault(s_.chart_id, {})[s_.month] = s_
     rows = []
-    order = {'CRM': 0, 'RM': 1, 'IC': 2}
+    order = {'CRM': 0, 'RM': 1, 'IC': 2, 'EQ': 3}
     for c in sorted(charts, key=lambda c: (order.get(c.activity, 9), c.parameter, c.level, c.equipment_id)):
         rr = res.get(c.id, [])
         b = c.current_baseline()
@@ -423,7 +423,8 @@ def control_chart_list(request):
             so = sos.get(c.id, {}).get(m)
             mean, sd, n, of, runs = lim.get('mean'), lim.get('sd'), len(run), '', len({r.date.month for r in rr})
         else:
-            so = sos.get(c.id, {}).get(0)
+            # monthly forms (working standard, equipment monthly charts) are signed per month: show the latest month's sign-off
+            so = sos.get(c.id, {}).get(last.date.month if (c.period_is_month and last) else 0)
             mean, sd, n, of, runs = (b.mean if b else None), (b.sd if b else None), len(rr), (' / 12' if c.cadence == 'monthly' else ''), 0
         rows.append({'c': c, 'n': n, 'of': of, 'runs': runs, 'last': last, 'last_value': _fmt(last.value, c.decimals) if last else '',
                      'worst': worst, 'mean': _fmt(mean, c.decimals) if mean is not None else '', 'sd': _fmt(sd, c.decimals + 1) if sd is not None else '',
@@ -490,7 +491,7 @@ def control_chart_archive(request):
             continue
         rows.append({'c': c, 'year': y, 'month': m, 'period': _plabel(c, y, m), 'pq': _pq(y, m), 'of': (' / 12' if c.cadence == 'monthly' else ''),
                      'n': s['n'], 'warn': s['warning'], 'ooc': s['ooc'], 'last': s['last'], 'worst': worst, 'sign': sign, 'so': so})
-    rows.sort(key=lambda r: (-r['year'], -r['month'], r['c'].location, {'CRM': 0, 'RM': 1, 'IC': 2}.get(r['c'].activity, 9), r['c'].parameter.lower(), r['c'].level))
+    rows.sort(key=lambda r: (-r['year'], -r['month'], r['c'].location, {'CRM': 0, 'RM': 1, 'IC': 2, 'EQ': 3}.get(r['c'].activity, 9), r['c'].parameter.lower(), r['c'].level))
     years = sorted({y for _, y, _m in pairs}, reverse=True)
     return render(request, 'control_chart_archive.html', {
         'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'q': q, 'year': ystr, 'years': years, 'act': act_f, 'acts': _CC_ACTS,
@@ -603,6 +604,8 @@ def control_chart_detail(request, pk):
         'n_unsigned': sum(1 for x in all_r if not x.performed_by_id),
         'can_delete': _can_delete(user, chart), 'n_results_all': chart.results.count(),
         'my_office_ok': (not _user_office(user)) or _user_office(user) == chart.location or _is_admin(user),
+        'eq_chart': chart.eq_chart() if chart.activity == 'IC' else None,
+        'ic_src': chart.ic_sources().first() if chart.activity == 'EQ' else None,
     })
 
 
@@ -1154,6 +1157,37 @@ def control_chart_deletions(request):
 
 
 # ---------------------------------------------------------------- baseline (admin)
+def _ic_runs(chart):
+    """Monthly runs of the intermediate-check charts that match a monthly equipment chart (13-10-2026):
+    one entry per IC chart and calendar month, with its dated readings and run statistics."""
+    out = []
+    for ic in chart.ic_sources():
+        runs = {}
+        for r in ic.results.order_by('date', 'time', 'id'):
+            runs.setdefault((r.date.year, r.date.month), []).append(r)
+        for (y, m), rr in sorted(runs.items(), reverse=True):
+            lim = run_limits([r.value for r in rr]) or {}
+            out.append({'ic': ic, 'year': y, 'month': m, 'key': '%d:%04d-%02d' % (ic.pk, y, m),
+                        'label': '%s-%d' % (_MONTHS[m - 1], y), 'n': len(rr), 'first': rr[0].date, 'last': rr[-1].date,
+                        'mean': _fmt(lim.get('mean'), chart.decimals) if lim.get('mean') is not None else '',
+                        'sd': _fmt(lim.get('sd'), chart.decimals + 1) if lim.get('sd') is not None else '',
+                        'dates': [r.date.isoformat() for r in rr], 'values': [r.value for r in rr]})
+    return out
+
+
+def _ic_run_draft(chart, run, user):
+    """Save an intermediate-check run as the baseline draft of a monthly equipment chart."""
+    d = ControlChartBaselineDraft.objects.filter(chart=chart).first() or ControlChartBaselineDraft(chart=chart, created_by=user)
+    d.values, d.dates, d.established_on = run['values'], run['dates'], run['last']
+    d.note = ('Intermediate check %s of the %s %s (%s %s; IC chart #%d) - ETAL-LAB-P-604' % (
+        run['label'], chart.equipment or 'equipment', chart.equipment_id or '', chart.parameter, chart.level, run['ic'].pk)).replace('  ', ' ')[:300]
+    d.range_low = d.range_low or ''
+    d.range_high = d.range_high or ''
+    d.updated_by = user
+    d.save()
+    return d
+
+
 def control_chart_baseline(request, pk):
     chart = get_object_or_404(ControlChart, pk=pk)
     if chart.no_baseline:
@@ -1188,10 +1222,22 @@ def control_chart_baseline(request, pk):
            'sel_points': [{'i': i + 1, 'd': d, 'v': _fmt(v, chart.decimals)} for i, (d, v) in enumerate(sel.points())] if sel else [],
            'sel_range': chart.range_text(sel) if (sel and chart.spec_limited) else '', 'blist': _baseline_list(chart),
            'rlo': rlo, 'rhi': rhi, 'can_set': can_set, 'can_draft': can_draft, 'can_delete': _can_delete(request.user, chart),
-           'draft': draft, 'next_version': (cur.version + 1) if cur else 1}
+           'draft': draft, 'next_version': (cur.version + 1) if cur else 1,
+           'ic_runs': _ic_runs(chart) if chart.activity == 'EQ' else []}
     if draft is not None:
         ctx.update(cur_values=draft.lines(), est_value=draft.established_on.isoformat() if draft.established_on else '',
                    note_value=draft.note, rlo=draft.range_low or rlo, rhi=draft.range_high or rhi)
+    if request.method == 'POST' and action == 'from_ic':
+        # monthly equipment chart: the chosen intermediate-check run becomes the baseline draft (13-10-2026)
+        run = next((x for x in ctx['ic_runs'] if x['key'] == request.POST.get('run')), None)
+        if run is None:
+            _msg.error(request, 'That intermediate-check run was not found for this equipment.')
+            return _redirect(f"/qc/control-charts/{pk}/baseline/")
+        _ic_run_draft(chart, run, request.user)
+        _msg.success(request, 'The intermediate check %s (%d readings, mean %s, SD %s) was placed in the baseline draft. Check the points '
+                     'and the live chart; %s.' % (run['label'], run['n'], run['mean'], run['sd'],
+                     'then finalise it' if can_set else 'the Lab Manager or the CEO finalises it'), extra_tags='ccsaved:baseline:%d' % chart.pk)
+        return _redirect(f"/qc/control-charts/{pk}/baseline/")
     if request.method == 'POST' and action == 'discard':
         if draft is not None:
             draft.delete()
@@ -1257,6 +1303,87 @@ def control_chart_baseline(request, pk):
             b.version, b.n, _fmt(b.mean, chart.decimals), _fmt(b.sd, chart.decimals + 1)), extra_tags='ccsaved:baseline:%d' % chart.pk)
         return _redirect(f"/qc/control-charts/{pk}/")
     return render(request, 'control_chart_baseline.html', ctx)
+
+
+_EQ_COPY = ['location', 'parameter', 'level', 'unit', 'equipment', 'equipment_id', 'method', 'decimals']
+
+
+@_post_or_back
+def control_chart_eq_from_ic(request, pk):
+    """From an intermediate-check chart: open (or create) the equipment's monthly chart and place the chosen
+    IC run in its baseline draft when it has no baseline yet (Karachi Lab Manager request 13-10-2026)."""
+    ic = get_object_or_404(ControlChart, pk=pk, activity='IC')
+    if not _can_create(request.user):
+        return HttpResponse('Please sign in.', status=403)
+    eq = ic.eq_chart()
+    created = False
+    if eq is None:
+        eq = ControlChart(activity='EQ', created_by=request.user, start_month=1,
+                          description='Monthly control charts for %s performance' % ((ic.equipment or 'equipment').lower()),
+                          **{k: getattr(ic, k) for k in _EQ_COPY})
+        eq.save()
+        created = True
+    elif not eq.active:
+        _msg.error(request, 'The monthly chart of this equipment (#%d) is retired; an administrator can restore it.' % eq.pk)
+        return _redirect(f"/qc/control-charts/{ic.pk}/")
+    want = '%d:%s' % (ic.pk, request.POST.get('ym', ''))
+    run = next((x for x in _ic_runs(eq) if x['key'] == want), None)
+    if run is not None and eq.current_baseline() is None and not ControlChartBaselineDraft.objects.filter(chart=eq).exists():
+        _ic_run_draft(eq, run, request.user)
+        _msg.success(request, '%s monthly chart for %s %s [%s]: the intermediate check %s is in the baseline draft. %s' % (
+            'New' if created else 'The', eq.parameter, eq.level, eq.equipment_id, run['label'],
+            'Check it and finalise it.' if _can_finalise_baseline(request.user, eq) else
+            'The Lab Manager or the CEO finalises it; the monthly results are then entered on the chart.'))
+        return _redirect(f"/qc/control-charts/{eq.pk}/baseline/")
+    if eq.current_baseline() is None:
+        return _redirect(f"/qc/control-charts/{eq.pk}/baseline/")
+    return _redirect(f"/qc/control-charts/{eq.pk}/")
+
+
+def control_chart_equipment(request):
+    """Monthly equipment charts (sub-section of Intermediate Checks, 13-10-2026): choose the equipment and the
+    month to open its monthly chart; intermediate-check charts without a monthly chart are listed with the
+    runs that can serve as its baseline."""
+    loc = request.GET.get('location') or _default_loc(request)
+    if loc not in _CC_LOCS:
+        loc = 'Karachi'
+    eqs = list(ControlChart.objects.filter(active=True, location=loc, activity='EQ').order_by('equipment', 'equipment_id', 'parameter', 'level'))
+    if request.GET.get('chart') and request.GET.get('ym'):
+        c = next((x for x in eqs if str(x.pk) == request.GET['chart']), None)
+        try:
+            y, m = [int(x) for x in request.GET['ym'].split('-')[:2]]
+        except Exception:
+            y = m = 0
+        if c is not None and 2000 < y < 2100 and 1 <= m <= 12:
+            return _redirect(f"/qc/control-charts/{c.pk}/?year={y}&month={m}")
+        _msg.error(request, 'Choose the equipment chart and the month.')
+    rows = []
+    ids = [c.pk for c in eqs]
+    months = {}
+    for cid, d in ControlChartResult.objects.filter(chart_id__in=ids).values_list('chart_id', 'date'):
+        months.setdefault(cid, set()).add((d.year, d.month))
+    sos = {}
+    for so in ControlChartSignoff.objects.filter(chart_id__in=ids):
+        sos[(so.chart_id, so.year, so.month)] = so
+    for c in eqs:
+        b = c.current_baseline()
+        ms = sorted(months.get(c.pk, set()), reverse=True)
+        rows.append({'c': c, 'b': b, 'draft': ControlChartBaselineDraft.objects.filter(chart=c).exists(),
+                     'months': [{'ym': '%04d-%02d' % (y, m), 'label': '%s-%d' % (_MONTHS[m - 1], y),
+                                 'n': c.results.filter(date__year=y, date__month=m).count(),
+                                 'reviewed': bool(sos.get((c.pk, y, m)) and sos[(c.pk, y, m)].reviewed_at),
+                                 'approved': bool(sos.get((c.pk, y, m)) and sos[(c.pk, y, m)].approved_at)} for y, m in ms]})
+    have = {(c.equipment_id.lower(), c.parameter.lower(), c.level.lower()) for c in eqs}
+    ics = []
+    for ic in ControlChart.objects.filter(active=True, location=loc, activity='IC').order_by('equipment', 'equipment_id', 'parameter', 'level'):
+        if (ic.equipment_id.lower(), ic.parameter.lower(), ic.level.lower()) in have:
+            continue
+        runs = sorted({(d.year, d.month) for d in ic.results.values_list('date', flat=True)}, reverse=True)
+        ics.append({'c': ic, 'runs': [{'ym': '%04d-%02d' % (y, m), 'label': '%s-%d' % (_MONTHS[m - 1], y)} for y, m in runs]})
+    today = _date.today()
+    return render(request, 'control_chart_equipment.html', {
+        'loc': loc, 'locs': _CC_LOCS, 'rows': rows, 'ics': ics, 'this_month': '%04d-%02d' % (today.year, today.month),
+        'can_create': _can_create(request.user)})
 
 
 # ---------------------------------------------------------------- chart master (admin)
@@ -1533,7 +1660,7 @@ def control_chart_pdf(request, pk):
     pdf.ln(2.5)
 
     # ---- results table
-    rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s', 'WS': 'Monthly WS\nResult%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
+    rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s', 'WS': 'Monthly WS\nResult%s', 'EQ': 'Monthly\nResult%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
     halves = any(r.reading_1 is not None or r.reading_2 is not None for r in results)
     raw_tab = chart.raw_mode and not chart.self_limited and not chart.spec_limited and \
         any(r.raw_a is not None or (r.sample_id or '') for r in results)

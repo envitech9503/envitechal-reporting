@@ -24,6 +24,7 @@ partial then pins itself to the left edge and indents the page body to match.
  .etqc-panel a{display:block;padding:.3rem 0;font-size:.84rem;color:#bfdbfe;text-decoration:none}
  .etqc-panel a:hover{color:#fff;text-decoration:underline}
  .etqc-panel a.etqc-here{color:#fff;font-weight:700}
+ .etqc-panel a.etqc-sub{padding-left:.9rem;font-size:.8rem}
  .etqc-hr{border:0;border-top:1px solid #1f2937;margin:.3rem 0}
  .etqc-nav{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.38) rgba(255,255,255,.07)}
  .etqc-nav::-webkit-scrollbar{width:10px}
@@ -105,6 +106,7 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'control_chart_list' %}?activity=CRM">CRM Charts (monthly)</a>
       <a href="{% url 'control_chart_list' %}?activity=RM">RM Charts (weekly)</a>
       <a href="{% url 'control_chart_list' %}?activity=IC">Intermediate Checks</a>
+      <a href="{% url 'control_chart_equipment' %}" class="etqc-sub">&#8627; Monthly Equipment Charts</a>
       <a href="{% url 'control_chart_list' %}?activity=DUP">Duplicates (RPD)</a>
       <a href="{% url 'control_chart_list' %}?activity=SPK">Spike / Recovery</a>
       <a href="{% url 'control_chart_list' %}?activity=MON">Monitoring (temp. / humidity)</a>

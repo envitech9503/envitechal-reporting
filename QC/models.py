@@ -235,6 +235,17 @@ ACTIVITY_PROFILE = {
                     'before PT). Accordingly, the results from the February activity (conducted before PT) were used to establish '
                     'the baseline, and the monthly results are plotted against this baseline.',
                base_hint='Usually the twelve February working-standard results (SOP ETAL-LAB-P-604).'),
+    # 13-10-2026 (Karachi Lab Manager request): monthly equipment control charts under Intermediate Checks - the
+    # equipment's intermediate-check run is the baseline and the month's daily checks are plotted against it
+    'EQ': dict(cadence='ws', ref='Check standard', detail='Check standard detail', value='Nominal value',
+               range='Acceptance range', result='Monthly result', col='Run', what='EQUIPMENT MONTHLY CHECK',
+               unit='g', desc='Monthly control charts for equipment performance',
+               note='The baseline results were established using data from the February intermediate check activity, as per the '
+                    'procedure ETAL-LAB-P-604 (two intermediate check activities are planned: one after calibration and the other '
+                    'before PT). Accordingly, the results from the February activity (conducted before PT) were used to establish '
+                    'the baseline, and the monthly results are plotted against this baseline.',
+               base_hint='Choose the intermediate-check run of this equipment below ("Use this run as baseline"); the Lab Manager '
+                         'or the CEO then finalises it.'),
     'MON': dict(cadence='reading', ref='Monitoring', detail='Monitoring device', value='Set point / target', range='Acceptance limits',
                 result='Reading', col='Time', what='MONITORING', unit='\u00b0C',
                 desc='Temperature monitoring of the equipment / room',
@@ -256,7 +267,8 @@ class ControlChart(models.Model):
                   ('DUP', 'Duplicate'),
                   ('SPK', 'Spike / Recovery'),
                   ('MON', 'Monitoring (temperature / humidity)'),
-                  ('WS', 'Working Standard'))
+                  ('WS', 'Working Standard'),
+                  ('EQ', 'Equipment monthly chart (IC baseline)'))
     location = models.CharField(max_length=20, choices=LOCATIONS, default='Karachi')
     activity = models.CharField(max_length=10, choices=ACTIVITIES, default='CRM')
     parameter = models.CharField(max_length=120)            # e.g. Cadmium (Cd)
@@ -450,6 +462,17 @@ class ControlChart(models.Model):
     @property
     def self_limited(self):
         return self.activity == 'IC' or self.mon_mode == 'run'
+
+    def ic_sources(self):
+        """Intermediate-check charts of the same laboratory, equipment ID, parameter and level (monthly
+        equipment charts take their baseline from one of their runs)."""
+        return ControlChart.objects.filter(activity='IC', location=self.location, equipment_id__iexact=self.equipment_id,
+                                           parameter__iexact=self.parameter, level__iexact=self.level).order_by('-active', 'pk')
+
+    def eq_chart(self):
+        """The monthly equipment chart that belongs to this intermediate-check chart, if any."""
+        return ControlChart.objects.filter(activity='EQ', location=self.location, equipment_id__iexact=self.equipment_id,
+                                           parameter__iexact=self.parameter, level__iexact=self.level).order_by('-active', 'pk').first()
 
     @property
     def period_is_month(self):

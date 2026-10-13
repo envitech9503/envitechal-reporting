@@ -1,0 +1,62 @@
+{% extends "_control_chart_base.html" %}
+{% block cc_title %}Monthly Equipment Charts{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'control_chart_list' %}?activity=IC" style="color:#0f5132;text-decoration:none">Intermediate Checks</a> &rsaquo; <span>Monthly Equipment Charts</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-calendar-days"></i> Monthly Equipment Charts <span class="muted">&middot; Intermediate Checks &middot; {{ loc }} laboratory</span></div>
+    <div>
+      <a class="btn" href="{% url 'control_chart_list' %}?activity=IC&location={{ loc }}"><i class="fa-solid fa-arrow-left"></i> Intermediate checks</a>
+      <a class="btn" href="{% url 'control_chart_manual' %}#t-eq" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> User Manual</a>
+    </div>
+  </div>
+  <div class="msg info">Each piece of equipment has one monthly chart per check standard (e.g. weight 1 g, 10 g, 100 g). Its baseline is the equipment's
+    intermediate-check run (procedure ETAL-LAB-P-604), so no new baseline study is needed: the monthly results are plotted against the mean &plusmn; 2 SD (warning) and &plusmn; 3 SD (action) of that run.
+    When the next intermediate check is carried out, it can be adopted as a new baseline version on the chart's Baselines page.</div>
+
+  <form class="toolbar" method="get" style="flex-wrap:wrap">
+    <select name="location" onchange="this.form.chart.value='';this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }} laboratory</option>{% endfor %}</select>
+    <label style="font-size:13px">Equipment chart
+      <select name="chart" id="eqChart" required style="min-width:340px"><option value="">- choose -</option>
+        {% for r in rows %}<option value="{{ r.c.id }}">{{ r.c.equipment }} {{ r.c.equipment_id }} &middot; {{ r.c.parameter }} {{ r.c.level }}{% if not r.b %} (baseline not finalised){% endif %}</option>{% endfor %}
+      </select></label>
+    <label style="font-size:13px">Month <input type="month" name="ym" value="{{ this_month }}" required></label>
+    <button class="btn btn-p" type="submit"><i class="fa-solid fa-chart-line"></i> Open monthly chart</button>
+  </form>
+
+  <table>
+    <thead><tr><th>Equipment</th><th>ID</th><th>Parameter</th><th>Level</th><th>Baseline (intermediate check)</th><th class="num">Mean</th><th class="num">SD</th><th>Monthly charts on record</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.c.equipment }}</td><td>{{ r.c.equipment_id }}</td>
+        <td><a href="{% url 'control_chart_detail' r.c.id %}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.c.parameter }}</a></td><td>{{ r.c.level }}</td>
+        <td>{% if r.b %}v{{ r.b.version }} &middot; {{ r.b.established_on|date:"d-m-Y" }}<div class="muted" style="font-size:11.5px">{{ r.b.note|truncatechars:90 }}</div>{% elif r.draft %}<span class="pill warn">Draft - to be finalised</span>{% else %}<span class="pill none">Not set</span>{% endif %}</td>
+        <td class="num">{% if r.b %}{{ r.b.mean|floatformat:5 }}{% endif %}</td><td class="num">{% if r.b %}{{ r.b.sd|floatformat:6 }}{% endif %}</td>
+        <td>{% for m in r.months %}<a class="pill {% if m.approved %}ok{% elif m.reviewed %}info{% else %}none{% endif %}" style="text-decoration:none;margin:1px" href="{% url 'control_chart_detail' r.c.id %}?year={{ m.ym|slice:':4' }}&month={{ m.ym|slice:'5:'|add:0 }}" title="{{ m.n }} result{{ m.n|pluralize }} &middot; {% if m.approved %}approved{% elif m.reviewed %}reviewed{% else %}open{% endif %}">{{ m.label }}</a>{% empty %}<span class="muted">none yet</span>{% endfor %}</td>
+        <td class="nw"><a class="btn" href="{% url 'control_chart_baseline' r.c.id %}" title="Baselines"><i class="fa-solid fa-ruler"></i></a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="9" class="empty">No monthly equipment chart for the {{ loc }} laboratory yet. Create one from an intermediate-check chart below.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if ics %}<div class="card"><details{% if not rows %} open{% endif %}>
+  <summary style="cursor:pointer;font-weight:700;font-size:14px;padding:4px 0"><i class="fa-solid fa-calendar-plus"></i> Add a monthly chart for other equipment &middot; {{ ics|length }} intermediate-check chart{{ ics|length|pluralize }} without a monthly chart</summary>
+  <div class="msg info">Choose the intermediate-check run to use as the baseline: the monthly chart is created with the same equipment, parameter and level, and the run is placed in its baseline draft for the Lab Manager or the CEO to finalise.</div>
+  <table>
+    <thead><tr><th>Equipment</th><th>ID</th><th>Parameter</th><th>Level</th><th>Baseline run</th><th></th></tr></thead>
+    <tbody>
+    {% for x in ics %}<tr>
+      <td>{{ x.c.equipment }}</td><td>{{ x.c.equipment_id }}</td><td><a href="{% url 'control_chart_detail' x.c.id %}" style="color:#0f5132;text-decoration:none">{{ x.c.parameter }}</a></td><td>{{ x.c.level }}</td>
+      {% if x.runs and can_create %}<td colspan="2"><form method="post" action="{% url 'control_chart_eq_from_ic' x.c.id %}" style="display:flex;gap:6px;align-items:center">{% csrf_token %}
+        <select name="ym">{% for r in x.runs %}<option value="{{ r.ym }}">{{ r.label }}</option>{% endfor %}</select>
+        <button class="btn" type="submit"><i class="fa-solid fa-calendar-plus"></i> Create monthly chart</button></form></td>
+      {% else %}<td colspan="2" class="muted">No intermediate-check run recorded yet</td>{% endif %}
+    </tr>{% endfor %}
+    </tbody>
+  </table>
+</details></div>{% endif %}
+{% endblock %}
