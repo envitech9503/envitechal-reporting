@@ -16,12 +16,12 @@ from django.db.models import Q as _Q
 from django.contrib import messages as _msg
 from django.views.decorators.http import require_POST as _require_POST
 
-from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer, ControlChartDeletion,
+from QC.models import (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer, ControlChartDeletion, ControlChartBaselineDraft,
                        run_limits, classify_value, parse_values, parse_dated_values, suspect_values, ACTIVITY_PROFILE)
 from QC.control_chart_render import render_chart, period_rows, period_label as _plabel, fmt as _fmt, MONTHS as _MONTHS
 
 _CC_LOCS = ['Karachi', 'Lahore']
-_CC_ACTS = ['CRM', 'RM', 'IC', 'DUP', 'SPK', 'MON']
+_CC_ACTS = ['CRM', 'RM', 'IC', 'DUP', 'SPK', 'MON', 'WS']
 _CC_FORM = {'doc_no': 'ETAL-LAB-604-FF-11', 'issue_date': '19-03-2022', 'issue_no': '01', 'rev_no': '00'}
 # Document-control rows are kept per laboratory AND per form type (CRM / RM / IC):
 # InventoryDocControl(module=<key below>, location=<lab>). Only the Karachi CRM form
@@ -29,7 +29,7 @@ _CC_FORM = {'doc_no': 'ETAL-LAB-604-FF-11', 'issue_date': '19-03-2022', 'issue_n
 # the Document control page and show as 'TBA' until then (08-10-2026).
 _CC_DOC_MODULES = {'CRM': 'control_chart', 'RM': 'control_chart_rm', 'IC': 'control_chart_ic',
                    'DUP': 'control_chart_dup', 'SPK': 'control_chart_spk',
-                   'MON': 'control_chart_mon'}
+                   'MON': 'control_chart_mon', 'WS': 'control_chart_ws'}
 _CC_OFFICE = {
     'Karachi': {'tel': 'Tel: +92 310 2288801',
                 'address': 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi. 75900, Pakistan.'},
@@ -115,6 +115,12 @@ def _can_edit_master(user, chart):
     if not (user and user.is_authenticated and chart is not None):
         return False
     return chart.created_by_id == user.id and not ControlChartResult.objects.filter(chart=chart).exists()
+
+
+def _can_finalise_baseline(user, chart):
+    """Finalising a baseline (owner decision 13-10-2026): the laboratory's Lab Manager (assigned on Laboratory Reviewers)
+    or the CEO / administrator - the same people who may delete records."""
+    return _can_delete(user, chart)
 
 
 def _can_set_baseline(user, chart):
@@ -1155,9 +1161,17 @@ def control_chart_baseline(request, pk):
                   'its fixed acceptance limits' if chart.fixed_limits else "the month's own readings")) if chart.spec_limited else
                   'Intermediate-check charts have no separate baseline: the limits of each monthly run are computed from its own readings.')
         return _redirect(f"/qc/control-charts/{pk}/")
-    can_set = _can_set_baseline(request.user, chart)
-    if not can_set and request.method == 'POST':
-        return HttpResponse('Baselines are maintained by an administrator (the chemist who created a chart may set its first baseline).', status=403)
+    # owner decision 13-10-2026: analysts prepare a draft with the live chart; the laboratory's Lab Manager or the
+    # CEO / administrator finalises it into a baseline version
+    can_set = _can_finalise_baseline(request.user, chart)
+    can_draft = bool(request.user and request.user.is_authenticated)
+    action = request.POST.get('action') or 'finalise'
+    if request.method == 'POST' and action == 'finalise' and not can_set:
+        return HttpResponse('A baseline is finalised by the Lab Manager of the %s laboratory or by the CEO / administrator. '
+                            'Save it as a draft for their review.' % chart.location, status=403)
+    if request.method == 'POST' and not can_draft:
+        return HttpResponse('Please sign in.', status=403)
+    draft = ControlChartBaselineDraft.objects.filter(chart=chart).first()
     cur = chart.current_baseline()
     sel = None                          # item 4: one version shown with its date-wise points and graph
     if (request.GET.get('v') or '').isdigit():
@@ -1173,12 +1187,39 @@ def control_chart_baseline(request, pk):
            'cur_values': '', 'hint': chart.profile['base_hint'], 'sel': sel, 'sel_svg': sel_svg,
            'sel_points': [{'i': i + 1, 'd': d, 'v': _fmt(v, chart.decimals)} for i, (d, v) in enumerate(sel.points())] if sel else [],
            'sel_range': chart.range_text(sel) if (sel and chart.spec_limited) else '', 'blist': _baseline_list(chart),
-           'rlo': rlo, 'rhi': rhi, 'can_set': can_set, 'can_delete': _can_delete(request.user, chart)}
+           'rlo': rlo, 'rhi': rhi, 'can_set': can_set, 'can_draft': can_draft, 'can_delete': _can_delete(request.user, chart),
+           'draft': draft, 'next_version': (cur.version + 1) if cur else 1}
+    if draft is not None:
+        ctx.update(cur_values=draft.lines(), est_value=draft.established_on.isoformat() if draft.established_on else '',
+                   note_value=draft.note, rlo=draft.range_low or rlo, rhi=draft.range_high or rhi)
+    if request.method == 'POST' and action == 'discard':
+        if draft is not None:
+            draft.delete()
+            _msg.success(request, 'The baseline draft was discarded.')
+        return _redirect(f"/qc/control-charts/{pk}/baseline/")
     if request.method == 'POST':
         raw = request.POST.get('values', '')
         ctx.update(cur_values=raw, est_value=request.POST.get('established_on', ''), note_value=request.POST.get('note', ''),
                    rlo=request.POST.get('range_low', rlo), rhi=request.POST.get('range_high', rhi))
         dates, vals, errors = parse_dated_values(raw)
+        if action == 'draft':
+            if errors:
+                ctx['errors'] = errors
+                return render(request, 'control_chart_baseline.html', ctx)
+            try:
+                dest = _dt.strptime(request.POST.get('established_on', ''), '%Y-%m-%d').date()
+            except Exception:
+                dest = None
+            d = draft or ControlChartBaselineDraft(chart=chart, created_by=request.user)
+            d.values, d.dates, d.established_on = vals, dates, dest
+            d.note = (request.POST.get('note') or '').strip()[:300]
+            d.range_low = (request.POST.get('range_low') or '').strip()[:40]
+            d.range_high = (request.POST.get('range_high') or '').strip()[:40]
+            d.updated_by = request.user
+            d.save()
+            _msg.success(request, 'Baseline draft saved (%d point%s). It is not used for any result until the Lab Manager or the CEO '
+                         'finalises it.' % (len(vals), '' if len(vals) == 1 else 's'), extra_tags='ccsaved:baseline:%d' % chart.pk)
+            return _redirect(f"/qc/control-charts/{pk}/baseline/")
         if not errors and len(vals) < 3:
             errors.append('At least 3 baseline values are required (12 are recommended); %d found.' % len(vals))
         if errors:
@@ -1203,6 +1244,7 @@ def control_chart_baseline(request, pk):
                                  note=(request.POST.get('note') or '').strip()[:300], values=vals, dates=dates, is_current=True,
                                  range_low=nrl, range_high=nrh, created_by=request.user)
         b.compute(); b.save()
+        ControlChartBaselineDraft.objects.filter(chart=chart).delete()
         if chart.activity == 'MON' and chart.mon_mode == 'baseline':
             # seasonal baselines: open readings from the season's start date onwards move to the baseline of their date
             for r in chart.results.filter(date__gte=est):
@@ -1491,7 +1533,7 @@ def control_chart_pdf(request, pk):
     pdf.ln(2.5)
 
     # ---- results table
-    rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
+    rl = {'RM': 'Weekly RM\nResult%s', 'IC': 'Reading%s', 'DUP': 'Duplicate\nRPD%s', 'SPK': 'Spike\nRecovery%s', 'WS': 'Monthly WS\nResult%s'}.get(chart.activity, 'Monthly CRM\nResult%s') % unit
     halves = any(r.reading_1 is not None or r.reading_2 is not None for r in results)
     raw_tab = chart.raw_mode and not chart.self_limited and not chart.spec_limited and \
         any(r.raw_a is not None or (r.sample_id or '') for r in results)

@@ -23,6 +23,7 @@
       <option value="DUP" {% if act == 'DUP' %}selected{% endif %}>Duplicates</option>
       <option value="SPK" {% if act == 'SPK' %}selected{% endif %}>Spike / recovery</option>
       <option value="MON" {% if act == 'MON' %}selected{% endif %}>Monitoring</option>
+      <option value="WS" {% if act == 'WS' %}selected{% endif %}>Working Standard</option>
     </select>
     <select name="year" onchange="this.form.submit()">
       <option value="All" {% if year == 'All' %}selected{% endif %}>All years</option>

@@ -46,7 +46,7 @@ function ccActivityChanged(initial){
   document.getElementById('lblRange').textContent = p.range;
   document.getElementById('ccModeLbl').style.display = (a === 'MON') ? '' : 'none';
   document.getElementById('ccRawLbl').style.display = (a === 'DUP' || a === 'SPK') ? '' : 'none';
-  document.getElementById('ccCycleLbl').style.display = (p.cadence === 'run' || p.cadence === 'reading') ? 'none' : '';
+  document.getElementById('ccCycleLbl').style.display = (p.cadence === 'run' || p.cadence === 'reading' || p.cadence === 'ws') ? 'none' : '';
   var rh = document.getElementById('ccRangeHint'); if (rh) rh.textContent = a === 'DUP' ? '; low optional' : (a === 'MON' ? '; one side may be empty' : '');
   var n = document.getElementById('ccNext');
   if (n) n.textContent = (p.cadence === 'reading') ? 'Next: record the readings (date, time and value); each is checked against the acceptance limits.' :

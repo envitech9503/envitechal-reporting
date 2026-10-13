@@ -9,18 +9,37 @@
   {% if errors %}<div class="msg error"><b>The baseline was not saved:</b><ul style="margin:6px 0 0 18px">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
   {% if suspects %}<div class="msg error"><b>Please check {{ n_sus }} value{{ n_sus|pluralize }} highlighted below</b> - {{ n_sus|pluralize:"it is,they are" }} far from the others and may be a typing error (for example a misplaced decimal point). Correct the list, or tick <i>"The values are correct"</i> and save again.
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">{% for s in suspects %}<span class="pill {% if s.bad %}bad{% else %}none{% endif %}">{{ s.i }}: {{ s.v }}</span>{% endfor %}</div></div>{% endif %}
-  {% if can_set %}<form method="post" class="frm" data-autosave="baseline:{{ chart.id }}" style="flex-direction:column;align-items:stretch">{% csrf_token %}
-    <label>Baseline values with their dates <span class="muted">(one per line as <b>dd-mm-yyyy value</b>, e.g. <code>03-02-2026 1.002</code>; use a decimal point - usually 12. Values without dates are also accepted.)</span>
-      <textarea name="values" id="bVals" rows="7" required placeholder="03-02-2026 1.002&#10;04-02-2026 0.998&#10;05-02-2026 1.005&#10;...">{{ cur_values }}</textarea></label>
-    <div id="bPrev" class="muted" style="font-size:12.5px"></div>
+  {% if can_draft %}<form method="post" class="frm" id="bForm" data-autosave="baseline:{{ chart.id }}" style="flex-direction:column;align-items:stretch">{% csrf_token %}
+    <input type="hidden" name="action" id="bAction" value="draft">
+    {% if draft %}<div class="msg info" style="margin:0"><i class="fa-solid fa-pen-ruler"></i> <b>Draft baseline in preparation</b> - saved by {{ draft.updated_by.get_full_name|default:draft.updated_by.username|default:"-" }} on {{ draft.updated_at|date:"d-m-Y H:i" }}. It is not used for any result until it is finalised{% if not can_set %} by the Lab Manager or the CEO{% endif %}.</div>{% endif %}
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:0 0 330px;max-width:100%">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="font-size:13px">Baseline points</b>
+          <span><button class="btn" type="button" id="bAdd"><i class="fa-solid fa-plus"></i> Row</button> <button class="btn" type="button" id="bPasteBtn" title="Paste two columns (date and result) copied from Excel"><i class="fa-solid fa-paste"></i> Paste</button></span></div>
+        <div id="bPasteBox" style="display:none;margin-bottom:6px"><textarea id="bPaste" rows="5" placeholder="Paste from Excel: date and result per line, e.g.&#10;02-02-2026&#9;100.46&#10;03-02-2026&#9;101.46" style="width:100%"></textarea>
+          <button class="btn btn-p" type="button" id="bPasteGo">Fill the grid</button> <span class="muted" style="font-size:11.5px">replaces the rows below</span></div>
+        <table id="bGrid" style="width:100%"><thead><tr><th style="width:34px">No.</th><th>Date</th><th class="num">Result{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th style="width:30px"></th></tr></thead><tbody></tbody></table>
+        <textarea name="values" id="bVals" style="display:none">{{ cur_values }}</textarea>
+      </div>
+      <div style="flex:1;min-width:300px">
+        <div id="bStats" class="kv" style="margin:0 0 6px;padding:8px 10px"></div>
+        <svg id="bSvg" viewBox="0 0 760 300" style="width:100%;height:auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px"></svg>
+        <div id="bPrev" class="muted" style="font-size:12px;margin-top:4px">The chart and the limits redraw as the points are typed. Points beyond &plusmn;2 SD are amber, beyond &plusmn;3 SD red - check them before finalising.</div>
+      </div>
+    </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <label>Established on <input type="date" name="established_on" value="{{ est_value|default:today }}"> <span class="muted" style="font-size:11px">(printed as month and year{% if chart.mon_mode == 'baseline' %}; readings from this date onwards use it{% endif %})</span></label>
       {% if chart.spec_limited %}<label>Acceptance range with this baseline <span style="display:flex;gap:4px;align-items:center"><input type="text" name="range_low" value="{{ rlo }}" style="width:70px" placeholder="low"> - <input type="text" name="range_high" value="{{ rhi }}" style="width:70px" placeholder="high"> {{ chart.unit }}</span></label>{% endif %}
-      <label style="flex:1">Note <input type="text" name="note" maxlength="300" value="{{ note_value|default:'' }}" placeholder="e.g. February 2027 intermediate check, after calibration"></label>
+      <label style="flex:1">Note <input type="text" name="note" maxlength="300" value="{{ note_value|default:'' }}" placeholder="e.g. Baseline study - February 2027 working-standard exercise"></label>
     </div>
     {% if suspects %}<label style="flex-direction:row;gap:6px;align-items:center"><input type="checkbox" name="confirm" value="1"> The values are correct - establish the baseline anyway</label>{% endif %}
-    <div><button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> Establish {% if cur %}new {% endif %}baseline v{{ cur.version|add:1|default:1 }}</button></div>
-  </form>{% else %}<div class="muted" style="padding:10px 18px">Baselines are established by an administrator (or by the analyst who created the chart, for its first baseline).</div>{% endif %}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn" type="submit" onclick="document.getElementById('bAction').value='draft'"><i class="fa-solid fa-floppy-disk"></i> Save draft</button>
+      {% if can_set %}<button class="btn btn-p" type="submit" onclick="document.getElementById('bAction').value='finalise';return confirm('Finalise baseline v{{ next_version }}? From now on new results are judged against it; earlier results keep their baseline.')"><i class="fa-solid fa-check"></i> Finalise baseline v{{ next_version }}</button>
+      {% else %}<span class="muted" style="font-size:12px">Finalising is reserved for the {{ chart.location }} Lab Manager and the CEO / administrator.</span>{% endif %}
+      {% if draft %}<button class="btn" type="submit" formnovalidate onclick="document.getElementById('bAction').value='discard';return confirm('Discard the draft baseline?')" style="color:#991b1b"><i class="fa-solid fa-trash"></i> Discard draft</button>{% endif %}
+    </div>
+  </form>{% else %}<div class="muted" style="padding:10px 18px">Please sign in to prepare a baseline.</div>{% endif %}
 </div>
 {% if sel %}<div class="card">
   <div class="hd"><div class="title" style="font-size:15px">Baseline v{{ sel.version }} &middot; established {{ sel.established_label }}{% if sel.is_current %} <span class="pill ok">current</span>{% endif %}</div>
@@ -43,30 +62,65 @@
 </div>
 <script>
 (function(){
-  var t=document.getElementById('bVals'), out=document.getElementById('bPrev'), dec={{ chart.decimals|default:3 }}; if(!t) return;
-  function parse(raw){
-    var iso = raw.match(/(^|[^\d.])\d+,\d+(?![\d.])/g);
-    var ws = raw.trim().split(/\s+/).filter(Boolean);
-    if (iso && (raw.indexOf('.')>=0 || (ws.length>1 && ws.every(function(x){return /^-?\d+,\d+;?$/.test(x);}))))
-      return {err:'Decimal comma found ('+iso.map(function(x){return x.replace(/^[^\d]/,'');}).slice(0,3).join(', ')+') - use a decimal point.'};
-    var vals=[], bad=[];
-    raw = raw.replace(/(^|\s)\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}(?=[\s,;])/g, ' ');   // dates of the dated form
-    raw.split(/[;,\s]+/).forEach(function(x){ if(!x) return; var v=Number(x); if(isFinite(v)) vals.push(v); else bad.push(x); });
-    return {vals:vals, bad:bad};
-  }
+  var vals=document.getElementById('bVals'); if(!vals) return;
+  var tb=document.querySelector('#bGrid tbody'), svg=document.getElementById('bSvg'), stats=document.getElementById('bStats');
+  var dec={{ chart.decimals|default:3 }}, ONE={% if chart.upper_only %}true{% else %}false{% endif %}, UNIT='{{ chart.unit|escapejs }}';
+  function iso(d){ var m=String(d||'').trim().match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/); if(!m) return '';
+    var y=m[3].length==2?'20'+m[3]:m[3]; return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2); }
+  function dmy(i){ if(!i) return ''; var p=i.split('-'); return p[2]+'-'+p[1]+'-'+p[0]; }
+  function addRow(d,v){ var tr=document.createElement('tr');
+    tr.innerHTML='<td class="no"></td><td><input type="date" class="bd" style="width:140px"></td><td class="num"><input type="number" step="any" class="bv" style="width:110px;text-align:right"></td><td><button type="button" class="btn bx" title="Remove this point" style="padding:3px 7px"><i class="fa-solid fa-xmark"></i></button></td>';
+    tr.querySelector('.bd').value=d||''; tr.querySelector('.bv').value=(v===undefined||v===null)?'':v;
+    tr.querySelector('.bx').onclick=function(){ tr.remove(); upd(); };
+    tr.querySelectorAll('input').forEach(function(i){ i.addEventListener('input', upd); });
+    tb.appendChild(tr); return tr; }
+  function load(text){ tb.innerHTML=''; String(text||'').split(/\r?\n/).forEach(function(line){ line=line.trim(); if(!line) return;
+      var parts=line.split(/[\t;]+|\s{1,}/).filter(Boolean), d='', v='';
+      if(parts.length>=2 && iso(parts[0])){ d=iso(parts[0]); v=parts[parts.length-1]; } else { v=parts[parts.length-1]; }
+      v=String(v).replace(',', '.'); addRow(d, isFinite(Number(v))?v:''); });
+    if(!tb.children.length){ for(var i=0;i<12;i++) addRow('',''); } upd(); }
+  function rows(){ return [].map.call(tb.children, function(tr){ return {d:tr.querySelector('.bd').value, v:tr.querySelector('.bv').value, tr:tr}; }); }
+  function f(x,k){ return (x===null||!isFinite(x))?'-':x.toFixed(k); }
   function upd(){
-    var r=parse(t.value);
-    if (r.err){ out.innerHTML='<span style="color:#991b1b">'+r.err+'</span>'; return; }
-    var v=r.vals, n=v.length;
-    if (!n){ out.textContent=''; return; }
-    var m=v.reduce(function(a,b){return a+b;},0)/n, sd=0;
-    if (n>1){ sd=Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m);},0)/(n-1)); }
-    var s='Read <b>'+n+'</b> value'+(n>1?'s':'')+' &middot; mean <b>'+m.toFixed(dec)+'</b>'+(n>1?' &middot; SD <b>'+sd.toFixed(dec+1)+'</b>':'');
-    if (r.bad.length) s+=' &middot; <span style="color:#991b1b">not numbers: '+r.bad.slice(0,3).join(', ')+'</span>';
-    if (n<3) s+=' &middot; <span style="color:#92400e">at least 3 needed</span>';
-    out.innerHTML=s;
+    var rs=rows(), pts=rs.filter(function(r){ return r.v!=='' && isFinite(Number(r.v)); });
+    rs.forEach(function(r,i){ r.tr.querySelector('.no').textContent=i+1; });
+    vals.value=pts.map(function(r){ return (r.d?dmy(r.d)+' ':'')+Number(r.v); }).join('\n');
+    var v=pts.map(function(r){ return Number(r.v); }), n=v.length, m=null, sd=null;
+    if(n){ m=v.reduce(function(a,b){return a+b;},0)/n; }
+    if(n>1){ sd=Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m);},0)/(n-1)); }
+    var L=(sd!==null)?{ul:m+3*sd,uwl:m+2*sd,lwl:m-2*sd,ll:m-3*sd}:null;
+    pts.forEach(function(r){ var x=Number(r.v), c=''; if(L){ if(x>L.ul||(!ONE&&x<L.ll)) c='#fee2e2'; else if(x>L.uwl||(!ONE&&x<L.lwl)) c='#fef9c3'; } r.tr.style.background=c; });
+    rs.filter(function(r){return r.v==='';}).forEach(function(r){ r.tr.style.background=''; });
+    stats.innerHTML='<b>Points</b><span>'+n+(n<12?' <span class="muted">(12 recommended)</span>':'')+'</span><b>Mean</b><span>'+f(m,dec)+(UNIT?' '+UNIT:'')+'</span><b>Standard deviation</b><span>'+f(sd,dec+1)+'</span>'+
+      '<b>UL / UWL (+3 / +2 SD)</b><span>'+(L?f(L.ul,dec)+' / '+f(L.uwl,dec):'-')+'</span>'+(ONE?'':'<b>LWL / LL (-2 / -3 SD)</b><span>'+(L?f(L.lwl,dec)+' / '+f(L.ll,dec):'-')+'</span>');
+    draw(pts, m, L);
   }
-  t.addEventListener('input', upd); upd();
+  function draw(pts, m, L){
+    var W=760,H=300,l=58,r=60,t=16,b=58, n=pts.length, s='';
+    if(!n){ svg.innerHTML='<text x="380" y="150" text-anchor="middle" fill="#94a3b8" font-size="14">Enter the baseline points to see the chart</text>'; return; }
+    var ys=pts.map(function(p){return Number(p.v);}), lo=Math.min.apply(null,ys), hi=Math.max.apply(null,ys);
+    if(L){ hi=Math.max(hi,L.ul); lo=Math.min(lo, ONE?Math.min(lo,m):L.ll); }
+    var pad=(hi-lo)*0.08||Math.abs(hi)*0.05||1; lo-=pad; hi+=pad; if(ONE&&lo<0&&Math.min.apply(null,ys)>=0) lo=Math.min(0,lo);
+    function X(i){ return l+(n==1?(W-l-r)/2:(W-l-r)*i/(n-1)); } function Y(y){ return t+(H-t-b)*(hi-y)/(hi-lo); }
+    for(var k=0;k<=5;k++){ var yy=lo+(hi-lo)*k/5; s+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(yy)+'" y2="'+Y(yy)+'" stroke="#eef2f6"/><text x="'+(l-6)+'" y="'+(Y(yy)+4)+'" text-anchor="end" font-size="11" fill="#64748b">'+yy.toFixed(dec)+'</text>'; }
+    if(L){ [['ul','#dc2626','UL',''],['uwl','#f59e0b','UWL','6 4'],['mean','#15803d','Mean',''],['lwl','#f59e0b','LWL','6 4'],['ll','#dc2626','LL','']].forEach(function(z){
+        if(ONE&&(z[0]=='lwl'||z[0]=='ll')) return; var val=z[0]=='mean'?m:L[z[0]];
+        s+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(val)+'" y2="'+Y(val)+'" stroke="'+z[1]+'" stroke-width="1.4" stroke-dasharray="'+z[3]+'"/><text x="'+(W-r+4)+'" y="'+(Y(val)+4)+'" font-size="11" fill="'+z[1]+'">'+val.toFixed(dec)+'</text>'; }); }
+    var path=pts.map(function(p,i){ return (i?'L':'M')+X(i)+' '+Y(Number(p.v)); }).join(' ');
+    s+='<path d="'+path+'" fill="none" stroke="#1d4ed8" stroke-width="1.6"/>';
+    pts.forEach(function(p,i){ var y=Number(p.v), c='#1d4ed8';
+      if(L){ if(y>L.ul||(!ONE&&y<L.ll)) c='#dc2626'; else if(y>L.uwl||(!ONE&&y<L.lwl)) c='#f59e0b'; }
+      s+='<circle cx="'+X(i)+'" cy="'+Y(y)+'" r="4.2" fill="'+(c=='#1d4ed8'?'#fff':c)+'" stroke="'+c+'" stroke-width="1.6"><title>'+(p.d?dmy(p.d)+': ':'')+y+'</title></circle>';
+      s+='<text x="'+X(i)+'" y="'+(Y(y)-8)+'" text-anchor="middle" font-size="10" fill="#334155">'+y.toFixed(dec)+'</text>';
+      var lab=p.d?dmy(p.d).slice(0,5):String(i+1); s+='<text transform="translate('+X(i)+','+(H-b+14)+') rotate(-45)" text-anchor="end" font-size="10" fill="#475569">'+lab+'</text>'; });
+    s+='<text x="'+((W-l-r)/2+l)+'" y="'+(H-4)+'" text-anchor="middle" font-size="11" fill="#475569">Baseline date</text>';
+    svg.innerHTML=s; }
+  document.getElementById('bAdd').onclick=function(){ addRow('',''); upd(); };
+  document.getElementById('bPasteBtn').onclick=function(){ var b=document.getElementById('bPasteBox'); b.style.display=b.style.display=='none'?'':'none'; };
+  document.getElementById('bPasteGo').onclick=function(){ load(document.getElementById('bPaste').value); document.getElementById('bPasteBox').style.display='none'; };
+  document.getElementById('bForm').addEventListener('cc-restored', function(){ load(vals.value); });
+  document.getElementById('bForm').addEventListener('submit', function(){ upd(); });
+  load(vals.value);
 })();
 </script>
 <script>

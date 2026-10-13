@@ -22,6 +22,7 @@
       <option value="DUP" {% if act == 'DUP' %}selected{% endif %}>Duplicates - RPD per batch ({{ counts.DUP }})</option>
       <option value="SPK" {% if act == 'SPK' %}selected{% endif %}>Spike / recovery - per batch ({{ counts.SPK }})</option>
       <option value="MON" {% if act == 'MON' %}selected{% endif %}>Monitoring - temperature / humidity ({{ counts.MON }})</option>
+      <option value="WS" {% if act == 'WS' %}selected{% endif %}>Working Standard ({{ counts.WS }})</option>
     </select>
     <input type="search" name="q" value="{{ q }}" placeholder="Parameter, equipment, method&hellip;" style="min-width:240px">
     <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>

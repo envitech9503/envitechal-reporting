@@ -149,7 +149,7 @@
   <main id="main">
     <div class="intro" id="intro">
       <h2>About this manual</h2>
-      <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks a quality-control result against limits calculated from a mean and standard deviation, so the laboratory can see at a glance whether a method and instrument are still performing as expected. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b> and covers six activities: the <b>monthly CRM</b> exercise, the <b>weekly RM</b> exercise, the <b>intermediate checks</b> of equipment, <b>duplicates</b>, <b>spike recoveries</b> and <b>monitoring</b> of equipment and rooms (temperature / humidity) - see <a href="#t-activities">The six chart types</a>.</p>
+      <p>This guide explains the <b>Control Charts</b> module of the Envi Tech AL LIMS. A control chart tracks a quality-control result against limits calculated from a mean and standard deviation, so the laboratory can see at a glance whether a method and instrument are still performing as expected. The module replaces the Excel workbooks previously used for form <b>ETAL-LAB-604-FF-11</b> and covers seven activities: the <b>monthly CRM</b> exercise, the <b>weekly RM</b> exercise, the <b>intermediate checks</b> of equipment, <b>duplicates</b>, <b>spike recoveries</b>, <b>monitoring</b> of equipment and rooms (temperature / humidity) and the monthly <b>working standard</b> exercise - see <a href="#t-activities">The chart types</a> and <a href="#t-ws">Working Standard charts</a>.</p>
       <p>If you are new, read the three <b>Getting started</b> topics in order, then <b>Recording a monthly result</b>. If you need to set up a new chart (any chemist can), go straight to <b>Creating a new control chart (step by step)</b>. Use the <b>search box</b> above or press <span class="kbd">/</span> to find any topic. Topics marked <span class="badge b-warn">QC Manager</span> or <span class="badge b-bad">Administrator</span> need those roles; everything else is for every analyst.</p>
     </div>
 
@@ -196,7 +196,7 @@
     </section>
 
     <section class="topic" id="t-activities" data-cat="concept" data-keywords="six chart types monitoring temperature humidity visi-cooler activities crm monthly rm weekly reference material intermediate check ic equipment run readings duplicate rpd spike recovery batch difference which chart">
-      <h2><span class="cat-tag">How control charts work</span> The six chart types (CRM, RM, intermediate checks, duplicates, spikes, monitoring)</h2>
+      <h2><span class="cat-tag">How control charts work</span> The chart types (CRM, RM, intermediate checks, duplicates, spikes, monitoring, working standard)</h2>
       <table class="g">
         <tr><th>Activity</th><th>What is recorded</th><th>Record period</th><th>Where the limits come from</th><th>Sign-off</th></tr>
         <tr><td><b>CRM</b> - Certified Reference Material</td><td>One result per <b>month</b> (12 rows per year).</td><td>Calendar year</td><td>The <b>baseline</b> (12 February intermediate-check results); mean &plusmn; 2 SD warning, &plusmn; 3 SD action.</td><td>Per year</td></tr>
@@ -257,12 +257,32 @@
         <li><b>One chart per baseline.</b> Each version has its own chart and form. A newly established baseline starts <b>empty</b>: results recorded under the earlier version are not plotted on it. When a record period holds results of more than one version, a <b>baseline selector</b> appears next to the year (and month); each version is shown, plotted and printed separately. The sign-off (signature, review, approval) covers the whole record period.</li>
         <li><b>Corrections</b> made with the pencil on an earlier version's chart stay on that version; a new result is always recorded under the current baseline.</li>
         <li><b>Established</b> is shown as month and year only (e.g. <i>established Feb-2026</i>).</li>
-        <li><b>Baseline values with dates.</b> Enter one value per line as <code>dd-mm-yyyy value</code>; the baseline form then lists the data points date-wise with their graph. Open it from <b>Baselines</b> on the chart page (eye icon = data points and graph on screen, PDF icon = the printed baseline form).</li>
+        <li><b>Baseline values with dates.</b> The baseline form then lists the data points date-wise with their graph. Open it from <b>Baselines</b> on the chart page (eye icon = data points and graph on screen, PDF icon = the printed baseline form).</li>
         <li><b>List of baselines.</b> The foot of every chart page and the Baselines page list all versions of the chart - established month, n, mean, SD, (monitoring) acceptance range, how many results were judged against it - with links to the chart and the baseline form of each version.</li>
         <li><b>Monitoring charts</b> can carry the acceptance range per baseline (e.g. 18-26 &deg;C with an older season, 22-28 &deg;C later); each form prints the range of its own baseline. Before the first baseline of a monitoring chart, its months are judged against the acceptance range only and print as fixed-limit sheets.</li>
         <li>A baseline whose data points were not supplied (only mean and SD on a printed record) is shown as <i>"data points not supplied"</i>; its limits still apply.</li>
       </ul>
       <div class="tip note">The numbers you see on screen are the same ones the Excel workbooks produced — the seeded baselines were checked against the original sheets value by value.</div>
+    </section>
+
+    <section class="topic" id="t-livebaseline" data-cat="concept" data-keywords="new baseline enter baseline points live chart graph real time draft save draft finalise finalize lab manager ceo paste excel grid review modify points">
+      <h2><span class="cat-tag">How control charts work</span> Entering a new baseline: live chart, draft and finalising</h2>
+      <p>Open the chart and click <b>Baselines</b>. The baseline points are entered in a grid - one row per result with its date - or copied from Excel with <b>Paste</b> (two columns: date and result) and <b>Fill the grid</b>. Use <b>+ Row</b> to add a point and the cross to remove one.</p>
+      <ul>
+        <li><b>Live chart.</b> As each point is typed the control chart beside the grid is redrawn, together with n, mean, SD and the UL / UWL / LWL / LL limits. Points beyond &plusmn;2 SD turn amber and beyond &plusmn;3 SD red, in the chart and in the grid, so a typing error or an outlier is seen before the baseline is used.</li>
+        <li><b>Save draft.</b> Any analyst can save the points as a draft and come back to correct them. A draft is shown with a banner and is <b>never</b> used to judge results.</li>
+        <li><b>Finalise.</b> The laboratory's <b>Lab Manager</b> or the <b>CEO / administrator</b> reviews the draft and clicks <b>Finalise baseline vN</b>. Only then does it become the current baseline; results already recorded keep the version they were judged against. <b>Discard draft</b> removes a draft that is not wanted.</li>
+      </ul>
+    </section>
+
+    <section class="topic" id="t-ws" data-cat="concept" data-keywords="working standard ws monthly form performance range certified value c.v baseline february alkalinity cod chloride nitrate sulphate tds ph fluoride calcium hardness">
+      <h2><span class="cat-tag">How control charts work</span> Working Standard charts</h2>
+      <p>Working Standard (WS) charts follow the laboratory's monthly working-standard form: one form per <b>month</b> listing each dated result, the February baseline results beside them, the UL / UWL / LWL / LL limits and the baseline mean and SD. The header carries the Working Standard detail (e.g. WS-Cl-100 ppm), its certified value (C.V) and the performance range.</p>
+      <ul>
+        <li>Open them from <span class="path">QC sidebar &rarr; Control Charts &rarr; Working Standard</span>; choose the year and month on the chart page.</li>
+        <li>The <b>February 2026 baseline study</b> is the baseline for February onwards. January 2026 results are judged against the baseline that was in force in January (version 1).</li>
+        <li>Results are recorded, signed (Performed by), reviewed and approved per month in the same way as intermediate checks.</li>
+      </ul>
     </section>
 
     <section class="topic" id="t-status" data-cat="concept" data-keywords="status in control warning out of control ooc colour amber red green meaning 2 sd 3 sd classification">
@@ -544,7 +564,7 @@
 
 <footer>
   <div><b>Envi Tech AL — Control Charts module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories. Form ETAL-LAB-604-FF-11; procedure ETAL-LAB-P-604.</div>
-  <div style="margin-top:4px">Revision 5 — 11-10-2026. This document reflects the module as deployed on 11-10-2026 (one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log, raw working for duplicates and spikes, training / reference charts included) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
+  <div style="margin-top:4px">Revision 6 — 13-10-2026. This document reflects the module as deployed on 13-10-2026 (Working Standard charts, live baseline entry with draft and finalising by the Lab Manager / CEO, one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log, raw working for duplicates and spikes, training / reference charts) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
 </footer>
 
 <script>

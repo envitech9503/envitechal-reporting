@@ -178,6 +178,41 @@ class Command(BaseCommand):
             else:
                 hit = next((x for x in existing if self.same_values(x.values, b['values'])), None)
             est = date.fromisoformat(b['established_on'])
+            if b.get('replace_version'):
+                # owner decision 13-10-2026 ("correct in place"): the version is the same baseline period, its values
+                # are corrected to the laboratory's baseline-study record; the previous values stay in the history
+                tgt = next((x for x in existing if x.version == b['replace_version']), None)
+                if tgt is None:
+                    raise ValueError('%s: baseline v%s not found' % (item.get('key'), b['replace_version']))
+                newv = [float(v) for v in b['values']]
+                upd = []
+                if not self.same_values(tgt.values or [], newv):
+                    upd.append('values (was n=%d mean %s SD %s)' % (len(tgt.values or []), _f(tgt.mean, c.decimals + 2), _f(tgt.sd, c.decimals + 3)))
+                    old_note = 'Corrected %s to the baseline-study record (was mean %s, SD %s).' % (
+                        self.today, _f(tgt.mean, c.decimals + 2), _f(tgt.sd, c.decimals + 3))
+                    tgt.values = newv
+                    tgt.note = ((b.get('note') or tgt.note or '') + ' ' + old_note).strip()[:300]
+                elif b.get('note') and tgt.note != b['note'][:300]:
+                    tgt.note = b['note'][:300]
+                    upd.append('note')
+                if list(tgt.dates or []) != list(b.get('dates') or []):
+                    tgt.dates = b.get('dates') or []
+                    upd.append('dates')
+                if tgt.established_on != est:
+                    upd.append('established_on %s -> %s' % (tgt.established_on, est))
+                    tgt.established_on = est
+                for fk in ('range_low', 'range_high'):
+                    if fk in b and (getattr(tgt, fk) or '') != (b[fk] or ''):
+                        upd.append('%s %r -> %r' % (fk, getattr(tgt, fk), b[fk]))
+                        setattr(tgt, fk, b[fk] or '')
+                tgt.stats_only = False
+                tgt.compute()
+                tgt.save()
+                bmap[b['key']] = tgt
+                self.stats['baselines_corrected' if upd else 'baselines_unchanged'] += 1
+                self.log('   baseline v%d %s%s -> n=%d mean %s SD %s' % (tgt.version, 'CORRECTED ' if upd else 'unchanged',
+                         ', '.join(upd), tgt.n, _f(tgt.mean, c.decimals + 2), _f(tgt.sd, c.decimals + 3)))
+                continue
             if hit:
                 upd = []
                 if b.get('dates') and list(hit.dates or []) != b['dates']:
@@ -187,7 +222,7 @@ class Command(BaseCommand):
                     if fk in b and (getattr(hit, fk) or '') != (b[fk] or ''):
                         upd.append('%s %r -> %r' % (fk, getattr(hit, fk), b[fk]))
                         setattr(hit, fk, b[fk] or '')
-                if c.mon_mode == 'baseline' and hit.established_on != est:
+                if (c.mon_mode == 'baseline' or b.get('set_established')) and hit.established_on != est:
                     upd.append('established_on %s -> %s' % (hit.established_on, est))
                     hit.established_on = est
                 if b.get('note') and not hit.note:
@@ -210,7 +245,7 @@ class Command(BaseCommand):
                 bmap[b['key']] = nb
                 self.stats['baselines_added'] += 1
                 self.log('   baseline v%d ADDED (%s, n=%d, mean %s, SD %s)' % (ver, b['established_on'], nb.n, _f(nb.mean, c.decimals + 1), _f(nb.sd, c.decimals + 2)))
-        if existing:
+        if existing and not item.get('keep_current'):
             latest = max(existing, key=lambda x: (x.established_on or date.min, x.version)) if c.mon_mode == 'baseline' else \
                 (bmap[item['baselines'][-1]['key']] if item.get('baselines') else max(existing, key=lambda x: x.version))
             for x in existing:

@@ -227,6 +227,14 @@ ACTIVITY_PROFILE = {
                 note='Matrix spike recovery (procedure ETAL-LAB-P-604): the percent recovery of each spiked sample is plotted against '
                      'the baseline mean and standard deviation (+/- 2 SD warning, +/- 3 SD action).',
                 base_hint='Usually the recoveries of the first twenty spiked samples (at least 12).'),
+    'WS': dict(cadence='ws', ref='Working Standard', detail='Working Standard Detail', value='Working Standard (C.V)',
+               range='Performance Range', result='Monthly working standard result', col='Run', what='WORKING STANDARD',
+               unit='mg/l', desc='Working Standard Results during Monthly Exercise',
+               note='The baseline results were established using data from the February working-standard activity, as per the '
+                    'procedure ETAL-LAB-P-604 (two intermediate check activities are planned: one after calibration and the other '
+                    'before PT). Accordingly, the results from the February activity (conducted before PT) were used to establish '
+                    'the baseline, and the monthly results are plotted against this baseline.',
+               base_hint='Usually the twelve February working-standard results (SOP ETAL-LAB-P-604).'),
     'MON': dict(cadence='reading', ref='Monitoring', detail='Monitoring device', value='Set point / target', range='Acceptance limits',
                 result='Reading', col='Time', what='MONITORING', unit='\u00b0C',
                 desc='Temperature monitoring of the equipment / room',
@@ -247,7 +255,8 @@ class ControlChart(models.Model):
                   ('IC', 'Intermediate Check'),
                   ('DUP', 'Duplicate'),
                   ('SPK', 'Spike / Recovery'),
-                  ('MON', 'Monitoring (temperature / humidity)'))
+                  ('MON', 'Monitoring (temperature / humidity)'),
+                  ('WS', 'Working Standard'))
     location = models.CharField(max_length=20, choices=LOCATIONS, default='Karachi')
     activity = models.CharField(max_length=10, choices=ACTIVITIES, default='CRM')
     parameter = models.CharField(max_length=120)            # e.g. Cadmium (Cd)
@@ -444,7 +453,7 @@ class ControlChart(models.Model):
 
     @property
     def period_is_month(self):
-        return self.cadence in ('run', 'reading')
+        return self.cadence in ('run', 'reading', 'ws')     # WS: one form per month (added 13-10-2026)
 
     @property
     def spec_limited(self):
@@ -596,6 +605,39 @@ class ControlChartBaseline(models.Model):
 
     def __str__(self):
         return 'Baseline v%s of %s' % (self.version, self.chart_id)
+
+
+class ControlChartBaselineDraft(models.Model):
+    """Baseline being prepared (owner decision 13-10-2026): analysts enter / paste the baseline points, review the live
+    chart and correct points; the laboratory's Lab Manager or the CEO / administrator finalises it into a version.
+    A draft is never used to judge results."""
+    chart = models.OneToOneField(ControlChart, on_delete=models.CASCADE, related_name='baseline_draft')
+    values = models.JSONField(default=list)
+    dates = models.JSONField(default=list)
+    established_on = models.DateField(null=True, blank=True)
+    note = models.CharField(max_length=300, blank=True, default='')
+    range_low = models.CharField(max_length=40, blank=True, default='')
+    range_high = models.CharField(max_length=40, blank=True, default='')
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def lines(self):
+        """The draft as 'dd-mm-yyyy value' lines (the format the baseline form accepts)."""
+        out = []
+        for i, v in enumerate(self.values or []):
+            d = (self.dates or [None] * len(self.values))[i] if i < len(self.dates or []) else None
+            ds = ''
+            if d:
+                try:
+                    y, m, dd = str(d)[:10].split('-')
+                    ds = '%s-%s-%s ' % (dd, m, y)
+                except ValueError:
+                    ds = ''
+            t = repr(float(v))
+            out.append(ds + (t[:-2] if t.endswith('.0') else t))
+        return '\n'.join(out)
 
 
 class ControlChartResult(models.Model):

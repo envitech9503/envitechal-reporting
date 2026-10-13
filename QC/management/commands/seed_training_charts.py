@@ -44,7 +44,7 @@ class Command(BaseCommand):
             analysts = [User.objects.get(username=u.strip()) for u in o['analysts'].split(',') if u.strip()]
         else:
             sigs = Signatures.objects.select_related('user', 'role').filter(user__is_active=True)
-            analysts = [s.user for s in sigs if (s.office or '').strip().title() == loc and s.role and 'analyst' in s.role.name.lower()
+            analysts = [s.user for s in sigs if (s.office or '').strip().title() == loc and s.role and 'analyst' in str(s.role).lower()
                         and s.signature]
             analysts.sort(key=lambda u: u.username.lower())
         if not analysts:
