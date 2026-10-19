@@ -26,7 +26,7 @@
           <span><button class="btn" type="button" id="bAdd"><i class="fa-solid fa-plus"></i> Row</button> <button class="btn" type="button" id="bPasteBtn" title="Paste two columns (date and result) copied from Excel"><i class="fa-solid fa-paste"></i> Paste</button></span></div>
         <div id="bPasteBox" style="display:none;margin-bottom:6px"><textarea id="bPaste" rows="5" placeholder="Paste from Excel: date and result per line, e.g.&#10;02-02-2026&#9;100.46&#10;03-02-2026&#9;101.46" style="width:100%"></textarea>
           <button class="btn btn-p" type="button" id="bPasteGo">Fill the grid</button> <span class="muted" style="font-size:11.5px">replaces the rows below</span></div>
-        <table id="bGrid" style="width:100%"><thead><tr><th style="width:34px">No.</th><th>Date</th><th class="num">Result{% if chart.unit %} ({{ chart.unit }}){% endif %}</th><th style="width:30px"></th></tr></thead><tbody></tbody></table>
+        <table id="bGrid" style="width:100%"><thead><tr><th style="width:34px">No.</th><th>Date</th><th class="num">Result{% if chart.unit %} ({{ chart.unit_label }}){% endif %}</th><th style="width:30px"></th></tr></thead><tbody></tbody></table>
         <textarea name="values" id="bVals" style="display:none">{{ cur_values }}</textarea>
       </div>
       <div style="flex:1;min-width:300px">
@@ -37,7 +37,7 @@
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <label>Established on <input type="date" name="established_on" value="{{ est_value|default:today }}"> <span class="muted" style="font-size:11px">(printed as month and year{% if chart.mon_mode == 'baseline' %}; readings from this date onwards use it{% endif %})</span></label>
-      {% if chart.spec_limited %}<label>Acceptance range with this baseline <span style="display:flex;gap:4px;align-items:center"><input type="text" name="range_low" value="{{ rlo }}" style="width:70px" placeholder="low"> - <input type="text" name="range_high" value="{{ rhi }}" style="width:70px" placeholder="high"> {{ chart.unit }}</span></label>{% endif %}
+      {% if chart.spec_limited %}<label>Acceptance range with this baseline <span style="display:flex;gap:4px;align-items:center"><input type="text" name="range_low" value="{{ rlo }}" style="width:70px" placeholder="low"> - <input type="text" name="range_high" value="{{ rhi }}" style="width:70px" placeholder="high"> {{ chart.unit_label }}</span></label>{% endif %}
       <label style="flex:1">Note <input type="text" name="note" maxlength="300" value="{{ note_value|default:'' }}" placeholder="e.g. Baseline study - February 2027 working-standard exercise"></label>
     </div>
     {% if suspects %}<label style="flex-direction:row;gap:6px;align-items:center"><input type="checkbox" name="confirm" value="1"> The values are correct - establish the baseline anyway</label>{% endif %}
@@ -53,9 +53,9 @@
   <div class="hd"><div class="title" style="font-size:15px">Baseline v{{ sel.version }} &middot; established {{ sel.established_label }}{% if sel.is_current %} <span class="pill ok">current</span>{% endif %}</div>
     <a class="btn btn-p" href="{% url 'control_chart_pdf' chart.id %}?baseline={{ sel.version }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> Baseline form (PDF)</a></div>
   <div class="kv"><b>Results</b><span>n = {{ sel.n_text }}</span><b>Mean</b><span>{{ sel.mean|floatformat:chart.decimals }}</span>
-    <b>Standard deviation</b><span>{{ sel.sd|floatformat:4 }}</span><b>{% if chart.spec_limited %}Acceptance range{% else %}Note{% endif %}</b><span>{% if chart.spec_limited %}{{ sel_range|default:"-" }} {{ chart.unit }}{% else %}{{ sel.note|default:"-" }}{% endif %}</span></div>
+    <b>Standard deviation</b><span>{{ sel.sd|floatformat:4 }}</span><b>{% if chart.spec_limited %}Acceptance range{% else %}Note{% endif %}</b><span>{% if chart.spec_limited %}{{ sel_range|default:"-" }} {{ chart.unit_label }}{% else %}{{ sel.note|default:"-" }}{% endif %}</span></div>
   <div class="chartbox">{% if sel_svg %}{{ sel_svg|safe }}{% endif %}</div>
-  <table><thead><tr><th>S. No.</th><th>Date</th><th class="num">Result{% if chart.unit %} ({{ chart.unit }}){% endif %}</th></tr></thead><tbody>
+  <table><thead><tr><th>S. No.</th><th>Date</th><th class="num">Result{% if chart.unit %} ({{ chart.unit_label }}){% endif %}</th></tr></thead><tbody>
   {% for p in sel_points %}<tr><td>{{ p.i }}</td><td>{% if p.d %}{{ p.d|date:"d-m-Y" }}{% else %}<span class="muted">-</span>{% endif %}</td><td class="num"><b>{{ p.v }}</b></td></tr>
   {% empty %}<tr><td colspan="3" class="empty">Data points not supplied - mean and SD were entered from the printed laboratory record{% if sel.note %} ({{ sel.note }}){% endif %}.</td></tr>{% endfor %}
   </tbody></table>
@@ -72,7 +72,7 @@
 (function(){
   var vals=document.getElementById('bVals'); if(!vals) return;
   var tb=document.querySelector('#bGrid tbody'), svg=document.getElementById('bSvg'), stats=document.getElementById('bStats');
-  var dec={{ chart.decimals|default:3 }}, ONE={% if chart.upper_only %}true{% else %}false{% endif %}, UNIT='{{ chart.unit|escapejs }}';
+  var dec={{ chart.decimals|default:3 }}, ONE={% if chart.upper_only %}true{% else %}false{% endif %}, UNIT='{{ chart.unit_label|escapejs }}';
   function iso(d){ var m=String(d||'').trim().match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/); if(!m) return '';
     var y=m[3].length==2?'20'+m[3]:m[3]; return y+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2); }
   function dmy(i){ if(!i) return ''; var p=i.split('-'); return p[2]+'-'+p[1]+'-'+p[0]; }

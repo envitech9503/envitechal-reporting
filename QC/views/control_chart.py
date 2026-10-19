@@ -429,7 +429,7 @@ def control_chart_list(request):
         rows.append({'c': c, 'n': n, 'of': of, 'runs': runs, 'last': last, 'last_value': _fmt(last.value, c.decimals) if last else '',
                      'worst': worst, 'mean': _fmt(mean, c.decimals) if mean is not None else '', 'sd': _fmt(sd, c.decimals + 1) if sd is not None else '',
                      'bver': b.version if b else '', 'reviewed': bool(so and so.reviewed_at), 'approved': bool(so and so.approved_at),
-                     'limits': (c.crm_range + (' ' + c.unit if c.unit else '')) if c.fixed_limits and c.crm_range else '',
+                     'limits': (c.crm_range + (' ' + c.unit_label if c.unit else '')) if c.fixed_limits and c.crm_range else '',
                      'month': _MONTHS[last.date.month - 1] if (c.period_is_month and last) else '', 'cycle': c.cycle_label(year) if not c.period_is_month else str(year)})
     allc = {c.id: c for c in ControlChart.objects.all()}
     years = sorted({(allc[cid].cycle_of(d) if (cid in allc and not allc[cid].period_is_month) else d.year)
@@ -764,7 +764,7 @@ def control_chart_result_save(request, pk):
     remark = (request.POST.get('remark') or '').strip()
     if status != 'ok' and not remark and chart.spec_limited and chart.outside_range(value, b):
         _msg.error(request, 'This reading is OUTSIDE THE ACCEPTANCE LIMITS (%s %s) - a remark / corrective action is required before it can be saved.' % (
-            chart.range_text(b), chart.unit))
+            chart.range_text(b), chart.unit_label))
         return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}&date={d.isoformat()}&value={value}")
     if status != 'ok' and not remark:
         acc = chart.within_acceptance(value)
@@ -1920,10 +1920,12 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
         pdf.cell(134, RH, txt, 1, 1, 'L')
     if lim or pts:
         space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
+        big = 95.0
         if space < _CHART_MIN:
             pdf.add_page()
             space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
-        chart_mm = max(_CHART_MIN, min(95.0, space))
+            big = 125.0
+        chart_mm = max(_CHART_MIN, min(big, space))
         png = render_baseline(chart, bl, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)

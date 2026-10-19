@@ -10,6 +10,7 @@ import re
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import Q
 
 from QC.models import ControlChartBaseline, ControlChartBaselineDraft
 
@@ -17,7 +18,9 @@ _RX = re.compile(r'\s*[(;,]?\s*(?:the\s+)?laboratory record received \d{2}-\d{2}
 
 
 def clean(note):
-    return re.sub(r'\s{2,}', ' ', _RX.sub('', note or '')).strip()
+    out = re.sub(r'\s{2,}', ' ', _RX.sub('', note or '')).strip()
+    # "... Feb-2026 Corrected 13-10-2026 ..." -> "... Feb-2026. Corrected 13-10-2026 ..." (two sentences)
+    return re.sub(r'(?<=[\w)])\s+(Corrected \d{2}-\d{2}-\d{4})', r'. \1', out)
 
 
 class Command(BaseCommand):
@@ -30,7 +33,7 @@ class Command(BaseCommand):
         n = 0
         with transaction.atomic():
             for model in (ControlChartBaseline, ControlChartBaselineDraft):
-                for b in model.objects.filter(note__iregex=r'laboratory record received').select_related('chart'):
+                for b in model.objects.filter(Q(note__icontains='laboratory record received') | Q(note__contains=' Corrected ')).select_related('chart'):
                     new = clean(b.note)
                     if new == b.note:
                         continue
