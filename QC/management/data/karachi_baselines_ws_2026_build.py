@@ -58,14 +58,14 @@ def head(x):
 charts = []
 for tid, par, eid, fp, sh in CRM:
     x = sheet(fp, sh, 'CRM')
-    b = study(x, est='2026-02-28', note='Baseline study - CRM exercise Feb-2026 (laboratory record received 13-10-2026)')
+    b = study(x, est='2026-02-28', note='Baseline study - CRM exercise Feb-2026')
     charts.append(dict(key='CRM %s %s' % (par, eid), activity='CRM', target_id=tid, match=dict(activity='CRM', parameter=par),
                        master={}, keep_current=True, results=[], baselines=[dict(b, key='study', replace_version=1)]))
 for tid, par, fp, sh in RM:
     x = sheet(fp, sh, 'RM')
     h = head(x)
     month = 'Jul-2026' if 'July' in h else 'Jun-2026'
-    b = study(x, note='Baseline study - RM exercise %s (laboratory record received 13-10-2026)' % month)
+    b = study(x, note='Baseline study - RM exercise %s' % month)
     master = {}
     if par in ('Magnesium', 'Sodium'):
         cv = re.search(r'Certified Value:\s*([\d.]+)', h).group(1)
@@ -76,7 +76,7 @@ for tid, par, fp, sh in RM:
                        master=master, keep_current=True, results=[], baselines=[dict(b, key='study', replace_version=1)]))
 
 # ------------------------------------------------------------------ Working Standard charts
-WS_NOTE_V2 = 'Baseline study - working standard exercise Feb-2026 (laboratory record received 13-10-2026)'
+WS_NOTE_V2 = 'Baseline study - working standard exercise Feb-2026'
 WS_NOTE_V1 = ('Baseline in force in January 2026, as printed on the January 2026 working-standard forms '
               '(the dates of these baseline results are not recorded on the forms)')
 SER = [

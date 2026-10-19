@@ -1502,6 +1502,7 @@ def control_chart_edit(request, pk=None):
 # ---------------------------------------------------------------- PDF
 _SIG_W = 62.0          # three signature panels across the 190 mm text width
 _SIG_MIN = 22.0         # smallest signature block (label, signature, name, role)
+_CHART_MIN = 72.0      # smallest graph height on a printed form (19-10-2026; was 36 mm)
 _FOOT_TOP = 270.0      # top of the footer band (footer draws at h-20 = 277; keep 7 mm air)
 
 
@@ -1608,7 +1609,7 @@ def control_chart_pdf(request, pk):
     pdf = PDF(); pdf.alias_nb_pages(); pdf.set_auto_page_break(True, 30); pdf.add_page()
     f = pdf.fam
     dec = chart.decimals
-    unit = (' %s' % chart.unit) if chart.unit else ''
+    unit = (' %s' % chart.unit_label) if chart.unit else ''      # mg/L on the forms (19-10-2026)
 
     # ---- header grid: fixed column widths so every label/value edge lines up
     L1, V1, L2, V2 = 30.0, 80.0, 28.0, 52.0      # = 190
@@ -1619,10 +1620,18 @@ def control_chart_pdf(request, pk):
         for lbl, val, wl, wv in items:
             pdf.set_font(f, 'B', 7.8); pdf.set_fill_color(*GREY_FILL)
             pdf.cell(wl, h, lbl, 1, 0, 'L', fill=True)
-            pdf.set_font(f, '', 8)
+            # 19-10-2026 (Lab Manager item 1): a long value is printed in a smaller font rather than cut short
+            # (the range "49.094-50.906 mg/L" was printed as "... mg"); only text that cannot fit at 6 pt is shortened
             txt = str(val) if val not in (None, '') else '-'
-            while pdf.get_string_width(txt) > wv - 2 and len(txt) > 4:
-                txt = txt[:-2]
+            fs = 8.0
+            pdf.set_font(f, '', fs)
+            while pdf.get_string_width(txt) > wv - 1.6 and fs > 6.0:
+                fs -= 0.25
+                pdf.set_font(f, '', fs)
+            if pdf.get_string_width(txt) > wv - 1.6:
+                while pdf.get_string_width(txt + '...') > wv - 1.6 and len(txt) > 4:
+                    txt = txt[:-1]
+                txt += '...'
             pdf.cell(wv, h, txt, 1, 0, 'L')
         pdf.ln(h)
 
@@ -1635,22 +1644,22 @@ def control_chart_pdf(request, pk):
             lim_txt = ('month: n=%d, mean %s, SD %s' % (lim['n'], _fmt(lim['mean'], dec), _fmt(lim['sd'], dec + 1))) if lim else 'fewer than 2 readings'
         else:
             lim_txt = ('baseline v%d, established %s' % (b.version, b.established_label)) if b else 'no baseline'
-        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
-                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
+        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 28.0),
+                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 14.0, 38.0),
                 ('Limits', lim_txt, L2, V2)])
     elif chart.spec_limited:
         vv = [r.value for r in results]
-        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
-                ('Limits', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
+        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 28.0),
+                ('Limits', (chart.crm_range + unit) if chart.crm_range else '', 14.0, 38.0),
                 ('Readings', ('n = %d,  min %s,  max %s' % (len(vv), _fmt(min(vv), dec), _fmt(max(vv), dec))) if vv else 'none', L2, V2)])
     elif chart.self_limited:
         lim_txt = ('run n=%d, mean %s, SD %s' % (lim['n'], _fmt(lim['mean'], dec), _fmt(lim['sd'], dec + 1))) if lim else 'fewer than 2 readings'
-        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
-                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
+        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 28.0),
+                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 14.0, 38.0),
                 ('Limits', lim_txt, L2, V2)])
     else:
-        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 36.0),
-                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 20.0, 24.0),
+        kv_row([(chart.label_value, (chart.crm_value + unit) if chart.crm_value else '', L1, 28.0),
+                ('Range', (chart.crm_range + unit) if chart.crm_range else '', 14.0, 38.0),
                 ('Baseline', ('v%d  (n = %s, established %s)' % (b.version, b.n_text, b.established_label)) if b else 'not established', L2, V2)])
     if bl_form is not None:
         kv_row([('Description', 'Baseline v%d of: %s' % (bl_form.version, chart.description), L1, 160.0)])
@@ -1762,10 +1771,14 @@ def control_chart_pdf(request, pk):
         rem_txt = ['%s  (%s):  %s' % (r['date'], _rem_label(chart, r['status']), r['remark']) for r in rows if r['remark']]
         text_h = (4.7 + sum(_text_h(pdf, f, 7.2, 3.8, t) for t in rem_txt) if rem_txt else 0.0) + 0.8 + _text_h(pdf, f, 6.8, 3.4, chart.profile['note'])
         space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
-        if space < 36.0:                 # no room on this page: the graph starts the next page at full size
+        # 19-10-2026 (Lab Manager item 3): the graph is never squeezed below _CHART_MIN mm; when a long month leaves
+        # less room it starts the next page at full height, followed by the remarks and the signatures
+        big = 100.0
+        if space < _CHART_MIN:
             pdf.add_page()
             space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
-        chart_mm = max(36.0, min(100.0, space))
+            big = 125.0                  # the graph has the page to itself: use more of it
+        chart_mm = max(_CHART_MIN, min(big, space))
         png = render_chart(chart, lim, results, year, month, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)
@@ -1867,7 +1880,7 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
     dec = chart.decimals
     lim = bl.limits() or {}
     pts = bl.points()
-    cols = [('S. No.', 12), ('Date', 26), ('Result%s' % ((' (%s)' % chart.unit) if chart.unit else ''), 26), ('UL (+3 SD)', 21),
+    cols = [('S. No.', 12), ('Date', 26), ('Result%s' % ((' (%s)' % chart.unit_label) if chart.unit else ''), 26), ('UL (+3 SD)', 21),
             ('UWL (+2 SD)', 21), ('LWL (-2 SD)', 21), ('LL (-3 SD)', 21), ('Mean', 21), ('SD', 21)]
     pdf.set_font(f, 'B', 7); pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255)
     x0, y0 = pdf.get_x(), pdf.get_y()
@@ -1893,7 +1906,7 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
     summ = [('Number of results', bl.n_text), ('Mean', _fmt(bl.mean, dec)), ('Standard Deviation', _fmt(bl.sd, sd_dec)),
             ('Established', bl.established_label)]
     if chart.spec_limited:
-        summ.append(('Acceptance range', (chart.range_text(bl) + ((' ' + chart.unit) if chart.unit else '')) if chart.range_text(bl) else '-'))
+        summ.append(('Acceptance range', (chart.range_text(bl) + ((' ' + chart.unit_label) if chart.unit else '')) if chart.range_text(bl) else '-'))
     if bl.note:
         summ.append(('Note', bl.note))
     for lbl_, val_ in summ:
@@ -1907,10 +1920,10 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
         pdf.cell(134, RH, txt, 1, 1, 'L')
     if lim or pts:
         space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
-        if space < 36.0:
+        if space < _CHART_MIN:
             pdf.add_page()
             space = _FOOT_TOP - pdf.get_y() - 1.5 - 2.5 - _SIG_MIN - 1.0
-        chart_mm = max(36.0, min(95.0, space))
+        chart_mm = max(_CHART_MIN, min(95.0, space))
         png = render_baseline(chart, bl, 'png', 7.6, round(chart_mm * 7.6 / 176.0, 2))
         import tempfile as _tf
         tmp = _tf.NamedTemporaryFile(suffix='.png', delete=False)

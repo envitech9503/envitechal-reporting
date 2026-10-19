@@ -66,6 +66,36 @@ def _slots(chart, results, year):
     return [(i + 1, r) for i, r in enumerate(rs)], max(12, len(rs))
 
 
+def _limit_labels(fig, ax, items, nx, dec):
+    """Value labels of the limit lines at the right edge (19-10-2026, Lab Manager item 3): limits that round to
+    the same text get one more decimal, and labels closer than one text line are pushed apart so they never
+    overlap. items: [(y, colour)]; call after the y-range is final."""
+    if not items:
+        return
+    d = dec
+    while d < dec + 3 and len({fmt(y, d) for y, _c in items}) < len({round(y, 12) for y, _c in items}):
+        d += 1
+    lo, hi = ax.get_ylim()
+    fig.canvas.draw()
+    h_pt = ax.get_window_extent().height * 72.0 / fig.dpi
+    gap = (7.6 / h_pt) * (hi - lo) if h_pt > 0 else 0          # one 6.5 pt text line, in data units
+    pos = sorted(([y, y, c] for y, c in items), key=lambda t: t[0])
+    for i in range(1, len(pos)):                               # push upwards ...
+        if pos[i][1] - pos[i - 1][1] < gap:
+            pos[i][1] = pos[i - 1][1] + gap
+    shift = max(0.0, pos[-1][1] - hi) if pos else 0.0          # ... and back down if the top label left the axes
+    if shift:
+        for t in pos:
+            t[1] -= shift
+        for i in range(len(pos) - 2, -1, -1):
+            if pos[i + 1][1] - pos[i][1] < gap:
+                pos[i][1] = pos[i + 1][1] - gap
+    from matplotlib.transforms import blended_transform_factory
+    tr = blended_transform_factory(ax.transAxes, ax.transData)
+    for y, ty, c in pos:
+        ax.text(1.006, ty, fmt(y, d), transform=tr, fontsize=6.5, color=c, va='center', ha='left', clip_on=False)
+
+
 def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6, height_in=3.4):
     """Return bytes (SVG or PNG) of the control chart for one record period.
     `lim` is the limits dict (baseline or run), `results` already filtered."""
@@ -91,13 +121,13 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
             k = -(-nx // 45)
             labels = [l if i % k == 0 else '' for i, l in enumerate(labels)]
     ax.set_xticklabels(labels, fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 16 else 60)
+    lab_items = []
     if lim and chart.fixed_limits:
         for key, col, lbl, ls in (('ul', C_UL, 'Upper limit', '-'), ('ll', C_UL, 'Lower limit', '-'), ('mean', C_MEAN, 'Set point', '--')):
             if lim.get(key) is None or (key == 'll' and lim.get('ul') is not None and lim['ll'] == lim['ul']):
                 continue
             ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.2, ls=ls, label=lbl, zorder=2)
-            ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
-                        fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
+            lab_items.append((lim[key], col))
     elif lim:
         mean_lbl = 'Run mean' if chart.self_limited else 'Baseline mean'
         lines = [('ul', C_UL, 'UL (+3 SD)', '-'), ('uwl', C_UWL, 'UWL (+2 SD)', '--'), ('mean', C_MEAN, mean_lbl, '-')]
@@ -105,8 +135,7 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
             lines += [('lwl', C_UWL, 'LWL (-2 SD)', '--'), ('ll', C_UL, 'LL (-3 SD)', '-')]
         for key, col, lbl, ls in lines:
             ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.1, ls=ls, label=lbl, zorder=2)
-            ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
-                        fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
+            lab_items.append((lim[key], col))
     rng = chart.spec_limits() if (chart.spec_limited and not chart.fixed_limits) else None
     if rng:
         rl = 'Acceptance range (%s)' % ' - '.join(fmt(rng[k], dec) for k in ('ll', 'ul') if rng.get(k) is not None)
@@ -121,9 +150,11 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
         for x, v, st in pts:
             if st != 'ok':
                 ax.plot([x], [v], marker='D', ms=6.5, color=(C_OOC if st == 'ooc' else C_WARN), zorder=5)
-            if nx <= 31 or st != 'ok':      # long monitoring logs: label only the out-of-limit points
+            # 19-10-2026 (Lab Manager item 3): beyond 16 points the values are read from the table and only the
+            # warning / out-of-control points carry a value label, so the labels no longer overlap
+            if nx <= 16 or st != 'ok':
                 ax.annotate(fmt(v, dec), xy=(x, v), xytext=(0, 6), textcoords='offset points',
-                            fontsize=6.5 if nx <= 16 else 5.5, ha='center', color='#1f2937')
+                            fontsize=6.5, ha='center', color='#1f2937')
     # y-range: limits +/- 1 SD padding, widened by any result outside
     ys = [p[1] for p in pts]
     if lim and chart.fixed_limits:
@@ -153,13 +184,14 @@ def render_chart(chart, lim, results, year, month=0, fmt_out='svg', width_in=7.6
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.' + str(min(ydec, 6)) + 'f'))
     ax.tick_params(axis='y', labelsize=7)
     ax.set_xlabel('Reading date' if chart.spec_limited else 'Testing date', fontsize=8)
-    ax.set_ylabel((('Reading (%s)' if chart.spec_limited else 'Test result (%s)') % chart.unit) if chart.unit else 'Test result', fontsize=8)
+    ax.set_ylabel((('Reading (%s)' if chart.spec_limited else 'Test result (%s)') % chart.unit_label) if chart.unit else 'Test result', fontsize=8)
     ax.set_title(chart_heading(chart, period_label(chart, year, month)), fontsize=9.5, fontweight='bold', color='#0f5132')
     ax.grid(True, color='#e5e7eb', lw=0.6)
     for s in ('top', 'right'):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
     fig.subplots_adjust(right=0.9)
+    _limit_labels(fig, ax, lab_items, nx, dec)
     # legend just below the x-axis label (measured after layout, so rotated date labels never overlap it)
     fig.canvas.draw()
     lb = ax.xaxis.label.get_window_extent(fig.canvas.get_renderer()).transformed(ax.transAxes.inverted())
@@ -253,20 +285,21 @@ def render_baseline(chart, b, fmt_out='svg', width_in=7.6, height_in=3.2):
     ax.set_xticks(xs)
     ax.set_xticklabels([(d.strftime('%d-%m-%y') if d else str(i + 1)) for i, (d, _v) in enumerate(pts)] or [''],
                        fontsize=7 if nx <= 16 else 5.5, rotation=0 if nx <= 12 else 60)
+    lab_items = []
     if lim:
         lines = [('ul', C_UL, 'UL (+3 SD)', '-'), ('uwl', C_UWL, 'UWL (+2 SD)', '--'), ('mean', C_MEAN, 'Mean', '-')]
         if not chart.upper_only:
             lines += [('lwl', C_UWL, 'LWL (-2 SD)', '--'), ('ll', C_UL, 'LL (-3 SD)', '-')]
         for key, col, lbl, ls in lines:
             ax.plot([0.5, nx + 0.5], [lim[key], lim[key]], color=col, lw=1.1, ls=ls, label=lbl, zorder=2)
-            ax.annotate(fmt(lim[key], dec), xy=(nx + 0.5, lim[key]), xytext=(3, 0), textcoords='offset points',
-                        fontsize=6.5, color=col, va='center', ha='left', annotation_clip=False)
+            lab_items.append((lim[key], col))
     if pts:
         ax.plot(xs[:len(pts)], [v for _d, v in pts], color=C_RESULT, lw=1.3, marker='D', ms=5, mfc='white', mec=C_RESULT,
                 label='Baseline result', zorder=4)
-        for x, (_d, v) in zip(xs, pts):
-            ax.annotate(fmt(v, dec), xy=(x, v), xytext=(0, 6), textcoords='offset points', fontsize=6.5 if nx <= 16 else 5.5,
-                        ha='center', color='#1f2937')
+        if nx <= 24:                              # longer baselines (e.g. 30 duplicate pairs): values are in the table
+            for x, (_d, v) in zip(xs, pts):
+                ax.annotate(fmt(v, dec), xy=(x, v), xytext=(0, 6), textcoords='offset points', fontsize=6.5 if nx <= 16 else 5.5,
+                            ha='center', color='#1f2937')
     ys = [v for _d, v in pts]
     if lim and lim.get('sd'):
         lo, hi = (max(0.0, lim['mean'] - 2 * lim['sd']) if chart.upper_only else lim['ll'] - lim['sd']), lim['ul'] + lim['sd']
@@ -283,7 +316,7 @@ def render_baseline(chart, b, fmt_out='svg', width_in=7.6, height_in=3.2):
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.' + str(min(ydec, 6)) + 'f'))
     ax.tick_params(axis='y', labelsize=7)
     ax.set_xlabel('Baseline date', fontsize=8)
-    ax.set_ylabel(('Result (%s)' % chart.unit) if chart.unit else 'Result', fontsize=8)
+    ax.set_ylabel(('Result (%s)' % chart.unit_label) if chart.unit else 'Result', fontsize=8)
     ax.set_title(chart_heading(chart, 'Baseline v%d (established %s)' % (b.version, b.established_label) if b else 'Baseline'),
                  fontsize=9.5, fontweight='bold', color='#0f5132')
     ax.grid(True, color='#e5e7eb', lw=0.6)
@@ -294,6 +327,7 @@ def render_baseline(chart, b, fmt_out='svg', width_in=7.6, height_in=3.2):
                 ha='center', va='center', fontsize=8, color='#6b7280')
     fig.tight_layout()
     fig.subplots_adjust(right=0.9)
+    _limit_labels(fig, ax, lab_items, nx, dec)
     fig.canvas.draw()
     lb = ax.xaxis.label.get_window_extent(fig.canvas.get_renderer()).transformed(ax.transAxes.inverted())
     if lim or pts:

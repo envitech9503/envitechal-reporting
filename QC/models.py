@@ -349,6 +349,13 @@ class ControlChart(models.Model):
                                      self.equipment_id, self.location)
 
     @property
+    def unit_label(self):
+        """Unit as printed on forms and graphs (19-10-2026, Lab Manager item 1): litre written with a capital L
+        (mg/l -> mg/L, ug/l -> ug/L), as in the laboratory's controlled forms."""
+        import re as _re
+        return _re.sub(r'/l\b', '/L', self.unit or '')
+
+    @property
     def title(self):
         return ('%s %s' % (self.parameter, self.level)).strip()
 

@@ -34,8 +34,7 @@ for lvl, (ick, mk) in LV.items():
                     method='Not Applicable', crm_detail='', crm_value='', crm_range_low='', crm_range_high='', decimals=4,
                     description='Monthly control charts for analytical balance performance', start_month=1),
         baselines=[dict(key='feb', established_on=bd[-1], values=bv, dates=bd,
-                        note='Intermediate check Feb-2026 of the Analytical Balance AB-02 (%s) - ETAL-LAB-P-604; laboratory '
-                             'record received 13-10-2026' % lvl)],
+                        note='Intermediate check Feb-2026 of the Analytical Balance AB-02 (%s) - ETAL-LAB-P-604' % lvl)],
         results=[dict(r, baseline='feb') for r in res], coverage_months=['2026-05', '2026-06', '2026-07', '2026-08']))
 spec = dict(location='Karachi', created='2026-10-13', charts=charts)
 json.dump(spec, open(sys.argv[1], 'w'), separators=(',', ':'))
