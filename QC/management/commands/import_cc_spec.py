@@ -188,10 +188,10 @@ class Command(BaseCommand):
                 upd = []
                 if not self.same_values(tgt.values or [], newv):
                     upd.append('values (was n=%d mean %s SD %s)' % (len(tgt.values or []), _f(tgt.mean, c.decimals + 2), _f(tgt.sd, c.decimals + 3)))
-                    old_note = 'Corrected %s to the baseline-study record (was mean %s, SD %s).' % (
-                        self.today, _f(tgt.mean, c.decimals + 2), _f(tgt.sd, c.decimals + 3))
+                    # owner decision 20-10-2026: the printed note carries only the baseline description; the previous
+                    # values stay in the baseline history (simple_history) and in this command's log line
                     tgt.values = newv
-                    tgt.note = ((b.get('note') or tgt.note or '') + ' ' + old_note).strip()[:300]
+                    tgt.note = (b.get('note') or tgt.note or '').strip()[:300]
                 elif b.get('note') and tgt.note != b['note'][:300]:
                     tgt.note = b['note'][:300]
                     upd.append('note')

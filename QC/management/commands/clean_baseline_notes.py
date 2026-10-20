@@ -17,14 +17,18 @@ from QC.models import ControlChartBaseline, ControlChartBaselineDraft
 _RX = re.compile(r'\s*[(;,]?\s*(?:the\s+)?laboratory record received \d{2}-\d{2}-\d{4}\)?', re.I)
 
 
+# owner decision 20-10-2026: the correction record ("Corrected dd-mm-yyyy to the baseline-study record (was mean x,
+# SD y).") is removed from the printed note as well; the earlier values remain in the baseline history
+_RX_CORR = re.compile(r'\.?\s*Corrected \d{2}-\d{2}-\d{4} to the baseline-study record \(was mean [^)]*\)\.?', re.I)
+
+
 def clean(note):
-    out = re.sub(r'\s{2,}', ' ', _RX.sub('', note or '')).strip()
-    # "... Feb-2026 Corrected 13-10-2026 ..." -> "... Feb-2026. Corrected 13-10-2026 ..." (two sentences)
-    return re.sub(r'(?<=[\w)])\s+(Corrected \d{2}-\d{2}-\d{4})', r'. \1', out)
+    out = _RX_CORR.sub('', _RX.sub('', note or ''))
+    return re.sub(r'\s{2,}', ' ', out).strip()
 
 
 class Command(BaseCommand):
-    help = 'Remove "laboratory record received dd-mm-yyyy" from baseline notes (dry run unless --apply).'
+    help = 'Remove the receipt date and correction record from baseline notes (dry run unless --apply).'
 
     def add_arguments(self, p):
         p.add_argument('--apply', action='store_true')
