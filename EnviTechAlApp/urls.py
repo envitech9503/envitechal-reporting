@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import include, path,re_path
 from django.views.generic.base import RedirectView
 from EnviTechAlApp import settings, views
+from EnviTechAlApp.views import verify_api
 from django.conf.urls.static import static
 # from django.conf.urls import url, include
 from django.views.static import serve 
@@ -26,6 +27,7 @@ from django.views.static import serve
 handler500 = 'EnviTechAlApp.views.custom_500'
 
 urlpatterns = [
+    path("api/verify/", verify_api.verify_report, name="verify_report"),
     # Browsers request /favicon.ico directly for bookmarks and history.
     path('favicon.ico', RedirectView.as_view(
         url='/static/assets/favicon.ico', permanent=True), name='favicon'),

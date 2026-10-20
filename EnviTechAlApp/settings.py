@@ -247,3 +247,8 @@ OFFICE_ALLOWED_IPS = ['110.93.247.168', '124.29.208.36']
 # --- Costing module ---
 COSTING_CHEMICAL_MODEL = 'EnviTechAlApp.ChemicalItem'
 COSTING_CURRENCY = 'PKR'
+
+# Report verification endpoint (verify_api). Secret comes from the
+# gunicorn service environment; never hardcode it here.
+ETA_VERIFY_SECRET = os.environ.get("ETA_VERIFY_SECRET", "")
+ETA_VERIFY_DATE_FIELDS = ["reporting_date", "created_at"]
