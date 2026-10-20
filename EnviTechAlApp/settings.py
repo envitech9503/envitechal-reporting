@@ -66,6 +66,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'EnviTechAlApp.middleware.GlobalLoginRequiredMiddleware',
+    'EnviTechAlApp.office_ip.OfficeIPMiddleware',      # office networks only, CEO exempt (20-10-2026)
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
@@ -243,6 +244,9 @@ LOGIN_URL = '/login/'
 # are the two office egress IPs. The ex-developer's private 192.168.18.1
 # entry was removed (stale; only worked via a spoofable header).
 OFFICE_ALLOWED_IPS = ['110.93.247.168', '124.29.208.36']
+# Owner decision 20-10-2026: the office-network rule applies to every user, administrators included,
+# except these usernames (the CEO). See EnviTechAlApp/office_ip.py.
+OFFICE_IP_EXEMPT_USERS = ['ImranKazmi']
 
 # --- Costing module ---
 COSTING_CHEMICAL_MODEL = 'EnviTechAlApp.ChemicalItem'

@@ -66,18 +66,16 @@ def userlogin(request):
           password = request.POST['password']
 
           user = authenticate(request,username=userName,password=password)
-          from django.conf import settings as _dj_settings
-          allowed_ip = getattr(_dj_settings, 'OFFICE_ALLOWED_IPS', ['110.93.247.168', '124.29.208.36'])
-          
-          user_ip = get_client_ip(request)
+          from EnviTechAlApp.office_ip import is_exempt, office_ip, denied_response
 
-        # Check if the user is a superuser (admin) and allow access
-          if user is not None and user.is_superuser:
+          # 20-10-2026 (owner decision): only the CEO (settings.OFFICE_IP_EXEMPT_USERS) may sign in from
+          # outside the office networks; administrators are no longer exempt
+          if user is not None and is_exempt(user):
                login(request, user)
                return redirect('nav')
 
-          if user_ip not in allowed_ip:
-               return HttpResponseForbidden("Access denied. Your IP is not allowed.")
+          if not office_ip(request):
+               return denied_response()
 
           if user is not None:
                login(request, user)

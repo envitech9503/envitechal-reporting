@@ -133,3 +133,49 @@ class OfficeIPTests(TestCase):
         resp = self._login_post("8.8.8.8", xff="110.93.247.168")
         self.assertEqual(resp.status_code, 403)
         self.assertIn(b"Your IP is not allowed", resp.content)
+
+
+from django.test import override_settings
+
+
+@override_settings(OFFICE_ALLOWED_IPS=['110.93.247.168', '124.29.208.36'], OFFICE_IP_EXEMPT_USERS=['ImranKazmi'])
+class OfficeIPAllUsersTests(TestCase):
+    """20-10-2026: the office-network rule covers administrators too; only the CEO is exempt,
+    at sign-in and on every request (existing sessions, Django admin sign-in)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        U = get_user_model()
+        cls.ceo = U.objects.create_superuser('ImranKazmi', 'ceo@example.com', 'pw-ceo-123456')
+        cls.admin = U.objects.create_superuser('someadmin', 'a@example.com', 'pw-adm-123456')
+        cls.staff = U.objects.create_user('chemist1', 'c@example.com', 'pw-chem-123456')
+
+    def _login(self, user, pw, ip):
+        c = Client()
+        r = c.post('/login/', {'username': user, 'password': pw}, secure=True, HTTP_X_REAL_IP=ip)
+        return c, r
+
+    def test_ceo_from_anywhere(self):
+        c, r = self._login('ImranKazmi', 'pw-ceo-123456', '8.8.8.8')
+        self.assertEqual(r.status_code, 302)
+        self.assertNotEqual(c.get('/qc/control-charts/', secure=True, HTTP_X_REAL_IP='8.8.8.8').status_code, 403)
+
+    def test_admin_blocked_outside_office(self):
+        c, r = self._login('someadmin', 'pw-adm-123456', '8.8.8.8')
+        self.assertEqual(r.status_code, 403)
+
+    def test_admin_allowed_in_office(self):
+        c, r = self._login('someadmin', 'pw-adm-123456', '124.29.208.36')
+        self.assertEqual(r.status_code, 302)
+
+    def test_existing_session_outside_office_is_signed_out(self):
+        c = Client(); c.force_login(self.staff)
+        r = c.get('/qc/control-charts/', secure=True, HTTP_X_REAL_IP='8.8.8.8')
+        self.assertEqual(r.status_code, 403)
+        r2 = c.get('/qc/control-charts/', secure=True, HTTP_X_REAL_IP='110.93.247.168')
+        self.assertEqual(r2.status_code, 302)          # session ended: back to the login page
+
+    def test_forged_forwarded_for_ignored(self):
+        c = Client(); c.force_login(self.admin)
+        r = c.get('/qc/control-charts/', secure=True, HTTP_X_REAL_IP='8.8.8.8', HTTP_X_FORWARDED_FOR='110.93.247.168')
+        self.assertEqual(r.status_code, 403)
