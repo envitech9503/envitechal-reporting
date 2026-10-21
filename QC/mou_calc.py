@@ -92,7 +92,10 @@ def eval_expr(text):
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in _FUN and len(n.args) == 1 and not n.keywords:
             return _FUN[n.func.id](ev(n.args[0]))
         raise ValueError('not a number or expression: %r' % text)
-    v = ev(tree)
+    try:
+        v = ev(tree)
+    except (ZeroDivisionError, OverflowError):
+        raise ValueError('not a finite number: %r' % text)
     if isinstance(v, complex) or math.isnan(v) or math.isinf(v):
         raise ValueError('not a finite number: %r' % text)
     return float(v)
@@ -255,7 +258,9 @@ def fmt_sig(v, sig=4):
         return '0'
     try:
         d = sig - int(math.floor(math.log10(abs(v)))) - 1
-        d = max(0, min(d, 10))
+        if d > 10:
+            return ('%.' + str(sig) + 'g') % v
+        d = max(0, d)
         s = ('%.' + str(d) + 'f') % v
         if '.' in s:
             s = s.rstrip('0').rstrip('.')

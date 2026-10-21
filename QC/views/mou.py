@@ -198,7 +198,7 @@ def mou_detail(request, pk):
         'res': {'uc': _fmt(r['uc']), 'U': _fmt(r['U']), 'U_abs': _fmt(r['U_abs']), 'U_pct': _fmt(r['U_pct']),
                 'mean': _calc.fmt_fix(r['grand']['mean'], st.decimals) if r['grand']['mean'] is not None else '-', 'n': r['grand']['n']},
         'rep_cols': range(1, max([len(o['values']) for o in ops] + [10]) + 1),
-        'can_edit': _can_edit(user, st), 'can_submit': (st.status == 'draft' and not r['errors'] and (_can_edit(user, st) or user.is_authenticated)),
+        'can_edit': _can_edit(user, st), 'can_submit': (st.status == 'draft' and not r['errors'] and _can_edit(user, st)),
         'can_review': st.status == 'review' and _can_review(user, st), 'can_approve': st.status == 'reviewed' and _can_approve(user, st),
         'can_return': st.status in ('review', 'reviewed') and _can_manage(user, st.location),
         'can_unapprove': st.status == 'approved' and _is_admin(user), 'can_delete': _can_manage(user, st.location),
@@ -233,9 +233,10 @@ def _parse_study_form(request, st, errors):
     st.remarks = (P.get('remarks') or '').strip()[:4000]
     # operators
     ops = []
-    for i in range(_MAX_OPS):
-        if P.get('op%d_present' % i) is None:
-            continue
+    op_idx = sorted({int(m.group(1)) for k in P for m in [_re.match(r'^op(\d+)_present$', k)] if m})
+    if len(op_idx) > _MAX_OPS:
+        errors.append('At most %d operators.' % _MAX_OPS)
+    for i in op_idx[:_MAX_OPS]:
         vals = []
         for j in range(_MAX_REPS):
             t = (P.get('op%d_v%d' % (i, j)) or '').strip()
@@ -251,7 +252,10 @@ def _parse_study_form(request, st, errors):
                     'analyst': (P.get('op%d_analyst' % i) or '').strip()[:80], 'date': d, 'values': vals})
     # components
     comps = []
-    for i in range(60):
+    c_idx = sorted({int(m.group(1)) for k in P for m in [_re.match(r'^c(\d+)_kind$', k)] if m})
+    if len(c_idx) > 60:
+        errors.append('At most 60 budget rows.')
+    for i in c_idx[:60]:
         kind = P.get('c%d_kind' % i)
         if kind not in ('a_rep', 'a_repro', 'b'):
             continue
@@ -262,7 +266,7 @@ def _parse_study_form(request, st, errors):
             errors.append('Type B row %d has no source name.' % (i + 1))
         src = None
         if (P.get('c%d_source' % i) or '').isdigit():
-            src = MouSource.objects.filter(pk=int(P['c%d_source' % i])).first()
+            src = MouSource.objects.filter(pk=int(P['c%d_source' % i]), location=st.location).first()
         comps.append({'order': i, 'kind': kind, 'source': src, 'name': name or dict(MouComponent.KINDS)[kind],
                       'unit': (P.get('c%d_unit' % i) or '').strip()[:20], 'range_value': _num(P.get('c%d_range' % i)) if kind == 'b' else None,
                       'magnitude': (P.get('c%d_magnitude' % i) or '').strip()[:60] if kind == 'b' else '',
@@ -312,23 +316,29 @@ def mou_edit(request, pk=None):
         new = st is None
         obj = st or MouStudy(created_by=user, location=_loc_of(request))
         ops, comps = _parse_study_form(request, obj, errors)
+        office = _user_office(user)
+        if office and obj.location != office and not _can_manage(user, obj.location):
+            errors.append('Studies of the %s laboratory are entered by its own staff; your profile is %s.' % (obj.location, office))
         from django.utils.html import escape as _esc
         errors[:] = [_esc(e) for e in errors]          # the template renders this list unescaped (one message carries a link)
         if obj.range_value and obj.range_value > 0:
             allv = [v for o in ops for v in o['values']]
             if allv and sum(allv) / len(allv) > obj.range_value:
                 errors.append('The range (x) must be at least the measured mean (%.4g): enter the method / calibration range, not the level.' % (sum(allv) / len(allv)))
-        if not errors and new:
-            # one open version per parameter / level / sample kind; a new study of an existing key is its next version
+        if not errors:
+            # one open version per parameter / level / sample kind (new studies and key changes on edit);
+            # a new study of an existing key is its next version and supersedes the approved one
             same = MouStudy.objects.filter(_key_q(obj))
+            if not new:
+                same = same.exclude(pk=obj.pk)
             open_v = same.filter(status__in=('draft', 'review', 'reviewed')).first()
             if open_v:
                 errors.append('%s (%s) already has an open version %d (%s) - <a href="/qc/mou/%d/">open it</a> instead of starting another.' % (
                     _esc(obj.title), obj.sample_kind, open_v.version, open_v.get_status_display().lower(), open_v.pk))
             else:
                 top = same.order_by('-version').first()
-                if top:
-                    obj.version = top.version + 1
+                if new or (top and top.version >= obj.version):
+                    obj.version = (top.version + 1) if top else 1
                     obj.supersedes = same.filter(status='approved').order_by('-version').first()
         if not errors:
             obj.save()
@@ -433,6 +443,8 @@ def mou_action(request, pk):
     if act == 'submit':
         if st.status != 'draft':
             _msg.error(request, 'Only a draft can be submitted.')
+        elif not _can_edit(user, st):
+            return HttpResponse('Only the laboratory\'s own staff may submit this study for review.', status=403)
         elif r['errors']:
             _msg.error(request, 'The study cannot be submitted until the calculation notes are resolved: ' + ' '.join(r['errors']))
         else:
@@ -465,7 +477,7 @@ def mou_action(request, pk):
         st.save()
         _msg.success(request, 'Returned to draft; the reason is recorded in the remarks.')
     elif act == 'unapprove':
-        if st.status != 'approved' or not _is_admin(user):
+        if st.status != 'approved' or not _can_approve(user, st):
             return HttpResponse('Only the CEO / administrator can unapprove a study.', status=403)
         why = (request.POST.get('reason') or '').strip()
         if len(why) < 5:
@@ -490,6 +502,10 @@ def mou_repeat(request, pk):
     user = request.user
     if not user.is_authenticated:
         return _redirect('/login/')
+    labs, office = _user_labs(user), _user_office(user)
+    allowed = _can_manage(user, old.location) or (labs and old.location in labs) or (not labs and (not office or office == old.location))
+    if not allowed:
+        return HttpResponse(_DENIED % old.location, status=403)
     open_v = MouStudy.objects.filter(_key_q(old)).filter(status__in=('draft', 'review', 'reviewed')).first()
     if open_v:
         _msg.warning(request, 'Version %d of this study is already open (%s).' % (open_v.version, open_v.get_status_display().lower()))
@@ -498,7 +514,8 @@ def mou_repeat(request, pk):
     st = MouStudy(location=old.location, parameter=old.parameter, level=old.level, unit=old.unit, sample_kind=old.sample_kind, sample_ref=old.sample_ref,
                   method=old.method, instrument=old.instrument, equipment_id=old.equipment_id, range_value=old.range_value, env_temp=None,
                   study_date=_date.today(), k=old.k, decimals=old.decimals, version=(top.version if top else old.version) + 1,
-                  supersedes=old, created_by=user, remarks='Repeat of v%d.' % old.version)
+                  supersedes=(MouStudy.objects.filter(_key_q(old)).filter(status='approved').order_by('-version').first() or old),
+                  created_by=user, remarks='Repeat of v%d.' % old.version)
     st.save()
     for o in old.operators.all():
         MouOperator.objects.create(study=st, order=o.order, label=o.label, analyst='', date=None, values=[])
@@ -561,14 +578,14 @@ def mou_library(request):
     loc = _loc_of(request)
     user = request.user
     can = _can_manage(user, loc)
-    edit = MouSource.objects.filter(pk=int(request.GET['edit'])).first() if (request.GET.get('edit') or '').isdigit() else None
+    edit = MouSource.objects.filter(pk=int(request.GET['edit']), location=loc).first() if (request.GET.get('edit') or '').isdigit() else None
     if request.method == 'POST':
         if not can:
             return HttpResponse(_DENIED % loc, status=403)
         P = request.POST
         act = P.get('action')
         if act in ('deactivate', 'activate'):
-            s = get_object_or_404(MouSource, pk=int(P.get('id') or 0), location=loc)
+            s = get_object_or_404(MouSource, pk=int(P.get('id') or 0) if (P.get('id') or '').isdigit() else 0, location=loc)
             s.active = act == 'activate'
             s.save(update_fields=['active', 'updated_at'])
             _msg.success(request, '%s %s.' % (s.name, 'reactivated' if s.active else 'deactivated (kept for the studies that use it)'))
@@ -654,7 +671,9 @@ def mou_pdf(request, pk):
     legacy = _legacy_panel(st, r)
     ctrl = _mou_docctrl(st.location)
     office = _CC_OFFICE.get(st.location, _CC_OFFICE['Karachi'])
-    _LOGO, _CAL, _CALB = 'static/assets/EnviTechAL LOGO.png', 'static/fonts/calibri.ttf', 'static/fonts/calibrib.ttf'
+    from django.conf import settings as _settings
+    _base = str(getattr(_settings, 'BASE_DIR', '') or '')
+    _LOGO, _CAL, _CALB = [_os.path.join(_base, p_) if _base else p_ for p_ in ('static/assets/EnviTechAL LOGO.png', 'static/fonts/calibri.ttf', 'static/fonts/calibrib.ttf')]
     GREEN, GREY_FILL, LINE = (15, 81, 50), (242, 245, 243), (120, 120, 120)
     wm = {'approved': '', 'superseded': 'SUPERSEDED'}.get(st.status, 'NOT APPROVED')
     sub = '%s LABORATORY  -  %s  -  %s  -  v%d' % (st.location.upper(), st.parameter.upper(), (st.level or '').upper(), st.version)
@@ -800,7 +819,7 @@ def mou_pdf(request, pk):
         pdf.cell(cols[0][1], RH, name, 1, 0, 'L', fill=True)
         pdf.set_font(f, '', 6.8)
         vals = [c['unit'], c['range'], c['magnitude'] + (('  = ' + c['magnitude_val']) if (c['kind'] == 'b' and not _re.match(r'^[\d.]+$', c['magnitude'] or '')) else ''),
-                c['rel'], '%s (%s)' % (c['dist'], c['divisor']), c['ci'], c['u']]
+                c['rel'], '%s (%s)' % (c['dist'], c['divisor'] if f == 'Calibri' else c['divisor'].replace('\u221a', 'sqrt')), c['ci'], c['u']]
         for (lbl, w), v in zip(cols[1:], vals):
             t = str(v)
             while pdf.get_string_width(t) > w - 1.5 and len(t) > 3:

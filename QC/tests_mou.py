@@ -222,3 +222,101 @@ class ModuleTests(TestCase):
                   '/qc/mou/deleted/', '/qc/mou/manual/', '/qc/mou/api/lookup/', '/qc/qc_main/'):
             self.assertEqual(c.get(u).status_code, 200, u)
         self.assertContains(c.get('/qc/qc_main/'), 'Measurement of Uncertainty')
+
+
+class StrictQATests(TestCase):
+    """Regression tests for the strict QA of 22-10-2026 (findings of the fresh-eyes review)."""
+    @classmethod
+    def setUpTestData(cls):
+        cls.chem = User.objects.create_user('q_chem', password='x')
+        cls.other = User.objects.create_user('q_other', password='x')
+        cls.mgr = User.objects.create_user('q_mgr', password='x')
+        cls.lmgr = User.objects.create_superuser('q_lmgr', 'l@b.c', 'x')      # superuser assigned to Lahore
+        cls.adm = User.objects.create_superuser('q_adm', 'a@b.c', 'x')
+        ControlChartReviewer.objects.create(user=cls.mgr, location='Karachi')
+        ControlChartReviewer.objects.create(user=cls.lmgr, location='Lahore')
+        from EnviTechAlApp.models import Signatures
+        Signatures.objects.create(user=cls.other, office='Lahore')
+        cls.src_l = MouSource.objects.create(location='Lahore', category='glassware', name='Lahore flask', unit='ml', range_value=100, magnitude='0.1', dist='tri')
+
+    def c(self, u):
+        c = Client(); c.force_login(u); return c
+
+    def form(self, **over):
+        f = {'location': 'Karachi', 'parameter': 'COD', 'level': '500 ppm', 'unit': 'mg/L', 'sample_kind': 'WS', 'range_value': '1500', 'k': '2', 'decimals': '3',
+             'c0_kind': 'a_rep', 'c0_name': 'rep', 'c1_kind': 'a_repro', 'c1_name': 'repro',
+             'c2_kind': 'b', 'c2_name': 'flask', 'c2_unit': 'ml', 'c2_range': '100', 'c2_magnitude': '0.1', 'c2_dist': 'tri', 'c2_ci': '1', 'c2_included': '1'}
+        for i in range(2):
+            f['op%d_present' % i] = '1'; f['op%d_label' % i] = 'AB'[i]
+            for j, v in enumerate([502, 503, 501, 499, 499, 503, 501, 499, 502, 502]):
+                f['op%d_v%d' % (i, j)] = str(v + i)
+        f.update(over)
+        return f
+
+    def test_eval_expr_division_and_overflow(self):
+        for bad in ('1/0', '0/0', '2.0**10000'):
+            with self.assertRaises(ValueError):
+                M.eval_expr(bad)
+        d = self.c(self.chem).post('/qc/mou/api/calc/', self.form(c2_magnitude='1/0')).json()
+        self.assertTrue(any('Magnitude' in e for e in d['errors']))
+        self.assertEqual(M.fmt_sig(3.2e-12), '3.2e-12')
+
+    def test_submit_requires_lab_membership(self):
+        chem, other = self.c(self.chem), self.c(self.other)
+        chem.post('/qc/mou/new/', self.form()); st = MouStudy.objects.get()
+        self.assertEqual(other.post('/qc/mou/%d/action/' % st.pk, {'action': 'submit'}).status_code, 403)
+        self.assertNotContains(other.get('/qc/mou/%d/' % st.pk), 'Submit for review')
+        chem.post('/qc/mou/%d/action/' % st.pk, {'action': 'submit'}); st.refresh_from_db(); self.assertEqual(st.status, 'review')
+
+    def test_new_study_location_follows_profile(self):
+        r = self.c(self.other).post('/qc/mou/new/', self.form())          # Lahore profile, Karachi study
+        self.assertContains(r, 'entered by its own staff'); self.assertEqual(MouStudy.objects.count(), 0)
+        self.assertEqual(self.c(self.other).post('/qc/mou/new/', self.form(location='Lahore')).status_code, 302)
+
+    def test_edit_cannot_collide_with_open_version(self):
+        chem = self.c(self.chem)
+        chem.post('/qc/mou/new/', self.form()); a = MouStudy.objects.get(level='500 ppm')
+        chem.post('/qc/mou/new/', self.form(level='600 ppm')); b = MouStudy.objects.get(level='600 ppm')
+        r = chem.post('/qc/mou/%d/edit/' % b.pk, self.form(level='500 ppm'))
+        self.assertContains(r, 'already has an open version'); b.refresh_from_db(); self.assertEqual(b.level, '600 ppm')
+        # key changed on edit to a key with an approved version -> becomes its next version
+        for cl, act in ((chem, 'submit'), (self.c(self.mgr), 'review'), (self.c(self.adm), 'approve')):
+            cl.post('/qc/mou/%d/action/' % a.pk, {'action': act})
+        chem.post('/qc/mou/%d/edit/' % b.pk, self.form(level='500 ppm')); b.refresh_from_db()
+        self.assertEqual((b.level, b.version, b.supersedes_id), ('500 ppm', 2, a.pk))
+
+    def test_high_operator_indices_are_kept(self):
+        f = self.form()
+        for j in range(10):
+            f['op7_v%d' % j] = '505'
+        f['op7_present'] = '1'; f['op7_label'] = 'C'
+        d = self.c(self.chem).post('/qc/mou/api/calc/', f).json()
+        self.assertEqual([o['label'] for o in d['operators']], ['A', 'B', 'C'])
+        f['c61_kind'] = 'b'; f['c61_name'] = 'late row'; f['c61_range'] = '10'; f['c61_magnitude'] = '1'; f['c61_dist'] = 'rect'; f['c61_included'] = '1'
+        d = self.c(self.chem).post('/qc/mou/api/calc/', f).json()
+        self.assertEqual(len(d['components']), 4)
+
+    def test_unapprove_and_repeat_lab_scoped(self):
+        chem, mgr, adm, lmgr = self.c(self.chem), self.c(self.mgr), self.c(self.adm), self.c(self.lmgr)
+        chem.post('/qc/mou/new/', self.form()); st = MouStudy.objects.get()
+        for cl, act in ((chem, 'submit'), (mgr, 'review'), (adm, 'approve')):
+            cl.post('/qc/mou/%d/action/' % st.pk, {'action': act})
+        self.assertEqual(lmgr.post('/qc/mou/%d/action/' % st.pk, {'action': 'unapprove', 'reason': 'lahore tries'}).status_code, 403)
+        self.assertEqual(self.c(self.other).post('/qc/mou/%d/repeat/' % st.pk).status_code, 403)
+        self.assertEqual(chem.post('/qc/mou/%d/repeat/' % st.pk).status_code, 302)
+
+    def test_library_cross_lab_and_bad_ids(self):
+        mgr = self.c(self.mgr)
+        self.assertNotContains(mgr.get('/qc/mou/library/?location=Karachi&edit=%d' % self.src_l.pk), 'Lahore flask')
+        self.assertEqual(mgr.post('/qc/mou/library/?location=Karachi', {'action': 'deactivate', 'id': 'abc'}).status_code, 404)
+        chem = self.c(self.chem)
+        chem.post('/qc/mou/new/', self.form(c2_source=str(self.src_l.pk)))
+        self.assertIsNone(MouStudy.objects.get().components.get(order=2).source_id)
+
+    def test_approve_confirm_escaped(self):
+        chem = self.c(self.chem)
+        chem.post('/qc/mou/new/', self.form(parameter="COD');alert(1);//"))
+        st = MouStudy.objects.get()
+        chem.post('/qc/mou/%d/action/' % st.pk, {'action': 'submit'}); self.c(self.mgr).post('/qc/mou/%d/action/' % st.pk, {'action': 'review'})
+        r = self.c(self.adm).get('/qc/mou/%d/' % st.pk)
+        self.assertNotContains(r, "COD');alert"); self.assertContains(r, "\\u0027)\\u003Balert")
