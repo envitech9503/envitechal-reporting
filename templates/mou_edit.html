@@ -1,0 +1,187 @@
+{% extends "_mou_base.html" %}
+{% block cc_title %}{% if st %}Edit{% else %}New{% endif %} uncertainty study{% endblock %}
+{% block crumb %} &rsaquo; <span>{% if st %}Edit {{ st.title }} v{{ st.version }}{% else %}New study{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<form method="post" id="mouForm" data-autosave="mou:{% if st %}{{ st.id }}{% else %}new{% endif %}" autocomplete="off">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-pen"></i> {% if st %}Edit study - {{ st.title }} v{{ st.version }}{% else %}New uncertainty study{% endif %}</div>
+    <div style="display:flex;gap:8px"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+    <a class="btn" href="{% if st %}{% url 'mou_detail' st.id %}{% else %}{% url 'mou_list' %}{% endif %}"><i class="fa-solid fa-arrow-left"></i> Back</a></div></div>
+  {% if errors %}<div class="msg error"><b>Please correct the following:</b><ul style="margin:6px 0 0 18px">{% for e in errors %}<li>{{ e|safe }}</li>{% endfor %}</ul></div>{% endif %}
+  <div class="frm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 18px">
+    <label>Laboratory <select name="location">{% for l in locs %}<option value="{{ l }}" {% if f.location == l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <label>Parameter * <input name="parameter" value="{{ f.parameter }}" required placeholder="e.g. COD, Cadmium (Cd), pH"></label>
+    <label>Level / nominal <input name="level" value="{{ f.level }}" placeholder="e.g. 500 ppm, 10.014"></label>
+    <label>Unit of measurand <input name="unit" id="mUnit" value="{{ f.unit }}" placeholder="mg/L"></label>
+    <label>Sample kind <select name="sample_kind">{% for k, v in kinds %}<option value="{{ k }}" {% if f.sample_kind == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+    <label style="grid-column:span 2">Sample reference <span class="muted">(CRM product / lot, or working-standard ID)</span><input name="sample_ref" value="{{ f.sample_ref }}" maxlength="200"></label>
+    <label>Method <input name="method" value="{{ f.method }}" placeholder="e.g. APHA 5220 D"></label>
+    <label>Equipment <input name="instrument" value="{{ f.instrument }}" placeholder="e.g. UV-Visible spectrophotometer"></label>
+    <label>Equipment ID <input name="equipment_id" value="{{ f.equipment_id }}"></label>
+    <label>Range (x) * <span class="muted">(method / calibration range the budget is expressed against - must be &ge; the measured mean)</span><input name="range_value" id="mRange" value="{{ f.range_value }}" required inputmode="decimal" placeholder="e.g. 900"></label>
+    <label>Environmental temperature &deg;C <input name="env_temp" value="{{ f.env_temp }}" inputmode="decimal"></label>
+    <label>Study date <input name="study_date" value="{{ f.study_date }}" placeholder="dd-mm-yyyy"></label>
+    <label>Coverage factor k <input name="k" value="{{ f.k }}" inputmode="decimal"></label>
+    <label>Decimals shown <input type="number" name="decimals" min="0" max="6" value="{{ f.decimals }}"></label>
+    <label style="grid-column:1/-1">Remarks <textarea name="remarks" rows="2">{{ f.remarks }}</textarea></label>
+  </div>
+</div>
+
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-table"></i> Repeatability data - operators &times; replicates</div>
+    <div style="display:flex;gap:8px"><button class="btn" type="button" onclick="addOperator()"><i class="fa-solid fa-user-plus"></i> Add operator</button>
+      <button class="btn" type="button" onclick="addReplicateCol()"><i class="fa-solid fa-table-columns"></i> Add replicate column</button></div></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">Enter each operator's replicates (10 per operator on the form; up to {{ rep_cols|length }}). Leave a cell blank when not measured - a blank is never counted as zero. Operator A's SD gives the repeatability; all operators with data give the reproducibility. Mean and SD are calculated as you type.</div>
+  <table class="grid" id="opTable">
+    <thead><tr><th style="width:60px">Op.</th><th style="width:150px">Analyst</th><th style="width:110px">Date</th>{% for j in rep_cols %}<th class="num repcol{% if j >= 10 %} extra{% endif %}" data-j="{{ j }}">x{{ j|add:1 }}</th>{% endfor %}<th class="num">n</th><th class="num">Mean</th><th class="num">SD</th><th></th></tr></thead>
+    <tbody>
+    {% for o in f.operators %}
+      <tr class="oprow" data-i="{{ o.order }}">
+        <td><input type="hidden" name="op{{ o.order }}_present" value="1"><input name="op{{ o.order }}_label" value="{{ o.label }}" style="width:44px;text-align:center;font-weight:700"></td>
+        <td><input name="op{{ o.order }}_analyst" value="{{ o.analyst }}" placeholder="name"></td>
+        <td><input name="op{{ o.order }}_date" value="{{ o.date }}" placeholder="dd-mm-yyyy"></td>
+        {% for j in rep_cols %}<td class="repcol{% if j >= 10 %} extra{% endif %}" data-j="{{ j }}"><input class="rep" name="op{{ o.order }}_v{{ j }}" inputmode="decimal" value="{% for v in o.values %}{% if forloop.counter0 == j %}{{ v }}{% endif %}{% endfor %}"></td>{% endfor %}
+        <td class="num calc" data-c="n">-</td><td class="num calc" data-c="mean">-</td><td class="num calc" data-c="sd">-</td>
+        <td><button class="btn" type="button" title="remove operator" onclick="removeOperator(this)"><i class="fa-solid fa-xmark"></i></button></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr><td colspan="3" class="muted">Grand mean (all replicates)</td><td class="repcol" colspan="{{ rep_cols|length }}" id="grandCell"></td><td class="num calc" id="gN">-</td><td class="num calc" id="gMean" style="font-weight:700">-</td><td></td><td></td></tr></tfoot>
+  </table>
+</div>
+
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-list-ol"></i> Uncertainty budget (relative)</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="libPick" style="min-width:300px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px;font-family:inherit"><option value="">- add a Type B source from the library -</option></select>
+      <button class="btn btn-p" type="button" onclick="addFromLibrary()"><i class="fa-solid fa-plus"></i> Add</button>
+      <button class="btn" type="button" onclick="addComponent(null)"><i class="fa-solid fa-pen"></i> Custom row</button>
+      {% if can_manage %}<a class="btn" href="{% url 'mou_library' %}?location={{ f.location }}" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> Library</a>{% endif %}
+    </div></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">Type A rows are calculated from the replicates. Type B rows: pick the source from the laboratory's library (its range, magnitude, distribution and certificate are copied into this study) or add a custom row. Magnitude accepts an expression such as <code>0.08/2</code> (an expanded certificate value halved). Divisors: Normal (k=1) 1, Normal (k=2) 2, Rectangular &radic;3, Triangular &radic;6.</div>
+  <table class="grid" id="compTable">
+    <thead><tr><th style="width:26px"></th><th>Source of uncertainty</th><th style="width:70px">Unit</th><th style="width:90px">Range (x)</th><th style="width:110px">Magnitude (a)</th><th class="num" style="width:90px">a / x</th><th style="width:150px">Distribution</th><th style="width:56px">ci</th><th class="num" style="width:100px">u (relative)</th><th style="width:150px">Note</th><th style="width:34px"></th></tr></thead>
+    <tbody>
+    {% for c in f.components %}
+      <tr class="crow" data-i="{{ c.order }}" data-kind="{{ c.kind }}">
+        <td><input type="hidden" name="c{{ c.order }}_kind" value="{{ c.kind }}"><input type="hidden" name="c{{ c.order }}_source" value="{{ c.source }}">{% if c.kind == 'b' %}<input type="checkbox" name="c{{ c.order }}_included" value="1" {% if c.included %}checked{% endif %} title="include in the combined uncertainty">{% else %}<i class="fa-solid fa-calculator muted" title="calculated from the replicates"></i>{% endif %}</td>
+        <td>{% if c.kind == 'b' %}<input name="c{{ c.order }}_name" value="{{ c.name }}" placeholder="source">{% else %}<b>{{ c.name }}</b><input type="hidden" name="c{{ c.order }}_name" value="{{ c.name }}">{% endif %}</td>
+        <td>{% if c.kind == 'b' %}<input name="c{{ c.order }}_unit" value="{{ c.unit }}">{% else %}<span class="muted unitEcho">{{ c.unit }}</span><input type="hidden" name="c{{ c.order }}_unit" value="{{ c.unit }}">{% endif %}</td>
+        <td>{% if c.kind == 'b' %}<input name="c{{ c.order }}_range" value="{{ c.range_value }}" inputmode="decimal">{% else %}<span class="muted rangeEcho"></span>{% endif %}</td>
+        <td>{% if c.kind == 'b' %}<input name="c{{ c.order }}_magnitude" value="{{ c.magnitude }}" placeholder="e.g. 0.08/2">{% else %}<span class="calc" data-c="magnitude">-</span>{% endif %}</td>
+        <td class="num calc" data-c="rel">-</td>
+        <td>{% if c.kind == 'b' %}<select name="c{{ c.order }}_dist">{% for k, lbl, d in dists %}<option value="{{ k }}" {% if c.dist == k %}selected{% endif %}>{{ lbl }}</option>{% endfor %}</select>{% else %}<span class="muted">Normal / <span class="calc" data-c="divisor">-</span></span>{% endif %}</td>
+        <td><input name="c{{ c.order }}_ci" value="{{ c.ci }}" inputmode="decimal"></td>
+        <td class="num calc" data-c="u" style="font-weight:700">-</td>
+        <td><input name="c{{ c.order }}_note" value="{{ c.note }}" maxlength="300"><span class="muted calc" data-c="note"></span></td>
+        <td>{% if c.kind == 'b' %}<button class="btn" type="button" title="remove row" onclick="removeComponent(this)"><i class="fa-solid fa-xmark"></i></button>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="stat">
+    <div class="box"><b>Combined relative uc</b><span id="rUc">-</span></div>
+    <div class="box"><b>Expanded relative U</b><span id="rU">-</span></div>
+    <div class="box"><b>Expanded U, absolute</b><span id="rUabs">-</span> <small id="rUnit"></small></div>
+    <div class="box"><b>Expanded U, percent</b><span id="rUpct">-</span></div>
+  </div>
+  <div id="calcMsg" class="msg" style="display:none"></div>
+  <div class="frm"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save study</button><span class="muted">Saving keeps the study as a draft; submit it for review from the study page.</span></div>
+</div>
+</form>
+{{ library|json_script:"mou-lib" }}
+<script>
+var LIB = JSON.parse(document.getElementById('mou-lib').textContent);
+var MAXOPS = {{ max_ops }}, NREP = {{ rep_cols|length }};
+var DISTS = [{% for k, lbl, d in dists %}['{{ k }}', '{{ lbl }}']{% if not forloop.last %},{% endif %}{% endfor %}];
+(function fillLib(){
+  var sel = document.getElementById('libPick'), cats = {};
+  LIB.forEach(function(s){ (cats[s.category] = cats[s.category] || []).push(s); });
+  Object.keys(cats).sort().forEach(function(c){
+    var g = document.createElement('optgroup'); g.label = c;
+    cats[c].forEach(function(s){ var o = document.createElement('option'); o.value = s.id;
+      o.textContent = s.name + '  [' + s.magnitude + ' ' + s.unit + ' / x ' + s.range + ', ' + s.dist + ']' + (s.validity === 'expired' ? '  (calibration expired)' : ''); g.appendChild(o); });
+    sel.appendChild(g);
+  });
+})();
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function nextIndex(cls){ var m = -1; document.querySelectorAll('tr.' + cls).forEach(function(r){ m = Math.max(m, +r.getAttribute('data-i')); }); return m + 1; }
+function addOperator(){
+  var rows = document.querySelectorAll('tr.oprow'); if (rows.length >= MAXOPS) { alert('At most ' + MAXOPS + ' operators.'); return; }
+  var i = nextIndex('oprow'), label = String.fromCharCode(65 + rows.length);
+  var cells = '';
+  for (var j = 0; j < NREP; j++) cells += '<td class="repcol' + (j >= 10 ? ' extra' : '') + '" data-j="' + j + '"><input class="rep" name="op' + i + '_v' + j + '" inputmode="decimal"></td>';
+  var tr = document.createElement('tr'); tr.className = 'oprow'; tr.setAttribute('data-i', i);
+  tr.innerHTML = '<td><input type="hidden" name="op' + i + '_present" value="1"><input name="op' + i + '_label" value="' + label + '" style="width:44px;text-align:center;font-weight:700"></td>' +
+    '<td><input name="op' + i + '_analyst" placeholder="name"></td><td><input name="op' + i + '_date" placeholder="dd-mm-yyyy"></td>' + cells +
+    '<td class="num calc" data-c="n">-</td><td class="num calc" data-c="mean">-</td><td class="num calc" data-c="sd">-</td>' +
+    '<td><button class="btn" type="button" title="remove operator" onclick="removeOperator(this)"><i class="fa-solid fa-xmark"></i></button></td>';
+  document.querySelector('#opTable tbody').appendChild(tr); applyExtraCols(); recalc();
+}
+function removeOperator(btn){ var rows = document.querySelectorAll('tr.oprow'); if (rows.length <= 1) return; if (!confirm('Remove this operator and its replicates?')) return; btn.closest('tr').remove(); recalc(); }
+var extraShown = false;
+function applyExtraCols(){
+  var any = false;
+  document.querySelectorAll('td.extra input').forEach(function(e){ if (e.value.trim()) any = true; });
+  var show = extraShown || any;
+  document.querySelectorAll('.extra').forEach(function(e){ e.style.display = show ? '' : 'none'; });
+}
+function addReplicateCol(){ extraShown = true; applyExtraCols(); }
+function addComponent(src){
+  var i = nextIndex('crow');
+  var opts = DISTS.map(function(d){ return '<option value="' + d[0] + '"' + (src && src.dist === d[0] ? ' selected' : '') + '>' + d[1] + '</option>'; }).join('');
+  var tr = document.createElement('tr'); tr.className = 'crow'; tr.setAttribute('data-i', i); tr.setAttribute('data-kind', 'b');
+  tr.innerHTML = '<td><input type="hidden" name="c' + i + '_kind" value="b"><input type="hidden" name="c' + i + '_source" value="' + (src ? src.id : '') + '"><input type="checkbox" name="c' + i + '_included" value="1" checked title="include in the combined uncertainty"></td>' +
+    '<td><input name="c' + i + '_name" value="' + esc(src ? src.name : '') + '" placeholder="source"></td>' +
+    '<td><input name="c' + i + '_unit" value="' + esc(src ? src.unit : '') + '"></td>' +
+    '<td><input name="c' + i + '_range" value="' + esc(src ? src.range : '') + '" inputmode="decimal"></td>' +
+    '<td><input name="c' + i + '_magnitude" value="' + esc(src ? src.magnitude : '') + '" placeholder="e.g. 0.08/2"></td>' +
+    '<td class="num calc" data-c="rel">-</td><td><select name="c' + i + '_dist">' + opts + '</select></td>' +
+    '<td><input name="c' + i + '_ci" value="' + (src ? src.ci : 1) + '" inputmode="decimal"></td>' +
+    '<td class="num calc" data-c="u" style="font-weight:700">-</td>' +
+    '<td><input name="c' + i + '_note" value="' + esc(src && src.reference ? ('cert. ' + src.reference) : '') + '" maxlength="300"><span class="muted calc" data-c="note"></span></td>' +
+    '<td><button class="btn" type="button" title="remove row" onclick="removeComponent(this)"><i class="fa-solid fa-xmark"></i></button></td>';
+  document.querySelector('#compTable tbody').appendChild(tr); recalc();
+}
+function addFromLibrary(){
+  var id = +document.getElementById('libPick').value; if (!id) return;
+  var src = LIB.filter(function(s){ return s.id === id; })[0]; if (!src) return;
+  addComponent(src); document.getElementById('libPick').value = '';
+}
+function removeComponent(btn){ btn.closest('tr').remove(); recalc(); }
+
+// ---- live calculation: the server computes (QC/mou_calc.py); the page only displays
+var calcTimer = null, calcSeq = 0;
+function recalc(){ clearTimeout(calcTimer); calcTimer = setTimeout(doCalc, 350); }
+function doCalc(){
+  var form = document.getElementById('mouForm'), seq = ++calcSeq;
+  var fd = new FormData(form);
+  fetch('{% url "mou_api_calc" %}', {method: 'POST', body: fd, credentials: 'same-origin', headers: {'X-Requested-With': 'XMLHttpRequest'}})
+    .then(function(r){ return r.json(); }).then(function(d){ if (seq !== calcSeq) return; show(d); })
+    .catch(function(){ var m = document.getElementById('calcMsg'); m.style.display = ''; m.className = 'msg warning'; m.textContent = 'Live calculation unavailable (connection); the figures are calculated when you save.'; });
+}
+function show(d){
+  var ops = document.querySelectorAll('tr.oprow');
+  ops.forEach(function(tr, i){ var o = d.operators[i] || {n: 0, mean: '-', sd: '-'};
+    tr.querySelector('[data-c=n]').textContent = o.n; tr.querySelector('[data-c=mean]').textContent = o.mean; tr.querySelector('[data-c=sd]').textContent = o.sd; });
+  document.getElementById('gN').textContent = d.grand.n; document.getElementById('gMean').textContent = d.grand.mean;
+  var rows = document.querySelectorAll('tr.crow'), byOrder = {};
+  d.components.forEach(function(c){ byOrder[c.order] = c; });
+  rows.forEach(function(tr){ var c = byOrder[+tr.getAttribute('data-i')]; if (!c) return;
+    ['magnitude', 'rel', 'divisor', 'u', 'note'].forEach(function(k){ var el = tr.querySelector('[data-c=' + k + ']'); if (el) el.textContent = c[k] == null ? '' : c[k]; });
+    tr.style.color = c.included ? '' : '#94a3b8'; });
+  var unit = document.getElementById('mUnit').value;
+  document.querySelectorAll('.unitEcho').forEach(function(e){ e.textContent = unit; });
+  document.querySelectorAll('.rangeEcho').forEach(function(e){ e.textContent = document.getElementById('mRange').value; });
+  document.getElementById('rUc').textContent = d.uc; document.getElementById('rU').textContent = d.U;
+  document.getElementById('rUabs').textContent = '± ' + d.U_abs; document.getElementById('rUnit').textContent = unit; document.getElementById('rUpct').textContent = '± ' + d.U_pct + ' %';
+  var m = document.getElementById('calcMsg'), txt = [];
+  if (d.errors.length) txt.push('<b>Calculation incomplete:</b> ' + d.errors.map(esc).join(' '));
+  if (d.warnings.length) txt.push(d.warnings.map(esc).join(' '));
+  m.style.display = txt.length ? '' : 'none'; m.className = 'msg ' + (d.errors.length ? 'error' : 'warning'); m.innerHTML = txt.join('<br>');
+}
+document.getElementById('mouForm').addEventListener('input', recalc);
+document.getElementById('mouForm').addEventListener('change', recalc);
+applyExtraCols(); doCalc(); setTimeout(doCalc, 900);   // second pass after a restored browser draft
+</script>
+{% endblock %}

@@ -120,6 +120,21 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'control_chart_reviewers' %}">Laboratory Reviewers (admin)</a>
       <a href="{% url 'control_chart_doccontrol' %}">Document Control (admin)</a>{% endif %}
     </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcMOU" aria-expanded="false">
+      <i class="fa-solid fa-plus-minus"></i>Measurement of Uncertainty<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcMOU">
+      <a href="{% url 'mou_list' %}?show=current">Register (current U)</a>
+      <a href="{% url 'mou_list' %}?show=open">Open Studies (draft / review)</a>
+      <a href="{% url 'mou_list' %}?show=all">All Studies &amp; Versions</a>
+      <a href="{% url 'mou_new' %}">New Study</a>
+      <a href="{% url 'mou_library' %}">Uncertainty Sources (library)</a>
+      <a href="{% url 'mou_deletions' %}">Deletion Log (managers)</a>
+      <a href="{% url 'mou_manual' %}" target="_blank" rel="noopener">User Manual</a>
+      {% if request.user.is_superuser %}<a href="{% url 'mou_doccontrol' %}">Document Control (admin)</a>{% endif %}
+    </div>
   </nav>
 </div>
 <script>

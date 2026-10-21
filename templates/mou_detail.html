@@ -1,0 +1,96 @@
+{% extends "_mou_base.html" %}
+{% block cc_title %}{{ st.title }} - MOU v{{ st.version }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'mou_list' %}?location={{ st.location }}" style="color:#0f5132;text-decoration:none">{{ st.location }}</a> &rsaquo; <span>{{ st.title }} v{{ st.version }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-plus-minus"></i> {{ st.parameter }} {{ st.level }} <span class="pill info">{{ st.get_sample_kind_display }}</span> <span class="muted">v{{ st.version }} - {{ st.location }}</span>
+      {% if st.status == 'approved' %}<span class="pill ok">Approved</span>{% elif st.status == 'reviewed' %}<span class="pill info">Reviewed - awaiting approval</span>{% elif st.status == 'review' %}<span class="pill warn">Submitted for review</span>{% elif st.status == 'superseded' %}<span class="pill none">Superseded</span>{% else %}<span class="pill none">Draft</span>{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if can_edit %}<a class="btn btn-p" href="{% url 'mou_edit' st.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
+      <a class="btn" href="{% url 'mou_pdf' st.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
+      {% if can_repeat %}<form method="post" action="{% url 'mou_repeat' st.id %}" style="display:inline">{% csrf_token %}<button class="btn" type="submit" onclick="return confirm('Create version {{ st.version|add:1 }} as a new draft with the same budget (replicates to be entered afresh)?')"><i class="fa-solid fa-rotate"></i> Repeat study (new version)</button></form>{% endif %}
+      <a class="btn" href="{% url 'mou_list' %}?location={{ st.location }}"><i class="fa-solid fa-arrow-left"></i> Register</a>
+    </div>
+  </div>
+  {% if r.errors %}<div class="msg error"><b>Calculation incomplete:</b> {{ r.errors|join:" " }}</div>{% endif %}
+  {% for w in r.warnings %}<div class="msg warning">{{ w }}</div>{% endfor %}
+  <div class="kv">
+    <b>Sample</b><span>{{ st.get_sample_kind_display }}{% if st.sample_ref %} - {{ st.sample_ref }}{% endif %}</span>
+    <b>Unit</b><span>{{ st.unit|default:"-" }}</span>
+    <b>Method</b><span>{{ st.method|default:"-" }}</span>
+    <b>Range (x)</b><span>{% if st.range_value %}{{ st.range_value|floatformat:"-4" }} {{ st.unit }}{% else %}-{% endif %}</span>
+    <b>Equipment</b><span>{{ st.instrument|default:"-" }}{% if st.equipment_id %} [{{ st.equipment_id }}]{% endif %}</span>
+    <b>Env. temperature</b><span>{% if st.env_temp is not None %}{{ st.env_temp|floatformat:"-2" }} &deg;C{% else %}-{% endif %}</span>
+    <b>Study date</b><span>{{ st.study_date|date:"d-m-Y"|default:"-" }}</span>
+    <b>Coverage factor</b><span>k = {{ st.k|floatformat:"-2" }} (95 % C.L.)</span>
+    <b>Created</b><span>{{ st.created_by.username|default:"-" }} {{ st.created_at|date:"d-m-Y H:i" }}</span>
+    <b>Form</b><span>{{ ctrl.doc_no }}{% if st.supersedes %} &middot; repeat of v{{ st.supersedes.version }}{% endif %}</span>
+    {% if st.remarks %}<b>Remarks</b><span style="grid-column:2/-1;white-space:pre-line">{{ st.remarks }}</span>{% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-table"></i> Repeatability data</div></div>
+  <table>
+    <thead><tr><th>Operator</th><th>Analyst</th><th>Date</th>{% for c in rep_cols %}<th class="num">x{{ c }}</th>{% endfor %}<th class="num">n</th><th class="num">Mean</th><th class="num">SD</th></tr></thead>
+    <tbody>
+    {% for o in ops %}<tr><td><b>{{ o.label }}</b></td><td>{{ o.analyst|default:"-" }}</td><td class="nw">{{ o.date|date:"d-m-Y"|default:"-" }}</td>
+      {% for c in rep_cols %}<td class="num">{% for v in o.values %}{% if forloop.counter == c %}{{ v|floatformat:st.decimals }}{% endif %}{% endfor %}</td>{% endfor %}
+      <td class="num">{{ o.n }}</td><td class="num"><b>{{ o.mean }}</b></td><td class="num">{{ o.sd }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <div class="stat">
+    <div class="box"><b>Grand mean (all replicates)</b><span>{{ res.mean }}</span> <small>{{ st.unit }} &middot; n = {{ res.n }}</small></div>
+    <div class="box"><b>Combined relative uc</b><span>{{ res.uc }}</span></div>
+    <div class="box"><b>Expanded relative U (k = {{ st.k|floatformat:"-2" }})</b><span>{{ res.U }}</span></div>
+    <div class="box"><b>Expanded U, absolute</b><span>&plusmn; {{ res.U_abs }}</span> <small>{{ st.unit }}</small></div>
+    <div class="box"><b>Expanded U, percent</b><span>&plusmn; {{ res.U_pct }} %</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-list-ol"></i> Uncertainty budget (relative)</div></div>
+  <table>
+    <thead><tr><th>Source of uncertainty</th><th>Unit</th><th class="num">Range (x)</th><th class="num">Magnitude (a)</th><th class="num">a / x</th><th>Distribution (divisor)</th><th class="num">ci</th><th class="num">u (relative)</th><th>Note</th></tr></thead>
+    <tbody>
+    {% for c in comps %}<tr {% if not c.included %}style="color:#94a3b8"{% endif %}>
+      <td>{% if c.kind != 'b' %}<b>{{ c.name }}</b>{% else %}{{ c.name }}{% endif %}{% if c.source %} <span class="muted" title="library entry">[lib]</span>{% endif %}{% if not c.included %} <span class="pill none">not included</span>{% endif %}</td>
+      <td>{{ c.unit }}</td><td class="num">{{ c.range }}</td>
+      <td class="num">{{ c.magnitude }}{% if c.kind == 'b' and c.magnitude != c.magnitude_val %} <span class="muted">= {{ c.magnitude_val }}</span>{% endif %}</td>
+      <td class="num">{{ c.rel }}</td><td class="nw">{{ c.dist }} ({{ c.divisor }})</td><td class="num">{{ c.ci }}</td><td class="num"><b>{{ c.u }}</b></td>
+      <td class="muted">{{ c.note }}{% if c.source and c.source.validity == 'expired' %} <span class="pill warn">library calibration expired</span>{% endif %}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <div class="muted" style="padding:8px 18px">Type A: u rep = (SD<sub>A</sub> / x) / &radic;n<sub>A</sub>; u repro = (&radic;&Sigma;SD<sup>2</sup> / x) / &radic;&Sigma;n. Type B: u = (a / x) / divisor &times; c<sub>i</sub>. uc = &radic;&Sigma;u<sup>2</sup>; U = k &middot; uc; U abs = U &times; grand mean.</div>
+</div>
+
+{% if legacy %}
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-file-excel"></i> Laboratory workbook (as printed) vs recomputed</div><span class="muted">{{ legacy.file }}</span></div>
+  <table>
+    <thead><tr><th>Figure</th><th class="num">Workbook printed</th><th class="num">Recomputed now</th><th class="num">Difference</th></tr></thead>
+    <tbody>{% for x in legacy.rows %}<tr><td>{{ x.label }}</td><td class="num">{{ x.printed }}</td><td class="num"><b>{{ x.now }}</b></td><td class="num">{{ x.diff }}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% if legacy.notes %}<div style="padding:10px 18px;font-size:13px"><b>Discrepancy notes</b> (for the Lab Manager's re-approval; D-codes refer to the induction report of 21-10-2026):<ul style="margin:6px 0 0 18px">{% for n in legacy.notes %}<li>{{ n }}</li>{% endfor %}</ul></div>{% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-signature"></i> Review and approval</div></div>
+  <div class="kv">
+    <b>Performed / submitted</b><span>{% if st.submitted_at %}{{ st.submitted_by.username }} - {{ st.submitted_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
+    <b>Reviewed by</b><span>{% if st.reviewed_at %}{{ st.reviewed_by.username }} - {{ st.reviewed_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
+    <b>Approved by</b><span>{% if st.approved_at %}{{ st.approved_by.username }} - {{ st.approved_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
+    <b>Versions</b><span>{% for v in versions %}{% if v.id == st.id %}<b>v{{ v.version }} ({{ v.get_status_display|lower }})</b>{% else %}<a href="{% url 'mou_detail' v.id %}" style="color:#0f5132">v{{ v.version }} ({{ v.get_status_display|lower }})</a>{% endif %}{% if not forloop.last %} &middot; {% endif %}{% endfor %}</span>
+  </div>
+  <div class="frm" style="gap:14px">
+    {% if can_submit %}<form method="post" action="{% url 'mou_action' st.id %}">{% csrf_token %}<input type="hidden" name="action" value="submit"><button class="btn btn-p" type="submit" onclick="return confirm('Submit this study for review? It can no longer be edited by you once submitted.')"><i class="fa-solid fa-paper-plane"></i> Submit for review</button></form>{% endif %}
+    {% if can_review %}<form method="post" action="{% url 'mou_action' st.id %}">{% csrf_token %}<input type="hidden" name="action" value="review"><button class="btn btn-p" type="submit" onclick="return confirm('Sign as reviewed (QC / Lab Manager)?')"><i class="fa-solid fa-check"></i> Review &amp; sign</button></form>{% endif %}
+    {% if can_approve %}<form method="post" action="{% url 'mou_action' st.id %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn btn-p" type="submit" onclick="return confirm('Approve and lock this study? It becomes the current uncertainty for {{ st.title }} ({{ st.sample_kind }}) and supersedes the previous approved version.')"><i class="fa-solid fa-stamp"></i> Approve &amp; lock</button></form>{% endif %}
+    {% if can_return %}<form method="post" action="{% url 'mou_action' st.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="return"><label>Reason <input name="reason" placeholder="why it is returned" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Return to draft</button></form>{% endif %}
+    {% if can_unapprove %}<form method="post" action="{% url 'mou_action' st.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="unapprove"><label>Reason <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit" onclick="return confirm('Unapprove this study?')"><i class="fa-solid fa-lock-open"></i> Unapprove</button></form>{% endif %}
+    {% if can_delete %}<form method="post" action="{% url 'mou_delete' st.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<label>Reason for deletion <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this study and all its data? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "_mou_base.html" %}
+{% block cc_title %}Measurement of Uncertainty - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>{{ loc }} register</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-plus-minus"></i> Measurement of Uncertainty - {{ loc }} laboratory</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-p" href="{% url 'mou_new' %}"><i class="fa-solid fa-plus"></i> New study</a>
+      <a class="btn" href="{% url 'mou_library' %}?location={{ loc }}"><i class="fa-solid fa-book"></i> Source library</a>
+      <a class="btn" href="{% url 'mou_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-question"></i> Manual</a>
+    </div>
+  </div>
+  <form class="toolbar" method="get">
+    <label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <input type="hidden" name="show" value="{{ show }}">
+    <input name="q" value="{{ q }}" placeholder="parameter, level, method, sample ..." style="min-width:240px">
+    <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+      <a class="btn {% if show == 'current' %}btn-p{% endif %}" href="?location={{ loc }}&show=current&q={{ q|urlencode }}">Current U <span class="pill none">{{ counts.current }}</span></a>
+      <a class="btn {% if show == 'open' %}btn-p{% endif %}" href="?location={{ loc }}&show=open&q={{ q|urlencode }}">Open <span class="pill none">{{ counts.open }}</span></a>
+      <a class="btn {% if show == 'all' %}btn-p{% endif %}" href="?location={{ loc }}&show=all&q={{ q|urlencode }}">All versions <span class="pill none">{{ counts.all }}</span></a>
+    </span>
+  </form>
+  {% if todo.review or todo.approve %}<div class="msg warning">
+    {% if todo.review %}<b>{{ todo.review }}</b> study{{ todo.review|pluralize:" is,ies are" }} awaiting review by the {{ loc }} QC / Lab Manager.{% endif %}
+    {% if todo.approve %} <b>{{ todo.approve }}</b> reviewed study{{ todo.approve|pluralize:" is,ies are" }} awaiting the CEO's approval.{% endif %}
+    <a href="?location={{ loc }}&show=open" style="color:#92400e">Open studies &rsaquo;</a></div>{% endif %}
+  {% if show == 'current' %}<div class="msg" style="background:#f8fafc;color:#475569">The register lists the <b>approved</b> study of each parameter / level / sample kind - the expanded uncertainty in force for test reports. Form {{ ctrl.doc_no }}.</div>{% endif %}
+  <table>
+    <thead><tr><th>Parameter</th><th>Level</th><th>Sample</th><th>Method</th><th class="c">Ver.</th><th class="num">n</th><th class="num">Mean</th>
+      <th class="num">uc (rel.)</th><th class="num">U (rel.)</th><th class="num">U abs.</th><th class="num">U %</th><th>Status</th><th>Signed</th><th></th></tr></thead>
+    <tbody>
+    {% for s in rows %}
+      <tr>
+        <td><a href="{% url 'mou_detail' s.id %}" style="color:#0f5132;font-weight:700">{{ s.parameter }}</a></td>
+        <td class="nw">{{ s.level|default:"-" }}</td>
+        <td class="nw"><span class="pill info">{{ s.sample_kind }}</span></td>
+        <td>{{ s.method|default:"-" }}</td>
+        <td class="c">v{{ s.version }}</td>
+        <td class="num">{{ s.n_total }}</td>
+        <td class="num">{% if s.mean is not None %}{{ s.mean|floatformat:s.decimals }} <span class="muted">{{ s.unit }}</span>{% else %}-{% endif %}</td>
+        <td class="num">{% if s.uc is not None %}{{ s.uc|floatformat:5 }}{% else %}-{% endif %}</td>
+        <td class="num">{% if s.u_exp is not None %}{{ s.u_exp|floatformat:5 }}{% else %}-{% endif %}</td>
+        <td class="num">{% if s.u_abs is not None %}&plusmn; {{ s.u_abs|floatformat:s.decimals }} <span class="muted">{{ s.unit }}</span>{% else %}-{% endif %}</td>
+        <td class="num"><b>{% if s.u_pct is not None %}&plusmn; {{ s.u_pct|floatformat:2 }} %{% else %}-{% endif %}</b></td>
+        <td class="nw">{% if s.status == 'approved' %}<span class="pill ok">Approved</span>{% elif s.status == 'reviewed' %}<span class="pill info">Reviewed</span>{% elif s.status == 'review' %}<span class="pill warn">For review</span>{% elif s.status == 'superseded' %}<span class="pill none">Superseded</span>{% else %}<span class="pill none">Draft</span>{% endif %}
+          {% if s.legacy %}<span class="pill none" title="Inducted from the laboratory workbook; recomputed">WB</span>{% endif %}{% if s.calc_errors %}<span class="pill bad" title="{{ s.calc_errors|join:' ' }}">!</span>{% endif %}</td>
+        <td class="muted nw">{% if s.reviewed_at %}R: {{ s.reviewed_by.username }} {{ s.reviewed_at|date:"d-m-Y" }}<br>{% endif %}{% if s.approved_at %}A: {{ s.approved_by.username }} {{ s.approved_at|date:"d-m-Y" }}{% endif %}</td>
+        <td class="nw"><a class="btn" href="{% url 'mou_detail' s.id %}">Open</a> <a class="btn" href="{% url 'mou_pdf' s.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="14" class="empty">No {% if show == 'current' %}approved{% elif show == 'open' %}open{% endif %} studies for the {{ loc }} laboratory{% if q %} matching "{{ q }}"{% endif %}.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="muted" style="padding:10px 18px">uc = combined relative standard uncertainty; U = k &middot; uc (k = 2, 95 % confidence); U abs. = U &times; grand mean of all replicates; U % = U &times; 100. "WB" marks a study inducted from the laboratory's Excel workbook and recomputed - the workbook's printed figures and the differences are shown on the study page.</div>
+</div>
+{% endblock %}

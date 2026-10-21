@@ -1,0 +1,47 @@
+{% extends "_mou_base.html" %}
+{% block cc_title %}Uncertainty sources - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>Source library - {{ loc }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-book"></i> Uncertainty-source library - {{ loc }} laboratory</div>
+    <a class="btn" href="{% url 'mou_list' %}?location={{ loc }}"><i class="fa-solid fa-arrow-left"></i> Register</a></div>
+  <form class="toolbar" method="get">
+    <label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <input name="q" value="{{ q }}" placeholder="name, certificate, category" style="min-width:240px"><button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    <span class="muted" style="margin-left:auto">{{ count }} entr{{ count|pluralize:"y,ies" }}</span>
+  </form>
+  <div class="msg" style="background:#f8fafc;color:#475569">Each entry is an instrument, glassware, CRM / reference, reagent purity or environmental source with its range (x), magnitude (a), distribution and the certificate it rests on. A study copies the values when the source is added, so re-calibrating an entry here changes future studies only (and the next repeat of an existing one). Validity is informative - it never blocks a study (owner decision 21-10-2026). {% if not can %}The library is maintained by the laboratory's QC / Lab Manager.{% endif %}</div>
+  {% if can %}
+  <form method="post" class="frm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 14px;border-bottom:1px solid #eef2f6">{% csrf_token %}
+    <input type="hidden" name="id" value="{{ edit.pk|default:'' }}">
+    <label>Category <select name="category">{% for k, v in cats %}<option value="{{ k }}" {% if edit and edit.category == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+    <label style="grid-column:span 2">Name * <input name="name" value="{{ edit.name|default:'' }}" required placeholder="e.g. Volumetric flask 100 ml"></label>
+    <label>Unit <input name="unit" value="{{ edit.unit|default:'' }}" placeholder="ml, nm, %, °C"></label>
+    <label>Range (x) * <input name="range_value" value="{% if edit %}{{ edit.range_value|floatformat:'-6' }}{% endif %}" required inputmode="decimal" placeholder="e.g. 100"></label>
+    <label>Magnitude (a) * <input name="magnitude" value="{{ edit.magnitude|default:'' }}" required placeholder="e.g. 0.1 or 0.08/2"></label>
+    <label>Distribution <select name="dist">{% for k, lbl, d in dists %}<option value="{{ k }}" {% if edit and edit.dist == k %}selected{% endif %}>{{ lbl }}</option>{% endfor %}</select></label>
+    <label>ci <input name="ci" value="{% if edit %}{{ edit.ci|floatformat:'-4' }}{% else %}1{% endif %}" inputmode="decimal"></label>
+    <label style="grid-column:span 2">Certificate / calibration ref. <input name="reference" value="{{ edit.reference|default:'' }}"></label>
+    <label>Calibrated on <input name="calibrated_on" value="{{ edit.calibrated_on|date:'d-m-Y'|default:'' }}" placeholder="dd-mm-yyyy"></label>
+    <label>Valid until <input name="valid_until" value="{{ edit.valid_until|date:'d-m-Y'|default:'' }}" placeholder="dd-mm-yyyy"></label>
+    <label style="grid-column:span 2">Note <input name="note" value="{{ edit.note|default:'' }}" maxlength="300"></label>
+    <div style="display:flex;gap:8px;align-items:flex-end"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> {% if edit %}Save changes{% else %}Add entry{% endif %}</button>{% if edit %}<a class="btn" href="?location={{ loc }}">Cancel</a>{% endif %}</div>
+  </form>
+  {% endif %}
+  <table>
+    <thead><tr><th>Category</th><th>Name</th><th>Unit</th><th class="num">Range (x)</th><th class="num">Magnitude (a)</th><th>Distribution</th><th class="num">ci</th><th>Certificate</th><th>Calibrated</th><th>Valid until</th><th class="num">Used</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}<tr {% if not r.s.active %}style="color:#94a3b8"{% endif %}>
+      <td class="nw">{{ r.s.get_category_display }}</td><td>{{ r.s.name }}{% if not r.s.active %} <span class="pill none">inactive</span>{% endif %}</td><td>{{ r.s.unit|default:"-" }}</td>
+      <td class="num">{{ r.s.range_value|floatformat:"-6" }}</td><td class="num">{{ r.s.magnitude }}{% if r.mag != r.s.magnitude %} <span class="muted">= {{ r.mag }}</span>{% endif %}</td>
+      <td class="nw">{{ r.s.dist }}</td><td class="num">{{ r.s.ci|floatformat:"-4" }}</td><td>{{ r.s.reference|default:"-" }}</td>
+      <td class="nw">{{ r.s.calibrated_on|date:"d-m-Y"|default:"-" }}</td>
+      <td class="nw">{{ r.s.valid_until|date:"d-m-Y"|default:"-" }} {% if r.validity == 'expired' %}<span class="pill warn">expired</span>{% elif r.validity == 'due' %}<span class="pill warn">due</span>{% elif r.validity == 'ok' %}<span class="pill ok">valid</span>{% endif %}</td>
+      <td class="num">{{ r.uses }}</td>
+      <td class="nw">{% if can %}<a class="btn" href="?location={{ loc }}&edit={{ r.s.pk }}"><i class="fa-solid fa-pen"></i></a>
+        <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="id" value="{{ r.s.pk }}"><input type="hidden" name="action" value="{% if r.s.active %}deactivate{% else %}activate{% endif %}"><button class="btn" type="submit" title="{% if r.s.active %}deactivate{% else %}reactivate{% endif %}"><i class="fa-solid {% if r.s.active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i></button></form>{% endif %}</td>
+    </tr>{% empty %}<tr><td colspan="12" class="empty">No library entries for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

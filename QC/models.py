@@ -765,3 +765,182 @@ class ControlChartDeletion(models.Model):
 
 for _m in (ControlChart, ControlChartBaseline, ControlChartResult, ControlChartSignoff, ControlChartReviewer):
     _sh_register(_m)
+
+
+# =====================================================================================
+# Measurement of Uncertainty (form ETAL-LAB-706-FF-01) - 21-10-2026
+# One function for both laboratories under Quality: an uncertainty-source library per
+# laboratory, studies (parameter / level / sample) with operators x replicates and a
+# relative uncertainty budget, review / approval, versions and a register of current U.
+# Arithmetic lives in QC/mou_calc.py (pure Python, unit-tested against the Karachi workbooks).
+# =====================================================================================
+class MouSource(models.Model):
+    """Library entry: an instrument, glassware, reagent / CRM or environmental source of
+    uncertainty with its magnitude, distribution and the certificate it rests on. A study
+    copies the values at the time it is made (MouComponent), so a later re-calibration never
+    silently changes an approved study."""
+    CATEGORIES = (('instrument', 'Instrument'), ('glassware', 'Volumetric glassware'), ('reference', 'CRM / reference standard'),
+                  ('reagent', 'Reagent purity'), ('environment', 'Environment'), ('other', 'Other'))
+    location = models.CharField(max_length=20, default='Karachi')
+    category = models.CharField(max_length=12, choices=CATEGORIES, default='instrument')
+    name = models.CharField(max_length=160)
+    unit = models.CharField(max_length=20, blank=True, default='')
+    range_value = models.FloatField(help_text='x - the range / nominal value the magnitude is expressed against')
+    magnitude = models.CharField(max_length=60, help_text='a - number or expression, e.g. 0.08/2')
+    dist = models.CharField(max_length=10, default='normal')
+    ci = models.FloatField(default=1.0)
+    reference = models.CharField(max_length=160, blank=True, default='', help_text='certificate / calibration report no.')
+    calibrated_on = models.DateField(null=True, blank=True)
+    valid_until = models.DateField(null=True, blank=True)
+    note = models.CharField(max_length=300, blank=True, default='')
+    active = models.BooleanField(default=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['location', 'category', 'name']
+
+    def __str__(self):
+        return '%s - %s' % (self.location, self.name)
+
+    @property
+    def magnitude_value(self):
+        from QC.mou_calc import eval_expr
+        try:
+            return eval_expr(self.magnitude)
+        except ValueError:
+            return None
+
+    @property
+    def validity(self):
+        """'ok' / 'due' (within 30 days) / 'expired' / '' (no validity recorded). Informative only -
+        the owner decided (21-10-2026) that validity never blocks a study."""
+        if not self.valid_until:
+            return ''
+        from datetime import date as _d
+        days = (self.valid_until - _d.today()).days
+        return 'expired' if days < 0 else ('due' if days <= 30 else 'ok')
+
+
+class MouStudy(models.Model):
+    KINDS = (('CRM', 'CRM (certified reference material)'), ('WS', 'Working standard'), ('SAMPLE', 'Sample / other'))
+    STATUSES = (('draft', 'Draft'), ('review', 'Submitted for review'), ('reviewed', 'Reviewed'),
+                ('approved', 'Approved'), ('superseded', 'Superseded'))
+    location = models.CharField(max_length=20, default='Karachi')
+    parameter = models.CharField(max_length=80)
+    level = models.CharField(max_length=60, blank=True, default='', help_text='nominal level, e.g. 500 ppm')
+    unit = models.CharField(max_length=20, blank=True, default='mg/L')
+    sample_kind = models.CharField(max_length=8, choices=KINDS, default='CRM')
+    sample_ref = models.CharField(max_length=200, blank=True, default='', help_text='CRM product / lot or working-standard ID')
+    method = models.CharField(max_length=120, blank=True, default='')
+    instrument = models.CharField(max_length=120, blank=True, default='')
+    equipment_id = models.CharField(max_length=60, blank=True, default='')
+    range_value = models.FloatField(null=True, blank=True, help_text='x - method / calibration range the Type A terms are expressed against')
+    env_temp = models.FloatField(null=True, blank=True)
+    study_date = models.DateField(null=True, blank=True)
+    k = models.FloatField(default=2.0)
+    decimals = models.PositiveSmallIntegerField(default=3)
+    remarks = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    version = models.PositiveIntegerField(default=1)
+    supersedes = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='repeats')
+    # cached results (recomputed on every save of the study / operators / components)
+    n_total = models.PositiveIntegerField(default=0)
+    mean = models.FloatField(null=True, blank=True)
+    uc = models.FloatField(null=True, blank=True)             # relative combined
+    u_exp = models.FloatField(null=True, blank=True)          # relative expanded (k * uc)
+    u_abs = models.FloatField(null=True, blank=True)          # expanded, absolute (unit of the measurand)
+    u_pct = models.FloatField(null=True, blank=True)          # expanded, % of the measured mean
+    calc_errors = models.JSONField(default=list, blank=True)
+    # legacy: the figures the laboratory's workbook printed (induction) and the discrepancy notes
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    submitted_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    approved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['location', 'parameter', 'level', '-version']
+        verbose_name_plural = 'MOU studies'
+
+    def __str__(self):
+        return '%s %s %s v%d (%s)' % (self.location, self.parameter, self.level, self.version, self.status)
+
+    @property
+    def title(self):
+        return ('%s %s' % (self.parameter, self.level)).strip()
+
+    @property
+    def locked(self):
+        return self.status in ('reviewed', 'approved', 'superseded')
+
+    @property
+    def is_current(self):
+        return self.status == 'approved'
+
+    def as_calc(self):
+        """Dict for QC.mou_calc.compute()."""
+        return {'range': self.range_value, 'k': self.k,
+                'operators': [{'label': o.label, 'values': o.values} for o in self.operators.all()],
+                'components': [{'kind': c.kind, 'name': c.name, 'unit': c.unit, 'range': c.range_value, 'magnitude': c.magnitude,
+                                'dist': c.dist, 'ci': c.ci, 'included': c.included} for c in self.components.all()]}
+
+    def recompute(self, save=True):
+        from QC.mou_calc import compute
+        r = compute(self.as_calc())
+        self.n_total = r['grand']['n']
+        self.mean = r['grand']['mean']
+        self.uc, self.u_exp, self.u_abs, self.u_pct = r['uc'], r['U'], r['U_abs'], r['U_pct']
+        self.calc_errors = r['errors']
+        if save:
+            self.save(update_fields=['n_total', 'mean', 'uc', 'u_exp', 'u_abs', 'u_pct', 'calc_errors', 'updated_at'])
+        return r
+
+
+class MouOperator(models.Model):
+    study = models.ForeignKey(MouStudy, on_delete=models.CASCADE, related_name='operators')
+    order = models.PositiveSmallIntegerField(default=0)
+    label = models.CharField(max_length=4, default='A')
+    analyst = models.CharField(max_length=80, blank=True, default='')
+    date = models.DateField(null=True, blank=True)
+    values = models.JSONField(default=list, blank=True)        # replicates, floats
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return 'Operator %s of %s' % (self.label, self.study_id)
+
+
+class MouComponent(models.Model):
+    """One row of the uncertainty budget. Type A rows hold no magnitude (it is the SD of the
+    replicates); Type B rows copy the library values when the source is picked."""
+    KINDS = (('a_rep', 'Type A - repeatability'), ('a_repro', 'Type A - reproducibility'), ('b', 'Type B'))
+    study = models.ForeignKey(MouStudy, on_delete=models.CASCADE, related_name='components')
+    order = models.PositiveSmallIntegerField(default=0)
+    kind = models.CharField(max_length=8, choices=KINDS, default='b')
+    source = models.ForeignKey(MouSource, null=True, blank=True, on_delete=models.SET_NULL, related_name='uses')
+    name = models.CharField(max_length=160)
+    unit = models.CharField(max_length=20, blank=True, default='')
+    range_value = models.FloatField(null=True, blank=True)
+    magnitude = models.CharField(max_length=60, blank=True, default='')
+    dist = models.CharField(max_length=10, default='normal')
+    ci = models.FloatField(default=1.0)
+    included = models.BooleanField(default=True)
+    note = models.CharField(max_length=300, blank=True, default='')
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return self.name
+
+
+for _m in (MouSource, MouStudy, MouOperator, MouComponent):
+    _sh_register(_m)

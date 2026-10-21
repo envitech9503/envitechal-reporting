@@ -1,0 +1,16 @@
+{% extends "_mou_base.html" %}
+{% block cc_title %}MOU - Deletion log{% endblock %}
+{% block crumb %} &rsaquo; <span>Deletion log</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-trash-can"></i> Deleted uncertainty studies</div><a class="btn" href="{% url 'mou_list' %}"><i class="fa-solid fa-arrow-left"></i> Register</a></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">Every deletion is recorded with the reason and a copy of the data (master, operators, replicates, budget). Administrators see both laboratories; a QC / Lab Manager his own.</div>
+  <table>
+    <thead><tr><th>Deleted</th><th>By</th><th>Laboratory</th><th>Study</th><th>Reason</th><th>Data</th></tr></thead>
+    <tbody>{% for d in rows %}<tr>
+      <td class="nw">{{ d.deleted_at|date:"d-m-Y H:i" }}</td><td>{{ d.deleted_by.username|default:"-" }}</td><td>{{ d.location }}</td><td>{{ d.label }}</td><td>{{ d.reason }}</td>
+      <td><details><summary class="muted" style="cursor:pointer">show</summary><pre style="font-size:11px;white-space:pre-wrap;max-height:260px;overflow:auto">{{ d.snapshot|pprint }}</pre></details></td></tr>
+    {% empty %}<tr><td colspan="6" class="empty">No deletions recorded.</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endblock %}
