@@ -24,7 +24,7 @@
     <b>Env. temperature</b><span>{% if st.env_temp is not None %}{{ st.env_temp|floatformat:"-2" }} &deg;C{% else %}-{% endif %}</span>
     <b>Study date</b><span>{{ st.study_date|date:"d-m-Y"|default:"-" }}</span>
     <b>Coverage factor</b><span>k = {{ st.k|floatformat:"-2" }} (95 % C.L.)</span>
-    <b>Created</b><span>{{ st.created_by.username|default:"-" }} {{ st.created_at|date:"d-m-Y H:i" }}</span>
+    <b>Created</b><span>{{ st.created_by.username|default:"induction" }} {{ st.created_at|date:"d-m-Y H:i" }}</span>
     <b>Form</b><span>{{ ctrl.doc_no }}{% if st.supersedes %} &middot; repeat of v{{ st.supersedes.version }}{% endif %}</span>
     {% if st.remarks %}<b>Remarks</b><span style="grid-column:2/-1;white-space:pre-line">{{ st.remarks }}</span>{% endif %}
   </div>
@@ -79,7 +79,7 @@
 <div class="card">
   <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-signature"></i> Review and approval</div></div>
   <div class="kv">
-    <b>Performed / submitted</b><span>{% if st.submitted_at %}{{ st.submitted_by.username }} - {{ st.submitted_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
+    <b>Performed / submitted</b><span>{% if st.submitted_at %}{{ st.submitted_by.username|default:"induction" }} - {{ st.submitted_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
     <b>Reviewed by</b><span>{% if st.reviewed_at %}{{ st.reviewed_by.username }} - {{ st.reviewed_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
     <b>Approved by</b><span>{% if st.approved_at %}{{ st.approved_by.username }} - {{ st.approved_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span>
     <b>Versions</b><span>{% for v in versions %}{% if v.id == st.id %}<b>v{{ v.version }} ({{ v.get_status_display|lower }})</b>{% else %}<a href="{% url 'mou_detail' v.id %}" style="color:#0f5132">v{{ v.version }} ({{ v.get_status_display|lower }})</a>{% endif %}{% if not forloop.last %} &middot; {% endif %}{% endfor %}</span>

@@ -32,21 +32,20 @@
     <div style="display:flex;gap:8px"><button class="btn" type="button" onclick="addOperator()"><i class="fa-solid fa-user-plus"></i> Add operator</button>
       <button class="btn" type="button" onclick="addReplicateCol()"><i class="fa-solid fa-table-columns"></i> Add replicate column</button></div></div>
   <div class="msg" style="background:#f8fafc;color:#475569">Enter each operator's replicates (10 per operator on the form; up to {{ rep_cols|length }}). Leave a cell blank when not measured - a blank is never counted as zero. Operator A's SD gives the repeatability; all operators with data give the reproducibility. Mean and SD are calculated as you type.</div>
-  <table class="grid" id="opTable">
-    <thead><tr><th style="width:60px">Op.</th><th style="width:150px">Analyst</th><th style="width:110px">Date</th>{% for j in rep_cols %}<th class="num repcol{% if j >= 10 %} extra{% endif %}" data-j="{{ j }}">x{{ j|add:1 }}</th>{% endfor %}<th class="num">n</th><th class="num">Mean</th><th class="num">SD</th><th></th></tr></thead>
+  <table class="mougrid" id="opTable">
+    <thead><tr><th style="width:52px">Op.</th><th style="width:118px">Analyst</th><th style="width:96px">Date</th>{% for j in rep_cols %}<th class="num repcol{% if j >= 10 %} extra{% endif %}" data-j="{{ j }}">x{{ j|add:1 }}</th>{% endfor %}<th class="num">n</th><th class="num">Mean</th><th class="num">SD</th><th></th></tr></thead>
     <tbody>
     {% for o in f.operators %}
       <tr class="oprow" data-i="{{ o.order }}">
         <td><input type="hidden" name="op{{ o.order }}_present" value="1"><input name="op{{ o.order }}_label" value="{{ o.label }}" style="width:44px;text-align:center;font-weight:700"></td>
-        <td><input name="op{{ o.order }}_analyst" value="{{ o.analyst }}" placeholder="name"></td>
-        <td><input name="op{{ o.order }}_date" value="{{ o.date }}" placeholder="dd-mm-yyyy"></td>
-        {% for j in rep_cols %}<td class="repcol{% if j >= 10 %} extra{% endif %}" data-j="{{ j }}"><input class="rep" name="op{{ o.order }}_v{{ j }}" inputmode="decimal" value="{% for v in o.values %}{% if forloop.counter0 == j %}{{ v }}{% endif %}{% endfor %}"></td>{% endfor %}
+        <td><input class="an" name="op{{ o.order }}_analyst" value="{{ o.analyst }}" placeholder="name"></td>
+        <td><input class="dt" name="op{{ o.order }}_date" value="{{ o.date }}" placeholder="dd-mm-yyyy"></td>
+        {% for j in rep_cols %}<td class="repcol{% if j >= 10 %} extra{% endif %}" data-j="{{ j }}"><input class="rep" name="op{{ o.order }}_v{{ j }}" inputmode="decimal" value="{% for v in o.values %}{% if forloop.counter0 == j %}{{ v|floatformat:"-6" }}{% endif %}{% endfor %}"></td>{% endfor %}
         <td class="num calc" data-c="n">-</td><td class="num calc" data-c="mean">-</td><td class="num calc" data-c="sd">-</td>
         <td><button class="btn" type="button" title="remove operator" onclick="removeOperator(this)"><i class="fa-solid fa-xmark"></i></button></td>
       </tr>
     {% endfor %}
     </tbody>
-    <tfoot><tr><td colspan="3" class="muted">Grand mean (all replicates)</td><td class="repcol" colspan="{{ rep_cols|length }}" id="grandCell"></td><td class="num calc" id="gN">-</td><td class="num calc" id="gMean" style="font-weight:700">-</td><td></td><td></td></tr></tfoot>
   </table>
 </div>
 
@@ -54,12 +53,12 @@
   <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-list-ol"></i> Uncertainty budget (relative)</div>
     <div style="display:flex;gap:8px;align-items:center">
       <select id="libPick" style="min-width:300px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px;font-family:inherit"><option value="">- add a Type B source from the library -</option></select>
-      <button class="btn btn-p" type="button" onclick="addFromLibrary()"><i class="fa-solid fa-plus"></i> Add</button>
+      <button class="btn btn-p" type="button" id="libAdd" onclick="addFromLibrary()"><i class="fa-solid fa-plus"></i> Add</button>
       <button class="btn" type="button" onclick="addComponent(null)"><i class="fa-solid fa-pen"></i> Custom row</button>
       {% if can_manage %}<a class="btn" href="{% url 'mou_library' %}?location={{ f.location }}" target="_blank" rel="noopener"><i class="fa-solid fa-book"></i> Library</a>{% endif %}
     </div></div>
   <div class="msg" style="background:#f8fafc;color:#475569">Type A rows are calculated from the replicates. Type B rows: pick the source from the laboratory's library (its range, magnitude, distribution and certificate are copied into this study) or add a custom row. Magnitude accepts an expression such as <code>0.08/2</code> (an expanded certificate value halved). Divisors: Normal (k=1) 1, Normal (k=2) 2, Rectangular &radic;3, Triangular &radic;6.</div>
-  <table class="grid" id="compTable">
+  <table class="mougrid" id="compTable">
     <thead><tr><th style="width:26px"></th><th>Source of uncertainty</th><th style="width:70px">Unit</th><th style="width:90px">Range (x)</th><th style="width:110px">Magnitude (a)</th><th class="num" style="width:90px">a / x</th><th style="width:150px">Distribution</th><th style="width:56px">ci</th><th class="num" style="width:100px">u (relative)</th><th style="width:150px">Note</th><th style="width:34px"></th></tr></thead>
     <tbody>
     {% for c in f.components %}
@@ -80,6 +79,7 @@
     </tbody>
   </table>
   <div class="stat">
+    <div class="box"><b>Grand mean (all replicates)</b><span id="gMean">-</span> <small>n = <span id="gN">-</span></small></div>
     <div class="box"><b>Combined relative uc</b><span id="rUc">-</span></div>
     <div class="box"><b>Expanded relative U</b><span id="rU">-</span></div>
     <div class="box"><b>Expanded U, absolute</b><span id="rUabs">-</span> <small id="rUnit"></small></div>
@@ -113,7 +113,7 @@ function addOperator(){
   for (var j = 0; j < NREP; j++) cells += '<td class="repcol' + (j >= 10 ? ' extra' : '') + '" data-j="' + j + '"><input class="rep" name="op' + i + '_v' + j + '" inputmode="decimal"></td>';
   var tr = document.createElement('tr'); tr.className = 'oprow'; tr.setAttribute('data-i', i);
   tr.innerHTML = '<td><input type="hidden" name="op' + i + '_present" value="1"><input name="op' + i + '_label" value="' + label + '" style="width:44px;text-align:center;font-weight:700"></td>' +
-    '<td><input name="op' + i + '_analyst" placeholder="name"></td><td><input name="op' + i + '_date" placeholder="dd-mm-yyyy"></td>' + cells +
+    '<td><input class="an" name="op' + i + '_analyst" placeholder="name"></td><td><input class="dt" name="op' + i + '_date" placeholder="dd-mm-yyyy"></td>' + cells +
     '<td class="num calc" data-c="n">-</td><td class="num calc" data-c="mean">-</td><td class="num calc" data-c="sd">-</td>' +
     '<td><button class="btn" type="button" title="remove operator" onclick="removeOperator(this)"><i class="fa-solid fa-xmark"></i></button></td>';
   document.querySelector('#opTable tbody').appendChild(tr); applyExtraCols(); recalc();
