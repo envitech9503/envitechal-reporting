@@ -7,6 +7,7 @@
     <div class="title"><i class="fa-solid fa-plus-minus"></i> Measurement of Uncertainty - {{ loc }} laboratory</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <a class="btn btn-p" href="{% url 'mou_new' %}"><i class="fa-solid fa-plus"></i> New study</a>
+      <a class="btn" href="{% url 'mou_signing' %}?location={{ loc }}"><i class="fa-solid fa-signature"></i> Signing</a>
       <a class="btn" href="{% url 'mou_library' %}?location={{ loc }}"><i class="fa-solid fa-book"></i> Source library</a>
       <a class="btn" href="{% url 'mou_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-question"></i> Manual</a>
     </div>
@@ -22,7 +23,8 @@
       <a class="btn {% if show == 'all' %}btn-p{% endif %}" href="?location={{ loc }}&show=all&q={{ q|urlencode }}">All versions <span class="pill none">{{ counts.all }}</span></a>
     </span>
   </form>
-  {% if todo.review or todo.approve %}<div class="msg warning">
+  {% if todo.sign or todo.review or todo.approve %}<div class="msg warning">
+    {% if todo.sign %}<b>{{ todo.sign }}</b> inducted stud{{ todo.sign|pluralize:"y carries,ies carry" }} no <i>Prepared by</i> signature yet - the preparing chemist signs on the study page or on <a href="{% url 'mou_signing' %}?location={{ loc }}" style="color:#92400e">Signing</a>.{% endif %}
     {% if todo.review %}<b>{{ todo.review }}</b> study{{ todo.review|pluralize:" is,ies are" }} awaiting review by the {{ loc }} QC / Lab Manager.{% endif %}
     {% if todo.approve %} <b>{{ todo.approve }}</b> reviewed study{{ todo.approve|pluralize:" is,ies are" }} awaiting the CEO's approval.{% endif %}
     <a href="?location={{ loc }}&show=open" style="color:#92400e">Open studies &rsaquo;</a></div>{% endif %}
@@ -46,7 +48,7 @@
         <td class="num"><b>{% if s.u_pct is not None %}&plusmn; {{ s.u_pct|floatformat:2 }} %{% else %}-{% endif %}</b></td>
         <td class="nw">{% if s.status == 'approved' %}<span class="pill ok">Approved</span>{% elif s.status == 'reviewed' %}<span class="pill info">Reviewed</span>{% elif s.status == 'review' %}<span class="pill warn">For review</span>{% elif s.status == 'superseded' %}<span class="pill none">Superseded</span>{% else %}<span class="pill none">Draft</span>{% endif %}
           {% if s.legacy %}<span class="pill none" title="Inducted from the laboratory workbook; recomputed">WB</span>{% endif %}{% if s.calc_errors %}<span class="pill bad" title="{{ s.calc_errors|join:' ' }}">!</span>{% endif %}</td>
-        <td class="muted nw">{% if s.reviewed_at %}R: {{ s.reviewed_by.username }} {{ s.reviewed_at|date:"d-m-Y" }}<br>{% endif %}{% if s.approved_at %}A: {{ s.approved_by.username }} {{ s.approved_at|date:"d-m-Y" }}{% endif %}</td>
+        <td class="muted nw">{% if s.submitted_by %}P: {{ s.submitted_by.username }} {{ s.submitted_at|date:"d-m-Y" }}<br>{% elif s.status == 'review' or s.status == 'reviewed' %}<span class="pill warn" title="No Prepared-by signature yet">P: unsigned</span><br>{% endif %}{% if s.reviewed_at %}R: {{ s.reviewed_by.username }} {{ s.reviewed_at|date:"d-m-Y" }}<br>{% endif %}{% if s.approved_at %}A: {{ s.approved_by.username }} {{ s.approved_at|date:"d-m-Y" }}{% endif %}</td>
         <td class="nw"><a class="btn" href="{% url 'mou_detail' s.id %}">Open</a> <a class="btn" href="{% url 'mou_pdf' s.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td>
       </tr>
     {% empty %}

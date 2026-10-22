@@ -64,6 +64,7 @@ urlpatterns = [
     # Measurement of Uncertainty (form ETAL-LAB-706-FF-01) - 21-10-2026
     path('mou/', views.mou_list, name='mou_list'),
     path('mou/new/', views.mou_edit, name='mou_new'),
+    path('mou/signing/', views.mou_signing, name='mou_signing'),
     path('mou/library/', views.mou_library, name='mou_library'),
     path('mou/doc-control/', views.mou_doccontrol, name='mou_doccontrol'),
     path('mou/deleted/', views.mou_deletions, name='mou_deletions'),

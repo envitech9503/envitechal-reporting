@@ -168,7 +168,7 @@ def mou_list(request):
     show = request.GET.get('show') or 'current'
     if show not in ('current', 'open', 'all'):
         show = 'current'
-    qs = MouStudy.objects.filter(location=loc).select_related('created_by', 'reviewed_by', 'approved_by')
+    qs = MouStudy.objects.filter(location=loc).select_related('created_by', 'submitted_by', 'reviewed_by', 'approved_by')
     if q:
         qs = qs.filter(_Q(parameter__icontains=q) | _Q(level__icontains=q) | _Q(method__icontains=q) | _Q(sample_ref__icontains=q) | _Q(instrument__icontains=q))
     if show == 'current':
@@ -179,7 +179,8 @@ def mou_list(request):
     counts = {'current': MouStudy.objects.filter(location=loc, status='approved').count(),
               'open': MouStudy.objects.filter(location=loc, status__in=('draft', 'review', 'reviewed')).count(),
               'all': MouStudy.objects.filter(location=loc).count()}
-    todo = {'review': MouStudy.objects.filter(location=loc, status='review').count(), 'approve': MouStudy.objects.filter(location=loc, status='reviewed').count()}
+    todo = {'sign': MouStudy.objects.filter(location=loc, status__in=('review', 'reviewed'), submitted_by__isnull=True).count(),
+            'review': MouStudy.objects.filter(location=loc, status='review', submitted_by__isnull=False).count(), 'approve': MouStudy.objects.filter(location=loc, status='reviewed').count()}
     return render(request, 'mou_list.html', {
         'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'q': q, 'show': show, 'counts': counts, 'todo': todo,
         'can_review': _can_review(request.user, _Loc(loc)), 'can_approve': _can_approve(request.user, _Loc(loc)),
@@ -199,7 +200,8 @@ def mou_detail(request, pk):
                 'mean': _calc.fmt_fix(r['grand']['mean'], st.decimals) if r['grand']['mean'] is not None else '-', 'n': r['grand']['n']},
         'rep_cols': range(1, max([len(o['values']) for o in ops] + [10]) + 1),
         'can_edit': _can_edit(user, st), 'can_submit': (st.status == 'draft' and not r['errors'] and _can_edit(user, st)),
-        'can_review': st.status == 'review' and _can_review(user, st), 'can_approve': st.status == 'reviewed' and _can_approve(user, st),
+        'can_sign': _can_sign(user, st), 'unsigned': (st.status in ('review', 'reviewed') and not st.submitted_by_id),
+        'can_review': st.status == 'review' and _can_review(user, st) and bool(st.submitted_by_id), 'can_approve': st.status == 'reviewed' and _can_approve(user, st) and bool(st.submitted_by_id),
         'can_return': st.status in ('review', 'reviewed') and _can_manage(user, st.location),
         'can_unapprove': st.status == 'approved' and _is_admin(user), 'can_delete': _can_manage(user, st.location),
         'can_repeat': st.status in ('approved', 'superseded') and user.is_authenticated, 'ctrl': _mou_docctrl(st.location)})
@@ -432,67 +434,148 @@ def _post_only(request, pk):
     return None
 
 
-def mou_action(request, pk):
-    back = _post_only(request, pk)
-    if back:
-        return back
-    st = get_object_or_404(MouStudy, pk=pk)
-    user, act = request.user, request.POST.get('action')
+def _can_sign(user, st):
+    """Sign as preparer (studies inducted from the workbooks carry no preparer): the laboratory's own
+    staff - a user whose e-signature office is that laboratory (or who has no office on the profile),
+    the lab's manager or the administrator. Owner request 22-10-2026."""
+    if not (user and user.is_authenticated) or st.locked or st.submitted_by_id or st.status not in ('review', 'reviewed'):
+        return False
+    if _can_manage(user, st.location):
+        return True
+    labs = _user_labs(user)
+    if labs and st.location not in labs:
+        return False
+    office = _user_office(user)
+    return office == st.location or not office
+
+
+def _apply_action(user, st, act, reason=''):
+    """One workflow action on one study. Returns (status, message) with status 'ok' | 'error' |
+    'forbidden'. Shared by the study page buttons and the bulk signing page, so both apply exactly
+    the same checks. Every signature is the signed-in user's own (name + e-signature on the PDF)."""
     now = _tz.now()
     r = _calc.compute(st.as_calc())
     if act == 'submit':
         if st.status != 'draft':
-            _msg.error(request, 'Only a draft can be submitted.')
-        elif not _can_edit(user, st):
-            return HttpResponse('Only the laboratory\'s own staff may submit this study for review.', status=403)
-        elif r['errors']:
-            _msg.error(request, 'The study cannot be submitted until the calculation notes are resolved: ' + ' '.join(r['errors']))
-        else:
-            st.status, st.submitted_by, st.submitted_at = 'review', user, now
-            st.recompute(save=False); st.save()
-            _msg.success(request, 'Submitted for review by the %s QC / Lab Manager.' % st.location)
-    elif act == 'review':
+            return 'error', 'Only a draft can be submitted.'
+        if not _can_edit(user, st):
+            return 'forbidden', 'Only the laboratory\'s own staff may submit this study for review.'
+        if r['errors']:
+            return 'error', 'The study cannot be submitted until the calculation notes are resolved: ' + ' '.join(r['errors'])
+        st.status, st.submitted_by, st.submitted_at = 'review', user, now
+        st.recompute(save=False); st.save()
+        return 'ok', 'Signed as prepared by you and submitted for review by the %s QC / Lab Manager.' % st.location
+    if act == 'sign':
+        if st.submitted_by_id:
+            return 'error', 'This study already carries a Prepared-by signature (%s).' % _uname(st.submitted_by)
+        if not _can_sign(user, st):
+            return 'forbidden', 'Prepared-by signing of %s studies is reserved to the %s laboratory\'s own staff.' % (st.location, st.location)
+        st.submitted_by, st.submitted_at = user, now
+        if st.reviewed_at:                    # a review made before the record was signed is not valid
+            st.reviewed_by = st.reviewed_at = None
+            st.status = 'review'
+        st.save()
+        return 'ok', 'Signed as prepared by you (%s).' % _tz.localtime(now).strftime('%d-%m-%Y %H:%M')
+    if act == 'review':
         if st.status != 'review' or not _can_review(user, st):
-            return HttpResponse(_DENIED % st.location, status=403)
+            return 'forbidden', _DENIED % st.location
+        if not st.submitted_by_id:
+            return 'error', 'Cannot review yet: the study carries no Prepared-by signature (inducted record) - the preparing chemist signs first.'
         st.status, st.reviewed_by, st.reviewed_at = 'reviewed', user, now
         st.recompute(save=False); st.save()
-        _msg.success(request, 'Reviewed and signed. The study now awaits the CEO\'s approval.')
-    elif act == 'approve':
+        return 'ok', 'Reviewed and signed. The study now awaits the CEO\'s approval.'
+    if act == 'approve':
         if st.status != 'reviewed' or not _can_approve(user, st):
-            return HttpResponse(_DENIED % st.location, status=403)
+            return 'forbidden', _DENIED % st.location
+        if not st.submitted_by_id:
+            return 'error', 'Cannot approve: the study carries no Prepared-by signature.'
         st.status, st.approved_by, st.approved_at = 'approved', user, now
         st.recompute(save=False); st.save()
         n = MouStudy.objects.filter(_key_q(st)).filter(status='approved').exclude(pk=st.pk).update(status='superseded')
         # earlier versions still open (e.g. an inducted 2025 workbook beside its 2026 repeat) are closed as well
         m = MouStudy.objects.filter(_key_q(st)).filter(status__in=('draft', 'review', 'reviewed'), version__lt=st.version).exclude(pk=st.pk).update(status='superseded')
-        _msg.success(request, 'Approved and locked.%s%s' % (' The previous approved version is now superseded.' if n else '',
-                                                           (' %d earlier open version(s) closed as superseded.' % m) if m else ''))
-    elif act == 'return':
+        return 'ok', 'Approved and locked.%s%s' % (' The previous approved version is now superseded.' if n else '',
+                                                   (' %d earlier open version(s) closed as superseded.' % m) if m else '')
+    if act == 'return':
         if st.status not in ('review', 'reviewed') or not _can_manage(user, st.location):
-            return HttpResponse(_DENIED % st.location, status=403)
-        why = (request.POST.get('reason') or '').strip()
+            return 'forbidden', _DENIED % st.location
+        why = (reason or '').strip()
         if len(why) < 5:
-            _msg.error(request, 'Give the reason for returning the study (at least 5 characters).')
-            return _redirect('mou_detail', pk)
+            return 'error', 'Give the reason for returning the study (at least 5 characters).'
         st.status = 'draft'
         st.reviewed_by = st.reviewed_at = None
         st.remarks = (st.remarks + '\n' if st.remarks else '') + 'Returned to draft %s by %s: %s' % (now.strftime('%d-%m-%Y'), _uname(user), why[:500])
         st.save()
-        _msg.success(request, 'Returned to draft; the reason is recorded in the remarks.')
-    elif act == 'unapprove':
+        return 'ok', 'Returned to draft; the reason is recorded in the remarks.'
+    if act == 'unapprove':
         if st.status != 'approved' or not _can_approve(user, st):
-            return HttpResponse('Only the CEO / administrator can unapprove a study.', status=403)
-        why = (request.POST.get('reason') or '').strip()
+            return 'forbidden', 'Only the CEO / administrator can unapprove a study.'
+        why = (reason or '').strip()
         if len(why) < 5:
-            _msg.error(request, 'Give the reason for unapproving (at least 5 characters).')
-            return _redirect('mou_detail', pk)
+            return 'error', 'Give the reason for unapproving (at least 5 characters).'
         st.status, st.approved_by, st.approved_at = 'reviewed', None, None
         st.remarks = (st.remarks + '\n' if st.remarks else '') + 'Unapproved %s by %s: %s' % (now.strftime('%d-%m-%Y'), _uname(user), why[:500])
         st.save()
-        _msg.success(request, 'Unapproved. The study is back at the reviewed stage; the register has no current value for it until it is approved again.')
-    else:
-        _msg.error(request, 'Unknown action.')
+        return 'ok', 'Unapproved. The study is back at the reviewed stage; the register has no current value for it until it is approved again.'
+    return 'error', 'Unknown action.'
+
+
+def mou_action(request, pk):
+    back = _post_only(request, pk)
+    if back:
+        return back
+    st = get_object_or_404(MouStudy, pk=pk)
+    status, text = _apply_action(request.user, st, request.POST.get('action'), request.POST.get('reason') or '')
+    if status == 'forbidden':
+        return HttpResponse(text, status=403)
+    (_msg.success if status == 'ok' else _msg.error)(request, text)
     return _redirect('mou_detail', pk)
+
+
+# ---------------------------------------------------------------- bulk signing (22-10-2026, as the control charts)
+def mou_signing(request):
+    """Sign-off of many studies at once: the preparing chemist signs the inducted studies as
+    Prepared by, the QC / Lab Manager reviews and the CEO / administrator approves and locks.
+    Every study goes through exactly the same checks as the buttons on the study page."""
+    user = request.user
+    loc = request.GET.get('location') or _user_office(user) or _default_loc(request)
+    loc = loc if loc in _CC_LOCS else 'Karachi'
+    show = request.GET.get('show') or 'sign'
+    show = show if show in ('sign', 'review', 'approve', 'all') else 'sign'
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action not in ('sign', 'review', 'approve'):
+            return HttpResponse('unknown action', status=400)
+        ids = [int(x) for x in request.POST.getlist('rec')[:500] if x.isdigit()]
+        done, problems = 0, []
+        for st in MouStudy.objects.filter(pk__in=ids, location=loc).select_related('submitted_by').order_by('parameter', 'level', 'version'):
+            status, text = _apply_action(user, st, action)
+            if status == 'ok':
+                done += 1
+            else:
+                problems.append('%s (%s) v%d: %s' % (st.title, st.sample_kind, st.version, text))
+        verb = {'sign': 'signed as prepared by you', 'review': 'reviewed and signed', 'approve': 'approved and locked'}[action]
+        if done:
+            _msg.success(request, '%d stud%s %s.' % (done, 'y' if done == 1 else 'ies', verb))
+        for t in problems[:8]:
+            _msg.error(request, t)
+        if len(problems) > 8:
+            _msg.error(request, '... and %d more stud(ies) were skipped.' % (len(problems) - 8))
+        if not done and not problems:
+            _msg.info(request, 'Tick at least one study.')
+        return _redirect(request.get_full_path())
+    qs = MouStudy.objects.filter(location=loc).exclude(status__in=('draft', 'superseded')).select_related('submitted_by', 'reviewed_by', 'approved_by')
+    rows = []
+    for st in qs.order_by('parameter', 'level', 'sample_kind', '-version'):
+        stage = 'approved' if st.status == 'approved' else 'sign' if not st.submitted_by_id else 'approve' if st.status == 'reviewed' else 'review'
+        if show != 'all' and stage != show:
+            continue
+        rows.append({'st': st, 'stage': stage})
+    probe = _Loc(loc)
+    return render(request, 'mou_signing.html', {
+        'rows': rows, 'loc': loc, 'locs': _CC_LOCS, 'show': show,
+        'can_sign': _can_manage(user, loc) or ((not _user_labs(user) or loc in _user_labs(user)) and (_user_office(user) in (loc, '', None))),
+        'can_review': _can_review(user, probe), 'can_approve': _can_approve(user, probe), 'ctrl': _mou_docctrl(loc)})
 
 
 def mou_repeat(request, pk):
@@ -871,10 +954,10 @@ def mou_pdf(request, pk):
     blk_h = max(MIN_H, min(MAX_H, avail))
     top = _FOOT_TOP - blk_h
     pdf.set_auto_page_break(False)
-    analysts = [o['analyst'] for o in ops if o['analyst']]
-    perf = ', '.join(dict.fromkeys(analysts)) if analysts else (_uname(st.submitted_by or st.created_by))
-    perf_sig = _sig_image(st.submitted_by or st.created_by) if (not analysts or len(set(analysts)) == 1) and (st.submitted_by or st.created_by) else None
-    panels = [('Performed By', '(Chemist)', perf, perf_sig),
+    # Prepared By = the user who prepared / signed the study on the system (owner decision 22-10-2026);
+    # the analysts named on the operators are printed in the replicate table, not in the panel.
+    prep = st.submitted_by if st.submitted_by_id else None
+    panels = [('Prepared By', '(Chemist)', _uname(prep) if prep else '', _sig_image(prep) if prep else None),
               ('Reviewed By', '(QC / Lab Manager)', _uname(st.reviewed_by) if st.reviewed_at else '', _sig_image(st.reviewed_by) if st.reviewed_at else None),
               ('Approved By', '(CEO)', _uname(st.approved_by) if st.approved_at else '', _sig_image(st.approved_by) if st.approved_at else None)]
     _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL)

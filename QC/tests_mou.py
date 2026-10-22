@@ -324,7 +324,7 @@ class StrictQATests(TestCase):
     def test_approving_later_version_closes_earlier_open_ones(self):
         chem, mgr, adm = self.c(self.chem), self.c(self.mgr), self.c(self.adm)
         chem.post('/qc/mou/new/', self.form()); v1 = MouStudy.objects.get()
-        v2 = MouStudy.objects.create(location='Karachi', parameter='COD', level='500 ppm', unit='mg/L', sample_kind='WS', range_value=1500, status='review', version=2, supersedes=v1, created_by=self.chem)
+        v2 = MouStudy.objects.create(location='Karachi', parameter='COD', level='500 ppm', unit='mg/L', sample_kind='WS', range_value=1500, status='review', version=2, supersedes=v1, created_by=self.chem, submitted_by=self.chem)
         for o in v1.operators.all():
             MouOperator.objects.create(study=v2, order=o.order, label=o.label, values=o.values)
         for c in v1.components.all():
@@ -333,3 +333,95 @@ class StrictQATests(TestCase):
         mgr.post('/qc/mou/%d/action/' % v2.pk, {'action': 'review'}); adm.post('/qc/mou/%d/action/' % v2.pk, {'action': 'approve'})
         v1.refresh_from_db(); v2.refresh_from_db()
         self.assertEqual((v1.status, v2.status), ('superseded', 'approved'))
+
+
+class PreparerSigningTests(TestCase):
+    """Owner request 22-10-2026: 'Prepared By' panel carries the e-signature of the user who prepared the
+    study on the system; inducted studies are signed with 'Sign as preparer' (page or bulk Signing page);
+    review / approval need that signature first."""
+    @classmethod
+    def setUpTestData(cls):
+        cls.chem = User.objects.create_user('p_chem', password='x')          # Karachi office
+        cls.lchem = User.objects.create_user('p_lchem', password='x')        # Lahore office
+        cls.mgr = User.objects.create_user('p_mgr', password='x')
+        cls.adm = User.objects.create_superuser('p_adm', 'a@b.c', 'x')
+        ControlChartReviewer.objects.create(user=cls.mgr, location='Karachi')
+        from EnviTechAlApp.models import Signatures
+        Signatures.objects.create(user=cls.chem, office='Karachi')
+        Signatures.objects.create(user=cls.lchem, office='Lahore')
+        cls.studies = []
+        for i, lvl in enumerate(('100 ppm', '200 ppm', '300 ppm')):
+            st = MouStudy.objects.create(location='Karachi', parameter='COD', level=lvl, unit='mg/L', sample_kind='CRM', range_value=1500,
+                                         status='review', legacy={'file': 'wb%d.xlsx' % i, 'rows': [{'printed': '0.01'}, {'printed': '0.02'}], 'notes': [], 'uc': 0.01, 'U': 0.02})
+            MouOperator.objects.create(study=st, order=0, label='A', analyst='Analyst %d' % i, values=[502, 503, 501, 499, 499, 503, 501, 499, 502, 502])
+            MouComponent.objects.create(study=st, order=0, kind='a_rep', name='rep')
+            MouComponent.objects.create(study=st, order=1, kind='b', name='flask', unit='ml', range_value=100, magnitude='0.1', dist='tri', ci=1)
+            st.recompute(); cls.studies.append(st)
+
+    def c(self, u):
+        c = Client(); c.force_login(u); return c
+
+    def test_panel_label_and_unsigned_pdf(self):
+        st = self.studies[0]
+        r = self.c(self.chem).get('/qc/mou/%d/' % st.pk)
+        self.assertContains(r, 'Prepared by'); self.assertContains(r, 'not signed (inducted record)'); self.assertContains(r, 'name="action" value="sign"')
+        self.assertNotContains(r, 'Performed')
+        pdf = self.c(self.chem).get('/qc/mou/%d/pdf/' % st.pk)
+        self.assertEqual(pdf.status_code, 200)
+        import io
+        try:
+            from pypdf import PdfReader
+            txt = ''.join(p.extract_text() for p in PdfReader(io.BytesIO(pdf.content)).pages)
+            self.assertIn('Prepared By', txt); self.assertNotIn('Performed By', txt); self.assertNotIn('Analyst 0', txt.split('Prepared By')[-1])
+        except ImportError:
+            pass
+
+    def test_review_needs_preparer_then_sign_review_approve(self):
+        st = self.studies[0]
+        mgr, chem, adm, lchem = self.c(self.mgr), self.c(self.chem), self.c(self.adm), self.c(self.lchem)
+        r = mgr.post('/qc/mou/%d/action/' % st.pk, {'action': 'review'}, follow=True)
+        self.assertContains(r, 'no Prepared-by signature'); st.refresh_from_db(); self.assertEqual(st.status, 'review')
+        self.assertNotContains(mgr.get('/qc/mou/%d/' % st.pk), 'Review &amp; sign')
+        self.assertEqual(lchem.post('/qc/mou/%d/action/' % st.pk, {'action': 'sign'}).status_code, 403)   # other laboratory
+        self.assertNotContains(lchem.get('/qc/mou/%d/' % st.pk), 'name="action" value="sign"')
+        chem.post('/qc/mou/%d/action/' % st.pk, {'action': 'sign'}); st.refresh_from_db()
+        self.assertEqual((st.submitted_by_id, st.status), (self.chem.pk, 'review')); self.assertIsNotNone(st.submitted_at)
+        self.assertContains(chem.get('/qc/mou/%d/' % st.pk), 'p_chem')
+        r = chem.post('/qc/mou/%d/action/' % st.pk, {'action': 'sign'}, follow=True)
+        self.assertContains(r, 'already carries a Prepared-by signature')
+        mgr.post('/qc/mou/%d/action/' % st.pk, {'action': 'review'}); st.refresh_from_db(); self.assertEqual(st.status, 'reviewed')
+        adm.post('/qc/mou/%d/action/' % st.pk, {'action': 'approve'}); st.refresh_from_db(); self.assertEqual(st.status, 'approved')
+
+    def test_submit_signs_the_submitter_as_preparer(self):
+        chem = self.c(self.chem)
+        st = MouStudy.objects.create(location='Karachi', parameter='TDS', level='250 ppm', unit='mg/L', sample_kind='CRM', range_value=1500, status='draft', created_by=self.chem)
+        MouOperator.objects.create(study=st, order=0, label='A', values=[1, 2, 3, 2, 1])
+        MouComponent.objects.create(study=st, order=0, kind='a_rep', name='rep'); st.recompute()
+        r = chem.post('/qc/mou/%d/action/' % st.pk, {'action': 'submit'}, follow=True)
+        self.assertContains(r, 'Signed as prepared by you'); st.refresh_from_db(); self.assertEqual(st.submitted_by_id, self.chem.pk)
+
+    def test_bulk_signing_page(self):
+        chem, mgr, adm, lchem = self.c(self.chem), self.c(self.mgr), self.c(self.adm), self.c(self.lchem)
+        ids = [s.pk for s in self.studies]
+        r = chem.get('/qc/mou/signing/?location=Karachi')
+        self.assertEqual(r.status_code, 200); self.assertContains(r, 'Sign selected as preparer'); self.assertContains(r, '3 studies')
+        self.assertNotContains(r, 'Review &amp; sign selected')
+        # a Lahore chemist cannot sign Karachi studies (button hidden, POST skipped with the reason)
+        self.assertNotContains(lchem.get('/qc/mou/signing/?location=Karachi'), 'Sign selected as preparer')
+        lchem.post('/qc/mou/signing/?location=Karachi', {'action': 'sign', 'rec': ids})
+        self.assertEqual(MouStudy.objects.filter(pk__in=ids, submitted_by__isnull=False).count(), 0)
+        # the manager cannot review unsigned studies in bulk either
+        r = mgr.post('/qc/mou/signing/?location=Karachi&show=all', {'action': 'review', 'rec': ids}, follow=True)
+        self.assertContains(r, 'no Prepared-by signature'); self.assertEqual(MouStudy.objects.filter(pk__in=ids, status='reviewed').count(), 0)
+        # chemist signs two of three, manager reviews, admin approves
+        r = chem.post('/qc/mou/signing/?location=Karachi', {'action': 'sign', 'rec': ids[:2]}, follow=True)
+        self.assertContains(r, '2 studies signed as prepared by you')
+        self.assertEqual(MouStudy.objects.filter(pk__in=ids, submitted_by=self.chem).count(), 2)
+        self.assertContains(chem.get('/qc/mou/signing/?location=Karachi'), '1 study')
+        r = mgr.post('/qc/mou/signing/?location=Karachi&show=review', {'action': 'review', 'rec': ids}, follow=True)
+        self.assertContains(r, '2 studies reviewed and signed'); self.assertContains(r, 'no Prepared-by signature')
+        r = adm.post('/qc/mou/signing/?location=Karachi&show=approve', {'action': 'approve', 'rec': ids[:2]}, follow=True)
+        self.assertContains(r, '2 studies approved and locked')
+        self.assertEqual(MouStudy.objects.filter(pk__in=ids, status='approved').count(), 2)
+        self.assertEqual(chem.post('/qc/mou/signing/?location=Karachi', {'action': 'delete', 'rec': ids}).status_code, 400)
+        self.assertContains(adm.get('/qc/mou/signing/?location=Karachi&show=all'), 'Approved')

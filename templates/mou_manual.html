@@ -239,17 +239,18 @@
       </ul>
     </section>
 
-    <section class="topic" id="t-workflow" data-cat="signoff" data-keywords="workflow draft submit review approve lock reviewed approved superseded return to draft unapprove electronic signature flow status">
+    <section class="topic" id="t-workflow" data-cat="signoff" data-keywords="workflow draft submit review approve lock reviewed approved superseded return to draft unapprove electronic signature flow status prepared by signing bulk sign-off">
       <h2><span class="cat-tag">Review &amp; approval</span> Review and approval</h2>
       <table class="tbl">
         <tr><th>Status</th><th>Who acts</th><th>What happens</th></tr>
-        <tr><td>Draft</td><td>chemist (creator or colleague of the laboratory)</td><td>editable; <b>Submit for review</b> when complete and free of calculation notes</td></tr>
-        <tr><td>Submitted for review</td><td>QC / Lab Manager of the laboratory</td><td><b>Review &amp; sign</b>, or <b>Return to draft</b> with a reason (recorded in the remarks)</td></tr>
+        <tr><td>Draft</td><td>chemist (creator or colleague of the laboratory)</td><td>editable; <b>Submit for review</b> when complete and free of calculation notes - this signs the study as <b>Prepared by</b> you (your name and e-signature go in the Prepared By box)</td></tr>
+        <tr><td>Submitted for review</td><td>QC / Lab Manager of the laboratory</td><td><b>Review &amp; sign</b>, or <b>Return to draft</b> with a reason (recorded in the remarks). Review is possible only when the study carries a Prepared-by signature (see <i>Inducted studies</i>)</td></tr>
         <tr><td>Reviewed</td><td>CEO / administrator</td><td><b>Approve &amp; lock</b>; the manager may still return it</td></tr>
         <tr><td>Approved</td><td>-</td><td>locked; this version is the <b>current U</b> in the register; the previous approved version of the same parameter / level / sample kind becomes <b>Superseded</b></td></tr>
         <tr><td>Superseded</td><td>-</td><td>kept for history and PDF, no longer current</td></tr>
       </table>
-      <p>The PDF carries the watermark <b>NOT APPROVED</b> until approval and <b>SUPERSEDED</b> afterwards, and prints the three e-signature panels: Performed By (the analysts named on the operators, or the submitter), Reviewed By, Approved By.</p>
+      <p>The PDF carries the watermark <b>NOT APPROVED</b> until approval and <b>SUPERSEDED</b> afterwards, and prints the three e-signature panels - <b>Prepared By</b> (the user who prepared and submitted the study on the system, or who signed an inducted study as preparer), <b>Reviewed By</b>, <b>Approved By</b>. Each panel prints the name and e-signature of the signed-in user who clicked; the analysts named on the operators appear in the replicate table, not in the panel. The same rule applies to both laboratories.</p>
+      <p><b>Signing (bulk sign-off)</b> - the <b>Signing</b> page (sidebar, register toolbar or the QC home card) lists the laboratory's submitted studies with their Prepared / Reviewed signatures; tick the studies and click <b>Sign selected as preparer</b>, <b>Review &amp; sign selected</b> or <b>Approve &amp; lock selected</b>. Every ticked study goes through exactly the same checks as the buttons on the study page; one that does not pass is skipped with the reason.</p>
       <div class="warn"><b>Unapprove</b> (administrator, with a reason) puts an approved study back to Reviewed; the register then has no current value for that parameter until a study is approved again - the superseded version is not revived automatically.</div>
     </section>
 
@@ -259,10 +260,11 @@
       <p>On an approved or superseded study click <b>Repeat study</b>: version n+1 is created as a draft with the same master data and budget, the Type B rows refreshed from the library (rows that took new values are noted), and empty replicate cells. Enter the new replicates, save, submit, review, approve - the earlier version is superseded automatically. Only one open version per parameter / level / sample kind is allowed at a time.</p>
     </section>
 
-    <section class="topic" id="t-inducted" data-cat="signoff" data-keywords="inducted imported excel workbook legacy printed figures discrepancy notes d1 d13 recomputed re-approve lab manager differences karachi 37">
+    <section class="topic" id="t-inducted" data-cat="signoff" data-keywords="inducted imported excel workbook legacy printed figures discrepancy notes d1 d13 recomputed re-approve lab manager differences karachi 37 lahore prepared by sign as preparer signing bulk">
       <h2><span class="cat-tag">Review &amp; approval</span> Inducted studies (from the Excel workbooks)</h2>
       <p>The Karachi record (37 workbooks, 21-10-2026) was inducted with every replicate and budget row verbatim. The system recomputes each study from the replicates; the workbook's printed figures are kept beside it on the study page (<b>Workbook vs recomputed</b>) with <b>discrepancy notes</b>. The owner's decision: the recomputed figures are the figures of record once the Lab Manager has reviewed and the CEO has approved each study, so the 36 complete studies were inducted as <b>Submitted for review</b> and the one incomplete pH CRM sheet as a draft.</p>
       <p>Codes used in the notes: <b>D1</b> workbook SD summed only replicates 1 - 8; <b>D2</b> reproducibility pooled two operators although three had data; <b>D3</b> combined formula omitted a row; <b>D4</b> blank distribution; <b>D5</b> magnitude printed differently from the one used; <b>D6</b> % row divided by a hand-typed value; <b>D7</b> absolute U used operator A's mean; <b>D8</b> mean above the range; <b>D10</b> no budget; <b>D11</b> single operator; <b>D12</b> different ranges on the two Type A rows; <b>D13</b> a row cubed instead of squared; <b>D14</b> reproducibility divided by &radic;(sum of means).</p>
+      <p><b>Prepared-by signature of inducted studies.</b> The inducted studies were entered by the system, so they carry no <i>Prepared by</i> signature and the Prepared By box on the PDF is empty. The chemist who prepared the record signs it in the system: open the study and click <b>Sign as preparer</b> (or sign many at once on the <b>Signing</b> page). Only the laboratory's own staff (e-signature office = that laboratory, or its manager / the administrator) may sign; the study's Prepared by line then shows the name and signing date, and the PDF prints the e-signature. The QC / Lab Manager can review only after that signature is in place - a review made before it is cleared.</p>
       <div class="note">A reviewer who disagrees with a recomputed figure returns the study to draft with the reason; the chemist corrects the data and resubmits. The workbook figures stay on the page and the PDF for traceability.</div>
     </section>
 
