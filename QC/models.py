@@ -955,7 +955,7 @@ class IaClause(models.Model):
     checklist wording. Findings copy the wording at audit time, so editing the master never changes
     a signed report."""
     code = models.CharField(max_length=12, unique=True)             # 4.1.1, 7.8.2.1, PNAC-1
-    title = models.CharField(max_length=200, blank=True, default='')
+    title = models.CharField(max_length=400, blank=True, default='')
     requirement = models.TextField(blank=True, default='')
     level = models.PositiveSmallIntegerField(default=1)
     order = models.PositiveIntegerField(default=0)

@@ -1352,12 +1352,12 @@ def ia_clauses(request):
             else:
                 after = IaClause.objects.filter(code=(P.get('after') or '').strip()).first()
                 order = (after.order + 1) if after else (IaClause.objects.order_by('-order').first().order + 10 if IaClause.objects.exists() else 10)
-                IaClause.objects.create(code=code, title=(P.get('title') or '').strip()[:200], requirement=(P.get('requirement') or '').strip()[:4000],
+                IaClause.objects.create(code=code, title=(P.get('title') or '').strip()[:400], requirement=(P.get('requirement') or '').strip()[:4000],
                                         level=code.count('.') + 1, order=order)
                 _msg.success(request, 'Clause %s added.' % code)
         elif act == 'save' and (P.get('id') or '').isdigit():
             c = get_object_or_404(IaClause, pk=int(P.get('id')))
-            c.title = (P.get('title') or '').strip()[:200]; c.requirement = (P.get('requirement') or '').strip()[:4000]; c.active = P.get('active') == '1'
+            c.title = (P.get('title') or '').strip()[:400]; c.requirement = (P.get('requirement') or '').strip()[:4000]; c.active = P.get('active') == '1'
             c.save()
             _msg.success(request, 'Clause %s saved.' % c.code)
         return _redirect('ia_clauses')
