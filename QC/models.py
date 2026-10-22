@@ -824,7 +824,7 @@ class MouSource(models.Model):
 
 
 class MouStudy(models.Model):
-    KINDS = (('CRM', 'CRM (certified reference material)'), ('WS', 'Working standard'), ('SAMPLE', 'Sample / other'))
+    KINDS = (('CRM', 'CRM (certified reference material)'), ('RM', 'Reference material (RM / PT sample)'), ('WS', 'Working standard'), ('SAMPLE', 'Sample / other'))
     STATUSES = (('draft', 'Draft'), ('review', 'Submitted for review'), ('reviewed', 'Reviewed'),
                 ('approved', 'Approved'), ('superseded', 'Superseded'))
     location = models.CharField(max_length=20, default='Karachi')

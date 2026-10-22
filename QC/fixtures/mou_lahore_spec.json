@@ -1,0 +1,5308 @@
+{
+ "location": "Lahore",
+ "form": "ETAL-LAB-706-FF-01",
+ "built": "22-10-2026",
+ "sources": [
+  {
+   "key": "K001",
+   "category": "reference",
+   "name": "CRM - Alkalinity (certificate)",
+   "unit": "PPM",
+   "range": 500,
+   "magnitude": "16/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (Alkalinity CRM)"
+  },
+  {
+   "key": "K002",
+   "category": "glassware",
+   "name": "Volumetric flask 500 ml",
+   "unit": "ml",
+   "range": 500,
+   "magnitude": "0.2",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc.= Combined Uncertainity of 500ml Flask"
+  },
+  {
+   "key": "K003",
+   "category": "glassware",
+   "name": "Measuring cylinder 100 ml",
+   "unit": "ml",
+   "range": 100,
+   "magnitude": "0.5",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc.= Combined Uncertainity of 100ml Cylinder"
+  },
+  {
+   "key": "K004",
+   "category": "reagent",
+   "name": "Reagent purity - H2SO4",
+   "unit": "%",
+   "range": 97,
+   "magnitude": "0.7",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.H2SO$= Uncertainity of H2SO4"
+  },
+  {
+   "key": "K005",
+   "category": "instrument",
+   "name": "Magnetic Stirrer",
+   "unit": "RPM",
+   "range": 1600,
+   "magnitude": "2.65",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.Magnetic.Stirrer= Uncertainity of Magnetic Stirrer"
+  },
+  {
+   "key": "K006",
+   "category": "glassware",
+   "name": "Volumetric flask 1000 ml",
+   "unit": "ml",
+   "range": 1000,
+   "magnitude": "0.4",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uv 01 = Uncertainty due to acccuracy of 1000 ml Flask"
+  },
+  {
+   "key": "K007",
+   "category": "glassware",
+   "name": "Burette 50 ml",
+   "unit": "ml",
+   "range": 50,
+   "magnitude": "0.1",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc= Combined Uncertainity of burette 50 ml"
+  },
+  {
+   "key": "K008",
+   "category": "glassware",
+   "name": "Pipette 5 ml",
+   "unit": "ml",
+   "range": 5,
+   "magnitude": "0.03",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc v.p.= Uncertainty due acccuracy of 5ml V.pipette"
+  },
+  {
+   "key": "K009",
+   "category": "instrument",
+   "name": "pH meter - temperature compensation",
+   "unit": "pH",
+   "range": 14,
+   "magnitude": "0.031/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.pH meter = Uncertainity of pH Meter"
+  },
+  {
+   "key": "K010",
+   "category": "instrument",
+   "name": "Temperature Probe",
+   "unit": "oC",
+   "range": 25,
+   "magnitude": "0.15/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.temp. probe = Uncertainity of Temperature Probe"
+  },
+  {
+   "key": "K011",
+   "category": "reference",
+   "name": "CRM - Calcium (certificate)",
+   "unit": "PPM",
+   "range": 1000,
+   "magnitude": "49/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (Calcium+.. CRM)"
+  },
+  {
+   "key": "K012",
+   "category": "glassware",
+   "name": "Measuring cylinder 50 ml",
+   "unit": "ml",
+   "range": 50,
+   "magnitude": "0.5",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc.= Combined Uncertainity of 50ml Cylinder"
+  },
+  {
+   "key": "K013",
+   "category": "reagent",
+   "name": "Reagent purity - EDTA",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "2",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc EDTA= Combined Uncertainity of EDTA"
+  },
+  {
+   "key": "K014",
+   "category": "instrument",
+   "name": "Analytical balance (220 g)",
+   "unit": "g",
+   "range": 220,
+   "magnitude": "0.00033/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.bal= Combined Uncertainity of balance"
+  },
+  {
+   "key": "K015",
+   "category": "glassware",
+   "name": "Pipette 2 ml",
+   "unit": "ml",
+   "range": 2,
+   "magnitude": "0.01",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc.flask= Combined Uncertainity of 02 ml Pipette"
+  },
+  {
+   "key": "K016",
+   "category": "reference",
+   "name": "CRM - Chloride (certificate)",
+   "unit": "PPM",
+   "range": 1000,
+   "magnitude": "30/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (Chloride CRM)"
+  },
+  {
+   "key": "K017",
+   "category": "reagent",
+   "name": "Reagent purity - K2CrO4",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "2",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.K2CrO4= Uncertainity of K2CrO4"
+  },
+  {
+   "key": "K018",
+   "category": "glassware",
+   "name": "Pipette 1 ml",
+   "unit": "ml",
+   "range": 1,
+   "magnitude": "0.006",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc.flask= Combined Uncertainity of 01 ml Pipette"
+  },
+  {
+   "key": "K019",
+   "category": "reference",
+   "name": "CRM - Hardness (certificate)",
+   "unit": "PPM",
+   "range": 1000,
+   "magnitude": "30/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (Hardness+.. CRM)"
+  },
+  {
+   "key": "K020",
+   "category": "reference",
+   "name": "CRM - Nitrate (certificate)",
+   "unit": "PPM",
+   "range": 2.5,
+   "magnitude": "0.03",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (Nitrate CRM)"
+  },
+  {
+   "key": "K021",
+   "category": "instrument",
+   "name": "Spectrophotometer - wavelength accuracy at 536 nm",
+   "unit": "nm",
+   "range": 536,
+   "magnitude": "0.305",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc. spectro = Uncertainty due Wavelength accuracy of Spectro"
+  },
+  {
+   "key": "K022",
+   "category": "instrument",
+   "name": "Spectrophotometer - absorbance accuracy at 546.1 nm",
+   "unit": "-",
+   "range": 546.1,
+   "magnitude": "0.0017",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc abs. = Uncertainty due to absorbance of Spectro"
+  },
+  {
+   "key": "K023",
+   "category": "reagent",
+   "name": "Reagent purity - NH4Cl",
+   "unit": "%",
+   "range": 99.5,
+   "magnitude": "0.5",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NH4Cl= Uncertainity of NH4Cl"
+  },
+  {
+   "key": "K024",
+   "category": "reagent",
+   "name": "Reagent purity - EDTA (2.0 %)",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "2.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.EDTA= Uncertainity of EDTA"
+  },
+  {
+   "key": "K025",
+   "category": "instrument",
+   "name": "Analytical balance (220 g) (0.000165 g)",
+   "unit": "g",
+   "range": 220,
+   "magnitude": "0.000165",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.bal= Uncertainity of balance"
+  },
+  {
+   "key": "K026",
+   "category": "glassware",
+   "name": "Volumetric flask 100 ml",
+   "unit": "ml",
+   "range": 100,
+   "magnitude": "0.1",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+  },
+  {
+   "key": "K027",
+   "category": "glassware",
+   "name": "Volumetric flask 50 ml",
+   "unit": "ml",
+   "range": 50,
+   "magnitude": "0.06",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+  },
+  {
+   "key": "K028",
+   "category": "glassware",
+   "name": "Pipette 25 ml",
+   "unit": "ml",
+   "range": 25,
+   "magnitude": "0.1",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+  },
+  {
+   "key": "K029",
+   "category": "reference",
+   "name": "CRM - Sulphate (certificate)",
+   "unit": "PPM",
+   "range": 40,
+   "magnitude": "6/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (Sulfate CRM)"
+  },
+  {
+   "key": "K030",
+   "category": "instrument",
+   "name": "Spectrophotometer - wavelength accuracy at 453 nm",
+   "unit": "nm",
+   "range": 453,
+   "magnitude": "0.305",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc. spectro = Uncertainty due Wavelength accuracy of Spectro"
+  },
+  {
+   "key": "K031",
+   "category": "instrument",
+   "name": "Spectrophotometer - absorbance accuracy at 440 nm",
+   "unit": "-",
+   "range": 440,
+   "magnitude": "0.0017",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc abs. = Uncertainty due to absorbance of Spectro"
+  },
+  {
+   "key": "K032",
+   "category": "reagent",
+   "name": "Reagent purity - MgCl2. 6H2O",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "1.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.MgCl2. 6H2O= Uncertainity of MgCl2. 6H2O"
+  },
+  {
+   "key": "K033",
+   "category": "reagent",
+   "name": "Reagent purity - CH3COONa. 3H2O",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "0.6",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.CH3COONa. 3H2O= Uncertainity of CH3COONa. 3H2O"
+  },
+  {
+   "key": "K034",
+   "category": "reagent",
+   "name": "Reagent purity - KNO3",
+   "unit": "%",
+   "range": 100.5,
+   "magnitude": "0.8",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.KNO3= Uncertainity of KNO3"
+  },
+  {
+   "key": "K035",
+   "category": "reagent",
+   "name": "Reagent purity - CH3COOH",
+   "unit": "%",
+   "range": 99.8,
+   "magnitude": "0.6",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.CH3COOH= Uncertainity of CH3COOH"
+  },
+  {
+   "key": "K036",
+   "category": "reagent",
+   "name": "Reagent purity - BaCl2.2H2O",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "1.3",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.BaCl2.2H2O= Uncertainity of BaCl2.2H2O"
+  },
+  {
+   "key": "K037",
+   "category": "reference",
+   "name": "CRM - TDS (certificate)",
+   "unit": "PPM",
+   "range": 1000,
+   "magnitude": "1/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (TDS CRM)"
+  },
+  {
+   "key": "K038",
+   "category": "instrument",
+   "name": "Oven - temperature (180 °C)",
+   "unit": "°C",
+   "range": 180,
+   "magnitude": "0.29/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.oven= Uncertainity of Oven"
+  },
+  {
+   "key": "K039",
+   "category": "reference",
+   "name": "CRM - Turbidity (certificate)",
+   "unit": "NTU",
+   "range": 0.08,
+   "magnitude": "0.002",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std"
+  },
+  {
+   "key": "K040",
+   "category": "instrument",
+   "name": "Spectrophotometer - absorbance accuracy at 590 nm",
+   "unit": "-",
+   "range": 590,
+   "magnitude": "0.0017",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc abs. = Uncertainty due to absorbance of Spectro"
+  },
+  {
+   "key": "K041",
+   "category": "reagent",
+   "name": "Reagent purity - Hydrazine Sulfate",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "1.5",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc. (NH2)2.H2SO4= Uncertainity of Hydrazine Sulfate"
+  },
+  {
+   "key": "K042",
+   "category": "reagent",
+   "name": "Reagent purity - Hexamethylenetetramine",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "1.9",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.(CH2)6N4= Uncertainity of Hexamethylenetetramine"
+  },
+  {
+   "key": "K043",
+   "category": "glassware",
+   "name": "Pipette 10 ml",
+   "unit": "ml",
+   "range": 10,
+   "magnitude": "0.05",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc v.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+  },
+  {
+   "key": "K044",
+   "category": "reference",
+   "name": "CRM - Nitrate (NO3-N) (certificate)",
+   "unit": "PPM",
+   "range": 0.15,
+   "magnitude": "0.018",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std"
+  },
+  {
+   "key": "K045",
+   "category": "reagent",
+   "name": "Reagent purity - HCl",
+   "unit": "%",
+   "range": 38,
+   "magnitude": "0.8",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.HCl= Uncertainity of HCl"
+  },
+  {
+   "key": "K046",
+   "category": "reagent",
+   "name": "Reagent purity - NaOH",
+   "unit": "%",
+   "range": 103.5,
+   "magnitude": "3.6",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NaOH= Uncertainity of NaOH"
+  },
+  {
+   "key": "K047",
+   "category": "reagent",
+   "name": "Reagent purity - Phosphoric Acid",
+   "unit": "%",
+   "range": 85,
+   "magnitude": "1.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NaOH= Uncertainity of Phosphoric Acid"
+  },
+  {
+   "key": "K048",
+   "category": "reagent",
+   "name": "Reagent purity - Sulfanilamide",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "1.1",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NaOH= Uncertainity of Sulfanilamide"
+  },
+  {
+   "key": "K049",
+   "category": "reagent",
+   "name": "Reagent purity - NED",
+   "unit": "%",
+   "range": 98,
+   "magnitude": "0.8",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NaOH= Uncertainity of NED"
+  },
+  {
+   "key": "K050",
+   "category": "instrument",
+   "name": "Analytical balance (220 g) (0.0175 g)",
+   "unit": "g",
+   "range": 220,
+   "magnitude": "0.0175",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.bal= Uncertainity of balance"
+  },
+  {
+   "key": "K051",
+   "category": "instrument",
+   "name": "pH meter - temperature compensation (0.01/2 pH)",
+   "unit": "pH",
+   "range": 14,
+   "magnitude": "0.01/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.pH meter = uncertainity of pH Meter"
+  },
+  {
+   "key": "K052",
+   "category": "reference",
+   "name": "CRM - Hardness (certificate) (0.3275 ppm)",
+   "unit": "ppm",
+   "range": 227,
+   "magnitude": "0.3275",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std = Uncertainty of Ref. Std ( Hardness.. RM)"
+  },
+  {
+   "key": "K053",
+   "category": "instrument",
+   "name": "Acccuracy of hot plate Magnetic Stirrer",
+   "unit": "RPM",
+   "range": 1600,
+   "magnitude": "0.55",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc magnetic.stirrer = Uncertainty due to acccuracy of hot plate Magnetic Stirrer"
+  },
+  {
+   "key": "K054",
+   "category": "reagent",
+   "name": "Reagent purity - EDTA Disodium salt",
+   "unit": "%",
+   "range": 101,
+   "magnitude": "2.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.EDTA= Uncertainity of EDTA Disodium salt"
+  },
+  {
+   "key": "K055",
+   "category": "reagent",
+   "name": "Reagent purity - Calcium Carbonate",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "0.4",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.CaCO3= Uncertainity of Calcium Carbonate"
+  },
+  {
+   "key": "K056",
+   "category": "reference",
+   "name": "CRM - Alkalinity (certificate) (0.4665 ppm)",
+   "unit": "ppm",
+   "range": 230,
+   "magnitude": "0.4665",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std = Uncertainty of Ref. Std (Alklanity.. RM)"
+  },
+  {
+   "key": "K057",
+   "category": "instrument",
+   "name": "Temperature Probe (0.18/2 oC)",
+   "unit": "oC",
+   "range": 25,
+   "magnitude": "0.18/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.temp. probe = Uncertainity of Temperature Probe"
+  },
+  {
+   "key": "K058",
+   "category": "instrument",
+   "name": "Oven - temperature (200 °C)",
+   "unit": "°C",
+   "range": 200,
+   "magnitude": "0.36",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.oven.= Uncertainity of Oven"
+  },
+  {
+   "key": "K059",
+   "category": "instrument",
+   "name": "Hot Plate Magnetic Stirrer",
+   "unit": "°C",
+   "range": 300,
+   "magnitude": "0.115",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.Magnetic.Stirrer= Uncertainity of Hot Plate Magnetic Stirrer"
+  },
+  {
+   "key": "K060",
+   "category": "instrument",
+   "name": "Magnetic Stirrer (0.55 RPM)",
+   "unit": "RPM",
+   "range": 1600,
+   "magnitude": "0.55",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.Magnetic.Stirrer= Uncertainity of Magnetic Stirrer"
+  },
+  {
+   "key": "K061",
+   "category": "reagent",
+   "name": "Reagent purity - Na2CO3",
+   "unit": "%",
+   "range": 99.5,
+   "magnitude": "0.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.Na2CO3= Uncertainity of Na2CO3"
+  },
+  {
+   "key": "K062",
+   "category": "reagent",
+   "name": "Reagent purity - Ethyl Alcohol",
+   "unit": "%",
+   "range": 99.8,
+   "magnitude": "0.1",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.Ethanol= Uncertainity of Ethyl Alcohol"
+  },
+  {
+   "key": "K063",
+   "category": "glassware",
+   "name": "Volumetric flask 250 ml",
+   "unit": "ml",
+   "range": 250,
+   "magnitude": "0.15",
+   "dist": "tri",
+   "ci": 1,
+   "label": "uc.flask= Uncertainity of 250 ml Volumetric Flask"
+  },
+  {
+   "key": "K064",
+   "category": "reference",
+   "name": "CRM - Calcium (certificate) (0.1445 ppm)",
+   "unit": "ppm",
+   "range": 65,
+   "magnitude": "0.1445",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std = Uncertainty of Ref. Std (Calcium RM)"
+  },
+  {
+   "key": "K065",
+   "category": "reagent",
+   "name": "Reagent purity - Sodium Hydroxide",
+   "unit": "%",
+   "range": 103.5,
+   "magnitude": "3.6",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NaOH= Uncertainity of Sodium Hydroxide"
+  },
+  {
+   "key": "K066",
+   "category": "reference",
+   "name": "CRM - Chloride (certificate) (0.12 ppm)",
+   "unit": "ppm",
+   "range": 9.96,
+   "magnitude": "0.12",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std = Uncertainty of Ref. Std (Chloride.. RM)"
+  },
+  {
+   "key": "K067",
+   "category": "reagent",
+   "name": "Reagent purity - AgNO3",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "0.6",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.AgNO3= Uncertainity of AgNO3"
+  },
+  {
+   "key": "K068",
+   "category": "reagent",
+   "name": "Reagent purity - NaCl",
+   "unit": "%",
+   "range": 99.5,
+   "magnitude": "0.4",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.NaCl= Uncertainity of NaCl"
+  },
+  {
+   "key": "K069",
+   "category": "reagent",
+   "name": "Reagent purity - K2CrO4 (2.0 %)",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "2.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.K2CrO4= Uncertainity of K2CrO4"
+  },
+  {
+   "key": "K070",
+   "category": "reference",
+   "name": "CRM - SO4 (certificate)",
+   "unit": "PPM",
+   "range": 15.25,
+   "magnitude": "0.111",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (SO4+.. RM)"
+  },
+  {
+   "key": "K071",
+   "category": "instrument",
+   "name": "Acccuracy of hot plate Magnetic Stirrer (1.1/2 RPM)",
+   "unit": "RPM",
+   "range": 1600,
+   "magnitude": "1.1/2",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc hot plate = Uncertainty due to acccuracy of hot plate Magnetic Stirrer"
+  },
+  {
+   "key": "K072",
+   "category": "reagent",
+   "name": "Reagent purity - Na2SO4",
+   "unit": "%",
+   "range": 99,
+   "magnitude": "1.0",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uc.Na2SO4= Uncertainity of Na2SO4"
+  },
+  {
+   "key": "K073",
+   "category": "reference",
+   "name": "CRM - TDS (certificate) (0.387 ppm)",
+   "unit": "ppm",
+   "range": 272,
+   "magnitude": "0.387",
+   "dist": "normal",
+   "ci": 1,
+   "label": "uc.std of Ref. Std (TDS RM)"
+  },
+  {
+   "key": "K074",
+   "category": "instrument",
+   "name": "Analytical balance - temperature drift (uDt)",
+   "unit": "mg",
+   "range": 500,
+   "magnitude": "(28-27.4)*(0.000002)*500",
+   "dist": "rect",
+   "ci": 1,
+   "label": "uDt = Uncertainty in balance readings due to change in temperature **"
+  }
+ ],
+ "studies": [
+  {
+   "file": "z1/ETAL-LAB-706-FF-01- pH Measurement of uncertainty Record.xlsx",
+   "parameter": "pH",
+   "level": "6.86",
+   "unit": "pH",
+   "unit_printed": "pH",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (Refrence Material) - 6.86 CRM Product No.: 1.07202.0105 CRM Lot # : HC5305002 Date: 17-08-2026",
+   "method": "",
+   "instrument": "pH meter",
+   "range": null,
+   "env_temp": null,
+   "study_date": "2026-08-17",
+   "complete": false,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      6.875,
+      6.859,
+      6.86,
+      6.863,
+      6.862,
+      6.857,
+      6.858,
+      6.86,
+      6.863,
+      6.862
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [],
+   "legacy": {
+    "sd": [
+     0.005426273532033174,
+     0.0,
+     0.0
+    ],
+    "uc": null,
+    "U": null,
+    "U_abs": null,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01- pH Measurement of uncertainty Record.xlsx",
+    "sheet": "pH 6.86"
+   },
+   "notes": [
+    "D1: SD of operator A printed 0.0054263, correct 0.0050431 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D10: the workbook holds replicates only - no uncertainty budget; imported as a draft."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Alkalinity-Measurement of uncertainity Record.xlsx",
+   "parameter": "Alkalinity",
+   "level": "100 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: ALK500-0500ML CRM Lot # : LTR442973 CRM Dilution of 100 ppm by 500 ppm Stock Date:17-08-2026",
+   "method": "",
+   "instrument": "",
+   "range": 500.0,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      100.0,
+      97.5,
+      100.0,
+      100.0,
+      102.5,
+      97.5,
+      97.5,
+      102.5,
+      100.0,
+      105.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 500.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K001",
+     "name": "CRM - Alkalinity (certificate)",
+     "unit": "PPM",
+     "range": 500,
+     "magnitude": "16/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (Alkalinity CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K002",
+     "name": "Volumetric flask 500 ml",
+     "unit": "ml",
+     "range": 500,
+     "magnitude": "0.2",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 500ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 100ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K004",
+     "name": "Reagent purity - H2SO4",
+     "unit": "%",
+     "range": 97,
+     "magnitude": "0.7",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.H2SO$= Uncertainity of H2SO4"
+    },
+    {
+     "kind": "b",
+     "source_key": "K005",
+     "name": "Magnetic Stirrer",
+     "unit": "RPM",
+     "range": 1600,
+     "magnitude": "2.65",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Magnetic.Stirrer= Uncertainity of Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv 01 = Uncertainty due to acccuracy of 1000 ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc= Combined Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K008",
+     "name": "Pipette 5 ml",
+     "unit": "ml",
+     "range": 5,
+     "magnitude": "0.03",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p.= Uncertainty due acccuracy of 5ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K009",
+     "name": "pH meter - temperature compensation",
+     "unit": "pH",
+     "range": 14,
+     "magnitude": "0.031/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pH meter = Uncertainity of pH Meter"
+    },
+    {
+     "kind": "b",
+     "source_key": "K010",
+     "name": "Temperature Probe",
+     "unit": "oC",
+     "range": 25,
+     "magnitude": "0.15/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.temp. probe = Uncertainity of Temperature Probe"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     1.9148542155126762,
+     0.0,
+     0.0
+    ],
+    "uc": 0.017282405175582348,
+    "U": 0.034564810351164696,
+    "U_abs": 3.4651222377042608,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Alkalinity-Measurement of uncertainity Record.xlsx",
+    "sheet": "Alkalinity"
+   },
+   "notes": [
+    "D1: SD of operator A printed 1.9149, correct 2.4861 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (100.25); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Calcium-Measurement of uncertainity Record.xlsx",
+   "parameter": "Calcium hardness",
+   "level": "100 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: HARD1000-500ML CRM Lot # : LRAD9804 CRM Dilution of 100 ppm by 1000 ppm Stock Date: 17-08-2026",
+   "method": "",
+   "instrument": "",
+   "range": 300.0,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      100.0,
+      96.0,
+      102.4,
+      100.0,
+      100.8,
+      96.0,
+      100.0,
+      104.0,
+      102.4,
+      100.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 300.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K011",
+     "name": "CRM - Calcium (certificate)",
+     "unit": "PPM",
+     "range": 1000,
+     "magnitude": "49/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (Calcium+.. CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K002",
+     "name": "Volumetric flask 500 ml",
+     "unit": "ml",
+     "range": 500,
+     "magnitude": "0.2",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 500ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 50ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K013",
+     "name": "Reagent purity - EDTA",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "2",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc EDTA= Combined Uncertainity of EDTA"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv 01 = Uncertainty due acccuracy of 1000 ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc= Combined Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 50ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K014",
+     "name": "Analytical balance (220 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.00033/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Combined Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Combined Uncertainity of 02 ml Pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     2.4689358931419108,
+     0.0,
+     0.0
+    ],
+    "uc": 0.02785586255629195,
+    "U": 0.0557117251125839,
+    "U_abs": 5.580086387276403,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Calcium-Measurement of uncertainity Record.xlsx",
+    "sheet": "Calcium"
+   },
+   "notes": [
+    "D1: SD of operator A printed 2.4689, correct 2.5799 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (100.16); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Chloride-Measurement of uncertainity Record.xlsx",
+   "parameter": "Chloride (Cl)",
+   "level": "100 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: 1.19897.0500ML CRM Lot # : HC44297397 CRM Dilution of 100 ppm by 1000 ppm Stock Date: 17-08-2026",
+   "method": "",
+   "instrument": "",
+   "range": 124.96,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      100.47,
+      100.97,
+      100.47,
+      99.97,
+      100.97,
+      99.47,
+      99.97,
+      100.47,
+      100.47,
+      99.97
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 124.96,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K016",
+     "name": "CRM - Chloride (certificate)",
+     "unit": "PPM",
+     "range": 1000,
+     "magnitude": "30/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (Chloride CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K002",
+     "name": "Volumetric flask 500 ml",
+     "unit": "ml",
+     "range": 500,
+     "magnitude": "0.2",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 500ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 100ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 50ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv 01 = Uncertainty due to acccuracy of 1000 ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc= Combined Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K017",
+     "name": "Reagent purity - K2CrO4",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "2",
+     "dist": "rect",
+     "ci": 1,
+     "note": "workbook label said Triangular",
+     "workbook_label": "uc.K2CrO4= Uncertainity of K2CrO4"
+    },
+    {
+     "kind": "b",
+     "source_key": "K014",
+     "name": "Analytical balance (220 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.00033/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Combined Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Combined Uncertainity of 01 ml Pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.4570436400267366,
+     0.0,
+     0.0
+    ],
+    "uc": 0.019746686276067255,
+    "U": 0.03949337255213451,
+    "U_abs": 3.961975134430134,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Chloride-Measurement of uncertainity Record.xlsx",
+    "sheet": "Chloride"
+   },
+   "notes": [
+    "D16: \"uc.K2CrO4= Uncertainity of K2CrO4\" is labelled Triangular but the workbook divided by sqrt3 (rectangular); the printed figure is reproduced with the divisor used.",
+    "D1: SD of operator A printed 0.45704, correct 0.47434 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (100.32); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Hardness-Measurement of uncertainity Record.xlsx",
+   "parameter": "Total hardness",
+   "level": "100 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: THRD-1000-500ML CRM Lot # : LRAD8034 CRM Dilution of 100 ppm by 1000 ppm Stock Date: 17-08-2026",
+   "method": "",
+   "instrument": "",
+   "range": 400.0,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      102.0,
+      100.0,
+      100.0,
+      102.0,
+      104.0,
+      98.0,
+      98.0,
+      106.0,
+      98.0,
+      96.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 400.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K019",
+     "name": "CRM - Hardness (certificate)",
+     "unit": "PPM",
+     "range": 1000,
+     "magnitude": "30/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (Hardness+.. CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K002",
+     "name": "Volumetric flask 500 ml",
+     "unit": "ml",
+     "range": 500,
+     "magnitude": "0.2",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 500ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 50ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K013",
+     "name": "Reagent purity - EDTA",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "2",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc EDTA= Combined Uncertainity of EDTA"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv 01 = Uncertainty due acccuracy of 1000 ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc= Combined Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 50ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K014",
+     "name": "Analytical balance (220 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.00033/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Combined Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Combined Uncertainity of 01 ml Pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     2.609384772104122,
+     0.0,
+     0.0
+    ],
+    "uc": 0.020000375730778452,
+    "U": 0.040000751461556905,
+    "U_abs": 4.016075446740314,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Hardness-Measurement of uncertainity Record.xlsx",
+    "sheet": "Total Hardness"
+   },
+   "notes": [
+    "D1: SD of operator A printed 2.6094, correct 3.0984 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (100.4); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Nitrate-Measurement of uncertainity Record.xlsx",
+   "parameter": "Nitrate (NO3-N)",
+   "level": "0.1 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: 1.25037.0100 CRM Lot # : HC45084037 CRM Dilution of 0.1 ppm by 2.5 ppm Stock Date: 17-08-2026",
+   "method": "",
+   "instrument": "UV-Visible spectrophotometer",
+   "range": 1.0,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      0.1,
+      0.13,
+      0.1,
+      0.11,
+      0.12,
+      0.1,
+      0.12,
+      0.09,
+      0.1,
+      0.08
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 1.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K020",
+     "name": "CRM - Nitrate (certificate)",
+     "unit": "PPM",
+     "range": 2.5,
+     "magnitude": "0.03",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (Nitrate CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K021",
+     "name": "Spectrophotometer - wavelength accuracy at 536 nm",
+     "unit": "nm",
+     "range": 536,
+     "magnitude": "0.305",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc. spectro = Uncertainty due Wavelength accuracy of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K022",
+     "name": "Spectrophotometer - absorbance accuracy at 546.1 nm",
+     "unit": "-",
+     "range": 546.1,
+     "magnitude": "0.0017",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc abs. = Uncertainty due to absorbance of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K023",
+     "name": "Reagent purity - NH4Cl",
+     "unit": "%",
+     "range": 99.5,
+     "magnitude": "0.5",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NH4Cl= Uncertainity of NH4Cl"
+    },
+    {
+     "kind": "b",
+     "source_key": "K024",
+     "name": "Reagent purity - EDTA (2.0 %)",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "2.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.EDTA= Uncertainity of EDTA"
+    },
+    {
+     "kind": "b",
+     "source_key": "K025",
+     "name": "Analytical balance (220 g) (0.000165 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.000165",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K009",
+     "name": "pH meter - temperature compensation",
+     "unit": "pH",
+     "range": 14,
+     "magnitude": "0.031/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pH meter = uncertainity of pH Meter"
+    },
+    {
+     "kind": "b",
+     "source_key": "K010",
+     "name": "Temperature Probe",
+     "unit": "oC",
+     "range": 25,
+     "magnitude": "0.15/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.temp. probe = Uncertainity of Temperature Probe"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.2mL = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.01509230856356236,
+     0.0,
+     0.0
+    ],
+    "uc": 0.017996039863126142,
+    "U": 0.035992079726252284,
+    "U_abs": 0.00377916837125649,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Nitrate-Measurement of uncertainity Record.xlsx",
+    "sheet": "Nitrate"
+   },
+   "notes": [
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (0.105); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Sulfate-Measurement of uncertainity Record.xlsx",
+   "parameter": "Sulphate (SO4)",
+   "level": "4 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: 1.25050.0100 CRM Lot # : HC56823350 CRM Dilution of 4 ppm by 40 ppm Stock Date:17-08-2026",
+   "method": "",
+   "instrument": "UV-Visible spectrophotometer",
+   "range": 40.0,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      4.26,
+      4.11,
+      3.87,
+      4.05,
+      4.28,
+      4.15,
+      3.99,
+      4.06,
+      4.18,
+      3.95
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 40.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K029",
+     "name": "CRM - Sulphate (certificate)",
+     "unit": "PPM",
+     "range": 40,
+     "magnitude": "6/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (Sulfate CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K030",
+     "name": "Spectrophotometer - wavelength accuracy at 453 nm",
+     "unit": "nm",
+     "range": 453,
+     "magnitude": "0.305",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc. spectro = Uncertainty due Wavelength accuracy of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K031",
+     "name": "Spectrophotometer - absorbance accuracy at 440 nm",
+     "unit": "-",
+     "range": 440,
+     "magnitude": "0.0017",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc abs. = Uncertainty due to absorbance of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K032",
+     "name": "Reagent purity - MgCl2. 6H2O",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "1.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.MgCl2. 6H2O= Uncertainity of MgCl2. 6H2O"
+    },
+    {
+     "kind": "b",
+     "source_key": "K033",
+     "name": "Reagent purity - CH3COONa. 3H2O",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "0.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.CH3COONa. 3H2O= Uncertainity of CH3COONa. 3H2O"
+    },
+    {
+     "kind": "b",
+     "source_key": "K034",
+     "name": "Reagent purity - KNO3",
+     "unit": "%",
+     "range": 100.5,
+     "magnitude": "0.8",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.KNO3= Uncertainity of KNO3"
+    },
+    {
+     "kind": "b",
+     "source_key": "K035",
+     "name": "Reagent purity - CH3COOH",
+     "unit": "%",
+     "range": 99.8,
+     "magnitude": "0.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.CH3COOH= Uncertainity of CH3COOH"
+    },
+    {
+     "kind": "b",
+     "source_key": "K036",
+     "name": "Reagent purity - BaCl2.2H2O",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "1.3",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.BaCl2.2H2O= Uncertainity of BaCl2.2H2O"
+    },
+    {
+     "kind": "b",
+     "source_key": "K025",
+     "name": "Analytical balance (220 g) (0.000165 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.000165",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 1000 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 100 ml Volumetric Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.2mL = Uncertainty due to acccuracy of 50 ml Volumetric Cylinder"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.12013880860626736,
+     0.0,
+     0.0
+    ],
+    "uc": 0.07605131579003951,
+    "U": 0.15210263158007903,
+    "U_abs": 0.6220997631625232,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Sulfate-Measurement of uncertainity Record.xlsx",
+    "sheet": "Sulfate"
+   },
+   "notes": [
+    "D1: SD of operator A printed 0.12014, correct 0.13233 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (4.09); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-TDS-Measurement of uncertainity Record.xlsx",
+   "parameter": "TDS",
+   "level": "250 ppm (CRM dilution)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (certified Refrence Material) CRM Product No: TDS1000-0500ML CRM Lot # : LRAD8703 CRM Dilution of 250 ppm by 1000 ppm Stock Date: 17-08-2026",
+   "method": "",
+   "instrument": "Oven / analytical balance",
+   "range": 4000.0,
+   "env_temp": 24.5,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      252.0,
+      250.0,
+      248.0,
+      250.0,
+      254.0,
+      252.0,
+      250.0,
+      248.0,
+      248.0,
+      250.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 4000.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K037",
+     "name": "CRM - TDS (certificate)",
+     "unit": "PPM",
+     "range": 1000,
+     "magnitude": "1/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (TDS CRM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K002",
+     "name": "Volumetric flask 500 ml",
+     "unit": "ml",
+     "range": 500,
+     "magnitude": "0.2",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 500ml Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 100ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.= Combined Uncertainity of 50ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K038",
+     "name": "Oven - temperature (180 °C)",
+     "unit": "°C",
+     "range": 180,
+     "magnitude": "0.29/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of Oven"
+    },
+    {
+     "kind": "b",
+     "source_key": "K014",
+     "name": "Analytical balance (220 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.00033/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Combined Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Combined Uncertainity of 25 ml Pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     1.8475208614068042,
+     0.0,
+     0.0
+    ],
+    "uc": 0.004944382703188178,
+    "U": 0.009888765406376355,
+    "U_abs": 2.4741691046753638,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-TDS-Measurement of uncertainity Record.xlsx",
+    "sheet": "TDS"
+   },
+   "notes": [
+    "D1: SD of operator A printed 1.8475, correct 1.9889 (the workbook sum of squares omitted replicates 9-10).",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (250.2); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z1/ETAL-LAB-706-FF-01-CRM-Turbidity -Measurement of uncertainity Record.xlsx",
+   "parameter": "Turbidity",
+   "level": "10 NTU",
+   "unit": "NTU",
+   "unit_printed": "NTU",
+   "sample_kind": "CRM",
+   "sample_ref": "CRM (Certified Refrence Material) 10 NTU CRM Product No: TURB10-0500ML CRM Lot # : HC5406902 Date:17-08-2026",
+   "method": "",
+   "instrument": "",
+   "range": 40.0,
+   "env_temp": 25.1,
+   "study_date": "2026-08-17",
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      10.08,
+      10.1,
+      10.0,
+      9.96,
+      10.1,
+      9.96,
+      10.13,
+      10.1,
+      10.08,
+      9.96
+     ]
+    },
+    {
+     "label": "B",
+     "values": []
+    },
+    {
+     "label": "C",
+     "values": []
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "NTU",
+     "range": 40.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K039",
+     "name": "CRM - Turbidity (certificate)",
+     "unit": "NTU",
+     "range": 0.08,
+     "magnitude": "0.002",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std"
+    },
+    {
+     "kind": "b",
+     "source_key": "K025",
+     "name": "Analytical balance (220 g) (0.000165 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.000165",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal.= Uncertainity of Balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K021",
+     "name": "Spectrophotometer - wavelength accuracy at 536 nm",
+     "unit": "nm",
+     "range": 536,
+     "magnitude": "0.305",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.spectro = Uncertainty due to Wavelength accuracy of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K040",
+     "name": "Spectrophotometer - absorbance accuracy at 590 nm",
+     "unit": "-",
+     "range": 590,
+     "magnitude": "0.0017",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc abs. = Uncertainty due to absorbance of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K041",
+     "name": "Reagent purity - Hydrazine Sulfate",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "1.5",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc. (NH2)2.H2SO4= Uncertainity of Hydrazine Sulfate"
+    },
+    {
+     "kind": "b",
+     "source_key": "K042",
+     "name": "Reagent purity - Hexamethylenetetramine",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "1.9",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.(CH2)6N4= Uncertainity of Hexamethylenetetramine"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p.= Uncertainty due to acccuracy of 1ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K008",
+     "name": "Pipette 5 ml",
+     "unit": "ml",
+     "range": 5,
+     "magnitude": "0.03",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p.= Uncertainty due acccuracy of 5ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 25 ml V.pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.06864562784491213,
+     0.0,
+     0.0
+    ],
+    "uc": 0.029249663463171555,
+    "U": 0.05849932692634311,
+    "U_abs": 0.5877427376289692,
+    "U_pct": null,
+    "file": "z1/ETAL-LAB-706-FF-01-CRM-Turbidity -Measurement of uncertainity Record.xlsx",
+    "sheet": "Turbidity (10NTU)"
+   },
+   "notes": [
+    "D15: the reference-standard row uses range 0.08, below the measured level 10.05 - check the certificate value used as x.",
+    "D11: single-operator study - no reproducibility term.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (10.047); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01- CRM- Nitrate-Measurement of uncertainty Record.xlsx",
+   "parameter": "Nitrate (NO3-N)",
+   "level": "3.2 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) 3.2 ppm RM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "UV-Visible spectrophotometer",
+   "range": 1.0,
+   "env_temp": 25.1,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      3.4,
+      3.2,
+      3.0,
+      3.0,
+      2.8,
+      3.2,
+      2.8,
+      3.0,
+      2.8,
+      3.2
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      2.8,
+      3.0,
+      2.8,
+      2.8,
+      3.2,
+      3.0,
+      3.4,
+      3.2,
+      3.0,
+      3.4
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      2.8,
+      3.0,
+      3.0,
+      2.8,
+      3.2,
+      3.4,
+      3.0,
+      2.8,
+      3.2,
+      3.0
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 1.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "PPM",
+     "range": 1.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K044",
+     "name": "CRM - Nitrate (NO3-N) (certificate)",
+     "unit": "PPM",
+     "range": 0.15,
+     "magnitude": "0.018",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std"
+    },
+    {
+     "kind": "b",
+     "source_key": "K021",
+     "name": "Spectrophotometer - wavelength accuracy at 536 nm",
+     "unit": "nm",
+     "range": 536,
+     "magnitude": "0.305",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc. spectro = Uncertainty due Wavelength accuracy of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K022",
+     "name": "Spectrophotometer - absorbance accuracy at 546.1 nm",
+     "unit": "-",
+     "range": 546.1,
+     "magnitude": "0.0017",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc abs. = Uncertainty due to absorbance of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K034",
+     "name": "Reagent purity - KNO3",
+     "unit": "%",
+     "range": 100.5,
+     "magnitude": "0.8",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.KNO3= Uncertainity of KNO3"
+    },
+    {
+     "kind": "b",
+     "source_key": "K023",
+     "name": "Reagent purity - NH4Cl",
+     "unit": "%",
+     "range": 99.5,
+     "magnitude": "0.5",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NH4Cl= Uncertainity of NH4Cl"
+    },
+    {
+     "kind": "b",
+     "source_key": "K024",
+     "name": "Reagent purity - EDTA (2.0 %)",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "2.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.EDTA= Uncertainity of EDTA"
+    },
+    {
+     "kind": "b",
+     "source_key": "K045",
+     "name": "Reagent purity - HCl",
+     "unit": "%",
+     "range": 38,
+     "magnitude": "0.8",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.HCl= Uncertainity of HCl"
+    },
+    {
+     "kind": "b",
+     "source_key": "K046",
+     "name": "Reagent purity - NaOH",
+     "unit": "%",
+     "range": 103.5,
+     "magnitude": "3.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaOH= Uncertainity of NaOH"
+    },
+    {
+     "kind": "b",
+     "source_key": "K047",
+     "name": "Reagent purity - Phosphoric Acid",
+     "unit": "%",
+     "range": 85,
+     "magnitude": "1.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaOH= Uncertainity of Phosphoric Acid"
+    },
+    {
+     "kind": "b",
+     "source_key": "K048",
+     "name": "Reagent purity - Sulfanilamide",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "1.1",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaOH= Uncertainity of Sulfanilamide"
+    },
+    {
+     "kind": "b",
+     "source_key": "K049",
+     "name": "Reagent purity - NED",
+     "unit": "%",
+     "range": 98,
+     "magnitude": "0.8",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaOH= Uncertainity of NED"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K051",
+     "name": "pH meter - temperature compensation (0.01/2 pH)",
+     "unit": "pH",
+     "range": 14,
+     "magnitude": "0.01/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pH meter = uncertainity of pH Meter"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 100mL = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.f. 50mL = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv2 = Uncertainty due acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.2mL = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.2mL = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.2mL = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.1mL = Uncertainty due to acccuracy of 1ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K008",
+     "name": "Pipette 5 ml",
+     "unit": "ml",
+     "range": 5,
+     "magnitude": "0.03",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p. 5mL = Uncertainty due to acccuracy of 5ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.10 mL = Uncertainty due acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.10 mL = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.10 mL = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.10 mL = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.10 mL = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p.25mL = Uncertainty due to acccuracy of 25 ml V.pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.206559111797729,
+     0.2319003617456812,
+     0.19888578520235073
+    ],
+    "uc": 0.2547249590676402,
+    "U": 0.5094499181352804,
+    "U_abs": 1.5487277511312525,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01- CRM- Nitrate-Measurement of uncertainty Record.xlsx",
+    "sheet": "Nitrate (3.4 PPM)"
+   },
+   "notes": [
+    "D15: the reference-standard row uses range 0.15, below the measured level 3.04 - check the certificate value used as x.",
+    "D8: the measured mean 3.04 exceeds the range 1 used in the workbook.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (3.04); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01- pH Measurement of uncertainty Record.xlsx",
+   "parameter": "pH",
+   "level": "7.62 (RM 2024)",
+   "unit": "pH",
+   "unit_printed": "pH",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) - 7.62 RM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "pH meter",
+   "range": null,
+   "env_temp": null,
+   "study_date": null,
+   "complete": false,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      7.62,
+      7.6,
+      7.61,
+      7.61,
+      7.62,
+      7.64,
+      7.61,
+      7.6,
+      7.62,
+      7.62
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      7.59,
+      7.61,
+      7.6,
+      7.61,
+      7.63,
+      7.58,
+      7.6,
+      7.62,
+      7.59,
+      7.6
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      7.58,
+      7.61,
+      7.62,
+      7.6,
+      7.6,
+      7.59,
+      7.63,
+      7.62,
+      7.61,
+      7.59
+     ]
+    }
+   ],
+   "components": [],
+   "legacy": {
+    "sd": [
+     0.012909944487358086,
+     0.015275252316519595,
+     0.016666666666666843
+    ],
+    "uc": null,
+    "U": null,
+    "U_abs": null,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01- pH Measurement of uncertainty Record.xlsx",
+    "sheet": "pH 7.62"
+   },
+   "notes": [
+    "D1: SD of operator A printed 0.01291, correct 0.011785 (the workbook sum of squares omitted replicates 9-10).",
+    "D1: SD of operator B printed 0.015275, correct 0.014944 (the workbook sum of squares omitted replicates 9-10).",
+    "D1: SD of operator C printed 0.016667, correct 0.015811 (the workbook sum of squares omitted replicates 9-10).",
+    "D10: the workbook holds replicates only - no uncertainty budget; imported as a draft."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM- Hardness-Measurement of uncertainity Record.xlsx",
+   "parameter": "Total hardness",
+   "level": "227 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "ppm",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) - 227 PPM RM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "",
+   "range": 400.0,
+   "env_temp": null,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      226.0,
+      228.0,
+      226.0,
+      227.0,
+      230.0,
+      227.0,
+      226.0,
+      228.0,
+      227.0,
+      226.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      226.0,
+      230.0,
+      228.0,
+      227.0,
+      226.0,
+      226.0,
+      230.0,
+      228.0,
+      227.4,
+      226.0
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      230.0,
+      228.0,
+      228.0,
+      227.0,
+      226.0,
+      230.0,
+      226.0,
+      228.0,
+      227.0,
+      226.0
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "ppm",
+     "range": 400.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "ppm",
+     "range": 400.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K052",
+     "name": "CRM - Hardness (certificate) (0.3275 ppm)",
+     "unit": "ppm",
+     "range": 227,
+     "magnitude": "0.3275",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std = Uncertainty of Ref. Std ( Hardness.. RM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K051",
+     "name": "pH meter - temperature compensation (0.01/2 pH)",
+     "unit": "pH",
+     "range": 14,
+     "magnitude": "0.01/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pH meter = Uncertainity of pH Meter"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K053",
+     "name": "Acccuracy of hot plate Magnetic Stirrer",
+     "unit": "RPM",
+     "range": 1600,
+     "magnitude": "0.55",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc magnetic.stirrer = Uncertainty due to acccuracy of hot plate Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K054",
+     "name": "Reagent purity - EDTA Disodium salt",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "2.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.EDTA= Uncertainity of EDTA Disodium salt"
+    },
+    {
+     "kind": "b",
+     "source_key": "K055",
+     "name": "Reagent purity - Calcium Carbonate",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "0.4",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.CaCO3= Uncertainity of Calcium Carbonate"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 1000 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 01 ml Pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of 50ml Cylinder"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     1.2866839377079187,
+     1.5714112553158495,
+     1.5055453054181618
+    ],
+    "uc": 0.01327372368962616,
+    "U": 0.02654744737925232,
+    "U_abs": 6.0289252998282015,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM- Hardness-Measurement of uncertainity Record.xlsx",
+    "sheet": " Hardnesss 227ppm"
+   },
+   "notes": [
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (227.1); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM-Alklanity -Measurement of uncertainity Record.xlsx",
+   "parameter": "Alkalinity",
+   "level": "230 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "ppm",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) 230 PPM CRM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "",
+   "range": 500.0,
+   "env_temp": null,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      232.5,
+      230.0,
+      230.0,
+      227.5,
+      232.5,
+      232.5,
+      230.0,
+      227.5,
+      230.0,
+      230.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      230.0,
+      232.5,
+      232.5,
+      230.0,
+      227.5,
+      230.0,
+      232.5,
+      227.5,
+      230.0,
+      227.5
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      232.5,
+      230.0,
+      230.0,
+      232.5,
+      227.5,
+      230.0,
+      227.5,
+      232.5,
+      227.5,
+      230.0
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "ppm",
+     "range": 500.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "ppm",
+     "range": 500.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K056",
+     "name": "CRM - Alkalinity (certificate) (0.4665 ppm)",
+     "unit": "ppm",
+     "range": 230,
+     "magnitude": "0.4665",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std = Uncertainty of Ref. Std (Alklanity.. RM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K051",
+     "name": "pH meter - temperature compensation (0.01/2 pH)",
+     "unit": "pH",
+     "range": 14,
+     "magnitude": "0.01/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pH meter = Uncertainity of pH Meter"
+    },
+    {
+     "kind": "b",
+     "source_key": "K057",
+     "name": "Temperature Probe (0.18/2 oC)",
+     "unit": "oC",
+     "range": 25,
+     "magnitude": "0.18/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.temp. probe = Uncertainity of Temperature Probe"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal.= Uncertainity of Balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K058",
+     "name": "Oven - temperature (200 °C)",
+     "unit": "°C",
+     "range": 200,
+     "magnitude": "0.36",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven.= Uncertainity of Oven"
+    },
+    {
+     "kind": "b",
+     "source_key": "K059",
+     "name": "Hot Plate Magnetic Stirrer",
+     "unit": "°C",
+     "range": 300,
+     "magnitude": "0.115",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Magnetic.Stirrer= Uncertainity of Hot Plate Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K060",
+     "name": "Magnetic Stirrer (0.55 RPM)",
+     "unit": "RPM",
+     "range": 1600,
+     "magnitude": "0.55",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Magnetic.Stirrer= Uncertainity of Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K004",
+     "name": "Reagent purity - H2SO4",
+     "unit": "%",
+     "range": 97,
+     "magnitude": "0.7",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.H2SO$= Uncertainity of H2SO4"
+    },
+    {
+     "kind": "b",
+     "source_key": "K061",
+     "name": "Reagent purity - Na2CO3",
+     "unit": "%",
+     "range": 99.5,
+     "magnitude": "0.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Na2CO3= Uncertainity of Na2CO3"
+    },
+    {
+     "kind": "b",
+     "source_key": "K062",
+     "name": "Reagent purity - Ethyl Alcohol",
+     "unit": "%",
+     "range": 99.8,
+     "magnitude": "0.1",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Ethanol= Uncertainity of Ethyl Alcohol"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K063",
+     "name": "Volumetric flask 250 ml",
+     "unit": "ml",
+     "range": 250,
+     "magnitude": "0.15",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 250 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 1000 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pipet.1mL= Uncertainity of 1 ml pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pipet.1mL= Uncertainity of 1 ml pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.cyl.50mL.= Uncertainity of 50ml Measuring Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of 100 ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of 100 ml Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of 100 ml Cylinder"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     1.8446619684315546,
+     2.041241452319315,
+     2.041241452319315
+    ],
+    "uc": 0.009874345128464303,
+    "U": 0.019748690256928606,
+    "U_abs": 4.547135931657811,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM-Alklanity -Measurement of uncertainity Record.xlsx",
+    "sheet": "Alklanity 230ppm"
+   },
+   "notes": [
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (230.25); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM-Calcium-Measurement of uncertainity Record.xlsx",
+   "parameter": "Calcium hardness",
+   "level": "65 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "ppm",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) 65 PPM CRM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "",
+   "range": 300.0,
+   "env_temp": null,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      64.4,
+      65.2,
+      65.2,
+      64.4,
+      64.8,
+      65.2,
+      65.6,
+      65.2,
+      64.4,
+      64.8
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      64.8,
+      65.6,
+      64.4,
+      65.6,
+      64.8,
+      64.4,
+      65.2,
+      65.6,
+      64.8,
+      65.2
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      65.2,
+      65.6,
+      64.8,
+      64.4,
+      65.2,
+      64.8,
+      65.6,
+      64.8,
+      64.8,
+      65.2
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "ppm",
+     "range": 300.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "ppm",
+     "range": 300.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K064",
+     "name": "CRM - Calcium (certificate) (0.1445 ppm)",
+     "unit": "ppm",
+     "range": 65,
+     "magnitude": "0.1445",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std = Uncertainty of Ref. Std (Calcium RM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K053",
+     "name": "Acccuracy of hot plate Magnetic Stirrer",
+     "unit": "RPM",
+     "range": 1600,
+     "magnitude": "0.55",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "umagnetic.stirrer = Uncertainty due to acccuracy of hot plate Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K054",
+     "name": "Reagent purity - EDTA Disodium salt",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "2.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.EDTA= Uncertainity of EDTA Disodium salt"
+    },
+    {
+     "kind": "b",
+     "source_key": "K055",
+     "name": "Reagent purity - Calcium Carbonate",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "0.4",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.CaCO3= Uncertainity of Calcium Carbonate"
+    },
+    {
+     "kind": "b",
+     "source_key": "K065",
+     "name": "Reagent purity - Sodium Hydroxide",
+     "unit": "%",
+     "range": 103.5,
+     "magnitude": "3.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaOH= Uncertainity of Sodium Hydroxide"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 1000 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 02 ml Pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of 50ml Cylinder"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.42373996218854976,
+     0.46951511631090365,
+     0.38643671323171663
+    ],
+    "uc": 0.02383803027456219,
+    "U": 0.04767606054912438,
+    "U_abs": 3.0951298508491547,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM-Calcium-Measurement of uncertainity Record.xlsx",
+    "sheet": "Calcium Hardnesss 65ppm"
+   },
+   "notes": [
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (64.92); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM-Chloride -Measurement of uncertainity Record.xlsx",
+   "parameter": "Chloride (Cl)",
+   "level": "9.96 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "ppm",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) - 9.96 PPM RM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "",
+   "range": 124.96,
+   "env_temp": null,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      9.997,
+      10.496,
+      9.497,
+      9.997,
+      8.997,
+      10.497,
+      9.997,
+      10.496,
+      9.497,
+      8.997
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      8.997,
+      9.497,
+      10.497,
+      9.997,
+      9.497,
+      8.997,
+      10.496,
+      10.497,
+      9.497,
+      8.997
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      10.497,
+      10.496,
+      8.997,
+      9.497,
+      9.997,
+      10.497,
+      8.997,
+      9.997,
+      10.497,
+      8.997
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "ppm",
+     "range": 124.96,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "ppm",
+     "range": 124.96,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K066",
+     "name": "CRM - Chloride (certificate) (0.12 ppm)",
+     "unit": "ppm",
+     "range": 9.96,
+     "magnitude": "0.12",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std = Uncertainty of Ref. Std (Chloride.. RM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K067",
+     "name": "Reagent purity - AgNO3",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "0.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.AgNO3= Uncertainity of AgNO3"
+    },
+    {
+     "kind": "b",
+     "source_key": "K068",
+     "name": "Reagent purity - NaCl",
+     "unit": "%",
+     "range": 99.5,
+     "magnitude": "0.4",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaCl= Uncertainity of NaCl"
+    },
+    {
+     "kind": "b",
+     "source_key": "K069",
+     "name": "Reagent purity - K2CrO4 (2.0 %)",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "2.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.K2CrO4= Uncertainity of K2CrO4"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal.= Uncertainity of Balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K058",
+     "name": "Oven - temperature (200 °C)",
+     "unit": "°C",
+     "range": 200,
+     "magnitude": "0.36",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven.= Uncertainity of Oven"
+    },
+    {
+     "kind": "b",
+     "source_key": "K051",
+     "name": "pH meter - temperature compensation (0.01/2 pH)",
+     "unit": "pH",
+     "range": 14,
+     "magnitude": "0.01/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pH.meter= Uncertainity of pH meter"
+    },
+    {
+     "kind": "b",
+     "source_key": "K060",
+     "name": "Magnetic Stirrer (0.55 RPM)",
+     "unit": "RPM",
+     "range": 1600,
+     "magnitude": "0.55",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Magnetic.Stirrer= Uncertainity of Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pipet.1mL= Uncertainity of 1 ml pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pipet.1mL= Uncertainity of 1 ml pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.pipet.1mL= Uncertainity of 1 ml pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 1000 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K063",
+     "name": "Volumetric flask 250 ml",
+     "unit": "ml",
+     "range": 250,
+     "magnitude": "0.15",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 250 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K007",
+     "name": "Burette 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of burette 50 ml"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.cyl.100mL= Uncertainity of 100ml Measuring Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.cyl.50mL.= Uncertainity of 50ml Measuring Cylinder"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.5795018933915959,
+     0.6323150586008002,
+     0.6686388329202013
+    ],
+    "uc": 0.0187226631653821,
+    "U": 0.0374453263307642,
+    "U_abs": 0.36872412837903507,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM-Chloride -Measurement of uncertainity Record.xlsx",
+    "sheet": "Chloride 9.96 ppm"
+   },
+   "notes": [
+    "D12: the workbook used range 249.92 for the reproducibility row and 124.96 for repeatability; the study range 124.96 is applied to both.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (9.847); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM-Sulfate -Measurement of uncertainity Record.xlsx",
+   "parameter": "Sulphate (SO4)",
+   "level": "15.25 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "PPM",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) - 15.25 PPM Lot No: MI-02/2024-M12",
+   "method": "",
+   "instrument": "UV-Visible spectrophotometer",
+   "range": 40.0,
+   "env_temp": 24.5,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      14.9,
+      15.0,
+      15.5,
+      15.17,
+      15.28,
+      15.2,
+      15.32,
+      15.25,
+      15.0,
+      15.1
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      15.17,
+      15.28,
+      15.0,
+      15.2,
+      14.86,
+      15.0,
+      15.04,
+      14.0,
+      15.45,
+      15.5
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      15.8,
+      15.6,
+      15.2,
+      14.85,
+      15.0,
+      14.59,
+      14.0,
+      15.2,
+      15.15,
+      15.7
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "PPM",
+     "range": 40.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "PPM",
+     "range": 40.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K070",
+     "name": "CRM - SO4 (certificate)",
+     "unit": "PPM",
+     "range": 15.25,
+     "magnitude": "0.111",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (SO4+.. RM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K030",
+     "name": "Spectrophotometer - wavelength accuracy at 453 nm",
+     "unit": "nm",
+     "range": 453,
+     "magnitude": "0.305",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.spectro = Uncertainty due to Wavelength accuracy of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K031",
+     "name": "Spectrophotometer - absorbance accuracy at 440 nm",
+     "unit": "-",
+     "range": 440,
+     "magnitude": "0.0017",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc abs. = Uncertainty due to absorbance of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K071",
+     "name": "Acccuracy of hot plate Magnetic Stirrer (1.1/2 RPM)",
+     "unit": "RPM",
+     "range": 1600,
+     "magnitude": "1.1/2",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc hot plate = Uncertainty due to acccuracy of hot plate Magnetic Stirrer"
+    },
+    {
+     "kind": "b",
+     "source_key": "K006",
+     "name": "Volumetric flask 1000 ml",
+     "unit": "ml",
+     "range": 1000,
+     "magnitude": "0.4",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 1000 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K072",
+     "name": "Reagent purity - Na2SO4",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "1.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.Na2SO4= Uncertainity of Na2SO4"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K032",
+     "name": "Reagent purity - MgCl2. 6H2O",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "1.0",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.MgCl2. 6H2O= Uncertainity of MgCl2. 6H2O"
+    },
+    {
+     "kind": "b",
+     "source_key": "K033",
+     "name": "Reagent purity - CH3COONa. 3H2O",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "0.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.CH3COONa. 3H2O= Uncertainity of CH3COONa. 3H2O"
+    },
+    {
+     "kind": "b",
+     "source_key": "K034",
+     "name": "Reagent purity - KNO3",
+     "unit": "%",
+     "range": 100.5,
+     "magnitude": "0.8",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.KNO3= Uncertainity of KNO3"
+    },
+    {
+     "kind": "b",
+     "source_key": "K035",
+     "name": "Reagent purity - CH3COOH",
+     "unit": "%",
+     "range": 99.8,
+     "magnitude": "0.6",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.CH3COOH= Uncertainity of CH3COOH"
+    },
+    {
+     "kind": "b",
+     "source_key": "K036",
+     "name": "Reagent purity - BaCl2.2H2O",
+     "unit": "%",
+     "range": 99,
+     "magnitude": "1.3",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.BaCl2.2H2O= Uncertainity of BaCl2.2H2O"
+    },
+    {
+     "kind": "b",
+     "source_key": "K063",
+     "name": "Volumetric flask 250 ml",
+     "unit": "ml",
+     "range": 250,
+     "magnitude": "0.15",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 250 ml V.flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K008",
+     "name": "Pipette 5 ml",
+     "unit": "ml",
+     "range": 5,
+     "magnitude": "0.03",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p = Uncertainty due acccuracy of 05 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.flask= Uncertainity of 100 ml Volumetric Flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K008",
+     "name": "Pipette 5 ml",
+     "unit": "ml",
+     "range": 5,
+     "magnitude": "0.03",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 05 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K003",
+     "name": "Measuring cylinder 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.cyl. = Uncertainty due to acccuracy of 100 ml V.Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.17838784213679526,
+     0.42110964526276673,
+     0.5440894534296115
+    ],
+    "uc": 0.017913681904983752,
+    "U": 0.035827363809967504,
+    "U_abs": 0.543501108997207,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM-Sulfate -Measurement of uncertainity Record.xlsx",
+    "sheet": "Sulfate 15.25 ppm"
+   },
+   "notes": [
+    "D1: SD of operator A printed 0.17839, correct 0.17838 (the workbook sum of squares omitted replicates 9-10).",
+    "D1: SD of operator C printed 0.54409, correct 0.54409 (the workbook sum of squares omitted replicates 9-10).",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (15.17); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM-TDS-Measuremnt of uncertainty Record.xlsx",
+   "parameter": "TDS",
+   "level": "272 ppm (RM 2024)",
+   "unit": "mg/L",
+   "unit_printed": "ppm",
+   "sample_kind": "RM",
+   "sample_ref": "Reference Material (272 PPM) RM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "Oven / analytical balance",
+   "range": 4000.0,
+   "env_temp": null,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      276.0,
+      272.0,
+      276.0,
+      268.0,
+      270.0,
+      266.0,
+      274.0,
+      272.0,
+      282.0,
+      280.0
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      264.0,
+      280.0,
+      266.0,
+      278.0,
+      270.0,
+      268.0,
+      272.0,
+      276.0,
+      282.0,
+      280.0
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      270.0,
+      274.0,
+      268.0,
+      284.0,
+      272.0,
+      276.0,
+      280.0,
+      264.0,
+      278.0,
+      270.0
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "ppm",
+     "range": 4000.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "ppm",
+     "range": 4000.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K073",
+     "name": "CRM - TDS (certificate) (0.387 ppm)",
+     "unit": "ppm",
+     "range": 272,
+     "magnitude": "0.387",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std (TDS RM)"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal= Uncertainity of balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K058",
+     "name": "Oven - temperature (200 °C)",
+     "unit": "°C",
+     "range": 200,
+     "magnitude": "0.36",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.oven= Uncertainity of Oven"
+    },
+    {
+     "kind": "b",
+     "source_key": "K068",
+     "name": "Reagent purity - NaCl",
+     "unit": "%",
+     "range": 99.5,
+     "magnitude": "0.4",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.NaCl = Uncertainity of NaCl"
+    },
+    {
+     "kind": "b",
+     "source_key": "K012",
+     "name": "Measuring cylinder 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.5",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uv. Cyl. 50 = Uncertainty due acccuracy of 50 ml Volumetric Cylinder"
+    },
+    {
+     "kind": "b",
+     "source_key": "K074",
+     "name": "Analytical balance - temperature drift (uDt)",
+     "unit": "mg",
+     "range": 500,
+     "magnitude": "(28-27.4)*(0.000002)*500",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uDt = Uncertainty in balance readings due to change in temperature **"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     5.059644256269407,
+     6.449806198638839,
+     6.022181221672647
+    ],
+    "uc": 0.005444259559652968,
+    "U": 0.010888519119305936,
+    "U_abs": 2.9790988310421045,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM-TDS-Measuremnt of uncertainty Record.xlsx",
+    "sheet": "TDS 272 ppm"
+   },
+   "notes": [
+    "D3: the combined-uncertainty formula omitted budget row(s) 41.",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (273.6); the module uses the grand mean of all replicates."
+   ]
+  },
+  {
+   "file": "z2/ETAL-LAB-706-FF-01-CRM-Turbidity -Measurement of uncertainity Record.xlsx",
+   "parameter": "Turbidity",
+   "level": "0.08 NTU (RM 2024)",
+   "unit": "NTU",
+   "unit_printed": "NTU",
+   "sample_kind": "RM",
+   "sample_ref": "RM (Refrence Material) 0.08 NTU RM Lot # : MI-02/2024-M12",
+   "method": "",
+   "instrument": "",
+   "range": 40.0,
+   "env_temp": 25.1,
+   "study_date": null,
+   "complete": true,
+   "operators": [
+    {
+     "label": "A",
+     "values": [
+      0.078,
+      0.076,
+      0.079,
+      0.091,
+      0.1,
+      0.082,
+      0.08,
+      0.085,
+      0.092,
+      0.076
+     ]
+    },
+    {
+     "label": "B",
+     "values": [
+      0.068,
+      0.077,
+      0.082,
+      0.075,
+      0.068,
+      0.08,
+      0.085,
+      0.1,
+      0.096,
+      0.087
+     ]
+    },
+    {
+     "label": "C",
+     "values": [
+      0.076,
+      0.079,
+      0.073,
+      0.08,
+      0.085,
+      0.1,
+      0.075,
+      0.086,
+      0.083,
+      0.08
+     ]
+    }
+   ],
+   "components": [
+    {
+     "kind": "a_rep",
+     "name": "Type A - repeatability (u rep)",
+     "unit": "NTU",
+     "range": 40.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "a_repro",
+     "name": "Type A - reproducibility (u repro)",
+     "unit": "NTU",
+     "range": 40.0,
+     "magnitude": "",
+     "dist": "normal",
+     "ci": 1,
+     "note": ""
+    },
+    {
+     "kind": "b",
+     "source_key": "K039",
+     "name": "CRM - Turbidity (certificate)",
+     "unit": "NTU",
+     "range": 0.08,
+     "magnitude": "0.002",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.std of Ref. Std"
+    },
+    {
+     "kind": "b",
+     "source_key": "K050",
+     "name": "Analytical balance (220 g) (0.0175 g)",
+     "unit": "g",
+     "range": 220,
+     "magnitude": "0.0175",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.bal.= Uncertainity of Balance"
+    },
+    {
+     "kind": "b",
+     "source_key": "K021",
+     "name": "Spectrophotometer - wavelength accuracy at 536 nm",
+     "unit": "nm",
+     "range": 536,
+     "magnitude": "0.305",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.spectro = Uncertainty due to Wavelength accuracy of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K040",
+     "name": "Spectrophotometer - absorbance accuracy at 590 nm",
+     "unit": "-",
+     "range": 590,
+     "magnitude": "0.0017",
+     "dist": "normal",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc abs. = Uncertainty due to absorbance of Spectro"
+    },
+    {
+     "kind": "b",
+     "source_key": "K041",
+     "name": "Reagent purity - Hydrazine Sulfate",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "1.5",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc. (NH2)2.H2SO4= Uncertainity of Hydrazine Sulfate"
+    },
+    {
+     "kind": "b",
+     "source_key": "K042",
+     "name": "Reagent purity - Hexamethylenetetramine",
+     "unit": "%",
+     "range": 101,
+     "magnitude": "1.9",
+     "dist": "rect",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc.(CH2)6N4= Uncertainity of Hexamethylenetetramine"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K026",
+     "name": "Volumetric flask 100 ml",
+     "unit": "ml",
+     "range": 100,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 100 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K027",
+     "name": "Volumetric flask 50 ml",
+     "unit": "ml",
+     "range": 50,
+     "magnitude": "0.06",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.f. = Uncertainty due to acccuracy of 50 ml Volumetric flask"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K015",
+     "name": "Pipette 2 ml",
+     "unit": "ml",
+     "range": 2,
+     "magnitude": "0.01",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 2 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K018",
+     "name": "Pipette 1 ml",
+     "unit": "ml",
+     "range": 1,
+     "magnitude": "0.006",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p.= Uncertainty due to acccuracy of 1ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K008",
+     "name": "Pipette 5 ml",
+     "unit": "ml",
+     "range": 5,
+     "magnitude": "0.03",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p.= Uncertainty due acccuracy of 5ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K043",
+     "name": "Pipette 10 ml",
+     "unit": "ml",
+     "range": 10,
+     "magnitude": "0.05",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 10 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 25 ml V.pipette"
+    },
+    {
+     "kind": "b",
+     "source_key": "K028",
+     "name": "Pipette 25 ml",
+     "unit": "ml",
+     "range": 25,
+     "magnitude": "0.1",
+     "dist": "tri",
+     "ci": 1,
+     "note": "",
+     "workbook_label": "uc v.p. = Uncertainty due to acccuracy of 25 ml V.pipette"
+    }
+   ],
+   "legacy": {
+    "sd": [
+     0.008020806277010644,
+     0.010666666666666666,
+     0.0076955975870768
+    ],
+    "uc": 0.02924565080511153,
+    "U": 0.05849130161022306,
+    "U_abs": 0.004913269335258738,
+    "U_pct": null,
+    "file": "z2/ETAL-LAB-706-FF-01-CRM-Turbidity -Measurement of uncertainity Record.xlsx",
+    "sheet": "Turbidity (0.08 PPM)"
+   },
+   "notes": [
+    "D1: SD of operator B printed 0.010667, correct 0.010665 (the workbook sum of squares omitted replicates 9-10).",
+    "D1: SD of operator C printed 0.0076956, correct 0.0076891 (the workbook sum of squares omitted replicates 9-10).",
+    "D7: the workbook expanded absolute uncertainty used operator A's mean (0.084); the module uses the grand mean of all replicates."
+   ]
+  }
+ ]
+}

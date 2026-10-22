@@ -10,6 +10,7 @@ are recomputed correctly, the printed figures are kept beside them, complete stu
 inducted as 'submitted for review' for the Lab Manager's re-approval and incomplete ones as
 drafts. Idempotent: a study already inducted from the same workbook file is skipped.
 """
+import datetime as _dt
 import json
 import os
 
@@ -61,7 +62,7 @@ class Command(BaseCommand):
                 legacy['unit_printed'] = st.get('unit_printed', '')
                 obj = MouStudy(location=loc, parameter=st['parameter'], level=st['level'], unit=st['unit'], sample_kind=st['sample_kind'],
                                sample_ref=st['sample_ref'][:200], method=st['method'], instrument=st['instrument'], range_value=st['range'],
-                               env_temp=st.get('env_temp'), k=2.0, decimals=3, status='review' if st['complete'] else 'draft', version=1,
+                               env_temp=st.get('env_temp'), study_date=(_dt.date.fromisoformat(st['study_date']) if st.get('study_date') else None), k=2.0, decimals=3, status='review' if st['complete'] else 'draft', version=1,
                                legacy=legacy, created_by=user, submitted_by=user if st['complete'] else None,
                                remarks='Inducted from the laboratory workbook %s on %s.' % (st['file'].split('/')[-1], inducted))
                 if st['complete']:
