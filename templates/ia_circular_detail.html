@@ -14,7 +14,7 @@
   </div>
   <div class="kv">
     <b>To</b><span>{{ c.to_text }}</span><b>Circular issue date</b><span>{{ c.issue_date|date:"d-m-Y" }}</span>
-    <b>From</b><span>{{ c.from_text }}{% if c.issued_by %} - issued by {{ c.issued_by.username }} {{ c.issued_at|date:"d-m-Y H:i" }}{% endif %}</span><b>Audit date</b><span>{{ c.audit_date_text|default:"-" }}</span>
+    <b>From</b><span>{{ c.from_text }}{% if c.issued_by %} - issued by {{ c.issued_by.get_full_name|default:c.issued_by.username }} {{ c.issued_at|date:"d-m-Y H:i" }}{% endif %}</span><b>Audit date</b><span>{{ c.audit_date_text|default:"-" }}</span>
   </div>
   <table>
     <thead><tr><th>Sr.</th><th>Day</th><th>Time</th><th>Scope</th><th>Criteria / (Cross audit)</th><th>Auditors</th><th>Auditee</th></tr></thead>
@@ -32,6 +32,7 @@
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if can_issue %}<form method="post" action="{% url 'ia_circular_action' c.id %}">{% csrf_token %}<input type="hidden" name="action" value="issue"><button class="btn btn-p" type="submit" onclick="return confirm('Issue this circular as Management Representative? It is then locked and the attendees sign receipt.')"><i class="fa-solid fa-paper-plane"></i> Issue as MR</button></form>{% endif %}
     {% if can_sign or can_add_self %}<form method="post" action="{% url 'ia_circular_action' c.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign"><button class="btn btn-p" type="submit" onclick="return confirm('Sign receipt of this circular? Your e-signature will be printed in the attendance list.')"><i class="fa-solid fa-signature"></i> Sign receipt{% if can_add_self %} (add me){% endif %}</button></form>{% endif %}
+    {% if can_delete %}<form method="post" action="{% url 'ia_circular_action' c.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<input type="hidden" name="action" value="delete"><label>Reason for deletion <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this draft circular? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
     {% if can_withdraw %}<form method="post" action="{% url 'ia_circular_action' c.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="withdraw"><label>Reason <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit" onclick="return confirm('Withdraw the circular to draft? Receipt signatures are cleared.')"><i class="fa-solid fa-rotate-left"></i> Withdraw</button></form>{% endif %}
   </div>
 </div>

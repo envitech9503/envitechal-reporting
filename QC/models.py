@@ -1079,7 +1079,7 @@ class IaFinding(models.Model):
     clause = models.ForeignKey(IaClause, null=True, blank=True, on_delete=models.SET_NULL, related_name='findings')
     label = models.CharField(max_length=12, blank=True, default='')        # printed clause number ('' for a continuation row)
     requirement = models.TextField(blank=True, default='')
-    ref = models.CharField(max_length=300, blank=True, default='')           # Lab's reference to its QMS
+    ref = models.CharField(max_length=400, blank=True, default='')           # Lab's reference to its QMS
     finding = models.TextField(blank=True, default='')
     result = models.CharField(max_length=6, choices=RESULTS, blank=True, default='')
     tag = models.CharField(max_length=40, blank=True, default='')            # NC-01, MNC-02, Obs-01 ...

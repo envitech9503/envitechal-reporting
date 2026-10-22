@@ -9,14 +9,14 @@
       {% if legacy %}<span class="pill none" title="Inducted from the laboratory's Word record: {{ legacy.file }}">REC</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if can_edit %}<a class="btn" href="{% url 'ia_audit_edit' a.id %}"><i class="fa-solid fa-pen"></i> Edit checklist</a>{% endif %}
-      {% if can_manage %}<a class="btn" href="{% url 'ia_witness_new' a.id %}"><i class="fa-solid fa-eye"></i> Add witnessing</a><a class="btn" href="{% url 'ia_circular_new' %}?location={{ loc }}&audit={{ a.id }}"><i class="fa-solid fa-bullhorn"></i> Circular</a>{% endif %}
+      {% if can_edit %}<a class="btn" href="{% url 'ia_witness_new' a.id %}"><i class="fa-solid fa-eye"></i> Add witnessing</a>{% endif %}{% if can_manage %}<a class="btn" href="{% url 'ia_circular_new' %}?location={{ loc }}&audit={{ a.id }}"><i class="fa-solid fa-bullhorn"></i> Circular</a>{% endif %}
       <a class="btn" href="{% url 'ia_audit_pdf' a.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
     </div>
   </div>
   <div class="steps">
     <div class="step done"><i></i>Circular{% for c in circs %}<br><small><a href="{% url 'ia_circular_detail' c.id %}" style="color:inherit">{{ c.get_kind_display }} {{ c.issue_date|date:"d-m-Y" }}</a></small>{% empty %}<br><small>none linked</small>{% endfor %}</div>
-    <div class="step {% if a.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Audited &amp; signed by auditor{% if a.auditor_signed_at %}<br><small>{{ a.auditor_signed_by.username }} - {{ a.auditor_sign_date|date:"d-m-Y" }}</small>{% elif legacy and a.auditor %}<br><small>{{ a.auditor }} {{ a.auditor_sign_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
-    <div class="step {% if a.status == 'closed' %}done{% elif a.status == 'auditor' %}now{% endif %}"><i></i>Acknowledged by auditee{% if a.auditee_signed_at %}<br><small>{{ a.auditee_signed_by.username }} - {{ a.auditee_sign_date|date:"d-m-Y" }}</small>{% elif legacy and a.auditee %}<br><small>{{ a.auditee }} {{ a.auditee_sign_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if a.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Audited &amp; signed by auditor{% if a.auditor_signed_at %}<br><small>{{ a.auditor_signed_by.get_full_name|default:a.auditor_signed_by.username }} - {{ a.auditor_sign_date|date:"d-m-Y" }}</small>{% elif legacy and a.auditor %}<br><small>{{ a.auditor }} {{ a.auditor_sign_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if a.status == 'closed' %}done{% elif a.status == 'auditor' %}now{% endif %}"><i></i>Acknowledged by auditee{% if a.auditee_signed_at %}<br><small>{{ a.auditee_signed_by.get_full_name|default:a.auditee_signed_by.username }} - {{ a.auditee_sign_date|date:"d-m-Y" }}</small>{% elif legacy and a.auditee %}<br><small>{{ a.auditee }} {{ a.auditee_sign_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
     <div class="step {% if ncs %}done{% endif %}"><i></i>NC &amp; CA raised: {{ ncs|length }}{% if ncs %}<br><small>{% for n in ncs %}{% if n.status == 'closed' %}&#10003;{% else %}&#9675;{% endif %} <a href="{% url 'ia_nc_detail' n.id %}" style="color:inherit">{{ n.nc_no }}</a> {% endfor %}</small>{% endif %}</div>
   </div>
   <div class="kv">
@@ -62,20 +62,20 @@
 <div class="card">
   <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-eye"></i> Witnessing record - {{ w.date|date:"d-m-Y" }}
       {% if w.status == 'closed' %}<span class="pill ok">Signed</span>{% elif w.status == 'auditor' %}<span class="pill info">Awaiting analysts</span>{% else %}<span class="pill none">Draft</span>{% endif %}</div>
-    <div style="display:flex;gap:6px">{% if can_manage and not w.locked %}<a class="btn" href="{% url 'ia_witness_edit' a.id w.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}{% if w.circular %}<a class="btn" href="{% url 'ia_circular_detail' w.circular.id %}">Circular</a>{% endif %}</div></div>
+    <div style="display:flex;gap:6px">{% if can_edit and not w.locked %}<a class="btn" href="{% url 'ia_witness_edit' a.id w.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}{% if w.circular %}<a class="btn" href="{% url 'ia_circular_detail' w.circular.id %}">Circular</a>{% endif %}</div></div>
   <table>
     <thead><tr><th>Parameter / test</th><th>Performed by</th><th>Range / values covered</th><th>Assigned value (blind sample)</th><th>Obtained value</th><th>Remarks</th></tr></thead>
     <tbody>{% for r in w.rows %}<tr><td class="nw"><b>{{ r.parameter }}</b></td><td class="nw">{{ r.performed_by }}</td><td class="nw">{{ r.range }}</td><td class="nw">{{ r.assigned }}</td><td class="nw">{{ r.obtained }}</td><td style="font-size:12.5px">{{ r.remarks|linebreaksbr }}</td></tr>{% endfor %}</tbody>
   </table>
   <div class="sigline">
-    <div class="s"><b>Internal auditor</b>{% if w.auditor_signed_at %}{{ w.auditor_signed_by.username }} - {{ w.sign_date|date:"d-m-Y" }}{% elif w.auditor %}{{ w.auditor }} {{ w.sign_date|date:"d-m-Y" }}{% if w.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
+    <div class="s"><b>Internal auditor</b>{% if w.auditor_signed_at %}{{ w.auditor_signed_by.get_full_name|default:w.auditor_signed_by.username }} - {{ w.sign_date|date:"d-m-Y" }}{% elif w.auditor %}{{ w.auditor }} {{ w.sign_date|date:"d-m-Y" }}{% if w.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
     {% for x in w.auditees %}<div class="s"><b>Analyst witnessed</b>{{ x.name }}{% if x.signed_at %} <span class="pill ok">e-signed {{ x.signed_at|slice:":10" }}</span>{% elif w.legacy %} <span class="muted">(record)</span>{% else %} <span class="pill none">not signed</span>{% endif %}</div>{% endfor %}
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if w.status == 'draft' and can_manage %}<form method="post" action="{% url 'ia_witness_action' w.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_auditor"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the witnessing record as internal auditor?')"><i class="fa-solid fa-signature"></i> Sign as auditor</button></form>{% endif %}
     {% if w.status == 'auditor' and is_member %}<form method="post" action="{% url 'ia_witness_action' w.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_analyst"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the witnessing record as the analyst witnessed?')"><i class="fa-solid fa-signature"></i> Sign as analyst</button></form>{% endif %}
     {% if w.status != 'draft' and can_manage %}<form method="post" action="{% url 'ia_witness_action' w.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Reopen</button></form>{% endif %}
-    {% if can_manage %}<form method="post" action="{% url 'ia_witness_action' w.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<input type="hidden" name="action" value="delete"><label>Reason for deletion <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this witnessing record? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
+    {% if can_edit %}<form method="post" action="{% url 'ia_witness_action' w.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<input type="hidden" name="action" value="delete"><label>Reason for deletion <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this witnessing record? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
   </div>
 </div>
 {% endfor %}
@@ -83,8 +83,8 @@
 <div class="card">
   <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-signature"></i> Signatures and actions</div></div>
   <div class="sigline">
-    <div class="s"><b>Signature of internal auditor</b>{% if a.auditor_signed_at %}{{ a.auditor_signed_by.username }} - {{ a.auditor_signed_at|date:"d-m-Y H:i" }}{% elif legacy and a.auditor %}{{ a.auditor }} - {{ a.auditor_sign_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}-{% endif %}</div>
-    <div class="s"><b>Signature of internal auditee</b>{% if a.auditee_signed_at %}{{ a.auditee_signed_by.username }} - {{ a.auditee_signed_at|date:"d-m-Y H:i" }}{% elif legacy and a.auditee %}{{ a.auditee }} - {{ a.auditee_sign_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}-{% endif %}</div>
+    <div class="s"><b>Signature of internal auditor</b>{% if a.auditor_signed_at %}{{ a.auditor_signed_by.get_full_name|default:a.auditor_signed_by.username }} - {{ a.auditor_signed_at|date:"d-m-Y H:i" }}{% elif legacy and a.auditor %}{{ a.auditor }} - {{ a.auditor_sign_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}-{% endif %}</div>
+    <div class="s"><b>Signature of internal auditee</b>{% if a.auditee_signed_at %}{{ a.auditee_signed_by.get_full_name|default:a.auditee_signed_by.username }} - {{ a.auditee_signed_at|date:"d-m-Y H:i" }}{% elif legacy and a.auditee %}{{ a.auditee }} - {{ a.auditee_sign_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}-{% endif %}</div>
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if can_sign_auditor %}<form method="post" action="{% url 'ia_audit_action' a.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_auditor"><button class="btn btn-p" type="submit" onclick="return confirm('Sign audit report {{ a.audit_no|escapejs }} as internal auditor? The report is then locked for the auditee\'s acknowledgement.')"><i class="fa-solid fa-signature"></i> Sign as internal auditor</button></form>{% endif %}

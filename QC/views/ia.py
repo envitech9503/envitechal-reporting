@@ -117,8 +117,8 @@ def _snap(obj, extra=None):
     return data
 
 
-def _log_deletion(kind, obj, user, reason, label, extra=None):
-    ControlChartDeletion.objects.create(kind=kind, chart_ref=obj.pk, location=getattr(obj, 'location', ''), label=label[:300], reason=reason[:2000],
+def _log_deletion(kind, obj, user, reason, label, extra=None, location=None):
+    ControlChartDeletion.objects.create(kind=kind, chart_ref=obj.pk, location=location or getattr(obj, 'location', ''), label=label[:300], reason=reason[:2000],
                                         snapshot=_snap(obj, extra), deleted_by=user)
 
 
@@ -174,7 +174,7 @@ def ia_plans(request):
 
 def _plan_rows_from_post(P):
     rows = []
-    for i in range(0, 12):
+    for i in range(0, 40):
         dept = (P.get('dept%d' % i) or '').strip()[:120]
         if not dept:
             continue
@@ -206,7 +206,7 @@ def ia_plan_edit(request, pk=None):
         P = request.POST
         errors = []
         try:
-            year = int(P.get('year') or 0)
+            year = plan.year if plan.pk else int(P.get('year') or 0)        # the year of an existing plan cannot change
             if not (2020 <= year <= 2100):
                 raise ValueError
         except ValueError:
@@ -222,7 +222,7 @@ def ia_plan_edit(request, pk=None):
                 _msg.error(request, e)
         else:
             if plan.status == 'signed':          # edited after the MR signature -> signature cleared
-                plan.status, plan.mr_by, plan.mr_at = 'draft', None, None
+                plan.status, plan.mr_by, plan.mr_at, plan.mr_name, plan.mr_date = 'draft', None, None, '', None
             plan.save()
             _msg.success(request, 'Annual plan %d saved.' % plan.year)
             return _redirect('ia_plan_detail', plan.pk)
@@ -242,7 +242,7 @@ def ia_plan_detail(request, pk):
         'can_sign_mr': plan.status == 'draft' and _can_manage(user, plan.location),
         'can_approve': plan.status == 'signed' and _is_ceo(user, plan.location),
         'can_unapprove': plan.status == 'approved' and _is_ceo(user, plan.location),
-        'can_delete': _can_manage(user, plan.location)})
+        'can_delete': _can_manage(user, plan.location) and plan.status != 'approved'})
 
 
 def _apply_plan_action(user, plan, act, reason=''):
@@ -268,17 +268,29 @@ def _apply_plan_action(user, plan, act, reason=''):
             return 'forbidden', 'Only the CEO / administrator can unapprove a plan.'
         if len((reason or '').strip()) < 5:
             return 'error', 'Give the reason for unapproving (at least 5 characters).'
-        plan.status, plan.ceo_by, plan.ceo_at = 'signed', None, None
+        plan.status, plan.ceo_by, plan.ceo_at, plan.ceo_name, plan.ceo_date = 'signed', None, None, '', None
         plan.remarks = (plan.remarks + '\n' if plan.remarks else '') + 'Unapproved %s by %s: %s' % (_d(now.date()), _uname(user), reason.strip()[:500])
         plan.save()
         return 'ok', 'Plan unapproved; it is back at the MR-signed stage.'
+    if act == 'delete':
+        if not _can_manage(user, plan.location):
+            return 'forbidden', _DENIED % plan.location
+        if plan.status == 'approved':
+            return 'error', 'An approved plan is locked; unapprove it first.'
+        if len((reason or '').strip()) < 5:
+            return 'error', 'Give the reason for deletion (at least 5 characters).'
+        _log_deletion('ia_plan', plan, user, reason, 'Annual Internal Audit Plan %d - %s' % (plan.year, plan.location))
+        plan.delete()
+        return 'deleted', 'Plan deleted; a copy is kept in the deletion log.'
     if act == 'mark_done':
         # the MR marks an audit month as completed (the plan may be approved: 'Done' is a record of execution, not a change of the plan)
         if not _can_manage(user, plan.location):
             return 'forbidden', _DENIED % plan.location
         try:
             ri, m = int(reason.split(':')[0]), int(reason.split(':')[1])
-            cell = plan.rows[ri]['months'].setdefault(str(m), {'due': False, 'done': False})
+            if not (0 <= ri < len(plan.rows) and 1 <= m <= 12):
+                raise ValueError
+            cell = plan.rows[ri].setdefault('months', {}).setdefault(str(m), {'due': False, 'done': False})
             cell['done'] = not cell.get('done')
             plan.save()
             return 'ok', '%s %s marked %s.' % (plan.rows[ri]['department'], MONTHS[m - 1], 'done' if cell['done'] else 'not done')
@@ -295,6 +307,9 @@ def ia_plan_action(request, pk):
     st, text = _apply_plan_action(request.user, plan, request.POST.get('action'), request.POST.get('reason') or '')
     if st == 'forbidden':
         return HttpResponse(text, status=403)
+    if st == 'deleted':
+        _msg.success(request, text)
+        return _redirect('/qc/ia/plans/?location=%s' % plan.location)
     (_msg.success if st == 'ok' else _msg.error)(request, text)
     return _redirect('ia_plan_detail', pk)
 
@@ -410,9 +425,9 @@ def ia_circular_detail(request, pk):
     return render(request, 'ia_circular_detail.html', {
         'c': c, 'loc': c.location, 'ctrl': _ia_docctrl('circular', c.location), 'signed': signed,
         'can_edit': _can_manage(user, c.location) and not c.locked, 'can_issue': c.status == 'draft' and _can_manage(user, c.location),
-        'can_withdraw': c.status == 'issued' and _can_manage(user, c.location), 'can_delete': _can_manage(user, c.location),
+        'can_withdraw': c.status == 'issued' and _can_manage(user, c.location), 'can_delete': _can_manage(user, c.location) and c.status != 'issued',
         'can_sign': c.status == 'issued' and _is_member(user, c.location) and (my_row is not None) and not (c.attendance[my_row].get('signed_at')),
-        'can_add_self': c.status == 'issued' and _is_member(user, c.location) and my_row is None, 'my_row': my_row})
+        'can_add_self': c.status == 'issued' and _is_member(user, c.location) and my_row is None and not c.legacy, 'my_row': my_row})
 
 
 def _apply_circular_action(user, c, act, reason=''):
@@ -436,6 +451,16 @@ def _apply_circular_action(user, c, act, reason=''):
         c.legacy = dict(c.legacy or {}); c.legacy.setdefault('withdrawals', []).append({'by': _uname(user), 'at': _d(now.date()), 'reason': reason.strip()[:500]})
         c.save()
         return 'ok', 'Circular withdrawn to draft; receipt signatures cleared.'
+    if act == 'delete':
+        if not _can_manage(user, c.location):
+            return 'forbidden', _DENIED % c.location
+        if c.status == 'issued':
+            return 'error', 'An issued circular is locked; withdraw it first.'
+        if len((reason or '').strip()) < 5:
+            return 'error', 'Give the reason for deletion (at least 5 characters).'
+        _log_deletion('ia_circ', c, user, reason, '%s circular %s (%s) - %s' % (c.get_kind_display(), c.audit_no, _d(c.issue_date), c.location))
+        c.delete()
+        return 'deleted', 'Circular deleted; a copy is kept in the deletion log.'
     if act == 'sign':
         if c.status != 'issued':
             return 'error', 'The circular is not issued yet.'
@@ -450,6 +475,8 @@ def _apply_circular_action(user, c, act, reason=''):
                 a['user_id'], a['signed_at'] = user.id, now.isoformat()
                 c.save()
                 return 'ok', 'Receipt signed (%s).' % _tz.localtime(now).strftime('%d-%m-%Y %H:%M')
+        if c.legacy:
+            return 'error', 'You are not named on the attendance list of this historic circular (%s).' % ', '.join(a.get('name', '') for a in c.attendance)
         c.attendance = list(c.attendance) + [{'name': _uname(user), 'designation': '', 'user_id': user.id, 'signed_at': now.isoformat()}]
         c.save()
         return 'ok', 'Added to the attendance list and receipt signed (%s).' % _tz.localtime(now).strftime('%d-%m-%Y %H:%M')
@@ -464,6 +491,9 @@ def ia_circular_action(request, pk):
     st, text = _apply_circular_action(request.user, c, request.POST.get('action'), request.POST.get('reason') or '')
     if st == 'forbidden':
         return HttpResponse(text, status=403)
+    if st == 'deleted':
+        _msg.success(request, text)
+        return _redirect('/qc/ia/circulars/?location=%s' % c.location)
     (_msg.success if st == 'ok' else _msg.error)(request, text)
     return _redirect('ia_circular_detail', pk)
 
@@ -540,8 +570,15 @@ def ia_audit_edit(request, pk):
         a.date_start, a.date_end = _pdate(P.get('date_start')), _pdate(P.get('date_end'))
         if P.get('date_start') and not a.date_start:
             errors.append('Audit start date must be dd-mm-yyyy.')
+        if P.get('date_end') and not a.date_end:
+            errors.append('Audit end date must be dd-mm-yyyy.')
         if a.date_start and a.date_end and a.date_end < a.date_start:
             errors.append('The audit end date is before the start date.')
+        if errors:                                   # nothing is saved; the page re-renders with the typed values
+            for e in errors:
+                _msg.error(request, e)
+            a.auditor, a.auditee = (P.get('auditor') or a.auditor), (P.get('auditee') or a.auditee)
+            return render(request, 'ia_audit_edit.html', {'a': a, 'loc': a.location, 'findings': findings, 'results': IaFinding.RESULTS, 'ctrl': _ia_docctrl('report', a.location)})
         a.days = max(1, (a.date_end - a.date_start).days + 1) if (a.date_start and a.date_end) else (int(P.get('days')) if (P.get('days') or '').isdigit() else a.days)
         for fld, n in (('auditor', 120), ('auditor_title', 120), ('auditee', 160), ('auditee_title', 120), ('address', 250), ('scope', 300), ('timeframe', 400)):
             setattr(a, fld, (P.get(fld) or '').strip()[:n])
@@ -553,7 +590,7 @@ def ia_audit_edit(request, pk):
         for f in findings:
             if P.get('f%d_drop' % f.pk) == '1':
                 f.delete(); continue
-            f.ref = (P.get('f%d_ref' % f.pk) or '').strip()[:300]
+            f.ref = (P.get('f%d_ref' % f.pk) or '').strip()[:400]
             f.finding = (P.get('f%d_finding' % f.pk) or '').strip()[:6000]
             r = P.get('f%d_result' % f.pk) or ''
             f.result = r if r in _RESULT_LABEL else ''
@@ -573,22 +610,17 @@ def ia_audit_edit(request, pk):
             base = next((f.order for f in keep if str(f.pk) == after), (keep[-1].order if keep else 0))
             cl = IaClause.objects.filter(code=lab).first()
             IaFinding.objects.create(audit=a, order=base + 1, clause=cl, label=lab, requirement=req or (cl.requirement if cl else ''),
-                                     ref=(P.get('n%d_ref' % i) or '').strip()[:300], finding=(P.get('n%d_finding' % i) or '').strip()[:6000],
+                                     ref=(P.get('n%d_ref' % i) or '').strip()[:400], finding=(P.get('n%d_finding' % i) or '').strip()[:6000],
                                      result=P.get('n%d_result' % i) if P.get('n%d_result' % i) in _RESULT_LABEL else '')
         for i, f in enumerate(a.findings.all()):          # renumber
             if f.order != (i + 1) * 10:
                 IaFinding.objects.filter(pk=f.pk).update(order=(i + 1) * 10)
-        if errors:
-            for e in errors:
-                _msg.error(request, e)
         a.recount(save=False)
         a.save()
-        if not errors:
-            _msg.success(request, 'Audit %s saved (%d observation(s), %d minor, %d major).' % (a.audit_no, a.n_obs, a.n_minor, a.n_major))
-            if P.get('then') == 'detail':
-                return _redirect('ia_audit_detail', a.pk)
-            return _redirect('ia_audit_edit', a.pk)
-        findings = list(a.findings.select_related('clause'))
+        _msg.success(request, 'Audit %s saved (%d observation(s), %d minor, %d major).' % (a.audit_no, a.n_obs, a.n_minor, a.n_major))
+        if P.get('then') == 'detail':
+            return _redirect('ia_audit_detail', a.pk)
+        return _redirect('ia_audit_edit', a.pk)
     return render(request, 'ia_audit_edit.html', {'a': a, 'loc': a.location, 'findings': findings, 'results': IaFinding.RESULTS, 'ctrl': _ia_docctrl('report', a.location)})
 
 
@@ -710,6 +742,9 @@ def ia_witness_edit(request, audit_pk, pk=None):
     user = request.user
     if not _can_manage(user, a.location):
         return HttpResponse(_DENIED % a.location, status=403)
+    if a.locked:
+        _msg.error(request, 'The audit report is signed; reopen it (with a reason) before adding or editing a witnessing record.')
+        return _redirect('ia_audit_detail', a.pk)
     w = get_object_or_404(IaWitness, pk=pk, audit=a) if pk else IaWitness(audit=a, auditor=_uname(user), date=_date.today())
     if w.pk and w.locked:
         _msg.error(request, 'A signed witnessing record is locked. Reopen it first.')
@@ -784,7 +819,7 @@ def _apply_witness_action(user, w, act, reason=''):
             return 'forbidden', _DENIED % a.location
         if len((reason or '').strip()) < 5:
             return 'error', 'Give the reason for reopening (at least 5 characters).'
-        w.status, w.auditor_signed_by, w.auditor_signed_at = 'draft', None, None
+        w.status, w.auditor_signed_by, w.auditor_signed_at, w.sign_date = 'draft', None, None, None
         for x in w.auditees:
             x['user_id'] = None; x['signed_at'] = None
         w.legacy = dict(w.legacy or {}); w.legacy.setdefault('reopened', []).append({'by': _uname(user), 'at': _d(now.date()), 'reason': reason.strip()[:500]})
@@ -793,9 +828,11 @@ def _apply_witness_action(user, w, act, reason=''):
     if act == 'delete':
         if not _can_manage(user, a.location):
             return 'forbidden', _DENIED % a.location
+        if a.locked:
+            return 'error', 'The audit report is signed; reopen it before deleting a witnessing record.'
         if len((reason or '').strip()) < 5:
             return 'error', 'Give the reason for deletion (at least 5 characters).'
-        _log_deletion('ia_witness', w, user, reason, 'Witnessing %s of audit %s - %s' % (_d(w.date), a.audit_no, a.location))
+        _log_deletion('ia_witness', w, user, reason, 'Witnessing %s of audit %s - %s' % (_d(w.date), a.audit_no, a.location), location=a.location)
         w.delete()
         return 'ok', 'Witnessing record deleted; a copy is kept in the deletion log.'
     return 'error', 'Unknown action.'
@@ -893,7 +930,7 @@ def ia_nc_edit(request, pk=None):
     if request.method == 'POST':
         P = request.POST
         errors = []
-        if sec['head']:
+        if sec['head'] and 'details' in P:
             n.nc_no = (P.get('nc_no') or '').strip()[:40] or n.nc_no
             if Ncca.objects.filter(location=loc, nc_no=n.nc_no).exclude(pk=n.pk).exists():
                 errors.append('NC&CA number %s already exists for %s.' % (n.nc_no, loc))
@@ -920,11 +957,17 @@ def ia_nc_edit(request, pk=None):
             n.target_date = _pdate(P.get('target_date')) or n.proposed_date
             if not n.details:
                 errors.append('Non-conformity / observation details are required.')
-        if sec['dept']:
+        if sec['dept'] and 'root_cause' in P:
+            changed = (n.root_cause, n.corrective, n.completion_date) != ((P.get('root_cause') or '').strip()[:6000], (P.get('corrective') or '').strip()[:6000], _pdate(P.get('completion_date')))
             n.root_cause = (P.get('root_cause') or '').strip()[:6000]
             n.corrective = (P.get('corrective') or '').strip()[:6000]
             n.completion_date = _pdate(P.get('completion_date'))
-        if sec['mr']:
+            if changed and n.status == 'responded':          # the department's section changed after the HOD signed -> signature cleared, back to 'open'
+                n.status, n.hod_signed_by, n.hod_signed_at = 'open', None, None
+                _msg.warning(request, 'The department section was changed after the Head of Department signed: that signature is cleared and the response must be signed again.')
+        if sec['head'] and n.status == 'open' and n.mr_signed_at:      # the MR re-signs the header on every edit
+            n.mr_signed_by, n.mr_signed_at = user, _tz.now()
+        if sec['mr'] and 'followup_with' in P:
             n.followup_with = (P.get('followup_with') or '').strip()[:120]
             n.satisfactory = {'1': True, '0': False}.get(P.get('satisfactory'))
             n.followup_date = _pdate(P.get('followup_date'))
@@ -957,8 +1000,9 @@ def ia_nc_detail(request, pk):
         'can_raise': n.status == 'draft' and _can_manage(user, n.location),
         'can_respond': n.status == 'open' and _is_member(user, n.location),
         'can_close': n.status == 'responded' and _can_manage(user, n.location),
-        'can_reopen': n.status in ('open', 'responded', 'closed') and _can_manage(user, n.location),
-        'can_delete': _can_manage(user, n.location), 'can_rca': _can_manage(user, n.location) and n.status != 'draft'})
+        'can_reopen': n.status in ('responded', 'closed') and _can_manage(user, n.location),
+        'can_reopen_rca': bool(rca) and rca.status != 'draft' and (_is_ceo(user, n.location) or (rca.status == 'performed' and _can_manage(user, n.location))),
+        'can_delete': _can_manage(user, n.location), 'can_rca': _can_manage(user, n.location) and n.status != 'draft' and not (rca and rca.locked)})
 
 
 def _apply_nc_action(user, n, act, reason=''):
@@ -1013,13 +1057,15 @@ def _apply_nc_action(user, n, act, reason=''):
         n.save()
         return 'ok', 'NC&CA %s followed up and closed by you as MR.' % n.nc_no
     if act == 'reopen':
-        if n.status == 'draft' or not _can_manage(user, n.location):
+        if n.status not in ('responded', 'closed') or not _can_manage(user, n.location):
             return 'forbidden', _DENIED % n.location
         if len((reason or '').strip()) < 5:
             return 'error', 'Give the reason for reopening (at least 5 characters).'
         prev = n.status
         n.status = 'open'
         n.hod_signed_by = n.hod_signed_at = n.closed_by = n.closed_at = None
+        n.closing_date = n.followup_date = n.satisfactory = None
+        n.closed_by_name = ''
         n.legacy = dict(n.legacy or {}); n.legacy.setdefault('reopened', []).append({'by': _uname(user), 'at': _d(now.date()), 'from': prev, 'reason': reason.strip()[:500]})
         n.save()
         return 'ok', 'NC&CA reopened (awaiting the department\'s response); department and closing signatures cleared.'
@@ -1067,6 +1113,9 @@ def ia_rca_edit(request, nc_pk):
     if not _can_manage(user, n.location):
         return HttpResponse(_DENIED % n.location, status=403)
     r = NccaRca.objects.filter(nc=n).first()
+    if r is None and (n.status == 'draft' or n.locked):
+        _msg.error(request, 'The root cause analysis is prepared once the NC&CA is raised and before it is closed.')
+        return _redirect('ia_nc_detail', n.pk)
     if r is None:
         r = NccaRca(nc=n, clause=n.clause.split(' (')[0], deputed=_uname(user), date=_date.today(), statement=n.details,
                     rca_no=('R' + n.nc_no[3:]) if n.nc_no.startswith('NC-') else ('RCA-' + n.nc_no),
@@ -1198,7 +1247,7 @@ def _signing_rows(user, loc):
         for c in IaCircular.objects.filter(location=loc, status='issued'):
             mine = [x for x in c.attendance if x.get('user_id') == user.id]
             named = [x for x in c.attendance if not x.get('user_id') and x.get('name', '').strip().lower() in (un, user.username.lower())]
-            if not mine and (named or not c.attendance or True):
+            if not mine and (named or not c.legacy):          # an inducted (historic) circular is signed only by the persons named on it
                 rows.append({'key': 'circ:%d:sign' % c.pk, 'kind': 'Circular receipt', 'label': '%s circular %s (%s)' % (c.get_kind_display(), c.audit_no, _d(c.issue_date)), 'url': '/qc/ia/circulars/%d/' % c.pk,
                              'action': 'Sign receipt' + ('' if named else ' (add me to the attendance)'), 'stage': 'ack'})
         for a in IaAudit.objects.filter(location=loc, status='auditor').exclude(auditor_signed_by=user):

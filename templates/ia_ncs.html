@@ -34,7 +34,7 @@
         <td>{{ n.raised_by|default:"-" }}</td>
         <td class="nw">{{ n.date|date:"d-m-Y"|default:"-" }}</td>
         <td>{{ n.assigned_to|default:"-" }}</td>
-        <td class="nw {% if n.overdue %}due-bad{% endif %}">{{ n.target_date|date:"d-m-Y"|default:n.proposed_date|date:"d-m-Y"|default:"-" }}</td>
+        <td class="nw {% if n.overdue %}due-bad{% endif %}">{% if n.target_date %}{{ n.target_date|date:"d-m-Y" }}{% elif n.proposed_date %}{{ n.proposed_date|date:"d-m-Y" }}{% else %}-{% endif %}</td>
         <td class="nw">{{ n.closing_date|date:"d-m-Y"|default:"-" }}</td>
         <td class="nw">{% if n.status == 'closed' %}<span class="pill ok">Closed</span>{% elif n.status == 'responded' %}<span class="pill info">MR follow-up</span>{% elif n.status == 'open' %}<span class="pill warn">Dept. response</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
         <td class="c">{% if n.rca %}{% if n.rca.status == 'reviewed' %}<span class="pill ok">&#10003;</span>{% else %}<span class="pill warn">{{ n.rca.get_status_display|truncatechars:10 }}</span>{% endif %}{% else %}<span class="muted">-</span>{% endif %}</td>

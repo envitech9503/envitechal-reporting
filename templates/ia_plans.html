@@ -21,7 +21,7 @@
         <td class="nw muted">{{ p.ceo_name|default:"-" }}{% if p.ceo_date %}<br>{{ p.ceo_date|date:"d-m-Y" }}{% endif %}</td>
         <td class="nw"><a class="btn" href="{% url 'ia_plan_detail' p.id %}">Open</a> <a class="btn" href="{% url 'ia_plan_pdf' p.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td>
       </tr>
-    {% empty %}<tr><td colspan="17" class="empty">No annual plan for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="18" class="empty">No annual plan for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
     </tbody>
   </table>
   <div class="muted" style="padding:10px 18px">&bull; planned (Due) &middot; &#10003; completed (Done). The MR prepares and signs the plan; the CEO approves and locks it. The MR marks months as completed as the audits take place.</div>

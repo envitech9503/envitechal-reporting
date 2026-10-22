@@ -102,21 +102,31 @@ def _pdf(title, sub, ctrl, location, orientation='P', wm=''):
             self.ln(h)
 
         def box(self, label, text, w=None, min_h=12.0, fs=7.6, lh=3.5):
-            """Labelled multi-line box (label on a grey strip, text below), full width by default."""
+            """Labelled multi-line box (label on a grey strip, text below); a text longer than the page is
+            continued on the next page under the same label."""
             w = w or self.W
-            x = self.get_x(); y = self.get_y()
-            self.set_font(self.fam, 'B', 7.6); self.set_fill_color(*GREY_FILL)
-            self.cell(w, 4.6, label, 1, 1, 'L', fill=True)
-            self.set_x(x); self.set_font(self.fam, '', fs)
-            lines = self.multi_cell(w - 2.0, lh, text or '-', 0, 'L', split_only=True)
-            h = max(min_h, len(lines) * lh + 2.0)
-            if self.get_y() + h > self.h - 30 and self.page_no() > 0:
-                self.add_page(); self.set_x(x); self.set_font(self.fam, 'B', 7.6); self.set_fill_color(*GREY_FILL)
-                self.cell(w, 4.6, label + ' (contd.)', 1, 1, 'L', fill=True); self.set_x(x); self.set_font(self.fam, '', fs)
-            y2 = self.get_y()
-            self.rect(x, y2, w, h)
-            self.set_xy(x + 1.0, y2 + 1.0); self.multi_cell(w - 2.0, lh, text or '-', 0, 'L')
-            self.set_xy(x, y2 + h)
+            x = self.get_x()
+            self.set_font(self.fam, '', fs)
+            lines = _lines(self, w - 2.0, lh, text or '-')
+            pos = 0; first = True
+            while True:
+                if self.get_y() + 4.6 + min(min_h, 12.0) > self.h - 30 and self.auto_page_break:
+                    self.add_page()
+                self.set_x(x); self.set_font(self.fam, 'B', 7.6); self.set_fill_color(*GREY_FILL)
+                self.cell(w, 4.6, label + ('' if first else ' (contd.)'), 1, 1, 'L', fill=True)
+                avail = (self.h - 30) - self.get_y() if self.auto_page_break else 999
+                take = max(1, min(len(lines) - pos, int((avail - 2.0) // lh)))
+                chunk = lines[pos:pos + take]
+                h = max(min_h if first else 6.0, len(chunk) * lh + 2.0)
+                y2 = self.get_y()
+                self.rect(x, y2, w, h)
+                self.set_font(self.fam, '', fs)
+                for j, line in enumerate(chunk):
+                    self.set_xy(x + 1.0, y2 + 1.0 + j * lh); self.cell(w - 2.0, lh, line, 0, 0, 'L')
+                self.set_xy(x, y2 + h)
+                pos += take; first = False
+                if pos >= len(lines):
+                    break
 
         def tick(self, x, y, on, size=2.8):
             self.set_draw_color(0, 0, 0); self.rect(x, y, size, size)
@@ -173,6 +183,52 @@ def _pdf(title, sub, ctrl, location, orientation='P', wm=''):
 
     p = PDF(); p.alias_nb_pages(); p.set_auto_page_break(True, 30); p.add_page()
     return p
+
+
+def _lines(pdf, w, lh, text):
+    """Wrapped lines of a cell (fpdf2 dry run)."""
+    try:
+        return pdf.multi_cell(w, lh, text or '', 0, 'L', dry_run=True, output='LINES')
+    except TypeError:
+        return pdf.multi_cell(w, lh, text or '', 0, 'L', split_only=True)
+
+
+def _table_row(pdf, cols, vals, lh=3.1, fs=6.8, bold=False, fill=None, colors=None, align=None, bottom=None, head=None):
+    """One table row (cells with borders) that paginates: a row taller than the space left is split into
+    chunks of lines, each chunk drawn as a bordered row, the header re-drawn on every new page."""
+    bottom = bottom or (pdf.h - 32)
+    pdf.set_font(pdf.fam, 'B' if bold else '', fs)
+    cell_lines = [_lines(pdf, w - 1.5, lh, v) if v else [''] for (lbl, w), v in zip(cols, vals)]
+    total = max(len(x) for x in cell_lines)
+    pos = 0
+    while pos < total:
+        avail = bottom - pdf.get_y()
+        max_lines = int((avail - 1.4) // lh)
+        if max_lines < 2 and total - pos > 0:
+            pdf.add_page()
+            if head:
+                head()
+            pdf.set_font(pdf.fam, 'B' if bold else '', fs)          # head() changes the font
+            avail = bottom - pdf.get_y(); max_lines = int((avail - 1.4) // lh)
+        take = min(total - pos, max(1, max_lines))
+        h = take * lh + 1.4
+        x = 10; y = pdf.get_y()
+        for (lbl, w), lines, v in zip(cols, cell_lines, vals):
+            if fill:
+                pdf.set_fill_color(*fill); pdf.rect(x, y, w, h, 'DF')
+            else:
+                pdf.rect(x, y, w, h)
+            chunk = lines[pos:pos + take]
+            if any(c.strip() for c in chunk):
+                if colors and lbl in colors:
+                    pdf.set_text_color(*colors[lbl])
+                for j, line in enumerate(chunk):          # one cell per wrapped line: never re-wraps
+                    pdf.set_xy(x + 0.75, y + 0.7 + j * lh)
+                    pdf.cell(w - 1.5, lh, line, 0, 0, (align or {}).get(lbl, 'L'))
+                pdf.set_text_color(0, 0, 0)
+            x += w
+        pdf.set_xy(10, y + h)
+        pos += take
 
 
 def _resp(pdf, name):
@@ -263,16 +319,9 @@ def ia_circular_pdf(request, pk):
         pdf.cell(w, 6, lbl, 1, 0, 'C', fill=True)
     pdf.ln(6)
     pdf.set_font(f, '', 7.0)
-    for s in c.sessions or []:
-        vals = [s.get('sr', ''), s.get('day', ''), '%s to %s' % (s.get('time_from', ''), s.get('time_to', '')), s.get('scope', ''), s.get('criteria', ''), s.get('auditors', ''), s.get('auditee', '')]
-        heights = [len(pdf.multi_cell(w - 1.5, 3.4, v or '-', 0, 'L', split_only=True)) for (lbl, w), v in zip(cols, vals)]
-        h = max(heights) * 3.4 + 1.5
-        if pdf.get_y() + h > pdf.h - 32:
-            pdf.add_page()
-        x = pdf.get_x(); y = pdf.get_y()
-        for (lbl, w), v in zip(cols, vals):
-            pdf.rect(x, y, w, h); pdf.set_xy(x + 0.75, y + 0.75); pdf.multi_cell(w - 1.5, 3.4, v or '-', 0, 'L'); x += w
-        pdf.set_xy(10, y + h)
+    for sess in c.sessions or []:
+        vals = [sess.get('sr', ''), sess.get('day', ''), '%s to %s' % (sess.get('time_from', ''), sess.get('time_to', '')), sess.get('scope', ''), sess.get('criteria', ''), sess.get('auditors', ''), sess.get('auditee', '')]
+        _table_row(pdf, cols, [v or '-' for v in vals], lh=3.4, fs=7.0)
     pdf.ln(3)
     if c.ceo_name:
         pdf.set_font(f, 'B', 8); pdf.cell(pdf.W, 5, c.ceo_name, 0, 1, 'R'); pdf.set_font(f, '', 7.5); pdf.cell(pdf.W, 4, 'C.E.O', 0, 1, 'R')
@@ -334,28 +383,8 @@ def ia_audit_pdf(request, pk):
     for fd in a.findings.select_related('clause'):
         heading = (fd.clause and fd.clause.is_heading) or (fd.label and fd.label.count('.') == 0) or (not fd.finding and not fd.ref and len(fd.requirement) < 70)
         vals = [fd.label, fd.requirement, fd.ref.replace('\n', ' / '), fd.finding, _RESULT_LABEL.get(fd.result, '') if fd.result else '']
-        pdf.set_font(f, 'B' if heading else '', 6.8)
-        heights = [len(pdf.multi_cell(w - 1.5, 3.1, v or '', 0, 'L', split_only=True)) if v else 1 for (lbl, w), v in zip(cols, vals)]
-        h = max(heights) * 3.1 + 1.4
-        if pdf.get_y() + min(h, 60) > pdf.h - 32:
-            pdf.add_page(); head()
-        x = 10; y = pdf.get_y()
-        if h > pdf.h - 32 - 45:          # a very long finding: let multi_cell paginate the finding column alone
-            pass
-        for (lbl, w), v in zip(cols, vals):
-            if heading:
-                pdf.set_fill_color(248, 250, 252); pdf.rect(x, y, w, h, 'DF')
-            else:
-                pdf.rect(x, y, w, h)
-            if v:
-                pdf.set_xy(x + 0.75, y + 0.7)
-                if lbl == 'Result' and fd.result in ('minor', 'major'):
-                    pdf.set_text_color(185, 28, 28)
-                elif lbl == 'Result' and fd.result == 'obs':
-                    pdf.set_text_color(180, 83, 9)
-                pdf.multi_cell(w - 1.5, 3.1, v, 0, 'L'); pdf.set_text_color(0, 0, 0)
-            x += w
-        pdf.set_xy(10, y + h)
+        col = {'Result': (185, 28, 28)} if fd.result in ('minor', 'major') else ({'Result': (180, 83, 9)} if fd.result == 'obs' else None)
+        _table_row(pdf, cols, vals, lh=3.1, fs=6.8, bold=heading, fill=(248, 250, 252) if heading else None, colors=col, head=head)
     # summary
     _sig_block_space(pdf, 60)
     pdf.ln(3); pdf.set_font(f, 'B', 8.5); pdf.cell(pdf.W, 5, 'Summary of Findings in Internal Audit', 0, 1, 'C')
@@ -397,15 +426,7 @@ def ia_audit_pdf(request, pk):
         pdf.set_xy(10, yh + 8)
         for r in w.rows or []:
             vals = [r.get('parameter', ''), r.get('performed_by', ''), r.get('range', ''), r.get('assigned', ''), r.get('obtained', ''), r.get('remarks', '')]
-            pdf.set_font(f, '', 6.8)
-            heights = [len(pdf.multi_cell(ww - 1.5, 3.1, v or '-', 0, 'L', split_only=True)) for (lbl, ww), v in zip(wcols, vals)]
-            h = max(heights) * 3.1 + 1.4
-            if pdf.get_y() + h > pdf.h - 32:
-                pdf.add_page()
-            x = 10; y = pdf.get_y()
-            for (lbl, ww), v in zip(wcols, vals):
-                pdf.rect(x, y, ww, h); pdf.set_xy(x + 0.75, y + 0.7); pdf.multi_cell(ww - 1.5, 3.1, v or '-', 0, 'L'); x += ww
-            pdf.set_xy(10, y + h)
+            _table_row(pdf, wcols, [v or '-' for v in vals], lh=3.1, fs=6.8)
         _sig_block_space(pdf, 34)
         pdf.ln(4)
         from django.contrib.auth.models import User as _User
@@ -581,7 +602,9 @@ def ia_rca_pdf(request, pk):
     pdf.set_xy(10, y + 6.5)
     y = pdf.get_y()
     pdf.set_font(f, 'B', 7.2); pdf.cell(58, 4, 'Statement of Problem as identified in above analysis', 0, 0, 'L')
-    pdf.set_xy(70, y); pdf.set_font(f, '', 6.4); pdf.multi_cell(pdf.W - 60, 2.8, (r.statement or '-')[:700], 0, 'L')
+    pdf.set_xy(70, y); pdf.set_font(f, '', 6.4)
+    st_lines = _lines(pdf, pdf.W - 60, 2.8, r.statement or '-')
+    pdf.multi_cell(pdf.W - 60, 2.8, '\n'.join(st_lines[:4]) + (' ...' if len(st_lines) > 4 else ''), 0, 'L')
     pdf.set_line_width(0.3); pdf.line(70, pdf.get_y() + 0.5, 10 + pdf.W, pdf.get_y() + 0.5); pdf.set_line_width(0.2)
     pdf.set_xy(10, pdf.get_y() + 1.5)
     pdf.set_font(f, '', 6.2); pdf.set_text_color(90, 90, 90); pdf.cell(pdf.W, 3.4, 'Why?  -  stop at the Why where no further answer is possible', 0, 1, 'R'); pdf.set_text_color(0, 0, 0)
@@ -592,7 +615,9 @@ def ia_rca_pdf(request, pk):
     for i, (x, y) in enumerate(pos):
         pdf.rect(x, y, bw, bh)
         pdf.set_fill_color(*GREY_FILL); pdf.rect(x, y, 16, bh, 'F'); pdf.set_xy(x, y + bh / 2 - 2); pdf.set_font(f, 'B', 7.4); pdf.cell(16, 4, '%d. Why?' % (i + 1), 0, 0, 'C')
-        pdf.set_xy(x + 17, y + 0.8); pdf.set_font(f, '', 6.0); pdf.multi_cell(bw - 18, 2.6, (whys[i] or '---')[:300], 0, 'L')
+        pdf.set_xy(x + 17, y + 0.8); pdf.set_font(f, '', 6.0)
+        wl = _lines(pdf, bw - 18, 2.6, whys[i] or '---')
+        pdf.multi_cell(bw - 18, 2.6, '\n'.join(wl[:4]) + (' ...' if len(wl) > 4 else ''), 0, 'L')
         if i < 5:
             pdf.set_font(f, 'B', 6.2); pdf.set_text_color(90, 90, 90)
             nx, ny = pos[i + 1]
@@ -604,7 +629,8 @@ def ia_rca_pdf(request, pk):
     yb = y0 + 2 * bh + 8
     pdf.set_xy(10, yb)
     pdf.set_auto_page_break(False)
-    pdf.box('Conclusion:', (r.conclusion or '')[:600], w=pdf.W - 100, min_h=14, fs=6.8, lh=3.0)
+    cl = _lines(pdf, pdf.W - 102, 3.0, r.conclusion or '-')
+    pdf.box('Conclusion:', '\n'.join(cl[:5]) + (' ... (see the NC&CA record)' if len(cl) > 5 else ''), w=pdf.W - 100, min_h=14, fs=6.8, lh=3.0)
     pdf.set_draw_color(*LINE)
     pn = r.performed_name or (_uname(r.performed_by) if r.performed_by else '')
     rn = r.reviewed_name or (_uname(r.reviewed_by) if r.reviewed_by else '')
@@ -645,28 +671,19 @@ def ia_log_pdf(request):
         vals = [str(n.log_sno or i + 1), n.nc_no, '%s (ISO/IEC 17025:2017)' % n.clause.split(' (')[0] if n.clause else '', _CAT_LABEL.get(n.category, '').replace(' nonconformance', ''),
                 n.raised_by, _d(n.date), n.assigned_to, _d(n.assigned_date), _d(n.target_date), _d(n.followup_date), _d(n.closing_date),
                 n.closed_by_name or (_uname(n.closed_by) if n.closed_by else ''), '']
-        pdf.set_font(f, '', 6.4)
-        heights = [len(pdf.multi_cell(w - 1.2, 2.9, v or '-', 0, 'C', split_only=True)) for (lbl, w), v in zip(cols, vals)]
-        h = max(max(heights) * 2.9 + 1.4, 7.5)
-        if pdf.get_y() + h > pdf.h - 32:
-            pdf.add_page(); head()
-        x = 10; y = pdf.get_y()
-        for (lbl, w), v in zip(cols, vals):
-            pdf.rect(x, y, w, h)
-            if lbl == 'Closed By Sign':
-                if n.closed_at and n.closed_by:
-                    sig = _sig_image(n.closed_by)
-                    if sig:
-                        try:
-                            pdf.image(sig, x + 2, y + 0.6, w - 4, min(h - 1.2, 6.5))
-                        except Exception:
-                            pass
-                    else:
-                        pdf.set_xy(x, y); pdf.set_font(f, '', 5.4); pdf.cell(w, h, 'e-signed', 0, 0, 'C')
+        y0 = pdf.get_y(); page0 = pdf.page_no()
+        _table_row(pdf, cols, [v or '-' for v in vals[:-1]] + [''], lh=2.9, fs=6.4, align={lbl: 'C' for lbl, w in cols}, head=head)
+        if n.closed_at and n.closed_by and pdf.page_no() == page0:
+            x = 10 + sum(w for lbl, w in cols[:-1]); h = pdf.get_y() - y0
+            sig = _sig_image(n.closed_by)
+            if sig:
+                try:
+                    pdf.image(sig, x + 2, y0 + 0.6, cols[-1][1] - 4, min(h - 1.2, 6.5))
+                except Exception:
+                    pass
             else:
-                pdf.set_xy(x + 0.6, y + 0.7); pdf.multi_cell(w - 1.2, 2.9, v or '-', 0, 'C')
-            x += w
-        pdf.set_xy(10, y + h)
+                pdf.set_xy(x, y0); pdf.set_font(f, '', 5.4); pdf.cell(cols[-1][1], h, 'e-signed', 0, 0, 'C')
+        pdf.set_xy(10, pdf.get_y())
     if not rows:
         pdf.set_font(f, '', 8); pdf.cell(pdf.W, 8, 'No NC&CA records.', 0, 1, 'C')
     return _resp(pdf, 'NCCA_Log_%s%s' % (loc, ('_' + year) if (year or '').isdigit() else ''))

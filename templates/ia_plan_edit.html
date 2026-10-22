@@ -8,7 +8,7 @@
     <div style="display:flex;gap:8px"><a class="btn" href="{% if plan.pk %}{% url 'ia_plan_detail' plan.pk %}{% else %}{% url 'ia_plans' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save plan</button></div></div>
   <div class="frm">
     <label>Year <input name="year" value="{{ plan.year }}" required pattern="\d{4}" style="width:90px" {% if plan.pk %}readonly{% endif %}></label>
-    <label style="flex:1 1 400px">Remarks <input name="remarks" value="{{ plan.remarks }}" placeholder="optional"></label>
+    <label style="flex:1 1 400px">Remarks <textarea name="remarks" rows="2" placeholder="optional" style="border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font:inherit;font-size:13px">{{ plan.remarks }}</textarea></label>
   </div>
   <div style="padding:0 18px 14px;overflow-x:auto">
     <table class="mougrid" style="min-width:980px">

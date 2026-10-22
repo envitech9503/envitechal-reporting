@@ -74,8 +74,7 @@ class Command(BaseCommand):
                     rows.append(IaFinding(audit=obj, order=(i + 1) * 10, clause=clause_by_code.get(f['clause']) if f['clause'] else None, label=f['label'], requirement=f['requirement'],
                                           ref=f['ref'], finding=f['finding'], result=f['result'], tag=', '.join(f['tags'])[:40]))
                 IaFinding.objects.bulk_create(rows)
-                n['findings'] += len(rows)
-                obj.recount()
+                n['findings'] += len(rows)          # the summary counts stay as the laboratory printed and signed them (legacy.summary)
                 audits['%s %s' % (a['location'], a['audit_no'])] = obj
                 n['audits'] += 1
                 if a.get('witness'):
@@ -116,9 +115,9 @@ class Command(BaseCommand):
                     impact_past=x['impact_past'], evaluated_date=_date(x['evaluated_date']), details=x['details'], proposed_date=_date(x['proposed_date']),
                     root_cause=x['root_cause'], corrective=x['corrective'], completion_date=_date(x['completion_date']),
                     followup_with=x['followup_with'], satisfactory=x['satisfactory'], followup_date=_date(x['followup_date']) if x['followup_date'] else _date(lg['followup_date']),
-                    next_followup_date=_date(x['next_followup_date']), followup_desc=x['followup_desc'], closed_by_name=x['closed_by'], closing_date=_date(lg['closing_date']), remarks=x['remarks'],
+                    next_followup_date=_date(x['next_followup_date']), followup_desc=x['followup_desc'], closed_by_name=lg['closed_by'], closing_date=_date(lg['closing_date']), remarks=x['remarks'],
                     log_sno=lg['s_no'], assigned_to=lg['assigned_to'], assigned_date=_date(lg['assigned_date']), target_date=_date(lg['target_date']), status='closed',
-                    legacy={'key': 'nc:%s:%s' % (x['location'], x['nc_no']), 'form_no': x['form_no'], 'log_clause': lg['clause'], 'log_closed_by': lg['closed_by'], 'notes': x['notes'], 'inducted': built})
+                    legacy={'key': 'nc:%s:%s' % (x['location'], x['nc_no']), 'form_no': x['form_no'], 'log_clause': lg['clause'], 'form_closed_by': x['closed_by'], 'notes': x['notes'], 'inducted': built})
                 n['ncs'] += 1
                 r = x['rca']
                 NccaRca.objects.create(nc=obj, rca_no=r['rca_no'], clause=r['clause'], deputed=r['deputed'], date=_date(r['date']), causes=r['causes'], other=r['other'], six_why=r['six_why'],

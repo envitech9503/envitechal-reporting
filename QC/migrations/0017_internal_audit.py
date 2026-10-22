@@ -265,7 +265,7 @@ class Migration(migrations.Migration):
                 ("order", models.PositiveIntegerField(default=0)),
                 ("label", models.CharField(blank=True, default="", max_length=12)),
                 ("requirement", models.TextField(blank=True, default="")),
-                ("ref", models.CharField(blank=True, default="", max_length=300)),
+                ("ref", models.CharField(blank=True, default="", max_length=400)),
                 ("finding", models.TextField(blank=True, default="")),
                 (
                     "result",
@@ -1258,7 +1258,7 @@ class Migration(migrations.Migration):
                 ("order", models.PositiveIntegerField(default=0)),
                 ("label", models.CharField(blank=True, default="", max_length=12)),
                 ("requirement", models.TextField(blank=True, default="")),
-                ("ref", models.CharField(blank=True, default="", max_length=300)),
+                ("ref", models.CharField(blank=True, default="", max_length=400)),
                 ("finding", models.TextField(blank=True, default="")),
                 (
                     "result",

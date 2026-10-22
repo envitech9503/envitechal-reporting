@@ -42,6 +42,7 @@
     {% if can_approve %}<form method="post" action="{% url 'ia_plan_action' plan.id %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn btn-p" type="submit" onclick="return confirm('Approve and lock the annual plan {{ plan.year }} as CEO?')"><i class="fa-solid fa-stamp"></i> Approve as CEO</button></form>{% endif %}
     {% if can_unapprove %}<form method="post" action="{% url 'ia_plan_action' plan.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="unapprove"><label>Reason <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-lock-open"></i> Unapprove</button></form>{% endif %}
     {% if plan.status == 'signed' and can_edit %}<span class="muted">Editing a signed plan clears the MR signature.</span>{% endif %}
+    {% if can_delete %}<form method="post" action="{% url 'ia_plan_action' plan.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<input type="hidden" name="action" value="delete"><label>Reason for deletion <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this plan? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
   </div>
 </div>
 {% endblock %}
