@@ -1,0 +1,32 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Witnessing - audit {{ a.audit_no }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_audits' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">Audit reports</a> &rsaquo; <a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;text-decoration:none">{{ a.audit_no }}</a> &rsaquo; <span>Witnessing</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="ia_wit_{{ w.pk|default:'new' }}_{{ a.pk }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-eye"></i> Witnessing record - audit {{ a.audit_no }} ({{ loc }})</div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% url 'ia_audit_detail' a.id %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div></div>
+  <div class="form-sheet">
+    <div class="sec">Witnessing</div>
+    <div class="grid2">
+      <label>Date of witnessing <input type="text" name="date" value="{{ w.date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy" required></label>
+      <label>Internal auditor <input type="text" name="auditor" value="{{ w.auditor }}"></label>
+      <label>Witnessing circular <select name="circular"><option value="">- none -</option>{% for c in circs %}<option value="{{ c.id }}" {% if w.circular_id == c.id %}selected{% endif %}>{{ c.audit_no }} - {{ c.issue_date|date:"d-m-Y" }}</option>{% endfor %}</select></label>
+      <label>Analysts witnessed (comma-separated; each signs in the system) <input type="text" name="auditees" value="{{ auditees_text }}" placeholder="Sana Ashraf, Maryam Fatima"></label>
+    </div>
+    <div class="sec">Tests witnessed</div>
+    <div class="full" style="overflow-x:auto">
+      <table class="mougrid" style="min-width:960px">
+        <thead><tr><th style="width:130px">Parameter / test</th><th style="width:140px">Performed by</th><th style="width:120px">Range / values covered</th><th style="width:110px">Assigned value (blind sample)</th><th style="width:100px">Obtained value</th><th>Remarks</th></tr></thead>
+        <tbody>
+        {% for r in rows %}{% with i=forloop.counter0 %}
+          <tr><td><input name="w{{ i }}_parameter" value="{{ r.parameter }}"></td><td><input name="w{{ i }}_performed_by" value="{{ r.performed_by }}"></td><td><input name="w{{ i }}_range" value="{{ r.range }}"></td><td><input name="w{{ i }}_assigned" value="{{ r.assigned }}"></td><td><input name="w{{ i }}_obtained" value="{{ r.obtained }}"></td>
+            <td><textarea name="w{{ i }}_remarks" rows="3" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:12.5px;padding:4px 6px">{{ r.remarks }}</textarea></td></tr>
+        {% endwith %}{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Circular {{ c.audit_no }} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_circulars' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">Circulars</a> &rsaquo; <span>{{ c.audit_no }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-bullhorn"></i> {{ c.get_kind_display }} circular {{ c.audit_no }} - {{ loc }} laboratory
+      {% if c.status == 'issued' %}<span class="pill ok">Issued</span>{% else %}<span class="pill none">Draft</span>{% endif %}{% if c.legacy %} <span class="pill none" title="{{ c.legacy.file }}">REC</span>{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if can_edit %}<a class="btn" href="{% url 'ia_circular_edit' c.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
+      {% if c.audit %}<a class="btn" href="{% url 'ia_audit_detail' c.audit.id %}"><i class="fa-solid fa-file-lines"></i> Audit report {{ c.audit.audit_no }}</a>{% endif %}
+      <a class="btn" href="{% url 'ia_circular_pdf' c.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
+    </div>
+  </div>
+  <div class="kv">
+    <b>To</b><span>{{ c.to_text }}</span><b>Circular issue date</b><span>{{ c.issue_date|date:"d-m-Y" }}</span>
+    <b>From</b><span>{{ c.from_text }}{% if c.issued_by %} - issued by {{ c.issued_by.username }} {{ c.issued_at|date:"d-m-Y H:i" }}{% endif %}</span><b>Audit date</b><span>{{ c.audit_date_text|default:"-" }}</span>
+  </div>
+  <table>
+    <thead><tr><th>Sr.</th><th>Day</th><th>Time</th><th>Scope</th><th>Criteria / (Cross audit)</th><th>Auditors</th><th>Auditee</th></tr></thead>
+    <tbody>{% for s in c.sessions %}<tr><td>{{ s.sr }}</td><td class="nw">{{ s.day }}</td><td class="nw">{{ s.time_from }} to {{ s.time_to }}</td><td>{{ s.scope|linebreaksbr }}</td><td>{{ s.criteria }}</td><td class="nw">{{ s.auditors }}</td><td class="nw">{{ s.auditee }}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% if c.ceo_name %}<div class="muted" style="padding:6px 18px;text-align:right"><b>{{ c.ceo_name }}</b><br>C.E.O</div>{% endif %}
+</div>
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-signature"></i> Internal Audit Schedule / Notice Receiving Attendance <span class="muted">{{ signed }} of {{ c.attendance|length }} signed</span></div></div>
+  <table style="max-width:820px">
+    <thead><tr><th>S. No.</th><th>Name of employee</th><th>Designation</th><th>Signature</th></tr></thead>
+    <tbody>{% for a in c.attendance %}<tr {% if forloop.counter0 == my_row %}style="background:#f0fdf4"{% endif %}><td>{{ forloop.counter|stringformat:"02d" }}</td><td>{{ a.name }}</td><td>{{ a.designation }}</td><td class="nw">{% if a.signed_at %}<span class="pill ok">e-signed {{ a.signed_at|slice:":10" }}</span>{% else %}<span class="pill none">not signed</span>{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="empty">No attendance list.</td></tr>{% endfor %}</tbody>
+  </table>
+  {% if c.legacy.notes %}<div class="msg warning">Record notes: {% for n in c.legacy.notes %}{{ n }} {% endfor %}</div>{% endif %}
+  <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
+    {% if can_issue %}<form method="post" action="{% url 'ia_circular_action' c.id %}">{% csrf_token %}<input type="hidden" name="action" value="issue"><button class="btn btn-p" type="submit" onclick="return confirm('Issue this circular as Management Representative? It is then locked and the attendees sign receipt.')"><i class="fa-solid fa-paper-plane"></i> Issue as MR</button></form>{% endif %}
+    {% if can_sign or can_add_self %}<form method="post" action="{% url 'ia_circular_action' c.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign"><button class="btn btn-p" type="submit" onclick="return confirm('Sign receipt of this circular? Your e-signature will be printed in the attendance list.')"><i class="fa-solid fa-signature"></i> Sign receipt{% if can_add_self %} (add me){% endif %}</button></form>{% endif %}
+    {% if can_withdraw %}<form method="post" action="{% url 'ia_circular_action' c.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="withdraw"><label>Reason <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit" onclick="return confirm('Withdraw the circular to draft? Receipt signatures are cleared.')"><i class="fa-solid fa-rotate-left"></i> Withdraw</button></form>{% endif %}
+  </div>
+</div>
+{% endblock %}

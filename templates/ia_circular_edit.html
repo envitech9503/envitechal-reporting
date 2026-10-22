@@ -1,0 +1,51 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Circular - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_circulars' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">Circulars</a> &rsaquo; <span>{% if c.pk %}Edit{% else %}New{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="ia_circ_{{ c.pk|default:'new' }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-bullhorn"></i> Internal Audit Circular - {{ loc }} laboratory</div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% if c.pk %}{% url 'ia_circular_detail' c.pk %}{% else %}{% url 'ia_circulars' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save circular</button></div></div>
+  <div class="form-sheet">
+    <div class="sec">Notice</div>
+    <div class="grid2">
+      <label>Kind <select name="kind"><option value="audit" {% if c.kind == 'audit' %}selected{% endif %}>Internal audit</option><option value="witness" {% if c.kind == 'witness' %}selected{% endif %}>Witnessing</option></select></label>
+      <label>Audit No. / Year <input type="text" name="audit_no" value="{{ c.audit_no }}" placeholder="01/{{ c.issue_date|date:'Y' }}"></label>
+      <label>Linked audit report <select name="audit"><option value="">- none yet -</option>{% for a in audits %}<option value="{{ a.id }}" {% if c.audit_id == a.id %}selected{% endif %}>{{ a.audit_no }} ({{ a.date_start|date:"d-m-Y"|default:"no date" }})</option>{% endfor %}</select></label>
+      <label>Circular issue date <input type="text" name="issue_date" value="{{ c.issue_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy" required></label>
+      <label>Audit date (as printed) <input type="text" name="audit_date_text" value="{{ c.audit_date_text }}" placeholder="e.g. 17-18 June 2026"></label>
+      <label>To <input type="text" name="to_text" value="{{ c.to_text }}"></label>
+      <label>From <input type="text" name="from_text" value="{{ c.from_text }}"></label>
+      <label>CEO name printed under the schedule (optional) <input type="text" name="ceo_name" value="{{ c.ceo_name }}"></label>
+    </div>
+    <div class="sec">Schedule</div>
+    <div class="full" style="overflow-x:auto">
+      <table class="mougrid" style="min-width:960px">
+        <thead><tr><th style="width:44px">Sr.</th><th style="width:150px">Day</th><th style="width:90px">From</th><th style="width:150px">To</th><th>Scope</th><th>Criteria / (Cross audit)</th><th style="width:130px">Auditors</th><th style="width:150px">Auditee</th></tr></thead>
+        <tbody>
+        {% for s in sessions %}{% with i=forloop.counter0 %}
+          <tr><td><input name="s{{ i }}_sr" value="{{ s.sr }}"></td><td><input name="s{{ i }}_day" value="{{ s.day }}" placeholder="17-June-26 (Wednesday)"></td><td><input name="s{{ i }}_time_from" value="{{ s.time_from }}"></td><td><input name="s{{ i }}_time_to" value="{{ s.time_to }}"></td>
+            <td><textarea name="s{{ i }}_scope" rows="2" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:12.5px;padding:4px 6px">{{ s.scope }}</textarea></td>
+            <td><textarea name="s{{ i }}_criteria" rows="2" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:12.5px;padding:4px 6px">{{ s.criteria }}</textarea></td>
+            <td><input name="s{{ i }}_auditors" value="{{ s.auditors }}"></td><td><input name="s{{ i }}_auditee" value="{{ s.auditee }}"></td></tr>
+        {% endwith %}{% endfor %}
+        </tbody>
+      </table>
+      <div class="muted">Rows without a day and scope are ignored.</div>
+    </div>
+    <div class="sec">Internal Audit Schedule / Notice Receiving Attendance</div>
+    <div class="full" style="overflow-x:auto">
+      <table class="mougrid" style="max-width:720px">
+        <thead><tr><th style="width:40px">S. No.</th><th>Name of employee</th><th>Designation</th><th style="width:120px">Signed</th></tr></thead>
+        <tbody>
+        {% for a in att %}{% with i=forloop.counter0 %}
+          <tr><td class="c">{{ forloop.counter|stringformat:"02d" }}</td><td><input name="a{{ i }}_name" value="{{ a.name }}"></td><td><input name="a{{ i }}_designation" value="{{ a.designation }}"></td><td class="muted">{% if a.signed_at %}&#10003; signed{% else %}-{% endif %}</td></tr>
+        {% endwith %}{% endfor %}
+        </tbody>
+      </table>
+      <div class="muted">Pre-filled from the last circular of this kind. Each person listed signs receipt in the system after the circular is issued (their e-signature is printed in the Signature column); a staff member who is not listed can add themselves when signing.</div>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}

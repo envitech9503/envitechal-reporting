@@ -1,0 +1,50 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}RCA - {{ n.nc_no }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_ncs' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">NC &amp; CA log</a> &rsaquo; <a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;text-decoration:none">{{ n.nc_no }}</a> &rsaquo; <span>Root cause analysis</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="ia_rca_{{ n.pk }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis Form - {{ n.nc_no }} <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% url 'ia_nc_detail' n.id %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save RCA</button></div></div>
+  <div class="form-sheet">
+    <div class="sec">Reference</div>
+    <div class="grid2">
+      <label>NCR #<span class="ro" style="padding:6px 9px;border-radius:7px">{{ n.nc_no }}</span></label>
+      <label>Clause # <input type="text" name="clause" value="{{ r.clause }}"></label>
+      <label>RCA # <input type="text" name="rca_no" value="{{ r.rca_no }}"></label>
+      <label>Person deputed for RCA <input type="text" name="deputed" value="{{ r.deputed }}" placeholder="ML / MR"></label>
+      <label>Date <input type="text" name="date" value="{{ r.date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+    </div>
+    <div class="sec">Selection of potential causes</div>
+    <div class="full">
+      <table class="mougrid" style="max-width:1000px">
+        <thead><tr><th style="width:200px">Possible main causes</th><th>Possible sub causes</th></tr></thead>
+        <tbody>
+        {% for m in mains %}
+          <tr><td><label class="chk"><input type="checkbox" name="c_{{ m.key }}" value="1" {% if m.on %}checked{% endif %}> <b>{{ m.main }}</b></label></td>
+            <td>{% for i, s, on in m.subs %}<label class="chk"><input type="checkbox" name="c_{{ m.key }}_{{ i }}" value="1" {% if on %}checked{% endif %}> {{ s }}</label>{% endfor %}
+              <label class="chk">Other: <input type="text" name="c_{{ m.key }}_other" value="{{ m.other }}" style="width:160px"></label></td></tr>
+        {% endfor %}
+          <tr><td><b>Other:</b></td><td><input type="text" name="other" value="{{ r.other }}" style="width:100%"></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px"><b style="font-size:12px;color:#475569">6 Why analysis technique:</b>
+        <label class="chk"><input type="radio" name="six_why" value="1" {% if r.six_why %}checked{% endif %}> Required for further in-depth analysis</label>
+        <label class="chk"><input type="radio" name="six_why" value="0" {% if not r.six_why %}checked{% endif %}> Not required as the above analysis has given the conclusion</label></div>
+    </div>
+    <div class="sec">Statement of problem as identified in the above analysis</div>
+    <div class="full"><label><textarea name="statement" required>{{ r.statement }}</textarea></label></div>
+    <div class="sec">Why chain <span class="muted" style="font-weight:400">(stop at the Why where no further answer is possible)</span></div>
+    <div class="full"><div class="whybox">
+      {% for w in whys %}<label><span class="why-n">{{ forloop.counter }}. Why?</span><textarea name="why{{ forloop.counter }}" style="min-height:64px">{{ w }}</textarea></label>{% endfor %}
+    </div></div>
+    <div class="sec">Conclusion and signatures</div>
+    <div class="full">
+      <label>Conclusion <textarea name="conclusion">{{ r.conclusion }}</textarea></label>
+      <div class="grid2" style="border:none;padding:8px 0 0"><label>Performed by (printed name) <input type="text" name="performed_name" value="{{ r.performed_name }}"></label><label>Reviewed by (printed name) <input type="text" name="reviewed_name" value="{{ r.reviewed_name }}" placeholder="CEO"></label></div>
+      <div class="muted" style="margin-top:6px">The e-signatures are added with <b>Sign as performer</b> (MR) and <b>Review as CEO</b> on the NC&amp;CA page.</div>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}

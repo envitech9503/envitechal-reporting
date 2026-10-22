@@ -1,0 +1,23 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Internal Audit - Document Control{% endblock %}
+{% block crumb %} &rsaquo; <span>Document control</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-stamp"></i> Document control of the internal-audit forms</div></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">Printed in the control box of every PDF. One entry per form and laboratory; the defaults are the numbers printed on the laboratory's current forms.</div>
+  <table>
+    <thead><tr><th>Form</th><th>Laboratory</th><th>Document No.</th><th>Issue date</th><th>Issue No.</th><th>Rev. No.</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}{% for loc, c in r.per_loc %}
+      <tr><form method="post">{% csrf_token %}<input type="hidden" name="form" value="{{ r.form }}"><input type="hidden" name="location" value="{{ loc }}">
+        <td>{% if forloop.first %}<b>{{ r.title }}</b>{% endif %}</td><td>{{ loc }}</td>
+        <td><input name="doc_no" value="{{ c.doc_no }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;width:170px"></td>
+        <td><input name="issue_date" value="{% if c.issue_date != '-' %}{{ c.issue_date }}{% endif %}" placeholder="dd-mm-yyyy" style="border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;width:110px"></td>
+        <td><input name="issue_no" value="{{ c.issue_no }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;width:60px"></td>
+        <td><input name="rev_no" value="{{ c.rev_no }}" style="border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;width:60px"></td>
+        <td><button class="btn btn-p" type="submit">Save</button></td></form></tr>
+    {% endfor %}{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

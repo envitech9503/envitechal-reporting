@@ -1150,7 +1150,7 @@ def control_chart_deletions(request):
     labs = _user_labs(user)
     if not (_is_admin(user) or labs):
         return HttpResponse('The deletion log is available to the QC / Lab Managers and the CEO / administrator.', status=403)
-    qs = ControlChartDeletion.objects.exclude(kind__startswith='mou').select_related('deleted_by')   # MOU deletions: /qc/mou/deleted/
+    qs = ControlChartDeletion.objects.exclude(kind__startswith='mou').exclude(kind__startswith='ia_').select_related('deleted_by')   # MOU: /qc/mou/deleted/, IA: /qc/ia/deleted/
     if labs and not (_is_admin(user) and not labs):
         qs = qs.filter(location__in=labs)
     return render(request, 'control_chart_deletions.html', {'rows': qs[:500], 'labs': sorted(labs) or _CC_LOCS})

@@ -1,0 +1,84 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Audit {{ a.audit_no }} - edit{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_audits' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">Audit reports</a> &rsaquo; <a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;text-decoration:none">{{ a.audit_no }}</a> &rsaquo; <span>Edit</span>{% endblock %}
+{% block cc_body %}
+<form method="post" id="auditForm" data-autosave="ia_audit_{{ a.pk }}">{% csrf_token %}
+<div class="card">
+  <div class="hd stick">
+    <div class="title"><i class="fa-solid fa-file-lines"></i> Internal Audit {{ a.audit_no }} - {{ loc }} laboratory <span class="muted" id="cnt"></span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn" href="{% url 'ia_audit_detail' a.id %}">Cancel</a>
+      <button class="btn" type="submit" name="then" value="edit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      <button class="btn btn-p" type="submit" name="then" value="detail"><i class="fa-solid fa-floppy-disk"></i> Save &amp; view</button>
+    </div>
+  </div>
+  <div class="form-sheet">
+    <div class="sec">Audit header</div>
+    <div class="grid2">
+      <label>Audit start date <input type="text" name="date_start" value="{{ a.date_start|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+      <label>Audit end date <input type="text" name="date_end" value="{{ a.date_end|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+      <label>Auditor <input type="text" name="auditor" value="{{ a.auditor }}"></label>
+      <label>Auditor designation <input type="text" name="auditor_title" value="{{ a.auditor_title }}" placeholder="Lab Manager / MR"></label>
+      <label>Auditee <input type="text" name="auditee" value="{{ a.auditee }}"></label>
+      <label>Auditee designation <input type="text" name="auditee_title" value="{{ a.auditee_title }}" placeholder="Assistant Manager Lab"></label>
+      <label style="grid-column:1/-1">Address <input type="text" name="address" value="{{ a.address }}"></label>
+      <label style="grid-column:1/-1">Scope <input type="text" name="scope" value="{{ a.scope }}"></label>
+    </div>
+    <div class="sec">Checklist - ISO/IEC 17025:2017 <span class="muted" style="font-weight:400">(results: Conforms / Observation / Minor NC / Major NC / N.A.; leave blank for headings)</span></div>
+    <div class="full" style="padding:0;overflow-x:auto">
+      <div class="toolbar" style="border:none">
+        <input id="clFilter" placeholder="filter clauses / text" style="min-width:220px">
+        <label class="chk"><input type="checkbox" id="onlyFind"> show rows with a finding only</label>
+        <span class="muted">Tab moves between boxes; the page is auto-saved as a draft in this browser while you type.</span>
+      </div>
+      <table class="cl-table" style="min-width:1000px">
+        <thead><tr><th style="width:62px">Clause</th><th style="width:26%">Requirement</th><th style="width:16%">Lab's reference to its QMS</th><th>Auditor findings</th><th style="width:112px">Result</th><th style="width:70px">Tag</th><th style="width:34px"></th></tr></thead>
+        <tbody>
+        {% for f in findings %}
+          <tr class="{% if f.clause.is_heading %}heading{% endif %}" data-row="{{ f.pk }}" data-text="{{ f.label }} {{ f.requirement|truncatechars:120|lower }}">
+            <td><b>{{ f.label }}</b>{% if not f.clause %}<input name="f{{ f.pk }}_label" value="{{ f.label }}" style="width:56px;margin-top:3px" title="clause label (custom row)">{% endif %}</td>
+            <td>{% if f.clause %}<div style="font-size:12px;color:#334155;max-height:96px;overflow:auto">{{ f.requirement|linebreaksbr }}</div>{% else %}<textarea name="f{{ f.pk }}_req" rows="3">{{ f.requirement }}</textarea>{% endif %}</td>
+            <td><textarea name="f{{ f.pk }}_ref" rows="3" placeholder="ETAL-...">{{ f.ref }}</textarea></td>
+            <td><textarea name="f{{ f.pk }}_finding" rows="3" class="fnd">{{ f.finding }}</textarea></td>
+            <td class="res"><select name="f{{ f.pk }}_result" class="resSel">{% for k, v in results %}<option value="{{ k }}" {% if f.result == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></td>
+            <td><input name="f{{ f.pk }}_tag" value="{{ f.tag }}" placeholder="NC-01" style="width:64px"></td>
+            <td class="c"><label class="chk" title="remove this row"><input type="checkbox" name="f{{ f.pk }}_drop" value="1"></label><button type="button" class="btn addAfter" data-after="{{ f.pk }}" title="insert a row after this one" style="padding:1px 5px;margin-top:3px">+</button></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      <div id="newRows"></div>
+    </div>
+    <div class="sec">Summary, time frame and conclusion</div>
+    <div class="grid2">
+      <label style="grid-column:1/-1">Time frame agreed to close the NCs <input type="text" name="timeframe" value="{{ a.timeframe }}" placeholder="e.g. 1.5 weeks to close all NCs"></label>
+      <label style="grid-column:1/-1">Conclusion statement <textarea name="conclusion">{{ a.conclusion }}</textarea></label>
+      <label style="grid-column:1/-1">Remarks (internal) <textarea name="remarks" style="min-height:56px">{{ a.remarks }}</textarea></label>
+      <label>Auditor signature date (printed; blank = date of signing) <input type="text" name="auditor_sign_date" value="{{ a.auditor_sign_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+      <label>Auditee signature date (printed) <input type="text" name="auditee_sign_date" value="{{ a.auditee_sign_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+    </div>
+    <div class="muted" style="padding:10px 0">The summary counts (observations, minor, major) are computed from the Result column when you save.</div>
+  </div>
+</div>
+</form>
+<script>
+(function(){
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.cl-table tbody tr[data-row]'));
+  var filter = document.getElementById('clFilter'), only = document.getElementById('onlyFind'), cnt = document.getElementById('cnt');
+  function count(){ var c = {obs:0, minor:0, major:0}; document.querySelectorAll('.resSel').forEach(function(s){ if (c[s.value] !== undefined) c[s.value]++; s.className = 'resSel res-' + s.value; });
+    cnt.textContent = '- ' + c.obs + ' obs / ' + c.minor + ' minor / ' + c.major + ' major'; }
+  function apply(){ var q = (filter.value || '').toLowerCase(), o = only.checked;
+    rows.forEach(function(r){ var sel = r.querySelector('.resSel'), txt = r.getAttribute('data-text') + ' ' + (r.querySelector('.fnd') ? r.querySelector('.fnd').value.toLowerCase() : '');
+      var show = (!q || txt.indexOf(q) >= 0) && (!o || (sel && ['obs','minor','major'].indexOf(sel.value) >= 0)); r.style.display = show ? '' : 'none'; }); }
+  filter.addEventListener('input', apply); only.addEventListener('change', apply);
+  document.querySelectorAll('.resSel').forEach(function(s){ s.addEventListener('change', count); }); count();
+  var n = 0;
+  document.querySelectorAll('.addAfter').forEach(function(b){ b.addEventListener('click', function(){
+    var tr = b.closest('tr'), i = n++, nt = document.createElement('tr'); nt.className = 'newrow';
+    nt.innerHTML = '<td><input name="n' + i + '_label" placeholder="7.2.1.4" style="width:56px"><input type="hidden" name="n' + i + '_after" value="' + b.getAttribute('data-after') + '"></td>' +
+      '<td><textarea name="n' + i + '_req" rows="3" placeholder="requirement / heading"></textarea></td><td><textarea name="n' + i + '_ref" rows="3"></textarea></td><td><textarea name="n' + i + '_finding" rows="3"></textarea></td>' +
+      '<td class="res"><select name="n' + i + '_result">{% for k, v in results %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></td><td></td><td class="c"><button type="button" class="btn" onclick="this.closest(\'tr\').remove()" style="padding:1px 5px">&times;</button></td>';
+    tr.parentNode.insertBefore(nt, tr.nextSibling); nt.querySelector('input').focus(); }); });
+})();
+</script>
+{% endblock %}

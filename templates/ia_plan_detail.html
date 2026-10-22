@@ -1,0 +1,47 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Annual plan {{ plan.year }} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_plans' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">Annual plans</a> &rsaquo; <span>{{ plan.year }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-calendar-days"></i> Annual Internal Audit Plan {{ plan.year }} - {{ loc }} laboratory
+      {% if plan.status == 'approved' %}<span class="pill ok">Approved</span>{% elif plan.status == 'signed' %}<span class="pill info">Signed by MR - awaiting CEO</span>{% else %}<span class="pill none">Draft</span>{% endif %}
+      {% if plan.legacy %}<span class="pill none" title="Inducted from the laboratory's record ({{ plan.legacy.file }})">REC</span>{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if can_edit %}<a class="btn" href="{% url 'ia_plan_edit' plan.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
+      <a class="btn" href="{% url 'ia_plan_pdf' plan.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF form</a>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step {% if plan.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Prepared &amp; signed by MR{% if plan.mr_at %}<br><small>{{ plan.mr_name }} - {{ plan.mr_date|date:"d-m-Y" }}</small>{% elif plan.mr_name %}<br><small>{{ plan.mr_name }} {{ plan.mr_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if plan.status == 'approved' %}done{% elif plan.status == 'signed' %}now{% endif %}"><i></i>Approved by CEO{% if plan.ceo_at %}<br><small>{{ plan.ceo_name }} - {{ plan.ceo_date|date:"d-m-Y" }}</small>{% elif plan.ceo_name %}<br><small>{{ plan.ceo_name }} {{ plan.ceo_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step"><i></i>Audits executed: {% for a in audits %}<a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132">{{ a.audit_no }}</a>{% if not forloop.last %}, {% endif %}{% empty %}none yet{% endfor %}</div>
+  </div>
+  <div style="padding:8px 18px 14px;overflow-x:auto">
+    <table style="min-width:900px">
+      <thead><tr><th rowspan="2">Department</th>{% for m in months %}<th colspan="2" class="c">{{ m }}</th>{% endfor %}</tr><tr>{% for m in months %}<th class="c" style="font-weight:500">Due</th><th class="c" style="font-weight:500">Done</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for r in plan.rows %}{% with ri=forloop.counter0 %}
+        <tr><td><b>{{ r.department }}</b></td>
+        {% for m in months %}{% with ms=forloop.counter|stringformat:"s" mi=forloop.counter %}
+          {% for k, v in r.months.items %}{% if k == ms %}
+            <td class="c" style="{% if v.due %}background:#ffe599{% endif %}">{% if v.due %}&bull;{% endif %}</td>
+            <td class="c" style="{% if v.done %}background:#70ad47;color:#fff;font-weight:700{% endif %}">{% if v.done %}&#10003;{% elif v.due and can_mark %}<form method="post" action="{% url 'ia_plan_action' plan.id %}" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="mark_done"><input type="hidden" name="reason" value="{{ ri }}:{{ mi }}"><button class="btn" type="submit" title="mark as completed" style="padding:1px 6px">done?</button></form>{% endif %}</td>
+          {% endif %}{% endfor %}
+          {% if ms not in r.months %}<td class="c"></td><td class="c"></td>{% endif %}
+        {% endwith %}{% endfor %}
+        </tr>
+      {% endwith %}{% endfor %}
+      </tbody>
+    </table>
+    <div class="muted" style="margin-top:8px"><span style="background:#ffe599;padding:0 8px">&nbsp;</span> Audit Planned &nbsp; <span style="background:#70ad47;padding:0 8px">&nbsp;</span> Audit Completed{% if plan.remarks %} &middot; Remarks: {{ plan.remarks|linebreaksbr }}{% endif %}</div>
+    {% if plan.legacy.notes %}<div class="msg warning" style="margin-top:8px;border:1px solid #fde68a;border-radius:8px">Record notes: {% for n in plan.legacy.notes %}{{ n }} {% endfor %}</div>{% endif %}
+  </div>
+  <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
+    {% if can_sign_mr %}<form method="post" action="{% url 'ia_plan_action' plan.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_mr"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the annual plan {{ plan.year }} as Management Representative? Your name and e-signature will be printed on the form.')"><i class="fa-solid fa-signature"></i> Sign as MR</button></form>{% endif %}
+    {% if can_approve %}<form method="post" action="{% url 'ia_plan_action' plan.id %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn btn-p" type="submit" onclick="return confirm('Approve and lock the annual plan {{ plan.year }} as CEO?')"><i class="fa-solid fa-stamp"></i> Approve as CEO</button></form>{% endif %}
+    {% if can_unapprove %}<form method="post" action="{% url 'ia_plan_action' plan.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="unapprove"><label>Reason <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-lock-open"></i> Unapprove</button></form>{% endif %}
+    {% if plan.status == 'signed' and can_edit %}<span class="muted">Editing a signed plan clears the MR signature.</span>{% endif %}
+  </div>
+</div>
+{% endblock %}

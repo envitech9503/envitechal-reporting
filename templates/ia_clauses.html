@@ -1,0 +1,27 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}ISO 17025 checklist master{% endblock %}
+{% block crumb %} &rsaquo; <span>Checklist master</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-list-ol"></i> ISO/IEC 17025:2017 checklist - master clause list <span class="muted">{{ rows|length }} rows</span></div></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">The clause list and the laboratory's checklist wording used when an audit is started from the master. Findings keep their own copy of the wording, so changes here never alter a signed report. Inactive clauses are left out of new audits.</div>
+  {% if can %}<form method="post" class="frm">{% csrf_token %}<input type="hidden" name="action" value="add">
+    <label>Code <input name="code" required placeholder="7.2.1.4" style="width:90px"></label><label>After clause <input name="after" placeholder="7.2.1.3" style="width:90px"></label>
+    <label style="flex:1 1 220px">Title <input name="title"></label><label style="flex:2 1 320px">Requirement <input name="requirement"></label><button class="btn btn-p" type="submit">Add clause</button></form>{% endif %}
+  <table>
+    <thead><tr><th>Code</th><th>Title</th><th>Requirement (checklist wording)</th><th>Active</th>{% if can %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for c in rows %}
+      {% if can and edit == c.code %}
+      <tr style="background:#fffbeb"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save"><input type="hidden" name="id" value="{{ c.id }}">
+        <td><b>{{ c.code }}</b></td><td><input name="title" value="{{ c.title }}" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px"></td>
+        <td><textarea name="requirement" rows="4" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;font:inherit;font-size:12.5px">{{ c.requirement }}</textarea></td>
+        <td><input type="checkbox" name="active" value="1" {% if c.active %}checked{% endif %}></td><td class="nw"><button class="btn btn-p" type="submit">Save</button> <a class="btn" href="?">Cancel</a></td></form></tr>
+      {% else %}
+      <tr class="{% if c.is_heading %}heading{% endif %}" {% if c.is_heading %}style="background:#f1f5f9;font-weight:700"{% endif %}><td class="nw">{{ c.code }}</td><td>{{ c.title }}</td><td style="font-size:12px;color:#334155">{{ c.requirement|truncatechars:220 }}</td><td>{% if c.active %}<span class="pill ok">yes</span>{% else %}<span class="pill none">no</span>{% endif %}</td>{% if can %}<td><a class="btn" href="?edit={{ c.code }}#c{{ c.id }}" id="c{{ c.id }}">Edit</a></td>{% endif %}</tr>
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

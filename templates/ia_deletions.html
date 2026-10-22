@@ -1,0 +1,13 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Internal Audit - Deletion Log{% endblock %}
+{% block crumb %} &rsaquo; <span>Deletion log</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-trash"></i> Deletion log - internal audit records</div></div>
+  <table>
+    <thead><tr><th>Deleted</th><th>By</th><th>Kind</th><th>Laboratory</th><th>Record</th><th>Reason</th></tr></thead>
+    <tbody>{% for d in rows %}<tr><td class="nw">{{ d.deleted_at|date:"d-m-Y H:i" }}</td><td>{{ d.deleted_by.username|default:"-" }}</td><td class="nw">{{ d.kind }}</td><td>{{ d.location }}</td><td>{{ d.label }}</td><td>{{ d.reason }}</td></tr>{% empty %}<tr><td colspan="6" class="empty">No deletions.</td></tr>{% endfor %}</tbody>
+  </table>
+  <div class="muted" style="padding:10px 18px">A full copy of each deleted record (findings, witnessing rows, RCA) is kept with the entry.</div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}NC&CA {{ n.nc_no }} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_ncs' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">NC &amp; CA log</a> &rsaquo; <span>{{ n.nc_no }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-triangle-exclamation"></i> NC&amp;CA {{ n.nc_no }} - {{ loc }} laboratory
+      {% if n.status == 'closed' %}<span class="pill ok">Closed</span>{% elif n.status == 'responded' %}<span class="pill info">Department responded - MR follow-up</span>{% elif n.status == 'open' %}<span class="pill warn">Raised - awaiting department response</span>{% else %}<span class="pill none">Draft</span>{% endif %}
+      {% if n.log_only %}<span class="pill none" title="Row of the NC&CA log without a form in the record">log row</span>{% elif n.legacy %}<span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}
+      {% if overdue %}<span class="pill bad">overdue since {{ due|date:"d-m-Y" }}</span>{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if sec.any and not n.locked %}<a class="btn" href="{% url 'ia_nc_edit' n.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
+      {% if can_rca %}<a class="btn" href="{% url 'ia_rca_edit' n.id %}"><i class="fa-solid fa-diagram-project"></i> {% if rca %}Edit RCA{% else %}Root cause analysis{% endif %}</a>{% endif %}
+      {% if n.audit %}<a class="btn" href="{% url 'ia_audit_detail' n.audit.id %}"><i class="fa-solid fa-file-lines"></i> Audit {{ n.audit.audit_no }}</a>{% endif %}
+      <a class="btn" href="{% url 'ia_nc_pdf' n.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> NC&amp;CA form PDF</a>
+      {% if rca %}<a class="btn" href="{% url 'ia_rca_pdf' n.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> RCA PDF</a>{% endif %}
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step {% if n.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Raised &amp; evaluated by MR{% if n.mr_signed_at %}<br><small>{{ n.mr_signed_by.username }} - {{ n.mr_signed_at|date:"d-m-Y" }}</small>{% elif n.legacy and n.raised_by %}<br><small>{{ n.raised_by }} {{ n.date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if n.status == 'responded' or n.status == 'closed' %}done{% elif n.status == 'open' %}now{% endif %}"><i></i>Root cause &amp; corrective action (HOD){% if n.hod_signed_at %}<br><small>{{ n.hod_signed_by.username }} - {{ n.hod_signed_at|date:"d-m-Y" }}</small>{% elif n.legacy and n.completion_date %}<br><small>completed {{ n.completion_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if rca and rca.status == 'reviewed' %}done{% elif rca %}now{% endif %}"><i></i>Root cause analysis{% if rca %}<br><small>{{ rca.get_status_display }}</small>{% else %}<br><small>not prepared</small>{% endif %}</div>
+    <div class="step {% if n.status == 'closed' %}done{% elif n.status == 'responded' %}now{% endif %}"><i></i>Followed up &amp; closed by MR{% if n.closed_at %}<br><small>{{ n.closed_by.username }} - {{ n.closing_date|date:"d-m-Y" }}</small>{% elif n.legacy and n.closing_date %}<br><small>{{ n.closed_by_name }} {{ n.closing_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+  </div>
+  <div class="form-sheet" style="padding-top:4px">
+    <div class="sec">Non-conformance</div>
+    <div class="grid2">
+      <label>Department<span>{{ n.department|default:"-" }}</span></label><label>NC&amp;CA No.<span><b>{{ n.nc_no }}</b></span></label><label>Date<span>{{ n.date|date:"d-m-Y"|default:"-" }}</span></label>
+      <label>Raised by<span>{{ n.raised_by|default:"-" }}</span></label><label>Standard &amp; clause<span>{{ n.clause|default:"-" }}</span></label><label>Source<span>{{ n.get_source_display }}{% if n.audit %} - audit {{ n.audit.audit_no }}{% endif %}{% if n.finding %} (clause row {{ n.finding.label }}){% endif %}</span></label>
+      <label>Raised due to<span>{% if n.due_audit_internal %}Audit - internal. {% endif %}{% if n.due_audit_external %}Audit - external. {% endif %}{% if n.due_testing %}Testing. {% endif %}{% if n.due_cal_internal %}Calibration - internal. {% endif %}{% if n.due_cal_external %}Calibration - external. {% endif %}{% if n.due_complaint %}Customer complaint. {% endif %}{% if n.due_other %}Others: {{ n.due_other }}{% endif %}</span></label>
+      <label>Category<span>{% if n.category == 'major' or n.category == 'critical' %}<span class="pill bad">{{ n.get_category_display }}</span>{% elif n.category == 'minor' %}<span class="pill warn">Minor nonconformance</span>{% else %}<span class="pill info">{{ n.get_category_display }}</span>{% endif %}{% if n.category_also_critical %} <span class="muted">(critical also ticked)</span>{% endif %}</span></label>
+      <label>Significance<span>Legal compliance: {{ n.sig_legal|yesno:"Yes,No" }} &middot; Poses any risk: {{ n.sig_risk|yesno:"Yes,No" }} &middot; Requires halt work: {{ n.sig_halt|yesno:"Yes,No" }} &middot; Preventive action: {{ n.sig_preventive|yesno:"Yes,No" }}{% if n.sig_non_significant %} &middot; Non-significant{% endif %}</span></label>
+      <label>Nature<span>Priority {{ n.get_priority_display }} &middot; Risk type {{ n.get_risk_type_display }} &middot; Severity {{ n.get_severity_display }} &middot; Affects past results: {{ n.impact_past|yesno:"Yes,No" }} &middot; Evaluated by MR: {{ n.evaluated_date|date:"d-m-Y"|default:"-" }}</span></label>
+      <label style="grid-column:1/-1">Non-conformity / observation details<span style="font-size:13px;line-height:1.45">{{ n.details|linebreaksbr|default:"-" }}</span></label>
+      <label>Proposed completion date<span>{{ n.proposed_date|date:"d-m-Y"|default:"-" }}</span></label><label>Target date (log)<span>{{ n.target_date|date:"d-m-Y"|default:"-" }}</span></label><label>Assigned to<span>{{ n.assigned_to|default:"-" }}{% if n.assigned_date %} ({{ n.assigned_date|date:"d-m-Y" }}){% endif %}</span></label>
+    </div>
+    <div class="sec">Concern department section</div>
+    <div class="grid2">
+      <label style="grid-column:1/-1">Root cause<span style="line-height:1.45">{{ n.root_cause|linebreaksbr|default:"-" }}</span></label>
+      <label style="grid-column:1/-1">Corrective action (to eliminate the root cause)<span style="line-height:1.45">{{ n.corrective|linebreaksbr|default:"-" }}</span></label>
+      <label>Completion date<span>{{ n.completion_date|date:"d-m-Y"|default:"-" }}</span></label>
+      <label>Concerned Head of Department sign<span>{% if n.hod_signed_at %}{{ n.hod_signed_by.username }} - {{ n.hod_signed_at|date:"d-m-Y H:i" }}{% else %}-{% endif %}</span></label>
+    </div>
+    <div class="sec">MR section</div>
+    <div class="grid2">
+      <label>Follow-up &amp; close out with<span>{{ n.followup_with|default:"-" }}</span></label><label>Satisfactory<span>{% if n.satisfactory is None %}-{% else %}{{ n.satisfactory|yesno:"Yes,No" }}{% endif %}</span></label>
+      <label>Follow-up &amp; close-out date<span>{{ n.followup_date|date:"d-m-Y"|default:"-" }}</span></label><label>Next follow-up date<span>{{ n.next_followup_date|date:"d-m-Y"|default:"-" }}</span></label>
+      <label style="grid-column:1/-1">Description of follow-up / 2nd follow-up<span>{{ n.followup_desc|linebreaksbr|default:"-" }}</span></label>
+      <label>NC&amp;CA closed by<span>{% if n.closed_at %}{{ n.closed_by.username }} - {{ n.closing_date|date:"d-m-Y" }}{% elif n.closed_by_name %}{{ n.closed_by_name }} {{ n.closing_date|date:"d-m-Y" }}{% else %}-{% endif %}</span></label><label>Remarks<span>{{ n.remarks|default:"-" }}</span></label>
+    </div>
+    {% if n.legacy.notes %}<div class="msg warning" style="margin-top:10px;border:1px solid #fde68a;border-radius:8px"><b>Record notes:</b>{% for x in n.legacy.notes %}<br>{{ x }}{% endfor %}</div>{% endif %}
+  </div>
+  <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
+    {% if can_raise %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="raise"><button class="btn btn-p" type="submit" onclick="return confirm('Raise NC&CA {{ n.nc_no|escapejs }} and sign as MR / designee? The concerned department is then asked for the root cause and corrective action.')"><i class="fa-solid fa-signature"></i> Raise &amp; sign as MR</button></form>{% endif %}
+    {% if can_respond %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="respond"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the department response (root cause and corrective action) as concerned Head of Department?')"><i class="fa-solid fa-signature"></i> Sign department response</button></form>{% endif %}
+    {% if can_close %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="close"><button class="btn btn-p" type="submit" onclick="return confirm('Record the follow-up and close NC&CA {{ n.nc_no|escapejs }} as MR? (Satisfactory = Yes closes; No records the next follow-up.)')"><i class="fa-solid fa-lock"></i> Follow-up &amp; close</button></form>{% endif %}
+    {% if can_reopen %}<form method="post" action="{% url 'ia_nc_action' n.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Reopen</button></form>{% endif %}
+    {% if can_delete %}<form method="post" action="{% url 'ia_nc_delete' n.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<label>Reason for deletion <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this NC&CA record (and its RCA)? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
+  </div>
+</div>
+
+{% if rca %}
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis {{ rca.rca_no }}
+      {% if rca.status == 'reviewed' %}<span class="pill ok">Reviewed by CEO</span>{% elif rca.status == 'performed' %}<span class="pill info">Performed - awaiting CEO review</span>{% else %}<span class="pill none">Draft</span>{% endif %}</div>
+    <div class="muted">Clause {{ rca.clause }} &middot; deputed: {{ rca.deputed }} &middot; {{ rca.date|date:"d-m-Y" }}</div></div>
+  <div class="form-sheet" style="padding-top:4px">
+    <div class="sec">Potential causes</div>
+    <div class="full">{% for main, subs in rca.causes.items %}{% if ':other' not in main %}<div><b>{{ main }}</b>: {{ subs|join:", "|default:"(ticked)" }}</div>{% endif %}{% empty %}<span class="muted">none ticked</span>{% endfor %}{% if rca.other %}<div><b>Other</b>: {{ rca.other }}</div>{% endif %}
+      <div class="muted" style="margin-top:4px">6-Why analysis: {% if rca.six_why %}required for further in-depth analysis{% else %}not required - the analysis above gave the conclusion{% endif %}</div></div>
+    <div class="sec">Statement of problem and Why chain</div>
+    <div class="full"><div style="margin-bottom:8px">{{ rca.statement|linebreaksbr }}</div>
+      <div class="whybox">{% for w in rca.whys %}{% if w %}<div style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:12.5px"><span class="why-n">{{ forloop.counter }}. Why?</span><br>{{ w }}</div>{% endif %}{% endfor %}</div>
+      <div style="margin-top:10px"><b>Conclusion:</b> {{ rca.conclusion|linebreaksbr|default:"-" }}</div></div>
+  </div>
+  <div class="sigline">
+    <div class="s"><b>Performed by</b>{% if rca.performed_at %}{{ rca.performed_by.username }} - {{ rca.performed_date|date:"d-m-Y" }}{% elif rca.performed_name %}{{ rca.performed_name }} {{ rca.performed_date|date:"d-m-Y" }}{% if rca.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
+    <div class="s"><b>Reviewed by</b>{% if rca.reviewed_at %}{{ rca.reviewed_by.username }} - {{ rca.reviewed_date|date:"d-m-Y" }}{% elif rca.reviewed_name %}{{ rca.reviewed_name }} {{ rca.reviewed_date|date:"d-m-Y" }}{% if rca.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
+  </div>
+  <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
+    {% if rca.status == 'draft' and can_manage %}<form method="post" action="{% url 'ia_rca_action' rca.id %}">{% csrf_token %}<input type="hidden" name="action" value="perform"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the root cause analysis as performer?')"><i class="fa-solid fa-signature"></i> Sign as performer</button></form>{% endif %}
+    {% if rca.status == 'performed' and is_ceo %}<form method="post" action="{% url 'ia_rca_action' rca.id %}">{% csrf_token %}<input type="hidden" name="action" value="review"><button class="btn btn-p" type="submit" onclick="return confirm('Review and sign the root cause analysis as CEO?')"><i class="fa-solid fa-stamp"></i> Review as CEO</button></form>{% endif %}
+    {% if rca.status != 'draft' and can_manage %}<form method="post" action="{% url 'ia_rca_action' rca.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Reopen RCA</button></form>{% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

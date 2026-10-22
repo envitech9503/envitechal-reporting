@@ -1,0 +1,81 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}NC&CA {{ n.nc_no }} - edit{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_ncs' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">NC &amp; CA log</a> &rsaquo; <span>{% if n.pk %}{{ n.nc_no }}{% else %}New{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="ia_nc_{{ n.pk|default:'new' }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-triangle-exclamation"></i> Non-conformance &amp; Corrective Action Form - {{ loc }} <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% if n.pk %}{% url 'ia_nc_detail' n.pk %}{% else %}{% url 'ia_ncs' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div></div>
+  <div class="form-sheet">
+    {% if sec.head %}
+    <div class="sec">Non-conformance (raised by the MR / internal auditor)</div>
+    <div class="grid2">
+      <label>Department <input type="text" name="department" value="{{ n.department }}"></label>
+      <label>NC&amp;CA No. <input type="text" name="nc_no" value="{{ n.nc_no }}"></label>
+      <label>Date <input type="text" name="date" value="{{ n.date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+      <label>NC&amp;CA raised by <input type="text" name="raised_by" value="{{ n.raised_by }}"></label>
+      <label>Standard &amp; clause <input type="text" name="clause" value="{{ n.clause }}" placeholder="6.4.1 (ISO/IEC 17025:2017)"></label>
+      <label>Source <select name="source">{% for k, v in sources %}<option value="{{ k }}" {% if n.source == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+      <label>Internal audit (if raised from one) <select name="audit"><option value="">- none -</option>{% for a in audits %}<option value="{{ a.id }}" {% if n.audit_id == a.id %}selected{% endif %}>{{ a.audit_no }} ({{ a.date_start|date:"d-m-Y"|default:"no date" }})</option>{% endfor %}</select></label>
+      <label>Assigned to (log) <input type="text" name="assigned_to" value="{{ n.assigned_to }}" placeholder="Manager Lab"></label>
+    </div>
+    <div class="sec">Raised due to / category / significance / nature <span class="muted" style="font-weight:400">(evaluated by the MR)</span></div>
+    <div class="full">
+      <div style="margin-bottom:8px"><b style="font-size:12px;color:#475569">Raised due to:</b><br>
+        <label class="chk"><input type="checkbox" name="due_audit_internal" value="1" {% if n.due_audit_internal %}checked{% endif %}> Audit - internal</label>
+        <label class="chk"><input type="checkbox" name="due_audit_external" value="1" {% if n.due_audit_external %}checked{% endif %}> Audit - external</label>
+        <label class="chk"><input type="checkbox" name="due_testing" value="1" {% if n.due_testing %}checked{% endif %}> Testing</label>
+        <label class="chk"><input type="checkbox" name="due_cal_internal" value="1" {% if n.due_cal_internal %}checked{% endif %}> Calibration - internal</label>
+        <label class="chk"><input type="checkbox" name="due_cal_external" value="1" {% if n.due_cal_external %}checked{% endif %}> Calibration - external</label>
+        <label class="chk"><input type="checkbox" name="due_complaint" value="1" {% if n.due_complaint %}checked{% endif %}> Customer complaint</label>
+        <label class="chk">Others, specify: <input type="text" name="due_other" value="{{ n.due_other }}" style="width:200px"></label></div>
+      <div class="grid2" style="border:none;padding:0">
+        <label>Nonconformance category <select name="category">{% for k, v in cats %}<option value="{{ k }}" {% if n.category == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+        <label class="chk" style="align-self:end"><input type="checkbox" name="category_also_critical" value="1" {% if n.category_also_critical %}checked{% endif %}> also tick "Critical nonconformance"</label>
+      </div>
+      <div style="margin:8px 0"><b style="font-size:12px;color:#475569">Significance evaluation:</b><br>
+        <label class="chk"><input type="checkbox" name="sig_legal" value="1" {% if n.sig_legal %}checked{% endif %}> Legal compliance</label>
+        <label class="chk"><input type="checkbox" name="sig_risk" value="1" {% if n.sig_risk %}checked{% endif %}> Poses any risk</label>
+        <label class="chk"><input type="checkbox" name="sig_halt" value="1" {% if n.sig_halt %}checked{% endif %}> Requires halt work</label>
+        <label class="chk"><input type="checkbox" name="sig_preventive" value="1" {% if n.sig_preventive %}checked{% endif %}> Require preventive action</label>
+        <label class="chk"><input type="checkbox" name="sig_non_significant" value="1" {% if n.sig_non_significant %}checked{% endif %}> Non-significant</label></div>
+      <div class="grid2" style="border:none;padding:0">
+        <label>Priority <select name="priority">{% for k, v in levels %}<option value="{{ k }}" {% if n.priority == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+        <label>Risk type <select name="risk_type">{% for k, v in levels %}<option value="{{ k }}" {% if n.risk_type == k %}selected{% endif %}>{{ v }}{% if k == 'low' %} / No{% endif %}</option>{% endfor %}</select></label>
+        <label>Severity <select name="severity">{% for k, v in levels %}<option value="{{ k }}" {% if n.severity == k %}selected{% endif %}>{{ v }}{% if k == 'low' %} / No{% endif %}</option>{% endfor %}</select></label>
+        <label class="chk" style="align-self:end"><input type="checkbox" name="impact_past" value="1" {% if n.impact_past %}checked{% endif %}> Impact analysis: affects past results</label>
+        <label>Evaluated by MR - date <input type="text" name="evaluated_date" value="{{ n.evaluated_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy (blank = date of raising)"></label>
+      </div>
+    </div>
+    <div class="sec">Non-conformity / observation details</div>
+    <div class="full"><label><textarea name="details" required style="min-height:120px">{{ n.details }}</textarea></label>
+      <div class="grid2" style="border:none;padding:8px 0 0"><label>Proposed completion date <input type="text" name="proposed_date" value="{{ n.proposed_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label><label>Target date (log; blank = proposed date) <input type="text" name="target_date" value="{{ n.target_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label></div></div>
+    {% else %}
+    <div class="sec">Non-conformance</div>
+    <div class="grid2 ro"><label>NC&amp;CA No.<span>{{ n.nc_no }}</span></label><label>Clause<span>{{ n.clause }}</span></label><label style="grid-column:1/-1">Details<span>{{ n.details|linebreaksbr }}</span></label></div>
+    {% endif %}
+    {% if sec.dept %}
+    <div class="sec">Concern department section <span class="muted" style="font-weight:400">(root cause and corrective action, signed by the concerned Head of Department)</span></div>
+    <div class="full">
+      <label>Root cause <textarea name="root_cause">{{ n.root_cause }}</textarea></label>
+      <label style="margin-top:8px">Corrective action (to eliminate the root cause) <textarea name="corrective">{{ n.corrective }}</textarea></label>
+      <div class="grid2" style="border:none;padding:8px 0 0"><label>Completion date <input type="text" name="completion_date" value="{{ n.completion_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label></div>
+    </div>
+    {% endif %}
+    {% if sec.mr %}
+    <div class="sec">MR section <span class="muted" style="font-weight:400">(follow-up and close-out)</span></div>
+    <div class="full">
+      <div class="grid2" style="border:none;padding:0">
+        <label>Follow-up &amp; close out with <input type="text" name="followup_with" value="{{ n.followup_with }}" placeholder="Lab Manager"></label>
+        <label>Satisfactory <select name="satisfactory"><option value="" {% if n.satisfactory is None %}selected{% endif %}>-</option><option value="1" {% if n.satisfactory %}selected{% endif %}>Yes</option><option value="0" {% if n.satisfactory is False %}selected{% endif %}>No</option></select></label>
+        <label>Follow-up &amp; close-out date <input type="text" name="followup_date" value="{{ n.followup_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+        <label>If not satisfactory, next follow-up date <input type="text" name="next_followup_date" value="{{ n.next_followup_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+      </div>
+      <label style="margin-top:8px">Description of follow-up / 2nd follow-up <textarea name="followup_desc" style="min-height:64px">{{ n.followup_desc }}</textarea></label>
+      <label style="margin-top:8px">Remarks <input type="text" name="remarks" value="{{ n.remarks }}" placeholder="e.g. NC-01 is closed."></label>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</form>
+{% endblock %}

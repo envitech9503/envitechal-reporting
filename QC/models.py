@@ -944,3 +944,349 @@ class MouComponent(models.Model):
 
 for _m in (MouSource, MouStudy, MouOperator, MouComponent):
     _sh_register(_m)
+
+
+# ====================================================================================================
+# Quality - Internal Audit (ETAL-QMS-808-FF-01/02/03) and Non-conformance & Corrective Action
+# (ETAL-QMS-710-FF-01 / 01A / 02). 22-10-2026. One function for both laboratories, lab-scoped.
+# ====================================================================================================
+class IaClause(models.Model):
+    """Master checklist row: ISO/IEC 17025:2017 clause (or a PNAC policy) with the laboratory's own
+    checklist wording. Findings copy the wording at audit time, so editing the master never changes
+    a signed report."""
+    code = models.CharField(max_length=12, unique=True)             # 4.1.1, 7.8.2.1, PNAC-1
+    title = models.CharField(max_length=200, blank=True, default='')
+    requirement = models.TextField(blank=True, default='')
+    level = models.PositiveSmallIntegerField(default=1)
+    order = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'code']
+
+    def __str__(self):
+        return '%s %s' % (self.code, self.title)
+
+    @property
+    def is_heading(self):
+        return self.level == 1 or self.code == 'PNAC'
+
+
+class IaPlan(models.Model):
+    """Annual Internal Audit Plan (ETAL-QMS-808-FF-01): departments x months, Due / Done marks.
+    Signed by the Management Representative, approved by the CEO."""
+    STATUSES = (('draft', 'Draft'), ('signed', 'Signed by MR - awaiting CEO'), ('approved', 'Approved'))
+    location = models.CharField(max_length=20, default='Karachi')
+    year = models.PositiveIntegerField()
+    rows = models.JSONField(default=list, blank=True)      # [{'department': str, 'months': {'3': {'due': True, 'done': False}}}]
+    remarks = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    mr_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    mr_at = models.DateTimeField(null=True, blank=True)
+    mr_name = models.CharField(max_length=120, blank=True, default='')      # printed name when inducted
+    mr_date = models.DateField(null=True, blank=True)
+    ceo_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    ceo_at = models.DateTimeField(null=True, blank=True)
+    ceo_name = models.CharField(max_length=120, blank=True, default='')
+    ceo_date = models.DateField(null=True, blank=True)
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-year', 'location']
+        unique_together = ('location', 'year')
+
+    def __str__(self):
+        return 'Annual Internal Audit Plan %d - %s' % (self.year, self.location)
+
+    @property
+    def locked(self):
+        return self.status == 'approved'
+
+
+class IaAudit(models.Model):
+    """Internal Audit Report (ETAL-QMS-808-FF-02): header, clause-by-clause findings, summary,
+    conclusion; signed by the internal auditor, then acknowledged by the auditee."""
+    STATUSES = (('draft', 'Draft - being audited'), ('auditor', 'Signed by auditor - awaiting auditee'), ('closed', 'Signed by auditor and auditee'))
+    location = models.CharField(max_length=20, default='Karachi')
+    audit_no = models.CharField(max_length=20)                        # 01/2025
+    year = models.PositiveIntegerField()
+    seq = models.PositiveSmallIntegerField(default=1)
+    date_start = models.DateField(null=True, blank=True)
+    date_end = models.DateField(null=True, blank=True)
+    days = models.PositiveSmallIntegerField(default=2)
+    auditor = models.CharField(max_length=120, blank=True, default='')
+    auditor_title = models.CharField(max_length=120, blank=True, default='')
+    auditor_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    auditee = models.CharField(max_length=160, blank=True, default='')
+    auditee_title = models.CharField(max_length=120, blank=True, default='')
+    auditee_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    address = models.CharField(max_length=250, blank=True, default='')
+    scope = models.CharField(max_length=300, blank=True, default='To check all clauses of ISO/IEC 17025:2017 (technical & management) and to evaluate the performance of testing activities.')
+    n_obs = models.PositiveSmallIntegerField(default=0)
+    n_minor = models.PositiveSmallIntegerField(default=0)
+    n_major = models.PositiveSmallIntegerField(default=0)
+    timeframe = models.CharField(max_length=400, blank=True, default='')
+    conclusion = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    auditor_signed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    auditor_signed_at = models.DateTimeField(null=True, blank=True)
+    auditor_sign_date = models.DateField(null=True, blank=True)       # date printed on the form
+    auditee_signed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    auditee_signed_at = models.DateTimeField(null=True, blank=True)
+    auditee_sign_date = models.DateField(null=True, blank=True)
+    remarks = models.TextField(blank=True, default='')
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-year', '-seq', 'location']
+        unique_together = ('location', 'audit_no')
+
+    def __str__(self):
+        return 'Internal Audit %s - %s' % (self.audit_no, self.location)
+
+    @property
+    def locked(self):
+        return self.status != 'draft'
+
+    @property
+    def n_total(self):
+        return self.n_minor + self.n_major
+
+    def recount(self, save=True):
+        """Summary counts from the findings (the printed summary of an inducted report is kept in legacy)."""
+        c = {'obs': 0, 'minor': 0, 'major': 0}
+        for f in self.findings.all():
+            if f.result in c:
+                c[f.result] += 1
+        self.n_obs, self.n_minor, self.n_major = c['obs'], c['minor'], c['major']
+        if save:
+            self.save(update_fields=['n_obs', 'n_minor', 'n_major', 'updated_at'])
+        return c
+
+
+class IaFinding(models.Model):
+    """One checklist row of an audit report. Wording is copied from the master / the previous audit
+    so the report stays as written even when the master changes."""
+    RESULTS = (('', '-'), ('c', 'Conforms'), ('obs', 'Observation'), ('minor', 'Minor NC'), ('major', 'Major NC'), ('na', 'Not applicable'))
+    audit = models.ForeignKey(IaAudit, on_delete=models.CASCADE, related_name='findings')
+    order = models.PositiveIntegerField(default=0)
+    clause = models.ForeignKey(IaClause, null=True, blank=True, on_delete=models.SET_NULL, related_name='findings')
+    label = models.CharField(max_length=12, blank=True, default='')        # printed clause number ('' for a continuation row)
+    requirement = models.TextField(blank=True, default='')
+    ref = models.CharField(max_length=300, blank=True, default='')           # Lab's reference to its QMS
+    finding = models.TextField(blank=True, default='')
+    result = models.CharField(max_length=6, choices=RESULTS, blank=True, default='')
+    tag = models.CharField(max_length=40, blank=True, default='')            # NC-01, MNC-02, Obs-01 ...
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return '%s %s' % (self.label, self.result)
+
+
+class IaCircular(models.Model):
+    """Internal Audit Circular (ETAL-QMS-808-FF-03) - the audit notice with the schedule and the
+    attendance list; also used for witnessing circulars. Issued by the MR; attendees sign receipt."""
+    KINDS = (('audit', 'Internal audit'), ('witness', 'Witnessing'))
+    STATUSES = (('draft', 'Draft'), ('issued', 'Issued'))
+    location = models.CharField(max_length=20, default='Karachi')
+    kind = models.CharField(max_length=8, choices=KINDS, default='audit')
+    audit = models.ForeignKey(IaAudit, null=True, blank=True, on_delete=models.SET_NULL, related_name='circulars')
+    audit_no = models.CharField(max_length=20, blank=True, default='')
+    issue_date = models.DateField(null=True, blank=True)
+    audit_date_text = models.CharField(max_length=80, blank=True, default='')
+    to_text = models.CharField(max_length=160, blank=True, default='Concerned Persons/All relevant HODs')
+    from_text = models.CharField(max_length=120, blank=True, default='Management Representative')
+    sessions = models.JSONField(default=list, blank=True)     # [{'sr','day','time_from','time_to','scope','criteria','auditors','auditee'}]
+    attendance = models.JSONField(default=list, blank=True)   # [{'name','designation','user_id','signed_at'}]
+    ceo_name = models.CharField(max_length=120, blank=True, default='')
+    status = models.CharField(max_length=8, choices=STATUSES, default='draft')
+    issued_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    issued_at = models.DateTimeField(null=True, blank=True)
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-issue_date', '-id']
+
+    def __str__(self):
+        return '%s circular %s - %s' % (self.get_kind_display(), self.audit_no, self.location)
+
+    @property
+    def locked(self):
+        return self.status == 'issued'
+
+
+class IaWitness(models.Model):
+    """Witnessing record (part of the audit report): tests witnessed with assigned vs obtained
+    values and the auditor's remarks; signed by the auditor and the analysts witnessed."""
+    STATUSES = (('draft', 'Draft'), ('auditor', 'Signed by auditor'), ('closed', 'Signed by auditor and analysts'))
+    audit = models.ForeignKey(IaAudit, on_delete=models.CASCADE, related_name='witnessings')
+    circular = models.ForeignKey(IaCircular, null=True, blank=True, on_delete=models.SET_NULL, related_name='witnessings')
+    date = models.DateField(null=True, blank=True)
+    rows = models.JSONField(default=list, blank=True)      # [{'parameter','performed_by','range','assigned','obtained','remarks'}]
+    auditor = models.CharField(max_length=120, blank=True, default='')
+    auditor_signed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    auditor_signed_at = models.DateTimeField(null=True, blank=True)
+    auditees = models.JSONField(default=list, blank=True)  # [{'name','user_id','signed_at'}]
+    sign_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=8, choices=STATUSES, default='draft')
+    legacy = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date', 'id']
+
+    def __str__(self):
+        return 'Witnessing %s' % self.date
+
+    @property
+    def locked(self):
+        return self.status != 'draft'
+
+
+class Ncca(models.Model):
+    """Non-conformance & Corrective Action form (ETAL-QMS-710-FF-01) and the row it occupies in
+    the NC&CA Log (710-FF-02). Raised by the auditor / MR, answered by the concerned department
+    (root cause, corrective action), followed up and closed by the MR."""
+    SOURCES = (('IA', 'Internal audit'), ('EA', 'External assessment (PNAC)'), ('CC', 'Customer complaint'), ('TEST', 'Testing'), ('CAL', 'Calibration'), ('OTHER', 'Other / management system'))
+    CATEGORIES = (('pfi', 'Point for improvement'), ('obs', 'Observation'), ('minor', 'Minor nonconformance'), ('major', 'Major nonconformance'), ('critical', 'Critical nonconformance'))
+    LEVELS = (('high', 'High'), ('medium', 'Medium'), ('low', 'Low'))
+    STATUSES = (('draft', 'Draft'), ('open', 'Raised - awaiting department response'), ('responded', 'Department responded - awaiting MR follow-up'), ('closed', 'Closed'))
+    location = models.CharField(max_length=20, default='Karachi')
+    nc_no = models.CharField(max_length=40)
+    date = models.DateField(null=True, blank=True)
+    department = models.CharField(max_length=80, blank=True, default='Lab')
+    raised_by = models.CharField(max_length=120, blank=True, default='')
+    raised_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    clause = models.CharField(max_length=60, blank=True, default='')
+    source = models.CharField(max_length=6, choices=SOURCES, default='IA')
+    audit = models.ForeignKey(IaAudit, null=True, blank=True, on_delete=models.SET_NULL, related_name='ncs')
+    finding = models.ForeignKey(IaFinding, null=True, blank=True, on_delete=models.SET_NULL, related_name='ncs')
+    # Raised due to
+    due_audit_internal = models.BooleanField(default=False)
+    due_audit_external = models.BooleanField(default=False)
+    due_testing = models.BooleanField(default=False)
+    due_cal_internal = models.BooleanField(default=False)
+    due_cal_external = models.BooleanField(default=False)
+    due_complaint = models.BooleanField(default=False)
+    due_other = models.CharField(max_length=120, blank=True, default='')
+    # Category / significance / nature (evaluated by the MR)
+    category = models.CharField(max_length=8, choices=CATEGORIES, default='major')
+    category_also_critical = models.BooleanField(default=False)
+    sig_legal = models.BooleanField(default=False)
+    sig_risk = models.BooleanField(default=False)
+    sig_halt = models.BooleanField(default=False)
+    sig_preventive = models.BooleanField(default=False)
+    sig_non_significant = models.BooleanField(default=False)
+    priority = models.CharField(max_length=6, choices=LEVELS, default='medium')
+    risk_type = models.CharField(max_length=6, choices=LEVELS, default='medium')
+    severity = models.CharField(max_length=6, choices=LEVELS, default='medium')
+    impact_past = models.BooleanField(default=False)
+    evaluated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    evaluated_at = models.DateTimeField(null=True, blank=True)
+    evaluated_date = models.DateField(null=True, blank=True)
+    details = models.TextField(blank=True, default='')
+    proposed_date = models.DateField(null=True, blank=True)
+    mr_signed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    mr_signed_at = models.DateTimeField(null=True, blank=True)
+    # Concerned department section
+    root_cause = models.TextField(blank=True, default='')
+    corrective = models.TextField(blank=True, default='')
+    completion_date = models.DateField(null=True, blank=True)
+    hod_signed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    hod_signed_at = models.DateTimeField(null=True, blank=True)
+    # MR section
+    followup_with = models.CharField(max_length=120, blank=True, default='')
+    satisfactory = models.BooleanField(null=True, blank=True)
+    followup_date = models.DateField(null=True, blank=True)
+    next_followup_date = models.DateField(null=True, blank=True)
+    followup_desc = models.TextField(blank=True, default='')
+    closed_by_name = models.CharField(max_length=120, blank=True, default='')
+    closed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    closed_at = models.DateTimeField(null=True, blank=True)
+    closing_date = models.DateField(null=True, blank=True)
+    remarks = models.CharField(max_length=300, blank=True, default='')
+    # NC&CA log columns
+    log_sno = models.PositiveIntegerField(null=True, blank=True)
+    assigned_to = models.CharField(max_length=120, blank=True, default='')
+    assigned_date = models.DateField(null=True, blank=True)
+    target_date = models.DateField(null=True, blank=True)
+    log_only = models.BooleanField(default=False)          # row in the log without a form in the record
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date', '-id']
+        unique_together = ('location', 'nc_no')
+
+    def __str__(self):
+        return '%s (%s)' % (self.nc_no, self.location)
+
+    @property
+    def locked(self):
+        return self.status == 'closed'
+
+    @property
+    def is_nc(self):
+        return self.category in ('minor', 'major', 'critical')
+
+
+class NccaRca(models.Model):
+    """Root Cause Analysis (ETAL-QMS-710-FF-01A): potential causes ticked, 6-Why chain, conclusion;
+    performed by the person deputed (MR), reviewed by the CEO."""
+    MAIN_CAUSES = (('Personnel', ['Training Needed', 'Skill Improvement', 'Random Error', 'Behavior or Attitude Issue', 'Stress/ Over Load']),
+                   ('Method/ Procedure', ['Procedure needed', 'In-adequate', 'Improvement needed', 'Inappropriate', 'Too Lengthy', 'Complicated']),
+                   ('Environmental Conditions', ['In-adequate', 'Improvement needed', 'Inappropriate', 'Required Conditions not met', 'Un-realistic']),
+                   ('Management System', ['Policy not available', 'Improvement needed', 'Inappropriate', 'Complicated', 'Un-realistic']),
+                   ('QSP', ['Quality System Procedure not available', 'Improvement needed', 'Inappropriate', 'Complicated', 'Un-realistic']),
+                   ('Material', ['Required material not available', 'Improvement needed', 'Inappropriate', 'Poor Quality', 'Storage Conditions']),
+                   ('Equipment', ['Required material not available', 'Improvement needed', 'Inappropriate', 'Not Calibrated', 'Poor Handling / Transportation']))
+    STATUSES = (('draft', 'Draft'), ('performed', 'Performed - awaiting CEO review'), ('reviewed', 'Reviewed by CEO'))
+    nc = models.OneToOneField(Ncca, on_delete=models.CASCADE, related_name='rca')
+    rca_no = models.CharField(max_length=40, blank=True, default='')
+    clause = models.CharField(max_length=60, blank=True, default='')
+    deputed = models.CharField(max_length=120, blank=True, default='')
+    date = models.DateField(null=True, blank=True)
+    causes = models.JSONField(default=dict, blank=True)     # {'Personnel': ['Random Error'], ...}; 'other' keys per main cause as '<main>:other'
+    other = models.CharField(max_length=300, blank=True, default='')
+    six_why = models.BooleanField(default=True)
+    statement = models.TextField(blank=True, default='')
+    whys = models.JSONField(default=list, blank=True)       # six strings
+    conclusion = models.TextField(blank=True, default='')
+    performed_name = models.CharField(max_length=120, blank=True, default='')
+    performed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    performed_at = models.DateTimeField(null=True, blank=True)
+    performed_date = models.DateField(null=True, blank=True)
+    reviewed_name = models.CharField(max_length=120, blank=True, default='')
+    reviewed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    legacy = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return 'RCA %s of %s' % (self.rca_no, self.nc_id)
+
+    @property
+    def locked(self):
+        return self.status == 'reviewed'
+
+
+for _m in (IaClause, IaPlan, IaAudit, IaFinding, IaCircular, IaWitness, Ncca, NccaRca):
+    _sh_register(_m)

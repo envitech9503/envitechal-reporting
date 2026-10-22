@@ -136,6 +136,23 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'mou_manual' %}" target="_blank" rel="noopener">User Manual</a>
       {% if request.user.is_superuser %}<a href="{% url 'mou_doccontrol' %}">Document Control (admin)</a>{% endif %}
     </div>
+    <hr class="etqc-hr">
+
+    <button type="button" class="etqc-sec" data-etqc="etqcIA" aria-expanded="false">
+      <i class="fa-solid fa-clipboard-check"></i>Internal Audit<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcIA">
+      <a href="{% url 'ia_home' %}">Dashboard</a>
+      <a href="{% url 'ia_plans' %}">Annual Audit Plan (FF-01)</a>
+      <a href="{% url 'ia_circulars' %}">Circulars &amp; Attendance (FF-03)</a>
+      <a href="{% url 'ia_audits' %}">Audit Reports &amp; Witnessing (FF-02)</a>
+      <a href="{% url 'ia_ncs' %}">NC &amp; Corrective Action (710-FF-01/02)</a>
+      <a href="{% url 'ia_signing' %}">Signing (my sign-offs)</a>
+      <a href="{% url 'ia_clauses' %}">ISO 17025 Checklist (master)</a>
+      <a href="{% url 'ia_deletions' %}">Deletion Log (managers)</a>
+      <a href="{% url 'ia_manual' %}" target="_blank" rel="noopener">User Manual</a>
+      {% if request.user.is_superuser %}<a href="{% url 'ia_doccontrol' %}">Document Control (admin)</a>{% endif %}
+    </div>
   </nav>
 </div>
 <script>

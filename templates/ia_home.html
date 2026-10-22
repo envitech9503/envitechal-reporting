@@ -1,0 +1,99 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Internal Audit - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>{{ loc }} dashboard</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-clipboard-check"></i> Internal Audit - {{ loc }} laboratory</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if can_manage %}<form method="post" action="{% url 'ia_audit_new' %}?location={{ loc }}" style="display:inline">{% csrf_token %}<input type="hidden" name="year" value="{{ today.year }}"><button class="btn btn-p" type="submit" onclick="return confirm('Start a new {{ loc }} internal audit for {{ today.year }}? The checklist is pre-filled from the previous audit (results cleared).')"><i class="fa-solid fa-plus"></i> New audit</button></form>
+      <a class="btn" href="{% url 'ia_nc_new' %}?location={{ loc }}"><i class="fa-solid fa-triangle-exclamation"></i> Raise NC</a>{% endif %}
+      <a class="btn" href="{% url 'ia_signing' %}?location={{ loc }}"><i class="fa-solid fa-signature"></i> Signing{% if todo %} <span class="pill warn">{{ todo }}</span>{% endif %}</a>
+      <a class="btn" href="{% url 'ia_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-question"></i> Manual</a>
+    </div>
+  </div>
+  <form class="toolbar" method="get">
+    <label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <span class="muted">Forms {{ ctrl.doc_no }} (report), ETAL-QMS-808-FF-01 (plan), FF-03 (circular), ETAL-QMS-710-FF-01 / 01A / 02 (NC&amp;CA, RCA, log)</span>
+  </form>
+  <div class="tiles">
+    <a class="tile" href="{% url 'ia_audits' %}?location={{ loc }}"><b>Audits on record</b><span>{{ c.audits }}</span><small>{{ c.audits_year }} in {{ today.year }}</small></a>
+    <a class="tile {% if c.open_ncs %}warn{% endif %}" href="{% url 'ia_ncs' %}?location={{ loc }}&show=open"><b>Open NC &amp; CA</b><span>{{ c.open_ncs }}</span><small>awaiting response or close-out</small></a>
+    <a class="tile {% if c.overdue %}bad{% endif %}" href="{% url 'ia_ncs' %}?location={{ loc }}&show=open"><b>Overdue</b><span>{{ c.overdue }}</span><small>past the target / proposed date</small></a>
+    <a class="tile" href="{% url 'ia_signing' %}?location={{ loc }}"><b>My sign-offs</b><span>{{ todo }}</span><small>records awaiting your signature</small></a>
+    <a class="tile" href="{% if c.plan %}{% url 'ia_plan_detail' c.plan.id %}{% else %}{% url 'ia_plans' %}?location={{ loc }}{% endif %}"><b>Annual plan {{ today.year }}</b><span style="font-size:16px">{% if c.plan %}{{ c.plan.get_status_display }}{% else %}Not prepared{% endif %}</span><small>{% if plan_months %}{% for m in plan_months %}{{ m.month }}{% if m.done %} &#10003;{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}ETAL-QMS-808-FF-01{% endif %}</small></a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+  <div class="card">
+    <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-file-lines"></i> Recent audits</div><a class="btn" href="{% url 'ia_audits' %}?location={{ loc }}">All audits</a></div>
+    <table>
+      <thead><tr><th>Audit</th><th>Dates</th><th>Auditor / Auditee</th><th class="c">Obs</th><th class="c">Minor</th><th class="c">Major</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for a in audits %}
+        <tr><td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.legacy %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
+          <td class="nw">{{ a.date_start|date:"d-m-Y"|default:"-" }}{% if a.date_end and a.date_end != a.date_start %} - {{ a.date_end|date:"d-m-Y" }}{% endif %}</td>
+          <td>{{ a.auditor|default:"-" }} / {{ a.auditee|default:"-" }}</td>
+          <td class="c">{{ a.n_obs }}</td><td class="c">{{ a.n_minor }}</td><td class="c"><b>{{ a.n_major }}</b></td>
+          <td class="nw">{% if a.status == 'closed' %}<span class="pill ok">Signed</span>{% elif a.status == 'auditor' %}<span class="pill info">Awaiting auditee</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="7" class="empty">No audits recorded for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-triangle-exclamation"></i> Open NC &amp; CA</div><a class="btn" href="{% url 'ia_ncs' %}?location={{ loc }}&show=open">NC&amp;CA log</a></div>
+    <table>
+      <thead><tr><th>NC&amp;CA #</th><th>Clause</th><th>Category</th><th>Stage</th><th class="nw">Due</th></tr></thead>
+      <tbody>
+      {% for n in ncs %}
+        <tr><td><a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;font-weight:700">{{ n.nc_no }}</a></td><td class="nw">{{ n.clause|truncatechars:22 }}</td>
+          <td class="nw">{% if n.category == 'major' or n.category == 'critical' %}<span class="pill bad">{{ n.get_category_display }}</span>{% elif n.category == 'minor' %}<span class="pill warn">Minor</span>{% else %}<span class="pill info">{{ n.get_category_display }}</span>{% endif %}</td>
+          <td class="nw">{% if n.status == 'draft' %}<span class="pill none">Draft</span>{% elif n.status == 'open' %}<span class="pill warn">Dept. response</span>{% else %}<span class="pill info">MR follow-up</span>{% endif %}</td>
+          <td class="nw {% if n.days_left is not None and n.days_left < 0 %}due-bad{% elif n.days_left is not None and n.days_left <= 3 %}due-soon{% endif %}">{% if n.days_left is None %}-{% elif n.days_left < 0 %}{{ n.days_left|cut:"-" }} d overdue{% elif n.days_left == 0 %}today{% else %}in {{ n.days_left }} d{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">No open NC&amp;CA - all closed.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+  <div class="card">
+    <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-chart-column"></i> Findings per year</div></div>
+    <div class="chartbox">
+      {% if trend %}
+      <div id="iaTrend"></div>
+      <script>
+      (function(){
+        var data = {{ trend_json|safe }}; if (!data.length) return;
+        var max = 1; data.forEach(function(d){ max = Math.max(max, d.obs + d.minor + d.major); });
+        var w = 520, h = 170, bw = Math.min(70, (w - 40) / data.length - 20), base = 135, scale = 100 / max, html = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto">';
+        data.forEach(function(d, i){
+          var x = 40 + i * ((w - 40) / data.length), y = base;
+          [['major', '#b91c1c'], ['minor', '#d97706'], ['obs', '#2563eb']].forEach(function(k){
+            var hh = d[k[0]] * scale; y -= hh;
+            html += '<rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + hh + '" fill="' + k[1] + '" rx="2"><title>' + d.year + ': ' + d[k[0]] + ' ' + k[0] + '</title></rect>';
+          });
+          html += '<text x="' + (x + bw / 2) + '" y="' + (base + 14) + '" font-size="11" text-anchor="middle" fill="#334155">' + d.year + ' (' + d.audits + ' audit' + (d.audits == 1 ? '' : 's') + ')</text>';
+          html += '<text x="' + (x + bw / 2) + '" y="' + (y - 4) + '" font-size="11" text-anchor="middle" fill="#0f5132" font-weight="700">' + (d.obs + d.minor + d.major) + '</text>';
+        });
+        html += '<g font-size="10" fill="#475569"><rect x="40" y="152" width="9" height="9" fill="#b91c1c"/><text x="53" y="160">Major</text><rect x="100" y="152" width="9" height="9" fill="#d97706"/><text x="113" y="160">Minor</text><rect x="160" y="152" width="9" height="9" fill="#2563eb"/><text x="173" y="160">Observation</text></g></svg>';
+        document.getElementById('iaTrend').innerHTML = html;
+      })();
+      </script>
+      {% else %}<div class="empty">No audits yet.</div>{% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-list-ol"></i> Non-conformances by ISO 17025 section</div></div>
+    <div style="padding:12px 18px">
+      {% for k, v, pct in by_clause %}
+        <div style="display:grid;grid-template-columns:70px 1fr 30px;gap:8px;align-items:center;font-size:12.5px;margin:5px 0">
+          <b>Clause {{ k }}</b><div class="bar"><i style="width:{{ pct }}%"></i></div><span class="num">{{ v }}</span>
+        </div>
+      {% empty %}<div class="empty">No non-conformances recorded.</div>{% endfor %}
+      <div class="muted" style="margin-top:8px">Section 4 General &middot; 5 Structural &middot; 6 Resources &middot; 7 Process &middot; 8 Management system. Counts every NC in the log (internal audits, PNAC assessments, complaints).</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

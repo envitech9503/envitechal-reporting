@@ -1,0 +1,36 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Annual plan {{ plan.year }} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'ia_plans' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">Annual plans</a> &rsaquo; <span>{% if plan.pk %}Edit {{ plan.year }}{% else %}New plan{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="ia_plan_{{ plan.pk|default:'new' }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-calendar-days"></i> Annual Internal Audit Plan - {{ loc }} laboratory</div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% if plan.pk %}{% url 'ia_plan_detail' plan.pk %}{% else %}{% url 'ia_plans' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save plan</button></div></div>
+  <div class="frm">
+    <label>Year <input name="year" value="{{ plan.year }}" required pattern="\d{4}" style="width:90px" {% if plan.pk %}readonly{% endif %}></label>
+    <label style="flex:1 1 400px">Remarks <input name="remarks" value="{{ plan.remarks }}" placeholder="optional"></label>
+  </div>
+  <div style="padding:0 18px 14px;overflow-x:auto">
+    <table class="mougrid" style="min-width:980px">
+      <thead><tr><th rowspan="2" style="min-width:200px">Department</th>{% for m in months %}<th colspan="2" class="c">{{ m }}</th>{% endfor %}</tr>
+        <tr>{% for m in months %}<th class="c" style="font-weight:500">Due</th><th class="c" style="font-weight:500">Done</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for r in rows %}{% with ri=forloop.counter0 %}
+        <tr>
+          <td><input name="dept{{ ri }}" value="{{ r.department }}" placeholder="{% if ri == 0 %}Environmental Laboratory{% else %}department (optional){% endif %}"></td>
+          {% for m in mrange %}{% with ms=m|stringformat:"s" %}
+            {% for k, v in r.months.items %}{% if k == ms %}
+              <td class="c" style="background:#fff7d6"><input type="checkbox" name="r{{ ri }}_m{{ m }}_due" value="1" {% if v.due %}checked{% endif %}></td>
+              <td class="c" style="background:#ecf7e5"><input type="checkbox" name="r{{ ri }}_m{{ m }}_done" value="1" {% if v.done %}checked{% endif %}></td>
+            {% endif %}{% endfor %}
+            {% if ms not in r.months %}<td class="c"><input type="checkbox" name="r{{ ri }}_m{{ m }}_due" value="1"></td><td class="c"><input type="checkbox" name="r{{ ri }}_m{{ m }}_done" value="1"></td>{% endif %}
+          {% endwith %}{% endfor %}
+        </tr>
+      {% endwith %}{% endfor %}
+      </tbody>
+    </table>
+    <div class="muted" style="margin-top:8px">Tick <b>Due</b> in the month(s) the internal audit is planned; <b>Done</b> is ticked when the audit has taken place (the MR can also mark it later from the plan page). Blank department rows are ignored.</div>
+  </div>
+</div>
+</form>
+{% endblock %}

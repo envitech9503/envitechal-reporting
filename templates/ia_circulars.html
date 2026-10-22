@@ -1,0 +1,30 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Internal Audit Circulars - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>Circulars</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-bullhorn"></i> Internal Audit Circulars - {{ loc }} laboratory <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">{% if can_manage %}<a class="btn btn-p" href="{% url 'ia_circular_new' %}?location={{ loc }}&kind=audit"><i class="fa-solid fa-plus"></i> Audit circular</a><a class="btn" href="{% url 'ia_circular_new' %}?location={{ loc }}&kind=witness"><i class="fa-solid fa-plus"></i> Witnessing circular</a>{% endif %}</div>
+  </div>
+  <form class="toolbar" method="get"><label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label></form>
+  <table>
+    <thead><tr><th>Issued</th><th>Kind</th><th>Audit No.</th><th>Audit date</th><th>Sessions</th><th>Auditors</th><th>Attendance</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for c in rows %}
+      <tr>
+        <td class="nw"><a href="{% url 'ia_circular_detail' c.id %}" style="color:#0f5132;font-weight:700">{{ c.issue_date|date:"d-m-Y"|default:"-" }}</a>{% if c.legacy %} <span class="pill none">REC</span>{% endif %}</td>
+        <td class="nw">{% if c.kind == 'witness' %}<span class="pill info">Witnessing</span>{% else %}<span class="pill none">Audit</span>{% endif %}</td>
+        <td class="nw">{{ c.audit_no|default:"-" }}{% if c.audit %} <a href="{% url 'ia_audit_detail' c.audit.id %}" class="muted" title="linked audit report">&#9656; report</a>{% endif %}</td>
+        <td>{{ c.audit_date_text|default:"-" }}</td>
+        <td>{% for s in c.sessions %}{{ s.scope|truncatechars:40 }}{% if not forloop.last %}; {% endif %}{% endfor %}</td>
+        <td class="nw">{% for s in c.sessions %}{{ s.auditors }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        <td class="nw">{% with signed=c.attendance|length %}{{ signed }} listed{% endwith %}</td>
+        <td class="nw">{% if c.status == 'issued' %}<span class="pill ok">Issued</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td class="nw"><a class="btn" href="{% url 'ia_circular_detail' c.id %}">Open</a> <a class="btn" href="{% url 'ia_circular_pdf' c.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td>
+      </tr>
+    {% empty %}<tr><td colspan="9" class="empty">No circulars for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
