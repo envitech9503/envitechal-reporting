@@ -463,7 +463,10 @@ def mou_action(request, pk):
         st.status, st.approved_by, st.approved_at = 'approved', user, now
         st.recompute(save=False); st.save()
         n = MouStudy.objects.filter(_key_q(st)).filter(status='approved').exclude(pk=st.pk).update(status='superseded')
-        _msg.success(request, 'Approved and locked.%s' % (' The previous approved version is now superseded.' if n else ''))
+        # earlier versions still open (e.g. an inducted 2025 workbook beside its 2026 repeat) are closed as well
+        m = MouStudy.objects.filter(_key_q(st)).filter(status__in=('draft', 'review', 'reviewed'), version__lt=st.version).exclude(pk=st.pk).update(status='superseded')
+        _msg.success(request, 'Approved and locked.%s%s' % (' The previous approved version is now superseded.' if n else '',
+                                                           (' %d earlier open version(s) closed as superseded.' % m) if m else ''))
     elif act == 'return':
         if st.status not in ('review', 'reviewed') or not _can_manage(user, st.location):
             return HttpResponse(_DENIED % st.location, status=403)

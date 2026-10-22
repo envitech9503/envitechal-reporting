@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase, Client
 
 from QC import mou_calc as M
-from QC.models import MouStudy, MouSource, ControlChartReviewer, ControlChartDeletion
+from QC.models import MouStudy, MouSource, MouOperator, MouComponent, ControlChartReviewer, ControlChartDeletion
 
 SPEC = os.path.join(os.path.dirname(__file__), 'fixtures', 'mou_karachi_spec.json')
 
@@ -320,3 +320,16 @@ class StrictQATests(TestCase):
         chem.post('/qc/mou/%d/action/' % st.pk, {'action': 'submit'}); self.c(self.mgr).post('/qc/mou/%d/action/' % st.pk, {'action': 'review'})
         r = self.c(self.adm).get('/qc/mou/%d/' % st.pk)
         self.assertNotContains(r, "COD');alert"); self.assertContains(r, "\\u0027)\\u003Balert")
+
+    def test_approving_later_version_closes_earlier_open_ones(self):
+        chem, mgr, adm = self.c(self.chem), self.c(self.mgr), self.c(self.adm)
+        chem.post('/qc/mou/new/', self.form()); v1 = MouStudy.objects.get()
+        v2 = MouStudy.objects.create(location='Karachi', parameter='COD', level='500 ppm', unit='mg/L', sample_kind='WS', range_value=1500, status='review', version=2, supersedes=v1, created_by=self.chem)
+        for o in v1.operators.all():
+            MouOperator.objects.create(study=v2, order=o.order, label=o.label, values=o.values)
+        for c in v1.components.all():
+            MouComponent.objects.create(study=v2, order=c.order, kind=c.kind, name=c.name, unit=c.unit, range_value=c.range_value, magnitude=c.magnitude, dist=c.dist, ci=c.ci)
+        v2.recompute()
+        mgr.post('/qc/mou/%d/action/' % v2.pk, {'action': 'review'}); adm.post('/qc/mou/%d/action/' % v2.pk, {'action': 'approve'})
+        v1.refresh_from_db(); v2.refresh_from_db()
+        self.assertEqual((v1.status, v2.status), ('superseded', 'approved'))

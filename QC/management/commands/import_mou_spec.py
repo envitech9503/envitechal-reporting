@@ -52,7 +52,7 @@ class Command(BaseCommand):
                     obj.save()
                     n_src += 1
                 src_map[s['key']] = obj
-            for st in spec['studies']:
+            for st in sorted(spec['studies'], key=lambda x: int(x.get('version') or 1)):
                 if MouStudy.objects.filter(location=loc, legacy__file=st['file']).exists():
                     n_skip += 1
                     continue
@@ -62,12 +62,15 @@ class Command(BaseCommand):
                 legacy['unit_printed'] = st.get('unit_printed', '')
                 obj = MouStudy(location=loc, parameter=st['parameter'], level=st['level'], unit=st['unit'], sample_kind=st['sample_kind'],
                                sample_ref=st['sample_ref'][:200], method=st['method'], instrument=st['instrument'], range_value=st['range'],
-                               env_temp=st.get('env_temp'), study_date=(_dt.date.fromisoformat(st['study_date']) if st.get('study_date') else None), k=2.0, decimals=3, status='review' if st['complete'] else 'draft', version=1,
+                               env_temp=st.get('env_temp'), study_date=(_dt.date.fromisoformat(st['study_date']) if st.get('study_date') else None), k=2.0, decimals=3, status='review' if st['complete'] else 'draft', version=int(st.get('version') or 1),
                                legacy=legacy, created_by=user, submitted_by=user if st['complete'] else None,
                                remarks='Inducted from the laboratory workbook %s on %s.' % (st['file'].split('/')[-1], inducted))
                 if st['complete']:
                     from django.utils import timezone
                     obj.submitted_at = timezone.now()
+                if obj.version > 1:
+                    obj.supersedes = MouStudy.objects.filter(location=loc, parameter__iexact=obj.parameter, level__iexact=obj.level, sample_kind=obj.sample_kind,
+                                                            version__lt=obj.version).order_by('-version').first()
                 obj.save()
                 for i, op in enumerate(st['operators']):
                     MouOperator.objects.create(study=obj, order=i, label=op['label'], values=op['values'])
