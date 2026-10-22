@@ -5,7 +5,7 @@
 <div class="card">
   <div class="hd">
     <div class="title"><i class="fa-solid fa-bullhorn"></i> {{ c.get_kind_display }} circular {{ c.audit_no }} - {{ loc }} laboratory
-      {% if c.status == 'issued' %}<span class="pill ok">Issued</span>{% else %}<span class="pill none">Draft</span>{% endif %}{% if c.legacy %} <span class="pill none" title="{{ c.legacy.file }}">REC</span>{% endif %}</div>
+      {% if c.status == 'issued' %}<span class="pill ok">Issued</span>{% else %}<span class="pill none">Draft</span>{% endif %}{% if c.inducted %} <span class="pill none" title="{{ c.legacy.file }}">REC</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if can_edit %}<a class="btn" href="{% url 'ia_circular_edit' c.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
       {% if c.audit %}<a class="btn" href="{% url 'ia_audit_detail' c.audit.id %}"><i class="fa-solid fa-file-lines"></i> Audit report {{ c.audit.audit_no }}</a>{% endif %}

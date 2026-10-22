@@ -13,7 +13,7 @@
     <tbody>
     {% for c in rows %}
       <tr>
-        <td class="nw"><a href="{% url 'ia_circular_detail' c.id %}" style="color:#0f5132;font-weight:700">{{ c.issue_date|date:"d-m-Y"|default:"-" }}</a>{% if c.legacy %} <span class="pill none">REC</span>{% endif %}</td>
+        <td class="nw"><a href="{% url 'ia_circular_detail' c.id %}" style="color:#0f5132;font-weight:700">{{ c.issue_date|date:"d-m-Y"|default:"-" }}</a>{% if c.inducted %} <span class="pill none">REC</span>{% endif %}</td>
         <td class="nw">{% if c.kind == 'witness' %}<span class="pill info">Witnessing</span>{% else %}<span class="pill none">Audit</span>{% endif %}</td>
         <td class="nw">{{ c.audit_no|default:"-" }}{% if c.audit %} <a href="{% url 'ia_audit_detail' c.audit.id %}" class="muted" title="linked audit report">&#9656; report</a>{% endif %}</td>
         <td>{{ c.audit_date_text|default:"-" }}</td>

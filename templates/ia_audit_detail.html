@@ -68,8 +68,8 @@
     <tbody>{% for r in w.rows %}<tr><td class="nw"><b>{{ r.parameter }}</b></td><td class="nw">{{ r.performed_by }}</td><td class="nw">{{ r.range }}</td><td class="nw">{{ r.assigned }}</td><td class="nw">{{ r.obtained }}</td><td style="font-size:12.5px">{{ r.remarks|linebreaksbr }}</td></tr>{% endfor %}</tbody>
   </table>
   <div class="sigline">
-    <div class="s"><b>Internal auditor</b>{% if w.auditor_signed_at %}{{ w.auditor_signed_by.get_full_name|default:w.auditor_signed_by.username }} - {{ w.sign_date|date:"d-m-Y" }}{% elif w.auditor %}{{ w.auditor }} {{ w.sign_date|date:"d-m-Y" }}{% if w.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
-    {% for x in w.auditees %}<div class="s"><b>Analyst witnessed</b>{{ x.name }}{% if x.signed_at %} <span class="pill ok">e-signed {{ x.signed_at|slice:":10" }}</span>{% elif w.legacy %} <span class="muted">(record)</span>{% else %} <span class="pill none">not signed</span>{% endif %}</div>{% endfor %}
+    <div class="s"><b>Internal auditor</b>{% if w.auditor_signed_at %}{{ w.auditor_signed_by.get_full_name|default:w.auditor_signed_by.username }} - {{ w.sign_date|date:"d-m-Y" }}{% elif w.auditor %}{{ w.auditor }} {{ w.sign_date|date:"d-m-Y" }}{% if w.inducted %} (record){% endif %}{% else %}-{% endif %}</div>
+    {% for x in w.auditees %}<div class="s"><b>Analyst witnessed</b>{{ x.name }}{% if x.signed_at %} <span class="pill ok">e-signed {{ x.signed_at|slice:":10" }}</span>{% elif w.inducted %} <span class="muted">(record)</span>{% else %} <span class="pill none">not signed</span>{% endif %}</div>{% endfor %}
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if w.status == 'draft' and can_manage %}<form method="post" action="{% url 'ia_witness_action' w.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_auditor"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the witnessing record as internal auditor?')"><i class="fa-solid fa-signature"></i> Sign as auditor</button></form>{% endif %}

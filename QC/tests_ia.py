@@ -150,6 +150,10 @@ class WorkflowTests(TestCase):
         mgr.post('/qc/ia/circulars/%d/action/' % c.pk, {'action': 'withdraw', 'reason': 'date moved'}); c.refresh_from_db()
         self.assertEqual(c.status, 'draft'); self.assertFalse(any(a.get('signed_at') for a in c.attendance))
         self.assertEqual(chem.get('/qc/ia/circulars/%d/pdf/' % c.pk).status_code, 200)
+        # re-issued after withdrawal: still a live circular - an unlisted member can add themselves
+        mgr.post('/qc/ia/circulars/%d/action/' % c.pk, {'action': 'issue'})
+        chem2.post('/qc/ia/circulars/%d/action/' % c.pk, {'action': 'sign'}); c.refresh_from_db()
+        self.assertTrue(any(a.get('user_id') == self.chem2.pk for a in c.attendance)); self.assertFalse(c.inducted)
 
     # ---- audit report
     def test_new_audit_copy_forward_edit_and_signatures(self):
@@ -233,6 +237,13 @@ class WorkflowTests(TestCase):
         self.assertContains(chem.post('/qc/ia/ncs/%d/action/' % n.pk, {'action': 'respond'}, follow=True), 'not been raised')
         self.assertEqual(chem.post('/qc/ia/ncs/%d/action/' % n.pk, {'action': 'raise'}).status_code, 403)
         mgr.post('/qc/ia/ncs/%d/action/' % n.pk, {'action': 'raise'}); n.refresh_from_db(); self.assertEqual((n.status, n.mr_signed_by_id, n.evaluated_by_id), ('open', self.mgr.pk, self.mgr.pk))
+        # the CEO saving the form without changing the header does not take over the MR signature; a real header change re-signs
+        ceo.post('/qc/ia/ncs/%d/edit/' % n.pk, {'nc_no': n.nc_no, 'date': '02-01-2026', 'department': 'Lab', 'raised_by': 'Hina Abidi', 'clause': n.clause, 'source': 'IA', 'audit': str(a.pk), 'due_audit_internal': '1',
+                                                'category': 'obs', 'priority': 'low', 'risk_type': 'low', 'severity': 'low', 'details': n.details, 'proposed_date': '31-03-2026', 'assigned_to': 'Manager Lab', 'followup_with': ''})
+        n.refresh_from_db(); self.assertEqual(n.mr_signed_by_id, self.mgr.pk)
+        ceo.post('/qc/ia/ncs/%d/edit/' % n.pk, {'nc_no': n.nc_no, 'date': '02-01-2026', 'department': 'Lab', 'raised_by': 'Hina Abidi', 'clause': n.clause, 'source': 'IA', 'audit': str(a.pk), 'due_audit_internal': '1',
+                                                'category': 'minor', 'priority': 'low', 'risk_type': 'low', 'severity': 'low', 'details': n.details, 'proposed_date': '31-03-2026', 'assigned_to': 'Manager Lab', 'followup_with': ''})
+        n.refresh_from_db(); self.assertEqual((n.mr_signed_by_id, n.category), (self.ceo.pk, 'minor'))
         # department section: a Lahore member cannot; a Karachi chemist records root cause / corrective action and signs
         self.assertEqual(lchem.get('/qc/ia/ncs/%d/edit/' % n.pk).status_code, 403)
         r = chem.get('/qc/ia/ncs/%d/edit/' % n.pk); self.assertContains(r, 'Root cause'); self.assertNotContains(r, 'name="nc_no"')   # head section not editable by the department

@@ -32,7 +32,7 @@
       <thead><tr><th>Audit</th><th>Dates</th><th>Auditor / Auditee</th><th class="c">Obs</th><th class="c">Minor</th><th class="c">Major</th><th>Status</th></tr></thead>
       <tbody>
       {% for a in audits %}
-        <tr><td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.legacy %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
+        <tr><td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.inducted %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
           <td class="nw">{{ a.date_start|date:"d-m-Y"|default:"-" }}{% if a.date_end and a.date_end != a.date_start %} - {{ a.date_end|date:"d-m-Y" }}{% endif %}</td>
           <td>{{ a.auditor|default:"-" }} / {{ a.auditee|default:"-" }}</td>
           <td class="c">{{ a.n_obs }}</td><td class="c">{{ a.n_minor }}</td><td class="c"><b>{{ a.n_major }}</b></td>

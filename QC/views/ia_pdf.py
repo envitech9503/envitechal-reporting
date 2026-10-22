@@ -408,9 +408,9 @@ def ia_audit_pdf(request, pk):
     pdf.ln(3)
     top = pdf.get_y()
     lgs = (a.legacy or {}).get('sign') or {}
-    panels = [('Signature of Internal Auditor', 'Name of Internal Auditor', _uname(a.auditor_signed_by) if a.auditor_signed_at else (lgs.get('auditor', '') if a.legacy else ''), _sig_image(a.auditor_signed_by) if a.auditor_signed_at else None, _d(a.auditor_sign_date), '' if a.auditor_signed_at else 'paper'),
+    panels = [('Signature of Internal Auditor', 'Name of Internal Auditor', _uname(a.auditor_signed_by) if a.auditor_signed_at else (lgs.get('auditor', '') if a.inducted else ''), _sig_image(a.auditor_signed_by) if a.auditor_signed_at else None, _d(a.auditor_sign_date), '' if a.auditor_signed_at else 'paper'),
               ('', '', '', None, ''),
-              ('Signature of Internal Auditee', 'Name of Internal Auditee', _uname(a.auditee_signed_by) if a.auditee_signed_at else (lgs.get('auditee', '') if a.legacy else ''), _sig_image(a.auditee_signed_by) if a.auditee_signed_at else None, _d(a.auditee_sign_date), '' if a.auditee_signed_at else 'paper')]
+              ('Signature of Internal Auditee', 'Name of Internal Auditee', _uname(a.auditee_signed_by) if a.auditee_signed_at else (lgs.get('auditee', '') if a.inducted else ''), _sig_image(a.auditee_signed_by) if a.auditee_signed_at else None, _d(a.auditee_sign_date), '' if a.auditee_signed_at else 'paper')]
     pdf.sig_panels(panels, top, 28)
     pdf.ln(3); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 1, 'C')
     # witnessing records
@@ -430,10 +430,10 @@ def ia_audit_pdf(request, pk):
         _sig_block_space(pdf, 34)
         pdf.ln(4)
         from django.contrib.auth.models import User as _User
-        panels = [('Signature of Internal Auditor', 'Name of Internal Auditor', _uname(w.auditor_signed_by) if w.auditor_signed_at else (w.auditor if w.legacy else ''), _sig_image(w.auditor_signed_by) if w.auditor_signed_at else None, _d(w.sign_date), '' if w.auditor_signed_at else 'paper')]
+        panels = [('Signature of Internal Auditor', 'Name of Internal Auditor', _uname(w.auditor_signed_by) if w.auditor_signed_at else (w.auditor if w.inducted else ''), _sig_image(w.auditor_signed_by) if w.auditor_signed_at else None, _d(w.sign_date), '' if w.auditor_signed_at else 'paper')]
         for x in (w.auditees or [])[:3]:
             u = _User.objects.filter(pk=x.get('user_id')).first() if x.get('user_id') else None
-            panels.append(('Signature of Internal Auditee', 'Name of Internal Auditee', (_uname(u) if (u and x.get('signed_at')) else (x.get('name', '') if w.legacy else '')), _sig_image(u) if (u and x.get('signed_at')) else None, _d(w.sign_date), '' if x.get('signed_at') else 'paper'))
+            panels.append(('Signature of Internal Auditee', 'Name of Internal Auditee', (_uname(u) if (u and x.get('signed_at')) else (x.get('name', '') if w.inducted else '')), _sig_image(u) if (u and x.get('signed_at')) else None, _d(w.sign_date), '' if x.get('signed_at') else 'paper'))
         pdf.sig_panels(panels, pdf.get_y(), 28)
     return _resp(pdf, 'IA_Report_%s_%s' % (a.location, a.audit_no))
 

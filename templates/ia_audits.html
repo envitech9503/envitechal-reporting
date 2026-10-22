@@ -18,7 +18,7 @@
     <tbody>
     {% for a in rows %}
       <tr>
-        <td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.legacy %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
+        <td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.inducted %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
         <td class="nw">{{ a.date_start|date:"d-m-Y"|default:"-" }}{% if a.date_end and a.date_end != a.date_start %} - {{ a.date_end|date:"d-m-Y" }}{% endif %} <span class="muted">({{ a.days }} d)</span></td>
         <td>{{ a.auditor|default:"-" }}</td><td>{{ a.auditee|default:"-" }}</td>
         <td class="c">{{ a.n_obs }}</td><td class="c">{{ a.n_minor }}</td><td class="c"><b>{{ a.n_major }}</b></td>

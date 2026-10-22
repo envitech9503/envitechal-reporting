@@ -28,7 +28,7 @@
     {% for n in rows %}
       <tr>
         <td class="c muted">{{ n.log_sno|default:"-" }}</td>
-        <td class="nw"><a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;font-weight:700">{{ n.nc_no }}</a>{% if n.log_only %} <span class="pill none" title="Row of the log without a form in the record">log</span>{% elif n.legacy %} <span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}</td>
+        <td class="nw"><a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;font-weight:700">{{ n.nc_no }}</a>{% if n.log_only %} <span class="pill none" title="Row of the log without a form in the record">log</span>{% elif n.inducted %} <span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}</td>
         <td class="nw">{{ n.clause|truncatechars:28 }}</td>
         <td class="nw">{% if n.category == 'major' or n.category == 'critical' %}<span class="pill bad">{{ n.get_category_display }}</span>{% elif n.category == 'minor' %}<span class="pill warn">Minor</span>{% else %}<span class="pill info">{{ n.get_category_display }}</span>{% endif %} <span class="muted">{{ n.get_source_display|truncatechars:14 }}</span></td>
         <td>{{ n.raised_by|default:"-" }}</td>

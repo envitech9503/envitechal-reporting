@@ -6,7 +6,7 @@
   <div class="hd">
     <div class="title"><i class="fa-solid fa-triangle-exclamation"></i> NC&amp;CA {{ n.nc_no }} - {{ loc }} laboratory
       {% if n.status == 'closed' %}<span class="pill ok">Closed</span>{% elif n.status == 'responded' %}<span class="pill info">Department responded - MR follow-up</span>{% elif n.status == 'open' %}<span class="pill warn">Raised - awaiting department response</span>{% else %}<span class="pill none">Draft</span>{% endif %}
-      {% if n.log_only %}<span class="pill none" title="Row of the NC&CA log without a form in the record">log row</span>{% elif n.legacy %}<span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}
+      {% if n.log_only %}<span class="pill none" title="Row of the NC&CA log without a form in the record">log row</span>{% elif n.inducted %}<span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}
       {% if overdue %}<span class="pill bad">overdue since {{ due|date:"d-m-Y" }}</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if sec.any and not n.locked %}<a class="btn" href="{% url 'ia_nc_edit' n.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
@@ -17,10 +17,10 @@
     </div>
   </div>
   <div class="steps">
-    <div class="step {% if n.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Raised &amp; evaluated by MR{% if n.mr_signed_at %}<br><small>{{ n.mr_signed_by.get_full_name|default:n.mr_signed_by.username }} - {{ n.mr_signed_at|date:"d-m-Y" }}</small>{% elif n.legacy and n.raised_by %}<br><small>{{ n.raised_by }} {{ n.date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
-    <div class="step {% if n.status == 'responded' or n.status == 'closed' %}done{% elif n.status == 'open' %}now{% endif %}"><i></i>Root cause &amp; corrective action (HOD){% if n.hod_signed_at %}<br><small>{{ n.hod_signed_by.get_full_name|default:n.hod_signed_by.username }} - {{ n.hod_signed_at|date:"d-m-Y" }}</small>{% elif n.legacy and n.completion_date %}<br><small>completed {{ n.completion_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if n.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Raised &amp; evaluated by MR{% if n.mr_signed_at %}<br><small>{{ n.mr_signed_by.get_full_name|default:n.mr_signed_by.username }} - {{ n.mr_signed_at|date:"d-m-Y" }}</small>{% elif n.inducted and n.raised_by %}<br><small>{{ n.raised_by }} {{ n.date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if n.status == 'responded' or n.status == 'closed' %}done{% elif n.status == 'open' %}now{% endif %}"><i></i>Root cause &amp; corrective action (HOD){% if n.hod_signed_at %}<br><small>{{ n.hod_signed_by.get_full_name|default:n.hod_signed_by.username }} - {{ n.hod_signed_at|date:"d-m-Y" }}</small>{% elif n.inducted and n.completion_date %}<br><small>completed {{ n.completion_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
     <div class="step {% if rca and rca.status == 'reviewed' %}done{% elif rca %}now{% endif %}"><i></i>Root cause analysis{% if rca %}<br><small>{{ rca.get_status_display }}</small>{% else %}<br><small>not prepared</small>{% endif %}</div>
-    <div class="step {% if n.status == 'closed' %}done{% elif n.status == 'responded' %}now{% endif %}"><i></i>Followed up &amp; closed by MR{% if n.closed_at %}<br><small>{{ n.closed_by.get_full_name|default:n.closed_by.username }} - {{ n.closing_date|date:"d-m-Y" }}</small>{% elif n.legacy and n.closing_date %}<br><small>{{ n.closed_by_name }} {{ n.closing_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
+    <div class="step {% if n.status == 'closed' %}done{% elif n.status == 'responded' %}now{% endif %}"><i></i>Followed up &amp; closed by MR{% if n.closed_at %}<br><small>{{ n.closed_by.get_full_name|default:n.closed_by.username }} - {{ n.closing_date|date:"d-m-Y" }}</small>{% elif n.inducted and n.closing_date %}<br><small>{{ n.closed_by_name }} {{ n.closing_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
   </div>
   <div class="form-sheet" style="padding-top:4px">
     <div class="sec">Non-conformance</div>
@@ -74,8 +74,8 @@
       <div style="margin-top:10px"><b>Conclusion:</b> {{ rca.conclusion|linebreaksbr|default:"-" }}</div></div>
   </div>
   <div class="sigline">
-    <div class="s"><b>Performed by</b>{% if rca.performed_at %}{{ rca.performed_by.get_full_name|default:rca.performed_by.username }} - {{ rca.performed_date|date:"d-m-Y" }}{% elif rca.performed_name %}{{ rca.performed_name }} {{ rca.performed_date|date:"d-m-Y" }}{% if rca.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
-    <div class="s"><b>Reviewed by</b>{% if rca.reviewed_at %}{{ rca.reviewed_by.get_full_name|default:rca.reviewed_by.username }} - {{ rca.reviewed_date|date:"d-m-Y" }}{% elif rca.reviewed_name %}{{ rca.reviewed_name }} {{ rca.reviewed_date|date:"d-m-Y" }}{% if rca.legacy %} (record){% endif %}{% else %}-{% endif %}</div>
+    <div class="s"><b>Performed by</b>{% if rca.performed_at %}{{ rca.performed_by.get_full_name|default:rca.performed_by.username }} - {{ rca.performed_date|date:"d-m-Y" }}{% elif rca.performed_name %}{{ rca.performed_name }} {{ rca.performed_date|date:"d-m-Y" }}{% if rca.inducted %} (record){% endif %}{% else %}-{% endif %}</div>
+    <div class="s"><b>Reviewed by</b>{% if rca.reviewed_at %}{{ rca.reviewed_by.get_full_name|default:rca.reviewed_by.username }} - {{ rca.reviewed_date|date:"d-m-Y" }}{% elif rca.reviewed_name %}{{ rca.reviewed_name }} {{ rca.reviewed_date|date:"d-m-Y" }}{% if rca.inducted %} (record){% endif %}{% else %}-{% endif %}</div>
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if rca.status == 'draft' and can_manage %}<form method="post" action="{% url 'ia_rca_action' rca.id %}">{% csrf_token %}<input type="hidden" name="action" value="perform"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the root cause analysis as performer?')"><i class="fa-solid fa-signature"></i> Sign as performer</button></form>{% endif %}

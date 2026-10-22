@@ -6,7 +6,7 @@
   <div class="hd">
     <div class="title"><i class="fa-solid fa-calendar-days"></i> Annual Internal Audit Plan {{ plan.year }} - {{ loc }} laboratory
       {% if plan.status == 'approved' %}<span class="pill ok">Approved</span>{% elif plan.status == 'signed' %}<span class="pill info">Signed by MR - awaiting CEO</span>{% else %}<span class="pill none">Draft</span>{% endif %}
-      {% if plan.legacy %}<span class="pill none" title="Inducted from the laboratory's record ({{ plan.legacy.file }})">REC</span>{% endif %}</div>
+      {% if plan.inducted %}<span class="pill none" title="Inducted from the laboratory's record ({{ plan.legacy.file }})">REC</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if can_edit %}<a class="btn" href="{% url 'ia_plan_edit' plan.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
       <a class="btn" href="{% url 'ia_plan_pdf' plan.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF form</a>

@@ -427,7 +427,7 @@ def ia_circular_detail(request, pk):
         'can_edit': _can_manage(user, c.location) and not c.locked, 'can_issue': c.status == 'draft' and _can_manage(user, c.location),
         'can_withdraw': c.status == 'issued' and _can_manage(user, c.location), 'can_delete': _can_manage(user, c.location) and c.status != 'issued',
         'can_sign': c.status == 'issued' and _is_member(user, c.location) and (my_row is not None) and not (c.attendance[my_row].get('signed_at')),
-        'can_add_self': c.status == 'issued' and _is_member(user, c.location) and my_row is None and not c.legacy, 'my_row': my_row})
+        'can_add_self': c.status == 'issued' and _is_member(user, c.location) and my_row is None and not c.inducted, 'my_row': my_row})
 
 
 def _apply_circular_action(user, c, act, reason=''):
@@ -475,7 +475,7 @@ def _apply_circular_action(user, c, act, reason=''):
                 a['user_id'], a['signed_at'] = user.id, now.isoformat()
                 c.save()
                 return 'ok', 'Receipt signed (%s).' % _tz.localtime(now).strftime('%d-%m-%Y %H:%M')
-        if c.legacy:
+        if c.inducted:
             return 'error', 'You are not named on the attendance list of this historic circular (%s).' % ', '.join(a.get('name', '') for a in c.attendance)
         c.attendance = list(c.attendance) + [{'name': _uname(user), 'designation': '', 'user_id': user.id, 'signed_at': now.isoformat()}]
         c.save()
@@ -637,7 +637,7 @@ def ia_audit_detail(request, pk):
     is_member = _is_member(user, a.location)
     return render(request, 'ia_audit_detail.html', {
         'a': a, 'loc': a.location, 'findings': findings, 'show': show, 'ncs': ncs, 'wits': wits, 'circs': circs, 'ctrl': _ia_docctrl('report', a.location),
-        'legacy': a.legacy or {}, 'can_edit': _can_edit_audit(user, a), 'can_manage': _can_manage(user, a.location),
+        'legacy': (a.legacy or {}) if a.inducted else {}, 'can_edit': _can_edit_audit(user, a), 'can_manage': _can_manage(user, a.location),
         'can_sign_auditor': a.status == 'draft' and _can_manage(user, a.location),
         'can_sign_auditee': a.status == 'auditor' and is_member and (a.auditor_signed_by_id != user.id),
         'can_reopen': a.status != 'draft' and _can_manage(user, a.location), 'can_delete': _can_manage(user, a.location),
@@ -930,7 +930,11 @@ def ia_nc_edit(request, pk=None):
     if request.method == 'POST':
         P = request.POST
         errors = []
+        head_changed = False
         if sec['head'] and 'details' in P:
+            before = (n.nc_no, n.date, n.department, n.raised_by, n.clause, n.source, n.audit_id, n.category, n.details, n.proposed_date, n.due_other, n.evaluated_date,
+                      n.priority, n.risk_type, n.severity, n.impact_past, n.sig_legal, n.sig_risk, n.sig_halt, n.sig_preventive, n.sig_non_significant, n.category_also_critical,
+                      n.due_audit_internal, n.due_audit_external, n.due_testing, n.due_cal_internal, n.due_cal_external, n.due_complaint)
             n.nc_no = (P.get('nc_no') or '').strip()[:40] or n.nc_no
             if Ncca.objects.filter(location=loc, nc_no=n.nc_no).exclude(pk=n.pk).exists():
                 errors.append('NC&CA number %s already exists for %s.' % (n.nc_no, loc))
@@ -950,13 +954,16 @@ def ia_nc_edit(request, pk=None):
             n.category = P.get('category') if P.get('category') in _CAT_LABEL else n.category
             for lv in ('priority', 'risk_type', 'severity'):
                 setattr(n, lv, P.get(lv) if P.get(lv) in dict(Ncca.LEVELS) else getattr(n, lv))
-            n.evaluated_date = _pdate(P.get('evaluated_date'))
+            n.evaluated_date = _pdate(P.get('evaluated_date')) if 'evaluated_date' in P else n.evaluated_date
             n.details = (P.get('details') or '').strip()[:6000]
             n.proposed_date = _pdate(P.get('proposed_date'))
             n.assigned_to = (P.get('assigned_to') or '').strip()[:120]
             n.target_date = _pdate(P.get('target_date')) or n.proposed_date
             if not n.details:
                 errors.append('Non-conformity / observation details are required.')
+            head_changed = before != (n.nc_no, n.date, n.department, n.raised_by, n.clause, n.source, n.audit_id, n.category, n.details, n.proposed_date, n.due_other, n.evaluated_date,
+                                      n.priority, n.risk_type, n.severity, n.impact_past, n.sig_legal, n.sig_risk, n.sig_halt, n.sig_preventive, n.sig_non_significant, n.category_also_critical,
+                                      n.due_audit_internal, n.due_audit_external, n.due_testing, n.due_cal_internal, n.due_cal_external, n.due_complaint)
         if sec['dept'] and 'root_cause' in P:
             changed = (n.root_cause, n.corrective, n.completion_date) != ((P.get('root_cause') or '').strip()[:6000], (P.get('corrective') or '').strip()[:6000], _pdate(P.get('completion_date')))
             n.root_cause = (P.get('root_cause') or '').strip()[:6000]
@@ -965,8 +972,9 @@ def ia_nc_edit(request, pk=None):
             if changed and n.status == 'responded':          # the department's section changed after the HOD signed -> signature cleared, back to 'open'
                 n.status, n.hod_signed_by, n.hod_signed_at = 'open', None, None
                 _msg.warning(request, 'The department section was changed after the Head of Department signed: that signature is cleared and the response must be signed again.')
-        if sec['head'] and n.status == 'open' and n.mr_signed_at:      # the MR re-signs the header on every edit
+        if sec['head'] and 'details' in P and n.status == 'open' and n.mr_signed_at and head_changed:   # the header changed after the MR signed: the editor re-signs it
             n.mr_signed_by, n.mr_signed_at = user, _tz.now()
+            n.raised_by = n.raised_by or _uname(user)
         if sec['mr'] and 'followup_with' in P:
             n.followup_with = (P.get('followup_with') or '').strip()[:120]
             n.satisfactory = {'1': True, '0': False}.get(P.get('satisfactory'))
@@ -1064,7 +1072,7 @@ def _apply_nc_action(user, n, act, reason=''):
         prev = n.status
         n.status = 'open'
         n.hod_signed_by = n.hod_signed_at = n.closed_by = n.closed_at = None
-        n.closing_date = n.followup_date = n.satisfactory = None
+        n.closing_date = n.followup_date = n.satisfactory = n.completion_date = None
         n.closed_by_name = ''
         n.legacy = dict(n.legacy or {}); n.legacy.setdefault('reopened', []).append({'by': _uname(user), 'at': _d(now.date()), 'from': prev, 'reason': reason.strip()[:500]})
         n.save()
@@ -1196,6 +1204,7 @@ def _apply_rca_action(user, r, act, reason=''):
         if len((reason or '').strip()) < 5:
             return 'error', 'Give the reason for reopening (at least 5 characters).'
         r.status, r.performed_by, r.performed_at, r.reviewed_by, r.reviewed_at = 'draft', None, None, None, None
+        r.performed_name, r.performed_date, r.reviewed_name, r.reviewed_date = '', None, '', None
         r.legacy = dict(r.legacy or {}); r.legacy.setdefault('reopened', []).append({'by': _uname(user), 'at': _d(now.date()), 'reason': reason.strip()[:500]})
         r.save()
         return 'ok', 'RCA reopened; signatures cleared.'
@@ -1247,7 +1256,7 @@ def _signing_rows(user, loc):
         for c in IaCircular.objects.filter(location=loc, status='issued'):
             mine = [x for x in c.attendance if x.get('user_id') == user.id]
             named = [x for x in c.attendance if not x.get('user_id') and x.get('name', '').strip().lower() in (un, user.username.lower())]
-            if not mine and (named or not c.legacy):          # an inducted (historic) circular is signed only by the persons named on it
+            if not mine and (named or not c.inducted):          # an inducted (historic) circular is signed only by the persons named on it
                 rows.append({'key': 'circ:%d:sign' % c.pk, 'kind': 'Circular receipt', 'label': '%s circular %s (%s)' % (c.get_kind_display(), c.audit_no, _d(c.issue_date)), 'url': '/qc/ia/circulars/%d/' % c.pk,
                              'action': 'Sign receipt' + ('' if named else ' (add me to the attendance)'), 'stage': 'ack'})
         for a in IaAudit.objects.filter(location=loc, status='auditor').exclude(auditor_signed_by=user):

@@ -998,6 +998,11 @@ class IaPlan(models.Model):
         ordering = ['-year', 'location']
         unique_together = ('location', 'year')
 
+    @property
+    def inducted(self):
+        """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
+
     def __str__(self):
         return 'Annual Internal Audit Plan %d - %s' % (self.year, self.location)
 
@@ -1046,6 +1051,11 @@ class IaAudit(models.Model):
     class Meta:
         ordering = ['-year', '-seq', 'location']
         unique_together = ('location', 'audit_no')
+
+    @property
+    def inducted(self):
+        """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
 
     def __str__(self):
         return 'Internal Audit %s - %s' % (self.audit_no, self.location)
@@ -1118,6 +1128,11 @@ class IaCircular(models.Model):
     class Meta:
         ordering = ['-issue_date', '-id']
 
+    @property
+    def inducted(self):
+        """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
+
     def __str__(self):
         return '%s circular %s - %s' % (self.get_kind_display(), self.audit_no, self.location)
 
@@ -1146,6 +1161,11 @@ class IaWitness(models.Model):
 
     class Meta:
         ordering = ['date', 'id']
+
+    @property
+    def inducted(self):
+        """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
 
     def __str__(self):
         return 'Witnessing %s' % self.date
@@ -1233,6 +1253,11 @@ class Ncca(models.Model):
         ordering = ['-date', '-id']
         unique_together = ('location', 'nc_no')
 
+    @property
+    def inducted(self):
+        """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
+
     def __str__(self):
         return '%s (%s)' % (self.nc_no, self.location)
 
@@ -1279,6 +1304,11 @@ class NccaRca(models.Model):
     legacy = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def inducted(self):
+        """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
 
     def __str__(self):
         return 'RCA %s of %s' % (self.rca_no, self.nc_id)
