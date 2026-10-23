@@ -182,9 +182,9 @@
         <li><b>Header</b> — the parameter and level (e.g. <i>Copper 1 ppm</i>), the laboratory, a <b>year</b> selector, and buttons for <b>All charts</b>, <b>PDF form</b> and, when you are allowed to change them, <b>Edit master</b> and <b>Baseline</b> (administrators; also the chemist who created the chart until its first result / first baseline).</li>
         <li><b>Chart details</b> — equipment and ID, method, CRM detail, certified value and range, description, the current baseline version with its mean and standard deviation, and the four limits.</li>
         <li><b>The graph</b> — monthly results plotted as blue diamonds against the green baseline mean, the amber warning limits (&plusmn;2 SD) and the red action limits (&plusmn;3 SD). A point that falls outside a limit is filled amber or red.</li>
-        <li><b>Monthly table</b> — twelve rows, January to December, with the date, result, status, remark, who performed it, and the baseline result and limits for that row.</li>
+        <li><b>Monthly table</b> — twelve rows, January to December, with the date, result, status, remark, who recorded it, and the baseline result and limits for that row.</li>
         <li><b>Entry form</b> — date, result and remark, with a live preview of the status before you save.</li>
-        <li><b>Sign-off panel</b> — Performed by / Reviewed by / Approved by, and the Review and Approve buttons for those entitled to use them.</li>
+        <li><b>Sign-off panel</b> — Prepared by / Reviewed by / Approved by, and the Sign as preparer, Review and Approve buttons for those entitled to use them.</li>
       </ol>
     </section>
 
@@ -282,7 +282,7 @@
       <ul>
         <li>Open them from <span class="path">QC sidebar &rarr; Control Charts &rarr; Working Standard</span>; choose the year and month on the chart page.</li>
         <li>The <b>February 2026 baseline study</b> is the baseline for February onwards. January 2026 results are judged against the baseline that was in force in January (version 1).</li>
-        <li>Results are recorded, signed (Performed by), reviewed and approved per month in the same way as intermediate checks.</li>
+        <li>Results are recorded, prepared (Prepared by), reviewed and approved per month in the same way as intermediate checks.</li>
       </ul>
     </section>
 
@@ -293,7 +293,7 @@
         <li>Open them from <span class="path">QC sidebar &rarr; Control Charts &rarr; Intermediate Checks &rarr; Monthly Equipment Charts</span>. Choose the <b>equipment chart</b> and the <b>month</b> and press <b>Open monthly chart</b>; the months already on record are listed as links.</li>
         <li><b>New equipment:</b> on the same page, intermediate-check charts without a monthly chart are listed - choose the run (e.g. Feb-2026) and press <b>Create monthly chart</b>; or press <b>Monthly chart from this run</b> on the intermediate-check chart itself. The monthly chart is created with the same equipment, ID, parameter and level, and the run's dated readings are placed in its <b>baseline draft</b>.</li>
         <li>The Lab Manager or the CEO checks the draft (live graph) and presses <b>Finalise baseline</b>. On the chart's Baselines page, <b>Use this run</b> lists every intermediate-check run of the equipment, so a later intermediate check can be adopted as a new baseline version without retyping it.</li>
-        <li>Results are recorded, signed (Performed by), reviewed and approved per month, as for working-standard charts; the PDF is the monthly form with the baseline readings beside the monthly results.</li>
+        <li>Results are recorded, prepared (Prepared by), reviewed and approved per month, as for working-standard charts; the PDF is the monthly form with the baseline readings beside the monthly results.</li>
         <li><b>Several baseline versions:</b> when a later intermediate check is adopted (e.g. the April run after calibration), earlier months keep the version they were judged against and new results go to the current version; each monthly form names its own run in the note under the graph ("established using data from the April intermediate check activity (conducted after calibration)"). The Lahore analytical-balance record (Weight 200 g, March-September 2026) is kept this way: March and April against the February run, May onwards against the April run.</li>
       </ul>
     </section>
@@ -370,7 +370,7 @@
       <p>Each chart is signed off <b>once per record period</b> (the 12-month cycle; one month for intermediate checks and monitoring), mirroring the three signature boxes on the paper form:</p>
       <table class="g">
         <tr><th>Step</th><th>Who</th><th>What it does</th></tr>
-        <tr><td>1. Performed by</td><td>The analyst(s) who recorded results</td><td>Filled automatically from the results. Results imported from the Excel workbooks have no analyst: the analyst signs them with <b>Sign as performer</b> (see <i>Signing imported records</i>). Review is possible only when every result is signed.</td></tr>
+        <tr><td>1. Prepared by</td><td>The analyst who prepared the form on the system</td><td>The name and e-signature of the person who prepared the record. When one analyst recorded every result of the record, that analyst is the preparer automatically. When results were recorded by several analysts, or imported from the Excel workbooks, the analyst who prepares the form clicks <b>Sign as preparer</b> (see <i>Prepared By and signing</i>). Review and approval are possible only once the form has a preparer.</td></tr>
         <tr><td>2. Reviewed by <span class="badge b-warn">QC Manager</span></td><td>The QC / Lab Manager assigned to that laboratory</td><td>Confirms the results, statuses and remarks have been checked. Needs at least one result in the year.</td></tr>
         <tr><td>3. Approved by <span class="badge b-bad">Administrator</span></td><td>CEO / administrator</td><td>Approves and <b>locks</b> the year. Possible only after review. Removes the "NOT APPROVED" watermark from the PDF.</td></tr>
       </table>
@@ -396,16 +396,16 @@
       <p><b>Unapprove</b> reopens the year (confirmation required) - see <a href="#t-unlock">Changing an approved (locked) record</a>. An administrator who is assigned to a laboratory can approve only that laboratory's charts; unassigned administrators can approve either.</p>
     </section>
 
-    <section class="topic" id="t-signimported" data-cat="signoff" data-keywords="sign imported records signature missing performed by blank excel workbook sign as performer bulk signing page many records at once retrospective">
-      <h2><span class="cat-tag">Review &amp; approval</span> <span class="badge b-ok">All analysts</span> Signing imported records and bulk sign-off</h2>
-      <p>The 2026 results imported from the laboratory's Excel workbooks were entered by the system, so they carry no <i>Performed by</i> analyst and the PDF signature boxes are empty. They are signed in the system as follows:</p>
+    <section class="topic" id="t-signimported" data-cat="signoff" data-keywords="prepared by preparer sign as preparer signature missing performed by blank excel workbook imported several analysts bulk signing page many records at once retrospective withdraw">
+      <h2><span class="cat-tag">Review &amp; approval</span> <span class="badge b-ok">All analysts</span> Prepared By and signing (incl. imported records and bulk sign-off)</h2>
+      <p><b>Prepared By</b> (both laboratories, same rule) carries the name and e-signature of the person who actually prepared the form on report.envitechal.com. A record whose results were all recorded by one analyst is prepared by that analyst automatically. A record with results from several analysts, or with results imported from the Excel workbooks (entered by the system, with no analyst), has no preparer until someone signs it:</p>
       <ol>
-        <li><b>Analyst</b> - open the chart and period; the sign-off panel shows <span class="pill warn">12 results not signed (imported)</span>. Click <b>Sign as performer</b> and confirm. Your name and e-signature are printed in the <i>Performed by</i> box (the signing date and time are kept in the audit history but are not printed).</li>
+        <li><b>Analyst</b> - open the chart and period; the sign-off panel shows <span class="pill warn">awaiting the preparer's signature</span>. Click <b>Sign as preparer</b> and confirm. Your name and e-signature are printed in the <i>Prepared By</i> box (the signing date and time are shown on the page and kept in the audit history, not printed); imported results without an analyst are recorded with your name. Until the record is reviewed you (or an administrator) can <b>Withdraw preparer signature</b>. If someone else later changes a result of the record, the Prepared-by signature is cleared and the form is signed again.</li>
         <li><b>QC Manager</b> - click <b>Review</b> (disabled until every result is signed and every out-of-limit result has a remark).</li>
         <li><b>CEO / administrator</b> - click <b>Approve &amp; lock</b>.</li>
       </ol>
-      <p><b>Many records at once:</b> open <span class="path">QC &rsaquo; Control Charts &rsaquo; Sign-off (bulk signing)</span>. Choose the laboratory, chart type and view - <i>Needing the analyst's signature</i>, <i>Signed - awaiting review</i>, <i>Reviewed - awaiting approval</i> or <i>All</i> - tick the records (or the box in the header to tick all) and press <b>Sign selected as performer</b>, <b>Review selected</b> or <b>Approve &amp; lock selected</b>. Only the buttons your role allows are shown; each record passes the same checks as on the chart page, and a record that does not pass is skipped with the reason.</p>
-      <div class="note">Analysts sign only for their own laboratory (the office on their e-signature profile). Sign only work you performed or are responsible for. A review that was made before the results were signed is cleared when they are signed.</div>
+      <p><b>Many records at once:</b> open <span class="path">QC &rsaquo; Control Charts &rsaquo; Sign-off (bulk signing)</span>. Choose the laboratory, chart type and view - <i>Needing the preparer's signature</i>, <i>Prepared - awaiting review</i>, <i>Reviewed - awaiting approval</i> or <i>All</i> - tick the records (or the box in the header to tick all) and press <b>Sign selected as preparer</b>, <b>Review selected</b> or <b>Approve &amp; lock selected</b>. Only the buttons your role allows are shown; each record passes the same checks as on the chart page, and a record that does not pass is skipped with the reason.</p>
+      <div class="note">Analysts sign only for their own laboratory (the office on their e-signature profile). Sign as preparer only a form you prepared or are responsible for. A review made before the form was prepared is cleared when it is signed as preparer, and must be repeated.</div>
     </section>
 
     <section class="topic" id="t-unlock" data-cat="signoff" data-keywords="unlock unapprove approved locked year change correction edit after approval ceo permission reopen re-approve">
@@ -494,14 +494,14 @@
         <li>a dated 20-point baseline and its baseline form;</li>
         <li>results from March to September 2026, two to three analytical batches a week, each with Sample ID and raw working;</li>
         <li>worked warning and out-of-control examples, each with a remark and corrective action, including a result outside the acceptance criterion followed by its re-analysis;</li>
-        <li>the complete three-step sign-off: performed by the analyst, reviewed by the Lab Manager and approved by the CEO.</li>
+        <li>the complete three-step sign-off: prepared by the analyst, reviewed by the Lab Manager and approved by the CEO.</li>
       </ul>
       <p>Every printed form of a training chart carries a <b>TRAINING RECORD</b> watermark, and the chart page shows a training banner. Training charts are not laboratory quality records. Once training is complete, the Lab Manager or CEO deletes them with <b>Delete chart</b>; a reason is required and a copy is kept in the deletion log.</p>
     </section>
 
     <section class="topic" id="t-seed" data-cat="admin" data-keywords="seed import excel workbook command bulk create many charts seed_control_charts json">
       <h2><span class="cat-tag">Creating &amp; managing charts</span> <span class="badge b-bad">Administrator</span> Bulk set-up from Excel workbooks</h2>
-      <p>The 45 Karachi charts were created in bulk from the laboratory's Excel control-chart workbooks using the server command <code>seed_control_charts</code>. This is a system-administrator task, not something done from the browser; ask the system administrator if a large batch of new charts is needed. The Lahore 2026 records (CRM, intermediate checks, laboratory temperature and humidity, visi-cooler and the daily balance check) were loaded on 10-10-2026 from the Lahore workbooks with the command <code>import_cc_spec</code>: values that differed from the workbook were corrected with a traceable note (<i>[Corrected dd-mm-yyyy from the laboratory workbook: was &hellip;]</i>), duplicate charts holding results were retired, and the unused placeholder charts copied from Karachi were retired. Imported results carry no <i>Performed by</i> signature until the analyst signs them - see <a href="#t-signimported">Signing imported records</a>. Day-to-day, use <a href="#t-create">Creating a new control chart</a>.</p>
+      <p>The 45 Karachi charts were created in bulk from the laboratory's Excel control-chart workbooks using the server command <code>seed_control_charts</code>. This is a system-administrator task, not something done from the browser; ask the system administrator if a large batch of new charts is needed. The Lahore 2026 records (CRM, intermediate checks, laboratory temperature and humidity, visi-cooler and the daily balance check) were loaded on 10-10-2026 from the Lahore workbooks with the command <code>import_cc_spec</code>: values that differed from the workbook were corrected with a traceable note (<i>[Corrected dd-mm-yyyy from the laboratory workbook: was &hellip;]</i>), duplicate charts holding results were retired, and the unused placeholder charts copied from Karachi were retired. Imported results have no analyst, so the form needs a <i>Prepared by</i> signature - see <a href="#t-signimported">Signing imported records</a>. Day-to-day, use <a href="#t-create">Creating a new control chart</a>.</p>
     </section>
 
     <!-- ============ LISTS & ARCHIVE ============ -->
@@ -577,7 +577,7 @@
 
 <footer>
   <div><b>Envi Tech AL — Control Charts module.</b> Internal user manual. Applies to the Karachi and Lahore laboratories. Form ETAL-LAB-604-FF-11; procedure ETAL-LAB-P-604.</div>
-  <div style="margin-top:4px">Revision 8 — 23-10-2026 (per-chart document-control numbers with issue date and revision; monthly equipment charts with several baseline versions and the run named in the form note; Lahore analytical-balance record re-filed under Monthly Equipment Charts). Revision 7 — 13-10-2026 reflected the module as deployed on 13-10-2026 (monthly equipment charts under Intermediate Checks with the intermediate-check run as baseline, Working Standard charts, live baseline entry with draft and finalising by the Lab Manager / CEO, one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log, raw working for duplicates and spikes, training / reference charts) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
+  <div style="margin-top:4px">Revision 9 — 23-10-2026 (Prepared By replaces Performed By in both laboratories: the e-signature of the person who prepared the form on the system; Sign as preparer, withdraw, review and approval require a preparer). Revision 8 — 23-10-2026 (per-chart document-control numbers with issue date and revision; monthly equipment charts with several baseline versions and the run named in the form note; Lahore analytical-balance record re-filed under Monthly Equipment Charts). Revision 7 — 13-10-2026 reflected the module as deployed on 13-10-2026 (monthly equipment charts under Intermediate Checks with the intermediate-check run as baseline, Working Standard charts, live baseline entry with draft and finalising by the Lab Manager / CEO, one chart per baseline, dated baseline forms and list of baselines, range per baseline, no date/time stamps on forms, graph heading = form description, Karachi weather-station and visi-cooler records, deletion by QC / Lab Manager and CEO with deletion log, raw working for duplicates and spikes, training / reference charts) and was reconciled against the deployed code. For controlled outputs, always work from the live system.</div>
 </footer>
 
 <script>

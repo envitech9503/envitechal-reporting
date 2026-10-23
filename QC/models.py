@@ -714,6 +714,11 @@ class ControlChartSignoff(models.Model):
     approved_by = models.ForeignKey('auth.User', null=True, blank=True,
                                     on_delete=models.SET_NULL, related_name='+')
     approved_at = models.DateTimeField(null=True, blank=True)
+    # Prepared By (owner request 23-10-2026, both laboratories): the analyst who prepared the form on the system
+    # and signed it as preparer. Blank = derived from the results when one analyst recorded them all.
+    prepared_by = models.ForeignKey('auth.User', null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name='+')
+    prepared_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = ('chart', 'year', 'month')

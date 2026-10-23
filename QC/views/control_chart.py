@@ -1,6 +1,6 @@
 """QC Control Charts (form ETAL-LAB-604-FF-11) - views. 07-10-2026.
 
-Roles: any logged-in user records a monthly result (stamped as Performed By);
+Roles: any logged-in user records a monthly result (stamped with the analyst); the form is signed as Prepared By;
 'review' = superuser, Django group "QC Manager", or a Signatures role containing
 "QC"/"Manager"; 'approve' (and baseline / chart master changes) = superuser.
 An approved year is locked for everyone except superusers.
@@ -666,6 +666,7 @@ def control_chart_detail(request, pk):
     rows, extra_base = period_rows(chart, lim, b.values if (b and not chart.no_baseline) else [], results, year, month)
     svg = render_chart(chart, lim, results, year, month, 'svg').decode('utf-8') if (lim or (chart.self_limited and results)) else ''
     so = _signoff(chart, year, month)
+    prep, prep_explicit, analysts = _preparer(chart, year, month, all_r, so)
     cur = chart.current_baseline()
     user = request.user
     lim_f = {k: _fmt(v, chart.decimals) for k, v in (lim or {}).items() if k != 'spec'}
@@ -691,6 +692,9 @@ def control_chart_detail(request, pk):
         'run_js': _json.dumps({str(x.pk): x.value for x in results}) if chart.self_limited else '{}',
         'n_missing': sum(1 for x in all_r if x.status != 'ok' and not (x.remark or '').strip()),
         'n_unsigned': sum(1 for x in all_r if not x.performed_by_id),
+        'prep': prep, 'prep_explicit': prep_explicit, 'analysts': analysts,
+        'can_unprepare': bool(prep_explicit and so and not so.reviewed_at and not so.approved_at and user.is_authenticated
+                              and (so.prepared_by_id == user.pk or _is_admin(user))),
         'can_delete': _can_delete(user, chart), 'n_results_all': chart.results.count(),
         'my_office_ok': (not _user_office(user)) or _user_office(user) == chart.location or _is_admin(user),
         'eq_chart': chart.eq_chart() if chart.activity == 'IC' else None,
@@ -892,14 +896,20 @@ def control_chart_result_save(request, pk):
         if r.status != status:
             _msg.info(request, 'With this reading included the run limits changed; it is now judged %s.' % _st(chart, r))
     _warn_missing_remarks(request, chart, py, pm)
-    # a content change after review/approval clears the sign-off (superuser edits included)
+    # a content change after review/approval clears the sign-off (superuser edits included); a change by someone other
+    # than the analyst who signed as preparer also clears the Prepared-by signature (23-10-2026)
     for sy, sm in {(py, pm), (old_py, old_pm)} - {(None, None)}:
         so = _signoff(chart, sy, sm)
-        if so and (so.reviewed_at or so.approved_at):
+        if so is None:
+            continue
+        prep = _clear_preparer_if_other(so, user)
+        if so.reviewed_at or so.approved_at:
             so.reviewed_by = so.approved_by = None
             so.reviewed_at = so.approved_at = None
-            so.save()
             _msg.warning(request, 'Review/approval for %s was cleared because a result changed.' % _plabel(chart, sy, sm))
+        if prep:
+            _msg.warning(request, 'The Prepared-by signature of %s was cleared because the record changed; the preparer signs again.' % _plabel(chart, sy, sm))
+        so.save()
     return _redirect(f"/qc/control-charts/{pk}/{_pq(py, pm)}")
 
 
@@ -948,6 +958,9 @@ def control_chart_result_delete(request, pk, rid):
         so.reviewed_by, so.reviewed_at = None, None
         so.save()
         _msg.warning(request, 'The review of %s was cleared because a result was deleted.' % _plabel(chart, py, pm))
+    if so and _clear_preparer_if_other(so, request.user):
+        so.save()
+        _msg.warning(request, 'The Prepared-by signature of %s was cleared because a result was deleted; the preparer signs again.' % _plabel(chart, py, pm))
     _msg.success(request, 'Result deleted (reason recorded in the deletion log).')
     _warn_missing_remarks(request, chart, py, pm)
     return back
@@ -964,8 +977,35 @@ def _user_office(user):
 
 
 def _unsigned(chart, year, month=0):
-    """Results of the period without a 'Performed by' analyst (records imported from the workbooks)."""
+    """Results of the period without an analyst (records imported from the workbooks)."""
     return [x for x in _period_results(chart, year, month) if not x.performed_by_id]
+
+
+def _preparer(chart, year, month=0, results=None, so=None):
+    """Prepared By of a record period (owner request 23-10-2026, both laboratories): the person who prepared the
+    form on the system. Returns (user | None, explicit, analysts): the analyst who signed the period as preparer;
+    otherwise the single analyst who recorded every result of the period; otherwise nobody (several analysts or
+    imported results - someone must sign as preparer). `analysts` lists everyone who recorded results."""
+    rs = results if results is not None else _period_results(chart, year, month)
+    so = so if so is not None else _signoff(chart, year, month)
+    analysts = []
+    for r in rs:
+        if r.performed_by_id and r.performed_by not in analysts:
+            analysts.append(r.performed_by)
+    if so is not None and so.prepared_by_id:
+        return so.prepared_by, True, analysts
+    if rs and len(analysts) == 1 and all(r.performed_by_id for r in rs):
+        return analysts[0], False, analysts
+    return None, False, analysts
+
+
+def _clear_preparer_if_other(so, user):
+    """A result changed by someone other than the analyst who signed the period as preparer: the form must be
+    prepared (signed) again. Returns True when the signature was cleared."""
+    if so is not None and so.prepared_by_id and not (user and user.is_authenticated and so.prepared_by_id == user.pk):
+        so.prepared_by, so.prepared_at = None, None
+        return True
+    return False
 
 
 def _apply_signoff(user, chart, year, month, action):
@@ -973,24 +1013,47 @@ def _apply_signoff(user, chart, year, month, action):
     status 'ok' | 'error' | 'forbidden'. Shared by the chart page and the bulk signing page."""
     plabel = _plabel(chart, year, month)
     so = _signoff(chart, year, month)
-    if action in ('review', 'unreview', 'sign') and so and so.approved_at:
+    if action in ('review', 'unreview', 'sign', 'unprepare') and so and so.approved_at:
         return 'error', 'The %s record is approved and locked - it must be unapproved first.' % plabel
     if action == 'sign':
+        # Sign as preparer (23-10-2026): the analyst who prepared the form signs it; results without an analyst
+        # (imported records) are stamped with the preparer
         office = _user_office(user)
         if not (user and user.is_authenticated):
             return 'forbidden', 'Please sign in.'
         if office and office != chart.location and not _is_admin(user):
-            return 'forbidden', 'You work in the %s laboratory; %s records are signed by %s analysts.' % (office, chart.location, chart.location)
-        miss = _unsigned(chart, year, month)
-        if not miss:
-            return 'error', 'All %s results already carry a Performed-by signature.' % plabel
+            return 'forbidden', 'You work in the %s laboratory; %s records are prepared by %s analysts.' % (office, chart.location, chart.location)
+        rs = _period_results(chart, year, month)
+        if not rs:
+            return 'error', 'There are no %s results to prepare yet.' % plabel
+        who, explicit, _an = _preparer(chart, year, month, rs, so)
+        if who is not None:
+            return 'error', '%s is already prepared by %s%s.' % (plabel, _uname(who), '' if explicit else ' (recorded every result)')
         now = _tz.now()
-        ControlChartResult.objects.filter(pk__in=[x.pk for x in miss]).update(performed_by=user, performed_at=now)
-        if so and so.reviewed_at:                 # a review made before the record was signed is not valid
+        miss = [x.pk for x in rs if not x.performed_by_id]
+        if miss:
+            ControlChartResult.objects.filter(pk__in=miss).update(performed_by=user, performed_at=now)
+        if so is None:
+            so = ControlChartSignoff(chart=chart, year=year, month=month)
+        cleared = bool(so.reviewed_at)
+        if cleared:                                # a review made before the form was prepared is not valid
             so.reviewed_by = so.reviewed_at = None
-            so.save()
-        return 'ok', 'You signed %d result%s of %s as Performed by (signed %s).' % (
-            len(miss), '' if len(miss) == 1 else 's', plabel, _tz.localtime(now).strftime('%d-%m-%Y %H:%M'))
+        so.prepared_by, so.prepared_at = user, now
+        so.save()
+        return 'ok', 'You signed %s as Prepared by (%s)%s%s.' % (
+            plabel, _tz.localtime(now).strftime('%d-%m-%Y %H:%M'),
+            ('; %d imported result%s now carr%s your name' % (len(miss), '' if len(miss) == 1 else 's', 'ies' if len(miss) == 1 else 'y')) if miss else '',
+            '; the earlier review was cleared and must be repeated' if cleared else '')
+    if action == 'unprepare':
+        if so is None or not so.prepared_by_id:
+            return 'error', '%s carries no Prepared-by signature to withdraw.' % plabel
+        if not (user and user.is_authenticated and (so.prepared_by_id == user.pk or _is_admin(user))):
+            return 'forbidden', 'Only %s (who signed as preparer) or an administrator can withdraw the signature.' % _uname(so.prepared_by)
+        if so.reviewed_at:
+            return 'error', '%s is already reviewed - the QC Manager must undo the review first.' % plabel
+        so.prepared_by, so.prepared_at = None, None
+        so.save()
+        return 'ok', 'Prepared-by signature withdrawn: %s.' % plabel
     if so is None:
         so = ControlChartSignoff(chart=chart, year=year, month=month)
     if action == 'review':
@@ -998,10 +1061,12 @@ def _apply_signoff(user, chart, year, month, action):
             return 'forbidden', 'Review is reserved for the QC Manager of the %s laboratory.' % chart.location
         if not _period_results(chart, year, month):
             return 'error', 'There are no %s results to review yet.' % plabel
-        uns = _unsigned(chart, year, month)
-        if uns:
-            return 'error', 'Cannot review %s yet: %d result%s %s no Performed-by signature (imported records) - the analyst signs first.' % (
-                plabel, len(uns), '' if len(uns) == 1 else 's', 'has' if len(uns) == 1 else 'have')
+        who, _ex, analysts = _preparer(chart, year, month, so=so)
+        if who is None:
+            uns = _unsigned(chart, year, month)
+            return 'error', 'Cannot review %s yet: the form has no Prepared-by signature (%s) - the analyst who prepared it signs as preparer first.' % (
+                plabel, ('%d imported result%s without an analyst' % (len(uns), '' if len(uns) == 1 else 's')) if uns else
+                'results recorded by %s' % ', '.join(_uname(u) for u in analysts))
         miss = _missing_remarks(chart, year, month)
         if miss:
             return 'error', 'Cannot review %s yet: %s outside the limits without a remark / corrective action (%s).' % (
@@ -1012,6 +1077,8 @@ def _apply_signoff(user, chart, year, month, action):
             return 'forbidden', 'Approval of %s laboratory charts is reserved for an administrator of that laboratory.' % chart.location
         if not so.reviewed_at:
             return 'error', 'The %s record must be reviewed before it can be approved.' % plabel
+        if _preparer(chart, year, month, so=so)[0] is None:
+            return 'error', 'The %s record has no Prepared-by signature - the analyst who prepared it signs as preparer first.' % plabel
         if so.approved_at:
             return 'error', 'The %s record is already approved.' % plabel
         so.approved_by, so.approved_at = user, _tz.now()
@@ -1040,7 +1107,7 @@ def control_chart_signoff(request, pk):
     except Exception:
         return HttpResponse('year (and month for intermediate checks / monitoring) required', status=400)
     action = request.POST.get('action')
-    if action not in ('review', 'approve', 'unapprove', 'unreview', 'sign'):
+    if action not in ('review', 'approve', 'unapprove', 'unreview', 'sign', 'unprepare'):
         return HttpResponse('unknown action', status=400)
     st, text = _apply_signoff(request.user, chart, year, month, action)
     if st == 'forbidden':
@@ -1051,8 +1118,8 @@ def control_chart_signoff(request, pk):
 
 # ---------------------------------------------------------------- bulk signing (imported records, 10-10-2026)
 def control_chart_signing(request):
-    """Sign-off of many record periods at once: analysts sign the imported results as
-    Performed by, the QC Manager reviews and the CEO / administrator approves.
+    """Sign-off of many record periods at once: the analyst who prepared each form signs it as
+    Prepared by, the QC Manager reviews and the CEO / administrator approves.
     Every row goes through exactly the same checks as the buttons on the chart page."""
     user = request.user
     loc = request.GET.get('location') or _user_office(user) or _default_loc(request)
@@ -1077,7 +1144,7 @@ def control_chart_signing(request):
                 done += 1
             else:
                 problems.append('%s [%s]: %s' % (c.title, c.equipment_id or '-', text))
-        verb = {'sign': 'signed as Performed by', 'review': 'reviewed', 'approve': 'approved and locked'}[action]
+        verb = {'sign': 'signed as Prepared by', 'review': 'reviewed', 'approve': 'approved and locked'}[action]
         if done:
             _msg.success(request, '%d record%s %s.' % (done, '' if done == 1 else 's', verb))
         for t in problems[:8]:
@@ -1095,17 +1162,31 @@ def control_chart_signing(request):
     for r in ControlChartResult.objects.filter(chart_id__in=list(charts)).only('chart_id', 'date', 'status', 'remark', 'performed_by_id'):
         c = charts[r.chart_id]
         y, m = _qs_period(c, r.date)
-        a = agg.setdefault((c.id, y, m), {'n': 0, 'unsigned': 0, 'missing': 0, 'last': r.date})
+        a = agg.setdefault((c.id, y, m), {'n': 0, 'unsigned': 0, 'missing': 0, 'last': r.date, 'analysts': set()})
         a['n'] += 1
         a['unsigned'] += 0 if r.performed_by_id else 1
+        if r.performed_by_id:
+            a['analysts'].add(r.performed_by_id)
         a['missing'] += 1 if (r.status != 'ok' and not (r.remark or '').strip()) else 0
         a['last'] = max(a['last'], r.date)
-    sos = {(x.chart_id, x.year, x.month): x for x in ControlChartSignoff.objects.filter(chart_id__in=list(charts))}
+    sos = {(x.chart_id, x.year, x.month): x for x in ControlChartSignoff.objects.filter(chart_id__in=list(charts)).select_related('prepared_by')}
+    names = {}
+    ids = {i for a in agg.values() for i in a['analysts']}
+    for u in User.objects.filter(pk__in=ids):
+        names[u.pk] = _uname(u)
     rows = []
     for (cid, y, m), a in agg.items():
         c, so = charts[cid], sos.get((cid, y, m))
         reviewed, approved = bool(so and so.reviewed_at), bool(so and so.approved_at)
-        stage = 'approved' if approved else 'review_done' if reviewed else 'sign' if a['unsigned'] else 'review'
+        # Prepared By: the analyst who signed as preparer, else the single analyst who recorded every result
+        if so is not None and so.prepared_by_id:
+            prep, prep_explicit = _uname(so.prepared_by), True
+        elif a['n'] and not a['unsigned'] and len(a['analysts']) == 1:
+            prep, prep_explicit = names.get(next(iter(a['analysts'])), ''), False
+        else:
+            prep, prep_explicit = '', False
+        a = dict(a, analysts=sorted(names.get(i, '') for i in a['analysts']))
+        stage = 'approved' if approved else 'sign' if not prep else 'review_done' if reviewed else 'review'
         if show == 'sign' and stage != 'sign':
             continue
         if show == 'review' and stage != 'review':
@@ -1113,7 +1194,7 @@ def control_chart_signing(request):
         if show == 'approve' and stage != 'review_done':
             continue
         rows.append({'c': c, 'key': '%d:%d:%d' % (cid, y, m), 'period': _plabel(c, y, m), 'pq': _pq(y, m), 'stage': stage,
-                     'reviewed': reviewed, 'approved': approved, 'so': so, **a})
+                     'reviewed': reviewed, 'approved': approved, 'so': so, 'prep': prep, 'prep_explicit': prep_explicit, **a})
     order = {a_: i for i, a_ in enumerate(_CC_ACTS)}
     rows.sort(key=lambda r: (order.get(r['c'].activity, 9), r['c'].parameter, r['c'].level, r['c'].equipment_id, r['period']))
     return render(request, 'control_chart_signing.html', {
@@ -1918,13 +1999,8 @@ def control_chart_pdf(request, pk):
     blk_h = max(MIN_H, min(MAX_H, avail))
     top = _FOOT_TOP - blk_h                      # anchor the block to the footer
     pdf.set_auto_page_break(False)               # the block is positioned absolutely
-    performed_users = []
-    for r in results:
-        if r.performed_by and r.performed_by not in performed_users:
-            performed_users.append(r.performed_by)
-    perf_names = ', '.join(_uname(u) for u in performed_users)
-    perf_sig = _sig_image(performed_users[0]) if len(performed_users) == 1 else None
-    panels = [('Performed By', '(Chemist)', perf_names, perf_sig),
+    prep, _ex, _an = _preparer(chart, year, month, so=so)       # Prepared By = who prepared the form on the system
+    panels = [('Prepared By', '(Chemist)', _uname(prep) if prep else '', _sig_image(prep) if prep else None),
               ('Reviewed By', '(QC Manager)', _uname(so.reviewed_by) if so and so.reviewed_at else '',
                _sig_image(so.reviewed_by) if so and so.reviewed_at else None),
               ('Approved By', '(CEO)', _uname(so.approved_by) if approved else '',
@@ -2052,7 +2128,7 @@ def _baseline_pdf_body(request, chart, bl, pdf, f, kv_row, ctrl, plabel, LINE, G
     top = _FOOT_TOP - blk_h
     pdf.set_auto_page_break(False)
     who = bl.created_by
-    panels = [('Performed By', '(Chemist)', _uname(who) if who else '', _sig_image(who) if who else None),
+    panels = [('Prepared By', '(Chemist)', _uname(who) if who else '', _sig_image(who) if who else None),
               ('Reviewed By', '(QC Manager)', '', None), ('Approved By', '(CEO)', '', None)]
     _sig_panels(pdf, f, panels, top, blk_h, LINE, GREY_FILL)
     pdf.set_draw_color(0, 0, 0)
