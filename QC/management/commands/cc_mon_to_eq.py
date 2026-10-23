@@ -97,7 +97,7 @@ class Command(BaseCommand):
                 if state != 'open':
                     blocked.append(r)
             if blocked and not o['force']:
-                lines.append('  REFUSED: %d result(s) of reviewed / approved months would change status - re-run with --force after the '
+                lines.append('  REFUSED: %d result(s) of reviewed / approved months would change status - re-run with --apply --force after the '
                              'laboratory has agreed, or reopen those months first' % len(blocked))
                 transaction.set_rollback(True)
                 self.stdout.write('\n'.join(lines))

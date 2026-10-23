@@ -1571,10 +1571,16 @@ def control_chart_edit(request, pk=None):
         target.save()
         if pk is not None:
             # the chart's own document-control row (Document Control page) follows a number changed on the master
-            # and the chart's laboratory (23-10-2026)
+            # and the chart's laboratory (23-10-2026); only an administrator may change or remove the number
+            # through the master - another editor's master keeps the row's number
             own = InventoryDocControl.objects.filter(module=_chart_doc_module(target)).first()
             if own is not None:
-                if not (target.doc_no or '').strip():
+                if not _is_admin(request.user):
+                    if (target.doc_no or '').strip() != own.doc_no:
+                        ControlChart.objects.filter(pk=target.pk).update(doc_no=own.doc_no)
+                    if own.location != target.location:
+                        own.location = target.location; own.save()
+                elif not (target.doc_no or '').strip():
                     own.delete()
                 elif own.doc_no != target.doc_no.strip() or own.location != target.location:
                     own.doc_no, own.location, own.updated_by = target.doc_no.strip(), target.location, request.user
