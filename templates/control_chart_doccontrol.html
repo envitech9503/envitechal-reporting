@@ -24,6 +24,42 @@
     {% endfor %}
     </tbody>
   </table>
+</div>
+
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-file-signature"></i> Charts with their own form number</div></div>
+  <div class="msg info">Where one laboratory keeps separate controlled forms for charts of the same type - for example the Lahore environmental sheets ETAL-LAB-603-FF-07 (laboratory temperature), 07A (laboratory humidity) and 07B (visi-cooler temperature) - the chart carries its own number, issue date, issue and revision numbers here. They are printed in the control box of that chart's pages and PDFs instead of the laboratory's form number above. <b>Clear</b> returns the chart to the laboratory's form number.</div>
+  <table style="--x:0">
+    <thead><tr><th>Laboratory</th><th>Chart</th><th>Document No.</th><th>Issue date</th><th>Issue No.</th><th>Rev. No.</th><th>Printed as</th><th>Last updated</th><th></th></tr></thead>
+    <tbody>
+    {% for r in own %}
+      <tr>
+        <td><b>{{ r.c.location }}</b><form method="post" id="ownf{{ r.c.pk }}">{% csrf_token %}<input type="hidden" name="chart" value="{{ r.c.pk }}"></form></td>
+        <td><a href="{% url 'control_chart_detail' r.c.pk %}" style="color:#0f5132;font-weight:700">#{{ r.c.pk }}</a> {{ r.c.activity }} &middot; {{ r.c.parameter }}{% if r.c.level %} {{ r.c.level }}{% endif %}<br><span class="muted">{{ r.c.equipment }} {{ r.c.equipment_id }}</span>{% if r.from_master %}<br><span class="pill none" title="The number was typed on the chart master; save it here to add the issue date and revision">from chart master</span>{% endif %}</td>
+        <td><input form="ownf{{ r.c.pk }}" name="doc_no" value="{{ r.doc_no }}" placeholder="e.g. ETAL-LAB-603-FF-07A" style="width:190px"></td>
+        <td><input form="ownf{{ r.c.pk }}" name="issue_date" value="{{ r.issue_date }}" placeholder="dd-mm-yyyy" style="width:110px"></td>
+        <td><input form="ownf{{ r.c.pk }}" name="issue_no" value="{{ r.issue_no }}" style="width:60px"></td>
+        <td><input form="ownf{{ r.c.pk }}" name="rev_no" value="{{ r.rev_no }}" style="width:60px"></td>
+        <td><span class="pill ok">{{ r.shown }}</span></td>
+        <td class="muted">{% if r.updated %}{{ r.updated|date:"d-m-Y H:i" }} {{ r.by.username|default:"" }}{% else %}-{% endif %}</td>
+        <td class="nw"><button form="ownf{{ r.c.pk }}" class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+          <button form="ownf{{ r.c.pk }}" class="btn" type="submit" name="action" value="clear" onclick="return confirm('Remove the chart\'s own number? Its forms will print the laboratory\'s form number.')"><i class="fa-solid fa-eraser"></i> Clear</button></td>
+      </tr>
+    {% empty %}<tr><td colspan="9" class="empty">No chart carries its own form number yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <form method="post" class="toolbar" style="padding:10px 18px;gap:10px;flex-wrap:wrap">{% csrf_token %}
+    <label>Give another chart its own number
+      <select name="chart" required style="max-width:520px">
+        <option value="">- choose a chart -</option>
+        {% for c in others %}<option value="{{ c.pk }}">#{{ c.pk }} {{ c.location }} {{ c.activity }} - {{ c.parameter }}{% if c.level %} {{ c.level }}{% endif %} ({{ c.equipment }} {{ c.equipment_id }})</option>{% endfor %}
+      </select></label>
+    <label>Document No. <input name="doc_no" required placeholder="e.g. ETAL-LAB-603-FF-07B" style="width:190px"></label>
+    <label>Issue date <input name="issue_date" placeholder="dd-mm-yyyy" style="width:110px"></label>
+    <label>Issue No. <input name="issue_no" value="01" style="width:60px"></label>
+    <label>Rev. No. <input name="rev_no" value="00" style="width:60px"></label>
+    <button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> Add</button>
+  </form>
   <div class="muted" style="padding:10px 18px">
     <b>Footer printed on PDFs</b><br>
     {% for loc, o in office.items %}{{ loc }}: {{ o.tel }} &middot; {{ o.address }}<br>{% endfor %}

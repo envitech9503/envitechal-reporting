@@ -71,13 +71,56 @@ def _post_or_back(view):
     return inner
 
 
+def _chart_doc_module(chart):
+    """InventoryDocControl module key of a chart's own document-control row (23-10-2026)."""
+    return 'cc_chart_%d' % chart.pk
+
+
 def _chart_docctrl(chart):
     """Form numbers for a chart: the laboratory's form number, unless the chart carries its own
-    document number (e.g. Lahore ETAL-LAB-603-FF-07 / -07A / -07B for the environmental sheets)."""
+    document number (e.g. Lahore ETAL-LAB-603-FF-07 / -07A / -07B for the environmental sheets).
+    Since 23-10-2026 a chart's own row on the Document Control page (number, issue date, issue and
+    revision numbers, admin-maintained) takes precedence; a bare chart-master number is the fallback."""
     d = dict(_cc_docctrl(chart.location, chart.activity))
-    if (chart.doc_no or '').strip():
-        d.update(doc_no=chart.doc_no.strip(), set=True)
+    try:
+        own = InventoryDocControl.objects.filter(module=_chart_doc_module(chart), location=chart.location).first()
+    except Exception:
+        own = None
+    if own is not None and (own.doc_no or '').strip():
+        d.update(doc_no=own.doc_no.strip(), issue_date=(own.issue_date or '').strip() or '-', issue_no=own.issue_no or '01',
+                 rev_no=own.rev_no or '00', set=True, own=True)
+    elif (chart.doc_no or '').strip():
+        d.update(doc_no=chart.doc_no.strip(), set=True, own=True)
+    else:
+        d['own'] = False
     return d
+
+
+def _sop_note(chart, b=None):
+    """SOP note printed under a form. Monthly equipment charts (EQ) describe the intermediate-check run the
+    period was judged against (month and purpose read from the baseline, 23-10-2026); other charts keep the
+    wording of their activity profile."""
+    note = chart.profile['note']
+    if chart.activity != 'EQ' or b is None:
+        return note
+    import datetime as _dt
+    d = None
+    try:
+        d = _dt.date.fromisoformat(str((b.dates or [None])[0])) if b.dates else None
+    except Exception:
+        d = None
+    d = d or b.established_on
+    month = _MONTHS[d.month - 1] if d else None
+    full = {'Jan': 'January', 'Feb': 'February', 'Mar': 'March', 'Apr': 'April', 'May': 'May', 'Jun': 'June', 'Jul': 'July',
+            'Aug': 'August', 'Sep': 'September', 'Oct': 'October', 'Nov': 'November', 'Dec': 'December'}.get(month, month)
+    nl = (b.note or '').lower()
+    purpose = 'after calibration' if 'calibration' in nl else ('before PT' if 'pt' in nl.split() or 'before pt' in nl else '')
+    if not full:
+        return note
+    return ('The baseline results were established using data from the %s intermediate check activity, as per the procedure '
+            'ETAL-LAB-P-604 (two intermediate check activities are planned: one after calibration and the other before PT). '
+            'Accordingly, the results from the %s activity%s were used to establish the baseline, and the monthly results are '
+            'plotted against this baseline.' % (full, full, (' (conducted %s)' % purpose) if purpose else ''))
 
 
 def _uname(user):
@@ -328,7 +371,10 @@ def _restatus_chart(chart):
             _restatus_run(chart, y, m)
         return
     for r in chart.results.all():
-        b = (r.baseline or chart.baseline_for(r.date)) if chart.mon_mode == 'baseline' else None
+        if chart.activity == 'MON':
+            b = (r.baseline or chart.baseline_for(r.date)) if chart.mon_mode == 'baseline' else None
+        else:
+            b = r.baseline or chart.current_baseline()         # CRM / RM / EQ: the baseline the result was judged against
         lim = chart.spec_limits(b) if chart.fixed_limits else (b.limits() if b else None)
         st = chart.classify(lim, r.value, b)
         upd = {}
@@ -505,6 +551,25 @@ def control_chart_doccontrol(request):
     if not _is_admin(request.user):
         return HttpResponse('Document-control numbers are maintained by an administrator.', status=403)
     if request.method == 'POST':
+        if (request.POST.get('chart') or '').isdigit():
+            # a chart's own form number (23-10-2026, Lahore environmental sheets 603-FF-07 / 07A / 07B)
+            chart = get_object_or_404(ControlChart, pk=int(request.POST['chart']))
+            obj, _ = InventoryDocControl.objects.get_or_create(module=_chart_doc_module(chart), location=chart.location)
+            if request.POST.get('action') == 'clear':
+                obj.delete()
+                ControlChart.objects.filter(pk=chart.pk).update(doc_no='')
+                _msg.success(request, 'Chart #%d now prints the %s %s form number.' % (chart.pk, chart.location, chart.activity))
+                return _redirect('control_chart_doccontrol')
+            obj.doc_no = (request.POST.get('doc_no') or '').strip()[:60]
+            obj.issue_date = (request.POST.get('issue_date') or '').strip()[:20]
+            obj.issue_no = (request.POST.get('issue_no') or '').strip()[:10] or '01'
+            obj.rev_no = (request.POST.get('rev_no') or '').strip()[:10] or '00'
+            obj.updated_by = request.user
+            obj.save()
+            ControlChart.objects.filter(pk=chart.pk).update(doc_no=obj.doc_no)     # the chart master mirrors the number
+            _msg.success(request, 'Document control updated for chart #%d (%s - %s%s).' % (
+                chart.pk, chart.location, chart.parameter, (' ' + chart.level) if chart.level else ''))
+            return _redirect('control_chart_doccontrol')
         loc, act = request.POST.get('location'), request.POST.get('activity')
         if loc not in _CC_LOCS or act not in _CC_ACTS:
             return HttpResponse('bad request', status=400)
@@ -526,7 +591,19 @@ def control_chart_doccontrol(request):
                          'doc_no': raw.doc_no if raw else '', 'issue_date': raw.issue_date if raw else '',
                          'issue_no': d['issue_no'], 'rev_no': d['rev_no'], 'shown': d['doc_no'], 'set': d['set'],
                          'updated': raw.updated_at if raw else None, 'by': raw.updated_by if raw else None})
-    return render(request, 'control_chart_doccontrol.html', {'grid': grid, 'office': _CC_OFFICE})
+    # charts that carry their own form number (a Document Control row, or a number on the chart master)
+    own_rows = {o.module: o for o in InventoryDocControl.objects.filter(module__startswith='cc_chart_')}
+    own_ids = {int(k.split('_')[-1]) for k in own_rows if k.split('_')[-1].isdigit()}
+    charts = ControlChart.objects.filter(_Q(pk__in=own_ids) | ~_Q(doc_no='')).order_by('location', 'activity', 'parameter', 'level')
+    own = []
+    for c in charts:
+        o = own_rows.get(_chart_doc_module(c))
+        own.append({'c': c, 'doc_no': (o.doc_no if o else '') or c.doc_no, 'issue_date': o.issue_date if o else '',
+                    'issue_no': (o.issue_no if o else '') or '01', 'rev_no': (o.rev_no if o else '') or '00',
+                    'shown': _chart_docctrl(c)['doc_no'], 'updated': o.updated_at if o else None, 'by': o.updated_by if o else None,
+                    'from_master': bool(c.doc_no) and o is None})
+    others = ControlChart.objects.filter(active=True).exclude(pk__in=[r['c'].pk for r in own]).order_by('location', 'activity', 'parameter', 'level')
+    return render(request, 'control_chart_doccontrol.html', {'grid': grid, 'office': _CC_OFFICE, 'own': own, 'others': others})
 
 
 # ---------------------------------------------------------------- user manual
@@ -593,7 +670,7 @@ def control_chart_detail(request, pk):
         'versions': view['versions'], 'bv': view['bv'], 'all_results': all_r,
         'can_enter': True, 'old_version': bool(b is not None and cur is not None and b.pk != cur.pk and chart.mon_mode != 'baseline' and not chart.no_baseline),
         'cur': cur, 'baseline_list': _baseline_list(chart), 'range_txt': chart.range_text(),
-        'so': so, 'docctrl': _chart_docctrl(chart), 'sop_note': chart.profile['note'],
+        'so': so, 'docctrl': _chart_docctrl(chart), 'sop_note': _sop_note(chart, b),
         'locked': _year_locked(chart, year, user, month), 'can_review': _can_review(user, chart), 'can_approve': _can_approve(user, chart),
         'can_admin': _is_admin(user), 'can_edit_master': _can_edit_master(user, chart), 'can_set_baseline': _can_set_baseline(user, chart) and not chart.no_baseline,
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
@@ -1769,7 +1846,7 @@ def control_chart_pdf(request, pk):
         # size the chart to the space that is left, measuring the remarks and the SOP note, so that the
         # signature block (min _SIG_MIN mm) stays on the same page (11-10-2026)
         rem_txt = ['%s  (%s):  %s' % (r['date'], _rem_label(chart, r['status']), r['remark']) for r in rows if r['remark']]
-        text_h = (4.7 + sum(_text_h(pdf, f, 7.2, 3.8, t) for t in rem_txt) if rem_txt else 0.0) + 0.8 + _text_h(pdf, f, 6.8, 3.4, chart.profile['note'])
+        text_h = (4.7 + sum(_text_h(pdf, f, 7.2, 3.8, t) for t in rem_txt) if rem_txt else 0.0) + 0.8 + _text_h(pdf, f, 6.8, 3.4, _sop_note(chart, b))
         space = _FOOT_TOP - pdf.get_y() - 1.5 - text_h - 2.5 - _SIG_MIN - 1.0
         # 19-10-2026 (Lab Manager item 3): the graph is never squeezed below _CHART_MIN mm; when a long month leaves
         # less room it starts the next page at full height, followed by the remarks and the signatures
@@ -1799,7 +1876,7 @@ def control_chart_pdf(request, pk):
             pdf.set_x(10)
             pdf.multi_cell(190, 3.8, '%s  (%s):  %s' % (d, _rem_label(chart, st), t),
                            new_x='LMARGIN', new_y='NEXT')
-    note = chart.profile['note']
+    note = _sop_note(chart, b)
     pdf.ln(0.8); pdf.set_font(f, '', 6.8); pdf.set_text_color(60, 60, 60); pdf.set_x(10)
     pdf.multi_cell(190, 3.4, note, new_x='LMARGIN', new_y='NEXT'); pdf.set_text_color(0, 0, 0)
 
