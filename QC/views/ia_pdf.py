@@ -11,7 +11,7 @@ from django.conf import settings as _settings
 
 from QC.models import IaPlan, IaAudit, IaCircular, IaWitness, Ncca, NccaRca
 from QC.views.control_chart import _CC_OFFICE, _uname, _sig_image, _is_admin, _user_labs, _user_office
-from QC.views.ia import _ia_docctrl, _d, MONTHS, _RESULT_LABEL, _CAT_LABEL, _loc_of, _CC_LOCS
+from QC.views.ia import _ia_docctrl, _ia_on, _d, MONTHS, _RESULT_LABEL, _CAT_LABEL, _loc_of, _CC_LOCS
 
 GREEN, GREY_FILL, LINE, AMBER, GREEN_DONE = (15, 81, 50), (242, 245, 243), (120, 120, 120), (255, 229, 153), (112, 173, 71)
 
@@ -247,7 +247,7 @@ def _sig_block_space(pdf, need):
 # ---------------------------------------------------------------- FF-01 annual plan (landscape)
 def ia_plan_pdf(request, pk):
     plan = get_object_or_404(IaPlan.objects.select_related('mr_by', 'ceo_by'), pk=pk)
-    ctrl = _ia_docctrl('plan', plan.location)
+    ctrl = _ia_docctrl('plan', plan.location, _ia_on(plan))
     pdf = _pdf('ANNUAL INTERNAL AUDIT PLAN - %d' % plan.year, '%s LABORATORY' % plan.location.upper(), ctrl, plan.location, 'L',
                '' if plan.status == 'approved' else 'NOT APPROVED')
     f = pdf.fam
@@ -304,7 +304,7 @@ def ia_plan_pdf(request, pk):
 # ---------------------------------------------------------------- FF-03 circular (portrait)
 def ia_circular_pdf(request, pk):
     c = get_object_or_404(IaCircular.objects.select_related('issued_by'), pk=pk)
-    ctrl = _ia_docctrl('circular', c.location)
+    ctrl = _ia_docctrl('circular', c.location, _ia_on(c))
     pdf = _pdf('INTERNAL AUDIT CIRCULAR' + (' - WITNESSING' if c.kind == 'witness' else ''), '%s LABORATORY  -  AUDIT NO. %s' % (c.location.upper(), c.audit_no), ctrl, c.location, 'P',
                '' if c.status == 'issued' else 'DRAFT')
     f = pdf.fam
@@ -362,7 +362,7 @@ def ia_circular_pdf(request, pk):
 # ---------------------------------------------------------------- FF-02 audit report (portrait, multi-page)
 def ia_audit_pdf(request, pk):
     a = get_object_or_404(IaAudit.objects.select_related('auditor_signed_by', 'auditee_signed_by'), pk=pk)
-    ctrl = _ia_docctrl('report', a.location)
+    ctrl = _ia_docctrl('report', a.location, _ia_on(a))
     wm = {'closed': '', 'auditor': 'AWAITING AUDITEE'}.get(a.status, 'DRAFT')
     pdf = _pdf('INTERNAL AUDIT REPORT', '%s LABORATORY  -  AUDIT NO. %s  -  ISO/IEC 17025:2017' % (a.location.upper(), a.audit_no), ctrl, a.location, 'P', wm)
     f = pdf.fam
@@ -441,7 +441,7 @@ def ia_audit_pdf(request, pk):
 # ---------------------------------------------------------------- 710-FF-01 NC & corrective action form (portrait)
 def ia_nc_pdf(request, pk):
     n = get_object_or_404(Ncca.objects.select_related('mr_signed_by', 'hod_signed_by', 'closed_by', 'evaluated_by'), pk=pk)
-    ctrl = _ia_docctrl('nc', n.location)
+    ctrl = _ia_docctrl('nc', n.location, _ia_on(n))
     wm = {'closed': '', 'draft': 'DRAFT'}.get(n.status, 'OPEN')
     pdf = _pdf('NON-CONFORMANCE & CORRECTIVE ACTION FORM', '%s LABORATORY  -  %s' % (n.location.upper(), n.nc_no), ctrl, n.location, 'P', wm)
     f = pdf.fam
@@ -568,7 +568,7 @@ def _sig_cell(pdf, x, y, w, h, user, when, name=''):
 def ia_rca_pdf(request, pk):
     n = get_object_or_404(Ncca, pk=pk)
     r = get_object_or_404(NccaRca.objects.select_related('performed_by', 'reviewed_by'), nc=n)
-    ctrl = _ia_docctrl('rca', n.location)
+    ctrl = _ia_docctrl('rca', n.location, _ia_on(r) if r.date else _ia_on(n))
     wm = {'reviewed': '', 'draft': 'DRAFT'}.get(r.status, 'AWAITING CEO REVIEW')
     pdf = _pdf('ROOT CAUSE ANALYSIS FORM', '%s LABORATORY  -  %s' % (n.location.upper(), n.nc_no), ctrl, n.location, 'L', wm)
     f = pdf.fam

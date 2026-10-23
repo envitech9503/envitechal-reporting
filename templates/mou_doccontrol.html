@@ -5,6 +5,7 @@
 <div class="card">
   <div class="hd"><div class="title"><i class="fa-solid fa-file-shield"></i> Document-control numbers of the Measurement of Uncertainty form</div>
     <a class="btn" href="{% url 'mou_list' %}"><i class="fa-solid fa-arrow-left"></i> Register</a></div>
+  {% include "_docreg_notice.html" with focus="mou__Karachi" %}
   <div class="msg warning">Each laboratory issues its own controlled-document number for the MOU record form. The number, issue date, issue and revision numbers entered here are printed in the control box of every PDF of that laboratory; until a number is entered the PDF shows <b>TBA</b>. The footer address and telephone follow the laboratory automatically.</div>
   <table><style>td input{border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px;font-family:inherit}</style>
     <thead><tr><th>Laboratory</th><th>Document No.</th><th>Issue date</th><th>Issue No.</th><th>Rev. No.</th><th>Printed as</th><th>Last updated</th><th></th></tr></thead>

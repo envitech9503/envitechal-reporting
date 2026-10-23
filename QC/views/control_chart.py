@@ -43,18 +43,27 @@ _CC_SOP_NOTE = ('The baseline results were established using data from the Febru
                 'are plotted against this baseline.')
 
 
-def _cc_docctrl(location, activity='CRM'):
-    """Document-control numbers of the form for this laboratory and form type."""
+def _cc_docctrl(location, activity='CRM', on=None):
+    """Document-control numbers of the form for this laboratory and form type, as in force on the document's
+    own date `on` (end of the period, at most today; 23-10-2026: a later revision never changes earlier periods)."""
+    from EnviTechAlApp import doccontrol as DC
     known = (location == 'Karachi' and activity == 'CRM')
-    dflt = dict(_CC_FORM) if known else {'doc_no': '', 'issue_date': '', 'issue_no': '01', 'rev_no': '00'}
+    return DC.doc_control(_CC_DOC_MODULES.get(activity, 'control_chart'), location, on, default=dict(_CC_FORM) if known else None)
+
+
+def _period_start(chart, year, month=None):
+    """The document date of a chart period for its form revision: the last day of the period (a chart sheet is
+    completed at the end of its month / cycle), but not later than today - so a revision issued during an open
+    period applies to that period's sheet, and every closed period keeps the revision it was completed with."""
+    import calendar as _cal_
     try:
-        obj, _ = InventoryDocControl.objects.get_or_create(
-            module=_CC_DOC_MODULES.get(activity, 'control_chart'), location=location, defaults=dflt)
-        return {'doc_no': obj.doc_no or (dflt['doc_no'] or 'TBA'), 'issue_date': obj.issue_date or (dflt['issue_date'] or '-'),
-                'issue_no': obj.issue_no or '01', 'rev_no': obj.rev_no or '00', 'set': bool(obj.doc_no or dflt['doc_no'])}
+        if month and chart.period_is_month:
+            end = _date(int(year), int(month), _cal_.monthrange(int(year), int(month))[1])
+        else:
+            end = chart.cycle_range(int(year))[1]
+        return min(end, _date.today())
     except Exception:
-        d = dict(dflt); d['doc_no'] = d['doc_no'] or 'TBA'; d['issue_date'] = d['issue_date'] or '-'; d['set'] = known
-        return d
+        return None
 
 
 def _post_or_back(view):
@@ -76,20 +85,25 @@ def _chart_doc_module(chart):
     return 'cc_chart_%d' % chart.pk
 
 
-def _chart_docctrl(chart):
-    """Form numbers for a chart: the laboratory's form number, unless the chart carries its own
-    document number (e.g. Lahore ETAL-LAB-603-FF-07 / -07A / -07B for the environmental sheets).
-    Since 23-10-2026 a chart's own row on the Document Control page (number, issue date, issue and
-    revision numbers, admin-maintained) takes precedence; a bare chart-master number is the fallback."""
-    d = dict(_cc_docctrl(chart.location, chart.activity))
+def _chart_docctrl(chart, on=None):
+    """Form numbers for a chart on the document's own date `on`: the laboratory's form number, unless the chart
+    carries its own document number (e.g. Lahore ETAL-LAB-603-FF-07 / -07A / -07B for the environmental sheets).
+    A chart's own form (Document Control page / register, kept with its revision history since 23-10-2026) takes
+    precedence for the periods it was in force; a bare chart-master number is the fallback."""
+    from EnviTechAlApp import doccontrol as DC
+    d = dict(_cc_docctrl(chart.location, chart.activity, on))
+    mod = _chart_doc_module(chart)
+    own = None
+    has_hist = False
     try:
-        own = InventoryDocControl.objects.filter(module=_chart_doc_module(chart)).first()       # keyed by the chart, whatever its laboratory
+        has_hist = DC.revisions(mod, '*').exists()
+        own = DC.revision_on(mod, '*', on) if has_hist else None
     except Exception:
-        own = None
+        pass
     if own is not None and (own.doc_no or '').strip():
         d.update(doc_no=own.doc_no.strip(), issue_date=(own.issue_date or '').strip() or '-', issue_no=own.issue_no or '01',
                  rev_no=own.rev_no or '00', set=True, own=True)
-    elif (chart.doc_no or '').strip():
+    elif not has_hist and (chart.doc_no or '').strip():
         d.update(doc_no=chart.doc_no.strip(), set=True, own=True)
     else:
         d['own'] = False
@@ -563,10 +577,14 @@ def control_chart_doccontrol(request):
         if (request.POST.get('chart') or '').isdigit():
             # a chart's own form number (23-10-2026, Lahore environmental sheets 603-FF-07 / 07A / 07B)
             chart = get_object_or_404(ControlChart, pk=int(request.POST['chart']))
+            from EnviTechAlApp import doccontrol as DC
+            DC.seed_own(_chart_doc_module(chart), chart.doc_no)      # periods that printed the master number keep it
             obj = InventoryDocControl.objects.filter(module=_chart_doc_module(chart)).first() or InventoryDocControl(module=_chart_doc_module(chart))
             obj.location = chart.location
             doc_no = (request.POST.get('doc_no') or '').strip()[:60]
             if request.POST.get('action') == 'clear' or not doc_no:          # a blank number clears the chart's own row
+                DC.withdraw(_chart_doc_module(chart), '*', request.user,
+                            'Own form withdrawn on the Control Chart Document Control page; the laboratory form applies from %s' % _date.today().strftime('%d-%m-%Y'))
                 if obj.pk:
                     obj.delete()
                 ControlChart.objects.filter(pk=chart.pk).update(doc_no='')
@@ -683,7 +701,7 @@ def control_chart_detail(request, pk):
         'versions': view['versions'], 'bv': view['bv'], 'all_results': all_r,
         'can_enter': True, 'old_version': bool(b is not None and cur is not None and b.pk != cur.pk and chart.mon_mode != 'baseline' and not chart.no_baseline),
         'cur': cur, 'baseline_list': _baseline_list(chart), 'range_txt': chart.range_text(),
-        'so': so, 'docctrl': _chart_docctrl(chart), 'sop_note': _sop_note(chart, b),
+        'so': so, 'docctrl': _chart_docctrl(chart, _period_start(chart, year, month)), 'sop_note': _sop_note(chart, b),
         'locked': _year_locked(chart, year, user, month), 'can_review': _can_review(user, chart), 'can_approve': _can_approve(user, chart),
         'can_admin': _is_admin(user), 'can_edit_master': _can_edit_master(user, chart), 'can_set_baseline': _can_set_baseline(user, chart) and not chart.no_baseline,
         'today': _date.today().strftime('%Y-%m-%d'), 'baselines': chart.baselines.all(),
@@ -1645,6 +1663,7 @@ def control_chart_edit(request, pk=None):
         if chart is not None and chart.activity != data['activity'] and (chart.results.exists() or chart.baselines.exists()):
             data['activity'] = chart.activity   # never change the type of a chart that already holds records
             _msg.warning(request, 'The activity of a chart with recorded data cannot be changed; create a new chart instead.')
+        old_doc_no = (chart.doc_no or '').strip() if chart is not None else ''
         for k in _CC_FIELDS:
             setattr(target, k, data[k])
         target.active = bool(request.POST.get('active', '1' if pk is None else ''))
@@ -1654,7 +1673,16 @@ def control_chart_edit(request, pk=None):
             # the chart's own document-control row (Document Control page) follows a number changed on the master
             # and the chart's laboratory (23-10-2026); only an administrator may change or remove the number
             # through the master - another editor's master keeps the row's number
+            from EnviTechAlApp import doccontrol as DC
             own = InventoryDocControl.objects.filter(module=_chart_doc_module(target)).first()
+            if own is None and old_doc_no != (target.doc_no or '').strip():
+                # a master number without a Document Control row: its change applies from today (revision history)
+                DC.seed_own(_chart_doc_module(target), old_doc_no)
+                if (target.doc_no or '').strip():
+                    DC.issue_revision(_chart_doc_module(target), '*', {'doc_no': target.doc_no.strip()}, _date.today(),
+                                      'Own form number changed on the chart master', request.user)
+                else:
+                    DC.withdraw(_chart_doc_module(target), '*', request.user, 'Own form number removed on the chart master; the laboratory form applies from %s' % _date.today().strftime('%d-%m-%Y'))
             if own is not None:
                 if not _is_admin(request.user):
                     if (target.doc_no or '').strip() != own.doc_no:
@@ -1662,6 +1690,8 @@ def control_chart_edit(request, pk=None):
                     if own.location != target.location:
                         own.location = target.location; own.save()
                 elif not (target.doc_no or '').strip():
+                    DC.withdraw(_chart_doc_module(target), '*', request.user,
+                                'Own form withdrawn on the chart master; the laboratory form applies from %s' % _date.today().strftime('%d-%m-%Y'))
                     own.delete()
                 elif own.doc_no != target.doc_no.strip() or own.location != target.location:
                     own.doc_no, own.location, own.updated_by = target.doc_no.strip(), target.location, request.user
@@ -1724,7 +1754,7 @@ def control_chart_pdf(request, pk):
         chart._view_baseline, chart._view_fixed = bl_form, False
     rows, extra_base = period_rows(chart, lim, b.values if (b and not chart.no_baseline) else [], results, year, month)
     so = _signoff(chart, year, month) if bl_form is None else None
-    ctrl = _chart_docctrl(chart)
+    ctrl = _chart_docctrl(chart, (bl_form.established_on if bl_form is not None else None) or _period_start(chart, year, month))
     office = _CC_OFFICE.get(chart.location, _CC_OFFICE['Karachi'])
     plabel = _plabel(chart, year, month) if bl_form is None else 'BASELINE v%d - %s' % (bl_form.version, bl_form.established_label)
     if bl_form is None and view['versions'] and b is not None:

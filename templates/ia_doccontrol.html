@@ -4,6 +4,7 @@
 {% block cc_body %}
 <div class="card">
   <div class="hd"><div class="title"><i class="fa-solid fa-stamp"></i> Document control of the internal-audit forms</div></div>
+  {% include "_docreg_notice.html" with focus="ia_plan__Karachi" %}
   <div class="msg" style="background:#f8fafc;color:#475569">Printed in the control box of every PDF. One entry per form and laboratory; the defaults are the numbers printed on the laboratory's current forms.</div>
   <table>
     <thead><tr><th>Form</th><th>Laboratory</th><th>Document No.</th><th>Issue date</th><th>Issue No.</th><th>Rev. No.</th><th></th></tr></thead>

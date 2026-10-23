@@ -34,18 +34,18 @@ _DENIED = 'This action is reserved to the %s laboratory\'s QC / Lab Manager and 
 
 
 # ---------------------------------------------------------------- helpers
-def _mou_docctrl(location):
-    """Document-control numbers of the MOU form for a laboratory. The Karachi number is known to
-    the system (ETAL-LAB-706-FF-01); Lahore enters its own on the Document control page."""
-    known = location == 'Karachi'
-    dflt = dict(_MOU_FORM) if known else {'doc_no': '', 'issue_date': '', 'issue_no': '01', 'rev_no': '00'}
-    try:
-        obj, _ = InventoryDocControl.objects.get_or_create(module=_MOU_MODULE, location=location, defaults=dflt)
-        return {'doc_no': obj.doc_no or (dflt['doc_no'] or 'TBA'), 'issue_date': obj.issue_date or '-',
-                'issue_no': obj.issue_no or '01', 'rev_no': obj.rev_no or '00', 'set': bool(obj.doc_no or dflt['doc_no'])}
-    except Exception:
-        d = dict(dflt); d['doc_no'] = d['doc_no'] or 'TBA'; d['issue_date'] = d['issue_date'] or '-'; d['set'] = known
-        return d
+def _mou_docctrl(location, on=None):
+    """Document-control numbers of the MOU form for a laboratory, as in force on the study date `on`
+    (23-10-2026: a later revision never changes earlier studies). The Karachi number is known to the system
+    (ETAL-LAB-706-FF-01); Lahore enters its own on the Document control page / register."""
+    from EnviTechAlApp import doccontrol as DC
+    return DC.doc_control(_MOU_MODULE, location, on, default=dict(_MOU_FORM) if location == 'Karachi' else None)
+
+
+def DC_date(st):
+    """The document date of a study: its study date, else its creation date."""
+    from EnviTechAlApp import doccontrol as DC
+    return DC.doc_date(st, 'study_date')
 
 
 class _Loc:
@@ -204,7 +204,7 @@ def mou_detail(request, pk):
         'can_review': st.status == 'review' and _can_review(user, st) and bool(st.submitted_by_id), 'can_approve': st.status == 'reviewed' and _can_approve(user, st) and bool(st.submitted_by_id),
         'can_return': st.status in ('review', 'reviewed') and _can_manage(user, st.location),
         'can_unapprove': st.status == 'approved' and _is_admin(user), 'can_delete': _can_manage(user, st.location),
-        'can_repeat': st.status in ('approved', 'superseded') and user.is_authenticated, 'ctrl': _mou_docctrl(st.location)})
+        'can_repeat': st.status in ('approved', 'superseded') and user.is_authenticated, 'ctrl': _mou_docctrl(st.location, DC_date(st))})
 
 
 # ---------------------------------------------------------------- study: edit / new
@@ -755,7 +755,7 @@ def mou_pdf(request, pk):
     r = _calc.compute(st.as_calc())
     ops, comps = _rows_for_view(st, r)
     legacy = _legacy_panel(st, r)
-    ctrl = _mou_docctrl(st.location)
+    ctrl = _mou_docctrl(st.location, DC_date(st))
     office = _CC_OFFICE.get(st.location, _CC_OFFICE['Karachi'])
     from django.conf import settings as _settings
     _base = str(getattr(_settings, 'BASE_DIR', '') or '')

@@ -63,7 +63,13 @@ def _f(v):
 
 
 def _docctrl(location):
-    """Per-lab control document row for this module (office-editable in admin)."""
+    """Per-lab control document row for this module (office-editable in admin). The row shows the revision in force
+    today (Document Control register, 23-10-2026); PDFs read the revision in force on the preparation date."""
+    try:
+        from EnviTechAlApp import doccontrol as DC
+        DC.sync_mirror('reagent_prep', location)
+    except Exception:
+        pass
     obj, _created = InventoryDocControl.objects.get_or_create(
         module='reagent_prep', location=location,
         defaults={'doc_no': '', 'issue_no': '01', 'rev_no': '00'})
@@ -902,7 +908,15 @@ def _make_reagent_pdf(location, records, draft=False):
     Single source of truth for both the per-record PDF and the monthly/batch PDF
     (entries stack 2-3 per page like the original paper log). `draft` overlays a
     subtle diagonal DRAFT watermark (unverified single-record PDFs, Decision D1)."""
-    ctrl = _docctrl(location)
+    from types import SimpleNamespace as _NS
+    from EnviTechAlApp import doccontrol as DC
+    try:
+        _on = min([DC.doc_date(r, 'dop') for r in records] or [None])      # the preparation date (revision in force then)
+    except Exception:
+        _on = None
+    _c = DC.doc_control('reagent_prep', location, _on)
+    ctrl = _NS(doc_no='' if _c['doc_no'] == 'TBA' else _c['doc_no'], issue_date='' if _c['issue_date'] == '-' else _c['issue_date'],
+               issue_no=_c['issue_no'], rev_no=_c['rev_no'])
     today = _date.today()
 
     class CustomPDF(FPDF):

@@ -43,17 +43,26 @@ class _Loc:
         self.location = location
 
 
-def _ia_docctrl(form, location):
-    """Document-control box of one IA form for a laboratory (InventoryDocControl module 'ia_<form>')."""
+def _ia_docctrl(form, location, on=None):
+    """Document-control box of one IA form for a laboratory (module 'ia_<form>'), as in force on the document's own
+    date `on` (plan year / circular issue date / audit date / NC date / RCA date; 23-10-2026: a later revision of
+    the form never changes documents dated before it)."""
+    from EnviTechAlApp import doccontrol as DC
     d0 = _IA_DEFAULT_CTRL[form]
     dflt = {'doc_no': _IA_FORMS[form][0], 'issue_date': d0[0], 'issue_no': d0[1], 'rev_no': d0[2]}
-    try:
-        obj, _ = InventoryDocControl.objects.get_or_create(module='ia_' + form, location=location, defaults=dflt)
-        return {'doc_no': obj.doc_no or dflt['doc_no'], 'issue_date': obj.issue_date or dflt['issue_date'] or '-',
-                'issue_no': obj.issue_no or dflt['issue_no'], 'rev_no': obj.rev_no or dflt['rev_no'], 'title': _IA_FORMS[form][1]}
-    except Exception:
-        d = dict(dflt); d['issue_date'] = d['issue_date'] or '-'; d['title'] = _IA_FORMS[form][1]
-        return d
+    d = DC.doc_control('ia_' + form, location, on, default=dflt)
+    d['title'] = _IA_FORMS[form][1]
+    return d
+
+
+def _ia_on(obj):
+    """The document's own date of an IA record (None: today)."""
+    from EnviTechAlApp import doccontrol as DC
+    if obj is None:
+        return None
+    if isinstance(obj, IaPlan):
+        return _date(int(obj.year), 1, 1)
+    return DC.doc_date(obj, 'issue_date', 'date_start')
 
 
 def _can_manage(user, location):
@@ -237,7 +246,7 @@ def ia_plan_detail(request, pk):
     user = request.user
     audits = IaAudit.objects.filter(location=plan.location, year=plan.year)
     return render(request, 'ia_plan_detail.html', {
-        'plan': plan, 'loc': plan.location, 'months': MONTHS, 'audits': audits, 'ctrl': _ia_docctrl('plan', plan.location),
+        'plan': plan, 'loc': plan.location, 'months': MONTHS, 'audits': audits, 'ctrl': _ia_docctrl('plan', plan.location, _ia_on(plan)),
         'can_edit': _can_manage(user, plan.location) and not plan.locked, 'can_mark': _can_manage(user, plan.location),
         'can_sign_mr': plan.status == 'draft' and _can_manage(user, plan.location),
         'can_approve': plan.status == 'signed' and _is_ceo(user, plan.location),
@@ -423,7 +432,7 @@ def ia_circular_detail(request, pk):
                 break
     signed = sum(1 for a in (c.attendance or []) if a.get('signed_at'))
     return render(request, 'ia_circular_detail.html', {
-        'c': c, 'loc': c.location, 'ctrl': _ia_docctrl('circular', c.location), 'signed': signed,
+        'c': c, 'loc': c.location, 'ctrl': _ia_docctrl('circular', c.location, _ia_on(c)), 'signed': signed,
         'can_edit': _can_manage(user, c.location) and not c.locked, 'can_issue': c.status == 'draft' and _can_manage(user, c.location),
         'can_withdraw': c.status == 'issued' and _can_manage(user, c.location), 'can_delete': _can_manage(user, c.location) and c.status != 'issued',
         'can_sign': c.status == 'issued' and _is_member(user, c.location) and (my_row is not None) and not (c.attendance[my_row].get('signed_at')),
@@ -578,7 +587,7 @@ def ia_audit_edit(request, pk):
             for e in errors:
                 _msg.error(request, e)
             a.auditor, a.auditee = (P.get('auditor') or a.auditor), (P.get('auditee') or a.auditee)
-            return render(request, 'ia_audit_edit.html', {'a': a, 'loc': a.location, 'findings': findings, 'results': IaFinding.RESULTS, 'ctrl': _ia_docctrl('report', a.location)})
+            return render(request, 'ia_audit_edit.html', {'a': a, 'loc': a.location, 'findings': findings, 'results': IaFinding.RESULTS, 'ctrl': _ia_docctrl('report', a.location, _ia_on(a))})
         a.days = max(1, (a.date_end - a.date_start).days + 1) if (a.date_start and a.date_end) else (int(P.get('days')) if (P.get('days') or '').isdigit() else a.days)
         for fld, n in (('auditor', 120), ('auditor_title', 120), ('auditee', 160), ('auditee_title', 120), ('address', 250), ('scope', 300), ('timeframe', 400)):
             setattr(a, fld, (P.get(fld) or '').strip()[:n])
@@ -621,7 +630,7 @@ def ia_audit_edit(request, pk):
         if P.get('then') == 'detail':
             return _redirect('ia_audit_detail', a.pk)
         return _redirect('ia_audit_edit', a.pk)
-    return render(request, 'ia_audit_edit.html', {'a': a, 'loc': a.location, 'findings': findings, 'results': IaFinding.RESULTS, 'ctrl': _ia_docctrl('report', a.location)})
+    return render(request, 'ia_audit_edit.html', {'a': a, 'loc': a.location, 'findings': findings, 'results': IaFinding.RESULTS, 'ctrl': _ia_docctrl('report', a.location, _ia_on(a))})
 
 
 def ia_audit_detail(request, pk):
@@ -636,7 +645,7 @@ def ia_audit_detail(request, pk):
     circs = list(a.circulars.all())
     is_member = _is_member(user, a.location)
     return render(request, 'ia_audit_detail.html', {
-        'a': a, 'loc': a.location, 'findings': findings, 'show': show, 'ncs': ncs, 'wits': wits, 'circs': circs, 'ctrl': _ia_docctrl('report', a.location),
+        'a': a, 'loc': a.location, 'findings': findings, 'show': show, 'ncs': ncs, 'wits': wits, 'circs': circs, 'ctrl': _ia_docctrl('report', a.location, _ia_on(a)),
         'legacy': (a.legacy or {}) if a.inducted else {}, 'can_edit': _can_edit_audit(user, a), 'can_manage': _can_manage(user, a.location),
         'can_sign_auditor': a.status == 'draft' and _can_manage(user, a.location),
         'can_sign_auditee': a.status == 'auditor' and is_member and (a.auditor_signed_by_id != user.id),
@@ -1023,7 +1032,7 @@ def ia_nc_detail(request, pk):
     today = _date.today()
     due = n.target_date or n.proposed_date
     return render(request, 'ia_nc_detail.html', {
-        'n': n, 'loc': n.location, 'rca': rca, 'sec': sec, 'ctrl': _ia_docctrl('nc', n.location), 'cat_label': _CAT_LABEL,
+        'n': n, 'loc': n.location, 'rca': rca, 'sec': sec, 'ctrl': _ia_docctrl('nc', n.location, _ia_on(n)), 'cat_label': _CAT_LABEL,
         'overdue': bool(due and n.status != 'closed' and due < today), 'due': due,
         'can_manage': _can_manage(user, n.location), 'is_member': _is_member(user, n.location), 'is_ceo': _is_ceo(user, n.location),
         'can_raise': n.status == 'draft' and _can_manage(user, n.location),
@@ -1188,7 +1197,7 @@ def ia_rca_edit(request, nc_pk):
         key = _re.sub(r'[^a-z]', '', main.lower())
         mains.append({'main': main, 'key': key, 'subs': [(i, s, s in (r.causes.get(main) or [])) for i, s in enumerate(subs)], 'on': main in r.causes, 'other': r.causes.get(main + ':other', '')})
     whys = list(r.whys or []) + [''] * 6
-    return render(request, 'ia_rca_edit.html', {'n': n, 'r': r, 'loc': n.location, 'mains': mains, 'whys': whys[:6], 'ctrl': _ia_docctrl('rca', n.location)})
+    return render(request, 'ia_rca_edit.html', {'n': n, 'r': r, 'loc': n.location, 'mains': mains, 'whys': whys[:6], 'ctrl': _ia_docctrl('rca', n.location, _ia_on(r) if r is not None and r.date else _ia_on(n))})
 
 
 def _apply_rca_action(user, r, act, reason=''):

@@ -470,11 +470,22 @@ def _eq_scope(request):
     return qs
 
 
+def _dcsync(module, location):
+    """Registers print the revision in force today (Document Control register, 23-10-2026): bring the
+    InventoryDocControl row up to date when a scheduled revision has come into force."""
+    try:
+        from EnviTechAlApp import doccontrol as DC
+        DC.sync_mirror(module, location)
+    except Exception:
+        pass
+
+
 def _eq_doc(request):
     from EnviTechAlApp.models import InventoryDocControl
     loc = (request.GET.get('location') or 'All').strip()
     if loc not in ('Karachi', 'Lahore'):
         loc = ''
+    _dcsync('equipment', loc or 'Karachi')
     dc = InventoryDocControl.objects.filter(module='equipment', location=(loc or 'Karachi')).first()
     return loc, dict(doc_no=(dc.doc_no if dc and dc.doc_no else 'TBA'),
                      issue_date=(dc.issue_date if dc and dc.issue_date else 'TBA'),
@@ -516,6 +527,7 @@ def equipment_data(request):
     dc = {}
     if loc in ('Karachi', 'Lahore'):
         from EnviTechAlApp.models import InventoryDocControl
+        _dcsync('equipment', loc)
         dc = InventoryDocControl.objects.filter(module='equipment', location=loc).values('doc_no', 'issue_date', 'issue_no', 'rev_no').first() or {}
     return JsonResponse({'rows': rows, 'is_admin': request.user.is_superuser, 'location': loc, 'doc': dc,
                          'summary': {k: sum(1 for r in rows if r['state'] == k) for k in order}})
@@ -939,6 +951,7 @@ def chemicals_data(request):
                      'cas': it.cas_no, 'unit': it.unit, 'storage': it.storage, 'hazard': it.hazard,
                      'reorder': it.reorder_level, 'notes': it.notes, 'total': round(total, 4),
                      'low': low, 'lots': lots_out})
+    _dcsync('chemicals', loc)
     dc = InventoryDocControl.objects.filter(module='chemicals', location=loc).values('doc_no', 'issue_date', 'issue_no', 'rev_no').first() or {}
     return JsonResponse({'rows': rows, 'location': loc, 'is_admin': request.user.is_superuser, 'doc': dc,
                          'summary': {'stocked': n_stock, 'low': n_low, 'expiring': n_expiring, 'expired': n_exp}})
@@ -1149,6 +1162,7 @@ def chemicals_report(request):
     loc = (request.GET.get('location') or 'Karachi').strip()
     if loc not in CHEM_LOCS:
         loc = 'Karachi'
+    _dcsync('chemicals', loc)
     dc = InventoryDocControl.objects.filter(module='chemicals', location=loc).first()
     groups = _chem_report_data(loc)
     total = sum(len(g[1]) for g in groups)
@@ -1166,6 +1180,7 @@ def chemicals_report_pdf(request):
     loc = (request.GET.get('location') or 'Karachi').strip()
     if loc not in CHEM_LOCS:
         loc = 'Karachi'
+    _dcsync('chemicals', loc)
     dc = InventoryDocControl.objects.filter(module='chemicals', location=loc).first()
     doc_no = (dc.doc_no if dc and dc.doc_no else 'TBA')
     issue_date = (dc.issue_date if dc and dc.issue_date else 'TBA')

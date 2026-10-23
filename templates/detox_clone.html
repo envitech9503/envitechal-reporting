@@ -7903,15 +7903,15 @@
                         <div class="flex justify-between mt-6">
                             <div class="flex flex-col">
                                 <label class="font-bold text-lg" for=""> Doc. Controller 1:</label>
-                                <input  id="doc_1" class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc_1" value="{{detox.doc_1}}">
+                                <input  id="doc_1" class=" border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc_1" value="ETAL-LAB-708-FF-20">
                             </div>
                             <div class="flex flex-col">
                                 <label class="font-bold text-lg" for="">Doc. Controller 2:</label>
-                                <input  id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc_2" value="{{detox.doc_2}}">
+                                <input  id="doc_2" class="doc_date border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc_2" value="Issue Date: 01-10-24">
                             </div>
                             <div class="flex flex-col">
                                 <label class="font-bold text-lg" for="">Doc. Controller 3:</label>
-                                <input  id="doc_3" class="doc_issue border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc_3" value="{{detox.doc_3}}">
+                                <input  id="doc_3" class="doc_issue border-2 border-black p-2 h-10 w-96 rounded text-lg" type="text" name="doc_3" value="Issue:01 Rev:00">
                             </div>
                         </div>
 
@@ -9112,9 +9112,6 @@ const doc_3 = document.querySelector('#doc_3')
             
             seqs_value.addEventListener("change",()=>{
                 if(seqs_value.checked){
-                    doc_1.value = "ETAL-LAB-708-FF-04"
-                    doc_2.value = "Issue Date: 03-10-22"
-                    doc_3.value = "Issue:03 Rev:02"
                     checkinput.value = "SEQS"
                     peqs_value.disabled=true
                     neqs_value.disabled=true
@@ -9133,9 +9130,6 @@ const doc_3 = document.querySelector('#doc_3')
                 
                 if(peqs_value.checked){
                     checkinput.value = "PEQS"
-                    doc_1.value = "ETAL-LAB-708-FF-04"
-                    doc_2.value = "Issue Date: 25-03-25"
-                    doc_3.value = "Issue:02 Rev:01"
                     seqs_value.disabled=true
                     neqs_value.disabled=true
                     
@@ -9152,9 +9146,6 @@ const doc_3 = document.querySelector('#doc_3')
             neqs_value.addEventListener("change",()=>{
                 if(neqs_value.checked){
                     checkinput.value = "NEQS"
-                    doc_1.value = "ETAL-LAB-708-FF-04"
-                    doc_2.value = "Issue Date: 03-10-22"
-                    doc_3.value = "Issue:03 Rev:02"
                     seqs_value.disabled=true
                     peqs_value.disabled=true
                     

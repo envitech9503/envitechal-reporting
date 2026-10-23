@@ -9131,9 +9131,6 @@ const doc_3 = document.querySelector('#doc_3')
             
             seqs_value.addEventListener("change",()=>{
                 if(seqs_value.checked){
-                    doc_1.value = "ETAL-LAB-708-FF-04"
-                    doc_2.value = "Issue Date: 03-10-22"
-                    doc_3.value = "Issue:03 Rev:02"
                     checkinput.value = "SEQS"
                     peqs_value.disabled=true
                     neqs_value.disabled=true
@@ -9152,9 +9149,6 @@ const doc_3 = document.querySelector('#doc_3')
                 
                 if(peqs_value.checked){
                     checkinput.value = "PEQS"
-                    doc_1.value = "ETAL-LAB-708-FF-04"
-                    doc_2.value = "Issue Date: 25-03-25"
-                    doc_3.value = "Issue:02 Rev:01"
                     seqs_value.disabled=true
                     neqs_value.disabled=true
                     
@@ -9171,9 +9165,6 @@ const doc_3 = document.querySelector('#doc_3')
             neqs_value.addEventListener("change",()=>{
                 if(neqs_value.checked){
                     checkinput.value = "NEQS"
-                    doc_1.value = "ETAL-LAB-708-FF-04"
-                    doc_2.value = "Issue Date: 03-10-22"
-                    doc_3.value = "Issue:03 Rev:02"
                     seqs_value.disabled=true
                     peqs_value.disabled=true
                     

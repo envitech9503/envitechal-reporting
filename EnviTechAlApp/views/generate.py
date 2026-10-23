@@ -1830,14 +1830,14 @@ def generate_job_completion_pdf(job):
                self.rect(160, 8, 40, 20, "D")
                
                self.location = job.location.lower() if job.location else ''
-               if self.location == 'lahore':
-                    self.text(162, 13, txt="ETAL-LAB-704-FF-08")
-                    self.text(162, 17, txt="Issue Date: 15-05-2026")
-                    self.text(162, 21, txt="Issue No. 01 Rev. No. 00")
-               elif self.location == 'karachi':
-                    self.text(162, 13, txt="ETAL-LAB-704-FF-08")
-                    self.text(162, 17, txt="Issue Date: 15-05-2026")
-                    self.text(162, 21, txt="Issue No. 01 Rev. No. 00")
+               if self.location in ('lahore', 'karachi'):
+                    # form revision in force on the job's date (Document Control register, 23-10-2026)
+                    from EnviTechAlApp import doccontrol as _DC
+                    _c = _DC.doc_control('job_completion', self.location.capitalize(), getattr(job, 'created_at', None),
+                                         default={'doc_no': 'ETAL-LAB-704-FF-08', 'issue_date': '15-05-2026', 'issue_no': '01', 'rev_no': '00'})
+                    self.text(162, 13, txt=_c['doc_no'])
+                    self.text(162, 17, txt="Issue Date: %s" % _c['issue_date'])
+                    self.text(162, 21, txt="Issue No. %s Rev. No. %s" % (_c['issue_no'], _c['rev_no']))
                else:
                     self.text(162, 13, txt="ETAL-LAB-704-FF-08")
                     self.text(162, 17, txt="Issue Date: 15-05-2026")

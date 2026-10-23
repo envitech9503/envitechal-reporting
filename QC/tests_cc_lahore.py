@@ -109,8 +109,10 @@ class DocControlPerChartTests(TestCase):
     def test_pdf_prints_own_numbers(self):
         a = _client(self.admin)
         a.post('/qc/control-charts/doc-control/', {'chart': self.h.pk, 'doc_no': 'ETAL-LAB-603-FF-07A', 'issue_date': '05-02-2024', 'issue_no': '03', 'rev_no': '02'})
-        ControlChartResult.objects.create(chart=self.h, date=_dt.date(2026, 6, 1), time='09:00', value=55.0, status='ok', performed_by=self.chem)
-        r = a.get('/qc/control-charts/%d/pdf/?year=2026&month=6' % self.h.pk)
+        # the own form saved today applies to the sheet still open (revision history, 23-10-2026)
+        t = _dt.date.today()
+        ControlChartResult.objects.create(chart=self.h, date=t.replace(day=1), time='09:00', value=55.0, status='ok', performed_by=self.chem)
+        r = a.get('/qc/control-charts/%d/pdf/?year=%d&month=%d' % (self.h.pk, t.year, t.month))
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r['Content-Type'], 'application/pdf')
         try:

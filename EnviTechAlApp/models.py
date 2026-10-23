@@ -2757,9 +2757,37 @@ class InventoryDocControl(models.Model):
         unique_together = ('module', 'location')
 
 
+class DocControlRevision(models.Model):
+    """Revision history of a controlled form (owner decision 23-10-2026). Every change of a form's document
+    number, issue date, issue or revision number is a new revision with the date from which it applies; each
+    document prints the revision in force on its own date (report / audit / NC / study date, the first day of a
+    control-chart period), so a revision never changes documents issued before it. Revisions are never deleted;
+    a typing correction of a revision is kept in the audit history. InventoryDocControl(module, location) mirrors
+    the revision in force today for screens that show the current number."""
+    module = models.CharField(max_length=40)
+    location = models.CharField(max_length=20)          # Karachi / Lahore / '*' (form common to both laboratories)
+    doc_no = models.CharField(max_length=60, blank=True, default='')
+    issue_date = models.CharField(max_length=20, blank=True, default='')
+    issue_no = models.CharField(max_length=10, blank=True, default='01')
+    rev_no = models.CharField(max_length=10, blank=True, default='00')
+    effective_from = models.DateField()
+    note = models.CharField(max_length=300, blank=True, default='')
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['module', 'location', '-effective_from', '-id']
+        indexes = [models.Index(fields=['module', 'location', 'effective_from'])]
+
+    def __str__(self):
+        return '%s %s %s from %s' % (self.module, self.location, self.doc_no, self.effective_from)
+
+
 _sh_register(ChemicalItem)
 _sh_register(ChemicalLot)
 _sh_register(InventoryDocControl)
+_sh_register(DocControlRevision)
 
 
 # ============================================================================
@@ -3021,3 +3049,8 @@ class PPWRAnalysis(models.Model):
 # could still be edited and deleted. It is wired here rather than with the block
 # above because the class is declared further down this file (01-08-2026).
 _etal_wire({PPWRAnalysis: 'ppwr'})
+
+# Document control revision history (23-10-2026): changes of InventoryDocControl made outside the register
+# become revisions, so no page can overwrite the numbers printed on earlier documents.
+from EnviTechAlApp import doccontrol as _etal_doccontrol  # noqa: E402
+_etal_doccontrol.connect()

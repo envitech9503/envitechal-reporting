@@ -1,4 +1,4 @@
-{% extends "report_base.html" %}{% load static %}
+{% extends "report_base.html" %}{% load static %}{% load doccontrol_tags %}
 {% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 
@@ -229,7 +229,7 @@ seqs_value.addEventListener("change",()=>{
     if(seqs_value.checked){
         checkinput.value = "SEQS"
         city_location.value="Karachi"
-        issue_date.value="Issue Date: 17-12-2021"
+        issue_date.value="Issue Date: {% doc_ctrl "logging_sheet" "Karachi" "issue_date" "17-12-2021" %}"; document.querySelector("[name=lab]").value="{% doc_ctrl "logging_sheet" "Karachi" "doc_no" "ETAL-LAB-704-FF-1(A)" %}"; document.querySelector("[name=issue_no]").value="issue No:{% doc_ctrl "logging_sheet" "Karachi" "issue_no" "01" %} Rev.No.{% doc_ctrl "logging_sheet" "Karachi" "rev_no" "00" %}"
         peqs_value.disabled=true
         neqs_value.disabled=true
 
@@ -248,7 +248,7 @@ peqs_value.addEventListener("change",()=>{
         city_location.value="Lahore"
         seqs_value.disabled=true
         neqs_value.disabled=true
-        issue_date.value='Issue Date: 05-01-2023'
+        issue_date.value="Issue Date: {% doc_ctrl "logging_sheet" "Lahore" "issue_date" "05-01-2023" %}"; document.querySelector("[name=lab]").value="{% doc_ctrl "logging_sheet" "Lahore" "doc_no" "ETAL-LAB-704-FF-1(A)" %}"; document.querySelector("[name=issue_no]").value="issue No:{% doc_ctrl "logging_sheet" "Lahore" "issue_no" "01" %} Rev.No.{% doc_ctrl "logging_sheet" "Lahore" "rev_no" "00" %}"
         // issue_no.value='Issue No: 01 Rev.No 00'
         // con_date.value = "05-01-2023"
 

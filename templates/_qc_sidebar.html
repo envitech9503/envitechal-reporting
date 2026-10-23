@@ -156,6 +156,10 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'ia_manual' %}" target="_blank" rel="noopener">User Manual</a>
       {% if request.user.is_superuser %}<a href="{% url 'ia_doccontrol' %}">Document Control (admin)</a>{% endif %}
     </div>
+    {% if request.user.is_superuser %}
+    <hr class="etqc-hr">
+    <a href="{% url 'doc_register' %}" class="etqc-sec" style="text-decoration:none"><i class="fa-solid fa-file-shield"></i>Document Control register<span></span></a>
+    {% endif %}
   </nav>
 </div>
 <script>

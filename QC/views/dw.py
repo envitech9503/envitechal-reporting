@@ -54,6 +54,11 @@ def generate_dw_qc_pdf_response(report, pk):
     """Generate PDF for DW QC report with proper page breaks"""
 
     pdf = CustomPDF()
+    try:
+        from EnviTechAlApp import doccontrol as _DC
+        pdf.docctrl_on = _DC.first_saved(Dw_rds.objects.get(id=pk))      # form revision of the record's date
+    except Exception:
+        pdf.docctrl_on = None
     pdf.add_page()
 
     report = Dw_rds.objects.get(id=pk)
@@ -3191,18 +3196,14 @@ def generate_pdf_for_dw_testing_results(obj):
             self.rect(250, 8, 40, 20, "D")
             
             self.location = obj.location.lower() if obj.location else ''
-            if self.location == 'lahore':
-                self.text(252, 13, txt="ETAL-LAB-704-FF-07")
-                self.text(252, 17, txt="Issue Date: 05-01-2023")
-                self.text(252, 21, txt="Issue No. 01 Rev. No. 00")
-            elif self.location == 'karachi':
-                self.text(252, 13, txt="ETAL-LAB-704-FF-07")
-                self.text(252, 17, txt="Issue Date: 01-08-2022")
-                self.text(252, 21, txt="Issue No. 01 Rev. No. 00")
-            else:
-                self.text(252, 13, txt="ETAL-LAB-704-FF-05")
-                self.text(252, 17, txt="Issue Date: 22-12-2025")
-                self.text(252, 21, txt="Issue No. 02 Rev. No. 01")
+            # testing-results form, revision in force on the record's date (Document Control register, 23-10-2026)
+            from EnviTechAlApp import doccontrol as _DC
+            _lc = self.location.capitalize() if self.location in ('lahore', 'karachi') else '*'
+            _dflt = {'Lahore': ('ETAL-LAB-704-FF-07', '05-01-2023', '01', '00'), 'Karachi': ('ETAL-LAB-704-FF-07', '01-08-2022', '01', '00')}.get(_lc, ('ETAL-LAB-704-FF-05', '22-12-2025', '02', '01'))
+            _c = _DC.doc_control('qc_test_results', _lc, _DC.first_saved(obj), default=dict(zip(_DC.FIELDS, _dflt)))
+            self.text(252, 13, txt=_c['doc_no'])
+            self.text(252, 17, txt="Issue Date: %s" % _c['issue_date'])
+            self.text(252, 21, txt="Issue No. %s Rev. No. %s" % (_c['issue_no'], _c['rev_no']))
             
             self.set_text_color(0, 0, 0)
             self.alias_nb_pages()

@@ -63,6 +63,7 @@ urlpatterns = [
     path('control-charts/<int:pk>/monthly-chart/', views.control_chart_eq_from_ic, name='control_chart_eq_from_ic'),
     # Measurement of Uncertainty (form ETAL-LAB-706-FF-01) - 21-10-2026
     # ---- Internal audit (22-10-2026)
+    path('document-control/', views.doc_register, name='doc_register'),
     path('ia/', views.ia_home, name='ia_home'),
     path('ia/plans/', views.ia_plans, name='ia_plans'),
     path('ia/plans/new/', views.ia_plan_edit, name='ia_plan_new'),

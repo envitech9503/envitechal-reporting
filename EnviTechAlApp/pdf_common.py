@@ -6178,10 +6178,14 @@ class PDF_logPdf(FPDF):
         self.set_font("Calibri", "B", 8)
         self.rect(170, 7, 30, 20, "D")
         self.text(172, 12, txt=self._rq_logging.lab)  
-        if self._rq_logging.city_location == 'Lahore' or self._rq_logging.city_location == 'lahore':                                                                                                                         
-           self.text(172, 16, txt="Issue Date: 05-01-2023")
-        elif self._rq_logging.city_location == 'Karachi' or self._rq_logging.city_location == 'karachi':
-             self.text(172, 16, txt="Issue Date: 17-12-2021")
+        _city = {'Lahore': 'Lahore', 'lahore': 'Lahore', 'Karachi': 'Karachi', 'karachi': 'Karachi'}.get(self._rq_logging.city_location)
+        if _city:
+            # issue date of the form revision in force on the sheet's date (Document Control register, 23-10-2026)
+            from EnviTechAlApp import doccontrol as _DC
+            _dflt = {'Lahore': '05-01-2023', 'Karachi': '17-12-2021'}[_city]
+            _iss = _DC.doc_control('logging_sheet', _city, getattr(self._rq_logging, 'created_at', None),
+                                   default={'doc_no': 'ETAL-LAB-704-FF-1(A)', 'issue_date': _dflt})['issue_date']
+            self.text(172, 16, txt="Issue Date: %s" % (_iss if _iss not in ('', '-') else _dflt))
         self.text(172, 20, txt=self._rq_logging.issue_no)
 
         self.set_text_color(0, 0, 0)
