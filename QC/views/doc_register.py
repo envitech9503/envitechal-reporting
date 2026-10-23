@@ -1,5 +1,6 @@
-"""Document Control register (owner decision 23-10-2026): one page, for the administrator, holding every controlled
-form of the reporting software with its revision history. A new revision applies from its effective date to
+"""Document Control register (owner decision 23-10-2026): one page holding every controlled form of the reporting
+software with its revision history. Every logged-in user can view it, filter it by laboratory and by current / history,
+and download it as PDF or Excel (24-10-2026); issuing and correcting revisions is reserved to the administrator. A new revision applies from its effective date to
 documents dated on or after that date; documents dated earlier keep the revision they were issued with."""
 from .shared import *  # noqa: F401,F403
 import datetime as _dt
@@ -28,7 +29,7 @@ def _groups():
         c = ControlChart.objects.filter(pk=int(pk)).first() if pk.isdigit() else None
         if c is not None:
             own.append((m, 'Chart #%d - %s%s (%s, %s)' % (c.pk, c.parameter, (' ' + c.level) if c.level else '', c.location, c.activity),
-                        'own form of this chart (periods it was in force)', ['*']))
+                        'own form of this chart (periods it was in force)', ['*'], c.location))
     return [
         ('Laboratory records', [('logging_sheet', 'Sample logging sheet (Issue Date)', 'logging sheet PDF; the form number and issue no. are stored on each sheet'),
                                 ('job_completion', 'Job completion form', 'job completion PDF')]),
@@ -67,11 +68,210 @@ def _row(module, location, label, where, today):
             'seed_doc': (cur.doc_no if cur is not None else '') or ((mirror.doc_no or '') if mirror is not None else '')}
 
 
+_SHOWS = {'both': 'Current revisions and history', 'current': 'Current revisions', 'history': 'Revision history'}
+
+
+def _applies(row_loc, chart_loc, loc):
+    """Does a register row belong to the laboratory filter `loc` ('All', 'Karachi', 'Lahore')?"""
+    if loc == 'All':
+        return True
+    if row_loc == loc:
+        return True
+    return row_loc == '*' and (chart_loc is None or chart_loc == loc)
+
+
+def _build(loc, today):
+    groups = []
+    for g, forms in _groups():
+        rows = []
+        for f in forms:
+            module, label, where = f[:3]
+            chart_loc = f[4] if len(f) > 4 else None
+            for l in _locs(module, f):
+                if _applies(l, chart_loc, loc):
+                    rows.append(_row(module, l, label, where, today))
+        if rows:
+            groups.append({'name': g, 'rows': rows})
+    return groups
+
+
+def _lab_label(r):
+    if r['location'] != '*':
+        return r['location']
+    return 'This chart' if r['module'].startswith('cc_chart_') else 'Both / other'
+
+
+def _status(v, r, today):
+    if r['cur'] is not None and v.pk == r['cur'].pk:
+        return 'In force'
+    return 'Scheduled' if v.effective_from > today else 'Superseded'
+
+
+def _eff(d):
+    return 'From the start' if d is None or d.year == 2000 else d.strftime('%d-%m-%Y')
+
+
+def _who(u):
+    if u is None:
+        return 'system'
+    return (u.get_full_name() or u.get_username()).strip()
+
+
+def _export_name(loc, show, today, ext):
+    return 'EnviTechAL_Document_Control_Register_%s_%s_%s.%s' % (loc, show, today.strftime('%d-%m-%Y'), ext)
+
+
+def _xlsx(groups, loc, show, today, user):
+    from QC.xlsx_lite import Workbook
+    wb = Workbook()
+    head_lines = ['ENVI TECH AL - DOCUMENT CONTROL REGISTER',
+                  'Laboratory: %s   |   Report: %s   |   Generated %s by %s' % (loc if loc != 'All' else 'All laboratories', _SHOWS[show],
+                                                                             _dt.datetime.now().strftime('%d-%m-%Y %H:%M'), _who(user))]
+    if show in ('both', 'current'):
+        ws = wb.sheet('Current revisions')
+        cols = ['S. No.', 'Group', 'Form', 'Laboratory', 'Document No.', 'Issue date', 'Issue No.', 'Rev. No.', 'In force since', 'Revisions on record', 'Scheduled revisions', 'Where printed']
+        ws.widths([7, 22, 44, 14, 26, 13, 10, 9, 15, 11, 12, 48])
+        ws.row([head_lines[0]], style='title', merge=len(cols), height=24)
+        ws.row([head_lines[1]], style='sub', merge=len(cols))
+        ws.row([''], style='text')
+        ws.row(cols, style='head', header=True, height=30)
+        n = 0
+        for g in groups:
+            for r in g['rows']:
+                n += 1
+                cv = r['cv']
+                ws.row([n, g['name'], r['label'], _lab_label(r), (cv['doc_no'] or 'TBA'), cv['issue_date'] or '-', cv['issue_no'] or '-', cv['rev_no'] or '-',
+                        _eff(r['cur'].effective_from) if r['cur'] is not None else '-', r['n'],
+                        ', '.join('%s from %s' % (v.doc_no, v.effective_from.strftime('%d-%m-%Y')) for v in r['future']) or '-', r['where']],
+                       styles=[None, None, None, None, None, None, None, None, None, None, 'cell_info' if r['future'] else None, 'cell_muted'])
+    if show in ('both', 'history'):
+        ws = wb.sheet('Revision history')
+        cols = ['S. No.', 'Group', 'Form', 'Laboratory', 'Effective from', 'Status', 'Document No.', 'Issue date', 'Issue No.', 'Rev. No.', 'Reason / note', 'Recorded on', 'Recorded by']
+        ws.widths([7, 22, 44, 14, 15, 12, 26, 13, 10, 9, 60, 17, 20])
+        ws.row([head_lines[0]], style='title', merge=len(cols), height=24)
+        ws.row([head_lines[1]], style='sub', merge=len(cols))
+        ws.row([''], style='text')
+        ws.row(cols, style='head', header=True, height=30)
+        n = 0
+        for g in groups:
+            for r in g['rows']:
+                for v in sorted(r['revs'], key=lambda x: (x.effective_from, x.id)):
+                    n += 1
+                    st = _status(v, r, today)
+                    ws.row([n, g['name'], r['label'], _lab_label(r), _eff(v.effective_from), st, v.doc_no or '-', v.issue_date or '-', v.issue_no or '-', v.rev_no or '-',
+                            v.note, v.created_at.strftime('%d-%m-%Y %H:%M') if v.created_at else '-', _who(v.created_by)],
+                           styles=[None, None, None, None, None, {'In force': 'cell_ok', 'Scheduled': 'cell_info'}.get(st, 'cell_muted')])
+        if not n:
+            ws.row(['No revision on record for this selection.'], style='note', merge=len(cols))
+    ws = wb.sheets[-1]
+    ws.row([''], style='text')
+    ws.row(['Documents dated on or after the effective date of a revision print that revision; documents dated earlier keep the revision they were issued with. '
+            'Analysis reports store their form number on each report and are not listed here.'], style='note', merge=10, height=30)
+    resp = HttpResponse(wb.save(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    resp['Content-Disposition'] = 'attachment; filename="%s"' % _export_name(loc, show, today, 'xlsx')
+    return resp
+
+
+def _pdf_report(groups, loc, show, today, user):
+    from QC.views.ia_pdf import _pdf, _resp
+    ctrl = {'doc_no': 'Document Control Register', 'issue_date': today.strftime('%d-%m-%Y'), 'issue_no': '-', 'rev_no': '-'}
+    sub = '%s  -  %s' % ((loc.upper() + ' LABORATORY') if loc != 'All' else 'ALL LABORATORIES', _SHOWS[show].upper())
+    pdf = _pdf('DOCUMENT CONTROL REGISTER', sub, ctrl, loc if loc in _LABS else 'Karachi', 'L')
+    pdf.alias_nb_pages(); pdf.set_auto_page_break(True, 26)
+    if pdf.page == 0:
+        pdf.add_page()
+    f = pdf.fam
+    GREEN, GREY = (15, 81, 50), (242, 245, 243)
+    pdf.set_font(f, '', 7.5); pdf.set_text_color(80, 80, 80)
+    pdf.cell(pdf.W, 4.5, 'Generated %s by %s  -  documents dated on or after a revision\'s effective date print it; documents dated earlier keep the revision they were issued with.'
+             % (_dt.datetime.now().strftime('%d-%m-%Y %H:%M'), _who(user)), ln=1)
+    pdf.set_text_color(0, 0, 0); pdf.ln(1)
+
+    def lines(txt, w):
+        try:
+            return max(1, len(pdf.multi_cell(w - 1.6, 3.6, txt, dry_run=True, output='LINES')))
+        except Exception:
+            return 1
+
+    def table(title, cols, rowsets):
+        """cols: [(name, width, align)]; rowsets: [(group, [(values, fills)])]."""
+        def head():
+            pdf.set_font(f, 'B', 7.4); pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255); pdf.set_draw_color(160, 170, 165)
+            for name, w, _a in cols:
+                pdf.cell(w, 6, name, 1, 0, 'C', fill=True)
+            pdf.ln(6); pdf.set_text_color(0, 0, 0)
+        pdf.set_font(f, 'B', 10); pdf.set_text_color(*GREEN); pdf.cell(pdf.W, 6, title, ln=1); pdf.set_text_color(0, 0, 0)
+        head()
+        for g, rows in rowsets:
+            if pdf.get_y() + 12 > pdf.h - 26:
+                pdf.add_page(); head()
+            pdf.set_font(f, 'B', 7.6); pdf.set_fill_color(232, 243, 236); pdf.set_text_color(*GREEN)
+            pdf.cell(pdf.W, 5, g, 1, 1, 'L', fill=True); pdf.set_text_color(0, 0, 0)
+            for vals, fills in rows:
+                pdf.set_font(f, '', 7.2)
+                h = max(lines(str(v), w) for v, (_n, w, _a) in zip(vals, cols)) * 3.6 + 1.4
+                if pdf.get_y() + h > pdf.h - 26:
+                    pdf.add_page(); head()
+                x0, y0 = pdf.get_x(), pdf.get_y()
+                x = x0
+                for i, (v, (_n, w, a)) in enumerate(zip(vals, cols)):
+                    fill = fills.get(i) if fills else None
+                    if fill:
+                        pdf.set_fill_color(*fill); pdf.rect(x, y0, w, h, 'F')
+                    pdf.rect(x, y0, w, h)
+                    pdf.set_xy(x + 0.8, y0 + 0.7)
+                    pdf.multi_cell(w - 1.6, 3.6, str(v), 0, a)
+                    x += w
+                pdf.set_xy(x0, y0 + h)
+        pdf.ln(3)
+
+    if show in ('both', 'current'):
+        cols = [('S.No.', 10, 'C'), ('Form', 70, 'L'), ('Laboratory', 22, 'C'), ('Document No.', 46, 'L'), ('Issue date', 22, 'C'),
+                ('Issue', 13, 'C'), ('Rev.', 13, 'C'), ('In force since', 24, 'C'), ('Revisions', 15, 'C'), ('Scheduled', 42, 'L')]
+        rowsets, n = [], 0
+        for g in groups:
+            rs = []
+            for r in g['rows']:
+                n += 1
+                cv = r['cv']
+                sched = ', '.join('%s from %s' % (v.doc_no, v.effective_from.strftime('%d-%m-%Y')) for v in r['future']) or '-'
+                rs.append(([n, r['label'], _lab_label(r), cv['doc_no'] or 'TBA', cv['issue_date'] or '-', cv['issue_no'] or '-', cv['rev_no'] or '-',
+                            _eff(r['cur'].effective_from) if r['cur'] is not None else '-', r['n'], sched],
+                           {9: (224, 242, 254)} if r['future'] else ({3: (254, 243, 199)} if not cv['doc_no'] else None)))
+            rowsets.append((g['name'], rs))
+        table('1.  Revisions in force on %s' % today.strftime('%d-%m-%Y'), cols, rowsets)
+    if show in ('both', 'history'):
+        if show == 'both':
+            pdf.add_page()
+        cols = [('S.No.', 10, 'C'), ('Form', 52, 'L'), ('Laboratory', 19, 'C'), ('Effective from', 21, 'C'), ('Status', 17, 'C'), ('Document No.', 40, 'L'),
+                ('Issue date', 19, 'C'), ('Issue', 10, 'C'), ('Rev.', 10, 'C'), ('Reason / note', 52, 'L'), ('Recorded', 27, 'C')]
+        rowsets, n = [], 0
+        for g in groups:
+            rs = []
+            for r in g['rows']:
+                for v in sorted(r['revs'], key=lambda x: (x.effective_from, x.id)):
+                    n += 1
+                    st = _status(v, r, today)
+                    rs.append(([n, r['label'], _lab_label(r), _eff(v.effective_from), st, v.doc_no or '-', v.issue_date or '-', v.issue_no or '-', v.rev_no or '-',
+                                v.note or '-', '%s\n%s' % (v.created_at.strftime('%d-%m-%Y') if v.created_at else '-', _who(v.created_by))],
+                               {4: {'In force': (220, 252, 231), 'Scheduled': (224, 242, 254)}.get(st, (242, 245, 243))}))
+            if rs:
+                rowsets.append((g['name'], rs))
+        table('%s.  Revision history' % ('2' if show == 'both' else '1'), cols, rowsets)
+    pdf.set_font(f, '', 7); pdf.set_text_color(90, 90, 90)
+    pdf.multi_cell(pdf.W, 3.6, 'Analysis reports (drinking water, waste water, ambient air, gaseous, noise, lux, ...) store their form number on each report and are '
+                               'not listed in this register. A revision marked "From the start" is the revision in force before revision history was introduced (23-10-2026).')
+    resp = _resp(pdf, _export_name(loc, show, today, 'pdf')[:-4])
+    return resp
+
+
 def doc_register(request):
     user = request.user
-    if not (user.is_authenticated and user.is_superuser):
-        return HttpResponse('Document-control numbers are maintained by an administrator.', status=403)
+    if not user.is_authenticated:
+        return _redirect('/login/?next=/qc/document-control/')
     today = _dt.date.today()
+    if request.method == 'POST' and not user.is_superuser:
+        return HttpResponse('Document-control numbers are maintained by an administrator.', status=403)
     if request.method == 'POST':
         P = request.POST
         act = P.get('action')
@@ -112,14 +312,16 @@ def doc_register(request):
         else:
             return HttpResponse('unknown action', status=400)
         return back
-    groups = []
-    for g, forms in _groups():
-        rows = []
-        for f in forms:
-            module, label, where = f[:3]
-            locs = _locs(module, f)
-            for loc in locs:
-                rows.append(_row(module, loc, label, where, today))
-        groups.append({'name': g, 'rows': rows})
+    loc = request.GET.get('loc') if request.GET.get('loc') in _LABS else 'All'
+    show = request.GET.get('show') if request.GET.get('show') in _SHOWS else 'both'
+    groups = _build(loc, today)
+    fmt = request.GET.get('export')
+    if fmt == 'xlsx':
+        return _xlsx(groups, loc, show, today, user)
+    if fmt == 'pdf':
+        return _pdf_report(groups, loc, show, today, user)
     focus = request.GET.get('focus') or ''
-    return render(request, 'doc_register.html', {'groups': groups, 'today': today, 'focus': focus, 'n_rev': DocControlRevision.objects.count()})
+    n_rev = sum(r['n'] for g in groups for r in g['rows'])
+    return render(request, 'doc_register.html', {'groups': groups, 'today': today, 'focus': focus, 'n_rev': n_rev, 'loc': loc, 'show': show,
+                                                 'shows': list(_SHOWS.items()), 'labs': ['All'] + _LABS, 'can_admin': user.is_superuser,
+                                                 'n_forms': sum(len(g['rows']) for g in groups)})

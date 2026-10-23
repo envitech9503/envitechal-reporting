@@ -39,6 +39,7 @@ urlpatterns = [
     path('detox/', include('detox.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('qc/', include('QC.urls')),
+    path('management/', include('QC.mgmt_urls')),           # Management Records / Reports (24-10-2026)
     path('login/',views.userlogin,name="login"),
     path('logout/',views.logoutUser,name="logout"),
     path('home/', views.home, name="home"),

@@ -1,5 +1,7 @@
 {% load static %}{% comment %}
-Envi Tech AL — QC module sidebar (31-07-2026).
+Envi Tech AL — QC module sidebar (31-07-2026). With `mgmt=1` it is the Management Records / Reports
+sidebar (24-10-2026: Internal Audit and the Document Control register moved there; future ISO/IEC 17025
+Clause 8 management-system sections are added to that branch).
 
 Every QC page includes this one partial, so the QC menu cannot drift between
 pages the way the Reports sidebar did. Markup, styling and behaviour are all
@@ -47,6 +49,7 @@ partial then pins itself to the left edge and indents the page body to match.
   {% comment %}08-10-2026: the sidebar no longer repeats the company logo - the unified
   navigation bar directly above already carries the brand.{% endcomment %}
   <nav class="etqc-nav">
+  {% if not mgmt %}
     <p class="etqc-title">QC Forms</p>
 
     <button type="button" class="etqc-sec" data-etqc="etqcRdsDw" aria-expanded="false">
@@ -138,8 +141,16 @@ partial then pins itself to the left edge and indents the page body to match.
     </div>
     <hr class="etqc-hr">
 
+    <a href="{% url 'mgmt_home' %}" class="etqc-sec" style="text-decoration:none;color:#6fe39a"><i class="fa-solid fa-sitemap"></i>Management Records / Reports<i class="fa-solid fa-arrow-right" style="margin-left:auto;font-size:.65rem"></i></a>
+    <p style="font-size:.72rem;color:#9ca3af;margin:.1rem 0 0 1.45rem">Internal Audit and the Document Control register have moved to the Management module.</p>
+  {% else %}
+    <p class="etqc-title">Management Records</p>
+    <a href="{% url 'mgmt_home' %}" class="etqc-sec" style="text-decoration:none"><i class="fa-solid fa-sitemap"></i>Management home (ISO/IEC 17025 Clause 8)<span></span></a>
+    <hr class="etqc-hr">
+    <a href="{% url 'doc_register' %}" class="etqc-sec" style="text-decoration:none"><i class="fa-solid fa-file-shield"></i>Document Control register (8.3)<span></span></a>
+    <hr class="etqc-hr">
     <button type="button" class="etqc-sec" data-etqc="etqcIA" aria-expanded="false">
-      <i class="fa-solid fa-clipboard-check"></i>Internal Audit<i class="fa-solid fa-chevron-right"></i>
+      <i class="fa-solid fa-clipboard-check"></i>Internal Audit (8.8)<i class="fa-solid fa-chevron-right"></i>
     </button>
     <div class="etqc-panel" id="etqcIA">
       <a href="{% url 'ia_home' %}">Dashboard</a>
@@ -156,10 +167,9 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'ia_manual' %}" target="_blank" rel="noopener">User Manual</a>
       {% if request.user.is_superuser %}<a href="{% url 'ia_doccontrol' %}">Document Control (admin)</a>{% endif %}
     </div>
-    {% if request.user.is_superuser %}
     <hr class="etqc-hr">
-    <a href="{% url 'doc_register' %}" class="etqc-sec" style="text-decoration:none"><i class="fa-solid fa-file-shield"></i>Document Control register<span></span></a>
-    {% endif %}
+    <a href="{% url 'qc_main' %}" class="etqc-sec" style="text-decoration:none;color:#9ca3af"><i class="fa-solid fa-arrow-left"></i>QC Forms<span></span></a>
+  {% endif %}
   </nav>
 </div>
 <script>

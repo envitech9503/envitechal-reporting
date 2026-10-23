@@ -43,10 +43,9 @@
 {% endblock %}{% block w2_content %}
 <body>
 {% include "_unified_nav.html" %}
-{% include "_qc_sidebar.html" with fixed=1 %}
+{% include "_qc_sidebar.html" with fixed=1 mgmt=1 %}
 <div style="max-width:1200px;margin:12px auto 0;padding:0 16px;font-size:12px;color:#64748b">
-  <a href="/qc/qc_main/" style="color:#0f5132;text-decoration:none">QC</a> &rsaquo;
-  <span>Document Control register</span>{% block crumb %}{% endblock %}
+  <a href="/management/" style="color:#0f5132;text-decoration:none">Management Records</a>{% block crumb %} &rsaquo; <span>Document Control register</span>{% endblock %}
 </div>
 <div class="wrap">
 {% if messages %}{% for m in messages %}<div class="card"><div class="msg {{ m.level_tag }}" data-tags="{{ m.extra_tags }}">{{ m }}</div></div>{% endfor %}{% endif %}

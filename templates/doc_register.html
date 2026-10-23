@@ -17,10 +17,23 @@
   .dr-form input{border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px;font-family:inherit}
   .dr-sub{font-size:12.5px;font-weight:700;color:#0f5132;margin:10px 0 2px}
   .muted2{color:#94a3b8;font-size:11.5px}
+  .dr-filter{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;padding:12px 18px;border-top:1px solid #eef2f6;background:#fbfdfc}
+  .dr-filter label{display:flex;flex-direction:column;font-size:11.5px;color:#475569;gap:3px}
+  .dr-filter select{border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;font-size:13px;font-family:inherit;background:#fff}
+  .dr-dl{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 </style>
 <div class="card">
-  <div class="hd"><div class="title"><i class="fa-solid fa-file-shield"></i> Document Control register <span class="muted">every controlled form of the reporting software &middot; {{ n_rev }} revisions on record</span></div></div>
-  <div class="msg info"><b>How revisions work.</b> Each form keeps its full revision history. <b>Issue new revision</b> when the laboratory revises a form: enter the new document number, issue date, issue and revision numbers, the <b>effective date</b> and the reason - documents dated on or after the effective date print the new revision, every document dated earlier keeps the revision it was issued with (report, plan, circular, audit, NC, RCA, study, preparation or job date; a control-chart sheet follows the end of its month or cycle, so the sheet still open takes the new revision and closed periods keep theirs). <b>Correct</b> only fixes a typing error in an existing revision; the previous values stay in the audit history. Revisions are never deleted. Analysis reports (drinking water, waste water, ambient air, gaseous, noise, lux, ...) store their form number on each report and are not affected by this register.</div>
+  <div class="hd"><div class="title"><i class="fa-solid fa-file-shield"></i> Document Control register <span class="muted">every controlled form of the reporting software &middot; {{ n_forms }} forms &middot; {{ n_rev }} revisions on record</span></div></div>
+  <form method="get" class="dr-filter">
+    <label>Laboratory<select name="loc" onchange="this.form.submit()">{% for l in labs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{% if l == 'All' %}All laboratories{% else %}{{ l }}{% endif %}</option>{% endfor %}</select></label>
+    <label>Show<select name="show" onchange="this.form.submit()">{% for k, v in shows %}<option value="{{ k }}" {% if k == show %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+    <noscript><button class="btn" type="submit">Apply</button></noscript>
+    <span class="dr-dl">
+      <a class="btn btn-p" href="?loc={{ loc }}&amp;show={{ show }}&amp;export=pdf" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Download PDF</a>
+      <a class="btn" href="?loc={{ loc }}&amp;show={{ show }}&amp;export=xlsx"><i class="fa-solid fa-file-excel"></i> Download Excel</a>
+    </span>
+  </form>
+  <div class="msg info"><b>How revisions work.</b> Each form keeps its full revision history. <b>Issue new revision</b> (administrator) when the laboratory revises a form: enter the new document number, issue date, issue and revision numbers, the <b>effective date</b> and the reason - documents dated on or after the effective date print the new revision, every document dated earlier keeps the revision it was issued with (report, plan, circular, audit, NC, RCA, study, preparation or job date; a control-chart sheet follows the end of its month or cycle, so the sheet still open takes the new revision and closed periods keep theirs). <b>Correct</b> only fixes a typing error in an existing revision; the previous values stay in the audit history. Revisions are never deleted. Analysis reports (drinking water, waste water, ambient air, gaseous, noise, lux, ...) store their form number on each report and are not affected by this register.</div>
 </div>
 {% for g in groups %}
 <div class="card dr-grp">
@@ -28,17 +41,17 @@
   <div class="dr-head th"><span>Form</span><span>Laboratory</span><span>Document No. (in force today)</span><span>Issue date</span><span>Issue</span><span>Rev.</span><span>In force since</span><span>Revisions</span></div>
   {% for r in g.rows %}
   <div class="dr-row" id="{{ r.module }}__{{ r.location }}">
-    <details {% if focus == r.key2 %}open{% endif %}>
+    <details {% if focus == r.key2 or show == 'history' %}open{% endif %}>
       <summary><div class="dr-head">
         <span><b>{{ r.label }}</b><br><span class="muted2">{{ r.where }}</span></span>
         <span>{% if r.location == '*' %}{% if 'cc_chart_' in r.module %}<span class="pill none">This chart</span>{% else %}<span class="pill none" title="Used for both laboratories / where no laboratory applies">Both / other</span>{% endif %}{% else %}{{ r.location }}{% endif %}</span>
         <span>{% if r.cur %}<b>{{ r.cur.doc_no|default:"-" }}</b>{% elif r.seed_doc %}{{ r.seed_doc }}{% else %}<span class="pill warn">TBA</span>{% endif %}</span>
         <span>{{ r.cv.issue_date|default:"-" }}</span><span>{{ r.cv.issue_no|default:"-" }}</span><span>{{ r.cv.rev_no|default:"-" }}</span>
         <span>{% if r.cur %}{% if r.cur.effective_from.year == 2000 %}<span class="muted">from the start</span>{% else %}{{ r.cur.effective_from|date:"d-m-Y" }}{% endif %}{% else %}-{% endif %}</span>
-        <span>{{ r.n }}{% if r.future %} <span class="pill info" title="A revision with a future effective date">{{ r.future|length }} scheduled</span>{% endif %} <span class="btn" style="padding:3px 9px;font-size:12px">History &amp; revise</span></span>
+        <span>{{ r.n }}{% if r.future %} <span class="pill info" title="A revision with a future effective date">{{ r.future|length }} scheduled</span>{% endif %} <span class="btn" style="padding:3px 9px;font-size:12px">{% if can_admin %}History &amp; revise{% else %}History{% endif %}</span></span>
       </div></summary>
       <div class="dr-body">
-        {% if r.revs %}
+        {% if r.revs and show != 'current' %}
         <table>
           <thead><tr><th>Effective from</th><th>Document No.</th><th>Issue date</th><th>Issue</th><th>Rev.</th><th>Reason / note</th><th>Recorded</th><th></th></tr></thead>
           <tbody>
@@ -48,20 +61,20 @@
               <td><b>{{ v.doc_no|default:"-" }}</b></td><td>{{ v.issue_date|default:"-" }}</td><td>{{ v.issue_no }}</td><td>{{ v.rev_no }}</td>
               <td style="max-width:320px">{{ v.note }}</td>
               <td class="nw muted">{{ v.created_at|date:"d-m-Y H:i" }}{% if v.created_by %}<br>{{ v.created_by.get_full_name|default:v.created_by.username }}{% endif %}</td>
-              <td><details><summary class="btn" style="padding:3px 9px;font-size:12px">Correct</summary>
+              <td>{% if can_admin %}<details><summary class="btn" style="padding:3px 9px;font-size:12px">Correct</summary>
                 <form method="post" class="dr-form">{% csrf_token %}<input type="hidden" name="action" value="correct"><input type="hidden" name="module" value="{{ r.module }}"><input type="hidden" name="location" value="{{ r.location }}"><input type="hidden" name="rev" value="{{ v.id }}">
                   <label>Document No.<input name="doc_no" value="{{ v.doc_no }}" maxlength="60" style="width:170px"></label>
                   <label>Issue date<input name="issue_date" value="{{ v.issue_date }}" maxlength="20" style="width:100px"></label>
                   <label>Issue<input name="issue_no" value="{{ v.issue_no }}" maxlength="10" style="width:55px"></label>
                   <label>Rev.<input name="rev_no" value="{{ v.rev_no }}" maxlength="10" style="width:55px"></label>
                   <label>Reason for the correction<input name="note" required minlength="5" style="width:240px" placeholder="e.g. typing error in the issue date"></label>
-                  <button class="btn" type="submit" onclick="return confirm('Correct this revision? Every document dated in its period prints the corrected values.')">Save correction</button></form></details></td>
+                  <button class="btn" type="submit" onclick="return confirm('Correct this revision? Every document dated in its period prints the corrected values.')">Save correction</button></form></details>{% endif %}</td>
             </tr>
           {% endfor %}
           </tbody>
         </table>
-        {% else %}<div class="muted" style="margin:6px 0">No revision recorded yet - the form prints "TBA" until the first one is issued.</div>{% endif %}
-        <div class="dr-sub"><i class="fa-solid fa-plus"></i> Issue new revision - {{ r.label }} ({% if r.location == '*' %}both / other{% else %}{{ r.location }}{% endif %})</div>
+        {% elif not r.revs %}<div class="muted" style="margin:6px 0">No revision recorded yet - the form prints "TBA" until the first one is issued.</div>{% endif %}
+        {% if can_admin %}<div class="dr-sub"><i class="fa-solid fa-plus"></i> Issue new revision - {{ r.label }} ({% if r.location == '*' %}both / other{% else %}{{ r.location }}{% endif %})</div>
         <form method="post" class="dr-form">{% csrf_token %}<input type="hidden" name="action" value="issue"><input type="hidden" name="module" value="{{ r.module }}"><input type="hidden" name="location" value="{{ r.location }}">
           <label>Document No.<input name="doc_no" value="{{ r.seed_doc }}" required maxlength="60" style="width:170px"></label>
           <label>Issue date<input name="issue_date" value="{{ r.cv.issue_date }}" placeholder="dd-mm-yyyy" maxlength="20" style="width:100px"></label>
@@ -69,7 +82,7 @@
           <label>Rev.<input name="rev_no" value="{{ r.cv.rev_no|default:'00' }}" maxlength="10" style="width:55px"></label>
           <label>Effective from (documents dated on/after)<input type="date" name="effective_from" value="{{ today|date:'Y-m-d' }}" required></label>
           <label>Reason<input name="note" required minlength="5" style="width:240px" placeholder="e.g. form revised, Issue 03 Rev 00 approved by CEO"></label>
-          <button class="btn btn-p" type="submit" onclick="return confirm('Issue this new revision? Documents dated from the effective date print it; earlier documents keep theirs.')"><i class="fa-solid fa-file-circle-plus"></i> Issue new revision</button></form>
+          <button class="btn btn-p" type="submit" onclick="return confirm('Issue this new revision? Documents dated from the effective date print it; earlier documents keep theirs.')"><i class="fa-solid fa-file-circle-plus"></i> Issue new revision</button></form>{% endif %}
       </div>
     </details>
   </div>

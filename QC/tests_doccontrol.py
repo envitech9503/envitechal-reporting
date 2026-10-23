@@ -139,11 +139,40 @@ class RegisterPageTests(TestCase):
         self.chem = User.objects.create_user('chem', 'c@x', 'x')
 
     def test_permissions(self):
-        self.assertEqual(_client(self.chem).get('/qc/document-control/').status_code, 403)
+        # every logged-in user views, filters and downloads; only the administrator issues / corrects (24-10-2026)
+        r = _client(self.chem).get('/qc/document-control/')
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, 'name="action" value="issue"')
+        self.assertContains(r, 'Download PDF')
         self.assertEqual(_client(self.chem).post('/qc/document-control/', {'action': 'issue'}).status_code, 403)
+        self.assertEqual(Client(REMOTE_ADDR='127.0.0.1').get('/qc/document-control/').status_code, 302)
         r = _client(self.admin).get('/qc/document-control/')
         self.assertContains(r, 'Document Control register')
         self.assertContains(r, 'Job completion form')
+        self.assertContains(r, 'name="action" value="issue"')
+
+    def test_filters_and_downloads(self):
+        import io, zipfile
+        DC.issue_revision('mou', 'Lahore', _vals('MOU-L1'), D(2000, 1, 1), 'baseline', self.admin)
+        DC.issue_revision('mou', 'Lahore', _vals('MOU-L2', issue_no='02'), TODAY + _dt.timedelta(days=5), 'scheduled revision', self.admin)
+        c = _client(self.chem)
+        r = c.get('/qc/document-control/?loc=Karachi&show=current')
+        self.assertNotContains(r, 'MOU-L1')
+        r = c.get('/qc/document-control/?loc=Lahore&show=history')
+        self.assertContains(r, 'MOU-L1'); self.assertContains(r, 'MOU-L2')
+        for loc in ('All', 'Karachi', 'Lahore'):
+            for show in ('both', 'current', 'history'):
+                r = c.get('/qc/document-control/?loc=%s&show=%s&export=pdf' % (loc, show))
+                self.assertEqual((r.status_code, r['Content-Type']), (200, 'application/pdf'))
+                self.assertTrue(r.content.startswith(b'%PDF'))
+                r = c.get('/qc/document-control/?loc=%s&show=%s&export=xlsx' % (loc, show))
+                self.assertEqual(r.status_code, 200)
+                self.assertIn('attachment', r['Content-Disposition'])
+                z = zipfile.ZipFile(io.BytesIO(r.content))
+                sheets = [n for n in z.namelist() if n.startswith('xl/worksheets/')]
+                self.assertEqual(len(sheets), 2 if show == 'both' else 1)
+                body = b''.join(z.read(n) for n in sheets)
+                self.assertEqual(b'MOU-L2' in body, loc in ('All', 'Lahore'), (loc, show))
 
     def test_issue_and_correct(self):
         a = _client(self.admin)
@@ -200,3 +229,26 @@ class SeededHardCodedTests(TestCase):
         o = Dw_rds.objects.create(sample_id='S-1')
         self.assertEqual(DC.first_saved(o), _dt.date.today())
         self.assertEqual(DC.first_saved(object()), _dt.date.today())
+
+
+class ManagementModuleTests(TestCase):
+    """Management Records / Reports module (24-10-2026): home with the ISO/IEC 17025 clause map, main-menu button,
+    Internal Audit and the Document Control register in its sidebar; old addresses unchanged."""
+    def setUp(self):
+        self.chem = User.objects.create_user('chem', 'c@x', 'x')
+
+    def test_home_and_navigation(self):
+        c = _client(self.chem)
+        r = c.get('/management/')
+        self.assertEqual(r.status_code, 200)
+        for t in ('Management Records / Reports', '8.3', '8.8', '8.9', 'Planned', 'Document Control register (8.3)', 'Internal Audit (8.8)'):
+            self.assertContains(r, t)
+        self.assertEqual(c.get('/management/?loc=Lahore').status_code, 200)
+        self.assertEqual(c.get('/management/ia/')['Location'], '/qc/ia/')
+        self.assertEqual(c.get('/management/document-control/?loc=Lahore')['Location'], '/qc/document-control/?loc=Lahore')
+        self.assertContains(c.get('/qc/ia/'), 'Management Records</p>')
+        self.assertContains(c.get('/qc/document-control/'), 'Management Records</p>')
+        r = c.get('/qc/qc_main/')
+        self.assertContains(r, 'QC Forms</p>'); self.assertNotContains(r, 'id="etqcIA"')
+        self.assertContains(r, 'href="/management/"')
+        self.assertEqual(Client(REMOTE_ADDR='127.0.0.1').get('/management/').status_code, 302)
