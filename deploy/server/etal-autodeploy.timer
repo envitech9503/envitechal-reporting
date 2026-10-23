@@ -1,0 +1,10 @@
+[Unit]
+Description=Envi Tech AL pull deployment - check every 5 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+RandomizedDelaySec=20
+
+[Install]
+WantedBy=timers.target

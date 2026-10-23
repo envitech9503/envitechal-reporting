@@ -62,7 +62,7 @@
               <td style="max-width:320px">{{ v.note }}</td>
               <td class="nw muted">{{ v.created_at|date:"d-m-Y H:i" }}{% if v.created_by %}<br>{{ v.created_by.get_full_name|default:v.created_by.username }}{% endif %}</td>
               <td>{% if can_admin %}<details><summary class="btn" style="padding:3px 9px;font-size:12px">Correct</summary>
-                <form method="post" class="dr-form">{% csrf_token %}<input type="hidden" name="action" value="correct"><input type="hidden" name="module" value="{{ r.module }}"><input type="hidden" name="location" value="{{ r.location }}"><input type="hidden" name="rev" value="{{ v.id }}">
+                <form method="post" class="dr-form">{% csrf_token %}<input type="hidden" name="action" value="correct"><input type="hidden" name="module" value="{{ r.module }}"><input type="hidden" name="location" value="{{ r.location }}"><input type="hidden" name="f_loc" value="{{ loc }}"><input type="hidden" name="f_show" value="{{ show }}"><input type="hidden" name="rev" value="{{ v.id }}">
                   <label>Document No.<input name="doc_no" value="{{ v.doc_no }}" maxlength="60" style="width:170px"></label>
                   <label>Issue date<input name="issue_date" value="{{ v.issue_date }}" maxlength="20" style="width:100px"></label>
                   <label>Issue<input name="issue_no" value="{{ v.issue_no }}" maxlength="10" style="width:55px"></label>
@@ -73,9 +73,9 @@
           {% endfor %}
           </tbody>
         </table>
-        {% elif not r.revs %}<div class="muted" style="margin:6px 0">No revision recorded yet - the form prints "TBA" until the first one is issued.</div>{% endif %}
+        {% elif not r.revs %}<div class="muted" style="margin:6px 0">No revision recorded yet - the form prints "TBA" until the first one is issued.</div>{% elif not can_admin %}<div class="muted" style="margin:6px 0">{{ r.n }} revision{{ r.n|pluralize }} on record - <a href="?loc={{ loc }}&amp;show=history&amp;focus={{ r.key2 }}#{{ r.key2 }}">show the revision history</a>.</div>{% endif %}
         {% if can_admin %}<div class="dr-sub"><i class="fa-solid fa-plus"></i> Issue new revision - {{ r.label }} ({% if r.location == '*' %}both / other{% else %}{{ r.location }}{% endif %})</div>
-        <form method="post" class="dr-form">{% csrf_token %}<input type="hidden" name="action" value="issue"><input type="hidden" name="module" value="{{ r.module }}"><input type="hidden" name="location" value="{{ r.location }}">
+        <form method="post" class="dr-form">{% csrf_token %}<input type="hidden" name="action" value="issue"><input type="hidden" name="module" value="{{ r.module }}"><input type="hidden" name="location" value="{{ r.location }}"><input type="hidden" name="f_loc" value="{{ loc }}"><input type="hidden" name="f_show" value="{{ show }}">
           <label>Document No.<input name="doc_no" value="{{ r.seed_doc }}" required maxlength="60" style="width:170px"></label>
           <label>Issue date<input name="issue_date" value="{{ r.cv.issue_date }}" placeholder="dd-mm-yyyy" maxlength="20" style="width:100px"></label>
           <label>Issue<input name="issue_no" value="{{ r.cv.issue_no|default:'01' }}" maxlength="10" style="width:55px"></label>

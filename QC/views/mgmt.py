@@ -15,18 +15,20 @@ _LABS = ['Karachi', 'Lahore']
 def _clause_map(loc):
     """[(group, [card])] - card: clause, title, scope, status ('live' / 'partial' / 'planned'), links, stats."""
     from QC.models import IaAudit, Ncca, NccaRca, IaPlan
-    from EnviTechAlApp.models import DocControlRevision
     labs = _LABS if loc == 'All' else [loc]
     q = '?location=%s' % (labs[0] if len(labs) == 1 else 'Karachi')
     today = _dt.date.today()
-    open_nc = Ncca.objects.filter(location__in=labs).exclude(status__in=('closed', 'draft')).count()
-    overdue = sum(1 for n in Ncca.objects.filter(location__in=labs).exclude(status__in=('closed', 'draft'))
-                  if (n.target_date or n.proposed_date) and (n.target_date or n.proposed_date) < today)
-    rca_pending = Ncca.objects.filter(location__in=labs, rca__isnull=True).exclude(status__in=('closed', 'draft')).count()
+    # same definitions as the Internal Audit dashboard (open = not closed) and the RCA register (pending RCA)
+    open_q = Ncca.objects.filter(location__in=labs).exclude(status='closed')
+    open_nc = open_q.count()
+    overdue = open_q.filter(target_date__lt=today).count() + open_q.filter(target_date__isnull=True, proposed_date__lt=today).count()
+    rca_pending = Ncca.objects.filter(location__in=labs, rca__isnull=True, log_only=False).exclude(status__in=('closed', 'draft')).count()
     audits_y = IaAudit.objects.filter(location__in=labs, year=today.year).count()
     plan_y = IaPlan.objects.filter(location__in=labs, year=today.year).count()
-    sched = DocControlRevision.objects.filter(effective_from__gt=today).filter(location__in=labs + ['*']).count()
-    revs = DocControlRevision.objects.filter(location__in=labs + ['*']).count()
+    from QC.views.doc_register import _build
+    reg_rows = [r for g in _build(loc, today) for r in g['rows']]          # exactly what the register shows for this filter
+    revs = sum(r['n'] for r in reg_rows)
+    sched = sum(len(r['future']) for r in reg_rows)
     reg = '/qc/document-control/' + ('' if loc == 'All' else '?loc=%s' % loc)
     return [
         ('Management system (Clause 8)', [
@@ -74,7 +76,8 @@ def _clause_map(loc):
 
 def mgmt_home(request):
     if not request.user.is_authenticated:
-        return _redirect('/login/?next=/management/')
+        from urllib.parse import quote
+        return _redirect('/login/?next=' + quote(request.get_full_path()))
     loc = request.GET.get('loc') if request.GET.get('loc') in _LABS else 'All'
     groups = _clause_map(loc)
     n = {'live': 0, 'partial': 0, 'planned': 0}
@@ -85,7 +88,8 @@ def mgmt_home(request):
 
 
 def mgmt_ia(request):
-    return _redirect('/qc/ia/')
+    q = request.META.get('QUERY_STRING', '')
+    return _redirect('/qc/ia/' + ('?' + q if q else ''))
 
 
 def mgmt_doc_register(request):

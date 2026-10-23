@@ -162,11 +162,14 @@ def _xlsx(groups, loc, show, today, user):
                             v.note, v.created_at.strftime('%d-%m-%Y %H:%M') if v.created_at else '-', _who(v.created_by)],
                            styles=[None, None, None, None, None, {'In force': 'cell_ok', 'Scheduled': 'cell_info'}.get(st, 'cell_muted')])
         if not n:
+            ws.end_data()
             ws.row(['No revision on record for this selection.'], style='note', merge=len(cols))
+    for s_ in wb.sheets:
+        s_.end_data()                       # the auto-filter covers the data rows only, not the notes below
     ws = wb.sheets[-1]
     ws.row([''], style='text')
     ws.row(['Documents dated on or after the effective date of a revision print that revision; documents dated earlier keep the revision they were issued with. '
-            'Analysis reports store their form number on each report and are not listed here.'], style='note', merge=10, height=30)
+            'Analysis reports store their form number on each report and are not listed here.'], style='note', merge=ws.ncols or 10, height=30)
     resp = HttpResponse(wb.save(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     resp['Content-Disposition'] = 'attachment; filename="%s"' % _export_name(loc, show, today, 'xlsx')
     return resp
@@ -202,6 +205,8 @@ def _pdf_report(groups, loc, show, today, user):
             pdf.ln(6); pdf.set_text_color(0, 0, 0)
         pdf.set_font(f, 'B', 10); pdf.set_text_color(*GREEN); pdf.cell(pdf.W, 6, title, ln=1); pdf.set_text_color(0, 0, 0)
         head()
+        if not rowsets:
+            pdf.set_font(f, '', 7.6); pdf.cell(pdf.W, 6, 'No revision on record for this selection.', 1, 1, 'C')
         for g, rows in rowsets:
             if pdf.get_y() + 12 > pdf.h - 26:
                 pdf.add_page(); head()
@@ -212,6 +217,8 @@ def _pdf_report(groups, loc, show, today, user):
                 h = max(lines(str(v), w) for v, (_n, w, _a) in zip(vals, cols)) * 3.6 + 1.4
                 if pdf.get_y() + h > pdf.h - 26:
                     pdf.add_page(); head()
+                    pdf.set_font(f, 'B', 7.6); pdf.set_fill_color(232, 243, 236); pdf.set_text_color(*GREEN)
+                    pdf.cell(pdf.W, 5, g + ' (contd.)', 1, 1, 'L', fill=True); pdf.set_text_color(0, 0, 0); pdf.set_font(f, '', 7.2)
                 x0, y0 = pdf.get_x(), pdf.get_y()
                 x = x0
                 for i, (v, (_n, w, a)) in enumerate(zip(vals, cols)):
@@ -268,7 +275,8 @@ def _pdf_report(groups, loc, show, today, user):
 def doc_register(request):
     user = request.user
     if not user.is_authenticated:
-        return _redirect('/login/?next=/qc/document-control/')
+        from urllib.parse import quote
+        return _redirect('/login/?next=' + quote(request.get_full_path()))
     today = _dt.date.today()
     if request.method == 'POST' and not user.is_superuser:
         return HttpResponse('Document-control numbers are maintained by an administrator.', status=403)
@@ -278,7 +286,9 @@ def doc_register(request):
         module, location = (P.get('module') or '').strip()[:40], (P.get('location') or '').strip()[:20]
         vals = {f: (P.get(f) or '').strip() for f in DC.FIELDS}
         note = (P.get('note') or '').strip()
-        back = _redirect('/qc/document-control/?focus=%s__%s#%s__%s' % (module, location, module, location))
+        f_loc = P.get('f_loc') if P.get('f_loc') in _LABS else 'All'
+        f_show = P.get('f_show') if P.get('f_show') in _SHOWS else 'both'
+        back = _redirect('/qc/document-control/?loc=%s&show=%s&focus=%s__%s#%s__%s' % (f_loc, f_show, module, location, module, location))
         if (module, location) not in _allowed():
             return HttpResponse('bad request', status=400)
         if len(note) < 5:

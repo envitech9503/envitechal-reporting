@@ -1,0 +1,8 @@
+[Unit]
+Description=Envi Tech AL pull deployment (deploy-* tags from GitHub)
+After=network-online.target gunicorn.service
+
+[Service]
+Type=oneshot
+ExecStart=/root/bin/etal-autodeploy.sh
+TimeoutStartSec=1800

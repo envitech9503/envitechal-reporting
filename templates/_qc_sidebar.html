@@ -220,7 +220,7 @@ partial then pins itself to the left edge and indents the page body to match.
   // so the menu never reads as empty.
   if (!root.querySelector('.etqc-panel.etqc-open')) {
     var first = root.querySelector('.etqc-panel');
-    var firstBtn = root.querySelector('.etqc-sec');
+    var firstBtn = first ? root.querySelector('[data-etqc="' + first.id + '"]') : null;
     if (first) first.classList.add('etqc-open');
     if (firstBtn) firstBtn.setAttribute('aria-expanded', 'true');
   }

@@ -70,7 +70,18 @@ def _clean(v):
 class Sheet:
     def __init__(self, name):
         self.name = _clean(name)[:31] or 'Sheet'
-        self.rows, self.merges, self._widths, self.header_row, self.ncols = [], [], [], None, 0
+        self.rows, self.merges, self._widths, self.header_row, self.ncols, self.data_end = [], [], [], None, 0, None
+
+    def end_data(self):
+        """Mark the last data row: the auto-filter stops here (notes written later stay outside it)."""
+        if self.data_end is None:
+            self.data_end = len(self.rows)
+
+    def _last(self):
+        return self.data_end if self.data_end is not None else len(self.rows)
+
+    def has_filter(self):
+        return bool(self.header_row and self.ncols and self._last() > self.header_row)
 
     def widths(self, ws):
         self._widths = list(ws)
@@ -107,8 +118,8 @@ class Sheet:
                     out.append('<c r="%s%d" t="inlineStr" s="%d"><is><t xml:space="preserve">%s</t></is></c>' % (_col(j), i, st, _esc(_clean(v))))
             out.append('</row>')
         out.append('</sheetData>')
-        if self.header_row and self.ncols and len(self.rows) > self.header_row:
-            out.append('<autoFilter ref="A%d:%s%d"/>' % (self.header_row, _col(self.ncols - 1), len(self.rows)))
+        if self.has_filter():
+            out.append('<autoFilter ref="A%d:%s%d"/>' % (self.header_row, _col(self.ncols - 1), self._last()))
         if self.merges:
             out.append('<mergeCells count="%d">%s</mergeCells>' % (len(self.merges), ''.join('<mergeCell ref="%s"/>' % m for m in self.merges)))
         out.append('<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>')
@@ -125,6 +136,12 @@ class Workbook:
         s = Sheet(name)
         self.sheets.append(s)
         return s
+
+    def _defined_names(self):
+        names = ['<definedName name="_xlnm._FilterDatabase" localSheetId="%d" hidden="1">\'%s\'!$A$%d:$%s$%d</definedName>'
+                 % (i, _esc(s.name.replace("'", "''")), s.header_row, _col(s.ncols - 1), s._last())
+                 for i, s in enumerate(self.sheets) if s.has_filter()]
+        return '<definedNames>%s</definedNames>' % ''.join(names) if names else ''
 
     def save(self):
         buf = io.BytesIO()
@@ -146,11 +163,7 @@ class Workbook:
                        'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'
                        + ''.join('<sheet name="%s" sheetId="%d" r:id="rId%d"/>' % (_esc(s.name, {'"': '&quot;'}), i + 1, i + 1) for i, s in enumerate(self.sheets))
                        + '</sheets>'
-                       + ''.join('<definedNames>%s</definedNames>' % ''.join(
-                           '<definedName name="_xlnm._FilterDatabase" localSheetId="%d" hidden="1">\'%s\'!$A$%d:$%s$%d</definedName>'
-                           % (i, _esc(s.name.replace("'", "''")), s.header_row, _col(s.ncols - 1), len(s.rows))
-                           for i, s in enumerate(self.sheets) if s.header_row and s.ncols and len(s.rows) > s.header_row) for _ in [0]
-                           if any(s.header_row and s.ncols and len(s.rows) > s.header_row for s in self.sheets))
+                       + self._defined_names()
                        + '</workbook>')
             z.writestr('xl/_rels/workbook.xml.rels',
                        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'

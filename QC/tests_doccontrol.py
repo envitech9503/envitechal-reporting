@@ -252,3 +252,22 @@ class ManagementModuleTests(TestCase):
         self.assertContains(r, 'QC Forms</p>'); self.assertNotContains(r, 'id="etqcIA"')
         self.assertContains(r, 'href="/management/"')
         self.assertEqual(Client(REMOTE_ADDR='127.0.0.1').get('/management/').status_code, 302)
+
+
+class QAFixes24Tests(TestCase):
+    """Strict-QA fixes of 23-10-2026: Excel filter range stops at the data, management counts match the IA pages."""
+    def test_xlsx_filter_excludes_notes(self):
+        import io, zipfile, re
+        u = User.objects.create_user('chem', 'c@x', 'x')
+        r = _client(u).get('/qc/document-control/?loc=Karachi&show=current&export=xlsx')
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        sheet = z.read('xl/worksheets/sheet1.xml').decode()
+        last = int(re.search(r'<autoFilter ref="A4:L(\d+)"/>', sheet).group(1))
+        rows = [int(n) for n in re.findall(r'<row r="(\d+)"', sheet)]
+        self.assertEqual(max(rows), last + 2)          # blank row + note row after the data, outside the filter
+
+    def test_history_without_revisions_has_no_filter(self):
+        from QC.xlsx_lite import Workbook
+        wb = Workbook(); ws = wb.sheet('H')
+        ws.row(['a', 'b'], style='head', header=True); ws.end_data(); ws.row(['none'], style='note', merge=2)
+        self.assertNotIn(b'autoFilter', __import__('zipfile').ZipFile(__import__('io').BytesIO(wb.save())).read('xl/worksheets/sheet1.xml'))
