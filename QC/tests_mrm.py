@@ -177,3 +177,86 @@ class WorkflowTests(TestCase):
         self.assertEqual(mrm_docctrl('minutes', 'Karachi', D(2025, 1, 1))['issue_no'], '02')
         self.assertEqual(mrm_docctrl('checklist', 'Lahore', D(2025, 6, 1))['issue_date'], '25-04-2025')
         self.assertEqual(mrm_docctrl('checklist', 'Karachi', D(2025, 6, 1))['doc_no'], 'ETAL-QMS-809-FF-04')
+
+
+class NamedSignatureTests(TestCase):
+    """24-10-2026: inducted (paper) records print the e-signature of the named signatory when one is on file."""
+
+    @classmethod
+    def setUpTestData(cls):
+        import tempfile
+        from PIL import Image
+        from django.contrib.auth.models import User
+        from django.core.files import File
+        from EnviTechAlApp.models import Signatures
+        mk_users(cls)
+        cls.tmp = tempfile.mkdtemp()
+        def sig(username, first, last, active=True):
+            u = User.objects.create_user(username, password='x', first_name=first, last_name=last, is_active=active)
+            p = os.path.join(cls.tmp, username + '.png'); Image.new('RGBA', (120, 40), (20, 40, 160, 255)).save(p)
+            s = Signatures(user=u)
+            with open(p, 'rb') as fh:
+                s.signature.save(username + '.png', File(fh), save=True)
+            return u
+        cls.kazmi = sig('ImranKazmiT', 'Syed Imran Ali', 'Kazmi')
+        cls.mr = sig('HinaT', 'Hina', 'Abidi')
+        cls.mod = sig('ModabirT', 'M. Modabir', 'Raza')
+        cls.lab = sig('Lahorelab', 'Maryam', 'Fatima')
+        cls.mar = sig('Maryam', 'Maryam', 'Fatima')
+        call_command('import_mrm_spec', SPEC, '--apply', stdout=io.StringIO())
+
+    def test_name_matching(self):
+        from QC.views.mrm_pdf import _named_sig
+        from EnviTechAlApp.models import Signatures
+        c = {}
+        path = lambda u: Signatures.objects.get(user=u).signature.path
+        self.assertEqual(_named_sig('Syed Imran Ali Kazmi', c), path(self.kazmi))
+        self.assertEqual(_named_sig('  hina abidi ', c), path(self.mr))
+        self.assertEqual(_named_sig('Muhammad Modabir Raza', c), path(self.mod))       # Muhammad / M. alike
+        self.assertEqual(_named_sig('Maryam Fatima', c), path(self.mar))              # personal account before the lab account
+        self.assertIsNone(_named_sig('Abdul Samad', c))
+        self.assertIsNone(_named_sig('', c)); self.assertIsNone(_named_sig('Hina', c))
+
+    def test_pdfs_draw_the_signatures(self):
+        from EnviTechAlApp.models import Signatures
+        cl = C(self.chem)
+        m = MrmMeeting.objects.get(location='Karachi', meeting_no='02/2025')
+        self.assertEqual((m.mr_name, m.ceo_name), ('Hina Abidi', 'Syed Imran Ali Kazmi'))
+        p = MrmPlan.objects.filter(status='approved').first()
+        lk = MrmMeeting.objects.get(location='Lahore', meeting_no='01/2026')             # checklist on the record
+        self.assertTrue(lk.checklist)
+        urls = ['/qc/mrm/meetings/%d/minutes.pdf' % m.pk, '/qc/mrm/meetings/%d/checklist.pdf' % lk.pk, '/qc/mrm/meetings/%d/circular.pdf' % m.pk,
+                '/qc/mrm/plans/%d/pdf/' % p.pk]
+        def images():
+            out = []
+            for u in urls:
+                r = cl.get(u); self.assertEqual(r.status_code, 200, u); self.assertTrue(r.content.startswith(b'%PDF'), u)
+                out.append(r.content.count(b'/Subtype /Image'))
+            return out
+        with_sig = images()
+        Signatures.objects.filter(user__in=[self.kazmi, self.mr, self.mod, self.lab, self.mar]).delete()
+        without = images()
+        for u, a, b in zip(urls, with_sig, without):
+            self.assertGreater(a, b, u)
+
+    def test_blank_checklist_is_not_signed(self):
+        m = MrmMeeting.objects.get(location='Karachi', meeting_no='02/2025')
+        self.assertFalse(m.checklist)
+        lk = MrmMeeting.objects.get(location='Lahore', meeting_no='01/2026')
+        cl = C(self.chem)
+        blank_n = cl.get('/qc/mrm/meetings/%d/checklist.pdf' % m.pk).content.count(b'/Subtype /Image')
+        min_n = cl.get('/qc/mrm/meetings/%d/minutes.pdf' % m.pk).content.count(b'/Subtype /Image')
+        self.assertLess(blank_n, min_n)                       # minutes carry Hina + CEO, the blank checklist only the logo
+
+    def test_system_record_never_borrows_a_signature(self):
+        from QC.views.mrm_pdf import _paper_sig
+        c = {}
+        self.assertEqual(_paper_sig(None, None, 'Hina Abidi', c, False), (None, 'paper'))   # not inducted: no named signature
+        img, mode = _paper_sig(None, None, 'Hina Abidi', c, True)
+        self.assertTrue(img and mode == '' and c.get('_used'))
+        new = MrmMeeting.objects.create(location='Karachi', meeting_no='09/2026', year=2026, seq=9, mr_name='Hina Abidi', ceo_name='Syed Imran Ali Kazmi')
+        self.assertFalse(new.inducted)
+        r = C(self.chem).get('/qc/mrm/meetings/%d/minutes.pdf' % new.pk)
+        self.assertEqual(r.status_code, 200)
+        old = MrmMeeting.objects.get(location='Karachi', meeting_no='02/2025')            # same two names, inducted
+        self.assertLess(r.content.count(b'/Subtype /Image'), C(self.chem).get('/qc/mrm/meetings/%d/minutes.pdf' % old.pk).content.count(b'/Subtype /Image'))

@@ -1,9 +1,11 @@
 """Management Review - PDF forms (23-10-2026): ETAL-QMS-809-FF-03 Management Review Meeting Plan, FF-01 Circular of the
 Management Review Meeting (with the receiving attendance), FF-02 Minutes (with the addendum) and FF-04 MRM Checklist.
 Same frame as the Internal Audit forms (Calibri, document-control box, laboratory footer); every signature panel
-prints the name and e-signature of the user who signed in the system ("Signed on the paper record" for inducted ones).
+prints the name and e-signature of the user who signed in the system. Inducted (paper) records print the e-signature of
+the named signatory when one is on file (24-10-2026), otherwise "Signed on the paper record".
 """
 from .shared import *  # noqa: F401,F403
+import re
 from django.contrib.auth.models import User as _User
 
 from QC.models import MrmPlan, MrmMeeting
@@ -15,6 +17,76 @@ from QC.views.mrm import mrm_docctrl, _on
 
 def _wm(ok):
     return '' if ok else 'DRAFT'
+
+
+# ---------------------------------------------------------------- e-signature of a named signatory (24-10-2026)
+_HON = {'muhammad': 'm', 'mohammad': 'm', 'mohammed': 'm', 'muhammed': 'm', 'mohd': 'm', 'md': 'm'}
+
+
+def _ntok(name):
+    toks = re.sub(r'[^a-z ]+', ' ', (name or '').lower()).split()
+    return tuple(_HON.get(t, t) for t in toks if t not in ('mr', 'mrs', 'ms', 'miss', 'dr', 'engr'))
+
+
+def _signers():
+    """[(name tokens, username, active, user id, image path)] of every user with an e-signature image on file."""
+    import os
+    from EnviTechAlApp.models import Signatures
+    out = []
+    for s in Signatures.objects.select_related('user').order_by('user_id'):
+        u = s.user
+        try:
+            if not (u and s.signature and os.path.exists(s.signature.path)):
+                continue
+        except Exception:
+            continue
+        tk = _ntok(_uname(u))
+        if tk:
+            out.append((tk, (u.username or '').lower(), u.is_active, u.pk, s.signature.path))
+    return out
+
+
+def _named_sig(name, cache):
+    """E-signature image of the staff member printed by name on an inducted (paper) record: the name must match the
+    user's full name (Muhammad / Mohammad / M. treated alike); with two accounts for one person the personal account
+    (username within the name) is preferred, then an active one. None when nobody matches - the panel then keeps
+    'Signed on the paper record'."""
+    key = _ntok(name)
+    if not key:
+        return None
+    if key in cache:
+        return cache[key]
+    if '_all' not in cache:
+        cache['_all'] = _signers()
+    core = set(key) - {'m'}
+    hits = [r for r in cache['_all'] if r[0] == key]
+    if not hits and len(core) >= 2:              # e.g. "M. Modabir Raza" against "Muhammad Modabir Raza", or a missing title
+        hits = [r for r in cache['_all'] if core <= set(r[0]) or (set(r[0]) - {'m'}) and (set(r[0]) - {'m'}) <= core and len(set(r[0]) - {'m'}) >= 2]
+    hits.sort(key=lambda r: (r[1] not in key, not r[2], r[3]))
+    cache[key] = hits[0][4] if hits else None
+    if cache[key]:
+        cache['_used'] = True
+    return cache[key]
+
+
+def _paper_sig(signed_in_system, user, name, cache, inducted):
+    """(image, mode) for a signature panel: the system signer's image; on an inducted (paper) record the named
+    signatory's e-signature. A record created in the system is never given a signature it has not received."""
+    if signed_in_system:
+        return _sig_image(user), ''
+    if not inducted:
+        return None, 'paper'
+    s = _named_sig(name, cache)
+    return s, ('' if s else 'paper')
+
+
+_INDUCT_NOTE = 'Record inducted from the signed paper original held by the laboratory; signatures shown are the e-signatures on file of the named signatories.'
+
+
+def _induct_note(pdf, cache):
+    if cache.get('_used'):
+        pdf.set_font(pdf.fam, '', 6.4); pdf.set_text_color(110, 110, 110)
+        pdf.multi_cell(pdf.W, 3.2, _INDUCT_NOTE, 0, 'C'); pdf.set_text_color(0, 0, 0)
 
 
 def _head(pdf, cols, fs=7.4, fill=GREY_FILL):
@@ -71,13 +143,17 @@ def mrm_plan_pdf(request, pk):
     top = max(pdf.get_y() + 4, 130)
     if top + 30 > pdf.h - 28:
         pdf.add_page(); top = pdf.get_y() + 4
-    mr_sig = _sig_image(plan.mr_by) if plan.mr_at else None
-    ceo_sig = _sig_image(plan.ceo_by) if plan.ceo_at else None
-    panels = [('Management Representative', 'Prepared by', plan.mr_name or (_uname(plan.mr_by) if plan.mr_by else ''), mr_sig, _d(plan.mr_date), '' if plan.mr_at else 'paper'),
+    sc = {}
+    mr_nm = plan.mr_name or (_uname(plan.mr_by) if plan.mr_by else '')
+    ceo_nm = plan.ceo_name or (_uname(plan.ceo_by) if plan.ceo_by else '')
+    mr_sig, mr_mode = _paper_sig(plan.mr_at, plan.mr_by, mr_nm, sc, plan.inducted)
+    ceo_sig, ceo_mode = _paper_sig(plan.ceo_at, plan.ceo_by, ceo_nm, sc, plan.inducted)
+    panels = [('Management Representative', 'Prepared by', mr_nm, mr_sig, _d(plan.mr_date), mr_mode),
               ('', '', '', None, ''),
-              ('CEO', 'Approved by', plan.ceo_name or (_uname(plan.ceo_by) if plan.ceo_by else ''), ceo_sig, _d(plan.ceo_date), '' if plan.ceo_at else 'paper')]
+              ('CEO', 'Approved by', ceo_nm, ceo_sig, _d(plan.ceo_date), ceo_mode)]
     pdf.sig_panels(panels, top, 26)
-    pdf.set_y(top + 30); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 0, 'C')
+    pdf.set_y(top + 27); _induct_note(pdf, sc)
+    pdf.set_y(max(pdf.get_y() + 1, top + 30)); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 0, 'C')
     return _resp(pdf, 'MRM_Plan_%s_%d' % (plan.location, plan.year))
 
 
@@ -116,7 +192,11 @@ def mrm_circular_pdf(request, pk):
     y = pdf.get_y() + 2
     if y + 22 > pdf.h - 32:
         pdf.add_page(); y = pdf.get_y()
-    sig = _sig_image(m.circular_by) if (m.circular_at and m.circular_by) else None
+    sc = {}
+    if m.circular_at and m.circular_by:
+        sig = _sig_image(m.circular_by)
+    else:
+        sig = _named_sig(m.circular_signer, sc) if (m.circular_status == 'issued' and m.inducted) else None
     x = 10 + pdf.W - 62
     if sig:
         try:
@@ -156,8 +236,16 @@ def mrm_circular_pdf(request, pk):
             pdf.set_xy(x + 1, y + h - 3.2); pdf.set_font(f, '', 5.6); pdf.set_text_color(110, 110, 110)
             pdf.cell(48, 3, '-'.join(reversed((a['signed_at'] or '')[:10].split('-'))), 0, 0, 'R'); pdf.set_text_color(0, 0, 0)
         elif m.inducted:
-            pdf.set_xy(x, y); pdf.set_font(f, '', 6.0); pdf.set_text_color(110, 110, 110); pdf.cell(50, h, 'on the paper record', 0, 0, 'C'); pdf.set_text_color(0, 0, 0)
+            s = _named_sig(a.get('name', ''), sc)
+            if s:
+                try:
+                    pdf.image(s, x + 12, y + 0.8, 26, 7.4)
+                except Exception:
+                    s = None
+            if not s:
+                pdf.set_xy(x, y); pdf.set_font(f, '', 6.0); pdf.set_text_color(110, 110, 110); pdf.cell(50, h, 'on the paper record', 0, 0, 'C'); pdf.set_text_color(0, 0, 0)
         pdf.set_xy(10, y + h)
+    pdf.ln(2); _induct_note(pdf, sc)
     return _resp(pdf, 'MRM_Circular_%s_%s' % (m.location, m.meeting_no))
 
 
@@ -217,13 +305,14 @@ def mrm_minutes_pdf(request, pk):
         if pdf.get_y() + 34 > pdf.h - 30:
             pdf.add_page()
         top = pdf.get_y()
-        mr_sig = _sig_image(m.mr_by) if m.mr_at else None
-        ceo_sig = _sig_image(m.ceo_by) if m.ceo_at else None
-        panels = [('Prepared By (M.R)', 'Management Representative', m.mr_name, mr_sig, _d(m.mr_date), '' if m.mr_at else 'paper'),
+        sc = {}
+        mr_sig, mr_mode = _paper_sig(m.mr_at, m.mr_by, m.mr_name, sc, m.inducted)
+        ceo_sig, ceo_mode = _paper_sig(m.ceo_at, m.ceo_by, m.ceo_name, sc, m.inducted)
+        panels = [('Prepared By (M.R)', 'Management Representative', m.mr_name, mr_sig, _d(m.mr_date), mr_mode),
                   ('', '', '', None, ''),
-                  ('Approved By (CEO)', 'CEO', m.ceo_name, ceo_sig, _d(m.ceo_date), '' if m.ceo_at else 'paper')]
+                  ('Approved By (CEO)', 'CEO', m.ceo_name, ceo_sig, _d(m.ceo_date), ceo_mode)]
         pdf.sig_panels(panels, top, 28)
-        pdf.ln(3)
+        pdf.ln(1); _induct_note(pdf, sc); pdf.ln(2)
 
     sigs()
     add = [i for i in items if i.part == 'addendum']
@@ -261,12 +350,15 @@ def mrm_checklist_pdf(request, pk):
     if pdf.get_y() + 32 > pdf.h - 30:
         pdf.add_page()
     top = pdf.get_y()
-    mr_sig = _sig_image(m.mr_by) if m.mr_at else None
-    ceo_sig = _sig_image(m.ceo_by) if m.ceo_at else None
-    paper = '' if m.mr_at else 'paper'
-    panels = [('Prepared by', 'MR', m.mr_name, mr_sig, _d(m.checklist_date or m.mr_date) if m.mr_name else '', paper),
+    sc = {}
+    filled = bool(m.checklist)                     # no checklist on the record: blank panels, nobody signs an empty form
+    mr_nm, ceo_nm = (m.mr_name, m.ceo_name) if filled else ('', '')
+    mr_sig, mr_mode = _paper_sig(m.mr_at, m.mr_by, mr_nm, sc, m.inducted) if filled else (None, '')
+    ceo_sig, ceo_mode = _paper_sig(m.ceo_at, m.ceo_by, ceo_nm, sc, m.inducted) if filled else (None, '')
+    panels = [('Prepared by', 'MR', mr_nm, mr_sig, _d(m.checklist_date or m.mr_date) if mr_nm else '', mr_mode),
               ('', '', '', None, ''),
-              ('Approved by', 'CEO', m.ceo_name, ceo_sig, _d(m.checklist_date or m.ceo_date) if m.ceo_name else '', '' if m.ceo_at else 'paper')]
+              ('Approved by', 'CEO', ceo_nm, ceo_sig, _d(m.checklist_date or m.ceo_date) if ceo_nm else '', ceo_mode)]
     pdf.sig_panels(panels, top, 26)
-    pdf.ln(4); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 0, 'C')
+    pdf.ln(1); _induct_note(pdf, sc)
+    pdf.ln(3); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 0, 'C')
     return _resp(pdf, 'MRM_Checklist_%s_%s' % (m.location, m.meeting_no))
