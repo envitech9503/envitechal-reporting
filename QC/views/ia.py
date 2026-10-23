@@ -889,6 +889,27 @@ def ia_ncs(request):
                                            'ctrl': _ia_docctrl('log', loc), 'cat_label': _CAT_LABEL})
 
 
+def ia_witnessing(request):
+    """Register of witnessing records (annex of the audit report, ETAL-QMS-808-FF-02) - 23-10-2026."""
+    loc = _loc_of(request)
+    rows = list(IaWitness.objects.filter(audit__location=loc).select_related('audit', 'circular').order_by('-date', '-id'))
+    audits = list(IaAudit.objects.filter(location=loc).order_by('-year', '-seq')) if _can_manage(request.user, loc) else []
+    for w in rows:
+        w.n_rows = len(w.rows or [])
+        w.n_signed = sum(1 for a in (w.auditees or []) if a.get('signed_at'))
+    return render(request, 'ia_witnessing.html', {'loc': loc, 'locs': _CC_LOCS, 'rows': rows, 'audits': audits,
+                                                  'can_manage': _can_manage(request.user, loc), 'ctrl': _ia_docctrl('report', loc)})
+
+
+def ia_rcas(request):
+    """Register of root cause analyses (ETAL-QMS-710-FF-01A) and the NC&CAs still without one - 23-10-2026."""
+    loc = _loc_of(request)
+    rows = list(NccaRca.objects.filter(nc__location=loc).select_related('nc').order_by('-date', '-id'))
+    pending = list(Ncca.objects.filter(location=loc, rca__isnull=True, log_only=False).exclude(status__in=('draft', 'closed')).order_by('date', 'id'))
+    return render(request, 'ia_rcas.html', {'loc': loc, 'locs': _CC_LOCS, 'rows': rows, 'pending': pending,
+                                            'can_manage': _can_manage(request.user, loc), 'ctrl': _ia_docctrl('rca', loc)})
+
+
 def _nc_sections(user, n):
     """Which sections of the NC form the user may edit now (as on the paper form)."""
     mgr, member = _can_manage(user, n.location), _is_member(user, n.location)

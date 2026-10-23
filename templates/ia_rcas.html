@@ -1,0 +1,41 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Root Cause Analyses - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>Root cause analyses</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-diagram-project"></i> Root Cause Analyses - {{ loc }} laboratory <span class="muted">{{ ctrl.doc_no }}</span></div></div>
+  <form class="toolbar" method="get"><label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <span class="muted">An RCA belongs to one NC&amp;CA: causes grid (6M) and the 6-Why analysis; performed by the Management Representative and reviewed by the CEO.</span></form>
+  <table>
+    <thead><tr><th>RCA No.</th><th>Date</th><th>NC&amp;CA</th><th>Clause</th><th>Deputed</th><th>Performed</th><th>Reviewed</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><b>{{ r.rca_no|default:"-" }}</b>{% if r.inducted %} <span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}</td>
+        <td class="nw">{{ r.date|date:"d-m-Y"|default:"-" }}</td>
+        <td><a href="{% url 'ia_nc_detail' r.nc.id %}" style="color:#0f5132;font-weight:700">{{ r.nc.nc_no }}</a></td>
+        <td>{{ r.clause|default:r.nc.clause|truncatechars:28 }}</td>
+        <td>{{ r.deputed|default:"-" }}</td>
+        <td class="nw">{{ r.performed_name|default:"-" }}{% if r.performed_date %}<br><span class="muted">{{ r.performed_date|date:"d-m-Y" }}</span>{% endif %}</td>
+        <td class="nw">{{ r.reviewed_name|default:"-" }}{% if r.reviewed_date %}<br><span class="muted">{{ r.reviewed_date|date:"d-m-Y" }}</span>{% endif %}</td>
+        <td class="nw">{% if r.status == 'reviewed' %}<span class="pill ok">Reviewed</span>{% elif r.status == 'performed' %}<span class="pill info">Awaiting review</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td class="nw"><a class="btn" href="{% url 'ia_rca_edit' r.nc.id %}">Open</a> <a class="btn" href="{% url 'ia_rca_pdf' r.nc.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td>
+      </tr>
+    {% empty %}<tr><td colspan="9" class="empty">No root cause analyses for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card" id="start">
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-plus"></i> Start an RCA - raised NC&amp;CAs without one ({{ pending|length }})</div></div>
+  <table>
+    <thead><tr><th>NC&amp;CA #</th><th>Date</th><th>Clause</th><th>Category</th><th>Stage</th><th></th></tr></thead>
+    <tbody>
+    {% for n in pending %}
+      <tr><td><a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;font-weight:700">{{ n.nc_no }}</a></td><td class="nw">{{ n.date|date:"d-m-Y"|default:"-" }}</td><td>{{ n.clause|truncatechars:30 }}</td>
+        <td>{{ n.get_category_display }}</td><td>{% if n.status == 'open' %}<span class="pill warn">Dept. response</span>{% else %}<span class="pill info">MR follow-up</span>{% endif %}</td>
+        <td>{% if can_manage %}<a class="btn btn-p" href="{% url 'ia_rca_edit' n.id %}"><i class="fa-solid fa-plus"></i> Start RCA</a>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="6" class="empty">Every raised NC&amp;CA of the {{ loc }} laboratory has its RCA.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

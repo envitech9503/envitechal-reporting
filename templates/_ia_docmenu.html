@@ -1,0 +1,67 @@
+{% comment %}Internal Audit - "Documents" menu: every IA document type with its form number, register, new-document action and PDF (owner decision 23-10-2026: menu and sidebar both).{% endcomment %}
+{% with L=loc|default:"Karachi" %}
+<style>
+  .iadm{max-width:1200px;margin:8px auto 0;padding:0 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .iadm details{position:relative}
+  .iadm summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:#0f5132;color:#fff;border-radius:8px;padding:8px 14px;font-size:13.5px;font-weight:700;box-shadow:0 1px 2px rgba(15,23,42,.15)}
+  .iadm summary::-webkit-details-marker{display:none}
+  .iadm details[open] summary{background:#0b3d26}
+  .iadm .panel{position:absolute;z-index:60;top:44px;left:0;width:min(1060px,92vw);background:#fff;border:1px solid #d6e4dc;border-radius:12px;box-shadow:0 18px 40px rgba(15,23,42,.18);padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .iadm .grp{border:1px solid #eef2f6;border-radius:10px;padding:10px 12px;background:#fbfdfc}
+  .iadm .grp h4{margin:0 0 2px;font-size:13px;color:#0f5132;display:flex;align-items:center;gap:7px}
+  .iadm .grp .form{font-size:11px;color:#64748b;margin-bottom:7px}
+  .iadm .grp a{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#0f172a;text-decoration:none;padding:4px 6px;border-radius:6px}
+  .iadm .grp a:hover{background:#e8f3ec;color:#0f5132}
+  .iadm .grp a i{width:15px;text-align:center;color:#0f5132}
+  .iadm .grp a.new{color:#0f5132;font-weight:700}
+  .iadm .lab{grid-column:1/-1;display:flex;gap:10px;align-items:center;justify-content:space-between;border-bottom:1px solid #eef2f6;padding-bottom:10px}
+  .iadm .lab b{font-size:14px}
+  .iadm .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid #cbd5e1;border-radius:999px;padding:5px 11px;font-size:12.5px;color:#0f172a;text-decoration:none;background:#fff}
+  .iadm .chip:hover{border-color:#0f5132;color:#0f5132}
+  .iadm .chip.on{background:#e8f3ec;border-color:#0f5132;color:#0f5132;font-weight:700}
+  @media (max-width:900px){.iadm .panel{grid-template-columns:repeat(2,1fr)}}
+  @media print{.iadm{display:none}}
+</style>
+<div class="iadm">
+  <details>
+    <summary><i class="fa-solid fa-folder-tree"></i> Documents <i class="fa-solid fa-chevron-down" style="font-size:11px"></i></summary>
+    <div class="panel">
+      <div class="lab"><b><i class="fa-solid fa-clipboard-check" style="color:#0f5132"></i> Internal Audit documents - {{ L }} laboratory</b>
+        <span><a class="chip {% if L == 'Karachi' %}on{% endif %}" href="?location=Karachi">Karachi</a> <a class="chip {% if L == 'Lahore' %}on{% endif %}" href="?location=Lahore">Lahore</a></span></div>
+      <div class="grp"><h4><i class="fa-solid fa-calendar-days"></i> Annual Audit Plan</h4><div class="form">ETAL-QMS-808-FF-01</div>
+        <a href="{% url 'ia_plans' %}?location={{ L }}"><i class="fa-solid fa-list"></i> Plans register</a>
+        <a class="new" href="{% url 'ia_plan_new' %}?location={{ L }}"><i class="fa-solid fa-plus"></i> New annual plan</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-bullhorn"></i> Circulars &amp; Attendance</h4><div class="form">ETAL-QMS-808-FF-03</div>
+        <a href="{% url 'ia_circulars' %}?location={{ L }}"><i class="fa-solid fa-list"></i> Circulars register</a>
+        <a class="new" href="{% url 'ia_circular_new' %}?location={{ L }}&kind=audit"><i class="fa-solid fa-plus"></i> New audit circular</a>
+        <a class="new" href="{% url 'ia_circular_new' %}?location={{ L }}&kind=witness"><i class="fa-solid fa-plus"></i> New witnessing circular</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-file-circle-check"></i> Audit Report (ISO 17025 checklist)</h4><div class="form">ETAL-QMS-808-FF-02</div>
+        <a href="{% url 'ia_audits' %}?location={{ L }}"><i class="fa-solid fa-list"></i> Audit reports register</a>
+        <a class="new" href="{% url 'ia_audits' %}?location={{ L }}"><i class="fa-solid fa-plus"></i> New audit (checklist carried forward)</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-eye"></i> Witnessing Record</h4><div class="form">ETAL-QMS-808-FF-02 (annex)</div>
+        <a href="{% url 'ia_witnessing' %}?location={{ L }}"><i class="fa-solid fa-list"></i> Witnessing register</a>
+        <a class="new" href="{% url 'ia_witnessing' %}?location={{ L }}"><i class="fa-solid fa-plus"></i> New witnessing (choose the audit)</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-triangle-exclamation"></i> Non-conformity &amp; Corrective Action</h4><div class="form">ETAL-QMS-710-FF-01</div>
+        <a href="{% url 'ia_ncs' %}?location={{ L }}&show=open"><i class="fa-solid fa-folder-open"></i> Open NC&amp;CAs</a>
+        <a href="{% url 'ia_ncs' %}?location={{ L }}&show=all"><i class="fa-solid fa-list"></i> All NC&amp;CAs</a>
+        <a class="new" href="{% url 'ia_nc_new' %}?location={{ L }}"><i class="fa-solid fa-plus"></i> Raise NC</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis</h4><div class="form">ETAL-QMS-710-FF-01A</div>
+        <a href="{% url 'ia_rcas' %}?location={{ L }}"><i class="fa-solid fa-list"></i> RCA register</a>
+        <a class="new" href="{% url 'ia_rcas' %}?location={{ L }}#start"><i class="fa-solid fa-plus"></i> New RCA (choose the NC)</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-table-list"></i> NC&amp;CA Log</h4><div class="form">ETAL-QMS-710-FF-02</div>
+        <a href="{% url 'ia_ncs' %}?location={{ L }}&show=all"><i class="fa-solid fa-table"></i> View log (all entries)</a>
+        <a href="{% url 'ia_log_pdf' %}?location={{ L }}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Log PDF (all years)</a></div>
+      <div class="grp"><h4><i class="fa-solid fa-signature"></i> Sign-off &amp; administration</h4><div class="form">all forms</div>
+        <a href="{% url 'ia_signing' %}?location={{ L }}"><i class="fa-solid fa-signature"></i> Signing (my sign-offs)</a>
+        <a href="{% url 'ia_clauses' %}"><i class="fa-solid fa-list-check"></i> ISO 17025 checklist master</a>
+        <a href="{% url 'ia_deletions' %}"><i class="fa-solid fa-trash-can-arrow-up"></i> Deletion log</a>
+        {% if request.user.is_superuser %}<a href="{% url 'ia_doccontrol' %}"><i class="fa-solid fa-file-shield"></i> Document control</a>{% endif %}
+        <a href="{% url 'ia_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-question"></i> User manual</a></div>
+    </div>
+  </details>
+  <a class="chip" href="{% url 'ia_home' %}?location={{ L }}"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+  <a class="chip" href="{% url 'ia_ncs' %}?location={{ L }}&show=open"><i class="fa-solid fa-triangle-exclamation"></i> Open NCs</a>
+  <a class="chip" href="{% url 'ia_signing' %}?location={{ L }}"><i class="fa-solid fa-signature"></i> My sign-offs</a>
+  <a class="chip" href="{% url 'ia_nc_new' %}?location={{ L }}"><i class="fa-solid fa-plus"></i> Raise NC</a>
+</div>
+{% endwith %}

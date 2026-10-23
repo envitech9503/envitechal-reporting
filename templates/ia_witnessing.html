@@ -1,0 +1,32 @@
+{% extends "_ia_base.html" %}
+{% block cc_title %}Witnessing Records - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>Witnessing records</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-eye"></i> Witnessing Records - {{ loc }} laboratory <span class="muted">{{ ctrl.doc_no }} (annex)</span></div>
+    {% if can_manage and audits %}<form method="get" action="" onsubmit="if(!this.audit.value){return false}window.location='/qc/ia/audits/'+this.audit.value+'/witness/new/';return false" style="display:flex;gap:6px;align-items:center">
+      <select name="audit" style="border:1px solid #cbd5e1;border-radius:7px;padding:6px"><option value="">- audit -</option>{% for a in audits %}<option value="{{ a.id }}">{{ a.audit_no }}{% if a.date_start %} ({{ a.date_start|date:"d-m-Y" }}){% endif %}{% if a.status == 'closed' %} - signed{% endif %}</option>{% endfor %}</select>
+      <button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> New witnessing</button></form>{% endif %}
+  </div>
+  <form class="toolbar" method="get"><label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <span class="muted">Witnessing of tests during the audit: parameter, analyst, range, assigned and obtained values. A signed audit report must be reopened before a witnessing record is added.</span></form>
+  <table>
+    <thead><tr><th>Date</th><th>Audit</th><th>Circular</th><th>Auditor</th><th class="c">Parameters</th><th>Analysts (signed)</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for w in rows %}
+      <tr>
+        <td class="nw">{{ w.date|date:"d-m-Y"|default:"-" }}</td>
+        <td><a href="{% url 'ia_audit_detail' w.audit.id %}" style="color:#0f5132;font-weight:700">{{ w.audit.audit_no }}</a>{% if w.inducted %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
+        <td>{% if w.circular %}<a href="{% url 'ia_circular_detail' w.circular.id %}">{{ w.circular.audit_no }}</a>{% else %}<span class="muted">-</span>{% endif %}</td>
+        <td>{{ w.auditor|default:"-" }}</td>
+        <td class="c">{{ w.n_rows }}</td>
+        <td>{% for a in w.auditees %}{{ a.name }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="muted">-</span>{% endfor %} <span class="muted">({{ w.n_signed }}/{{ w.auditees|length }})</span></td>
+        <td class="nw">{% if w.status == 'closed' %}<span class="pill ok">Signed</span>{% elif w.status == 'auditor' %}<span class="pill info">Awaiting analysts</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td class="nw">{% if w.audit.status != 'closed' and can_manage %}<a class="btn" href="{% url 'ia_witness_edit' w.audit.id w.id %}">Edit</a> {% endif %}<a class="btn" href="{% url 'ia_audit_detail' w.audit.id %}#witnessing">Open</a> <a class="btn" href="{% url 'ia_audit_pdf' w.audit.id %}" target="_blank" rel="noopener" title="Audit report PDF with the witnessing pages"><i class="fa-solid fa-file-pdf"></i></a></td>
+      </tr>
+    {% empty %}<tr><td colspan="8" class="empty">No witnessing records for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

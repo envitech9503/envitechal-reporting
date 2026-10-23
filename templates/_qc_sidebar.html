@@ -143,10 +143,13 @@ partial then pins itself to the left edge and indents the page body to match.
     </button>
     <div class="etqc-panel" id="etqcIA">
       <a href="{% url 'ia_home' %}">Dashboard</a>
-      <a href="{% url 'ia_plans' %}">Annual Audit Plan (FF-01)</a>
-      <a href="{% url 'ia_circulars' %}">Circulars &amp; Attendance (FF-03)</a>
-      <a href="{% url 'ia_audits' %}">Audit Reports &amp; Witnessing (FF-02)</a>
-      <a href="{% url 'ia_ncs' %}">NC &amp; Corrective Action (710-FF-01/02)</a>
+      <a href="{% url 'ia_plans' %}">Annual Audit Plan (808-FF-01)</a>
+      <a href="{% url 'ia_circulars' %}">Circulars &amp; Attendance (808-FF-03)</a>
+      <a href="{% url 'ia_audits' %}">Audit Reports (808-FF-02)</a>
+      <a href="{% url 'ia_witnessing' %}">Witnessing Records (808-FF-02 annex)</a>
+      <a href="{% url 'ia_ncs' %}">NC &amp; Corrective Action (710-FF-01)</a>
+      <a href="{% url 'ia_rcas' %}">Root Cause Analysis (710-FF-01A)</a>
+      <a href="{% url 'ia_ncs' %}?show=all">NC&amp;CA Log (710-FF-02)</a>
       <a href="{% url 'ia_signing' %}">Signing (my sign-offs)</a>
       <a href="{% url 'ia_clauses' %}">ISO 17025 Checklist (master)</a>
       <a href="{% url 'ia_deletions' %}">Deletion Log (managers)</a>
