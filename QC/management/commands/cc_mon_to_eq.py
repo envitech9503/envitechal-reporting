@@ -1,7 +1,7 @@
 """Re-file a monitoring chart (MON) as a monthly equipment chart (EQ) - 23-10-2026.
 
-    manage.py cc_mon_to_eq <chart id>            # dry run: report what would change
-    manage.py cc_mon_to_eq <chart id> --apply
+    manage.py cc_mon_to_eq <chart id>            # dry run: report what would change (every status change listed)
+    manage.py cc_mon_to_eq <chart id> --apply    # refused when a reviewed / approved month would change, unless --force
 
 Background: the Lahore analytical-balance record (Weight 200 g, Mar-Sep 2026) was inducted on
 10-10-2026 as a baseline-mode monitoring chart, three days before the "Monthly equipment chart
@@ -15,7 +15,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.db.models import Count
 
-from QC.models import ControlChart, ControlChartBaseline
+from QC.models import ControlChart, ControlChartBaseline, ControlChartSignoff
 
 
 class Command(BaseCommand):
@@ -24,6 +24,7 @@ class Command(BaseCommand):
     def add_arguments(self, p):
         p.add_argument('chart', type=int)
         p.add_argument('--apply', action='store_true')
+        p.add_argument('--force', action='store_true', help='re-judge results of reviewed / approved months too')
 
     def handle(self, *a, **o):
         from QC.views.control_chart import _ic_runs, _restatus_chart
@@ -47,7 +48,7 @@ class Command(BaseCommand):
                  '  results %d, baseline versions %d, matching IC chart(s) %s' % (chart.results.count(), chart.baselines.count(), ', '.join('#%d' % c.pk for c in ics))]
         matched = {}
         for b in chart.baselines.order_by('version'):
-            vals = [round(float(v), 10) for v in (b.values or [])]
+            vals = [round(float(v), 10) for v in (b.values or []) if v not in (None, '')]
             run = next((r for r in runs if [round(float(v), 10) for v in r['values']] == vals), None)
             if run is not None:
                 matched[b.pk] = run
@@ -58,7 +59,14 @@ class Command(BaseCommand):
         unlinked = chart.results.filter(baseline__isnull=True).count()
         if unlinked:
             lines.append('  %d result(s) carry no baseline link - they will be judged against the current baseline' % unlinked)
+        lines.append('  description "%s"; unit %s; acceptance range %s-%s (printed on the EQ form as Range; not used for judging)' % (
+            chart.description, chart.unit, chart.crm_range_low or '-', chart.crm_range_high or '-'))
+        n_time = chart.results.exclude(time='').count()
+        n_half = chart.results.exclude(reading_2__isnull=True).count()
+        if n_time or n_half:
+            lines.append('  WARNING: %d result(s) carry a reading time and %d carry two half-readings; the equipment monthly form prints neither' % (n_time, n_half))
         before = dict(chart.results.values_list('status').annotate(n=Count('id')))
+        old_status = dict(chart.results.values_list('pk', 'status'))
         with transaction.atomic():
             chart.activity = 'EQ'
             chart.limit_mode = ''
@@ -77,6 +85,24 @@ class Command(BaseCommand):
             _restatus_chart(chart)
             after = dict(chart.results.values_list('status').annotate(n=Count('id')))
             lines.append('  statuses before %s, after %s' % (before, after))
+            sos = {(x.year, x.month): x for x in ControlChartSignoff.objects.filter(chart=chart)}
+            blocked = []
+            for r in chart.results.order_by('date', 'id'):
+                if old_status.get(r.pk) == r.status:
+                    continue
+                so = sos.get((r.date.year, r.date.month))
+                state = 'approved' if (so and so.approved_at) else ('reviewed' if (so and so.reviewed_at) else 'open')
+                lines.append('    %s  %s  %s -> %s  (month %s%s)' % (r.date.strftime('%d-%m-%Y'), r.value, old_status.get(r.pk), r.status, state,
+                                                                    ('; remark kept: ' + r.remark[:60]) if r.remark else ''))
+                if state != 'open':
+                    blocked.append(r)
+            if blocked and not o['force']:
+                lines.append('  REFUSED: %d result(s) of reviewed / approved months would change status - re-run with --force after the '
+                             'laboratory has agreed, or reopen those months first' % len(blocked))
+                transaction.set_rollback(True)
+                self.stdout.write('\n'.join(lines))
+                self.stdout.write('NOT APPLIED')
+                return
             if not o['apply']:
                 transaction.set_rollback(True)
         self.stdout.write('\n'.join(lines))

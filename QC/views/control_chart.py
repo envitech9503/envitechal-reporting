@@ -83,7 +83,7 @@ def _chart_docctrl(chart):
     revision numbers, admin-maintained) takes precedence; a bare chart-master number is the fallback."""
     d = dict(_cc_docctrl(chart.location, chart.activity))
     try:
-        own = InventoryDocControl.objects.filter(module=_chart_doc_module(chart), location=chart.location).first()
+        own = InventoryDocControl.objects.filter(module=_chart_doc_module(chart)).first()       # keyed by the chart, whatever its laboratory
     except Exception:
         own = None
     if own is not None and (own.doc_no or '').strip():
@@ -113,10 +113,16 @@ def _sop_note(chart, b=None):
     month = _MONTHS[d.month - 1] if d else None
     full = {'Jan': 'January', 'Feb': 'February', 'Mar': 'March', 'Apr': 'April', 'May': 'May', 'Jun': 'June', 'Jul': 'July',
             'Aug': 'August', 'Sep': 'September', 'Oct': 'October', 'Nov': 'November', 'Dec': 'December'}.get(month, month)
+    import re as _re
     nl = (b.note or '').lower()
-    purpose = 'after calibration' if 'calibration' in nl else ('before PT' if 'pt' in nl.split() or 'before pt' in nl else '')
-    if not full:
-        return note
+    if _re.search(r'after\s+calibration', nl):
+        purpose = 'after calibration'
+    elif _re.search(r'before\s+pt\b', nl) or _re.search(r'\bpt\b', nl):
+        purpose = 'before PT'
+    else:
+        purpose = ''
+    if not full or (full == 'February' and not purpose):
+        return note                             # the profile wording (February run, before PT) - unchanged on existing forms
     return ('The baseline results were established using data from the %s intermediate check activity, as per the procedure '
             'ETAL-LAB-P-604 (two intermediate check activities are planned: one after calibration and the other before PT). '
             'Accordingly, the results from the %s activity%s were used to establish the baseline, and the monthly results are '
@@ -365,7 +371,10 @@ def _pqv(year, month, view):
 
 
 def _restatus_chart(chart):
-    """Re-judge every reading of a monitoring chart (after its limits or limit mode changed)."""
+    """Re-judge every reading of a chart after its limits or limit mode changed. Monitoring charts: fixed
+    limits, the baseline of the reading's date or the month's own readings. Other charts (reached only from
+    the cc_mon_to_eq command, 23-10-2026): the baseline each result is linked to, else the current one -
+    callers must check the periods' sign-off state first, since re-judging changes recorded statuses."""
     if chart.mon_mode == 'run':
         for y, m in {(d.year, d.month) for d in chart.results.values_list('date', flat=True)}:
             _restatus_run(chart, y, m)
@@ -554,13 +563,16 @@ def control_chart_doccontrol(request):
         if (request.POST.get('chart') or '').isdigit():
             # a chart's own form number (23-10-2026, Lahore environmental sheets 603-FF-07 / 07A / 07B)
             chart = get_object_or_404(ControlChart, pk=int(request.POST['chart']))
-            obj, _ = InventoryDocControl.objects.get_or_create(module=_chart_doc_module(chart), location=chart.location)
-            if request.POST.get('action') == 'clear':
-                obj.delete()
+            obj = InventoryDocControl.objects.filter(module=_chart_doc_module(chart)).first() or InventoryDocControl(module=_chart_doc_module(chart))
+            obj.location = chart.location
+            doc_no = (request.POST.get('doc_no') or '').strip()[:60]
+            if request.POST.get('action') == 'clear' or not doc_no:          # a blank number clears the chart's own row
+                if obj.pk:
+                    obj.delete()
                 ControlChart.objects.filter(pk=chart.pk).update(doc_no='')
                 _msg.success(request, 'Chart #%d now prints the %s %s form number.' % (chart.pk, chart.location, chart.activity))
                 return _redirect('control_chart_doccontrol')
-            obj.doc_no = (request.POST.get('doc_no') or '').strip()[:60]
+            obj.doc_no = doc_no
             obj.issue_date = (request.POST.get('issue_date') or '').strip()[:20]
             obj.issue_no = (request.POST.get('issue_no') or '').strip()[:10] or '01'
             obj.rev_no = (request.POST.get('rev_no') or '').strip()[:10] or '00'
@@ -1184,6 +1196,7 @@ def control_chart_delete(request, pk):
                       'approved_by': getattr(so.approved_by, 'username', None),
                       'approved_at': so.approved_at.isoformat() if so.approved_at else None} for so in chart.signoffs.all()]})
     loc, act = chart.location, chart.activity
+    InventoryDocControl.objects.filter(module=_chart_doc_module(chart)).delete()     # its own document-control row, if any
     chart.delete()
     _msg.success(request, 'Chart deleted: %s (%d result%s). The reason and a copy of the data are kept in the deletion log.' % (name, n, '' if n == 1 else 's'))
     return _redirect(f"/qc/control-charts/?location={loc}&activity={act}")
@@ -1556,6 +1569,16 @@ def control_chart_edit(request, pk=None):
         target.active = bool(request.POST.get('active', '1' if pk is None else ''))
         target.start_month = sm
         target.save()
+        if pk is not None:
+            # the chart's own document-control row (Document Control page) follows a number changed on the master
+            # and the chart's laboratory (23-10-2026)
+            own = InventoryDocControl.objects.filter(module=_chart_doc_module(target)).first()
+            if own is not None:
+                if not (target.doc_no or '').strip():
+                    own.delete()
+                elif own.doc_no != target.doc_no.strip() or own.location != target.location:
+                    own.doc_no, own.location, own.updated_by = target.doc_no.strip(), target.location, request.user
+                    own.save()
         if target.spec_limited and target.pk:
             # limits or limit mode may have changed (administrator edit): re-judge every reading
             _restatus_chart(target)

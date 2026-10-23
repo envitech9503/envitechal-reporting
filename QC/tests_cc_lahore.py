@@ -78,6 +78,34 @@ class DocControlPerChartTests(TestCase):
         self.assertEqual(a.get('/qc/control-charts/doc-control/').content.count(b'id="ownf'), 2)
         self.assertEqual(a.post('/qc/control-charts/doc-control/', {'chart': '999999', 'doc_no': 'X'}).status_code, 404)
 
+    def test_blank_number_clears_lab_move_master_edit_and_deletion(self):
+        from QC.views.control_chart import _chart_docctrl
+        a = _client(self.admin)
+        a.post('/qc/control-charts/doc-control/', {'chart': self.t.pk, 'doc_no': 'ETAL-LAB-603-FF-07', 'issue_date': '10-01-2024', 'issue_no': '02', 'rev_no': '01'})
+        # blank number = clear
+        a.post('/qc/control-charts/doc-control/', {'chart': self.t.pk, 'doc_no': '  ', 'issue_date': '10-01-2024'})
+        self.t.refresh_from_db()
+        self.assertEqual(self.t.doc_no, ''); self.assertFalse(InventoryDocControl.objects.filter(module='cc_chart_%d' % self.t.pk).exists())
+        # the row follows the chart when the master changes its number or laboratory
+        a.post('/qc/control-charts/doc-control/', {'chart': self.h.pk, 'doc_no': 'ETAL-LAB-603-FF-07A', 'issue_date': '10-01-2024', 'issue_no': '02', 'rev_no': '01'})
+        form = {'location': 'Karachi', 'activity': 'MON', 'parameter': 'Laboratory humidity', 'level': '', 'unit': '%', 'equipment': 'Digital Thermo-Humidity Meter',
+                'equipment_id': 'ENVI-LAB-EQP-20', 'method': 'Not Applicable', 'decimals': '1', 'limit_mode': 'fixed', 'crm_range_low': '30', 'crm_range_high': '70',
+                'doc_no': 'ETAL-LAB-603-FF-07A-R1', 'description': 'x', 'crm_detail': '', 'crm_value': '', 'raw_unit': '', 'start_month': '1', 'active': '1'}
+        r = a.post('/qc/control-charts/%d/edit/' % self.h.pk, form, follow=True)
+        self.assertEqual(r.status_code, 200)
+        self.h.refresh_from_db()
+        self.assertEqual((self.h.location, self.h.doc_no), ('Karachi', 'ETAL-LAB-603-FF-07A-R1'))
+        own = InventoryDocControl.objects.get(module='cc_chart_%d' % self.h.pk)
+        self.assertEqual((own.location, own.doc_no, own.issue_date), ('Karachi', 'ETAL-LAB-603-FF-07A-R1', '10-01-2024'))
+        d = _chart_docctrl(self.h)
+        self.assertEqual((d['doc_no'], d['issue_date'], d['issue_no']), ('ETAL-LAB-603-FF-07A-R1', '10-01-2024', '02'))
+        self.assertEqual(InventoryDocControl.objects.filter(module='cc_chart_%d' % self.h.pk).count(), 1)
+        # deleting the chart removes its row
+        r = a.post('/qc/control-charts/%d/delete/' % self.h.pk, {'reason': 'test deletion of the humidity chart'}, follow=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(ControlChart.objects.filter(pk=self.h.pk).exists())
+        self.assertFalse(InventoryDocControl.objects.filter(module='cc_chart_%d' % self.h.pk).exists())
+
     def test_pdf_prints_own_numbers(self):
         a = _client(self.admin)
         a.post('/qc/control-charts/doc-control/', {'chart': self.h.pk, 'doc_no': 'ETAL-LAB-603-FF-07A', 'issue_date': '05-02-2024', 'issue_no': '03', 'rev_no': '02'})
@@ -156,6 +184,37 @@ class MonToEqTests(TestCase):
             self._run(str(other.pk))
         with self.assertRaises(CommandError):
             self._run('999999')
+
+    def test_refuses_reviewed_month_unless_forced(self):
+        from django.utils import timezone
+        from QC.models import ControlChartSignoff
+        ControlChartSignoff.objects.create(chart=self.mon, year=2026, month=3, reviewed_by=self.mgr, reviewed_at=timezone.now())
+        out = self._run(str(self.mon.pk), '--apply')
+        self.assertIn('REFUSED', out); self.assertIn('NOT APPLIED', out); self.assertIn('03-03-2026  200.0004  ooc -> ok  (month reviewed', out)
+        self.mon.refresh_from_db(); self.assertEqual(self.mon.activity, 'MON')
+        self.assertEqual(self.mon.results.filter(status='ooc').count(), 1)
+        out = self._run(str(self.mon.pk), '--apply', '--force')
+        self.assertIn('APPLIED', out)
+        self.mon.refresh_from_db(); self.assertEqual(self.mon.activity, 'EQ')
+        self.assertEqual(self.mon.results.filter(status='ooc').count(), 0)
+
+    def test_sop_note_wording(self):
+        from QC.views.control_chart import _sop_note
+        self._run(str(self.mon.pk), '--apply')
+        self.mon.refresh_from_db(); self.b1.refresh_from_db(); self.b2.refresh_from_db()
+        self.assertIn('from the February intermediate check activity', _sop_note(self.mon, self.b1)); self.assertIn('(conducted before PT)', _sop_note(self.mon, self.b1))
+        self.assertIn('from the April intermediate check activity', _sop_note(self.mon, self.b2)); self.assertIn('(conducted after calibration)', _sop_note(self.mon, self.b2))
+        # a February run with no stated purpose keeps the profile wording (Karachi charts created from the IC run)
+        self.b1.note = 'Intermediate check Feb-2026 of the Analytical Balance (Weight 200 g; IC chart #1) - ETAL-LAB-P-604'
+        self.assertEqual(_sop_note(self.mon, self.b1), self.mon.profile['note'])
+        self.b2.note = 'Intermediate check Apr-2026 of the Analytical Balance - ETAL-LAB-P-604'
+        self.assertNotIn('(conducted', _sop_note(self.mon, self.b2)); self.assertIn('from the April intermediate', _sop_note(self.mon, self.b2))
+        self.b2.note = 'Run before calibration, department note'
+        self.assertNotIn('(conducted', _sop_note(self.mon, self.b2))
+        self.b2.note = 'Adopted (PT).'
+        self.assertIn('(conducted before PT)', _sop_note(self.mon, self.b2))
+        self.assertEqual(_sop_note(self.mon, None), self.mon.profile['note'])
+        self.assertEqual(_sop_note(self.ic, self.b2), self.ic.profile['note'])
 
     def test_pages_after_conversion(self):
         self._run(str(self.mon.pk), '--apply')
