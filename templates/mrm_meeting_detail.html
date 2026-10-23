@@ -1,0 +1,110 @@
+{% extends "_mrm_base.html" %}
+{% block cc_title %}MRM {{ m.meeting_no }} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>MRM {{ m.meeting_no }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-people-group"></i> Management Review Meeting {{ m.meeting_no }} - {{ loc }} laboratory
+      {% if m.status == 'approved' %}<span class="pill ok">Minutes approved</span>{% elif m.status == 'prepared' %}<span class="pill info">MR signed - awaiting CEO</span>{% else %}<span class="pill none">Draft</span>{% endif %}
+      {% if m.inducted %}<span class="pill none" title="Inducted from the laboratory's record: {% for f in m.legacy.files %}{{ f }}{% if not forloop.last %}; {% endif %}{% endfor %}">REC</span>{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if can_edit %}<a class="btn" href="{% url 'mrm_meeting_edit' m.id %}"><i class="fa-solid fa-pen"></i> Edit meeting &amp; minutes</a>{% endif %}
+      <a class="btn" href="{% url 'mrm_circular_pdf' m.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Circular FF-01</a>
+      <a class="btn" href="{% url 'mrm_checklist_pdf' m.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Checklist FF-04</a>
+      <a class="btn btn-p" href="{% url 'mrm_minutes_pdf' m.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Minutes FF-02</a>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step {% if m.circular_status == 'issued' %}done{% else %}now{% endif %}"><i></i>Circular issued (CEO){% if m.circular_status == 'issued' %}<br><small>{{ m.circular_signer }}{% if m.circular_at %} - {{ m.circular_at|date:"d-m-Y" }}{% elif m.circular_date %} - {{ m.circular_date|date:"d-m-Y" }} (record){% endif %} &middot; {% if m.inducted and not signed %}receipt on paper{% else %}{{ signed }}/{{ m.attendance|length }} received{% endif %}</small>{% endif %}</div>
+    <div class="step {% if m.checklist %}{% if chk_done %}done{% else %}now{% endif %}{% endif %}"><i></i>8.9.2 checklist{% if m.checklist %}<br><small>{% if chk_done %}complete{% else %}incomplete{% endif %}{% if m.checklist_date %} - {{ m.checklist_date|date:"d-m-Y" }}{% endif %}</small>{% endif %}</div>
+    <div class="step {% if m.status != 'draft' %}done{% elif m.circular_status == 'issued' %}now{% endif %}"><i></i>Minutes prepared &amp; signed by MR{% if m.mr_name %}<br><small>{{ m.mr_name }} - {{ m.mr_date|date:"d-m-Y" }}{% if not m.mr_at %} (record){% endif %}</small>{% endif %}</div>
+    <div class="step {% if m.status == 'approved' %}done{% elif m.status == 'prepared' %}now{% endif %}"><i></i>Approved by CEO{% if m.ceo_name %}<br><small>{{ m.ceo_name }} - {{ m.ceo_date|date:"d-m-Y" }}{% if not m.ceo_at %} (record){% endif %}</small>{% endif %}</div>
+  </div>
+  <div class="kv">
+    <b>Meeting #</b><span>{{ m.meeting_no }}</span><b>Meeting date</b><span>{{ m.meeting_date|date:"d-m-Y" }}</span>
+    <b>Time</b><span>{{ m.time_text|default:"-" }}</span><b>Venue</b><span>{{ m.venue|default:"-" }}</span>
+    <b>Type of review</b><span>{{ m.review_type|default:"-" }}</span><b>Next MRM</b><span>{{ m.next_mrm|default:"-" }}</span>
+  </div>
+  {% if m.legacy.note %}<div class="msg warning">Record note: {{ m.legacy.note }}</div>{% endif %}
+  <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
+    {% if can_issue %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}">{% csrf_token %}<input type="hidden" name="action" value="issue"><button class="btn btn-p" type="submit" onclick="return confirm('Issue and sign the circular of MRM {{ m.meeting_no }} as CEO?')"><i class="fa-solid fa-bullhorn"></i> Issue circular (CEO)</button></form>{% endif %}
+    {% if can_sign %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign"><button class="btn btn-p" type="submit"><i class="fa-solid fa-signature"></i> Sign receipt of the circular</button></form>{% endif %}
+    {% if can_add_self %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}">{% csrf_token %}<input type="hidden" name="action" value="add_self"><button class="btn" type="submit"><i class="fa-solid fa-user-plus"></i> Add me &amp; sign receipt</button></form>{% endif %}
+    {% if can_checklist %}<a class="btn" href="{% url 'mrm_checklist_edit' m.id %}"><i class="fa-solid fa-list-check"></i> {% if m.checklist %}Edit{% else %}Fill in{% endif %} 8.9.2 checklist</a>{% endif %}
+    {% if can_prepare %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}">{% csrf_token %}<input type="hidden" name="action" value="prepare"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the minutes of MRM {{ m.meeting_no }} as prepared by the Management Representative?')"><i class="fa-solid fa-signature"></i> Sign minutes as MR</button></form>{% endif %}
+    {% if can_approve %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn btn-p" type="submit" onclick="return confirm('Approve and lock the minutes of MRM {{ m.meeting_no }} as CEO?')"><i class="fa-solid fa-stamp"></i> Approve minutes (CEO)</button></form>{% endif %}
+    {% if can_unapprove %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="unapprove"><label>Reason <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-lock-open"></i> Unapprove minutes</button></form>{% endif %}
+    {% if can_withdraw %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="withdraw"><label>Reason <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-w" type="submit" onclick="return confirm('Withdraw the circular to draft? Receipt signatures are cleared.')"><i class="fa-solid fa-rotate-left"></i> Withdraw circular</button></form>{% endif %}
+    {% if can_delete %}<form method="post" action="{% url 'mrm_meeting_action' m.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<input type="hidden" name="action" value="delete"><label>Reason for deletion <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this meeting? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
+  </div>
+</div>
+
+<div class="card" id="circular">
+  <div class="hd"><div class="title" style="font-size:16px">Circular (ETAL-QMS-809-FF-01) <span class="muted">{{ ctrl_c.doc_no }} &middot; issue {{ ctrl_c.issue_no }} rev. {{ ctrl_c.rev_no }}</span></div>
+    {% if m.circular_status == 'issued' %}<span class="pill ok">Issued{% if m.circular_date %} - dated {{ m.circular_date|date:"d-m-Y" }}{% endif %}</span>{% else %}<span class="pill none">Draft</span>{% endif %}</div>
+  <div style="padding:12px 18px;font-size:13px">
+    {% if m.circular_intro %}<p style="margin:0 0 10px;white-space:pre-line">{{ m.circular_intro }}</p>{% endif %}
+    <b>Meeting agenda</b>
+    <ol type="a" style="margin:4px 0 10px 22px;list-style:lower-alpha;padding-left:14px">{% for a in m.agenda %}<li>{{ a }}</li>{% empty %}<li class="muted">no agenda yet</li>{% endfor %}</ol>
+    <b>Distribute to:</b> {% for d in m.distribute_to %}{{ d }}{% if not forloop.last %}; {% endif %}{% empty %}-{% endfor %}
+  </div>
+  <table>
+    <thead><tr><th style="width:50px">S. No.</th><th>Name of employee</th><th>Designation</th><th>Receipt</th></tr></thead>
+    <tbody>{% for a in m.attendance %}<tr><td>{{ forloop.counter }}</td><td>{{ a.name }}</td><td>{{ a.designation }}</td><td>{% if a.signed_at %}<span class="pill ok">signed {{ a.signed_at|slice:":10" }}</span>{% elif m.inducted %}<span class="muted">signed on paper</span>{% else %}<span class="muted">-</span>{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="empty">No attendance list.</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+
+<div class="card" id="checklist">
+  <div class="hd"><div class="title" style="font-size:16px">MRM Checklist - ISO/IEC 17025:2017 clause 8.9.2 (ETAL-QMS-809-FF-04)</div>
+    {% if m.checklist %}{% if chk_done %}<span class="pill ok">Every input discussed or justified</span>{% else %}<span class="pill warn">Incomplete</span>{% endif %}{% else %}<span class="pill none">Not recorded</span>{% endif %}</div>
+  {% if m.checklist %}
+  <table>
+    <thead><tr><th style="width:80px">Clause</th><th>Agenda item</th><th class="c" style="width:90px">Discussed</th><th>Reference / remarks</th><th>Justification (if not discussed)</th></tr></thead>
+    <tbody>{% for r in checklist %}<tr><td class="nw">{{ r.code }}</td><td>{{ r.item }}</td><td class="c">{% if r.discussed == 'yes' %}<span class="act-done">&#10003;</span>{% elif r.discussed == 'no' %}<span class="act-open">&#10007;</span>{% else %}<span class="muted">-</span>{% endif %}</td><td>{{ r.remarks|default:"" }}</td><td>{{ r.justification|default:"" }}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% else %}<div class="empty">The checklist of the 15 inputs of 8.9.2 has not been filled in for this meeting.{% if can_checklist %} <a href="{% url 'mrm_checklist_edit' m.id %}" style="color:#0f5132">Fill it in</a>.{% endif %}</div>{% endif %}
+</div>
+
+{% if prev %}
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px">Status of actions from the previous review (8.9.2 d) - MRM {{ prev.meeting_no }} of {{ prev.meeting_date|date:"d-m-Y" }}</div><a class="btn" href="{% url 'mrm_meeting_detail' prev.id %}">Open {{ prev.meeting_no }}</a></div>
+  <table>
+    <thead><tr><th>Decision / direction</th><th>Responsibility</th><th>Target</th><th>Status</th></tr></thead>
+    <tbody>{% for a in prev_actions %}<tr><td style="max-width:620px">{{ a.outputs|truncatechars:220 }}</td><td>{{ a.responsibility }}</td><td class="nw">{{ a.target_text }}</td><td class="nw">{% if a.action_status == 'done' %}<span class="act-done">Done</span>{% elif a.action_status == 'na' %}<span class="muted">n/a</span>{% else %}<span class="act-open">Open</span>{% if a.target_date and a.target_date < today %} <span class="pill bad">overdue</span>{% endif %}{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="empty">No actions recorded in the previous meeting.</td></tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="card" id="minutes">
+  <div class="hd"><div class="title" style="font-size:16px">Minutes (ETAL-QMS-809-FF-02) <span class="muted">{{ ctrl_m.doc_no }} &middot; issue {{ ctrl_m.issue_no }} rev. {{ ctrl_m.rev_no }}</span></div></div>
+  <div style="padding:10px 18px;font-size:13px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px">
+    <div><b>Participants</b><table style="margin-top:4px"><tbody>{% for p in m.participants %}<tr><td style="width:30px">{{ forloop.counter }}</td><td>{{ p.name }}</td><td class="muted">{{ p.designation }}</td></tr>{% empty %}<tr><td class="muted">not recorded</td></tr>{% endfor %}</tbody></table></div>
+    <div><b>Roles</b><table style="margin-top:4px"><tbody><tr><td class="muted">Chair</td><td>{{ m.chair|default:"-" }}</td></tr><tr><td class="muted">Facilitator</td><td>{{ m.facilitator|default:"-" }}</td></tr><tr><td class="muted">Minutes taker</td><td>{{ m.minutes_taker|default:"-" }}</td></tr><tr><td class="muted">Documenter</td><td>{{ m.documenter|default:"-" }}</td></tr></tbody></table>
+      <div class="muted" style="margin-top:8px">Distributed to: {{ m.distributed_to|default:"-" }}</div></div>
+  </div>
+  <div style="overflow-x:auto">
+  <table class="mrm-min" style="min-width:1000px">
+    <thead><tr><th style="width:44px">S.#</th><th style="width:170px">Agenda</th><th>Inputs / details of discussions</th><th>Outputs / decision &amp; direction</th><th style="width:120px">Resources</th><th style="width:110px">Responsibility</th><th style="width:96px">Target</th><th style="width:120px">Follow-up</th></tr></thead>
+    <tbody>
+    {% for it in minutes %}<tr class="{% if not it.sno and not it.agenda %}cont{% endif %}">
+      <td>{{ it.sno }}</td><td>{% if it.clause %}<span class="pill none">{{ it.clause }}</span><br>{% endif %}<b>{{ it.agenda }}</b></td><td>{{ it.inputs }}</td><td>{{ it.outputs }}</td><td>{{ it.resources }}</td><td>{{ it.responsibility }}</td><td class="nw">{{ it.target_text }}</td>
+      <td>{% include "_mrm_follow.html" %}</td></tr>
+    {% empty %}<tr><td colspan="8" class="empty">No minutes recorded yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% if addendum %}
+  <div class="hd" style="border-top:1px solid #eef2f6"><div class="title" style="font-size:15px">Addendum{% if m.addendum_date %} - dated {{ m.addendum_date|date:"d-m-Y" }}{% endif %}</div></div>
+  <div style="overflow-x:auto">
+  <table class="mrm-min" style="min-width:1000px">
+    <thead><tr><th style="width:44px">S.#</th><th style="width:170px">Agenda</th><th>Inputs / details of discussions</th><th>Outputs / decision &amp; direction</th><th style="width:120px">Resources</th><th style="width:110px">Responsibility</th><th style="width:96px">Target</th><th style="width:120px">Follow-up</th></tr></thead>
+    <tbody>{% for it in addendum %}<tr><td>{{ it.sno }}</td><td>{% if it.clause %}<span class="pill none">{{ it.clause }}</span><br>{% endif %}<b>{{ it.agenda }}</b></td><td>{{ it.inputs }}</td><td>{{ it.outputs }}</td><td>{{ it.resources }}</td><td>{{ it.responsibility }}</td><td class="nw">{{ it.target_text }}</td><td>{% include "_mrm_follow.html" %}</td></tr>{% endfor %}</tbody>
+  </table>
+  </div>
+  {% endif %}
+  <div class="sigline">
+    <div class="s"><b>Prepared by (M.R)</b>{{ m.mr_name|default:"-" }}{% if m.mr_date %}<br><small>{{ m.mr_date|date:"d-m-Y" }}{% if not m.mr_at %} (record){% endif %}</small>{% endif %}</div>
+    <div class="s"><b>Approved by (CEO)</b>{{ m.ceo_name|default:"-" }}{% if m.ceo_date %}<br><small>{{ m.ceo_date|date:"d-m-Y" }}{% if not m.ceo_at %} (record){% endif %}</small>{% endif %}</div>
+  </div>
+</div>
+{% endblock %}

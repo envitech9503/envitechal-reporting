@@ -1,0 +1,50 @@
+{% extends "_mrm_base.html" %}
+{% block cc_title %}Management Review - {{ loc }}{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-people-group"></i> Management Review - {{ loc }} laboratory <span class="muted">ISO/IEC 17025:2017 clause 8.9 &middot; procedure ETAL-QMS-P-809</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">{% if can_manage %}<a class="btn btn-p" href="{% url 'mrm_meeting_new' %}?location={{ loc }}"><i class="fa-solid fa-plus"></i> New management review meeting</a>{% endif %}</div></div>
+  <div class="tiles">
+    <div class="tile"><b>Meetings on record</b><span>{{ c.meetings }}</span><small>{{ c.meetings_year }} in {{ today.year }}</small></div>
+    <a class="tile {% if c.open %}warn{% endif %}" href="{% url 'mrm_actions' %}?location={{ loc }}"><b>Open actions</b><span>{{ c.open }}</span><small>decisions with a responsibility &amp; target</small></a>
+    <a class="tile {% if c.overdue %}bad{% endif %}" href="{% url 'mrm_actions' %}?location={{ loc }}"><b>Overdue actions</b><span>{{ c.overdue }}</span><small>target date passed</small></a>
+    <div class="tile"><b>Review plan {{ today.year }}</b><span style="font-size:18px">{% if c.plan %}{% for m, lbl, done in c.plan_due %}{{ lbl }}{% if done %} &#10003;{% endif %}{% if not forloop.last %}, {% endif %}{% empty %}-{% endfor %}{% else %}none{% endif %}</span><small>{% if c.plan %}{{ c.plan.get_status_display }}{% else %}no plan for {{ today.year }}{% endif %}</small></div>
+    <a class="tile {% if todo %}warn{% endif %}" href="{% url 'mrm_signing' %}?location={{ loc }}"><b>Awaiting your signature</b><span>{{ todo }}</span><small>circulars, minutes, plans</small></a>
+  </div>
+</div>
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px">Management Review Meetings</div></div>
+  <table>
+    <thead><tr><th>Meeting #</th><th>Date</th><th>Venue</th><th>Circular (FF-01)</th><th>Checklist (FF-04)</th><th>Minutes (FF-02)</th><th class="c">Rows</th><th>Actions</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}{% with m=r.m %}
+      <tr><td class="nw"><a href="{% url 'mrm_meeting_detail' m.id %}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ m.meeting_no }}</a>{% if m.inducted %} <span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}</td>
+        <td class="nw">{{ m.meeting_date|date:"d-m-Y" }}</td><td>{{ m.venue }}</td>
+        <td class="nw">{% if m.circular_status == 'issued' %}<span class="pill ok">Issued</span> <span class="muted">{% if m.inducted and not r.signed %}receipt on paper{% else %}{{ r.signed }}/{{ r.att }} received{% endif %}</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td class="nw">{% if r.chk is None %}<span class="pill none">not recorded</span>{% elif r.chk %}<span class="pill ok">complete</span>{% else %}<span class="pill warn">incomplete</span>{% endif %}</td>
+        <td class="nw">{% if m.status == 'approved' %}<span class="pill ok">Approved</span>{% elif m.status == 'prepared' %}<span class="pill info">MR signed</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td class="c">{{ r.n_items }}</td>
+        <td class="nw">{% if r.open %}<span class="act-open">{{ r.open }} open</span>{% if r.overdue %} <span class="pill bad">{{ r.overdue }} overdue</span>{% endif %}{% endif %}{% if r.done %} <span class="act-done">{{ r.done }} done</span>{% endif %}{% if not r.open and not r.done %}<span class="muted">-</span>{% endif %}</td>
+        <td class="nw"><a class="btn" href="{% url 'mrm_meeting_detail' m.id %}">Open</a></td></tr>
+    {% endwith %}{% empty %}<tr><td colspan="9" class="empty">No management review meeting recorded for {{ loc }} yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card" id="plans">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-calendar-days"></i> Management Review Plans (ETAL-QMS-809-FF-03)</div>
+    {% if can_manage %}<a class="btn" href="{% url 'mrm_plan_new' %}?location={{ loc }}"><i class="fa-solid fa-plus"></i> New plan</a>{% endif %}</div>
+  <table>
+    <thead><tr><th>Year</th><th>Departments</th><th>Planned months</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for p in plans %}
+      <tr><td><a href="{% url 'mrm_plan_detail' p.id %}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ p.year }}</a>{% if p.inducted %} <span class="pill none">REC</span>{% endif %}</td>
+        <td>{% for r in p.rows %}{{ r.department }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        <td>{% for r in p.rows %}{% if p.rows|length > 1 %}<small class="muted">{{ r.department }}:</small> {% endif %}{% for k, v in r.months.items %}{% if v.due %}<span class="pill {% if v.done %}ok{% else %}warn{% endif %}">{{ k }}</span> {% endif %}{% endfor %}{% if not forloop.last %}<br>{% endif %}{% endfor %}</td>
+        <td>{% if p.status == 'approved' %}<span class="pill ok">Approved</span>{% elif p.status == 'signed' %}<span class="pill info">MR signed</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td><a class="btn" href="{% url 'mrm_plan_detail' p.id %}">Open</a></td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">No plan yet.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <div class="muted" style="padding:8px 18px 12px">Months are shown as numbers (1 = January); green = review held, amber = planned.</div>
+</div>
+{% endblock %}

@@ -1,0 +1,2025 @@
+{
+ "built": "23-10-2026",
+ "plans": [
+  {
+   "location": "Lahore",
+   "year": 2024,
+   "rows": [
+    {
+     "department": "Environmental Laboratory",
+     "months": {
+      "7": {
+       "due": true,
+       "done": true
+      }
+     }
+    }
+   ],
+   "mr_name": "Saba Qadeer",
+   "mr_date": null,
+   "ceo_name": "Syed Imran Ali Kazmi",
+   "ceo_date": null,
+   "signed": false,
+   "file": "ETAL-QMS-809-FF-03  Management Review Plan.docx"
+  },
+  {
+   "location": "Lahore",
+   "year": 2025,
+   "rows": [
+    {
+     "department": "Environmental Laboratory",
+     "months": {
+      "2": {
+       "due": true,
+       "done": true
+      },
+      "12": {
+       "due": true,
+       "done": true
+      }
+     }
+    }
+   ],
+   "mr_name": "Saba Qadeer",
+   "mr_date": "2024-12-28",
+   "ceo_name": "Syed Imran Ali Kazmi",
+   "ceo_date": "2024-12-30",
+   "signed": true,
+   "file": "ETAL-QMS-809-FF-03  Management Review Plan.docx"
+  },
+  {
+   "location": "Lahore",
+   "year": 2026,
+   "rows": [
+    {
+     "department": "Environmental Laboratory",
+     "months": {
+      "3": {
+       "due": true,
+       "done": true
+      },
+      "12": {
+       "due": true,
+       "done": false
+      }
+     }
+    }
+   ],
+   "mr_name": "Saba Qadeer",
+   "mr_date": "2025-12-27",
+   "ceo_name": "Syed Imran Ali Kazmi",
+   "ceo_date": "2025-12-29",
+   "signed": true,
+   "file": "ETAL-QMS-809-FF-03  Management Review Plan.docx"
+  },
+  {
+   "location": "Karachi",
+   "year": 2026,
+   "rows": [
+    {
+     "department": "Laboratory",
+     "months": {
+      "12": {
+       "due": true,
+       "done": false
+      }
+     }
+    },
+    {
+     "department": "Administration and Finance",
+     "months": {
+      "12": {
+       "due": true,
+       "done": false
+      }
+     }
+    },
+    {
+     "department": "Environmental Services",
+     "months": {
+      "12": {
+       "due": true,
+       "done": false
+      }
+     }
+    },
+    {
+     "department": "Business Development",
+     "months": {
+      "12": {
+       "due": true,
+       "done": false
+      }
+     }
+    }
+   ],
+   "mr_name": "",
+   "mr_date": null,
+   "ceo_name": "",
+   "ceo_date": null,
+   "signed": false,
+   "file": "ETAL-QMS-809-FF-03 Management Review Plan 2026.docx"
+  }
+ ],
+ "meetings": [
+  {
+   "location": "Lahore",
+   "circular": {
+    "file": "ETAL-QMS-809-FF-01  Circular of Management Review Meeting-2024.docx",
+    "dated": "2024-07-24",
+    "meeting_no": "01/2024",
+    "meeting_date": "2024-07-26",
+    "time": "11:00 am to 3:00 pm",
+    "venue": "Lahore Office (Video Conferencing with Top Management)",
+    "subject": "Management Review Meeting",
+    "intro": "I am pleased to inform all of you that the Management Review Meeting on Internal Audit of ISO 9001:2015 & ISO 14001:2015 will be held on 26-July -2024. This MRM must be performed to discuss the ISO Clause status of ISO 9001:2015 & ISO 14001:2015 Compliance within your respective departments.",
+    "agenda": [
+     "Review of Internal Audit Report",
+     "Changes in internal and external issues that are relevant to the laboratory.",
+     "Fulfilment of objective.",
+     "Outcome of recent internal audit.",
+     "Corrective actions.",
+     "Effectiveness of any implemented improvements.",
+     "Adequacy of resources.",
+     "Other relevant factors."
+    ],
+    "distribute": [
+     "CEO",
+     "Display on notice board",
+     "All Employees"
+    ],
+    "attendance": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Lab Manager"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Assistant Manager Lab"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Field Officer"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Analyst"
+     }
+    ],
+    "ceo_name": "Syed Imran Ali Kazmi"
+   },
+   "minutes": {
+    "file": "ETAL-QMS-809-FF-01  Mintues of Management Review meeting.docx",
+    "participants": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Assistant Manager Lab"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Lab Manager"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Field Officer"
+     },
+     {
+      "name": "Mohammad Yasir",
+      "designation": "Accounts /Admin Manager"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Analyst"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     }
+    ],
+    "roles": {
+     "chair": "Syed Imran Ali Kazmi",
+     "facilitator": "Hina Abidi",
+     "minutes_taker": "Saba Qadeer",
+     "documenter": "Saba Qadeer"
+    },
+    "items": [
+     {
+      "clause": "",
+      "sno": "01",
+      "agenda": "Review of Internal Audit Report",
+      "inputs": "Total 03 Non-Conformance were found.",
+      "outputs": "All non-conformities (NCs) identified during the internal audit should be completed within one-week timeframe. Individual deadlines have been assigned for each NC/Observation. However, the ultimate deadline for closing all NCs is set for 30th July 2024.",
+      "resources": "Will be mentioned below where needed.",
+      "responsibility": "MR",
+      "target": "30.07.2024"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.1 regarding the Resource Management. The non-conformance occurred due to uncontrolled environmental conditions.",
+      "outputs": "It is decided that Flap Door will be used to separate Laboratory area from workstation and door pads will be used to close the slits below door for controlling cold loss from air-conditioning system which is available for maintaining the controlled environmental conditions.",
+      "resources": "Yes",
+      "responsibility": "MR",
+      "target": "29.07.2024"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.4 regarding the Communication.\nThe \" Communication log” ETAL-IMS-700-FF-05 for IMS planning exists but has not been properly implemented.",
+      "outputs": "The MR is responsible to draft a document to determine the cause of the issue and outline corrective action to fix it. The record of “communication log” ETAL-IMS-700-FF-05 should be properly updated as per plan.",
+      "resources": "Yes",
+      "responsibility": "MR",
+      "target": "29.07.2024"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.4 regarding the Control of externally provided processes, products and services. The List of External provided services (ETAL-IMS-800-FF-02) was not updated.",
+      "outputs": "The MR is responsible to draft a document to determine the cause of the issue and outline corrective action to fix it. The document of “List of External provided services” ETAL-IMS-800-FF-02 should be properly updated as per plan.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "29.07.2024"
+     },
+     {
+      "clause": "",
+      "sno": "02",
+      "agenda": "Adequacy of resources",
+      "inputs": "The inventory record of chemicals and other requirements was reviewed & discussed.",
+      "outputs": "Enlisting of expiring chemicals and nearly expiring certificates will be renewed from AIMS and Delta, Procurement of requirements will be done.",
+      "resources": "Finance",
+      "responsibility": "Management",
+      "target": "30.07.2024"
+     },
+     {
+      "clause": "",
+      "sno": "03",
+      "agenda": "New Method Development",
+      "inputs": "New Methods will be developed for COD and TOC analysis.",
+      "outputs": "The Plan was discussed, and it mutually decided for development of both methods. Procurement of all relevant required chemicals, equipment and accessories will be done by administration. Assistant Lab Manager will be responsible for method development.",
+      "resources": "Availability of Staff / Finance",
+      "responsibility": "Management/Lab Manager",
+      "target": "20.08.2024"
+     }
+    ],
+    "addendum": [],
+    "next_mrm": "",
+    "distributed_to": "All Participants",
+    "prepared_by": "Saba Qadeer",
+    "approved_by": "Syed Imran Ali Kazmi",
+    "dated": null,
+    "addendum_dated": null,
+    "meeting_no": "01/2024",
+    "meeting_date": "2024-07-26",
+    "meeting_date_text": "26-July-2024",
+    "time": "11:00 am to 3:00 pm",
+    "venue": "Lahore Office (Video Conferencing with Top Management)",
+    "review_type": "Regulation (ISO 9001:2015 & ISO 14001:2015)"
+   },
+   "checklist": null,
+   "note": ""
+  },
+  {
+   "location": "Lahore",
+   "circular": {
+    "file": "ETAL-QMS-809-FF-01  Circular of Management Review Meeting-Feb 2025.docx",
+    "dated": "2025-02-17",
+    "meeting_no": "01/2025",
+    "meeting_date": "2025-02-24",
+    "time": "11:00 am to 3:00 pm",
+    "venue": "Lahore Office (Video Conferencing with Top Management)",
+    "subject": "Management Review Meeting",
+    "intro": "I am pleased to inform all of you that the Management Review Meeting on Internal Audit and ISO/IEC 17025:2017 will be held on 24-Feb-2025. This MRM must be performed to discuss the ISO Clause status of ISO 17025:2017 Compliance within your respective departments.",
+    "agenda": [
+     "Review of Internal Audit Report",
+     "Changes in internal and external issues that are relevant to the laboratory.",
+     "Fulfilment of objective.",
+     "Outcome of recent internal audit.",
+     "Corrective actions.",
+     "Effectiveness of any implemented improvements.",
+     "Adequacy of resources.",
+     "Other relevant factors."
+    ],
+    "distribute": [
+     "CEO",
+     "Display on noticeboard",
+     "All Employees"
+    ],
+    "attendance": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Payal Dewani",
+      "designation": "Admin & HR"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Lab Manager"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Deputy Manager Lab"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Sr. Field Officer"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Manager Lab"
+     }
+    ],
+    "ceo_name": "Syed Imran Ali Kazmi"
+   },
+   "minutes": {
+    "file": "ETAL-QMS-809-FF-02  Mintues of Management Review Meeting with Amendments.docx",
+    "participants": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Lab Manager"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Deputy Manager Lab"
+     },
+     {
+      "name": "Payal Dewani",
+      "designation": "Admin & HR Manager"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Sr. Field Officer"
+     },
+     {
+      "name": "Syed Muhammad Faizan",
+      "designation": "Accounts Manager"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Manager Lab"
+     }
+    ],
+    "roles": {
+     "chair": "Syed Imran Ali Kazmi",
+     "facilitator": "Hina Abidi",
+     "minutes_taker": "Saba Qadeer",
+     "documenter": "Saba Qadeer"
+    },
+    "items": [
+     {
+      "clause": "",
+      "sno": "1.",
+      "agenda": "Review of Internal Audit Report",
+      "inputs": "Total 08 Non-Conformance were found.",
+      "outputs": "All non-conformities (NCs) identified during the internal audit should be completed within eight-week timeframe. Individual deadlines have been assigned for each NC/Observation. However, the ultimate deadline for closing all NCs is set for 15th April 2025 except the NC of CRM.",
+      "resources": "Resources are noted for each NC where applicable.",
+      "responsibility": "MR",
+      "target": "15.04.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 4.1 regarding Impartiality occurred due to the unavailability of Undertaking of laboratory personnel for Impartiality on stamp paper.",
+      "outputs": "It has been decided that stamp papers will be procured to obtain signed Impartiality Undertakings, ensuring the document is legally binding.",
+      "resources": "Purchase of Stamp Paper",
+      "responsibility": "MR",
+      "target": "03.03.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 4.2 regarding confidentiality occurred due to the unavailability of Undertaking of laboratory personnel for the confidentiality on stamp paper.",
+      "outputs": "It has been decided that stamp papers will be procured to obtain signed confidentiality Undertakings, ensuring the document is legally binding.",
+      "resources": "Purchase of Stamp Paper",
+      "responsibility": "MR",
+      "target": "03.03.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 6.3 regarding Facilities and environmental conditions. The records of environmental condition graphs (ETAL-LAB-603-FF-07, ETAL-LAB-603-FF-07A, and ETAL-LAB-603-FF-07B) were not updated as required by 6.3.4 for periodical review of data.",
+      "outputs": "It has been decided that environmental condition graphs (ETAL-LAB-603-FF-07, ETAL-LAB-603-FF-07A, and ETAL-LAB-603-FF-07B) will be prepared monthly using data from monthly logs. Additionally, the records for the period of November 2024 to January 2025 will be completed retrospectively.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "03.03.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 6.4 regarding the Equipment. The non-conformance was identified due to the Master List of Lab Equipment (ETAL-LAB-604-FF-15) not being updated as required.",
+      "outputs": "The Management Representative (MR) is responsible for preparing a document to determine the root cause and define appropriate corrective actions. The Master List (ETAL-LAB-604-FF-15) will be updated accordingly to ensure accuracy and compliance with the documented plan.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "28.02.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 6.5 regarding Metrological Traceability. Certified Reference Materials (CRMs) are not available.",
+      "outputs": "The laboratory will identify and list the required CRMs and initiate the procurement process to ensure compliance with metrological traceability requirements. To meet standard requirements, CRMs will be imported through a Certified Supplier (e.g. LSS) to ensure traceability and compliance.",
+      "resources": "Import of CRM",
+      "responsibility": "MR",
+      "target": "July, 2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.6 regarding Evaluation of measurement uncertainty. The non-conformance was raised due to inconsistent evaluation and lack of documentation of measurement uncertainty (MU) results, as required by procedure ETAL-LAB-P-706.",
+      "outputs": "It has been decided that the laboratory will conduct training sessions on MU evaluation for relevant staff and ensure that MU calculations are performed and documented for all applicable test methods. Records will be maintained as per the defined procedure to demonstrate compliance.",
+      "resources": "PNAC-accredited External Trainer",
+      "responsibility": "MR",
+      "target": "10.03.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.7 regarding Ensuring the validity of results. Lab needs to use CRM for assurance of its test results.",
+      "outputs": "The laboratory will identify and list the required CRMs, initiate their procurement, and ensure traceability by importing CRMs through a certified supplier (e.g., LSS). This action will support compliance with standard requirements and enhance the reliability of test results.",
+      "resources": "Import of CRMs",
+      "responsibility": "MR",
+      "target": "July 2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.5 regarding Actions to address risks and opportunities (Option A). The non-conformance was identified as the laboratory has not identified or documented the risks and opportunities associated with its activities, as required by the standard.",
+      "outputs": "To address this, the laboratory will implement a systematic approach to assess, document, and monitor risks and opportunities to ensure continual improvement and compliance with ISO/IEC 17025:2017.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "17.03.2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.5 regarding Improvement (Option A). The non-conformance was raised as the laboratory has not prepared an Improvement Analysis report.",
+      "outputs": "The management decided based on available customer feedback forms that the laboratory will initiate the Improvement Analysis process starting from the year 2025. Due to limited customer feedback data available so far, a comprehensive report could not be developed previously.",
+      "resources": "No",
+      "responsibility": "N. A",
+      "target": "N. A"
+     },
+     {
+      "clause": "",
+      "sno": "2.",
+      "agenda": "Previous MRM Action Effectiveness Review",
+      "inputs": "Actions identified during the previous MRM, including the IMS Audit, EPD Audit, and method development for COD and TOC has been discussed.",
+      "outputs": "The following actions have been completed and found effective: IMS Audit, EPD Audit and Method Development for COD\nPending Action Identified:\nThe Method Development for TOC has not achieved the desired outcomes and is considered an unsuccessful project. Further review and corrective planning are required.",
+      "resources": "No",
+      "responsibility": "N. A",
+      "target": "N. A"
+     },
+     {
+      "clause": "",
+      "sno": "3.",
+      "agenda": "Corrective Actions",
+      "inputs": "Installation of Fume hood",
+      "outputs": "Successful installation of the fume hood has been completed to effectively control and manage laboratory fumes, enhancing workplace safety and compliance with environmental conditions.",
+      "resources": "No",
+      "responsibility": "N. A",
+      "target": "N. A"
+     },
+     {
+      "clause": "",
+      "sno": "4.",
+      "agenda": "Personnel Competence and Training",
+      "inputs": "In the last week, laboratory personnel participated in external training organized by ETAL and conducted by Mr. Imtiaz from AIMS on ISO/IEC 17025:2017.",
+      "outputs": "The training covered key areas such as management system requirements, technical competence, measurement uncertainty, internal audits, and reporting of results. Participation certificates were issued, and training records have been updated accordingly in ETAL-LAB-602-FF-04 (Training Record). This initiative enhanced understanding of standard requirements and strengthened implementation across all lab operations.",
+      "resources": "PNAC-accredited External Trainer",
+      "responsibility": "MR",
+      "target": "15.02.2025"
+     },
+     {
+      "clause": "",
+      "sno": "5.",
+      "agenda": "Review of Quality Objectives",
+      "inputs": "Quality Objectives are identified and enlisted for Year 2025.",
+      "outputs": "Quality objectives for the year 2025 have been identified, documented, and enlisted in accordance with the laboratory's quality management system. These objectives are aligned with the lab's strategic direction and are being monitored for implementation and effectiveness (Ref: ETAL-QMS-802-FF-02).",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "December, 2025"
+     }
+    ],
+    "addendum": [
+     {
+      "clause": "8.9.2 a)",
+      "sno": "",
+      "agenda": "Changes in internal and external issues that are relevant to the laboratory",
+      "inputs": "External Issues:\n- EPA regulations for logo approval.\n- Growing client interest in Microbial testing (especially Legionella).\n- Requirements of EPA and Client for on-site testing of Water (pH, Temperature & Chlorine).\nInternal Issues:\n- Resignation of Deputy Analyst (Maryam Fatima); onboarding of new staff.\n- Preparation of reports on Reporting Software.",
+      "outputs": "- Initiated review of EPA logo usage policy to ensure compliance and secure necessary approvals.\n-Management approved to initiate the required SOP and relevant Procurements for microbial testing.\n-Decided to expand on-site testing services for water quality parameters (pH, Temperature, Chlorine) to meet EPA and client requirements.\n\n-Recruitment initiated to fill the vacancy left by the Deputy Analyst.\n-Directed the implementation of reporting software to prepare client’s reports.",
+      "resources": "- Updated EPA documentations.\n- Budget allocation & Vendor support for prepared plates and chlorine strips.\n- HR and operations coordination for staffing.\n- IT resources.",
+      "responsibility": "Concern Departmental Heads",
+      "target": "June, 2025"
+     },
+     {
+      "clause": "8.9.2 c)",
+      "sno": "",
+      "agenda": "Suitability of policies and procedures",
+      "inputs": "Annual review of QMS documents completed.",
+      "outputs": "Approved updates to existing SOPs and policies.",
+      "resources": "QA support for SOP development",
+      "responsibility": "Lab Manager & Deputy Manager Lab",
+      "target": "June, 2025"
+     },
+     {
+      "clause": "8.9.2 g)",
+      "sno": "",
+      "agenda": "Assessments by external bodies",
+      "inputs": "PNAC Surveillance Assessment was conducted on 16th April 2025, with an overall satisfactory outcome. Observations were noted regarding the organogram, impartiality and confidentiality undertakings, risk and opportunity records, approval dates, improvement documentation, internal audit witnessing, and inclusion of relevant clauses in MRM minutes.",
+      "outputs": "Assigned responsible personnel to address all PNAC observations with targeted deadlines.\nUpdate ETAL organogram and approval dates in relevant documents.\nObtaining Undertakings on impartiality and confidentiality from concern personnel.\nApproval for Revision and documentation of Risk and opportunity assessment records.\nImprovement documentation reviewed and aligned with current practices.\nInstructed to plan Witnessing of testing activities to align with Internal Audit.\nDirected inclusion of specific clause references in future MRM minutes for compliance tracking.",
+      "resources": "Document Control Access – To update the organogram, approval dates, and manage version control of revised documents.\n\nHR and Admin Support – For obtaining signed undertakings on impartiality and confidentiality from concerned personnel.\n\nQuality Assurance Personnel – To review, revise, and align improvement-related documentation.\n\nInternal Audit Plan and Schedule – For organizing witnessing of testing activities.\n\nMRM Documentation Checklist – To ensure consistent inclusion of clause references in future MRM minutes.\n\nReview Team/Assigned Focal Persons – For timely execution and tracking of action items against each observation.",
+      "responsibility": "Concern Departmental Heads",
+      "target": "June, 2025"
+     },
+     {
+      "clause": "8.9.2 h)",
+      "sno": "",
+      "agenda": "Changes in the volume and type of work or in the range of laboratory activities",
+      "inputs": "Preparation initiated for expanding scope to include vehicular emissions testing using NDIR-based CO analyzers; Stack emission using Iso-kinetic assembly.",
+      "outputs": "Initiated procurement of equipment and SOP development for vehicular emission testing (CO analyzers) and Stack emission.",
+      "resources": "procurement and technical team support.",
+      "responsibility": "Concern Departmental Heads",
+      "target": "December, 2025"
+     },
+     {
+      "clause": "8.9.2 i)",
+      "sno": "",
+      "agenda": "Customer and Personnel feedback",
+      "inputs": "Customer feedback were generally positive, emphasizing timely reporting and the professionalism of field teams, with a few suggestions for faster result turnaround and improved communication regarding sample status.",
+      "outputs": "Management acknowledged the feedback and directed improvements in communication protocols and result turnaround time. IT was tasked with exploring options for enhancing client communication channels, and QA was asked to review processes for timely reporting.",
+      "resources": "IT support for communication system upgrades, QA team involvement to optimize reporting processes, staff training, and budget for software enhancements.",
+      "responsibility": "Concern Departmental Heads",
+      "target": "Continuous"
+     },
+     {
+      "clause": "8.9.2 j)",
+      "sno": "",
+      "agenda": "Complaints",
+      "inputs": "No formal complaints were received from clients or stakeholders during the review period, indicating general satisfaction with the services provided.",
+      "outputs": "Management acknowledged the absence of complaints as a positive indicator of service quality and directed continued adherence to established procedures and proactive client engagement to maintain satisfaction levels.",
+      "resources": "Existing client feedback and communication channels\n\nMonitoring tools for capturing and tracking any future complaints\n\nContinued staff training to maintain service quality",
+      "responsibility": "Management Representative",
+      "target": "Continuous"
+     },
+     {
+      "clause": "8.9.2 k)",
+      "sno": "",
+      "agenda": "Effectiveness of any implemented improvements",
+      "inputs": "During the review period, several improvements were implemented, including the enhancement of reporting processes through reporting software and the installation of a fume hood. These actions led to reduced reporting time, minimized errors, and enhanced client satisfaction, demonstrating the effectiveness of the implemented measures.",
+      "outputs": "Management acknowledged the positive impact of recent improvements and directed continued monitoring of performance indicators. It was decided to document lessons learned, maintain improvement momentum, and identify further areas where process efficiency and safety can be enhanced.",
+      "resources": "Performance monitoring tools (KPIs, client feedback records)\n\nTechnical support for reporting software maintenance\n\nSafety and maintenance resources for fume hood operation",
+      "responsibility": "IT Support to maintain and troubleshoot reporting software.\n\nLab Supervisor to ensure proper use and upkeep of the fume hood.\nManagement to review improvement outcomes and guide further initiatives.",
+      "target": "Continuous"
+     },
+     {
+      "clause": "8.9.2 l)",
+      "sno": "",
+      "agenda": "Adequacy of Resources",
+      "inputs": "Current resources were reviewed and found generally adequate for routine laboratory operations. However, increased demand and expanded testing scope (e.g., Metal analysis including Sodium and Potassium) highlighted the need for relevant Lamps and Standards.",
+      "outputs": "Management acknowledged that current resources adequately support routine operations but recognized the need to acquire additional lamps and standards for metal analysis, including sodium and potassium.",
+      "resources": "Procurement of specific lamps and certified reference standards for metal analysis (sodium and potassium), budget allocation for purchases, and technical support for installation and calibration.",
+      "responsibility": "Procurement & QC Team",
+      "target": "July, 2025"
+     },
+     {
+      "clause": "8.9.2 m)",
+      "sno": "",
+      "agenda": "Results of Risk Identification",
+      "inputs": "The recent risk identification exercise highlighted a range of potential risks impacting laboratory operations and quality, including:\nChemical hazards related to acids and solvents handling.\nRisks in sample handling, storage, contamination, and mislabelling.\nLaboratory facility access control and environmental factors such as warm lighting, temperature fluctuations, humidity, and extended electricity failures.\nPersonnel-related risks such as conflicts of interest, undue influence, undefined roles, testing beyond competence, and technical knowledge gaps.\nData integrity risks including breach of confidentiality, reporting errors, data loss, and unauthorized access.\nEquipment-related risks like malfunction, calibration lapses, and use of non-traceable standards.\nQuality risks from poor reagents, subcontracted services, non-validated methods, and misestimation of uncertainty.\nOperational risks including recurrence of non-conformities, ineffective management oversight, poor proficiency testing participation, cross-document inconsistencies, and misapplication of statistical techniques.\nMitigation strategies have been prioritized to address these risks through updated procedures, training, improved monitoring, and enhanced management controls.",
+      "outputs": "Management reviewed the identified risks and approved the implementation of targeted mitigation measures, including staff training on chemical and sample handling, enhanced calibration and maintenance schedules, access control reinforcement, and improved data security protocols. MR was directed to update the risk register and monitor mitigation effectiveness as part of ongoing internal audits.",
+      "resources": "Updated risk register and assessment tools\n\nTraining materials for staff on risk mitigation (e.g., chemical handling, data security, sample management)\n\nIT supports data security and access control improvements\n\nQA oversight for monitoring risk controls",
+      "responsibility": "QA Team to update the risk register and verify effectiveness of mitigation actions\nLab Manager to coordinate staff training and enforce SOP adherence\nTechnical Staff to ensure timely calibration and equipment servicing\n\nIT Department to implement and monitor data security measures\nManagement to oversee risk mitigation progress and allocate required resources",
+      "target": "Continuous"
+     },
+     {
+      "clause": "8.9.2 n)",
+      "sno": "",
+      "agenda": "Outcomes of the Assurance of the validity of results",
+      "inputs": "Validity of results was assured through successful participation in proficiency testing schemes, routine quality control checks, and method validation exercises. Control charts remained within acceptable limits, internal audits confirmed procedural compliance, and no critical discrepancies were reported in duplicate or blind sample analyses.",
+      "outputs": "Management acknowledged the effectiveness of current quality assurance measures in maintaining result validity. It was directed to continue participation in proficiency testing, strengthen internal audits, and ensure regular review of quality control data. The QA team was instructed to identify any trends and initiate early corrective actions if deviations occur.",
+      "resources": "Proficiency Testing (PT) schemes\nInternal quality control materials (e.g., control samples, reference standards)\nTrained QA personnel for audits and data review",
+      "responsibility": "Lab Manager & Deputy Manager Lab",
+      "target": "Continuous"
+     }
+    ],
+    "next_mrm": "15.09.2025",
+    "distributed_to": "All Participants",
+    "prepared_by": "Saba Qadeer",
+    "approved_by": "Syed Imran Ali Kazmi",
+    "dated": null,
+    "addendum_dated": "2025-04-25",
+    "meeting_no": "01/2025",
+    "meeting_date": "2025-02-24",
+    "meeting_date_text": "24-February-2025",
+    "time": "11:00 am to 3:00 pm",
+    "venue": "Lahore Office (Video Conferencing with Top Management)",
+    "review_type": "Regulation (ISO/IEC 17025:2017)"
+   },
+   "checklist": {
+    "file": "ETAL-QMS-809-FF-04 Management Review Meeting (MRM) Checklist.docx",
+    "date": "2025-04-29",
+    "rows": [
+     {
+      "code": "8.9.2 a)",
+      "item": "Changes in internal and external issues that are relevant to the laboratory",
+      "discussed": "yes",
+      "remarks": "No significant changes impacting lab operations.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 b)",
+      "item": "Fulfilment of objectives",
+      "discussed": "yes",
+      "remarks": "Most objectives achieved; pending items in progress.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 c)",
+      "item": "Suitability of policies and procedures",
+      "discussed": "yes",
+      "remarks": "Policies remain suitable; minor revisions proposed.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 d)",
+      "item": "Status of actions from previous management reviews",
+      "discussed": "yes",
+      "remarks": "All previous actions addressed effectively.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 e)",
+      "item": "Outcomes of recent internal audits",
+      "discussed": "yes",
+      "remarks": "All the findings are discussed.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 f)",
+      "item": "Corrective actions",
+      "discussed": "yes",
+      "remarks": "Discussed the effectiveness of corrective action.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 g)",
+      "item": "Assessments by external bodies",
+      "discussed": "yes",
+      "remarks": "Discussed the findings and steps to resolve NCs.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 h)",
+      "item": "Changes in the volume and type of work or in the range of laboratory activities",
+      "discussed": "yes",
+      "remarks": "Scope expansion underway.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 i)",
+      "item": "Customer and Personnel feedback",
+      "discussed": "yes",
+      "remarks": "Positive feedback: training needs identified.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 j)",
+      "item": "Complaints",
+      "discussed": "yes",
+      "remarks": "No Complaints.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 k)",
+      "item": "Effectiveness of any implemented improvements",
+      "discussed": "yes",
+      "remarks": "Improvements led to better efficiency.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 l)",
+      "item": "Adequacy of Resources",
+      "discussed": "yes",
+      "remarks": "Resources adequate",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 m)",
+      "item": "Results of Risk Identification",
+      "discussed": "yes",
+      "remarks": "No high risks; control effective.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 n)",
+      "item": "Outcomes of the Assurance of the validity of results",
+      "discussed": "yes",
+      "remarks": "QC/PT results are satisfactory and reliable.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 o)",
+      "item": "Other relevant factors (e.g., monitoring activities and training)",
+      "discussed": "yes",
+      "remarks": "Training conducted; monitoring ongoing.",
+      "justification": ""
+     }
+    ],
+    "prepared_date": null,
+    "approved_date": null
+   },
+   "note": "Minutes inducted from the version with the addendum of 25-04-2025."
+  },
+  {
+   "location": "Lahore",
+   "circular": {
+    "file": "ETAL-QMS-809-FF-01  Circular of Management Review Meeting-Dec 2025.docx",
+    "dated": "2025-12-29",
+    "meeting_no": "02/2025",
+    "meeting_date": "2025-12-31",
+    "time": "10:00 am to 2:00 pm",
+    "venue": "Lahore Office",
+    "subject": "Management Review Meeting",
+    "intro": "I am pleased to inform all of you that the Management Review Meeting Regular (ISO/IEC 17025:2017) will be held on 31st December 2025. This MRM must be performed to discuss the ISO Clause status of ISO 17025:2017 Compliance within your respective departments.",
+    "agenda": [
+     "Review of Internal Audit Report",
+     "Changes in internal and external issues that are relevant to the laboratory.",
+     "Fulfilment of objective.",
+     "Outcome of recent internal audit.",
+     "Corrective actions.",
+     "Effectiveness of any implemented improvements.",
+     "Adequacy of resources.",
+     "Other relevant factors."
+    ],
+    "distribute": [
+     "CEO",
+     "Display on noticeboard",
+     "All Employees"
+    ],
+    "attendance": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Deputy Manager Lab"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Sr. Field Officer"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Manager Lab"
+     },
+     {
+      "name": "Tayyaba Akhlaque",
+      "designation": "Junior Analyst"
+     }
+    ],
+    "ceo_name": "Syed Imran Ali Kazmi"
+   },
+   "minutes": {
+    "file": "ETAL-QMS-809-FF-02  Minutes of Management Review Meeting.docx",
+    "participants": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Sr. Field Officer"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Lab Manager"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Manager Lab"
+     },
+     {
+      "name": "Abdul Samad",
+      "designation": "Ass. Accounts officer"
+     },
+     {
+      "name": "Tayyaba Akhlaque",
+      "designation": "Jr. Analyst"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "Mohammad Faizan",
+      "designation": "Accounts officer"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Deputy Manager Lab"
+     }
+    ],
+    "roles": {
+     "chair": "Syed Imran Ali Kazmi",
+     "facilitator": "Hina Abidi",
+     "minutes_taker": "Saba Qadeer",
+     "documenter": "Saba Qadeer"
+    },
+    "items": [
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Previous MRM Report",
+      "inputs": "The prior MRM report was carefully evaluated to ensure that all discussed items were effectively implemented.",
+      "outputs": "It was confirmed that all action items from the previous MRM were successfully completed ahead of their respective target dates.",
+      "resources": "Will be discussed point by point where needed.",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Previous Internal Audit Report",
+      "inputs": "The prior Internal Audit report was carefully evaluated to ensure that all non-conformances have been timely closed and discussed items were effectively implemented.",
+      "outputs": "It was confirmed that all identified non-conformities (NCs) were thoroughly addressed, with appropriate corrective actions implemented and verified for effectiveness, ensuring full closure.",
+      "resources": "Will be discussed point by point where needed.",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "b)",
+      "agenda": "Review of External Audit Reports",
+      "inputs": "Total non-conformance 02 was found.",
+      "outputs": "It was confirmed that all non-conformities (NCs) identified during the external audit have been resolved within a 1.5-week timeframe.",
+      "resources": "Will be mentioned below where needed.",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC-01 for Clause 8.2.1\nThere is no evidence that the policies and objectives are acknowledged and implemented across all the levels of the organization.",
+      "outputs": "The Employee Induction Form (ETAL-LAB-602-FF-09) has been revised to include a section on policy awareness and acknowledgment.\nThe training session have been conducted as per Training Record (ETAL-LAB-602-FF-04) for all existing employees to communicate Envi Tech AL’s Quality Policy, Environmental Policy, and Objectives.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC-02 (Clause 6.5 – Metrological traceability):\nThe CRM/ Buffers that requires low temperature have been stored in refrigerator place in the lab while it requires to be stored between 15 to 25 C, Lab is using RM as instead of CRMs , Lab has placed purchase order to Lab scientific supplies Lahore and as lab told CRMs will be delivered in next couple of days",
+      "outputs": "All temperature-sensitive buffers have been immediately transferred to a controlled storage area equipped with validated temperature monitoring (15–25 °C).\nThe procurement of CRMs from the supplier has been completed dated 04-08-2025.",
+      "resources": "Procurement of CRMs.",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "c)",
+      "agenda": "Changes in internal and external issues that are relevant to the laboratory.",
+      "inputs": "External Issues:\nRequirements of EPA and Client for on-site testing of Water (pH, EC, Temperature & Chlorine).\nInternal Issues:\nPermit Request of Lab Manager (Saba Qadeer) for work from home.",
+      "outputs": "Procurements for water quality meter to expand on-site testing services for water quality parameters (pH, EC, Temperature, Chlorine) to meet EPA and client requirements.\nKeeping in view the reason the work from home permit was granted to Miss Saba Qadeer.",
+      "resources": "Purchase of water quality meter.",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "e)",
+      "agenda": "Review of Quality objectives 2025",
+      "inputs": "The 2025 quality objectives were presented, focusing on key performance areas such as proper implementation of training plan, to achieve feedback and analysis report annually and to follow PT/ILC plan.",
+      "outputs": "All objectives set for the year 2025 have been successfully completed and fully implemented.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "Not Applicable"
+     },
+     {
+      "clause": "",
+      "sno": "d)",
+      "agenda": "Quality objectives of 2026",
+      "inputs": "The lab aims to achieve feedback and prepare Analysis report annually, Proper implementation of Training Plan, QMS Training of Staff and to follow PT/ILC Plan (QRI PT Participated for Round 2026-02).",
+      "outputs": "The quality objectives for 2026 were formally approved and will be communicated across all relevant personnels.",
+      "resources": "Financial/\navailability of staff",
+      "responsibility": "MR",
+      "target": "31-Dec-2026"
+     },
+     {
+      "clause": "",
+      "sno": "f)",
+      "agenda": "Customer and personnel feedback.",
+      "inputs": "All customer feedback received in 2025 has been reviewed, and an improvement analysis report based on the feedback has been completed and verified.",
+      "outputs": "Upon reviewing the improvement analysis report, it was observed that ETAL received more positive feedback in 2025 compared to the previous year2024. This indicates significant improvement in overall customer satisfaction, particularly in areas such as service quality, timely reporting, and technical support.",
+      "resources": "No.",
+      "responsibility": "Management",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "g)",
+      "agenda": "Risk Analysis report review",
+      "inputs": "The risk assessment report was reviewed. Mitigation measures were evaluated, and the effectiveness of existing controls was assessed.",
+      "outputs": "In 2025, 29 risks were identified through risk assessment, and the current control measures were assessed as effective.",
+      "resources": "No.",
+      "responsibility": "Quality Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "h)",
+      "agenda": "Complain review",
+      "inputs": "No Complaints were received from any customer in 2025.",
+      "outputs": "It was planned that the customer interactions should be increased through business development activities and customer feedback should be collected on regular basis.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "31-12-2025"
+     },
+     {
+      "clause": "",
+      "sno": "I)",
+      "agenda": "Review of regulatory requirements",
+      "inputs": "As per the regulatory requirements of EPA, the laboratory is required to submit an annual compliance report at the end of each year.",
+      "outputs": "The laboratory has fulfilled this requirement, and the annual compliance report has been successfully submitted to EPA.",
+      "resources": "No.",
+      "responsibility": "Lab Manager",
+      "target": "31-12-2025"
+     },
+     {
+      "clause": "",
+      "sno": "J)",
+      "agenda": "Other relevant factors, such as monitoring activities in field.",
+      "inputs": "The on-site testing schedule for environmental monitoring was reviewed & discussed by the yearly contracted client.",
+      "outputs": "The Plan was discussed, and it was mutually decided lab manager would be accountable for ensuring the continuous execution of the testing schedule, subject to mutual agreement with the client.",
+      "resources": "Availability of Staff / Finance",
+      "responsibility": "Lab Manager",
+      "target": "N.A."
+     }
+    ],
+    "addendum": [],
+    "next_mrm": "10.06.2026",
+    "distributed_to": "All Participants",
+    "prepared_by": "Saba Qadeer",
+    "approved_by": "Syed Imran Ali Kazmi",
+    "dated": "2025-12-31",
+    "addendum_dated": null,
+    "meeting_no": "02/2025",
+    "meeting_date": "2025-12-31",
+    "meeting_date_text": "31-December-2025",
+    "time": "10:00 am to 2:00 pm",
+    "venue": "Lahore Office (Video Conferencing with Top Management)",
+    "review_type": "Regular (ISO/IEC 17025:2017)"
+   },
+   "checklist": {
+    "file": "ETAL-QMS-809-FF-04 Management Review Meeting (MRM) Checklist.docx",
+    "date": "2026-01-01",
+    "rows": [
+     {
+      "code": "8.9.2 a)",
+      "item": "Changes in internal and external issues that are relevant to the laboratory",
+      "discussed": "yes",
+      "remarks": "No significant changes impacting lab operations.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 b)",
+      "item": "Fulfilment of objectives",
+      "discussed": "yes",
+      "remarks": "Most objectives achieved; pending items in progress.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 c)",
+      "item": "Suitability of policies and procedures",
+      "discussed": "yes",
+      "remarks": "Policies remain suitable; minor revisions proposed.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 d)",
+      "item": "Status of actions from previous management reviews",
+      "discussed": "yes",
+      "remarks": "All previous actions addressed effectively.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 e)",
+      "item": "Outcomes of recent internal audits",
+      "discussed": "yes",
+      "remarks": "All the findings are discussed.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 f)",
+      "item": "Corrective actions",
+      "discussed": "yes",
+      "remarks": "Discussed the effectiveness of corrective action.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 g)",
+      "item": "Assessments by external bodies",
+      "discussed": "yes",
+      "remarks": "Discussed the findings and steps to resolve NCs.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 h)",
+      "item": "Changes in the volume and type of work or in the range of laboratory activities",
+      "discussed": "yes",
+      "remarks": "Scope expansion underway.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 i)",
+      "item": "Customer and Personnel feedback",
+      "discussed": "yes",
+      "remarks": "Positive feedback: training needs identified.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 j)",
+      "item": "Complaints",
+      "discussed": "yes",
+      "remarks": "No Complaints.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 k)",
+      "item": "Effectiveness of any implemented improvements",
+      "discussed": "yes",
+      "remarks": "Improvements led to better efficiency.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 l)",
+      "item": "Adequacy of Resources",
+      "discussed": "yes",
+      "remarks": "Resources adequate",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 m)",
+      "item": "Results of Risk Identification",
+      "discussed": "yes",
+      "remarks": "No high risks; control effective.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 n)",
+      "item": "Outcomes of the Assurance of the validity of results",
+      "discussed": "yes",
+      "remarks": "QC/PT results are satisfactory and reliable.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 o)",
+      "item": "Other relevant factors (e.g., monitoring activities and training)",
+      "discussed": "yes",
+      "remarks": "Training conducted; monitoring ongoing.",
+      "justification": ""
+     }
+    ],
+    "prepared_date": "2026-01-01",
+    "approved_date": "2026-01-01"
+   },
+   "note": ""
+  },
+  {
+   "location": "Lahore",
+   "circular": {
+    "file": "ETAL-QMS-809-FF-01  Circular of Management Review Meeting-2026.docx",
+    "dated": "2026-03-06",
+    "meeting_no": "01/2026",
+    "meeting_date": "2026-03-09",
+    "time": "11:00 am to 3:00 pm",
+    "venue": "Lahore Office",
+    "subject": "Management Review Meeting",
+    "intro": "I am pleased to inform all of you that the Management Review Meeting on Internal Audit of ISO 17025:2017 will be held on 09th March 2026. This MRM must be performed to discuss the ISO Clause status of ISO 17025:2017 Compliance within your respective departments.",
+    "agenda": [
+     "Review of Internal Audit Report",
+     "Changes in internal and external issues that are relevant to the laboratory.",
+     "Fulfilment of objective.",
+     "Outcome of recent internal audit.",
+     "Corrective actions.",
+     "Effectiveness of any implemented improvements.",
+     "Adequacy of resources.",
+     "Other relevant factors."
+    ],
+    "distribute": [
+     "CEO",
+     "Display on noticeboard",
+     "All Employees"
+    ],
+    "attendance": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Deputy Manager Lab"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Sr. Field Officer"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Manager Lab"
+     },
+     {
+      "name": "Muhammad Modabir Raza",
+      "designation": "Junior Field Officer"
+     }
+    ],
+    "ceo_name": "Syed Imran Ali Kazmi"
+   },
+   "minutes": {
+    "file": "ETAL-QMS-809-FF-02  Minutes of Management Review Meeting.docx",
+    "participants": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Saqib Hussain",
+      "designation": "Sr. Field Officer"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Lab Manager"
+     },
+     {
+      "name": "Maryam Fatima",
+      "designation": "Assistant Manager Lab"
+     },
+     {
+      "name": "Payal Dewani",
+      "designation": "Admin & HR Manager"
+     },
+     {
+      "name": "Tayyaba Akhlaque",
+      "designation": "Jr. Analyst"
+     },
+     {
+      "name": "Saba Qadeer",
+      "designation": "MR"
+     },
+     {
+      "name": "M. Modabir Raza",
+      "designation": "Jr. Field Officer"
+     },
+     {
+      "name": "Sana Ashraf",
+      "designation": "Deputy Manager Lab"
+     }
+    ],
+    "roles": {
+     "chair": "Syed Imran Ali Kazmi",
+     "facilitator": "Hina Abidi",
+     "minutes_taker": "Saba Qadeer",
+     "documenter": "Saba Qadeer"
+    },
+    "items": [
+     {
+      "clause": "",
+      "sno": "1.",
+      "agenda": "Review of Internal Audit Report",
+      "inputs": "Total 09 Non-Conformance were found.",
+      "outputs": "All non-conformities (NCs) identified during the internal audit should be completed within eight-week timeframe. Individual deadlines have been assigned for each NC/Observation. However, the ultimate deadline for closing all NCs is set for 23rd April 2026.",
+      "resources": "Resources are noted for each NC where applicable.",
+      "responsibility": "MR",
+      "target": "23.04.2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 4.1 regarding Impartiality occurred due to the unavailability of residual risks in Risk Assessment Form (ETAL-QMS-805-FF-01), and acceptance criteria for residual risks has not been defined by the lab.",
+      "outputs": "It has been decided that the laboratory will revise the Risk Assessment Procedure (ETAL-QMS-805-P) and Risk Assessment Form (ETAL-QMS-805-FF-01) to incorporate a structured section for evaluating risks after implementation of control measures, along with clearly defined acceptance criteria. The procedure will be updated to ensure systematic evaluation of the effectiveness of risk controls in accordance with Clause 8.5 of ISO/IEC 17025:2017, and all existing risk assessments will be reviewed and updated accordingly.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12.03.2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 4.1 regarding Impartiality occurred because impartiality declarations were not formally extended to committee members, contractors, and external representatives, as the laboratory considered existing organizational controls such as supervision, hierarchy, and internal review processes to be sufficient to safeguard impartiality",
+      "outputs": "It has been decided that the laboratory will revise the format of the Impartiality Undertaking (ETAL-QMS-401-FF-01) into a single standardized form applicable to all categories, including personnel, committee members, contractors, external bodies, and visitors. The Impartiality Procedure (ETAL-QMS-P-401) will be updated accordingly to reflect this change and ensure consistent implementation.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12.03.2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 4.2 regarding confidentiality occurred because confidentiality undertakings were issued only to internal staff, contractors, and service providers, and not extended to committee members or external representatives.",
+      "outputs": "It has been decided that the laboratory will revise the format of the Confidentiality Undertaking (ETAL-QMS-402-FF-01) into a single standardized form applicable to all categories, including personnel, committee members, contractors, external bodies, and visitors. The Confidentiality Procedure (ETAL-QMS-P-402) will be updated accordingly to reflect this change and ensure consistent implementation.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12.03.2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 6.3 regarding Facilities and environmental conditions. The facilities like, equipment, fitting/fixtures, electric supply, gas supply, water supply, storage of Lab equipment /test items are not defined and documented, as and when required for carrying out testing activities.",
+      "outputs": "It has been decided that the laboratory will revise the Procedure of “Facilities and Environmental Conditions (ETAL-LAB-P-603) to include and clearly document all facilities available in the laboratory, including electricity supply, gas supply, DI water system, equipment, storage areas, and fittings & fixtures.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12.03.2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 6.3 regarding Facilities and environmental conditions. Equipment ID is not mentioned in log sheet and correction factor of hygrometer is also not incorporated in log sheet neither in control chart.",
+      "outputs": "It has been decided that the “ENVIRONMENTAL CONDITION LOG (LAB) -(ETAL-LAB-603-FF-01A)” format shall be revised to include dedicated fields for recording both the observed value and the value after application of the correction factor. The correction factor shall be applied as per the calibration certificate of the hygrometer or weather station. All corrected values shall be utilized for plotting in control charts to ensure accurate trend analysis. Furthermore, the log sheet shall be updated to include a mandatory provision for recording the instrument identification to ensure complete traceability.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "09-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 6.4 regarding the Equipment. The non-conformance was identified because independent monthly intermediate check data are not being plotted on the control chart for ongoing monitoring.",
+      "outputs": "The laboratory will revise its balance monitoring practice to ensure that independent monthly verification data recorded in ANALYTICAL BALANCE IN-HOUSE CALIBRATION CHECK LOG (ETAL-LAB-FF-604-01) are incorporated into the control chart format ETAL-LAB-604-FF-11A, along with the baseline established from intermediate check results. All relevant historical monthly check data will be reviewed, compiled, and plotted to develop a complete and representative control chart.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "11-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.7 regarding Validity of Results. The nonconformity occurred because the test method does not provide guidance for pre-adjustment or verification of sample volume prior to analysis to ensure the residue falls within 2.5 mg to 200 mg.",
+      "outputs": "The laboratory will introduce a pre-analysis verification step for sample volume selection to ensure the expected result falls within the required measurement range before testing. A calculation/check step will be incorporated into the \"Lab Instruction for total dissolve solids \" (ETAL-LAB-702-FF-03 (TDS)\" to confirm appropriate sample volume prior to analysis.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "11-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.8 regarding Reporting of results. The non-conformance was raised because The Customer Request Form was not adequately reviewed for alignment with current laboratory reporting practices, resulting in the continued inclusion of \"Opinions and Interpretations\" despite their exclusion from laboratory activities.",
+      "outputs": "It has been decided that the customer request form will be revised (ETAL-LAB-708-FF-17) to remove references to opinions and interpretations and align it with laboratory policy.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "11-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 7.11 regarding Data and information control. The laboratory has not established a dedicated procedure to address data and information management requirements.",
+      "outputs": "The laboratory will develop a new procedure for “Control Data & Information Management System ETAL-QMS-P-711” in line with Clause 7.11 of ISO/IEC 17025:2017. This procedure will define who can access data, how software/LIMS is validated and how data is protected through passwords and backups. It will also cover control of external systems, and reference data for staff, and proper checking of calculations and data transfers with documented evidence.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.2 regarding Management System Documentation. The non-conformance was identified as the laboratory has not ensured effective communication and implementation of objectives at all levels.",
+      "outputs": "To address this, the laboratory will revise and update the format of Quality Objectives (ETAL-QMS-802-FF-02) to ensure clear definition, assignment, and documentation of responsibilities.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.3 regarding control of management system. The non-conformance was raised as the laboratory was already implementing document preparation, review, and approval in routine practice; however, these responsibilities were not explicitly described in the document control procedure.",
+      "outputs": "It has been decided that the laboratory will revise the “Procedure for Control of Management System Documents” (ETAL-QMS-P-803) to clearly define the responsibilities for document preparation, review, and approval, ensuring alignment between actual practices and documented requirements.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "14-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.3 regarding control of management system. The non-conformance was raised because the document control procedure does not establish a standardized first-page format across all document levels (Level I–IV), although documents within each category (policies, procedures, and forms/formats) follow consistent internal formats.",
+      "outputs": "To address this, the procedure for “Procedure for Control of Management System Documents” (ETAL-QMS-P-803) will be revised and updated to establish a standardized formatting style for all document levels (Level I–IV).",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "12-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.4 regarding control of Records (Option A). The non-conformance was raised because the existing procedures Technical Record (ETAL-LAB-P-705, & Control of Management System Documents ETAL-QMS-P-803 did not comprehensively address the requirements of ISO/IEC 17025:2017 Clause 8.4 for control of records.\nLab has described the retention period for records as three years: lab needs to rectify its statement about the retention period as the retention period also depends on legal obligations.",
+      "outputs": "To address this, the laboratory shall revise the Control of “Procedure for Control of Management System Documents ETAL-QMS-P-803 “to incorporate a dedicated section addressing the requirements of ISO/IEC 17025:2017 Clause 8.4 (Control of Records).\nThe laboratory will revise the Procedure for Control of Management System Documents ETAL-QMS-P-803 to ensure record retention periods are defined based on applicable legal, regulatory, and contractual requirements instead of a fixed duration",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "14-03-2026"
+     },
+     {
+      "clause": "",
+      "sno": "2.",
+      "agenda": "Previous MRM Action Effectiveness Review",
+      "inputs": "Actions identified during the previous MRM, including the ISO/IEC 17025:2017 Audit, IMS Audit, and PT Participation for the year 2026 have been discussed.",
+      "outputs": "The following actions have been completed and found effective: ISO/IEC 17025:2017 Audit, IMS Audit and PT Participation in Round 2026-02.",
+      "resources": "No",
+      "responsibility": "N. A",
+      "target": "N. A"
+     },
+     {
+      "clause": "",
+      "sno": "3.",
+      "agenda": "Corrective Actions",
+      "inputs": "Replacement of Filters of water DI system have been discussed.",
+      "outputs": "The replacement process for the DI water system filters is in progress. A comparative statement of quotations for the replacement filters is being prepared and will be submitted to the management for review and approval to initiate the procurement process.",
+      "resources": "No",
+      "responsibility": "N. A",
+      "target": "N. A"
+     },
+     {
+      "clause": "",
+      "sno": "4.",
+      "agenda": "Personnel Competence and Training",
+      "inputs": "In the previous month, laboratory personnel participated in an internal training organized by ETAL and conducted by Miss Sana Ashraf on Water Testing & Quality Standards.",
+      "outputs": "The training covered key areas such as water quality testing parameters, testing methods, quality control measures and calibration and standardization of equipment. Training records have been updated accordingly in ETAL-LAB-602-FF-04 (Training Record). This initiative enhanced understanding of lab operations and strengthened implementation across all lab operations.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "11.02.2026"
+     },
+     {
+      "clause": "",
+      "sno": "5.",
+      "agenda": "Review of Quality Objectives",
+      "inputs": "Quality Objectives are identified and enlisted for Year 2026.",
+      "outputs": "Quality objectives for the year 2026 have been identified, documented, and enlisted in accordance with the laboratory's quality management system. These objectives are aligned with the lab's strategic direction and are being monitored for implementation and effectiveness (Ref: ETAL-QMS-802-FF-02).",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "December, 2026"
+     }
+    ],
+    "addendum": [],
+    "next_mrm": "08.03.2026",
+    "distributed_to": "All Participants",
+    "prepared_by": "Saba Qadeer",
+    "approved_by": "Syed Imran Ali Kazmi",
+    "dated": "2026-03-09",
+    "addendum_dated": null,
+    "meeting_no": "01/2026",
+    "meeting_date": "2026-03-09",
+    "meeting_date_text": "09-March-2026",
+    "time": "11:00 am to 3:00 pm",
+    "venue": "Lahore Office (Video Conferencing with Top Management)",
+    "review_type": "Regulation (ISO/IEC 17025:2017)"
+   },
+   "checklist": {
+    "file": "ETAL-QMS-809-FF-04 Management Review Meeting (MRM) Checklist.docx",
+    "date": "2026-03-10",
+    "rows": [
+     {
+      "code": "8.9.2 a)",
+      "item": "Changes in internal and external issues that are relevant to the laboratory",
+      "discussed": "yes",
+      "remarks": "No significant changes impacting lab operations.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 b)",
+      "item": "Fulfilment of objectives",
+      "discussed": "yes",
+      "remarks": "Most objectives achieved; pending items in progress.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 c)",
+      "item": "Suitability of policies and procedures",
+      "discussed": "yes",
+      "remarks": "Policies remain suitable; minor revisions proposed.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 d)",
+      "item": "Status of actions from previous management reviews",
+      "discussed": "yes",
+      "remarks": "All previous actions addressed effectively.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 e)",
+      "item": "Outcomes of recent internal audits",
+      "discussed": "yes",
+      "remarks": "All the findings are discussed.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 f)",
+      "item": "Corrective actions",
+      "discussed": "yes",
+      "remarks": "Discussed the effectiveness of corrective action.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 g)",
+      "item": "Assessments by external bodies",
+      "discussed": "yes",
+      "remarks": "Discussed the findings and steps to resolve NCs.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 h)",
+      "item": "Changes in the volume and type of work or in the range of laboratory activities",
+      "discussed": "yes",
+      "remarks": "Scope expansion underway.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 i)",
+      "item": "Customer and Personnel feedback",
+      "discussed": "yes",
+      "remarks": "Positive feedback: training needs identified.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 j)",
+      "item": "Complaints",
+      "discussed": "yes",
+      "remarks": "No Complaints.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 k)",
+      "item": "Effectiveness of any implemented improvements",
+      "discussed": "yes",
+      "remarks": "Improvements led to better efficiency.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 l)",
+      "item": "Adequacy of Resources",
+      "discussed": "yes",
+      "remarks": "Resources adequate",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 m)",
+      "item": "Results of Risk Identification",
+      "discussed": "yes",
+      "remarks": "No high risks; control effective.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 n)",
+      "item": "Outcomes of the Assurance of the validity of results",
+      "discussed": "yes",
+      "remarks": "QC/PT results are satisfactory and reliable.",
+      "justification": ""
+     },
+     {
+      "code": "8.9.2 o)",
+      "item": "Other relevant factors (e.g., monitoring activities and training)",
+      "discussed": "yes",
+      "remarks": "Training conducted; monitoring ongoing.",
+      "justification": ""
+     }
+    ],
+    "prepared_date": "2026-03-10",
+    "approved_date": "2026-03-10"
+   },
+   "note": ""
+  },
+  {
+   "location": "Karachi",
+   "circular": {
+    "file": "ETAL-QMS-809-FF-01Circular of MRM.docx",
+    "dated": "2025-08-25",
+    "meeting_no": "01/2025",
+    "meeting_date": "2025-09-03",
+    "time": "10:30 am to 04:00 pm",
+    "venue": "Conference room of Envi Tech AL",
+    "subject": "Management Review Meeting",
+    "intro": "I am pleased to inform all concerned that the Management Review Meeting for Review of Laboratory Procedures in accordance with ISO/IEC 17025:2017 will be held on 03-Sep-2025. This MRM is conducted to review the effectiveness, suitability, and continued applicability of laboratory management system and technical procedures within their respective functional areas, ensuring compliance with ISO/IEC 17025:2017 requirements and current laboratory practices.",
+    "agenda": [
+     "Review of Laboratory Procedures (Management System and Technical Procedures)",
+     "Assessment of Procedure Suitability, Adequacy, and Effectiveness",
+     "Verification of Alignment of Procedures with ISO/IEC 17025:2017 Requirements",
+     "Review of Implementation Status of Procedures in Laboratory Operations",
+     "Identification of Any Required Updates or Improvements in Procedures",
+     "Confirmation of Document Control Status (Issue Date, Revision No., Issue No.)",
+     "Verification of Periodic Review Compliance of Procedures",
+     "Any Other Relevant Matters Related to Procedure Implementation and Control"
+    ],
+    "distribute": [
+     "CEO",
+     "Display on notice board",
+     "All Employees"
+    ],
+    "attendance": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Manager Lab"
+     },
+     {
+      "name": "Muneeza Salman",
+      "designation": "Chemist/Assistant Manager Lab"
+     },
+     {
+      "name": "Mohammad Faizan",
+      "designation": "Accounts officer"
+     },
+     {
+      "name": "Samia Gul",
+      "designation": "Chemist/Assistant Manager Lab & QC"
+     }
+    ],
+    "ceo_name": "Syed Imran Ali Kazmi"
+   },
+   "minutes": {
+    "file": "ETAL-QMS-809-FF-02 Minutes of MRM - Sept 2025.docx",
+    "participants": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Mohammad Faizan",
+      "designation": "Accounts officer"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "M.R"
+     },
+     {
+      "name": "Samia Gul",
+      "designation": "Chemist"
+     },
+     {
+      "name": "Muneeza Salman",
+      "designation": "Chemist"
+     }
+    ],
+    "roles": {
+     "chair": "Syed Imran Ali Kazmi",
+     "facilitator": "Muneeza Salman",
+     "minutes_taker": "Hina Abidi",
+     "documenter": "Hina Abidi"
+    },
+    "items": [
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Laboratory Procedures (General Overview)",
+      "inputs": "The Management Review Meeting included a comprehensive review of all laboratory management system and technical procedures that had completed the defined periodic review cycle of three (3) years, in accordance with ISO/IEC 17025:2017 requirements for document control and periodic review. The objective of this review was to ensure that each procedure remains suitable, adequate, and effectively implemented in line with current laboratory operations and regulatory requirements. Each procedure was evaluated for its continued relevance, clarity, and effectiveness. All applicable procedures were reviewed one by one to assess their alignment with ISO/IEC 17025:2017 requirements and current laboratory practices.",
+      "outputs": "It was agreed that each procedure shall be evaluated individually for suitability, adequacy, and compliance with ISO/IEC 17025:2017 requirements and current laboratory practices. Where no changes in content are identified during the review, the existing Issue Date, Revision Number, and Issue Number will remain unchanged in accordance with the document control procedure. Where any changes in content are identified, the procedure will be revised accordingly, and a new Issue Date along with updated Revision and Issue Numbers will be assigned as per the document control procedure. The review process will be recorded as evidence of periodic document review under the laboratory quality management system.",
+      "resources": "No",
+      "responsibility": "MR / Quality Manager",
+      "target": "3-10-2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-401 (Impartiality)",
+      "inputs": "The procedure was critically reviewed to evaluate the identification, assessment, and control of risks to impartiality. The effectiveness of implemented controls and management commitment towards impartiality were assessed against ISO/IEC 17025:2017 requirements.",
+      "outputs": "Procedure found adequate, effectively implemented, and compliant. No revision required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-500 (Structure)",
+      "inputs": "The organizational structure defined in the procedure was reviewed to confirm clarity of roles, responsibilities, authorities, and reporting lines. Alignment with current operational structure was verified.",
+      "outputs": "Procedure found suitable and aligned with current organizational setup. No changes required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-602 (Personnel)",
+      "inputs": "The procedure was evaluated with respect to personnel competence, qualification criteria, training processes, and authorization requirements. Implementation effectiveness and compliance with competence requirements were verified.",
+      "outputs": "Procedure found adequate and effectively implemented. No revision required.",
+      "resources": "No",
+      "responsibility": "Lab Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-604 (Equipment)",
+      "inputs": "The procedure was reviewed to assess controls related to equipment selection, calibration, maintenance, verification, and handling. Records and implementation practices were evaluated for compliance.",
+      "outputs": "Procedure found effective and properly implemented. No changes required.",
+      "resources": "No",
+      "responsibility": "Lab Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-606 (Externally Provided Products & Services)",
+      "inputs": "The supplier evaluation, selection, and monitoring processes were reviewed, including criteria for approval and performance evaluation of external providers.",
+      "outputs": "Procedure found adequate and effectively implemented. No revision required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-607 (External & PNAC Audit Handling)",
+      "inputs": "The procedure was reviewed to verify the effectiveness of planning, coordination, and handling of external and accreditation audits, including response to audit findings.",
+      "outputs": "Procedure found suitable and effective. No changes required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-701 (Review of Requests, Tenders & Contracts)",
+      "inputs": "The process for reviewing customer requirements, contract acceptance, and ensuring capability prior to commitment was evaluated for adequacy and implementation.",
+      "outputs": "Procedure found adequate and effectively implemented. No revision required.",
+      "resources": "No",
+      "responsibility": "Lab Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-702 (Method Selection, Verification & Validation)",
+      "inputs": "The procedure was assessed for compliance with method selection, verification, and validation requirements. Implementation practices and records were reviewed for adequacy.",
+      "outputs": "Procedure found effective and compliant. No changes required.",
+      "resources": "No",
+      "responsibility": "Technical Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-LAB-P-705 (Technical Records)",
+      "inputs": "The procedure governing generation, handling, storage, and traceability of technical records was reviewed to ensure data integrity and completeness.",
+      "outputs": "Procedure found adequate and effectively implemented. No revision required.",
+      "resources": "No",
+      "responsibility": "Lab Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-710 (Nonconforming Work & Corrective Action)",
+      "inputs": "The procedure was evaluated for identification, control, and correction of nonconforming work, including root cause analysis and effectiveness of corrective actions.",
+      "outputs": "Procedure found effective and properly implemented. No changes required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-802 (Management System Documentation)",
+      "inputs": "The structure and control of management system documentation were reviewed, including document hierarchy, accessibility, and consistency.",
+      "outputs": "Procedure found adequate and suitable. No revision required.",
+      "resources": "No",
+      "responsibility": "Quality Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-803 (Control of Documents)",
+      "inputs": "The document control process was reviewed, including approval, issuance, revision control, and withdrawal of obsolete documents.",
+      "outputs": "Procedure found effective and properly implemented. No changes required.",
+      "resources": "No",
+      "responsibility": "Quality Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-805 (Risk Assessment)",
+      "inputs": "The procedure was reviewed to assess identification, evaluation, and mitigation of risks and opportunities, including effectiveness of controls and documentation practices.",
+      "outputs": "Procedure found suitable and effective. No revision required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-808 (Internal Audit)",
+      "inputs": "The internal audit process was reviewed for planning, execution, reporting, and follow-up of audit findings. Effectiveness of audit implementation was verified.",
+      "outputs": "Procedure found effective and compliant. No changes required.",
+      "resources": "No",
+      "responsibility": "Quality Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "Review of Procedure ETAL-QMS-P-809 (Management Review)",
+      "inputs": "The management review process was evaluated to ensure adequacy of inputs, outputs, and alignment with ISO/IEC 17025:2017 requirements.",
+      "outputs": "Procedure found adequate and effectively implemented. No revision required.",
+      "resources": "No",
+      "responsibility": "MR",
+      "target": "N.A."
+     }
+    ],
+    "addendum": [],
+    "next_mrm": "29-12-2025",
+    "distributed_to": "All participants",
+    "prepared_by": "Hina Abidi",
+    "approved_by": "Syed Imran Ali Kazmi",
+    "dated": null,
+    "addendum_dated": null,
+    "meeting_no": "01/2025",
+    "meeting_date": "2025-09-03",
+    "meeting_date_text": "03-09-2025",
+    "time": "10:00 am to 04:00 pm",
+    "venue": "Conference room in Envi Tech AL",
+    "review_type": "Regular (ISO/IEC 17025:2017)"
+   },
+   "checklist": null,
+   "note": ""
+  },
+  {
+   "location": "Karachi",
+   "circular": {
+    "file": "ETAL-QMS-809-FF-01Circular of MRM.docx",
+    "dated": "2025-12-27",
+    "meeting_no": "02/2025",
+    "meeting_date": "2025-12-31",
+    "time": "10:30 am to 02:00 pm",
+    "venue": "Conference room of Envi Tech AL",
+    "subject": "Management Review Meeting",
+    "intro": "I am pleased to inform all of you that the Management Review Meeting on Internal Audit of ISO/IEC 17025:2017 will be held on 31 Dec 2025. This MRM must be performed to discuss the ISO Clause status of ISO/IEC 17025:2017 Compliance within your respective departments.",
+    "agenda": [
+     "Review of Previous MRM Report",
+     "Review of Internal Audit Reports",
+     "Changes in internal and external issues that are relevant to the laboratory.",
+     "Fulfilment of objective.",
+     "Status of actions from previous management reviews.",
+     "Outcome of recent internal audits.",
+     "Corrective actions.",
+     "Customer and personnel feedback.",
+     "Complaints.",
+     "Effectiveness of any implemented improvements.",
+     "Adequacy of resources.",
+     "Review of regulatory requirements, communications, and concerns from SEPA related to laboratory operations and compliance.",
+     "Outcomes of the assurance of the validity of results; and",
+     "Other relevant factors, such as monitoring activities and training."
+    ],
+    "distribute": [
+     "CEO",
+     "Display on notice board",
+     "All Employees"
+    ],
+    "attendance": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "Manager Lab"
+     },
+     {
+      "name": "Muneeza Salman",
+      "designation": "Chemist/Assistant Manager Lab"
+     },
+     {
+      "name": "Mohammad Faizan",
+      "designation": "Accounts officer"
+     },
+     {
+      "name": "Abdul Samad",
+      "designation": "Assistant Accounts officer"
+     }
+    ],
+    "ceo_name": "Syed Imran Ali Kazmi"
+   },
+   "minutes": {
+    "file": "ETAL-QMS-809-FF-02 Minutes of MRM - Dec 2025.docx",
+    "participants": [
+     {
+      "name": "Syed Imran Ali Kazmi",
+      "designation": "CEO"
+     },
+     {
+      "name": "Mohammad Faizan",
+      "designation": "Accounts officer"
+     },
+     {
+      "name": "Hina Abidi",
+      "designation": "M.R"
+     },
+     {
+      "name": "Abdul Samad",
+      "designation": "Ass. Accounts officer"
+     },
+     {
+      "name": "Muneeza Salman",
+      "designation": "Chemist"
+     }
+    ],
+    "roles": {
+     "chair": "Syed Imran Ali Kazmi",
+     "facilitator": "Muneeza Salman",
+     "minutes_taker": "Hina Abidi",
+     "documenter": "Hina Abidi"
+    },
+    "items": [
+     {
+      "clause": "",
+      "sno": "a)",
+      "agenda": "Review of Previous MRM Report",
+      "inputs": "The prior MRM report was carefully evaluated to ensure that all discussed items were effectively implemented.",
+      "outputs": "It was confirmed that all action items from the previous MRM were successfully completed ahead of their respective target dates. Additionally, all identified non-conformities (NCs) were thoroughly addressed, with appropriate corrective actions implemented and verified for effectiveness, ensuring full closure.",
+      "resources": "Will be discussed point by point where needed.",
+      "responsibility": "MR",
+      "target": "N.A"
+     },
+     {
+      "clause": "",
+      "sno": "b)",
+      "agenda": "Review of Internal Audit Reports",
+      "inputs": "Total non-conformance 02 was found.",
+      "outputs": "It was mutually agreed that all non-conformities (NCs) identified during the internal audit would be resolved within a 1.5-week timeframe. While specific deadlines have been assigned to each NC, the final deadline for closing all NCs is set for\n06-Jan- 2026.",
+      "resources": "Will be mentioned below where needed.",
+      "responsibility": "MR",
+      "target": "06-01-2026"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC-01 (Clause 8.5 – Actions to Address Risks and Opportunities):\nDuring the review of the risk assessment records, it was observed that the laboratory has established the Risk Assessment Procedure (ETAL-QMS-P-805) and maintains records of risks and opportunities using form ETAL-QMS-805-FF-01. However, the documented records do not include information demonstrating the effectiveness of the implemented controls, nor do they specify the person responsible for the closure of identified risks.",
+      "outputs": "The Manager Lab will prepare a detailed report to identify the root cause of the issue and implement appropriate corrective actions. Additionally, Lab Manager will revise the risk assessment document (ETAL-QMS-805-FF-01) to include fields for recording the effectiveness of implemented controls and for specifying the person responsible for closing each identified risk.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "06-01-2025"
+     },
+     {
+      "clause": "",
+      "sno": "",
+      "agenda": "",
+      "inputs": "NC for clause # 8.6.1 regarding the that other opportunities for improvement arising from sources such as internal audits, management review, complaints, nonconformities, and staff suggestions were not systematically identified, reviewed, or documented. This indicates that the laboratory has not fully implemented a process to identify and review opportunities for improvement from all relevant sources as required by ISO/IEC 17025:2017 Clause 8.6.1.",
+      "outputs": "The Lab Manager will evaluated the root cause of the issue and initiated corrective actions to address the gap identified under Clause 8.6.1. A standardized format for recording and reviewing opportunities for improvement will be developed and implemented. This format captures inputs from various sources, including internal audits, management reviews, complaints, nonconformities, feedback, and staff suggestions. The Lab Manager has ensured that all identified opportunities are documented in a consolidated manner, systematically reviewed at defined intervals, and analyzed for trends. This approach facilitates effective monitoring and supports continual improvement in compliance with ISO/IEC 17025:2017 Clause 8.6.1.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "06-01-2025"
+     },
+     {
+      "clause": "",
+      "sno": "c)",
+      "agenda": "Changes in internal and external issues that are relevant to the laboratory.",
+      "inputs": "The management decided to expand analytical capabilities by developing all applicable visible spectrophotometric methods on the UV-Vis spectrophotometer by the end of December 2025. This initiative was undertaken to improve efficiency, optimize resource utilization, and enhance method versatility.",
+      "outputs": "The development and implementation of these methods were carried out gradually from April to December 2025. All targeted methods were successfully established.",
+      "resources": "N.A",
+      "responsibility": "N.A",
+      "target": "N.A"
+     },
+     {
+      "clause": "",
+      "sno": "e)",
+      "agenda": "Review of Quality objectives 2025",
+      "inputs": "The 2025 quality objectives were presented, focusing on key performance areas such as PT testing of new parameters including Zinc (Zn), Copper (Cu), Cadmium (Cd), Manganese (Mn), Lead (pb), and alternative methods for Chemical Oxygen Demand (COD), Fluoride, Nitrate ,Sulfate & addition of Raw data sheet formats to the Envi Tech AL reporting software.",
+      "outputs": "All objectives set for the year 2025 have been successfully completed and fully implemented.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "Not Applicable"
+     },
+     {
+      "clause": "",
+      "sno": "d)",
+      "agenda": "Quality objectives of 2026",
+      "inputs": "The lab aims to achieve ISO/IEC 17025:2017 accreditation and successfully clear the accreditation audit for additional parameters, including Zinc (Zn), Copper (Cu), Cadmium (Cd), Manganese (Mn), and Lead (Pb), as well as alternative methods for Chemical Oxygen Demand (COD), Fluoride, Nitrate, and Sulfate.\nTo enhance the efficiency of the laboratory management system, ETAL will incorporate all relevant quality control charts into the Envi Tech AL reporting software. This initiative will facilitate effective monitoring of analytical performance, enable trend analysis, and support early detection of deviation",
+      "outputs": "The quality objectives for 2026 were formally approved and will be communicated across all relevant personnels.",
+      "resources": "Financial/\navailability of staff",
+      "responsibility": "MR",
+      "target": "31-Dec-2026"
+     },
+     {
+      "clause": "",
+      "sno": "f)",
+      "agenda": "Customer and personnel feedback.",
+      "inputs": "All customer feedback received in 2025 has been reviewed, and an improvement analysis report based on the feedback has been completed and verified.",
+      "outputs": "Upon reviewing the improvement analysis report, it was observed that ETAL received more positive feedback in 2025 compared to the previous year2024. This indicates significant improvement in overall customer satisfaction, particularly in areas such as service quality, timely reporting, and technical support.",
+      "resources": "No.",
+      "responsibility": "Management",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "g)",
+      "agenda": "Risk Analysis report review",
+      "inputs": "The risk assessment report was reviewed. Mitigation measures were evaluated, and the effectiveness of existing controls was assessed.",
+      "outputs": "In 2025, five risks were identified through risk assessment, and the current control measures were assessed as effective.",
+      "resources": "No.",
+      "responsibility": "Quality Manager",
+      "target": "N.A."
+     },
+     {
+      "clause": "",
+      "sno": "h)",
+      "agenda": "Complain review",
+      "inputs": "All complaints received during the review period were examined, with a focus on root cause analysis, resolution timelines, and customer feedback.",
+      "outputs": "Complain record found satisfactory for the complaints received in 2025.",
+      "resources": "No.",
+      "responsibility": "MR",
+      "target": "31-12-2025"
+     },
+     {
+      "clause": "",
+      "sno": "I)",
+      "agenda": "Review of regulatory requirements",
+      "inputs": "As per the regulatory requirements of SEPA, the laboratory is required to submit an annual compliance report at the end of each year.",
+      "outputs": "The laboratory has fulfilled this requirement, and the annual compliance report has been successfully submitted to SEPA.",
+      "resources": "No.",
+      "responsibility": "Lab Manager",
+      "target": "31-12-2025"
+     },
+     {
+      "clause": "",
+      "sno": "J)",
+      "agenda": "Other relevant factors, such as monitoring activities in field.",
+      "inputs": "The on-site testing schedule for environmental monitoring was reviewed & discussed by the yearly contracted client.",
+      "outputs": "The Plan was discussed, and it was mutually decided lab manager would be accountable for ensuring the continuous execution of the testing schedule, subject to mutual agreement with the client.",
+      "resources": "Availability of Staff / Finance",
+      "responsibility": "Lab Manager",
+      "target": "N.A."
+     }
+    ],
+    "addendum": [],
+    "next_mrm": "10-06-2026",
+    "distributed_to": "All participants",
+    "prepared_by": "Hina Abidi",
+    "approved_by": "Syed Imran Ali Kazmi",
+    "dated": null,
+    "addendum_dated": null,
+    "meeting_no": "01/2025",
+    "meeting_date": "2025-12-31",
+    "meeting_date_text": "31-12-2025",
+    "time": "10:00 am to 02:00 pm",
+    "venue": "Conference room in Envi Tech AL",
+    "review_type": "Regular (ISO/IEC 17025:2017)"
+   },
+   "checklist": null,
+   "note": "The circular gives meeting no. 02/2025; the minutes print 01/2025. Inducted as 02/2025 (second Karachi MRM of 2025)."
+  }
+ ]
+}

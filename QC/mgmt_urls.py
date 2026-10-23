@@ -7,4 +7,5 @@ urlpatterns = [
     path('', mgmt.mgmt_home, name='mgmt_home'),
     path('ia/', mgmt.mgmt_ia, name='mgmt_ia'),
     path('document-control/', mgmt.mgmt_doc_register, name='mgmt_doc_register'),
+    path('mrm/', mgmt.mgmt_mrm, name='mgmt_mrm'),
 ]

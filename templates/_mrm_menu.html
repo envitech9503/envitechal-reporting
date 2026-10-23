@@ -1,0 +1,23 @@
+{% comment %}Management Review - module menu (23-10-2026).{% endcomment %}
+{% with L=loc|default:"Karachi" %}
+<style>
+  .mrmm{max-width:1200px;margin:8px auto 0;padding:0 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .mrmm a.t{display:inline-flex;gap:7px;align-items:center;border:1px solid #cbd5e1;border-radius:8px;padding:7px 12px;font-size:13px;color:#0f172a;text-decoration:none;background:#fff}
+  .mrmm a.t:hover{border-color:#0f5132;color:#0f5132}
+  .mrmm a.t.on{background:#0f5132;border-color:#0f5132;color:#fff;font-weight:700}
+  .mrmm .sp{flex:1}
+  .mrmm .chip{display:inline-flex;gap:6px;align-items:center;border:1px solid #cbd5e1;border-radius:999px;padding:5px 11px;font-size:12.5px;color:#0f172a;text-decoration:none;background:#fff}
+  .mrmm .chip.on{background:#e8f3ec;border-color:#0f5132;color:#0f5132;font-weight:700}
+  @media print{.mrmm{display:none}}
+</style>
+<div class="mrmm">
+  <a class="t {% if mrm_page == 'home' or mrm_page == 'meetings' %}on{% endif %}" href="{% url 'mrm_home' %}?location={{ L }}"><i class="fa-solid fa-people-group"></i> Meetings (809-FF-01/02/04)</a>
+  <a class="t {% if mrm_page == 'plans' %}on{% endif %}" href="{% url 'mrm_home' %}?location={{ L }}#plans"><i class="fa-solid fa-calendar-days"></i> Review Plan (809-FF-03)</a>
+  <a class="t {% if mrm_page == 'actions' %}on{% endif %}" href="{% url 'mrm_actions' %}?location={{ L }}"><i class="fa-solid fa-list-check"></i> Action tracker</a>
+  <a class="t {% if mrm_page == 'signing' %}on{% endif %}" href="{% url 'mrm_signing' %}?location={{ L }}"><i class="fa-solid fa-signature"></i> My sign-offs</a>
+  <a class="t" href="{% url 'mrm_meeting_new' %}?location={{ L }}"><i class="fa-solid fa-plus"></i> New MRM</a>
+  <span class="sp"></span>
+  <a class="chip {% if L == 'Karachi' %}on{% endif %}" href="?location=Karachi">Karachi</a>
+  <a class="chip {% if L == 'Lahore' %}on{% endif %}" href="?location=Lahore">Lahore</a>
+</div>
+{% endwith %}

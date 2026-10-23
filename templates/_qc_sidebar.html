@@ -149,6 +149,18 @@ partial then pins itself to the left edge and indents the page body to match.
     <hr class="etqc-hr">
     <a href="{% url 'doc_register' %}" class="etqc-sec" style="text-decoration:none"><i class="fa-solid fa-file-shield"></i>Document Control register (8.3)<span></span></a>
     <hr class="etqc-hr">
+    <button type="button" class="etqc-sec" data-etqc="etqcMRM" aria-expanded="false">
+      <i class="fa-solid fa-people-group"></i>Management Review (8.9)<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcMRM">
+      <a href="{% url 'mrm_home' %}">Meetings &amp; plans</a>
+      <a href="{% url 'mrm_meeting_new' %}">New meeting (809-FF-01/02/04)</a>
+      <a href="{% url 'mrm_plan_new' %}">New review plan (809-FF-03)</a>
+      <a href="{% url 'mrm_actions' %}">Action tracker</a>
+      <a href="{% url 'mrm_signing' %}">My sign-offs</a>
+      <a href="{% url 'mrm_deletions' %}">Deletion Log (managers)</a>
+    </div>
+    <hr class="etqc-hr">
     <button type="button" class="etqc-sec" data-etqc="etqcIA" aria-expanded="false">
       <i class="fa-solid fa-clipboard-check"></i>Internal Audit (8.8)<i class="fa-solid fa-chevron-right"></i>
     </button>

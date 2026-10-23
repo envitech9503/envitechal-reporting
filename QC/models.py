@@ -1325,3 +1325,183 @@ class NccaRca(models.Model):
 
 for _m in (IaClause, IaPlan, IaAudit, IaFinding, IaCircular, IaWitness, Ncca, NccaRca):
     _sh_register(_m)
+
+
+# ================================================================ Management Review (ISO/IEC 17025:2017 clause 8.9)
+# Owner request 23-10-2026: Management Records - MRM. Forms of the procedure ETAL-QMS-P-809:
+#   809-FF-01 Circular of the Management Review Meeting (agenda, distribution, receiving attendance)
+#   809-FF-02 Minutes of the Management Review Meeting (participants, roles, agenda items with inputs, outputs /
+#             decisions, resources, responsibility and target date; addendum)
+#   809-FF-03 Management Review (Meeting) Plan of the year (departments x months, Due / Done)
+#   809-FF-04 MRM Checklist (every input of clause 8.9.2 discussed, referenced or justified)
+MRM_INPUTS = [   # ISO/IEC 17025:2017 8.9.2 a) - o) as on the laboratory's checklist (ETAL-QMS-809-FF-04)
+    ('8.9.2 a)', 'Changes in internal and external issues that are relevant to the laboratory'),
+    ('8.9.2 b)', 'Fulfilment of objectives'),
+    ('8.9.2 c)', 'Suitability of policies and procedures'),
+    ('8.9.2 d)', 'Status of actions from previous management reviews'),
+    ('8.9.2 e)', 'Outcomes of recent internal audits'),
+    ('8.9.2 f)', 'Corrective actions'),
+    ('8.9.2 g)', 'Assessments by external bodies'),
+    ('8.9.2 h)', 'Changes in the volume and type of work or in the range of laboratory activities'),
+    ('8.9.2 i)', 'Customer and Personnel feedback'),
+    ('8.9.2 j)', 'Complaints'),
+    ('8.9.2 k)', 'Effectiveness of any implemented improvements'),
+    ('8.9.2 l)', 'Adequacy of Resources'),
+    ('8.9.2 m)', 'Results of Risk Identification'),
+    ('8.9.2 n)', 'Outcomes of the Assurance of the validity of results'),
+    ('8.9.2 o)', 'Other relevant factors (e.g., monitoring activities and training)'),
+]
+
+
+class MrmPlan(models.Model):
+    """Management Review Plan of the year (ETAL-QMS-809-FF-03): departments x months, Due / Done.
+    Prepared and signed by the Management Representative, approved by the CEO."""
+    STATUSES = (('draft', 'Draft'), ('signed', 'Signed by MR - awaiting CEO'), ('approved', 'Approved'))
+    location = models.CharField(max_length=20, default='Karachi')
+    year = models.PositiveIntegerField()
+    rows = models.JSONField(default=list, blank=True)      # [{'department': str, 'months': {'3': {'due': True, 'done': False}}}]
+    remarks = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    mr_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    mr_at = models.DateTimeField(null=True, blank=True)
+    mr_name = models.CharField(max_length=120, blank=True, default='')
+    mr_date = models.DateField(null=True, blank=True)
+    ceo_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    ceo_at = models.DateTimeField(null=True, blank=True)
+    ceo_name = models.CharField(max_length=120, blank=True, default='')
+    ceo_date = models.DateField(null=True, blank=True)
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-year', 'location']
+        unique_together = ('location', 'year')
+
+    @property
+    def inducted(self):
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
+
+    @property
+    def locked(self):
+        return self.status == 'approved'
+
+    def __str__(self):
+        return 'Management Review Plan %d - %s' % (self.year, self.location)
+
+
+class MrmMeeting(models.Model):
+    """One Management Review Meeting with its circular (809-FF-01), checklist (809-FF-04) and minutes (809-FF-02).
+    The circular is issued by the CEO and receipt is signed by each person listed; the minutes are prepared and signed
+    by the MR and approved by the CEO (then locked)."""
+    STATUSES = (('draft', 'Draft'), ('prepared', 'Prepared (MR signed) - awaiting CEO'), ('approved', 'Approved by CEO'))
+    CIRC_STATUSES = (('draft', 'Draft'), ('issued', 'Issued'))
+    location = models.CharField(max_length=20, default='Karachi')
+    meeting_no = models.CharField(max_length=20)                     # 01/2026
+    year = models.PositiveIntegerField()
+    seq = models.PositiveSmallIntegerField(default=1)
+    meeting_date = models.DateField(null=True, blank=True)
+    time_text = models.CharField(max_length=80, blank=True, default='')
+    venue = models.CharField(max_length=200, blank=True, default='')
+    review_type = models.CharField(max_length=120, blank=True, default='Regular (ISO/IEC 17025:2017)')
+    subject = models.CharField(max_length=200, blank=True, default='Management Review Meeting')
+    # circular (809-FF-01)
+    circular_date = models.DateField(null=True, blank=True)
+    circular_intro = models.TextField(blank=True, default='')
+    agenda = models.JSONField(default=list, blank=True)              # ['Review of Internal Audit Report', ...]
+    distribute_to = models.JSONField(default=list, blank=True)       # ['CEO', 'Display on notice board', 'All Employees']
+    attendance = models.JSONField(default=list, blank=True)          # [{'name','designation','user_id','signed_at'}]
+    circular_status = models.CharField(max_length=8, choices=CIRC_STATUSES, default='draft')
+    circular_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    circular_at = models.DateTimeField(null=True, blank=True)
+    circular_signer = models.CharField(max_length=120, blank=True, default='')      # printed name (CEO)
+    # minutes (809-FF-02)
+    participants = models.JSONField(default=list, blank=True)        # [{'name','designation'}]
+    chair = models.CharField(max_length=120, blank=True, default='')
+    facilitator = models.CharField(max_length=120, blank=True, default='')
+    minutes_taker = models.CharField(max_length=120, blank=True, default='')
+    documenter = models.CharField(max_length=120, blank=True, default='')
+    next_mrm = models.CharField(max_length=60, blank=True, default='')
+    distributed_to = models.CharField(max_length=200, blank=True, default='All Participants')
+    addendum_date = models.DateField(null=True, blank=True)
+    # checklist (809-FF-04)
+    checklist = models.JSONField(default=list, blank=True)           # [{'code','item','discussed':'yes'|'no'|'','remarks','justification'}]
+    checklist_date = models.DateField(null=True, blank=True)
+    # sign-off of the minutes and the checklist
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    mr_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    mr_at = models.DateTimeField(null=True, blank=True)
+    mr_name = models.CharField(max_length=120, blank=True, default='')
+    mr_date = models.DateField(null=True, blank=True)
+    ceo_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    ceo_at = models.DateTimeField(null=True, blank=True)
+    ceo_name = models.CharField(max_length=120, blank=True, default='')
+    ceo_date = models.DateField(null=True, blank=True)
+    remarks = models.TextField(blank=True, default='')
+    legacy = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-year', '-seq', 'location']
+        unique_together = ('location', 'meeting_no')
+
+    @property
+    def inducted(self):
+        return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
+
+    @property
+    def locked(self):
+        return self.status == 'approved'
+
+    @property
+    def circular_locked(self):
+        return self.circular_status == 'issued'
+
+    def __str__(self):
+        return 'MRM %s - %s' % (self.meeting_no, self.location)
+
+    def checklist_rows(self):
+        """The 15 inputs of 8.9.2 with what was recorded for each."""
+        have = {r.get('code'): r for r in (self.checklist or [])}
+        return [dict({'code': c, 'item': t, 'discussed': '', 'remarks': '', 'justification': ''}, **have.get(c, {})) for c, t in MRM_INPUTS]
+
+    def checklist_complete(self):
+        """Every input discussed / referenced, or justified (the note of the form)."""
+        return all(r.get('discussed') == 'yes' or (r.get('justification') or '').strip() for r in self.checklist_rows())
+
+
+class MrmItem(models.Model):
+    """One row of the minutes (or of the addendum): agenda, inputs / details of discussion, outputs / decision &
+    direction, resources needed, responsibility and target date. A row with a responsibility and a target is an
+    action, followed up until done (8.9.2 d - status of actions from previous management reviews)."""
+    PARTS = (('minutes', 'Minutes'), ('addendum', 'Addendum'))
+    ACTION = (('', 'Not an action'), ('open', 'Open'), ('done', 'Done'), ('na', 'Not applicable'))
+    meeting = models.ForeignKey(MrmMeeting, on_delete=models.CASCADE, related_name='items')
+    part = models.CharField(max_length=10, choices=PARTS, default='minutes')
+    order = models.PositiveIntegerField(default=0)
+    sno = models.CharField(max_length=12, blank=True, default='')
+    clause = models.CharField(max_length=12, blank=True, default='')            # 8.9.2 x)
+    agenda = models.TextField(blank=True, default='')
+    inputs = models.TextField(blank=True, default='')
+    outputs = models.TextField(blank=True, default='')
+    resources = models.TextField(blank=True, default='')
+    responsibility = models.TextField(blank=True, default='')
+    target_text = models.CharField(max_length=60, blank=True, default='')      # as printed (12.03.2026, July 2025, Continuous, N.A)
+    target_date = models.DateField(null=True, blank=True)
+    action_status = models.CharField(max_length=6, choices=ACTION, blank=True, default='')
+    done_note = models.CharField(max_length=500, blank=True, default='')
+    done_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    done_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['part', 'order', 'id']
+
+    def __str__(self):
+        return '%s %s %s' % (self.meeting, self.sno, (self.agenda or self.inputs)[:40])
+
+
+for _m in (MrmPlan, MrmMeeting, MrmItem):
+    _sh_register(_m)

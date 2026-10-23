@@ -25,6 +25,10 @@ def _clause_map(loc):
     rca_pending = Ncca.objects.filter(location__in=labs, rca__isnull=True, log_only=False).exclude(status__in=('closed', 'draft')).count()
     audits_y = IaAudit.objects.filter(location__in=labs, year=today.year).count()
     plan_y = IaPlan.objects.filter(location__in=labs, year=today.year).count()
+    from QC.models import MrmMeeting, MrmItem
+    mrm_y = MrmMeeting.objects.filter(location__in=labs, year=today.year).count()
+    mrm_q = MrmItem.objects.filter(meeting__location__in=labs, action_status='open')
+    mrm_open, mrm_over = mrm_q.count(), mrm_q.filter(target_date__lt=today).count()
     from QC.views.doc_register import _build
     reg_rows = [r for g in _build(loc, today) for r in g['rows']]          # exactly what the register shows for this filter
     revs = sum(r['n'] for r in reg_rows)
@@ -55,8 +59,10 @@ def _clause_map(loc):
              'links': [('IA dashboard', '/qc/ia/%s' % q, True), ('Audit plan', '/qc/ia/plans/%s' % q, False), ('Audit reports', '/qc/ia/audits/%s' % q, False),
                        ('Witnessing', '/qc/ia/witnessing/%s' % q, False), ('Sign-off', '/qc/ia/signing/%s' % q, False)],
              'stats': [('audits %d' % today.year, audits_y), ('plans %d' % today.year, plan_y)]},
-            {'clause': '8.9', 'title': 'Management reviews', 'status': 'planned',
-             'scope': 'Management review meetings: inputs (8.9.2), outputs, decisions and actions with follow-up.'},
+            {'clause': '8.9', 'title': 'Management reviews', 'status': 'live',
+             'scope': 'Management review plan (809-FF-03), circular & attendance (809-FF-01), 8.9.2 checklist (809-FF-04), minutes with decisions (809-FF-02) and the action tracker.',
+             'links': [('Management Review', '/qc/mrm/%s' % q, True), ('New meeting', '/qc/mrm/meetings/new/%s' % q, False), ('Action tracker', '/qc/mrm/actions/%s' % q, False)],
+             'stats': [('meetings %d' % today.year, mrm_y), ('open actions', mrm_open), ('overdue', mrm_over)]},
         ]),
         ('Related requirements', [
             {'clause': '4.1 / 4.2', 'title': 'Impartiality and confidentiality', 'status': 'planned',
@@ -95,3 +101,8 @@ def mgmt_ia(request):
 def mgmt_doc_register(request):
     q = request.META.get('QUERY_STRING', '')
     return _redirect('/qc/document-control/' + ('?' + q if q else ''))
+
+
+def mgmt_mrm(request):
+    q = request.META.get('QUERY_STRING', '')
+    return _redirect('/qc/mrm/' + ('?' + q if q else ''))

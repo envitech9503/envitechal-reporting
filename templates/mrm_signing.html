@@ -1,0 +1,16 @@
+{% extends "_mrm_base.html" %}
+{% block cc_title %}Management Review - My sign-offs{% endblock %}
+{% block crumb %} &rsaquo; <span>My sign-offs</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-signature"></i> My sign-offs <span class="muted">({{ loc }} laboratory)</span></div></div>
+  <div class="msg warning">Everything awaiting you in the Management Review records of this laboratory: receipt of circulars, minutes to complete and sign (MR), circulars to issue, minutes and plans to approve (CEO). Open the record to sign; your name and e-signature are printed on the form.</div>
+  <table>
+    <thead><tr><th>Record</th><th>Description</th><th>Your action</th><th></th></tr></thead>
+    <tbody>
+    {% for r in rows %}<tr><td class="nw"><span class="pill none">{{ r.kind }}</span></td><td><a href="{{ r.url }}" style="color:#0f5132;font-weight:700;text-decoration:none">{{ r.label }}</a></td><td>{{ r.action }}</td><td class="nw"><a class="btn" href="{{ r.url }}">Open</a></td></tr>
+    {% empty %}<tr><td colspan="4" class="empty">Nothing awaits your signature in the {{ loc }} laboratory.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

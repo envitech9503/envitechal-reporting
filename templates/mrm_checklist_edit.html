@@ -1,0 +1,25 @@
+{% extends "_mrm_base.html" %}
+{% block cc_title %}MRM {{ m.meeting_no }} - checklist{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'mrm_meeting_detail' m.id %}" style="color:#0f5132;text-decoration:none">MRM {{ m.meeting_no }}</a> &rsaquo; <span>Checklist</span>{% endblock %}
+{% block cc_body %}
+<form method="post" class="mrm-sheet" data-autosave="mrm_chk_{{ m.id }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-list-check"></i> MRM Checklist (ETAL-QMS-809-FF-04) - MRM {{ m.meeting_no }}, {{ loc }}</div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% url 'mrm_meeting_detail' m.id %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save checklist</button></div></div>
+  <div class="msg warning">Based on ISO/IEC 17025:2017 clause 8.9.2: each input must be either discussed, referenced, or have a documented justification if not discussed. The minutes rows already linked to an input are shown under it.</div>
+  <div class="frm"><label>Checklist date <input name="checklist_date" value="{{ m.checklist_date|default:m.meeting_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy" style="width:120px"></label></div>
+  <table>
+    <thead><tr><th style="width:80px">Clause</th><th style="width:250px">Agenda item</th><th style="width:140px">Discussed</th><th>Reference / remarks</th><th>Justification (if not discussed)</th></tr></thead>
+    <tbody>
+    {% for r in rows %}{% with i=forloop.counter0 %}<tr>
+      <td class="nw"><b>{{ r.code }}</b></td><td>{{ r.item }}{% if r.refs %}<br><small class="muted">minutes: {% for x in r.refs %}{{ x }}{% if not forloop.last %}, {% endif %}{% endfor %}</small>{% endif %}</td>
+      <td><label class="chk"><input type="radio" name="d{{ i }}" value="yes" {% if r.discussed == 'yes' %}checked{% endif %}> &#10003; yes</label><label class="chk"><input type="radio" name="d{{ i }}" value="no" {% if r.discussed == 'no' %}checked{% endif %}> &#10007; no</label></td>
+      <td><textarea name="r{{ i }}">{{ r.remarks }}</textarea></td>
+      <td><textarea name="j{{ i }}">{{ r.justification }}</textarea></td>
+    </tr>{% endwith %}{% endfor %}
+    </tbody>
+  </table>
+  <div class="frm" style="justify-content:flex-end;border-top:1px solid #eef2f6"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save checklist</button></div>
+</div>
+</form>
+{% endblock %}

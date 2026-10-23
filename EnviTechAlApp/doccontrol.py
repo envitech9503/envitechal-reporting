@@ -63,6 +63,12 @@ def default_for(module, location):
         if module == 'mou' and location == 'Karachi':
             from QC.views.mou import _MOU_FORM
             return dict(_MOU_FORM)
+        if module.startswith('mrm_') and location in ('Karachi', 'Lahore'):
+            from QC.views.mrm import _FORMS, _DEFAULT_CTRL
+            f = module[4:]
+            if f in _FORMS:
+                d0 = _DEFAULT_CTRL.get((f, location))
+                return {'doc_no': _FORMS[f][0], 'issue_date': d0[0], 'issue_no': d0[1], 'rev_no': d0[2]} if d0 else {'doc_no': _FORMS[f][0]}
         if module.startswith('ia_') and location in ('Karachi', 'Lahore'):
             from QC.views.ia import _IA_FORMS, _IA_DEFAULT_CTRL
             f = module[3:]

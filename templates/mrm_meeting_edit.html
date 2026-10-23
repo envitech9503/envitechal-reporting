@@ -1,0 +1,100 @@
+{% extends "_mrm_base.html" %}
+{% block cc_title %}MRM {{ m.meeting_no }} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>{% if m.pk %}MRM {{ m.meeting_no }} - edit{% else %}New meeting{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="mrm_meeting_{{ m.pk|default:'new' }}" class="form-sheet mrm-sheet">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-people-group"></i> Management Review Meeting - {{ loc }} laboratory</div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% if m.pk %}{% url 'mrm_meeting_detail' m.pk %}{% else %}{% url 'mrm_home' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div></div>
+  <div style="padding:0 18px 14px">
+  <div class="sec">Meeting</div>
+  <div class="grid2">
+    <label>Meeting # <input type="text" name="meeting_no" value="{{ m.meeting_no }}" required pattern="\d{1,2}/\d{4}" placeholder="01/2026"></label>
+    <label>Meeting date <input type="text" name="meeting_date" value="{{ m.meeting_date|date:'d-m-Y' }}" required placeholder="dd-mm-yyyy"></label>
+    <label>Time <input type="text" name="time_text" value="{{ m.time_text }}" placeholder="10:00 am to 02:00 pm"></label>
+    <label>Venue <input type="text" name="venue" value="{{ m.venue }}"></label>
+    <label>Type of review <input type="text" name="review_type" value="{{ m.review_type }}"></label>
+    <label>Subject <input type="text" name="subject" value="{{ m.subject }}"></label>
+  </div>
+
+  <div class="sec">Circular of the meeting (ETAL-QMS-809-FF-01){% if m.circular_locked %} - issued, locked{% endif %}</div>
+  {% if m.circular_locked %}
+  <div class="full muted">The circular was issued on {{ m.circular_at|date:"d-m-Y" }} and is locked; withdraw it on the meeting page to change the agenda, distribution or attendance list.</div>
+  {% else %}
+  <div class="grid2">
+    <label>Circular dated <input type="text" name="circular_date" value="{{ m.circular_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+    <label>Signed by (CEO) <input type="text" name="circular_signer" value="{{ m.circular_signer }}"></label>
+  </div>
+  <div class="full"><label>Text of the circular <textarea name="circular_intro" placeholder="I am pleased to inform all of you that the Management Review Meeting ... will be held on ...">{{ m.circular_intro }}</textarea></label></div>
+  <div class="full"><b style="font-size:12px;color:#475569">Meeting agenda</b> <span class="muted">(one item per line; the inputs of ISO/IEC 17025 8.9.2 are pre-filled for a new meeting)</span>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:6px;margin-top:6px">{% for a in agenda %}<input type="text" name="ag{{ forloop.counter0 }}" value="{{ a }}" placeholder="{{ forloop.counter }}. agenda item">{% endfor %}</div></div>
+  <div class="full"><b style="font-size:12px;color:#475569">Distribute to</b>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">{% for d in dist %}<input type="text" name="dist{{ forloop.counter0 }}" value="{{ d }}" style="width:220px">{% endfor %}</div></div>
+  <div class="full"><b style="font-size:12px;color:#475569">Circular receiving attendance</b> <span class="muted">(each person signs receipt in the system once the circular is issued)</span>
+    <table style="margin-top:6px"><thead><tr><th style="width:40px">#</th><th>Name of employee</th><th>Designation</th></tr></thead><tbody>
+    {% for a in att %}<tr><td>{{ forloop.counter }}</td><td><input type="text" name="att{{ forloop.counter0 }}_name" value="{{ a.name }}"></td><td><input type="text" name="att{{ forloop.counter0 }}_designation" value="{{ a.designation }}"></td></tr>{% endfor %}
+    </tbody></table></div>
+  {% endif %}
+
+  <div class="sec">Participants &amp; roles (minutes, ETAL-QMS-809-FF-02)</div>
+  <div class="full">
+    <table><thead><tr><th style="width:40px">#</th><th>Name of participant</th><th>Designation</th></tr></thead><tbody>
+    {% for a in par %}<tr><td>{{ forloop.counter }}</td><td><input type="text" name="par{{ forloop.counter0 }}_name" value="{{ a.name }}"></td><td><input type="text" name="par{{ forloop.counter0 }}_designation" value="{{ a.designation }}"></td></tr>{% endfor %}
+    </tbody></table></div>
+  <div class="grid2">
+    <label>Chair <input type="text" name="chair" value="{{ m.chair }}"></label>
+    <label>Facilitator <input type="text" name="facilitator" value="{{ m.facilitator }}"></label>
+    <label>Minutes taker <input type="text" name="minutes_taker" value="{{ m.minutes_taker }}"></label>
+    <label>Documenter <input type="text" name="documenter" value="{{ m.documenter }}"></label>
+  </div>
+
+  <div class="sec">Minutes</div>
+  <div class="full" style="overflow-x:auto">
+    <div class="muted" style="margin-bottom:6px">One row per agenda point. A row continuing the agenda point above (e.g. each non-conformity of the audit) leaves S.# and Agenda empty. A row with a <b>Responsibility</b> and a <b>Target date</b> becomes an action on the Action tracker. ISO clause: the 8.9.2 input the row covers (used by the checklist).</div>
+    <table style="min-width:1100px">
+      <thead><tr><th style="width:56px">S.#</th><th style="width:96px">8.9.2</th><th style="width:170px">Agenda</th><th>Inputs / details of discussions</th><th>Outputs / decision &amp; direction</th><th style="width:130px">Resources needed</th><th style="width:120px">Responsibility</th><th style="width:105px">Target date</th></tr></thead>
+      <tbody>
+      {% for it in items %}{% with i=forloop.counter0 %}<tr>
+        <td><input type="hidden" name="m{{ i }}_id" value="{{ it.pk|default:'' }}"><input type="text" name="m{{ i }}_sno" value="{{ it.sno }}"></td>
+        <td><select name="m{{ i }}_clause" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:4px;font-size:12px"><option value="">-</option>{% for c, t in inputs %}<option value="{{ c }}" {% if it.clause == c %}selected{% endif %} title="{{ t }}">{{ c }}</option>{% endfor %}</select></td>
+        <td><textarea name="m{{ i }}_agenda">{{ it.agenda }}</textarea></td>
+        <td><textarea name="m{{ i }}_inputs">{{ it.inputs }}</textarea></td>
+        <td><textarea name="m{{ i }}_outputs">{{ it.outputs }}</textarea></td>
+        <td><textarea name="m{{ i }}_resources">{{ it.resources }}</textarea></td>
+        <td><textarea name="m{{ i }}_responsibility">{{ it.responsibility }}</textarea></td>
+        <td><input type="text" name="m{{ i }}_target" value="{{ it.target_text }}" placeholder="dd-mm-yyyy / N.A"></td>
+      </tr>{% endwith %}{% endfor %}
+      </tbody>
+    </table>
+    <div class="muted" style="margin-top:6px">Need more rows? Save - four empty rows are added each time.</div>
+  </div>
+  <div class="grid2">
+    <label>Next MRM date <input type="text" name="next_mrm" value="{{ m.next_mrm }}" placeholder="dd-mm-yyyy"></label>
+    <label>Distributed to <input type="text" name="distributed_to" value="{{ m.distributed_to }}"></label>
+  </div>
+
+  <div class="sec">Addendum (optional)</div>
+  <div class="full" style="overflow-x:auto">
+    <label style="max-width:220px">Addendum dated <input type="text" name="addendum_date" value="{{ m.addendum_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+    <table style="min-width:1100px;margin-top:6px">
+      <thead><tr><th style="width:56px">S.#</th><th style="width:96px">8.9.2</th><th style="width:170px">Agenda</th><th>Inputs / details of discussions</th><th>Outputs / decision &amp; direction</th><th style="width:130px">Resources needed</th><th style="width:120px">Responsibility</th><th style="width:105px">Target date</th></tr></thead>
+      <tbody>
+      {% for it in add %}{% with i=forloop.counter0 %}<tr>
+        <td><input type="hidden" name="a{{ i }}_id" value="{{ it.pk|default:'' }}"><input type="text" name="a{{ i }}_sno" value="{{ it.sno }}"></td>
+        <td><select name="a{{ i }}_clause" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:4px;font-size:12px"><option value="">-</option>{% for c, t in inputs %}<option value="{{ c }}" {% if it.clause == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></td>
+        <td><textarea name="a{{ i }}_agenda">{{ it.agenda }}</textarea></td>
+        <td><textarea name="a{{ i }}_inputs">{{ it.inputs }}</textarea></td>
+        <td><textarea name="a{{ i }}_outputs">{{ it.outputs }}</textarea></td>
+        <td><textarea name="a{{ i }}_resources">{{ it.resources }}</textarea></td>
+        <td><textarea name="a{{ i }}_responsibility">{{ it.responsibility }}</textarea></td>
+        <td><input type="text" name="a{{ i }}_target" value="{{ it.target_text }}"></td>
+      </tr>{% endwith %}{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="full"><label>Remarks (internal) <textarea name="remarks">{{ m.remarks }}</textarea></label></div>
+  </div>
+  <div class="frm" style="justify-content:flex-end;border-top:1px solid #eef2f6"><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div>
+</div>
+</form>
+{% endblock %}

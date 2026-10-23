@@ -1,0 +1,31 @@
+{% extends "_mrm_base.html" %}
+{% block cc_title %}Management Review - Action tracker{% endblock %}
+{% block crumb %} &rsaquo; <span>Action tracker</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-list-check"></i> Action tracker - decisions of the management reviews ({{ loc }})</div>
+    <div style="display:flex;gap:6px">
+      <a class="btn {% if show == 'open' %}btn-p{% endif %}" href="?location={{ loc }}&amp;show=open">Open ({{ c.open }})</a>
+      <a class="btn {% if show == 'done' %}btn-p{% endif %}" href="?location={{ loc }}&amp;show=done">Done</a>
+      <a class="btn {% if show == 'all' %}btn-p{% endif %}" href="?location={{ loc }}&amp;show=all">All</a></div></div>
+  <div class="msg warning">Every minutes row with a responsibility and a target date is an action. Its status is reviewed at the next meeting as input 8.9.2 d) "status of actions from previous management reviews". Mark an action done with a note on how it was completed and its effectiveness.</div>
+  <div style="overflow-x:auto">
+  <table style="min-width:1000px">
+    <thead><tr><th>MRM</th><th style="width:170px">Agenda</th><th>Decision / direction</th><th>Responsibility</th><th>Target</th><th>Status</th><th style="width:200px"></th></tr></thead>
+    <tbody>
+    {% for it in rows %}<tr>
+      <td class="nw"><a href="{% url 'mrm_meeting_detail' it.meeting_id %}#minutes" style="color:#0f5132;font-weight:700;text-decoration:none">{{ it.meeting.meeting_no }}</a><br><small class="muted">{{ it.meeting.meeting_date|date:"d-m-Y" }}</small></td>
+      <td>{{ it.topic|truncatechars:90 }}</td>
+      <td style="max-width:520px">{{ it.outputs|default:it.inputs|truncatechars:260 }}</td>
+      <td>{{ it.responsibility }}</td>
+      <td class="nw">{{ it.target_text }}{% if it.days_left is not None %}<br>{% if it.days_left < 0 %}<span class="due-bad">{{ it.overdue }} days overdue</span>{% elif it.days_left <= 14 %}<span class="due-soon">due in {{ it.days_left }} days</span>{% endif %}{% endif %}</td>
+      <td class="nw">{% if it.action_status == 'done' %}<span class="act-done">Done</span><br><small class="muted">{{ it.done_at|date:"d-m-Y" }}{% if it.done_by %} - {{ it.done_by.get_full_name|default:it.done_by.username }}{% endif %}</small>{% else %}<span class="act-open">Open</span>{% endif %}</td>
+      <td>{% if it.action_status == 'done' %}<small class="muted">{{ it.done_note|truncatechars:120 }}</small>{% if can_follow %}<form method="post" action="{% url 'mrm_action_update' it.id %}" style="margin-top:4px">{% csrf_token %}<input type="hidden" name="action" value="reopen"><input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn" type="submit" style="padding:2px 8px;font-size:11.5px">Reopen</button></form>{% endif %}
+        {% elif can_follow %}<form method="post" action="{% url 'mrm_action_update' it.id %}" style="display:flex;gap:4px;flex-wrap:wrap">{% csrf_token %}<input type="hidden" name="action" value="done"><input type="hidden" name="next" value="{{ request.get_full_path }}"><input name="note" required minlength="5" placeholder="completion / effectiveness" style="border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;font-size:12px;flex:1 1 120px"><button class="btn btn-p" type="submit" style="padding:3px 8px;font-size:12px">Done</button></form>
+          <form method="post" action="{% url 'mrm_action_update' it.id %}" style="margin-top:4px">{% csrf_token %}<input type="hidden" name="action" value="na"><input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn" type="submit" style="padding:2px 8px;font-size:11px" title="this row is not an action">not an action</button></form>{% endif %}</td>
+    </tr>{% empty %}<tr><td colspan="7" class="empty">No {% if show != 'all' %}{{ show }} {% endif %}actions for {{ loc }}.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

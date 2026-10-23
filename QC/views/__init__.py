@@ -36,3 +36,6 @@ def _link():
 
 _link()
 del _link
+from .mrm import (mrm_home, mrm_plan_edit, mrm_plan_detail, mrm_plan_action, mrm_meeting_edit, mrm_meeting_detail,  # noqa: F401
+                  mrm_checklist_edit, mrm_meeting_action, mrm_actions, mrm_action_update, mrm_signing, mrm_deletions)
+from .mrm_pdf import mrm_plan_pdf, mrm_circular_pdf, mrm_minutes_pdf, mrm_checklist_pdf  # noqa: F401

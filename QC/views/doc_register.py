@@ -44,6 +44,10 @@ def _groups():
                             ('ia_report', 'Internal audit report & witnessing', 'audit report PDF (audit date)'),
                             ('ia_nc', 'NC & corrective action form', 'NC&CA PDF (NC date)'), ('ia_rca', 'Root cause analysis', 'RCA PDF (RCA date)'),
                             ('ia_log', 'NC&CA log', 'log PDF (current)')]),
+        ('Management Review (8.9)', [('mrm_plan', 'Management review meeting plan (809-FF-03)', 'plan PDF (plan year)'),
+                                     ('mrm_circular', 'Circular of the management review meeting (809-FF-01)', 'circular PDF (circular date)'),
+                                     ('mrm_minutes', 'Minutes of the management review meeting (809-FF-02)', 'minutes PDF (meeting date)'),
+                                     ('mrm_checklist', 'MRM checklist (809-FF-04)', 'checklist PDF (checklist date)')]),
     ]
 
 
