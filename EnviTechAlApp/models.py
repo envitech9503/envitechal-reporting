@@ -3054,3 +3054,39 @@ _etal_wire({PPWRAnalysis: 'ppwr'})
 # become revisions, so no page can overwrite the numbers printed on earlier documents.
 from EnviTechAlApp import doccontrol as _etal_doccontrol  # noqa: E402
 _etal_doccontrol.connect()
+
+
+# ---------------------------------------------------------------- office-network protection (24-10-2026)
+class OfficeNetwork(models.Model):
+    """One row per office: its internet (static) IP and whether the office-network protection is ON for its staff.
+    Protection OFF lets that office's staff use the LIMS from any network (e.g. office internet down); the other
+    office stays protected. Managed by administrators on /office-network/ (EnviTechAlApp/office_ip.py)."""
+    LOCATIONS = [('Karachi', 'Karachi'), ('Lahore', 'Lahore')]
+    location = models.CharField(max_length=20, choices=LOCATIONS, unique=True)
+    ip_address = models.CharField(max_length=45)
+    enforced = models.BooleanField(default=True)
+    note = models.CharField(max_length=300, blank=True, default='')
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['location']
+
+    def __str__(self):
+        return '%s %s (%s)' % (self.location, self.ip_address, 'ON' if self.enforced else 'OFF')
+
+
+class OfficeNetworkLog(models.Model):
+    """Every change of the office-network protection: who, when, from which address, what and why."""
+    location = models.CharField(max_length=20)
+    action = models.CharField(max_length=10)            # on / off / ip
+    old_value = models.CharField(max_length=60, blank=True, default='')
+    new_value = models.CharField(max_length=60, blank=True, default='')
+    reason = models.CharField(max_length=300, blank=True, default='')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    user_name = models.CharField(max_length=150, blank=True, default='')
+    from_ip = models.CharField(max_length=45, blank=True, default='')
+    at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-at', '-id']

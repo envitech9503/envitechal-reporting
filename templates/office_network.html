@@ -1,0 +1,90 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any">
+<link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+<title>Office Network Access - Envi Tech AL</title>
+<style>
+  body{background:#f4f6f8;font-family:Calibri,Arial,sans-serif;color:#1f2937;margin:0}
+  .wrap{max-width:1100px;margin:22px auto;padding:0 16px}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px;overflow-x:auto}
+  .hd{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #eef2f6}
+  .title{font-size:19px;font-weight:700;color:#0f5132}
+  .sub{padding:12px 18px;font-size:13.5px;color:#334155;line-height:1.5}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr));gap:16px}
+  .off{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+  .off h3{margin:0;font-size:17px;display:flex;align-items:center;gap:10px;color:#0f172a}
+  .state{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700}
+  .state.on{background:#dcfce7;color:#166534}.state.offs{background:#fee2e2;color:#b91c1c}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:13px}.kv b{color:#475569;font-weight:700}
+  form.act{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;border-top:1px dashed #e2e8f0;padding-top:12px}
+  form.act label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px;flex:1;min-width:200px}
+  input[type=text]{border:1px solid #cbd5e1;border-radius:7px;padding:7px 9px;font-size:13px;font-family:inherit}
+  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:7px 14px;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700}
+  .btn-on{background:#0f5132;border-color:#0f5132;color:#fff}.btn-off{background:#b91c1c;border-color:#b91c1c;color:#fff}
+  .staff{font-size:12.5px;color:#475569}
+  .msg{padding:10px 18px;font-size:13.5px}
+  .msg.error{background:#fef2f2;color:#991b1b}.msg.success{background:#f0fdf4;color:#166534}.msg.warning{background:#fffbeb;color:#92400e}.msg.info{background:#eff6ff;color:#1e3a8a}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 9px;border-bottom:1px solid #eef2f6;text-align:left;vertical-align:top}
+  th{background:#f1f5f9;font-weight:700;color:#334155;font-size:12px}
+  .muted{color:#64748b;font-size:12px}
+  details summary{cursor:pointer;font-size:12.5px;color:#0f5132}
+</style>
+</head>
+<body>
+{% include "_unified_nav.html" %}
+<div class="wrap">
+{% if messages %}{% for m in messages %}<div class="card"><div class="msg {{ m.level_tag }}">{{ m }}</div></div>{% endfor %}{% endif %}
+
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-shield-halved"></i> Office Network Access (static IP protection)</div>
+    <span class="muted">Administrators only &middot; you are connected from <b>{{ here|default:"-" }}</b>{% if here_office %} ({{ here_office }} office){% else %} (not an office network){% endif %}</span></div>
+  <div class="sub">When the protection of an office is <b>ON</b>, its staff can use the reporting software only from that office's internet connection (static IP). Turn it <b>OFF</b> when the office internet is down: the staff of that office may then sign in from any network (mobile data, home), while the other office stays protected. The CEO{% if exempt %} ({{ exempt|join:", " }}){% endif %} may always work from anywhere. Every change is recorded below with your name and reason; a change reaches every server process within about 10 seconds.</div>
+  {% if all_off %}<div class="msg warning"><i class="fa-solid fa-triangle-exclamation"></i> The protection is OFF for <b>both</b> offices: every user can sign in from any network.</div>{% endif %}
+  {% if fallback %}<div class="msg error">The office table is empty - the system is using the built-in office IPs with protection ON.</div>{% endif %}
+</div>
+
+<div class="grid">
+{% for row in offices %}{% with o=row.o %}
+<div class="card"><div class="off">
+  <h3><i class="fa-solid fa-building"></i> {{ o.location }} office
+    {% if o.enforced %}<span class="state on"><i class="fa-solid fa-lock"></i> Protection ON</span>{% else %}<span class="state offs"><i class="fa-solid fa-lock-open"></i> Protection OFF</span>{% endif %}</h3>
+  <div class="kv">
+    <b>Office IP</b><span>{{ o.ip_address }}</span>
+    <b>Effect</b><span>{% if o.enforced %}{{ o.location }} staff: office network only{% else %}{{ o.location }} staff: <b style="color:#b91c1c">any network</b>{% endif %}</span>
+    <b>Last change</b><span>{{ o.updated_at|date:"d-m-Y H:i" }}{% if o.updated_by %} &middot; {{ o.updated_by.get_full_name|default:o.updated_by.username }}{% endif %}</span>
+    {% if o.note %}<b>Reason</b><span>{{ o.note }}</span>{% endif %}
+  </div>
+  <form method="post" class="act">{% csrf_token %}<input type="hidden" name="location" value="{{ o.location }}">
+    <label>Reason (kept in the log)<input type="text" name="reason" required minlength="5" maxlength="300" placeholder="{% if o.enforced %}e.g. {{ o.location }} office internet down{% else %}e.g. {{ o.location }} office internet restored{% endif %}"></label>
+    {% if o.enforced %}<button class="btn btn-off" type="submit" name="action" value="off" onclick="return confirm('Turn OFF the {{ o.location }} protection? {{ o.location }} staff will be able to sign in from any network.')"><i class="fa-solid fa-lock-open"></i> Turn OFF</button>
+    {% else %}<button class="btn btn-on" type="submit" name="action" value="on" onclick="return confirm('Turn ON the {{ o.location }} protection? {{ o.location }} staff outside the office network will be signed out.')"><i class="fa-solid fa-lock"></i> Turn ON</button>{% endif %}
+  </form>
+  <details><summary>Change the {{ o.location }} office IP (new internet connection)</summary>
+    <form method="post" class="act">{% csrf_token %}<input type="hidden" name="location" value="{{ o.location }}"><input type="hidden" name="action" value="ip">
+      <label>New public IP<input type="text" name="ip_address" required placeholder="{{ o.ip_address }}"></label>
+      <label>Reason<input type="text" name="reason" required minlength="5" maxlength="300" placeholder="e.g. new Storm Fiber static IP"></label>
+      <button class="btn" type="submit" onclick="return confirm('Change the {{ o.location }} office IP?')"><i class="fa-solid fa-pen"></i> Save IP</button>
+    </form>
+  </details>
+  <div class="staff"><b>{{ o.location }} staff ({{ row.staff|length }}):</b> {{ row.staff|join:", "|default:"none" }}</div>
+</div></div>
+{% endwith %}{% endfor %}
+</div>
+
+<div class="card"><div class="sub"><b>Users without an office</b> ({{ unassigned|length }}): {{ unassigned|join:", "|default:"none" }}.<br>
+<span class="muted">They may work only from an office network, unless the protection is OFF for both offices. A user's office is the office on the user's e-signature profile, otherwise the QC laboratory assignment.</span></div></div>
+
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-clock-rotate-left"></i> Change log</div></div>
+  <table><thead><tr><th>Date / time</th><th>Office</th><th>Change</th><th>Reason</th><th>By</th><th>From IP</th></tr></thead>
+  <tbody>{% for l in log %}<tr><td style="white-space:nowrap">{{ l.at|date:"d-m-Y H:i" }}</td><td>{{ l.location }}</td>
+    <td>{% if l.action == 'ip' %}IP {{ l.old_value }} &rarr; {{ l.new_value }}{% else %}Protection {{ l.old_value }} &rarr; <b>{{ l.new_value }}</b>{% endif %}</td>
+    <td>{{ l.reason }}</td><td>{{ l.user_name|default:"-" }}</td><td>{{ l.from_ip|default:"-" }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="muted" style="text-align:center;padding:20px">No changes yet.</td></tr>{% endfor %}</tbody></table>
+</div>
+</div>
+</body>
+</html>

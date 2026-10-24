@@ -66,11 +66,12 @@ def userlogin(request):
           password = request.POST['password']
 
           user = authenticate(request,username=userName,password=password)
-          from EnviTechAlApp.office_ip import is_exempt, office_ip, denied_response
+          from EnviTechAlApp.office_ip import allowed, office_ip, denied_response
 
           # 20-10-2026 (owner decision): only the CEO (settings.OFFICE_IP_EXEMPT_USERS) may sign in from
-          # outside the office networks; administrators are no longer exempt
-          if user is not None and is_exempt(user):
+          # outside the office networks; administrators are no longer exempt. 24-10-2026: the staff of an office
+          # whose protection an administrator has turned OFF (/office-network/) may sign in from any network.
+          if user is not None and allowed(user, request):
                login(request, user)
                return redirect('nav')
 

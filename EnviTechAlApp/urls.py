@@ -20,6 +20,7 @@ from django.urls import include, path,re_path
 from django.views.generic.base import RedirectView
 from EnviTechAlApp import settings, views
 from EnviTechAlApp.views import verify_api
+from EnviTechAlApp import office_network_view
 from django.conf.urls.static import static
 # from django.conf.urls import url, include
 from django.views.static import serve 
@@ -41,6 +42,7 @@ urlpatterns = [
     path('qc/', include('QC.urls')),
     path('management/', include('QC.mgmt_urls')),           # Management Records / Reports (24-10-2026)
     path('login/',views.userlogin,name="login"),
+    path('office-network/', office_network_view.office_network, name='office_network'),   # static-IP protection per office (admin, 24-10-2026)
     path('logout/',views.logoutUser,name="logout"),
     path('home/', views.home, name="home"),
     path('', views.nav, name = "nav"),

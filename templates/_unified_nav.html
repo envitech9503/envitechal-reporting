@@ -54,6 +54,7 @@
         <a class="{% if request.path == '/dashboard/lifecycle/' %}act{% endif %}" href="/dashboard/lifecycle/"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 018-8 8 8 0 017 4M20 12a8 8 0 01-8 8 8 8 0 01-7-4M17 4v4h-4M7 20v-4h4" stroke="currentColor" stroke-width="1.5"/></svg>Lifecycle</a>
         <a class="{% if request.path == '/qc/reagent-prep-list/' %}act{% endif %}" href="/qc/reagent-prep-list/"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6M10 3v6l-4 8a2 2 0 002 3h8a2 2 0 002-3l-4-8V3" stroke="currentColor" stroke-width="1.5"/></svg>Reagent Prep</a>
         <a class="{% if request.path == '/dashboard/audit/' %}act{% endif %}" href="/dashboard/audit/"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3h7l5 5v13H7z" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6M9 16h6M9 8h3" stroke="currentColor" stroke-width="1.4"/></svg>Audit</a>
+        {% if request.user.is_superuser %}<a class="{% if request.path == '/office-network/' %}act{% endif %}" href="/office-network/"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z" stroke="currentColor" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6"/></svg>Office Network</a>{% endif %}
         <a class="{% if request.path == '/loggingList/' %}act{% endif %}" href="/loggingList/"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5"/></svg>Logging</a>
       </div>
     </div>
