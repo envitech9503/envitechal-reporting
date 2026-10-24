@@ -34,6 +34,14 @@ def is_exempt(user):
     return bool(user is not None and getattr(user, 'username', '') and user.username.lower() in names)
 
 
+def can_switch(user):
+    """May this user turn the office-network protection ON / OFF? Only the usernames in settings.OFFICE_SWITCH_USERS
+    (owner decision 24-10-2026: the CEO, Sana and Hina), and only while the account is active."""
+    names = {u.lower() for u in getattr(settings, 'OFFICE_SWITCH_USERS', ['ImranKazmi'])}
+    return bool(user is not None and getattr(user, 'is_authenticated', False) and user.is_active
+                and (user.username or '').lower() in names)
+
+
 def invalidate():
     _cache['at'] = 0.0
 

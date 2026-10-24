@@ -247,6 +247,8 @@ OFFICE_ALLOWED_IPS = ['110.93.247.168', '124.29.208.36']
 # Owner decision 20-10-2026: the office-network rule applies to every user, administrators included,
 # except these usernames (the CEO). See EnviTechAlApp/office_ip.py.
 OFFICE_IP_EXEMPT_USERS = ['ImranKazmi']
+# Owner decision 24-10-2026: only these usernames hold the office-network ON / OFF switch (/office-network/).
+OFFICE_SWITCH_USERS = ['ImranKazmi', 'Sana', 'Hina']
 
 # --- Costing module ---
 COSTING_CHEMICAL_MODEL = 'EnviTechAlApp.ChemicalItem'

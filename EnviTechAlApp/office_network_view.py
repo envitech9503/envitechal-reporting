@@ -1,6 +1,6 @@
 """Office-network protection - administrator page (24-10-2026).
 
-/office-network/ : administrators (superusers) turn the static-IP protection ON or OFF for each office and correct an
+/office-network/ : the switch holders (settings.OFFICE_SWITCH_USERS - the CEO, Sana and Hina) turn the static-IP protection ON or OFF for each office and correct an
 office's internet IP; every change needs a reason and is written to OfficeNetworkLog. Rule: EnviTechAlApp/office_ip.py.
 """
 import ipaddress
@@ -29,11 +29,17 @@ def _public_ip(v):
     return str(a)
 
 
+def _holders():
+    from django.conf import settings
+    names = {n.lower() for n in getattr(settings, 'OFFICE_SWITCH_USERS', [])}
+    return [_uname(u) for u in User.objects.filter(is_active=True) if u.username.lower() in names]
+
+
 @login_required
 def office_network(request):
-    if not request.user.is_superuser:
-        return HttpResponseForbidden('<h2 style="font-family:sans-serif">Administrators only</h2>'
-                                     '<p style="font-family:sans-serif">Office network access is managed by the administrator.</p>')
+    if not oip.can_switch(request.user):
+        return HttpResponseForbidden('<h2 style="font-family:sans-serif">Not permitted</h2>'
+                                     '<p style="font-family:sans-serif">Office network access is managed by the CEO, Sana Ashraf and Hina Abidi.</p>')
     here = oip.client_ip(request)
     if request.method == 'POST':
         loc = request.POST.get('location', '')
@@ -103,5 +109,5 @@ def office_network(request):
         'offices': [{'o': o, 'staff': staff.get(o.location, [])} for o in offices],
         'unassigned': unassigned, 'exempt': exempt, 'all_off': all_off,
         'here': here, 'here_office': here_office, 'log': OfficeNetworkLog.objects.select_related('user')[:60],
-        'fallback': not offices, 'rules': rules,
+        'fallback': not offices, 'rules': rules, 'holders': _holders(),
     })

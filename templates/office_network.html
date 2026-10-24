@@ -40,7 +40,7 @@
 
 <div class="card">
   <div class="hd"><div class="title"><i class="fa-solid fa-shield-halved"></i> Office Network Access (static IP protection)</div>
-    <span class="muted">Administrators only &middot; you are connected from <b>{{ here|default:"-" }}</b>{% if here_office %} ({{ here_office }} office){% else %} (not an office network){% endif %}</span></div>
+    <span class="muted">Switch holders: {{ holders|join:", " }} &middot; you are connected from <b>{{ here|default:"-" }}</b>{% if here_office %} ({{ here_office }} office){% else %} (not an office network){% endif %}</span></div>
   <div class="sub">When the protection of an office is <b>ON</b>, its staff can use the reporting software only from that office's internet connection (static IP). Turn it <b>OFF</b> when the office internet is down: the staff of that office may then sign in from any network (mobile data, home), while the other office stays protected. The CEO{% if exempt %} ({{ exempt|join:", " }}){% endif %} may always work from anywhere. Every change is recorded below with your name and reason; a change reaches every server process within about 10 seconds.</div>
   {% if all_off %}<div class="msg warning"><i class="fa-solid fa-triangle-exclamation"></i> The protection is OFF for <b>both</b> offices: every user can sign in from any network.</div>{% endif %}
   {% if fallback %}<div class="msg error">The office table is empty - the system is using the built-in office IPs with protection ON.</div>{% endif %}

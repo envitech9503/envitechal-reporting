@@ -11,7 +11,7 @@ from EnviTechAlApp.models import OfficeNetwork, OfficeNetworkLog, Signatures
 KHI, LHR, OUT = '110.93.247.168', '124.29.208.36', '39.45.1.2'
 
 
-@override_settings(OFFICE_IP_EXEMPT_USERS=['ImranKazmi'], OFFICE_ALLOWED_IPS=[KHI, LHR], OFFICE_EXTRA_IPS=[])
+@override_settings(OFFICE_IP_EXEMPT_USERS=['ImranKazmi'], OFFICE_ALLOWED_IPS=[KHI, LHR], OFFICE_EXTRA_IPS=[], OFFICE_SWITCH_USERS=['ImranKazmi', 'kadmin'])
 class OfficeNetworkSwitchTests(TestCase):
 
     @classmethod
@@ -22,6 +22,7 @@ class OfficeNetworkSwitchTests(TestCase):
         cls.khi = U.objects.create_user('khi_chem', 'k@x.c', 'pw-khi-123456')
         cls.lhr = U.objects.create_user('lhr_chem', 'l@x.c', 'pw-lhr-123456')
         cls.none = U.objects.create_user('no_office', 'n@x.c', 'pw-non-123456')
+        cls.other_admin = U.objects.create_superuser('otheradmin', 'o@x.c', 'pw-oth-123456')     # superuser, not a switch holder
         Signatures.objects.create(user=cls.admin, office='Karachi')
         Signatures.objects.create(user=cls.khi, office='Karachi')
         Signatures.objects.create(user=cls.lhr, office='lahore ')          # case / spaces as typed in the profile
@@ -70,8 +71,13 @@ class OfficeNetworkSwitchTests(TestCase):
         self._set('Lahore', False)
         self.assertEqual(self._login('lhr_chem', 'wrong', OUT), 403)
 
-    def test_page_admin_only(self):
+    def test_page_switch_holders_only(self):
         self.assertEqual(self._get(self.khi, KHI).status_code, 403)
+        self.assertEqual(self._get(self.other_admin, KHI).status_code, 403)              # being a superuser is not enough
+        c = Client(); c.force_login(self.other_admin)
+        c.post('/office-network/', {'location': 'Lahore', 'action': 'on', 'reason': 'not allowed'}, secure=True, HTTP_X_REAL_IP=KHI)
+        self.assertFalse(OfficeNetwork.objects.get(location='Lahore').enforced)
+        self.assertEqual(self._get(self.ceo, OUT).status_code, 200)
         r = self._get(self.admin, KHI)
         self.assertEqual(r.status_code, 200)
         self.assertContains(r, 'Office Network Access'); self.assertContains(r, 'Protection OFF')
@@ -105,8 +111,15 @@ class OfficeNetworkSwitchTests(TestCase):
         self.assertEqual(self._login('lhr_chem', 'pw-lhr-123456', OUT), 403)
         self.assertEqual(self._login('lhr_chem', 'pw-lhr-123456', LHR), 302)
 
-    def test_menu_entry_admin_only(self):
+    def test_inactive_holder_refused(self):
+        self.admin.is_active = False; self.admin.save()
+        self.assertFalse(oip.can_switch(self.admin))
+        self.admin.is_active = True; self.admin.save()
+        self.assertTrue(oip.can_switch(self.admin))
+
+    def test_menu_entry_switch_holders_only(self):
         c = Client(); c.force_login(self.admin)
         self.assertContains(c.get('/management/', secure=True, HTTP_X_REAL_IP=KHI), '/office-network/')
-        c2 = Client(); c2.force_login(self.khi)
-        self.assertNotContains(c2.get('/management/', secure=True, HTTP_X_REAL_IP=KHI), '/office-network/')
+        for u in (self.khi, self.other_admin):
+            c2 = Client(); c2.force_login(u)
+            self.assertNotContains(c2.get('/management/', secure=True, HTTP_X_REAL_IP=KHI), '/office-network/')
