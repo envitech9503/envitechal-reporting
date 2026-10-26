@@ -1356,17 +1356,9 @@ def detox_pdf(request, pk):
             
         def footer(self):
             self.set_y(-14)
-            self.set_fill_color(40, 25, 105)    
-            self.rect(0, self.h-14, self.w, 12, "F")
-            self.image("static/assets/Picture1.png", 5, self.h-16, 14, 14)
-            self.set_text_color(255, 255, 255)
+            from EnviTechAlApp.pdf_common import etal_footer
+            etal_footer(self)
             self.set_font("Calibri", "", 8)
-            self.text(18, self.h-6, txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,,+924232296099")
-            
-            self.text(18, self.h-10, txt="Head Office:345,First Flooer,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-            self.image("static/assets/earth.png", 165, self.h-12, 7, 7)
-            self.text(175, self.h-6, txt="info@envitechal.com")
-            self.text(175, self.h-10, txt="www.envitechal.com")
             
             
             

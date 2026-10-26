@@ -168,6 +168,49 @@ def _fit_text(pdf, x, y, value, right_edge=TT_RIGHT_EDGE, pad=TT_RIGHT_PAD):
 # It now encodes the same signed, unguessable token the on-screen view form
 # uses, so a scan opens exactly that report read-only and nothing else.
 # Imported lazily to keep pdf_common free of import cycles.
+
+FOOTER_HEAD = 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi 75900, Pakistan.  03102288801'
+FOOTER_LAHORE = 'Lahore Office: 87-E Madina Height, Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road.  +924232296099'
+
+
+def etal_footer(pdf, top=None, height=12.0, size=8.6):
+    """The report / certificate footer band (owner review 27-10-2026): the two office lines centred between the two
+    icons and evenly spaced in the band, the web and e-mail lines on the same baselines. Drawing state after the call
+    is the same as after the earlier inline footer (white text, white fill, the caller's font)."""
+    h, w = pdf.h, pdf.w
+    top = h - 14 if top is None else top
+    fam, sty, sz = pdf.font_family, pdf.font_style, pdf.font_size_pt
+    pdf.set_fill_color(40, 25, 105); pdf.rect(0, top, w, height, 'F')
+    ic = min(14.0, height + 2)
+    try:
+        pdf.image('static/assets/Picture1.png', 5, top + height / 2 - ic / 2 - 1, ic, ic)
+        pdf.image('static/assets/earth.png', w - 44, top + height / 2 - 3.5, 7, 7)
+    except Exception:
+        pass
+    pdf.set_text_color(255, 255, 255)
+    try:
+        pdf.set_font('Calibri', '', size)
+    except Exception:
+        pdf.set_font('helvetica', '', size - 0.6)
+    gap = size * 0.477                                   # line spacing in mm (about 1.35 x the type size)
+    c = top + height / 2
+    y1, y2 = c - gap / 2 + 1.0, c + gap / 2 + 1.0
+    x0, x1 = 19.0, w - 47.0
+    for t, y in ((FOOTER_HEAD, y1), (FOOTER_LAHORE, y2)):
+        tw = pdf.get_string_width(t)
+        if tw > x1 - x0:                                 # a narrow page: shrink to fit rather than overlap the icons
+            pdf.set_font_size(size * (x1 - x0) / tw); tw = pdf.get_string_width(t)
+        pdf.text(x0 + (x1 - x0 - tw) / 2, y, t)
+        pdf.set_font_size(size)
+    pdf.text(w - 35, y1, 'www.envitechal.com')
+    pdf.text(w - 35, y2, 'info@envitechal.com')
+    pdf.set_fill_color(255, 255, 255)
+    if fam:
+        try:
+            pdf.set_font(fam, sty, sz)
+        except Exception:
+            pass
+
 def _etal_verify_url(request, kind, pk):
     from EnviTechAlApp.views.shared import public_verify_url
     return public_verify_url(request, kind, pk)
@@ -220,17 +263,7 @@ class EtalReportPDF(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
-          # self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
+          etal_footer(self)
 
      # def add_page(self):
      #      super().add_page()
@@ -674,17 +707,8 @@ class PDF_generatePDF_report(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
           self.set_y(137)
@@ -1089,17 +1113,8 @@ class PDF_gaseousReportgeneratePDF1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
           self.set_y(131)
@@ -1484,17 +1499,8 @@ class PDF_ambientAirGeneratePDF1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
-          self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")                    
+          etal_footer(self)
+          self.set_font("Calibri","", 9)                    
 
 
           self.set_y(125)
@@ -1885,17 +1891,8 @@ class PDF_wasteWaterPdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-10,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-11.5,12,12)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self, top=self.h - 10, height=10, size=8)
           self.set_font("Calibri","", 8)
-          self.text(18,self.h-2,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-5,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-8.2,7,7)
-          self.text(175,self.h-2.8,txt="info@envitechal.com")
-          self.text(175,self.h-5.4,txt="www.envitechal.com")
 
           self.set_y(136.9)
 
@@ -2295,17 +2292,8 @@ class PDF_vehicularEmissionReport1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
-          self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")     
+          etal_footer(self)
+          self.set_font("Calibri","", 9)     
 
 
           self.set_y(126)
@@ -2671,17 +2659,8 @@ class PDF_luxAnalysisReportPdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
           self.set_y(128)
 
@@ -3071,17 +3050,8 @@ class PDF_packingPolyBagReport1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
           self.set_y(134.2)
 
@@ -3451,17 +3421,8 @@ class PDF_noiseAnalysisReport1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
 
@@ -3841,17 +3802,8 @@ class PDF_machineOilReportPdf1(FPDF):
 
                self.rotate(0)
 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
           self.set_y(133)
 
@@ -4248,17 +4200,8 @@ class PDF_microbialAnalysisPdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
           self.set_y(138)
@@ -4659,17 +4602,8 @@ class PDF_viscousLiquidPdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
 
@@ -5047,17 +4981,8 @@ class PDF_ambientAir2Pdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
           self.set_y(130)
@@ -5474,17 +5399,8 @@ class PDF_wasteWater2Pdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
           self.set_y(144)
@@ -5885,17 +5801,8 @@ class PDF_noiseMonitoring_report(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
 
@@ -6092,17 +5999,8 @@ class PDF_calib_pdf(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
      def add_page(self, *args, **kwargs):
           super().add_page(*args, **kwargs)
@@ -6363,17 +6261,7 @@ class PDF_inspect_pdf(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
-          # self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
+          etal_footer(self)
 
 class PDF_inspect_pdf1(FPDF):
 
@@ -6850,17 +6738,8 @@ class PDF_ppwrAnalysisPdf1(FPDF):
           self.set_y(-10)
           self.set_x(0)
           # self.image("static/assets/footer.PNG", 0, self.h - 10, self.w, 10)  # Add the footer image 
-          self.set_fill_color(40, 25, 105)    
-          self.rect(0,self.h-14,self.w,12,"F")
-          self.image("static/assets/Picture1.png",5,self.h-16,14,14)
-          self.set_text_color(255, 255, 255)
+          etal_footer(self)
           self.set_font("Calibri","", 9)
-          self.text(18,self.h-7,txt="Lahore Office: 87-E Madina Height,Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road,+924232296099")
-          self.text(18,self.h-10,txt="Head Office:345,First floor,Street-15,Block-3,Bahadurabad,Karachi,75900,Pakistan. 03102288801")
-          self.set_fill_color(255, 255, 255)   
-          self.image("static/assets/earth.png",165,self.h-12,7,7)
-          self.text(175,self.h-7,txt="info@envitechal.com")
-          self.text(175,self.h-10,txt="www.envitechal.com")
 
 
           self.set_y(138)
