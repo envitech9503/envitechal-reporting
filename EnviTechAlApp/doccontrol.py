@@ -200,7 +200,7 @@ def correct_revision(rev, vals, note, user):
         setattr(rev, f, (vals.get(f) or '').strip()[:{'doc_no': 60, 'issue_date': 20}.get(f, 10)])
     rev.note = ('%s | corrected %s by %s: %s' % (rev.note, _dt.date.today().strftime('%d-%m-%Y'),
                                                  (user.get_full_name() or user.get_username()) if user else 'system', note or ''))[-300:]
-    rev._change_reason = note
+    rev._change_reason = (note or '')[:100]           # the audit-history reason column holds 100 characters
     rev.save()
     sync_mirror(rev.module, rev.location, user)
     return rev

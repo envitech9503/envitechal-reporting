@@ -88,6 +88,15 @@ class RevisionSelectionTests(TestCase):
         self.assertIn('typing error', r.note)
         self.assertEqual(r.history.count(), 2)
 
+    def test_correction_with_long_reason(self):
+        """A reason longer than the audit-history column (100) is kept in full in the note, not refused (27-10-2026)."""
+        r = DC.issue_revision('ia_report', 'Lahore', _vals('ETAL-QMS-808-FF-02'), D(2000, 1, 1), 'baseline', self.admin)
+        why = 'Lab Manager review: Issue 01 Rev 00 (05-01-2024) applies before 15-08-2026; Issue 02 Rev 01 applies from 15-08-2026 onwards'
+        DC.correct_revision(r, _vals('ETAL-QMS-808-FF-02'), why, self.admin)
+        r.refresh_from_db()
+        self.assertIn(why, r.note)
+        self.assertEqual(r.history.first().history_change_reason, why[:100])
+
     def test_doc_date_and_first_saved(self):
         class O: pass
         o = O(); o.study_date = None; o.date = D(2024, 5, 6)
