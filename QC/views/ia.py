@@ -934,6 +934,14 @@ _NC_RECORD_FIELDS = ('nc_no', 'date', 'department', 'raised_by', 'clause', 'sour
                      'followup_date', 'next_followup_date', 'followup_desc', 'remarks', 'closed_by_name', 'closing_date')
 
 
+_FIELD_LABEL = {'nc_no': 'NC&CA No.', 'due_audit_internal': 'raised due to (internal audit)', 'due_audit_external': 'raised due to (external audit)',
+                'due_testing': 'raised due to (testing)', 'due_cal_internal': 'raised due to (internal calibration)', 'due_cal_external': 'raised due to (external calibration)',
+                'due_complaint': 'raised due to (complaint)', 'due_other': 'raised due to (others)', 'sig_legal': 'legal compliance', 'sig_risk': 'poses any risk',
+                'sig_halt': 'requires halt work', 'sig_preventive': 'preventive action', 'sig_non_significant': 'non-significant', 'impact_past': 'impact analysis',
+                'category_also_critical': 'critical also ticked', 'details': 'non-conformity details', 'corrective': 'corrective action', 'log_only': 'form added',
+                'closed_by_name': 'closed by', 'followup_desc': 'follow-up description', 'followup_with': 'follow-up with'}
+
+
 def _nc_sections(user, n):
     """Which sections of the NC form the user may edit now (as on the paper form)."""
     mgr, member = _can_manage(user, n.location), _is_member(user, n.location)
@@ -1098,6 +1106,8 @@ def ia_nc_detail(request, pk):
         'can_close': n.status == 'responded' and _can_manage(user, n.location),
         'can_reopen': n.status in ('responded', 'closed') and _can_manage(user, n.location),
         'can_reopen_rca': bool(rca) and rca.status != 'draft' and (_is_ceo(user, n.location) or (rca.status == 'performed' and _can_manage(user, n.location))),
+        'trail': [{'at': t.get('at', ''), 'by': t.get('by', ''), 'from': t.get('from_status'), 'to': t.get('to_status'),
+                   'fields': ', '.join(_FIELD_LABEL.get(f, f.replace('_', ' ')) for f in t.get('fields', []))} for t in (n.legacy or {}).get('completed', [])],
         'can_record': n.inducted and mgr, 'gaps': n.form_gaps, 'can_verify': n.inducted and mgr and not n.verified,
         'can_delete': _can_manage(user, n.location), 'can_rca': _can_manage(user, n.location) and n.status != 'draft' and not (rca and rca.locked),
         'can_add_rca': mgr and n.status not in ('draft', 'closed') and bool(rcas)})

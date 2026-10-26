@@ -1309,7 +1309,8 @@ class Ncca(models.Model):
             gaps.append('completion date')
         if self.satisfactory is None and not (self.followup_desc or '').strip():
             gaps.append('MR follow-up')
-        return gaps
+        blank = set((self.legacy or {}).get('blank_on_form') or [])     # left blank on the signed paper form itself: not a gap of the software
+        return [g for g in gaps if g not in blank]
 
 
 class NccaRca(models.Model):

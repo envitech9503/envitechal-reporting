@@ -193,3 +193,56 @@ class VerifyAgainstPaperTests(TestCase):
         self.assertIsNone(n.verified); self.assertEqual(len(n.legacy['verified_cleared']), 1)
         live = Ncca.objects.create(location='Karachi', nc_no='NC-08/IA/026', details='live', status='open')
         self.assertEqual(mgr.post('/qc/ia/ncs/%d/action/' % live.pk, {'action': 'verify_record'}).status_code, 403)
+
+
+class NcRecordImportTests(TestCase):
+    """Second batch of the record (26-10-2026): signed NC&CA forms, RCAs and the Lahore NC&CA logs complete the inducted records."""
+    OS = __import__('os')
+    REC = OS.path.join(OS.path.dirname(__file__), 'fixtures', 'nc_record_spec.json')
+    EA = OS.path.join(OS.path.dirname(__file__), 'fixtures', 'ea_lahore_spec.json')
+
+    @classmethod
+    def setUpTestData(cls):
+        mk_users(cls)
+        call_command('import_ia_spec', SPEC, '--apply', stdout=io.StringIO())
+        call_command('import_ea_spec', cls.EA, '--apply', stdout=io.StringIO())
+        n = Ncca.objects.get(location='Karachi', nc_no='NC-01/025')          # a record a manager already completed: never overwritten
+        n.legacy = dict(n.legacy, completed=[{'by': 'ia_mgr', 'at': '26-10-2026 10:00', 'fields': ['root_cause']}]); n.root_cause = 'typed by the manager'; n.save()
+        cls.out = io.StringIO()
+        call_command('import_nc_record', cls.REC, '--apply', stdout=cls.out)
+
+    def test_drafts_completed_renamed_closed_with_rcas(self):
+        self.assertFalse(Ncca.objects.filter(nc_no='MNC-01/01-2025').exists())
+        n = Ncca.objects.get(location='Lahore', nc_no='NC-01/A1/2025')
+        self.assertEqual((n.status, n.legacy['previous_nc_no'], n.category), ('closed', 'MNC-01/01-2025', 'minor'))
+        self.assertIn('approval process', n.corrective); self.assertEqual(n.rcas.count(), 1); self.assertEqual(n.form_gaps, [])
+        self.assertIsNotNone(n.audit_id)                                     # still linked to audit 01/2025
+        self.assertFalse(any(s.startswith('Derived from the audit report') for s in n.legacy['notes']))
+        n9 = Ncca.objects.get(nc_no='NC-09/IA1/2026'); self.assertEqual([r.part for r in n9.rca_list], ['a', 'b'])
+        n5 = Ncca.objects.get(nc_no='NC-05/A1/2025')
+        self.assertEqual(n5.closing_date.isoformat(), '2025-08-04'); self.assertIn('completion date', n5.legacy['blank_on_form']); self.assertEqual(n5.form_gaps, [])
+        self.assertTrue(Ncca.objects.filter(nc_no='Obs-01/01-2025', status='draft').exists())   # no form in the record: unchanged
+
+    def test_karachi_forms_new_records_log_rows(self):
+        k = Ncca.objects.get(location='Karachi', nc_no='NC-02/CC/025')
+        self.assertEqual((k.log_only, k.category, k.satisfactory), (False, 'pfi', True)); self.assertEqual(k.rca.causes, {'Personnel': ['Random Error']})
+        self.assertEqual(Ncca.objects.get(location='Karachi', nc_no='NC-01/025').root_cause, 'typed by the manager')
+        self.assertIn('SKIP NC-01/025', self.out.getvalue())
+        self.assertTrue(Ncca.objects.filter(location='Karachi', nc_no='NC-02/025', status='closed').exists())
+        self.assertEqual(Ncca.objects.filter(location='Lahore', nc_no__endswith='/IA-02/2025').count(), 3)
+        self.assertEqual(Ncca.objects.filter(location='Lahore', nc_no__endswith='/PNAC/2025', log_only=True).count(), 14)
+        p = Ncca.objects.get(nc_no='NC-03/PNAC/2026')
+        self.assertEqual((p.assigned_to, p.closing_date.isoformat()), ('Sana Ashraf (MR)', '2026-08-13'))
+        self.assertEqual(Ncca.objects.get(nc_no='NC-02/PNAC-FA/2025').form_gaps, [])
+
+    def test_idempotent(self):
+        before = {n.pk: len((n.legacy or {}).get('completed', [])) for n in Ncca.objects.all()}
+        out = io.StringIO(); call_command('import_nc_record', self.REC, '--apply', stdout=out)
+        self.assertIn('created 0', out.getvalue()); self.assertIn('log-only rows 0', out.getvalue())
+        self.assertEqual(before, {n.pk: len((n.legacy or {}).get('completed', [])) for n in Ncca.objects.all()})
+
+    def test_pages(self):
+        lmgr = C(self.lmgr)
+        n = Ncca.objects.get(nc_no='NC-01/IA1/2026')
+        r = lmgr.get('/qc/ia/ncs/%d/' % n.pk); self.assertContains(r, 'Record trail'); self.assertContains(r, 'RCA PDF (3)')
+        self.assertEqual(lmgr.get('/qc/ia/ncs/%d/pdf/' % n.pk).status_code, 200); self.assertEqual(lmgr.get('/qc/ia/ncs/%d/rca/pdf/' % n.pk).status_code, 200)
