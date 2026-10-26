@@ -5529,7 +5529,7 @@
         const sample_id_form = $("#samples option:selected").attr("data-sample-id");
     
     try {
-        const response = await fetch('https://report.envitechal.com/qc/get_ww/', {
+        const response = await fetch('/qc/get_ww/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -21166,7 +21166,7 @@ function calculateSulphideCrm(prefix) {
             // Add sample_id to the data object directly
             data.sample_id = sample_id_form;
 
-            fetch("https://report.envitechal.com/qc/create_ww_qc/", {
+            fetch("/qc/create_ww_qc/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -21200,4 +21200,5 @@ function calculateSulphideCrm(prefix) {
         loadSample()
     </script> 
     
+<script src="{% static 'js/rds_ww_calc.js' %}?v=20261027"></script>
 {% endblock %}

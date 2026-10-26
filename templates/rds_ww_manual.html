@@ -22484,7 +22484,7 @@ function calculateSulphideCrm(prefix) {
 
             data.report_type = reportType;
             console.log('data sent-> ',data)
-            fetch("https://report.envitechal.com/qc/create_ww_qc_manual/", {
+            fetch("/qc/create_ww_qc_manual/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -22543,4 +22543,5 @@ function calculateSulphideCrm(prefix) {
         loadSample()
     </script> 
     
+<script src="{% static 'js/rds_ww_calc.js' %}?v=20261027"></script>
 {% endblock %}

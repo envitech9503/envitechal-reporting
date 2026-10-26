@@ -107,7 +107,11 @@
         {% include "_qc_sidebar.html" %}
 
         <div class="flex-1 overflow-auto mt-20 flex justify-center items-center flex-col">
-            <h1 class="text-4xl font-bold mt-20 text-gray-700">WW RDS List</h1>
+            <h1 class="text-4xl font-bold mt-20 text-gray-700">WW RDS List{% if lab %} - {{ lab }} laboratory{% endif %}</h1>
+            {% if not own_lab %}<div style="margin-top:10px;font-size:14px">Laboratory:
+              <a href="?lab=" style="margin:0 6px;{% if not lab %}font-weight:700;{% endif %}">Both</a>
+              <a href="?lab=Karachi" style="margin:0 6px;{% if lab == 'Karachi' %}font-weight:700;{% endif %}">Karachi</a>
+              <a href="?lab=Lahore" style="margin:0 6px;{% if lab == 'Lahore' %}font-weight:700;{% endif %}">Lahore</a></div>{% endif %}
 
             <div class="table-container mt-8 w-full px-4">
                 <table id="myTable" class="display" style="width:100%;" cellspacing="10">

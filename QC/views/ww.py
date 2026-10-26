@@ -4,6 +4,52 @@ from .shared import *  # noqa: F401,F403
 
     
         
+
+def _bod_seed_term(data, sfx):
+    """Seed correction as written on the RDS: {(B1 - B2) / Vc X Vs} when the seed volume in the seed-control bottle is
+    recorded (APHA 5210 B, owner review 27-10-2026), otherwise as the record was entered."""
+    g = lambda k: data.get(k + sfx)
+    if g('bod_seed_ctrl'):
+        return f"{{({g('bod_seed_1')} - {g('bod_seed_2')}) / {g('bod_seed_ctrl')} X {g('bod_seed_vol')}}}"
+    return f"{{({g('bod_seed_1')} - {g('bod_seed_2')}) X {g('bod_seed_vol')}}}"
+
+
+def _rds_note(pdf, note):
+    """A check note of the calculation (validity / difference from the reported result), printed under its formula."""
+    if not note:
+        return
+    try:
+        pdf.set_font("Calibri", 'I', 8.5)
+    except Exception:
+        pdf.set_font("Calibri", '', 8.5)
+    pdf.set_x(pdf.l_margin)
+    pdf.multi_cell(0, 4, "Check: " + str(note))
+    pdf.set_font("Calibri", '', 10)
+
+
+def _rds_ww_lab(request):
+    """The laboratory whose RDS WW records the user works with: the office on the user's e-signature profile; ''
+    (both laboratories) for a user without one, e.g. the CEO (owner review 27-10-2026)."""
+    from QC.views.control_chart import _user_office
+    return _user_office(request.user) if getattr(request, 'user', None) and request.user.is_authenticated else ''
+
+
+def _rds_ww_samples(request):
+    """Samples offered on Add RDS WW: waste-water reports only, of the user's laboratory, newest first (the page used
+    to list every registered sample of every type and laboratory)."""
+    lab = _rds_ww_lab(request)
+    qs = WasteWaterForm2.objects.exclude(sample_id__isnull=True).exclude(sample_id='')
+    if lab:
+        qs = qs.filter(city_location__iexact=lab)
+    seen, out = set(), []
+    for pk, sid in qs.order_by('-id').values_list('pk', 'sample_id'):
+        if sid in seen:
+            continue
+        seen.add(sid)
+        out.append({'pk': pk, 'model': 'EnviTechAlApp.wastewaterform2', 'fields': {'sample_id': sid}})
+    return json.dumps(out)
+
+
 @csrf_exempt
 def create_ww_qc(request):
     if request.method == 'POST':
@@ -36,10 +82,8 @@ def create_ww_qc(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     
-    sample_ids = Sample_registration.objects.all()
-    ww_ids = WasteWaterForm2.objects.all()
-    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
-    ww = serializers.serialize('json',ww_ids,fields=('sample_id',))
+    sample = _rds_ww_samples(request)
+    ww = sample
     context={'sample':sample,'ww':ww,'signs':signs}
     return render(request,"rds_ww.html",context)
 
@@ -314,6 +358,11 @@ def get_ww(request):
                     'id': sign.id if hasattr(sign, 'id') else 0,
                     'name': f"{sign.user.username if hasattr(sign, 'user') else 'Unknown'} ({getattr(sign, 'role', 'Unknown')})"
                 })
+            # the laboratory's other active staff can also have performed / checked a test (owner review 27-10-2026)
+            _ids = {x['id'] for x in signatures_data}
+            for sign in Signatures.objects.filter(user__is_active=True, office__iexact=(ww_report.city_location or '').strip()).select_related('user', 'role').order_by('user__username'):
+                if sign.id not in _ids:
+                    signatures_data.append({'id': sign.id, 'name': f"{sign.user.get_full_name() or sign.user.username} ({sign.role or 'Staff'})"})
             
             # Add report information
             report_info = {
@@ -420,7 +469,7 @@ def generate_ww_qc_pdf_response(report, pk):
             check_page_break(row_height)
             pdf.set_x(13)
             pdf.cell(sum(col_widths), row_height, "No data available", 1, 1, 'C')
-            return pdf
+            pass   # an RDS without dated rows still prints its calculations (was a server error, fixed 27-10-2026)
 
         # 🔢 Sequential S.no
         s_no = 1
@@ -3290,10 +3339,11 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                     None,
                     None,
-                    f"{data.get('for_cod1_inlet')} + {data.get('for_cod2_inlet')} + {data.get('for_cod3_inlet')}",
+                    " + ".join(str(data.get(k)) for k in ('for_cod1_inlet', 'for_cod2_inlet', 'for_cod3_inlet') if str(data.get(k) or '').strip()),
                     f"{data['cod_ans_inlet']} {data.get('cod_param_inlet')}",
                     data.get('cod_divi1_inlet', "3")
                 )
+            _rds_note(pdf, data.get('cod_ws_check_inlet'))
             
        
         
@@ -3308,10 +3358,24 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('for_cod1_1_inlet')} X {data.get('for_cod1_1_df_inlet')}) + ({data.get('for_cod1_2_inlet')} X {data.get('for_cod1_2_df_inlet')}) + ({data.get('for_cod1_3_inlet')} X {data.get('for_cod1_3_df_inlet')})",
                     f"{data['cod_ans_1_inlet']} {data.get('cod_param_1_inlet')}",
-                    data.get('cod_divi1_inlet',"3")
+                    data.get('cod_divi_inlet', "3")
                 )
+            _rds_note(pdf, data.get('cod_check_inlet'))
         
         
+        if(data.get('cod_ans_outlet')):
+            check_page_break(20)
+            pdf.set_font("Calibri", 'B', 11)
+            pdf.cell(0,6,data.get('cod_head_outlet') or 'WS-COD-100ppm (Outlet):',ln=True)
+            add_formula_block(
+                    None,
+                    None,
+                    " + ".join(str(data.get(k)) for k in ('for_cod1_outlet', 'for_cod2_outlet', 'for_cod3_outlet') if str(data.get(k) or '').strip()),
+                    f"{data['cod_ans_outlet']} {data.get('cod_param_outlet') or 'mg/L'}",
+                    data.get('cod_divi1_outlet', "3")
+                )
+            _rds_note(pdf, data.get('cod_ws_check_outlet'))
+
         if(data.get('cod_ans_1_outlet')):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
@@ -3323,6 +3387,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     f"{data['cod_ans_1_outlet']} {data.get('cod_param_1_outlet')}",
                     data.get('cod_divi_outlet')
                 )
+            _rds_note(pdf, data.get('cod_check_outlet'))
         
         
         
@@ -4787,328 +4852,331 @@ def generate_ww_qc_pdf_response(report, pk):
                 )
             
             check_page_break(20)
-            if data.get('sulphide_1_final_ans_outlet'):
-                pdf.ln(5)
+        # sections below were nested under the inlet sulphide block and printed only when it existed (fixed 27-10-2026)
+        if data.get('sulphide_1_final_ans_outlet'):
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0, 6, data.get('sulphide_head_outlet'), border=False, align="L", ln=True)
+            if data.get('sulphide_read_1_outlet'):
                 pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0, 6, data.get('sulphide_head_outlet'), border=False, align="L", ln=True)
-                if data.get('sulphide_read_1_outlet'):
-                    pdf.set_font("Calibri", 'B', 10)
-                    pdf.cell(0,4,f"{data.get('sulphide_read_1_outlet')}",ln=True)
-                    pdf.set_font("Calibri", '', 10)
-                    pdf.cell(0,4,f"A mL iodine solutions = {data.get('sulphide_1_a_outlet')}",ln=2)
-                    pdf.cell(0,4,f"B normality iodine solution = {data.get('sulphide_1_b_outlet')}",ln=2)
-                    pdf.cell(0,4,f"C mL Na2S2O3 solution = {data.get('sulphide_1_c_outlet')}",ln=2)
-                    pdf.cell(0,4,f"D normality of Na2S2O3 solution = {data.get('sulphide_1_d_outlet')}",ln=2)
-                    pdf.cell(0,4,f"Volume of Sample = {data.get('sulphide_1_vs_outlet')}",ln=2)
-                    add_formula_block(
-                        None,
-                        None,
-                        f"({data.get('sulphide_1_final_a_outlet')} X {data.get('sulphide_1_final_b_outlet')}) - ({data.get('sulphide_1_final_c_outlet')} X {data.get('sulphide_1_final_d_outlet')}) X 16000",
+                pdf.cell(0,4,f"{data.get('sulphide_read_1_outlet')}",ln=True)
+                pdf.set_font("Calibri", '', 10)
+                pdf.cell(0,4,f"A mL iodine solutions = {data.get('sulphide_1_a_outlet')}",ln=2)
+                pdf.cell(0,4,f"B normality iodine solution = {data.get('sulphide_1_b_outlet')}",ln=2)
+                pdf.cell(0,4,f"C mL Na2S2O3 solution = {data.get('sulphide_1_c_outlet')}",ln=2)
+                pdf.cell(0,4,f"D normality of Na2S2O3 solution = {data.get('sulphide_1_d_outlet')}",ln=2)
+                pdf.cell(0,4,f"Volume of Sample = {data.get('sulphide_1_vs_outlet')}",ln=2)
+                add_formula_block(
+                    None,
+                    None,
+                    f"({data.get('sulphide_1_final_a_outlet')} X {data.get('sulphide_1_final_b_outlet')}) - ({data.get('sulphide_1_final_c_outlet')} X {data.get('sulphide_1_final_d_outlet')}) X 16000",
                         
-                        f"{data['sulphide_1_final_ans_outlet']} {data.get('sulphide_1_param_outlet')}",
-                        data.get('sulphide_1_divi_outlet')
-                    )
+                    f"{data['sulphide_1_final_ans_outlet']} {data.get('sulphide_1_param_outlet')}",
+                    data.get('sulphide_1_divi_outlet')
+                )
                 
                 
-                if data.get('sulphide_read_2_outlet'):
-                    pdf.set_font("Calibri", 'B', 10)
-                    pdf.cell(0,4,f"{data.get('sulphide_read_2_outlet')}",ln=True)
-                    pdf.set_font("Calibri", '', 10)
-                    pdf.cell(0,4,f"A mL iodine solutions = {data.get('sulphide_2_a_outlet')}",ln=2)
-                    pdf.cell(0,4,f"B normality iodine solution = {data.get('sulphide_2_b_outlet')}",ln=2)
-                    pdf.cell(0,4,f"C mL Na2S2O3 solution = {data.get('sulphide_2_c_outlet')}",ln=2)
-                    pdf.cell(0,4,f"D normality of Na2S2O3 solution = {data.get('sulphide_2_d_outlet')}",ln=2)
-                    pdf.cell(0,4,f"Volume of Sample = {data.get('sulphide_2_vs_outlet')}",ln=2)
-                    add_formula_block(
-                        None,
-                        None,
-                        f"({data.get('sulphide_2_final_a_outlet')} X {data.get('sulphide_2_final_b_outlet')}) - ({data.get('sulphide_2_final_c_outlet')} X {data.get('sulphide_2_final_d_outlet')}) X 16000",
+            if data.get('sulphide_read_2_outlet'):
+                pdf.set_font("Calibri", 'B', 10)
+                pdf.cell(0,4,f"{data.get('sulphide_read_2_outlet')}",ln=True)
+                pdf.set_font("Calibri", '', 10)
+                pdf.cell(0,4,f"A mL iodine solutions = {data.get('sulphide_2_a_outlet')}",ln=2)
+                pdf.cell(0,4,f"B normality iodine solution = {data.get('sulphide_2_b_outlet')}",ln=2)
+                pdf.cell(0,4,f"C mL Na2S2O3 solution = {data.get('sulphide_2_c_outlet')}",ln=2)
+                pdf.cell(0,4,f"D normality of Na2S2O3 solution = {data.get('sulphide_2_d_outlet')}",ln=2)
+                pdf.cell(0,4,f"Volume of Sample = {data.get('sulphide_2_vs_outlet')}",ln=2)
+                add_formula_block(
+                    None,
+                    None,
+                    f"({data.get('sulphide_2_final_a_outlet')} X {data.get('sulphide_2_final_b_outlet')}) - ({data.get('sulphide_2_final_c_outlet')} X {data.get('sulphide_2_final_d_outlet')}) X 16000",
                         
-                        f"{data['sulphide_2_final_ans_outlet']} {data.get('sulphide_2_param_outlet')}",
-                        data.get('sulphide_2_divi_outlet')
-                    )
+                    f"{data['sulphide_2_final_ans_outlet']} {data.get('sulphide_2_param_outlet')}",
+                    data.get('sulphide_2_divi_outlet')
+                )
                 
                 
-                if data.get('sulphide_read_3_outlet'):
-                    pdf.set_font("Calibri", 'B', 10)
-                    pdf.cell(0,4,f"{data.get('sulphide_read_3_outlet')}",ln=True)
-                    pdf.set_font("Calibri", '', 10)
-                    pdf.cell(0,4,f"A mL iodine solutions = {data.get('sulphide_3_a_outlet')}",ln=2)
-                    pdf.cell(0,4,f"B normality iodine solution = {data.get('sulphide_3_b_outlet')}",ln=2)
-                    pdf.cell(0,4,f"C mL Na2S2O3 solution = {data.get('sulphide_3_c_outlet')}",ln=2)
-                    pdf.cell(0,4,f"D normality of Na2S2O3 solution = {data.get('sulphide_3_d_outlet')}",ln=2)
-                    pdf.cell(0,4,f"Volume of Sample = {data.get('sulphide_3_vs_outlet')}",ln=2)
-                    add_formula_block(
-                        None,
-                        None,
-                        f"({data.get('sulphide_3_final_a_outlet')} X {data.get('sulphide_3_final_b_outlet')}) - ({data.get('sulphide_3_final_c_outlet')} X {data.get('sulphide_3_final_d_outlet')}) X 16000",
+            if data.get('sulphide_read_3_outlet'):
+                pdf.set_font("Calibri", 'B', 10)
+                pdf.cell(0,4,f"{data.get('sulphide_read_3_outlet')}",ln=True)
+                pdf.set_font("Calibri", '', 10)
+                pdf.cell(0,4,f"A mL iodine solutions = {data.get('sulphide_3_a_outlet')}",ln=2)
+                pdf.cell(0,4,f"B normality iodine solution = {data.get('sulphide_3_b_outlet')}",ln=2)
+                pdf.cell(0,4,f"C mL Na2S2O3 solution = {data.get('sulphide_3_c_outlet')}",ln=2)
+                pdf.cell(0,4,f"D normality of Na2S2O3 solution = {data.get('sulphide_3_d_outlet')}",ln=2)
+                pdf.cell(0,4,f"Volume of Sample = {data.get('sulphide_3_vs_outlet')}",ln=2)
+                add_formula_block(
+                    None,
+                    None,
+                    f"({data.get('sulphide_3_final_a_outlet')} X {data.get('sulphide_3_final_b_outlet')}) - ({data.get('sulphide_3_final_c_outlet')} X {data.get('sulphide_3_final_d_outlet')}) X 16000",
                         
-                        f"{data['sulphide_3_final_ans_outlet']} {data.get('sulphide_3_param_outlet')}",
-                        data.get('sulphide_3_divi_outlet')
-                    )
+                    f"{data['sulphide_3_final_ans_outlet']} {data.get('sulphide_3_param_outlet')}",
+                    data.get('sulphide_3_divi_outlet')
+                )
                     
-                    # ------------------ Sulphide Average (outlet) ------------------
+                # ------------------ Sulphide Average (outlet) ------------------
 
-                formula_parts = []
+            formula_parts = []
 
-                if data.get('answer1_outlet'):
-                    formula_parts.append(
-                        f"({data.get('answer1_outlet')} X {data.get('answer1_df_outlet')})"
-                    )
+            if data.get('answer1_outlet'):
+                formula_parts.append(
+                    f"({data.get('answer1_outlet')} X {data.get('answer1_df_outlet')})"
+                )
 
-                if data.get('answer2_outlet'):
-                    formula_parts.append(
-                        f"({data.get('answer2_outlet')} X {data.get('answer2_df_outlet')})"
-                    )
+            if data.get('answer2_outlet'):
+                formula_parts.append(
+                    f"({data.get('answer2_outlet')} X {data.get('answer2_df_outlet')})"
+                )
 
-                if data.get('answer3_outlet'):
-                    formula_parts.append(
-                        f"({data.get('answer3_outlet')} X {data.get('answer3_df_outlet')})"
-                    )
+            if data.get('answer3_outlet'):
+                formula_parts.append(
+                    f"({data.get('answer3_outlet')} X {data.get('answer3_df_outlet')})"
+                )
 
-                average_formula = " + ".join(formula_parts)
+            average_formula = " + ".join(formula_parts)
 
-                if formula_parts:
-                    add_formula_block(
-                        data.get('sulphide_avg_head_outlet'),
-                        None,
-                        average_formula,
-                        f"{data.get('for_sulphide_avg_ans_outlet')} {data.get('for_sulphide_avg_param_outlet')}",
-                        data.get('sulphide_avg_divi_outlet')
-                    )
-                pdf.ln(3)
+            if formula_parts:
+                add_formula_block(
+                    data.get('sulphide_avg_head_outlet'),
+                    None,
+                    average_formula,
+                    f"{data.get('for_sulphide_avg_ans_outlet')} {data.get('for_sulphide_avg_param_outlet')}",
+                    data.get('sulphide_avg_divi_outlet')
+                )
+            pdf.ln(3)
                 
                     
 
-            for key in sorted(data.keys()):
-                # Match keys like: sulphide-3.1-crm_head
-                match = re.match(r'(sulphide-\d+\.\d+)-crm_head$', key)
+        for key in sorted(data.keys()):
+            # Match keys like: sulphide-3.1-crm_head
+            match = re.match(r'(sulphide-\d+\.\d+)-crm_head$', key)
 
-                if not match:
-                    continue
+            if not match:
+                continue
 
-                base = match.group(1)  # sulphide-3.1
+            base = match.group(1)  # sulphide-3.1
 
-                # Skip if CRM head empty
-                if not data.get(f"{base}-crm_head"):
-                    continue
+            # Skip if CRM head empty
+            if not data.get(f"{base}-crm_head"):
+                continue
 
-                # ---------- HEADER ----------
-                pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0, 4, f"{data.get(f'{base}-crm_head')}", ln=True)
+            # ---------- HEADER ----------
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0, 4, f"{data.get(f'{base}-crm_head')}", ln=True)
 
-                pdf.set_font("Calibri", '', 10)
+            pdf.set_font("Calibri", '', 10)
 
-                # ---------- VALUES ----------
-                pdf.cell(0, 4, f"A mL iodine solutions = {data.get(f'{base}-a')}", ln=2)
-                pdf.cell(0, 4, f"B normality iodine solution = {data.get(f'{base}-b')}", ln=2)
-                pdf.cell(0, 4, f"C mL Na2S2O3 solution = {data.get(f'{base}-c')}", ln=2)
-                pdf.cell(0, 4, f"D normality of Na2S2O3 solution = {data.get(f'{base}-d')}", ln=2)
-                pdf.cell(0, 4, f"Volume of Sample = {data.get(f'{base}-vs')}", ln=2)
+            # ---------- VALUES ----------
+            pdf.cell(0, 4, f"A mL iodine solutions = {data.get(f'{base}-a')}", ln=2)
+            pdf.cell(0, 4, f"B normality iodine solution = {data.get(f'{base}-b')}", ln=2)
+            pdf.cell(0, 4, f"C mL Na2S2O3 solution = {data.get(f'{base}-c')}", ln=2)
+            pdf.cell(0, 4, f"D normality of Na2S2O3 solution = {data.get(f'{base}-d')}", ln=2)
+            pdf.cell(0, 4, f"Volume of Sample = {data.get(f'{base}-vs')}", ln=2)
 
-                # ---------- FORMULA ----------
-                formula_text = (
-                    f"({data.get(f'{base}-final-a')} X {data.get(f'{base}-final-b')}) - "
-                    f"({data.get(f'{base}-final-c')} X {data.get(f'{base}-final-d')}) X 16000"
-                )
+            # ---------- FORMULA ----------
+            formula_text = (
+                f"({data.get(f'{base}-final-a')} X {data.get(f'{base}-final-b')}) - "
+                f"({data.get(f'{base}-final-c')} X {data.get(f'{base}-final-d')}) X 16000"
+            )
 
-                result_text = (
-                    f"{data.get(f'{base}_final_ans')} {data.get(f'{base}_param')}"
-                )
+            result_text = (
+                f"{data.get(f'{base}_final_ans')} {data.get(f'{base}_param')}"
+            )
 
-                add_formula_block(
-                    None,
-                    None,
-                    formula_text,
-                    result_text,
-                    data.get(f"{base}-divi")
-                )
+            add_formula_block(
+                None,
+                None,
+                formula_text,
+                result_text,
+                data.get(f"{base}-divi")
+            )
 
                     
             
-            if data.get('bod_1_ans_inlet'):
-                pdf.ln(5)
-                pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0,8,f"BOD Calculations",ln=True)
-                pdf.cell(0,6,f"{data.get('bod_head_1_inlet')}",ln=True)
-                pdf.set_font("Calibri", '', 10)
-                pdf.ln(3)
-                pdf.cell(0,4,f"{data.get('bod_1_inlet')} X {data.get('bod_1_df_inlet')} = {data.get('bod_1_ans_inlet')} {data.get('bod_1_param_inlet')}",ln=True)
-            if data.get('bod_ans_inlet'):
-                pdf.ln(5)
-                pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0,4,f"{data.get('bod_head_2_inlet')}",ln=True)
-                pdf.set_font("Calibri", '', 10)
-                add_formula_block(
-                    None,
-                    None,
-                    data.get('bod_sv_inlet'),
-                    data.get('bod_1_p_inlet'),
-                    data.get('bod_tv_inlet'),
+        if data.get('bod_1_ans_inlet'):
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0,8,f"BOD Calculations",ln=True)
+            pdf.cell(0,6,f"{data.get('bod_head_1_inlet')}",ln=True)
+            pdf.set_font("Calibri", '', 10)
+            pdf.ln(3)
+            pdf.cell(0,4,f"{data.get('bod_1_inlet')} X {data.get('bod_1_df_inlet')} = {data.get('bod_1_ans_inlet')} {data.get('bod_1_param_inlet')}",ln=True)
+        if data.get('bod_ans_inlet'):
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0,4,f"{data.get('bod_head_2_inlet')}",ln=True)
+            pdf.set_font("Calibri", '', 10)
+            add_formula_block(
+                None,
+                None,
+                data.get('bod_sv_inlet'),
+                data.get('bod_1_p_inlet'),
+                data.get('bod_tv_inlet'),
                     
                     
-                )
+            )
                 
-                add_formula_block(
-                    None,
-                    None,
-                    f"({data.get('bod_initial_inlet')} - {data.get('bod_final_inlet')}) - "
-                    f"{{({data.get('bod_seed_1_inlet')} - {data.get('bod_seed_2_inlet')}) X {data.get('bod_seed_vol_inlet')}}}",
-                    f"{data.get('bod_ans_inlet')} {data.get('bod_param_inlet')}",
-                    data.get('bod_divi_inlet')
-                )
+            add_formula_block(
+                None,
+                None,
+                f"({data.get('bod_initial_inlet')} - {data.get('bod_final_inlet')}) - " +
+                _bod_seed_term(data, '_inlet'),
+                f"{data.get('bod_ans_inlet')} {data.get('bod_param_inlet')}",
+                data.get('bod_divi_inlet')
+            )
+            _rds_note(pdf, data.get('bod_check_inlet'))
                 
                 
-            if data.get('bod_1_ans_outlet'):
-                pdf.ln(5)
-                pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0,4,f"BOD Calculations (Outlet)",ln=True)
-                pdf.cell(0,4,f"{data.get('bod_head_1_outlet')}",ln=True)
-                pdf.set_font("Calibri", '', 10)
-                pdf.ln(3)
-                pdf.cell(0,4,f"{data.get('bod_1_outlet')} X {data.get('bod_1_df_outlet')} = {data.get('bod_1_ans_outlet')} {data.get('bod_1_param_outlet')}",ln=True)
-            if data.get('bod_ans_outlet'):
-                pdf.ln(5)
-                pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0,4,f"{data.get('bod_head_2_inlet')}",ln=True)
-                pdf.set_font("Calibri", '', 10)
-                add_formula_block(
-                    None,
-                    None,
-                    data.get('bod_sv_outlet'),
-                    data.get('bod_1_p_outlet'),
-                    data.get('bod_tv_outlet'),
+        if data.get('bod_1_ans_outlet'):
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0,4,f"BOD Calculations (Outlet)",ln=True)
+            pdf.cell(0,4,f"{data.get('bod_head_1_outlet')}",ln=True)
+            pdf.set_font("Calibri", '', 10)
+            pdf.ln(3)
+            pdf.cell(0,4,f"{data.get('bod_1_outlet')} X {data.get('bod_1_df_outlet')} = {data.get('bod_1_ans_outlet')} {data.get('bod_1_param_outlet')}",ln=True)
+        if data.get('bod_ans_outlet'):
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0,4,f"{data.get('bod_head_2_outlet')}",ln=True)
+            pdf.set_font("Calibri", '', 10)
+            add_formula_block(
+                None,
+                None,
+                data.get('bod_sv_outlet'),
+                data.get('bod_1_p_outlet'),
+                data.get('bod_tv_outlet'),
                     
                     
-                )
+            )
                 
-                add_formula_block(
-                    None,
-                    None,
-                    f"({data.get('bod_initial_outlet')} - {data.get('bod_final_outlet')}) - "
-                    f"{{({data.get('bod_seed_1_outlet')} - {data.get('bod_seed_2_outlet')}) X {data.get('bod_seed_vol_outlet')}}}",
-                    f"{data.get('bod_ans_outlet')} {data.get('bod_param_outlet')}",
-                    data.get('bod_divi_outlet')
-                )
+            add_formula_block(
+                None,
+                None,
+                f"({data.get('bod_initial_outlet')} - {data.get('bod_final_outlet')}) - " +
+                _bod_seed_term(data, '_outlet'),
+                f"{data.get('bod_ans_outlet')} {data.get('bod_param_outlet')}",
+                data.get('bod_divi_outlet')
+            )
+            _rds_note(pdf, data.get('bod_check_outlet'))
 
             
-            for key in sorted(data.keys()):
-                # match keys like: biological_oxygen_demandbod5_crm_4_1_final_ans
-                match = re.match(r'(biological_oxygen_demandbod5_crm_\d+_\d+)_final_ans$', key)
-                if not match:
-                    continue
+        for key in sorted(data.keys()):
+            # match keys like: biological_oxygen_demandbod5_crm_4_1_final_ans
+            match = re.match(r'(biological_oxygen_demandbod5_crm_\d+_\d+)_final_ans$', key)
+            if not match:
+                continue
 
-                base = match.group(1)
+            base = match.group(1)
 
-                if not data.get(f"{base}_final_ans"):
-                    continue
+            if not data.get(f"{base}_final_ans"):
+                continue
 
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 10)
+            pdf.cell(0, 4, data.get(f"{base}_head"), ln=True)
+
+            # ---------------- HACH PART ----------------
+            if data.get(f'{base}_hach_ans'):
                 pdf.ln(5)
                 pdf.set_font("Calibri", 'B', 10)
-                pdf.cell(0, 4, data.get(f"{base}_head"), ln=True)
-
-                # ---------------- HACH PART ----------------
-                if data.get(f'{base}_hach_ans'):
-                    pdf.ln(5)
-                    pdf.set_font("Calibri", 'B', 10)
-                    pdf.cell(0, 4, f"{data.get(f'{base}_hach_label')}", ln=True)
-                    pdf.set_font("Calibri", '', 10)
-                    pdf.ln(3)
+                pdf.cell(0, 4, f"{data.get(f'{base}_hach_label')}", ln=True)
+                pdf.set_font("Calibri", '', 10)
+                pdf.ln(3)
                     
-                    pdf.cell(
-                        0, 4,
-                        f"{data.get(f'{base}_hach_r')} X {data.get(f'{base}_hach_df')} = "
-                        f"{data.get(f'{base}_hach_ans')} {data.get(f'{base}_hach_unit')}",
-                        ln=True
-                    )
+                pdf.cell(
+                    0, 4,
+                    f"{data.get(f'{base}_hach_r')} X {data.get(f'{base}_hach_df')} = "
+                    f"{data.get(f'{base}_hach_ans')} {data.get(f'{base}_hach_unit')}",
+                    ln=True
+                )
 
-                # ---------------- BOD5 PART ----------------
-                if data.get(f"{base}_final_ans"):
-                    pdf.ln(5)
-                    pdf.set_font("Calibri", 'B', 10)
-                    pdf.cell(0, 4, f"{data.get(f'{base}_bod5_label')}", ln=True)
-                    pdf.set_font("Calibri", '', 10)
+            # ---------------- BOD5 PART ----------------
+            if data.get(f"{base}_final_ans"):
+                pdf.ln(5)
+                pdf.set_font("Calibri", 'B', 10)
+                pdf.cell(0, 4, f"{data.get(f'{base}_bod5_label')}", ln=True)
+                pdf.set_font("Calibri", '', 10)
 
-                    add_formula_block(
-                        None,
-                        None,
-                        data.get(f"{base}_sv"),
-                        data.get(f"{base}_p"),
-                        data.get(f"{base}_tv"),
-                    )
+                add_formula_block(
+                    None,
+                    None,
+                    data.get(f"{base}_sv"),
+                    data.get(f"{base}_p"),
+                    data.get(f"{base}_tv"),
+                )
 
-                    add_formula_block(
-                        None,
-                        None,
-                        f"({data.get(f'{base}_ido')} - {data.get(f'{base}_fdo')}) - "
-                        f"{{({data.get(f'{base}_sido')} - {data.get(f'{base}_sfdo')}) X "
-                        f"{data.get(f'{base}_seed_vol')}}}",
-                        f"{data.get(f'{base}_final_ans')} {data.get(f'{base}_final_unit')}",
-                        data.get(f"{base}_divi")
-                    )
+                add_formula_block(
+                    None,
+                    None,
+                    f"({data.get(f'{base}_ido')} - {data.get(f'{base}_fdo')}) - "
+                    f"{{({data.get(f'{base}_sido')} - {data.get(f'{base}_sfdo')}) X "
+                    f"{data.get(f'{base}_seed_vol')}}}",
+                    f"{data.get(f'{base}_final_ans')} {data.get(f'{base}_final_unit')}",
+                    data.get(f"{base}_divi")
+                )
 
                 
-            if data.get('toxic_ans_inlet'):
-                check_page_break(20)
-                pdf.ln(5)
-                pdf.set_font("Calibri", 'B', 11)
-                pdf.cell(0,4,"Toxic Metals Inlet Calculations",ln=True)
-                pdf.set_font("Calibri", '', 10)
-                pdf.ln(3)
-                pdf.cell(0,4,f"{data.get('toxic_1_inlet')} = {data.get('toxic_1_1_inlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_2_inlet')} = {data.get('toxic_2_1_inlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_3_inlet')} = {data.get('toxic_3_1_inlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_4_inlet')} = {data.get('toxic_4_1_inlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_5_inlet')} = {data.get('toxic_5_1_inlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_6_inlet')} = {data.get('toxic_6_1_inlet')}",ln=2)
-                check_page_break(20)
-                pdf.cell(0,4,f"{data.get('toxic_7_inlet')} = {data.get('toxic_7_1_inlet')}",ln=2)
-                check_page_break(20)
-                pdf.cell(0,4,f"{data.get('toxic_8_inlet')} = {data.get('toxic_8_1_inlet')}",ln=2)
-                check_page_break(20)
-                pdf.cell(0,4,f"{data.get('toxic_9_inlet')} = {data.get('toxic_9_1_inlet')}",ln=2)
-                check_page_break(20)
-                pdf.cell(0,4,f"{data.get('toxic_10_inlet')} = {data.get('toxic_10_1_inlet')}",ln=2)
-                check_page_break(20)
-                pdf.cell(0,4,f"{data.get('toxic_11_inlet')} = {data.get('toxic_11_1_inlet')}",ln=2)
-                check_page_break(20)
-                pdf.ln(3)
-                add_formula_block(
-                        None,
-                        None,
-                        f"{data.get('toxic_r1_inlet')} + {data.get('toxic_r2_inlet')} + {data.get('toxic_r3_inlet')} + {data.get('toxic_r4_inlet')} + {data.get('toxic_r5_inlet')} + {data.get('toxic_r6_inlet')} + {data.get('toxic_r7_inlet')} + {data.get('toxic_r8_inlet')} + {data.get('toxic_r9_inlet')} + {data.get('toxic_r10_inlet')} + {data.get('toxic_r11_inlet')}",
-                        f"{data.get('toxic_ans_inlet')} {data.get('toxic_param_inlet')}",
-                        data.get('toxic_divi_inlet')
-                    )
+        if data.get('toxic_ans_inlet'):
+            check_page_break(20)
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 11)
+            pdf.cell(0,4,"Toxic Metals Inlet Calculations",ln=True)
+            pdf.set_font("Calibri", '', 10)
+            pdf.ln(3)
+            pdf.cell(0,4,f"{data.get('toxic_1_inlet')} = {data.get('toxic_1_1_inlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_2_inlet')} = {data.get('toxic_2_1_inlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_3_inlet')} = {data.get('toxic_3_1_inlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_4_inlet')} = {data.get('toxic_4_1_inlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_5_inlet')} = {data.get('toxic_5_1_inlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_6_inlet')} = {data.get('toxic_6_1_inlet')}",ln=2)
+            check_page_break(20)
+            pdf.cell(0,4,f"{data.get('toxic_7_inlet')} = {data.get('toxic_7_1_inlet')}",ln=2)
+            check_page_break(20)
+            pdf.cell(0,4,f"{data.get('toxic_8_inlet')} = {data.get('toxic_8_1_inlet')}",ln=2)
+            check_page_break(20)
+            pdf.cell(0,4,f"{data.get('toxic_9_inlet')} = {data.get('toxic_9_1_inlet')}",ln=2)
+            check_page_break(20)
+            pdf.cell(0,4,f"{data.get('toxic_10_inlet')} = {data.get('toxic_10_1_inlet')}",ln=2)
+            check_page_break(20)
+            pdf.cell(0,4,f"{data.get('toxic_11_inlet')} = {data.get('toxic_11_1_inlet')}",ln=2)
+            check_page_break(20)
+            pdf.ln(3)
+            add_formula_block(
+                    None,
+                    None,
+                    f"{data.get('toxic_r1_inlet')} + {data.get('toxic_r2_inlet')} + {data.get('toxic_r3_inlet')} + {data.get('toxic_r4_inlet')} + {data.get('toxic_r5_inlet')} + {data.get('toxic_r6_inlet')} + {data.get('toxic_r7_inlet')} + {data.get('toxic_r8_inlet')} + {data.get('toxic_r9_inlet')} + {data.get('toxic_r10_inlet')} + {data.get('toxic_r11_inlet')}",
+                    f"{data.get('toxic_ans_inlet')} {data.get('toxic_param_inlet')}",
+                    data.get('toxic_divi_inlet')
+                )
             
             
-            if data.get('toxic_ans_outlet'):
-                check_page_break(20)
-                pdf.ln(5)
-                pdf.set_font("Calibri", 'B', 11)
-                pdf.cell(0,4,"Toxic Metals Outlet Calculations",ln=True)
-                pdf.set_font("Calibri", '', 10)
-                pdf.ln(3)
-                pdf.cell(0,4,f"{data.get('toxic_1_outlet')} = {data.get('toxic_1_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_2_outlet')} = {data.get('toxic_2_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_3_outlet')} = {data.get('toxic_3_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_4_outlet')} = {data.get('toxic_4_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_5_outlet')} = {data.get('toxic_5_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_6_outlet')} = {data.get('toxic_6_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_7_outlet')} = {data.get('toxic_7_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_8_outlet')} = {data.get('toxic_8_1_outlet')}",ln=2)
-                check_page_break(20)
-                pdf.cell(0,4,f"{data.get('toxic_9_outlet')} = {data.get('toxic_9_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_10_outlet')} = {data.get('toxic_10_1_outlet')}",ln=2)
-                pdf.cell(0,4,f"{data.get('toxic_11_outlet')} = {data.get('toxic_11_1_outlet')}",ln=2)
-                pdf.ln(3)
-                add_formula_block(
-                        None,
-                        None,
-                        f"{data.get('toxic_r1_outlet')} + {data.get('toxic_r2_outlet')} + {data.get('toxic_r3_outlet')} + {data.get('toxic_r4_outlet')} + {data.get('toxic_r5_outlet')} + {data.get('toxic_r6_outlet')} + {data.get('toxic_r7_outlet')} + {data.get('toxic_r8_outlet')} + {data.get('toxic_r9_outlet')} + {data.get('toxic_r10_outlet')} + {data.get('toxic_r11_outlet')}",
-                        f"{data.get('toxic_ans_outlet')} {data.get('toxic_param_outlet')}",
-                        data.get('toxic_divi_outlet')
-                    )
+        if data.get('toxic_ans_outlet'):
+            check_page_break(20)
+            pdf.ln(5)
+            pdf.set_font("Calibri", 'B', 11)
+            pdf.cell(0,4,"Toxic Metals Outlet Calculations",ln=True)
+            pdf.set_font("Calibri", '', 10)
+            pdf.ln(3)
+            pdf.cell(0,4,f"{data.get('toxic_1_outlet')} = {data.get('toxic_1_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_2_outlet')} = {data.get('toxic_2_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_3_outlet')} = {data.get('toxic_3_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_4_outlet')} = {data.get('toxic_4_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_5_outlet')} = {data.get('toxic_5_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_6_outlet')} = {data.get('toxic_6_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_7_outlet')} = {data.get('toxic_7_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_8_outlet')} = {data.get('toxic_8_1_outlet')}",ln=2)
+            check_page_break(20)
+            pdf.cell(0,4,f"{data.get('toxic_9_outlet')} = {data.get('toxic_9_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_10_outlet')} = {data.get('toxic_10_1_outlet')}",ln=2)
+            pdf.cell(0,4,f"{data.get('toxic_11_outlet')} = {data.get('toxic_11_1_outlet')}",ln=2)
+            pdf.ln(3)
+            add_formula_block(
+                    None,
+                    None,
+                    f"{data.get('toxic_r1_outlet')} + {data.get('toxic_r2_outlet')} + {data.get('toxic_r3_outlet')} + {data.get('toxic_r4_outlet')} + {data.get('toxic_r5_outlet')} + {data.get('toxic_r6_outlet')} + {data.get('toxic_r7_outlet')} + {data.get('toxic_r8_outlet')} + {data.get('toxic_r9_outlet')} + {data.get('toxic_r10_outlet')} + {data.get('toxic_r11_outlet')}",
+                    f"{data.get('toxic_ans_outlet')} {data.get('toxic_param_outlet')}",
+                    data.get('toxic_divi_outlet')
+                )
                 
         
         
@@ -5150,7 +5218,7 @@ def generate_ww_qc_pdf_response(report, pk):
             check_page_break(row_height)
             pdf.set_x(12)
             pdf.cell(sum(col_widths), row_height, "No data available", 1, 1, 'C')
-            return pdf
+            pass   # an RDS without dated rows still prints its calculations (was a server error, fixed 27-10-2026)
 
         # 🔢 Sequential S.no
         s_no = 1
@@ -5443,7 +5511,7 @@ def generate_ww_qc_pdf_response(report, pk):
         def add_average_formula_section(check_key, section_title, head_key, ans_key, param_key, 
                                 div_key=None, start_x=30):
             """Add formula section with average calculation"""
-            if data.get(check_key):
+            if data.get(check_key) or data.get(ans_key + '_1'):
                 check_page_break(30)
                 pdf.set_font("Calibri", 'B', 11)
                 pdf.cell(0, 8, f"{section_title}", 0, 1, 'L')
@@ -5481,7 +5549,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
 
                     # Draw divisor centered below line
-                    divisor_text = data.get(div_key) if div_key else None
+                    divisor_text = str((data.get(div_key + '1') if check_key == 'for_cod1' and data.get(div_key + '1') else data.get(div_key)) or '') if div_key else ''   # COD WS has its own divisor
                     divisor_width = pdf.get_string_width(divisor_text)
                     center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
                     pdf.set_x(center_divisor_x)
@@ -5505,7 +5573,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 # Build weighted formula like: (a × a_df) + (b × b_df) + (c × c_df)
                 formula_parts = []
                 for i in range(1, 4):
-                    val_key = f"{check_key[:-1]}1_{1}"
+                    val_key = f"{check_key[:-1]}1_{i}"     # replicate i (was always replicate 1; fixed 27-10-2026)
                     df_key = f"{check_key[:-1]}1_{i}_df"
                     if data.get(val_key) and data.get(df_key):
                         formula_parts.append(f"({data[val_key]} X {data[df_key]})")
@@ -5532,6 +5600,9 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(divisor_width, 6, divisor_text, align="C")
 
                 pdf.ln(4)
+                if check_key == 'for_cod1':
+                    _rds_note(pdf, data.get('cod_ws_check'))
+                    _rds_note(pdf, data.get('cod_check'))
 
         # Start calculations section
         pdf.add_page()
@@ -8589,11 +8660,12 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 None,
-                f"({data.get('bod_initial')} - {data.get('bod_final')}) - "
-                f"{{({data.get('bod_seed_1')} - {data.get('bod_seed_2')}) X {data.get('bod_seed_vol')}}}",
+                f"({data.get('bod_initial')} - {data.get('bod_final')}) - " +
+                _bod_seed_term(data, ''),
                 f"{data.get('bod_ans')} {data.get('bod_param')}",
                 data.get('bod_divi')
             )
+            _rds_note(pdf, data.get('bod_check'))
 
         if data.get('toxic_ans'):
             check_page_break(20)
@@ -8642,8 +8714,13 @@ def generate_ww_qc_pdf_response(report, pk):
 
 
 def ww_rds_list(request):
+    """RDS WW records of the user's laboratory (both laboratories for a user without one; ?lab= narrows it)."""
+    lab = _rds_ww_lab(request) or (request.GET.get('lab') or '').strip().title()
     dw_list = Ww_rds.objects.all().order_by('-created_at')
-    return render(request,'ww_rds_list.html',context={'list':dw_list})
+    if lab in ('Karachi', 'Lahore'):
+        ids = WasteWaterForm2.objects.filter(city_location__iexact=lab).values_list('sample_id', flat=True)
+        dw_list = dw_list.filter(sample_id__in=list(ids))
+    return render(request,'ww_rds_list.html',context={'list':dw_list, 'lab': lab, 'own_lab': _rds_ww_lab(request)})
 
 
 @csrf_exempt
@@ -8678,10 +8755,8 @@ def create_ww_qc_manual(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     
-    sample_ids = Sample_registration.objects.all()
-    ww_ids = WasteWaterForm2.objects.all()
-    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
-    ww = serializers.serialize('json',ww_ids,fields=('sample_id',))
+    sample = _rds_ww_samples(request)
+    ww = sample
     signs_list = []
     for sign in signs:
         signs_list.append({
