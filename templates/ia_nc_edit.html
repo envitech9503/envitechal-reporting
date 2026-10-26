@@ -2,10 +2,13 @@
 {% block cc_title %}NC&CA {{ n.nc_no }} - edit{% endblock %}
 {% block crumb %} &rsaquo; <a href="{% url 'ia_ncs' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">NC &amp; CA log</a> &rsaquo; <span>{% if n.pk %}{{ n.nc_no }}{% else %}New{% endif %}</span>{% endblock %}
 {% block cc_body %}
-<form method="post" data-autosave="ia_nc_{{ n.pk|default:'new' }}">{% csrf_token %}
+<form method="post" data-autosave="ia_nc_{{ n.pk|default:'new' }}{% if record %}_rec{% endif %}">{% csrf_token %}{% if record %}<input type="hidden" name="record" value="1">{% endif %}
 <div class="card">
   <div class="hd"><div class="title"><i class="fa-solid fa-triangle-exclamation"></i> Non-conformance &amp; Corrective Action Form - {{ loc }} <span class="muted">{{ ctrl.doc_no }}</span></div>
     <div style="display:flex;gap:8px"><a class="btn" href="{% if n.pk %}{% url 'ia_nc_detail' n.pk %}{% else %}{% url 'ia_ncs' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div></div>
+  {% if record %}<div style="margin:0 18px 4px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#78350f;line-height:1.5">
+    <b><i class="fa-solid fa-file-pen"></i> Completing the form from the paper record.</b> Type in what the signed paper NC&amp;CA form says. The status{% if n.status == 'closed' %} (closed){% endif %} and the paper signatures stay as they are; no e-signature is applied. Every field you change is listed with your name in the record trail on the NC&amp;CA page and in the history.
+    {% if n.form_gaps %}<br>Not yet in the system: <b>{{ n.form_gaps|join:", " }}</b>.{% endif %}</div>{% endif %}
   <div class="form-sheet">
     {% if sec.head %}
     <div class="sec">Non-conformance (raised by the MR / internal auditor)</div>
@@ -73,6 +76,10 @@
       </div>
       <label style="margin-top:8px">Description of follow-up / 2nd follow-up <textarea name="followup_desc" style="min-height:64px">{{ n.followup_desc }}</textarea></label>
       <label style="margin-top:8px">Remarks <input type="text" name="remarks" value="{{ n.remarks }}" placeholder="e.g. NC-01 is closed."></label>
+      {% if record %}<div class="grid2" style="border:none;padding:8px 0 0">
+        <label>NC&amp;CA closed by (as on the paper form) <input type="text" name="closed_by_name" value="{{ n.closed_by_name }}" placeholder="e.g. Hina Abidi Manager Lab"></label>
+        <label>Closing date (log) <input type="text" name="closing_date" value="{{ n.closing_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label></div>
+        {% if n.status != 'closed' %}<label class="chk" style="margin-top:8px"><input type="checkbox" name="close_record" value="1"> The paper form shows this NC&amp;CA as closed - mark it closed as per the record (status is now {{ n.get_status_display }})</label>{% endif %}{% endif %}
     </div>
     {% endif %}
   </div>

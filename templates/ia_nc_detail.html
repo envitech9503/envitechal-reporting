@@ -7,21 +7,27 @@
     <div class="title"><i class="fa-solid fa-triangle-exclamation"></i> NC&amp;CA {{ n.nc_no }} - {{ loc }} laboratory
       {% if n.status == 'closed' %}<span class="pill ok">Closed</span>{% elif n.status == 'responded' %}<span class="pill info">Department responded - MR follow-up</span>{% elif n.status == 'open' %}<span class="pill warn">Raised - awaiting department response</span>{% else %}<span class="pill none">Draft</span>{% endif %}
       {% if n.log_only %}<span class="pill none" title="Row of the NC&CA log without a form in the record">log row</span>{% elif n.inducted %}<span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}
+      {% if n.verified %}<span class="pill ok" title="Verified against the signed paper form">&#10003; verified against paper form - {{ n.verified.by }}, {{ n.verified.at }}</span>{% endif %}
       {% if overdue %}<span class="pill bad">overdue since {{ due|date:"d-m-Y" }}</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if sec.any and not n.locked %}<a class="btn" href="{% url 'ia_nc_edit' n.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
-      {% if can_rca %}<a class="btn" href="{% url 'ia_rca_edit' n.id %}"><i class="fa-solid fa-diagram-project"></i> {% if rca %}Edit RCA{% else %}Root cause analysis{% endif %}</a>{% endif %}
+      {% if can_record %}<a class="btn{% if gaps %} btn-p{% endif %}" href="{% url 'ia_nc_edit' n.id %}?record=1" title="Type in what the signed paper NC&amp;CA form says"><i class="fa-solid fa-file-pen"></i> Complete from paper record</a>{% endif %}
+      {% if can_rca and not rca %}<a class="btn" href="{% url 'ia_rca_edit' n.id %}"><i class="fa-solid fa-diagram-project"></i> Root cause analysis</a>{% endif %}{% if can_add_rca %}<a class="btn" href="{% url 'ia_rca_edit' n.id %}?new=1" title="One RCA per root cause (a, b, c ...)"><i class="fa-solid fa-plus"></i> Add another RCA</a>{% endif %}
       {% if n.audit %}<a class="btn" href="{% url 'ia_audit_detail' n.audit.id %}"><i class="fa-solid fa-file-lines"></i> Audit {{ n.audit.audit_no }}</a>{% endif %}
       <a class="btn" href="{% url 'ia_nc_pdf' n.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> NC&amp;CA form PDF</a>
-      {% if rca %}<a class="btn" href="{% url 'ia_rca_pdf' n.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> RCA PDF</a>{% endif %}
+      {% if rca %}<a class="btn" href="{% url 'ia_rca_pdf' n.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> RCA PDF{% if rcas|length > 1 %} ({{ rcas|length }}){% endif %}</a>{% endif %}
     </div>
   </div>
   <div class="steps">
     <div class="step {% if n.status != 'draft' %}done{% else %}now{% endif %}"><i></i>Raised &amp; evaluated by MR{% if n.mr_signed_at %}<br><small>{{ n.mr_signed_by.get_full_name|default:n.mr_signed_by.username }} - {{ n.mr_signed_at|date:"d-m-Y" }}</small>{% elif n.inducted and n.raised_by %}<br><small>{{ n.raised_by }} {{ n.date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
     <div class="step {% if n.status == 'responded' or n.status == 'closed' %}done{% elif n.status == 'open' %}now{% endif %}"><i></i>Root cause &amp; corrective action (HOD){% if n.hod_signed_at %}<br><small>{{ n.hod_signed_by.get_full_name|default:n.hod_signed_by.username }} - {{ n.hod_signed_at|date:"d-m-Y" }}</small>{% elif n.inducted and n.completion_date %}<br><small>completed {{ n.completion_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
-    <div class="step {% if rca and rca.status == 'reviewed' %}done{% elif rca %}now{% endif %}"><i></i>Root cause analysis{% if rca %}<br><small>{{ rca.get_status_display }}</small>{% else %}<br><small>not prepared</small>{% endif %}</div>
+    <div class="step {% if rca and rca.status == 'reviewed' %}done{% elif rca %}now{% endif %}"><i></i>Root cause analysis{% if rcas|length > 1 %} ({{ rcas|length }}){% endif %}{% if rca %}<br><small>{{ rca.get_status_display }}</small>{% else %}<br><small>not prepared</small>{% endif %}</div>
     <div class="step {% if n.status == 'closed' %}done{% elif n.status == 'responded' %}now{% endif %}"><i></i>Followed up &amp; closed by MR{% if n.closed_at %}<br><small>{{ n.closed_by.get_full_name|default:n.closed_by.username }} - {{ n.closing_date|date:"d-m-Y" }}</small>{% elif n.inducted and n.closing_date %}<br><small>{{ n.closed_by_name }} {{ n.closing_date|date:"d-m-Y" }} (record)</small>{% endif %}</div>
   </div>
+  {% if gaps %}<div style="margin:10px 18px 0;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#78350f;line-height:1.5">
+    <i class="fa-solid fa-circle-info"></i> <b>Parts of this form are not in the system:</b> {{ gaps|join:", " }}.
+    {% if n.log_only %}Only the row of the NC&amp;CA log (ETAL-QMS-710-FF-02) was in the record supplied for induction; the signed NC&amp;CA form itself was not.{% elif n.status == 'draft' %}This NC&amp;CA was set up from the internal audit report (finding text only); the signed NC&amp;CA form was not in the record supplied for induction.{% else %}These sections were blank or missing in the record supplied for induction.{% endif %}
+    {% if can_record %}Use <b>Complete from paper record</b> to type in the signed paper form; the change is listed in the record trail.{% else %}The {{ loc }} Lab Manager / MR can complete it from the paper form.{% endif %}</div>{% endif %}
   <div class="form-sheet" style="padding-top:4px">
     <div class="sec">Non-conformance</div>
     <div class="grid2">
@@ -49,19 +55,21 @@
       <label>NC&amp;CA closed by<span>{% if n.closed_at %}{{ n.closed_by.get_full_name|default:n.closed_by.username }} - {{ n.closing_date|date:"d-m-Y" }}{% elif n.closed_by_name %}{{ n.closed_by_name }} {{ n.closing_date|date:"d-m-Y" }}{% else %}-{% endif %}</span></label><label>Remarks<span>{{ n.remarks|default:"-" }}</span></label>
     </div>
     {% if n.legacy.notes %}<div class="msg warning" style="margin-top:10px;border:1px solid #fde68a;border-radius:8px"><b>Record notes:</b>{% for x in n.legacy.notes %}<br>{{ x }}{% endfor %}</div>{% endif %}
+    {% if n.legacy.completed %}<div class="msg info" style="margin-top:10px;border:1px solid #bfdbfe;border-radius:8px"><b>Record trail - completed from the paper record:</b>{% for x in n.legacy.completed %}<br>{{ x.at }} - {{ x.by }}: {{ x.fields|join:", " }}{% if x.from_status != x.to_status %} (status {{ x.from_status }} &rarr; {{ x.to_status }}){% endif %}{% endfor %}</div>{% endif %}
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if can_raise %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="raise"><button class="btn btn-p" type="submit" onclick="return confirm('Raise NC&CA {{ n.nc_no|escapejs }} and sign as MR / designee? The concerned department is then asked for the root cause and corrective action.')"><i class="fa-solid fa-signature"></i> Raise &amp; sign as MR</button></form>{% endif %}
     {% if can_respond %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="respond"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the department response (root cause and corrective action) as concerned Head of Department?')"><i class="fa-solid fa-signature"></i> Sign department response</button></form>{% endif %}
     {% if can_close %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="close"><button class="btn btn-p" type="submit" onclick="return confirm('Record the follow-up and close NC&CA {{ n.nc_no|escapejs }} as MR? (Satisfactory = Yes closes; No records the next follow-up.)')"><i class="fa-solid fa-lock"></i> Follow-up &amp; close</button></form>{% endif %}
+    {% if can_verify %}<form method="post" action="{% url 'ia_nc_action' n.id %}">{% csrf_token %}<input type="hidden" name="action" value="verify_record"><button class="btn btn-p" type="submit" onclick="return confirm('Confirm that NC&CA {{ n.nc_no|escapejs }} in the software matches the signed paper form{% if gaps %} (parts still not in the system: {{ gaps|join:", "|escapejs }}){% endif %}, and sign as verified?')"><i class="fa-solid fa-file-signature"></i> Verify against paper form &amp; sign</button></form>{% endif %}
     {% if can_reopen %}<form method="post" action="{% url 'ia_nc_action' n.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Reopen</button></form>{% endif %}
     {% if can_delete %}<form method="post" action="{% url 'ia_nc_delete' n.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<label>Reason for deletion <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this NC&CA record (and its RCA)? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
   </div>
 </div>
 
-{% if rca %}
+{% for rca in rcas %}
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis {{ rca.rca_no }}
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis {{ rca.rca_no }}{% if rca.part %} <span class="pill none">root cause {{ rca.part }}</span>{% endif %}
       {% if rca.status == 'reviewed' %}<span class="pill ok">Reviewed by CEO</span>{% elif rca.status == 'performed' %}<span class="pill info">Performed - awaiting CEO review</span>{% else %}<span class="pill none">Draft</span>{% endif %}</div>
     <div class="muted">Clause {{ rca.clause }} &middot; deputed: {{ rca.deputed }} &middot; {{ rca.date|date:"d-m-Y" }}</div></div>
   <div class="form-sheet" style="padding-top:4px">
@@ -80,8 +88,9 @@
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if rca.status == 'draft' and can_manage %}<form method="post" action="{% url 'ia_rca_action' rca.id %}">{% csrf_token %}<input type="hidden" name="action" value="perform"><button class="btn btn-p" type="submit" onclick="return confirm('Sign the root cause analysis as performer?')"><i class="fa-solid fa-signature"></i> Sign as performer</button></form>{% endif %}
     {% if rca.status == 'performed' and is_ceo %}<form method="post" action="{% url 'ia_rca_action' rca.id %}">{% csrf_token %}<input type="hidden" name="action" value="review"><button class="btn btn-p" type="submit" onclick="return confirm('Review and sign the root cause analysis as CEO?')"><i class="fa-solid fa-stamp"></i> Review as CEO</button></form>{% endif %}
-    {% if can_reopen_rca %}<form method="post" action="{% url 'ia_rca_action' rca.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Reopen RCA</button></form>{% endif %}
+    {% if rca.can_edit %}<a class="btn" href="{% url 'ia_rca_edit' n.id %}?rca={{ rca.id }}"><i class="fa-solid fa-pen"></i> Edit this RCA</a>{% endif %}<a class="btn" href="{% url 'ia_rca_pdf' n.id %}?rca={{ rca.id }}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+    {% if rca.can_reopen %}<form method="post" action="{% url 'ia_rca_action' rca.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:220px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Reopen RCA</button></form>{% endif %}
   </div>
 </div>
-{% endif %}
+{% endfor %}
 {% endblock %}

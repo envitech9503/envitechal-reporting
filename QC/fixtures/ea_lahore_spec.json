@@ -1,0 +1,1080 @@
+{
+ "location": "Lahore",
+ "built": "26-10-2026",
+ "source": "External_Audit_NCs_Record-2025-26.zip (PNAC final assessment 2025, PNAC assessment 2026)",
+ "ncs": [
+  {
+   "nc_no": "NC-01/PNAC-FA/2025",
+   "date": "2025-07-11",
+   "raised_by": "Mr. Nisar Ali Khan (PNAC Lead Auditor)",
+   "details": "There is no evidence that the policies and objectives are acknowledged and implemented across all the levels of the organization.",
+   "root_cause": "Inadequate formal communication, training, and verification mechanisms to ensure understanding and implementation of policies and objectives across all the levels of the organization.",
+   "corrective": "Revise the New Employee Induction Form (ETAL-LAB-602-FF-09) to include a section on policy awareness and acknowledgment.\nOrganize training sessions as per Training Record (ETAL-LAB-602-FF-04) for all existing employees to communicate Envi Tech AL’s Quality Policy, Environmental Policy, and Objectives.",
+   "proposed_date": "2025-07-28",
+   "completion_date": "2025-07-22",
+   "followup_with": "",
+   "followup_date": null,
+   "followup_desc": "",
+   "remarks": "NC-01/PNAC-FA/2025 is closed.",
+   "evaluated_date": "2025-07-14",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": true,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "low",
+   "severity": "low",
+   "impact_past": false,
+   "satisfactory": null,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "8.2.1 (ISO/IEC 17025:2017)",
+   "closed_by_name": "MR",
+   "closing_date": "2025-07-22",
+   "target_date": "2025-07-28",
+   "assigned_to": "MR",
+   "form_no": "NC-01/PNAC-FA/2025",
+   "clause_text": "ISO/IEC 17025:2017-(8.2.1)- shall ensure that the Policies and objectives are acknowledged and implemented at all / levels.",
+   "file": "PNAC Final Audit NCs-2025/NC-01.PNAC-FA.2025/NC-01.PNAC-FA.2025.docx",
+   "notes": [
+    "Final assessment by PNAC, 11-07-2025. The \"Satisfactory\" boxes are not ticked on the form; closed by the MR (remarks: \"NC-01/PNAC-FA/2025 is closed.\"); no follow-up date, so the closing date of the log is taken as the completion date (22-07-2025).",
+    "The ticks of this form and of RCA-01 (.xls) were read from the rendered form."
+   ],
+   "rcas": [
+    {
+     "part": "",
+     "rca_no": "RCA-01/PNAC-FA/2025",
+     "clause": "8.2.1",
+     "deputed": "MR",
+     "date": "2025-07-14",
+     "causes": {
+      "Personnel": [
+       "Training Needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "There is no evidence that the policies and objectives are acknowledged and implemented across all the levels of the organization.",
+     "whys": [
+      "Because staff at various levels lacked a clear understanding of the policies and objectives and were unable to effectively explain them.",
+      "Because there was no formal communication or training plan in place to disseminate the policies and objectives.",
+      "Because management assumed that sharing the document during meetings or placing it on a notice board was sufficient.",
+      "Because there was a lack of emphasis on the requirement for documented evidence of communication.",
+      "",
+      ""
+     ],
+     "conclusion": "Inadequate formal communication, training, and verification mechanisms to ensure organization-wide understanding and implementation of policies and objectives.",
+     "performed_by": "MR",
+     "performed_date": "2025-07-14",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2025-07-15"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-02/PNAC-FA/2025",
+   "date": "2025-07-11",
+   "raised_by": "Dr. Muhammad Tahir Butt (PNAC Technical Auditor)",
+   "details": "The CRM/ Buffers that requires low temperature have been stored in refrigerator place in the lab while it requires to be stored between 15 to 25 C, Lab is using RM as instead of CRMs , Lab has placed purchase order to Lab scientific supplies Lahore and as lab told CRMs will be delivered in next couple of days (NC).",
+   "root_cause": "The buffers were refrigerated to lower temperature before use due to higher temperature of 26.5 °C, While the chemist required them to be at 25 °C prior to analysis. The lab temporarily relied on RMs for verification because of a delay in CRM import.",
+   "corrective": "Immediately transfer all temperature-sensitive buffers and CRMs to a controlled storage area equipped with validated temperature monitoring (15–25 °C).\nExpedite the procurement of CRMs from the supplier and document all follow-ups.",
+   "proposed_date": "2025-08-04",
+   "completion_date": "2025-08-04",
+   "followup_with": "",
+   "followup_date": null,
+   "followup_desc": "",
+   "remarks": "NC-02/PNAC-FA/2025 is closed.",
+   "evaluated_date": "2025-07-14",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "low",
+   "severity": "low",
+   "impact_past": false,
+   "satisfactory": null,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "6.5 (ISO/IEC 17025:2017)",
+   "closed_by_name": "MR",
+   "closing_date": "2025-08-04",
+   "target_date": "2025-08-04",
+   "assigned_to": "MR",
+   "form_no": "NC-02/PNAC-FA/2025",
+   "clause_text": "ISO/IEC 17025:2017-(6.5)- Metrological traceability.",
+   "file": "PNAC Final Audit NCs-2025/NC-02.PNAC-FA.2025/NC-02.PNAC-FA.2025.docx",
+   "notes": [
+    "Final assessment by PNAC, 11-07-2025. The \"Satisfactory\" boxes are not ticked on the form; closed by the MR; no follow-up date, so the closing date of the log is taken as the completion date (04-08-2025).",
+    "The ticks of RCA-02 (.xls) were read from the rendered form."
+   ],
+   "rcas": [
+    {
+     "part": "",
+     "rca_no": "RCA-02/PNAC-FA/2025",
+     "clause": "6.5",
+     "deputed": "MR",
+     "date": "2025-07-14",
+     "causes": {
+      "Material": [
+       "Required material not available",
+       "Storage Conditions"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "The CRM/ Buffers that requires low temperature have been stored in refrigerator place in the lab while it requires to be stored between 15 to 25 C, Lab is using RM as instead of CRMs , Lab has placed purchase order to Lab scientific supplies Lahore and as lab told CRMs will be delivered in next couple of days (NC).",
+     "whys": [
+      "Because pH buffers were observed at a higher temperature of 26.5 °C; Because CRMs were not available at the time of analysis.",
+      "While the chemist required them to be at 25 °C prior to analysis. Because the lab is in the process of procuring CRMs from LSS.",
+      "Because the imported CRMs were not delivered on time.",
+      "Because the lab is temporarily relying on RMs due to delayed CRM import to fulfill the requirement of verification.",
+      "",
+      ""
+     ],
+     "conclusion": "The buffers were refrigerated  to  lower temperature before use due to  higher temperature of 26.5 °C, While the chemist required them to be at 25 °C prior to analysis. The lab temporarily relied on RMs for verification because of a delay in CRM import.",
+     "performed_by": "MR",
+     "performed_date": "2025-07-14",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2025-07-15"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-01/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Jamil Ahmad Ch. (PNAC Lead Auditor)",
+   "details": "It is observed that the Lab has not obtained confidentiality commitment from external calibration service provider (M/s AIMS, Lahore), as required by clause-4.2.4 of the standard ISO/IEC 17025:2017.",
+   "root_cause": "The nonconformity resulted from an administrative oversight during the review of the external calibration provider's documentation, where the laboratory accepted the provider's signed and stamped Declaration of Confidentiality and Impartiality as evidence of confidentiality without verifying that the laboratory's prescribed Confidentiality Undertaking had also been obtained as required by the internal procedure.",
+   "corrective": "Obtained the laboratory's prescribed Confidentiality Undertaking from the external calibration service provider (M/s AIMS, Lahore) to comply with the laboratory's documented procedure and ISO/IEC 17025:2017 Clause 4.2.4.\nThe responsible personnel should be informed/retrained on the revised requirement of ISO/IEC 17025:2017 Clause 4.2.4.",
+   "proposed_date": "2026-08-17",
+   "completion_date": "2026-08-05",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-08-05",
+   "followup_desc": "",
+   "remarks": "NC-01 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "high",
+   "severity": "high",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "4.2 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-05",
+   "target_date": "2026-08-17",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-01/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 4.2",
+   "file": "PNAC Final Audit NCs-2026/NC-01/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-01.docx",
+   "notes": [],
+   "rcas": [
+    {
+     "part": "",
+     "rca_no": "RC01/PNAC/2026",
+     "clause": "4.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Personnel": [
+       "Random Error"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed that the Lab has not obtained confidentiality commitment from external calibration service provider (M/s AIMS, Lahore), as required by clause-4.2.4 of the standard ISO/IEC 17025:2017.",
+     "whys": [
+      "Because the laboratory's prescribed Confidentiality Undertaking was not obtained from the external calibration service provider before the service was arranged.",
+      "Because the signed and stamped Declaration of Confidentiality and Impartiality provided by the service provider was accepted as sufficient evidence of the required confidentiality commitment.",
+      "Because the service provider's document was not specifically verified against the laboratory's prescribed confidentiality undertaking requirement.",
+      "Because the document review process did not clearly require confirmation that the laboratory's prescribed confidentiality undertaking had been obtained from the external service provider.",
+      "Because the requirement for obtaining the laboratory's prescribed confidentiality undertaking was not sufficiently reinforced and understood during the review of external service provider documentation.",
+      ""
+     ],
+     "conclusion": "The nonconformity resulted because of inadequate verification and understanding of the laboratory's specific confidentiality undertaking requirement during the review of external service provider documentation. Although the external calibration service provider had provided a signed and stamped Declaration of Confidentiality and Impartiality, it was accepted without confirming that the laboratory's prescribed Confidentiality Undertaking had also been obtained.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-02/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Jamil Ahmad Ch. (PNAC Lead Auditor)",
+   "details": "It is observed that the Lab has not defined and documented the Lab activities carried out, and which are claimed to conform, with requirements of the standard ISO/IEC 17025:2017 (NC-02a).\nIt is observed that the Lab did not define the responsibilities and authorities of CEO, in the form of JD, as required clause -5.5(C) the standard (NC-02b).\nThe Lab has not addressed the requirement of maintaining the integrity of QMS in its quality management system documents, as required by the standard (NC-02c).",
+   "root_cause": "The laboratory interpreted the \"Range of Laboratory Activities\" as the laboratory's testing scope. Consequently, the document did not include the complete sequence of laboratory activities claimed to conform to ISO/IEC 17025:2017, as expected by the accreditation body.\nThe laboratory interpreted the CEO, being the owner of the organization, as outside the scope of documented Job Descriptions. Consequently, the responsibilities and authorities of the CEO as Top Management within the Quality Management System were not formally documented as required by ISO/IEC 17025:2017 Clause 5.5(c).\nThe laboratory's change management process did not include a mechanism to identify and communicate accreditation-related changes, resulting in the appointment of a new Lab Manager/Management Representative without notifying PNAC.",
+   "corrective": "Prepare and approve a Laboratory Activities Document defining all activities performed under the QMS (e.g., receipt of samples, testing, data review, reporting, handling of complaints, subcontracting, equipment management, internal audits, etc.). Review the document against ISO/IEC 17025:2017 and accreditation requirements to ensure completeness.\nDevelop and approve a Job Description (JD) for the CEO, clearly defining responsibilities and authorities related to the Quality Management System in accordance with ISO/IEC 17025:2017 Clause 5.5(c). Communicate the revised responsibilities to relevant personnel and maintain acknowledgment records.\nRevise the Procedure for Structure to include PNAC as an external interested party requiring notification of changes that may affect the laboratory's accreditation, including changes in key personnel (e.g., Laboratory Manager/Management Representative), legal status, organization, facilities, scope, or other accreditation-related matters. Introduce an External Communication Form within the QMS to ensure that relevant external communications, including notifications related to changes in key management personnel and other accreditation-related matters, are appropriately identified, reviewed, authorized, recorded, and communicated to the concerned external parties.",
+   "proposed_date": "2026-08-20",
+   "completion_date": "2026-08-18",
+   "followup_with": "Lab Manager",
+   "followup_date": null,
+   "followup_desc": "",
+   "remarks": "NC-02 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "medium",
+   "severity": "medium",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "5.4, 5.5, 5.7 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-18",
+   "target_date": "2026-08-20",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-02/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 5.4, 5.5, 5.7",
+   "file": "PNAC Final Audit NCs-2026/NC-02/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-02.docx",
+   "notes": [
+    "The follow-up & close-out date is blank on the form; the closing date of the log is taken as the completion date (18-08-2026).",
+    "RCA (c) shows clause 5.4 on the RCA form; the NC (c) concerns clause 5.7."
+   ],
+   "rcas": [
+    {
+     "part": "a",
+     "rca_no": "RC02(a)/PNAC/2026",
+     "clause": "5.4",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed that the Lab has not defined and documented the Lab activities carried out, and which are claimed to conform, with requirements of the standard ISO/IEC 17025:2017.",
+     "whys": [
+      "Because the \"Range of Laboratory Activities\" document did not include the complete sequence of laboratory activities claimed to conform to ISO/IEC 17025:2017.",
+      "Because the laboratory interpreted the \"Range of Laboratory Activities\" as the laboratory's testing scope rather than considering all applicable activities performed under the QMS.",
+      "Because the requirement for defining the range of laboratory activities was understood primarily in relation to technical testing activities, and the associated supporting and management activities were not fully considered.",
+      "Because there was no clearly defined internal document/process identifying the complete range of activities performed under the laboratory's QMS for inclusion in the documented range.",
+      "Because the process for defining and reviewing the laboratory's activities did not require a comprehensive review against the applicable requirements of ISO/IEC 17025:2017 and accreditation requirements.",
+      ""
+     ],
+     "conclusion": "The laboratory interpreted the \"Range of Laboratory Activities\" primarily as its testing scope, as there was no clearly defined internal process/document to identify and review the complete range of activities performed under the QMS against the applicable requirements of ISO/IEC 17025:2017 and accreditation requirements. Consequently, the documented range did not include the complete sequence of applicable laboratory activities.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "b",
+     "rca_no": "RC02(b)/PNAC/2026",
+     "clause": "5.5",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed that the Lab  not  defined the  responsibilities and authorities of CEO ,in the form of  JD, as required clause -5.5(C)  the standard (NC-02b).",
+     "whys": [
+      "Because the CEO's responsibilities and authorities were not included in the documented Job Description.",
+      "Because the CEO was considered the owner of the organization rather than a position requiring a formal Job Description within the laboratory's management system.",
+      "Because the requirement of ISO/IEC 17025:2017 Clause 5.5(c) was understood to apply primarily to appointed laboratory personnel and management positions, and the CEO's role as the organization's top management was not specifically considered.",
+      "Because the process for defining management roles and responsibilities did not clearly require the responsibilities and authorities of all relevant management positions, including the CEO, to be formally documented.",
+      "",
+      ""
+     ],
+     "conclusion": "the laboratory's process for defining and reviewing management roles did not ensure that the responsibilities and authorities of all relevant management positions, including the CEO, were formally documented and verified against the applicable requirements of ISO/IEC 17025:2017 Clause 5.5. Consequently, the CEO's responsibilities and authorities were not included in the documented Job Description.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "c",
+     "rca_no": "RC02(c)/PNAC/2026",
+     "clause": "5.4",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "The Lab has not addressed the requirement of maintaining the integrity of QMS , in its  quality management system documents , as required by the standard  (NC-02c).",
+     "whys": [
+      "Because PNAC was not informed when the previous Lab Manager/Management Representative resigned and a new Lab Manager/MR was appointed.",
+      "Because the change in laboratory management personnel was treated as an internal administrative change and its potential impact on the laboratory's accreditation and QMS integrity was not evaluated.",
+      "Because the requirement to evaluate and notify PNAC of changes affecting the laboratory's accredited activities and management arrangements was not identified during the change.",
+      "Because the laboratory's change management process did not include verification of PNAC notification requirements for changes in key management personnel.",
+      "Because the laboratory's QMS documentation did not clearly define the requirement to assess accreditation-related implications and notification requirements when implementing changes to key management personnel.",
+      ""
+     ],
+     "conclusion": "The laboratory's change management process did not include a mechanism to identify and communicate accreditation-related changes, resulting in the appointment of a new Lab Manager/Management Representative without notifying PNAC.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-03/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Jamil Ahmad Ch. (PNAC Lead Auditor)",
+   "details": "The lab has not defined, reviewed and approved in the procedure, its requirement for externally provided products & services to be acquired /used by the Lab for testing under its accredited scope, as required by clause-6.62(a) of the standard ISO/IEC 17025;2027 (NC-03a).\nIt is however observed that the Lab has defied invalid/incorrect criteria for evaluation of external auditing service provider (PNAC) and has not evaluated and listed in the list of approved external providers, as required by clause-6.6.2(b) of the standard (NC-03b).\nIt is observed that the Lab has evaluated M/s Delta Automation, as calibration service provider, against in valid /incorrect criteria, as checked from the record of evaluation (NC-03c).",
+   "root_cause": "The procedure development and review process did not ensure requirement-by-requirement verification against Clause 6.6 of ISO/IEC 17025:2017. Consequently, the procedure was structured around supplier selection without first defining, reviewing and approving the laboratory's requirements for externally provided products and services.\nThe supplier evaluation form for external auditing service providers did not incorporate ISO/IEC 17011 as the primary evaluation criterion for accreditation bodies. Instead, it relied on MRA signatory status as the principal criterion, resulting in evaluation criteria that were not fully aligned with the intent of ISO/IEC 17025 Clause 6.6.2(b).\nThe existing supplier approval process did not ensure effective verification of compliance with all documented supplier approval requirements, including the minimum evaluation score, before approval. Consequently, Delta Automation was included in the Approved External Provider List despite achieving a score of 9/12 against the documented minimum requirement of 10 points.",
+   "corrective": "Revise the procedure to align its sequence with ISO/IEC 17025:2017 Clause 6.6.2(a), ensuring that the laboratory's requirements for externally provided products and services are defined, reviewed and approved prior to the evaluation and selection of external providers.\nRevise the supplier evaluation form to include standard-specific evaluation criteria for accreditation bodies, with ISO/IEC 17011:2017 as the primary requirement. Re-evaluate all applicable external auditing service providers using the revised criteria and update the Approved External Provider List.\nRe-evaluate Delta Automation against the laboratory's approved supplier evaluation criteria. Remove Delta Automation from the Approved Supplier List since it does not satisfy the documented approval criteria for calibration service providers. Retain records of Delta Automation as a service provider used for field equipment calibration, where applicable, with documented technical justification outside the Approved Supplier List.",
+   "proposed_date": "2026-08-20",
+   "completion_date": "2026-08-13",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-09-04",
+   "followup_desc": "",
+   "remarks": "NC-03 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "medium",
+   "severity": "medium",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "6.6.2 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-09-04",
+   "target_date": "2026-08-20",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-03/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 6.6.2.",
+   "file": "PNAC Final Audit NCs-2026/NC-03/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-03.docx",
+   "notes": [],
+   "rcas": [
+    {
+     "part": "a",
+     "rca_no": "RC03(a)/PNAC/2026",
+     "clause": "6.6.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "The lab has not defined, reviewed and approved in the procedure, its requirement for externally provided products & services to be acquired /used by the Lab for testing under its accredited scope, as required by clause-6.62(a) of the standard ISO/IEC 17025;2027 (NC-03a).",
+     "whys": [
+      "Because the procedure did not require the laboratory's requirements for externally provided products and services to be defined, reviewed and approved before supplier evaluation and selection..",
+      "Because the procedure was structured to begin with supplier selection and qualification rather than first establishing the laboratory's specific requirements for the externally provided products and services.",
+      "Because the requirement to establish the laboratory's requirements before evaluating and selecting an external provider was not incorporated into the procedure structure.",
+      "Because during development and review of the procedure, the sequence required by Clause 6.6.2(a)—defining, reviewing and approving laboratory requirements before supplier evaluation—was not fully considered.",
+      "ecause the procedure review process did not include a sufficiently detailed requirement-by-requirement verification against the applicable provisions of ISO/IEC 17025:2017 Clause 6.6.",
+      ""
+     ],
+     "conclusion": "The procedure development and review process did not ensure requirement-by-requirement verification against Clause 6.6 of ISO/IEC 17025:2017. Consequently, the procedure was structured around supplier selection without first defining, reviewing and approving the laboratory's requirements for externally provided products and services.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "b",
+     "rca_no": "RC03(b)/PNAC/2026",
+     "clause": "6.6.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is however observed that  the Lab has  defied  invalid/incorrect criteria for evaluation of external auditing service provider( PNAC) and has not evaluated and listed in the list of approved external providers, as required by clause-6.6.2(b) of the standard ( NC-03b).",
+     "whys": [
+      "Because the supplier evaluation form used for the external auditing service provider (PNAC) did not include ISO/IEC 17011:2017 as the primary criterion for evaluating the competence of the accreditation body",
+      "Because the MRA signatory status of the accreditation body was considered the principal acceptance criterion for evaluating the external auditing service provider.",
+      "ecause MRA signatory status was considered sufficient evidence of the accreditation body's competence without explicitly verifying the applicable requirements of ISO/IEC 17011:2017.",
+      "Because the evaluation criteria for accreditation bodies were developed based on recognition/status rather than being established against the applicable competence requirements of ISO/IEC 17011:2017.",
+      "Because the process for establishing and reviewing external provider evaluation criteria did not require verification of the applicable standard-specific requirements, including ISO/IEC 17011:2017 for accreditation bodies.",
+      ""
+     ],
+     "conclusion": "The supplier evaluation form for external auditing service providers did not incorporate ISO/IEC 17011:2017 as the primary evaluation criterion for accreditation bodies. Instead, it relied on MRA signatory status as the principal criterion, resulting in evaluation criteria that were not fully aligned with the intent of ISO/IEC 17025:2017 Clause 6.6.2(b).",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "c",
+     "rca_no": "RC03(c)/PNAC/2026",
+     "clause": "6.6.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {},
+     "other": "Incorrect evaluation of M/S Delta Automation as calibration service provider.",
+     "six_why": true,
+     "statement": "It is observed that the Lab has evaluated M/s Delta Automation, as calibration service provider, against in valid /incorrect criteria ,as checked from the  record of evaluation  ( NC-03c) .",
+     "whys": [
+      "Because Delta Automation was approved as a calibration service provider despite obtaining a total evaluation score of 9/12, whereas the documented supplier evaluation form requires a minimum score of 10 points for registration.",
+      "Because the evaluation was accepted based on fulfillment of the specified mandatory criteria for non-accredited calibration services, without ensuring that the required minimum overall evaluation score was also achieved.",
+      "Because the supplier evaluation process did not ensure that both the mandatory criteria and the minimum total score specified in the evaluation form were verified before approval of the supplier.",
+      "Because the review and approval of the supplier evaluation focused on the individual criteria and operational suitability of the provider rather than confirming compliance with all documented supplier approval requirements.",
+      "Because the supplier approval process did not include an effective verification step to confirm that the completed evaluation satisfied the documented minimum scoring and approval requirements before the provider was added to the Approved Supplier List.",
+      ""
+     ],
+     "conclusion": "The existing supplier approval process did not ensure effective verification of compliance with all documented supplier approval requirements, including the minimum evaluation score, before approval. Consequently, Delta Automation was included in the Approved External Provider List despite achieving a score of 9/12 against the documented minimum requirement of 10 points.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-04/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Jamil Ahmad Ch. (PNAC Lead Auditor)",
+   "details": "It is observed that the Lab has not addressed in the quality objectives, the requirement of clause-8.2.2 of the standard ISO/IEC 17025:2017(NC-04a).\nIt is observed that the old copy of revised document # ETAL-QMS-P-805, Rev#00has been placed in the folder of obsolete documents however the document itself has not been identified as “Obsolete” to prevent unintended use of obsolete document, as required by clause -8.3.2 (f) of the standard ISO/IEC 17025:2017(NC-04b).",
+   "root_cause": "The laboratory's process for establishing and reviewing quality objectives did not ensure that relevant requirements and documented arrangements for impartiality and consistent operation were translated into measurable quality objectives in accordance with ISO/IEC 17025:2017 Clause 8.2.2. Consequently, specific measurable objectives addressing impartiality and consistent operation were not established.\nthe laboratory's document control process relied on secure segregation and restricted access to obsolete documents without ensuring their individual identification as \"OBSOLETE.\" Consequently, the previous revision of document ETAL-QMS-P-805, Rev. 00 was transferred to the obsolete-document folder without being identified as \"OBSOLETE,\" which did not fully meet the requirement of ISO/IEC 17025:2017 Clause 8.3.2(f).",
+   "corrective": "Revise and approve the Quality Objectives to include measurable impartiality objectives and measurable consistent operation objectives based on documented emergency arrangements.\nRevise the Document Control Procedure to explicitly require that all obsolete documents retained for reference are clearly marked \"OBSOLETE\" (e.g., watermark or stamp). Review all retained obsolete documents and ensure they are properly identified.",
+   "proposed_date": "2026-08-17",
+   "completion_date": "2026-08-15",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-08-15",
+   "followup_desc": "",
+   "remarks": "NC-04 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "medium",
+   "severity": "low",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "8.2.2, 8.3.2 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-15",
+   "target_date": "2026-08-17",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-04/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 8.2.2 & 8.3.2",
+   "file": "PNAC Final Audit NCs-2026/NC-04/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-04.docx",
+   "notes": [],
+   "rcas": [
+    {
+     "part": "a",
+     "rca_no": "RC04(a)/PNAC/2026",
+     "clause": "8.2.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed that the Lab has not addressed in the quality objectives, the requirement of clause-8.2.2 of the standard ISO/IEC 17025:2017 (NC-04a).",
+     "whys": [
+      "Because the laboratory's quality objectives did not include specific objectives addressing impartiality and consistent operation.",
+      "Because the laboratory's quality objectives were established primarily around competency, customer satisfaction and technical performance indicators.",
+      "Because the laboratory considered its existing controls for impartiality and consistent operation, including documented arrangements for managing emergencies, to be sufficient without establishing corresponding measurable quality objectives.",
+      "Because the process for establishing quality objectives did not require the laboratory to translate the relevant impartiality and consistent operation requirements and arrangements into measurable quality objectives.",
+      "Because the laboratory's quality objective review process did not include a systematic verification of the established objectives against the applicable requirements of ISO/IEC 17025:2017 Clause 8.2.2.",
+      ""
+     ],
+     "conclusion": "the laboratory's process for establishing and reviewing quality objectives did not ensure that relevant requirements and documented arrangements for impartiality and consistent operation were translated into measurable quality objectives in accordance with ISO/IEC 17025:2017 Clause 8.2.2. Consequently, specific measurable objectives addressing impartiality and consistent operation were not established.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "b",
+     "rca_no": "RC04(b)/PNAC/2026",
+     "clause": "8.3.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ],
+      "Method/ Procedure": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed that the old copy of revised document # ETAL-QMS-P-805, Rev#00has been placed in the folder of obsolete documents however the document itself has not been identified as “Obsolete” to prevent unintended use of obsolete document, as required by clause -8.3.2 (f) of the standard ISO/IEC 17025:2017(NC-04b).",
+     "whys": [
+      "Because The obsolete revision of document ETAL-QMS-P-805 was not identified as \"OBSOLETE\"..",
+      "Because During document revision, the previous version was transferred to the obsolete documents folder without marking the document itself as \"OBSOLETE\".",
+      "Because the laboratory considered segregation of the previous revision in the controlled obsolete-document folder to be sufficient to prevent its unintended use.",
+      "Because the document control practice relied on controlled segregation and restricted access to obsolete documents rather than requiring each obsolete document to be individually identified as \"OBSOLETE.\"",
+      "Because the document control process did not clearly ensure that obsolete documents were individually identified in addition to being segregated and access-controlled.",
+      ""
+     ],
+     "conclusion": "the laboratory's document control process relied on secure segregation and restricted access to obsolete documents without ensuring their individual identification as \"OBSOLETE.\" Consequently, the previous revision of document ETAL-QMS-P-805, Rev. 00 was transferred to the obsolete-document folder without being identified as \"OBSOLETE,\" which did not fully meet the requirement of ISO/IEC 17025:2017 Clause 8.3.2(f).",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-05/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Jamil Ahmad Ch. (PNAC Lead Auditor)",
+   "details": "It is observed that the Lab has not considered the risk due to Decision Rule and has not developed a plan for integrating the risk control actions into its QMS, as required by clause -8.5.2(b) of the standard (NC-05).",
+   "root_cause": "The laboratory documented the Decision Rule-related risk and its associated controls; however, the Risk Assessment documentation did not explicitly demonstrate how the related control actions were integrated into the QMS, resulting in the requirement of Clause 8.5.2(b) not being fully evidenced during the audit.",
+   "corrective": "The Risk Assessment Register will be reviewed to verify the documented consideration of risks associated with the application of the Decision Rule.\nRevise the Risk Assessment Form by incorporating a dedicated section/column titled \"Integration of Risk Control Actions into the QMS\" to document how the identified risk control measures are implemented and maintained within the management system.\nReview all existing risk assessments to determine whether any other applicable ISO/IEC 17025-specific risks have been omitted.",
+   "proposed_date": "2026-08-17",
+   "completion_date": "2026-08-17",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-08-17",
+   "followup_desc": "",
+   "remarks": "NC-05 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "low",
+   "severity": "low",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "major",
+   "category_also_critical": false,
+   "clause": "8.5.2 (b) (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-17",
+   "target_date": "2026-08-17",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-05/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 8.5.2 (b)",
+   "file": "PNAC Final Audit NCs-2026/NC-05/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-05.docx",
+   "notes": [
+    "Both \"Minor\" and \"Major\" nonconformance are ticked on the form; recorded as Major (the more severe), pending the Lab Manager's confirmation."
+   ],
+   "rcas": [
+    {
+     "part": "",
+     "rca_no": "RC05/PNAC/2026",
+     "clause": "8.5.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed that the Lab has not considered the risk due to Decision Rule and has not developed a plan for integrating the risk control actions into its QMS, as required by clause -8.5.2(b) of the standard (NC-05).",
+     "whys": [
+      "Because the auditor observed that the Decision Rule risk and the integration of the associated risk control actions into the QMS were not adequately demonstrated in the Risk Assessment.",
+      "Although the Decision Rule risk was addressed within the Risk Assessment and controlled through existing QMS procedures, the Risk Assessment Form did not explicitly demonstrate how the related control actions were integrated into the management system.",
+      "Because the existing ETAL procedures and related implementation records were referenced in the Risk Assessment as evidence of control, and these references were considered sufficient to demonstrate incorporation into the management system.",
+      "Because the Risk Assessment Form did not provide a dedicated section to distinguish between evidence of implementation and the plan for integrating risk control actions into the QMS.",
+      "The laboratory's Risk Assessment documentation did not explicitly demonstrate the integration of Decision Rule-related risk control actions into the QMS in a manner that fully satisfied the documentation requirements of ISO/IEC 17025:2017 Clause 8.5.2(b).",
+      ""
+     ],
+     "conclusion": "The laboratory documented the Decision Rule-related risk and its associated controls; however, the Risk Assessment documentation did not explicitly demonstrate how the related control actions were integrated into the QMS, resulting in the requirement of Clause 8.5.2(b) not being fully evidenced during the audit.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-06/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Jamil Ahmad Ch. (PNAC Lead Auditor)",
+   "details": "However, it is observed that the Lab has not defined scope and criteria for the internal audit as required by clause-8.8.2(b) of the standard ISO/IEC 17025:2017 (NC-06a).\nThe last internal audit was conducted by one auditor, Ms. Saba Qadeer from 04th --05th March 2026, as checked from the record of “Internal Audit Report, Developed vide Doc# ETAL-QMS-808-FF-02. It is observed that during last internal audit the auditor (Ms. Saba Qadeer) who conducted the audit has performed as lead auditor, but the Lab has not defined criteria for lead auditor and the said auditor was trained even on internal auditing, competency is questionable and not evaluate as per established criteria (NC-06b).\nIt is observed from the audit record maintained by the Lab, that the results of last conducted internal audit as contained in the audit report, are reported to the relevant management, as required clause-8.8.2(c) of the standard ISO/IEC 17025:2017 (NC-06c)",
+   "root_cause": "The laboratory documented the audit scope and criteria in the Internal Audit Circular used for planning each audit; however, these mandatory requirements were not incorporated into the Internal Audit Procedure. As a result, compliance with Clause 8.8.2(b) was not fully demonstrated through the documented procedure.\nThe Internal Audit Procedure did not establish specific qualification criteria for appointment of a Lead Auditor. Additionally, although the assigned auditor's training records were maintained in the laboratory's electronic records/Head Office records, the process did not ensure that these supporting competency records were readily retrievable during the audit to effectively demonstrate compliance.\nThe Internal Audit Report format did not include a provision for documenting the review and acknowledgment of internal audit results by the relevant management (CEO). Consequently, although the audit results were communicated, objective evidence of reporting to Top Management was not documented in accordance with ISO/IEC 17025:2017 Clause 8.8.2(c).",
+   "corrective": "Revise the Internal Audit Procedure to explicitly define the scope and criteria for internal audits in accordance with ISO/IEC 17025:2017 Clause 8.8.2(b).\nRevise the Internal Audit Procedure to define the qualification and competency criteria for appointment of a Lead Auditor. Ensure that competency records, including training certificates, are maintained in a designated location (electronic or hard-copy) and are readily retrievable during internal and external assessments.\nRevise the Internal Audit Report format (ETAL-QMS-808-FF-02) to include a dedicated section for review and endorsement by the CEO/Top Management, confirming that the internal audit results have been reported and reviewed.",
+   "proposed_date": "2026-08-17",
+   "completion_date": "2026-08-17",
+   "followup_with": "Lab Manager",
+   "followup_date": null,
+   "followup_desc": "",
+   "remarks": "NC-06 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "medium",
+   "severity": "medium",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "minor",
+   "category_also_critical": false,
+   "clause": "8.8.2 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-17",
+   "target_date": "2026-08-17",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-06/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 8.8.2",
+   "file": "PNAC Final Audit NCs-2026/NC-06/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-06.docx",
+   "notes": [
+    "The follow-up & close-out date is blank on the form; the closing date of the log is taken as the completion date (17-08-2026).",
+    "The three RCA forms show clause 8.2.2; the NC concerns clause 8.8.2.",
+    "NC-06c reads \"... are reported\" as on the form (the sense suggests \"are not reported\")."
+   ],
+   "rcas": [
+    {
+     "part": "a",
+     "rca_no": "RC06(a)/PNAC/2026",
+     "clause": "8.2.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Method/ Procedure": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "However, it is observed that the Lab has not defined scope and criteria for the internal audit as required by clause-8.8.2(b) of the standard ISO/IEC 17025:2017 (NC-06a).",
+     "whys": [
+      "Because the Internal Audit Procedure did not define the scope and criteria for internal audits.",
+      "Because the laboratory documented the audit scope and criteria in the Internal Audit Circular issued for each audit rather than incorporating them into the Internal Audit Procedure.",
+      "Because the laboratory considered the Internal Audit Circular, issued before each audit, sufficient to define the scope and criteria for the individual audit.",
+      "Because the requirement to establish and document the scope and criteria as part of the internal audit process had not been specifically incorporated into the Internal Audit Procedure during its development and review.",
+      "Because the Internal Audit Procedure had not been reviewed against the applicable requirements of ISO/IEC 17025:2017 Clause 8.8.2(b) to ensure that all mandatory requirements for planning and conducting internal audits were explicitly defined.",
+      ""
+     ],
+     "conclusion": "The laboratory documented the audit scope and criteria in the Internal Audit Circular used for planning each audit; however, these mandatory requirements were not incorporated into the Internal Audit Procedure. As a result, compliance with Clause 8.8.2(b) was not fully demonstrated through the documented procedure.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "b",
+     "rca_no": "RC06(b)/PNAC/2026",
+     "clause": "8.2.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "The last internal audit was conducted by one auditor, Ms. Saba Qadeer from 04th --05th March 2026, as checked from the record of “Internal Audit Report, Developed vide Doc# ETAL-QMS-808-FF-02. It is observed that during last internal audit the auditor (Ms. Saba Qadeer) who conducted the audit has performed as lead auditor, but the Lab has not defined criteria for lead auditor and the said auditor was trained even on internal auditing, competency is questionable and not evaluate as per established criteria (NC-06b).",
+     "whys": [
+      "Because the laboratory could not fully demonstrate the competency and qualification of the Lead Auditor during the audit.",
+      "Because the Internal Audit Procedure did not establish specific qualification criteria for Lead Auditors, including defined competency requirements.",
+      "Because the laboratory's internal audit process relied on the Lead Auditor's training records and existing competency records without formally defining the specific qualification criteria required for appointment as Lead Auditor.",
+      "Because the procedure had not clearly established the competency and qualification requirements that must be verified and documented before assigning personnel as Lead Auditors.",
+      "Because the Internal Audit Procedure had not been reviewed and developed to ensure that the competency and qualification requirements for Lead Auditors were clearly defined and supported by retrievable documented evidence.",
+      ""
+     ],
+     "conclusion": "The Internal Audit Procedure did not establish specific qualification criteria for appointment of a Lead Auditor. Additionally, although the assigned auditor's training records were maintained in the laboratory's electronic records/Head Office records, the process did not ensure that these supporting competency records were readily retrievable during the audit to effectively demonstrate compliance.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "c",
+     "rca_no": "RC06(c)/PNAC/2026",
+     "clause": "8.2.2",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Management System": [
+       "Improvement needed"
+      ],
+      "Method/ Procedure": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "It is observed from the audit record maintained by the Lab, that the results of last conducted internal audit as contained in the audit report, are reported to the relevant management, as required clause-8.8.2( c) of the standard ISO/IEC 17025:2017 (NC-06c)",
+     "whys": [
+      "Because the Internal Audit Report did not include a documented acknowledgement or endorsement by Top Management (CEO) to demonstrate that the audit results were reported to relevant management.",
+      "Because the Internal Audit Report format provided for signatures of the auditor and auditee but did not include a designated section for Top Management (CEO) acknowledgement or endorsement.",
+      "Because the laboratory considered completion of the audit and communication of the audit results to the relevant management sufficient, without recognizing the need to document the management's review and acknowledgement in the audit record.",
+      "Because the internal audit documentation process had not specifically defined the requirement for documenting management review and acknowledgement of audit results in the Internal Audit Report.",
+      "Because the Internal Audit Report format had not been reviewed to ensure that it included documented evidence of all applicable requirements for reporting internal audit results to relevant management.",
+      ""
+     ],
+     "conclusion": "The Internal Audit Report format did not include a provision for documenting the review and acknowledgment of internal audit results by the relevant management (CEO). Consequently, although the audit results were communicated, objective evidence of reporting to Top Management was not documented in accordance with ISO/IEC 17025:2017 Clause 8.8.2(c).",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-07/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Asif Ali (PNAC Technical Auditor)",
+   "details": "There are two cylinders of gases inside the Lab.; one of them is Acetylene gas (ETAL-LAB-GC-01), which is explosive, and the other is Nitrous Oxide gas (ETAL-LAB-GC-02), which facilitates combustion, and there is a potential threat to the lab personnel and equipment.",
+   "root_cause": "The suitability of the gas cylinder placement was not adequately evaluated with respect to the potential risk associated with its proximity to the AAS system. Although pre-installation leak checks and physical securing of the cylinders were implemented as safety controls, the potential risk arising from their placement adjacent to the AAS system was not sufficiently considered.",
+   "corrective": "The Acetylene and Nitrous Oxide gas cylinders shall be removed from their current location adjacent to the AAS system and relocated to a suitable and safe designated location incorporating appropriate protection, preferably within a closed-door arrangement, to minimize potential risk to personnel and laboratory equipment.",
+   "proposed_date": "2026-08-20",
+   "completion_date": "2026-08-17",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-08-17",
+   "followup_desc": "",
+   "remarks": "NC-07 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "high",
+   "severity": "medium",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "minor",
+   "category_also_critical": false,
+   "clause": "6.3 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-17",
+   "target_date": "2026-08-20",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-7/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 6.3",
+   "file": "PNAC Final Audit NCs-2026/NC-07/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-07.docx",
+   "notes": [
+    "The form is numbered \"NC-7/PNAC/2026\"; recorded as NC-07/PNAC/2026."
+   ],
+   "rcas": [
+    {
+     "part": "",
+     "rca_no": "RC07/PNAC/2026",
+     "clause": "6.3",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Material": [
+       "Storage Conditions"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "There are two cylinders of gases inside the Lab.; one of them is Acetylene gas (ETAL-LAB-GC-01), which is explosive, and the other is Nitrous Oxide gas (ETAL-LAB-GC-02), which facilitates combustion, and there is a potential threat to the lab personnel and equipment.",
+     "whys": [
+      "Because the Acetylene and Nitrous Oxide gas cylinders were placed adjacent to the AAS system, creating a potential safety risk to personnel and equipment.",
+      "Because the location was selected based on the operational requirements of the AAS system, while the potential risk associated with the proximity of compressed gas cylinders to the equipment was not sufficiently considered.",
+      "Because the laboratory considered the existing safety controls, including pre-installation leak checks and securing the cylinders with chains, sufficient to control the associated risks.",
+      "Because the assessment of the cylinder arrangement focused primarily on preventing leakage, unauthorized movement and physical security, and did not adequately consider the potential consequences of the cylinder location in relation to nearby laboratory equipment.",
+      "Because the laboratory's arrangement for gas cylinder placement did not ensure that the suitability of the location was evaluated considering both cylinder safety controls and potential risks to personnel and nearby equipment.",
+      ""
+     ],
+     "conclusion": "the suitability of the gas cylinder placement was not adequately evaluated with respect to the potential risk associated with its proximity to the AAS system. Although pre-installation leak checks and physical securing of the cylinders were implemented as safety controls, the potential risk arising from their placement adjacent to the AAS system was not sufficiently considered.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-08/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Asif Ali (PNAC Technical Auditor)",
+   "details": "Turbidity standards of 10 NTU (Supelco) need to be stored in a refrigerator as per COA, but it was stored at 260C in the Lab.\nThe lab has raised the NC for Z-Score 5.5 in the internal audit and corrective action was also taken but root cause analysis is incorrect.",
+   "root_cause": "A random human error occurred when the analyst inadvertently failed to return the 10 NTU Turbidity CRM to its designated refrigerated storage immediately after use. The laboratory had already established documented storage requirements and designated storage locations; however, this requirement was unintentionally overlooked during routine laboratory activities.\nThe laboratory's RCA approach for PT-related nonconformities was not sufficiently structured to ensure that significant variation in replicate results was technically investigated before concluding the root cause, resulting in an RCA that focused on personnel/result selection rather than the underlying cause of the divergent measurements.",
+   "corrective": "Verify the suitability of the CRM for continued use and document the performed action in the form of control charts. Re-brief all laboratory personnel on the requirement to immediately return CRMs to their designated storage locations after use, in accordance with the manufacturer's instructions.\nThe original RCA associated with the Z-score 5.5 NC will be reviewed and revised to address the significant variation among the replicate PT results and the absence of adequate evaluation of the divergent measurements before reporting.",
+   "proposed_date": "2026-08-20",
+   "completion_date": "2026-08-12",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-08-12",
+   "followup_desc": "",
+   "remarks": "NC-08 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "high",
+   "severity": "medium",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "minor",
+   "category_also_critical": false,
+   "clause": "6.5 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-12",
+   "target_date": "2026-08-20",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-8/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 6.5",
+   "file": "PNAC Final Audit NCs-2026/NC-08/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-08.docx",
+   "notes": [
+    "The form is numbered \"NC-8/PNAC/2026\"; recorded as NC-08/PNAC/2026.",
+    "Both RCA forms (a and b) are numbered \"RC08a/PNAC/2026\" on paper."
+   ],
+   "rcas": [
+    {
+     "part": "a",
+     "rca_no": "RC08a/PNAC/2026",
+     "clause": "6.5",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Material": [
+       "Storage Conditions"
+      ],
+      "Personnel": [
+       "Random Error"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "a. Turbidity standards of 10 NTU (Supelco) need to be stored in a refrigerator as per COA, but it was stored at 260C in the Lab.",
+     "whys": [
+      "Because the 10 NTU Turbidity CRM was found stored at room temperature instead of in the designated refrigerator..",
+      "Because the analyst did not return the CRM to the refrigerator immediately after use.",
+      "Because the analyst inadvertently overlooked the requirement to return the CRM to its designated storage location before leaving the work area.",
+      "This was an isolated lapse during routine laboratory activities and was not identified immediately after completion of testing.",
+      "A random human error occurred whereby the analyst unintentionally failed to return the CRM to its designated refrigerated storage after use, despite documented storage requirements and designated storage locations being established and communicated within the laboratory.",
+      ""
+     ],
+     "conclusion": "A random human error occurred when the analyst inadvertently failed to return the 10 NTU Turbidity CRM to its designated refrigerated storage immediately after use. The laboratory had already established documented storage requirements and designated storage locations; however, this requirement was unintentionally overlooked during routine laboratory activities.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    },
+    {
+     "part": "b",
+     "rca_no": "RC08a/PNAC/2026",
+     "clause": "6.5",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {},
+     "other": "The lab has raised the NC for Z-Score 5.5 in PT testing for Turbidity and corrective action was also taken but root cause analysis is incorrect.",
+     "six_why": true,
+     "statement": "ii.\tThe lab has raised the NC for Z-Score 5.5 in the internal audit and corrective action was also taken but root cause analysis is incorrect.",
+     "whys": [
+      "Because the original RCA attributed the result primarily to personnel error and result selection without adequately investigating the significant variation among the replicate PT results.",
+      "Because the RCA focused on the final reported result and the selection of that result rather than examining the underlying replicate measurements of 0.076, 0.120 and 0.150.",
+      "Because the replicate measurements obtained for the PT sample (0.076, 0.12 and 0.15) showed significant variation, and the reported result did not adequately represent the measurement behaviour observed in the replicate testing.",
+      "Because only the available replicate readings were considered and their average was used for reporting, without obtaining sufficient additional observations to assess the consistency and representativeness of the PT result.",
+      "Because the QA Plan specified the frequency of replicate testing but did not define the number of replicate observations to be taken for PT samples or the criteria/action to be followed when substantial variation was observed among replicate results.",
+      ""
+     ],
+     "conclusion": "The laboratory's RCA approach for PT-related nonconformities was not sufficiently structured to ensure that significant variation in replicate results was technically investigated before concluding the root cause, resulting in an RCA that focused on personnel/result selection rather than the underlying cause of the divergent measurements.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  },
+  {
+   "nc_no": "NC-09/PNAC/2026",
+   "date": "2026-07-30",
+   "raised_by": "Mr. Asif Ali (PNAC Technical Auditor)",
+   "details": "The uncertainty budget (ETAL-LAB-706-FF-01) of the scope parameters is incorrect, as the lab has not recalculated the uncertainty after the calibration of scope equipment in April 2026.",
+   "root_cause": "The laboratory's uncertainty management process did not establish a systematic requirement to review the uncertainty budget following calibration of equipment contributing to the measurement uncertainty. Consequently, although the existing uncertainty evaluation remained technically representative and the incorporation of the calibration-related uncertainty did not result in a significant change, the uncertainty budget was not formally reviewed and revised following the April 2026 calibration.",
+   "corrective": "Revise the uncertainty budget (ETAL-LAB-706-FF-01) using the latest calibration results and associated measurement uncertainty of the relevant scope equipment calibrated in April 2026, and review/recalculate the measurement uncertainty as applicable.\nEstablish the requirement within the laboratory's uncertainty management process to review the uncertainty budget following calibration or any other change affecting equipment or uncertainty contributors and revise it where applicable.",
+   "proposed_date": "2026-08-20",
+   "completion_date": "2026-08-17",
+   "followup_with": "Lab Manager",
+   "followup_date": "2026-08-17",
+   "followup_desc": "",
+   "remarks": "NC-09 is closed.",
+   "evaluated_date": "2026-08-01",
+   "due_audit_internal": false,
+   "due_audit_external": true,
+   "due_testing": false,
+   "due_cal_internal": false,
+   "due_cal_external": false,
+   "due_complaint": false,
+   "sig_legal": false,
+   "sig_risk": true,
+   "sig_halt": false,
+   "sig_preventive": false,
+   "sig_non_significant": false,
+   "priority": "high",
+   "risk_type": "medium",
+   "severity": "low",
+   "impact_past": false,
+   "satisfactory": true,
+   "location": "Lahore",
+   "department": "Environmental Laboratory",
+   "source": "EA",
+   "category": "minor",
+   "category_also_critical": false,
+   "clause": "7.6 (ISO/IEC 17025:2017)",
+   "closed_by_name": "Lab Manager",
+   "closing_date": "2026-08-17",
+   "target_date": "2026-08-20",
+   "assigned_to": "Lab Manager",
+   "form_no": "NC-8/PNAC/2026",
+   "clause_text": "ISO/IEC-17025:2017, 7.6",
+   "file": "PNAC Final Audit NCs-2026/NC-09/ETAL-QMS-710-FF-01 Non-Conformance-Corrective Action Form NC-09.docx",
+   "notes": [
+    "The form is numbered \"NC-8/PNAC/2026\" (duplicate of NC-08); recorded as NC-09/PNAC/2026 from its file and remarks (\"NC-09 is closed.\")."
+   ],
+   "rcas": [
+    {
+     "part": "",
+     "rca_no": "RC09/PNAC/2026",
+     "clause": "7.6",
+     "deputed": "MR",
+     "date": "2026-08-01",
+     "causes": {
+      "Method/ Procedure": [
+       "Improvement needed"
+      ]
+     },
+     "other": "",
+     "six_why": true,
+     "statement": "The uncertainty budget (ETAL-LAB-706-FF-01) of the scope parameters is incorrect, as the lab has not recalculated the uncertainty after the calibration of scope equipment in April 2026.",
+     "whys": [
+      "Because the uncertainty budget was not revised after calibration of the relevant scope equipment in April 2026.",
+      "Because the calibration results and associated uncertainty information were not reviewed and incorporated into the existing uncertainty budget following the calibration activity.",
+      "Because the laboratory's uncertainty evaluation process did not ensure that the uncertainty budget was reviewed following calibration of equipment contributing to the measurement uncertainty.",
+      "Because the process for management of measurement uncertainty did not clearly establish the requirement to review and, where applicable, recalculate the uncertainty budget when relevant equipment is calibrated or updated.",
+      "Because the laboratory's documented uncertainty management process did not include a defined mechanism for triggering and documenting review of the uncertainty budget following calibration or other changes affecting uncertainty contributors.",
+      ""
+     ],
+     "conclusion": "The laboratory's uncertainty management process did not establish a systematic requirement to review the uncertainty budget following calibration of equipment contributing to the measurement uncertainty. Consequently, although the existing uncertainty evaluation remained technically representative and the incorporation of the calibration-related uncertainty did not result in a significant change, the uncertainty budget was not formally reviewed and revised following the April 2026 calibration.",
+     "performed_by": "MR",
+     "performed_date": "2026-08-01",
+     "reviewed_by": "CEO",
+     "reviewed_date": "2026-08-03"
+    }
+   ]
+  }
+ ]
+}

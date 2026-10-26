@@ -640,7 +640,7 @@ def ia_audit_detail(request, pk):
     show = request.GET.get('show') or 'all'
     if show == 'findings':
         findings = [f for f in findings if f.result in ('obs', 'minor', 'major')]
-    ncs = list(a.ncs.select_related('rca').order_by('nc_no'))
+    ncs = list(a.ncs.prefetch_related('rcas').order_by('nc_no'))
     wits = list(a.witnessings.all())
     circs = list(a.circulars.all())
     is_member = _is_member(user, a.location)
@@ -873,10 +873,10 @@ def _next_nc_no(loc, source, year):
 def ia_ncs(request):
     loc = _loc_of(request)
     show = request.GET.get('show') or 'open'
-    show = show if show in ('open', 'all', 'closed', 'year') else 'open'
+    show = show if show in ('open', 'all', 'closed', 'year', 'incomplete', 'unverified') else 'open'
     year = int(request.GET.get('year')) if (request.GET.get('year') or '').isdigit() else _date.today().year
     src = request.GET.get('source') or ''
-    qs = Ncca.objects.filter(location=loc).select_related('audit', 'rca', 'raised_user', 'closed_by')
+    qs = Ncca.objects.filter(location=loc).select_related('audit', 'raised_user', 'closed_by').prefetch_related('rcas')
     if show == 'open':
         qs = qs.exclude(status='closed')
     elif show == 'closed':
@@ -886,12 +886,20 @@ def ia_ncs(request):
     if src in dict(Ncca.SOURCES):
         qs = qs.filter(source=src)
     rows = list(qs.order_by('log_sno', 'date', 'id'))
+    if show == 'incomplete':
+        rows = [n for n in rows if n.form_gaps]
+    elif show == 'unverified':
+        rows = [n for n in rows if n.inducted and not n.verified]
     today = _date.today()
     for n in rows:
         due = n.target_date or n.proposed_date
         n.overdue = bool(due and n.status != 'closed' and due < today)
     counts = {'open': Ncca.objects.filter(location=loc).exclude(status='closed').count(), 'all': Ncca.objects.filter(location=loc).count(),
-              'closed': Ncca.objects.filter(location=loc, status='closed').count()}
+              'closed': Ncca.objects.filter(location=loc, status='closed').count(),
+              'incomplete': 0, 'unverified': 0}
+    for n in Ncca.objects.filter(location=loc).only('legacy', 'log_only', 'details', 'root_cause', 'corrective', 'completion_date', 'satisfactory', 'followup_desc'):
+        counts['incomplete'] += bool(n.form_gaps)
+        counts['unverified'] += bool(n.inducted and not n.verified)
     years = sorted({d.year for d in Ncca.objects.filter(location=loc, date__isnull=False).values_list('date', flat=True)}, reverse=True)
     return render(request, 'ia_ncs.html', {'loc': loc, 'locs': _CC_LOCS, 'rows': rows, 'show': show, 'year': year, 'years': years, 'src': src, 'sources': Ncca.SOURCES,
                                            'counts': counts, 'can_manage': _can_manage(request.user, loc), 'is_member': _is_member(request.user, loc),
@@ -914,9 +922,16 @@ def ia_rcas(request):
     """Register of root cause analyses (ETAL-QMS-710-FF-01A) and the NC&CAs still without one - 23-10-2026."""
     loc = _loc_of(request)
     rows = list(NccaRca.objects.filter(nc__location=loc).select_related('nc').order_by('-date', '-id'))
-    pending = list(Ncca.objects.filter(location=loc, rca__isnull=True, log_only=False).exclude(status__in=('draft', 'closed')).order_by('date', 'id'))
+    pending = list(Ncca.objects.filter(location=loc, rcas__isnull=True, log_only=False).exclude(status__in=('draft', 'closed')).order_by('date', 'id'))
     return render(request, 'ia_rcas.html', {'loc': loc, 'locs': _CC_LOCS, 'rows': rows, 'pending': pending,
                                             'can_manage': _can_manage(request.user, loc), 'ctrl': _ia_docctrl('rca', loc)})
+
+
+_NC_RECORD_FIELDS = ('nc_no', 'date', 'department', 'raised_by', 'clause', 'source', 'audit_id', 'category', 'details', 'proposed_date', 'due_other', 'evaluated_date',
+                     'priority', 'risk_type', 'severity', 'impact_past', 'sig_legal', 'sig_risk', 'sig_halt', 'sig_preventive', 'sig_non_significant',
+                     'category_also_critical', 'due_audit_internal', 'due_audit_external', 'due_testing', 'due_cal_internal', 'due_cal_external',
+                     'due_complaint', 'assigned_to', 'target_date', 'root_cause', 'corrective', 'completion_date', 'followup_with', 'satisfactory',
+                     'followup_date', 'next_followup_date', 'followup_desc', 'remarks', 'closed_by_name', 'closing_date')
 
 
 def _nc_sections(user, n):
@@ -951,6 +966,12 @@ def ia_nc_edit(request, pk=None):
         n.source = 'IA' if n.audit else (request.GET.get('source') if request.GET.get('source') in dict(Ncca.SOURCES) else 'IA')
         n.nc_no = _next_nc_no(loc, n.source, n.date.year)
     sec = _nc_sections(user, n) if n.pk else {'head': True, 'dept': True, 'mr': False, 'any': True}
+    # Complete an inducted form from the paper record (complaint 26-10-2026: inducted forms showed empty sections because those
+    # sections were not in the record supplied). The location's manager types in what the paper form says; the status and the
+    # paper signatures stay as they are and every change is listed in the record trail (legacy.completed) and in the history.
+    record = bool(n.pk) and n.inducted and _can_manage(user, loc) and (request.GET.get('record') == '1' or request.POST.get('record') == '1')
+    if record:
+        sec = {'head': True, 'dept': True, 'mr': True, 'any': True, 'record': True}
     if not sec['any']:
         if n.locked:
             _msg.error(request, 'A closed NC&CA record is locked. The MR can reopen it with a reason.')
@@ -961,6 +982,7 @@ def ia_nc_edit(request, pk=None):
         P = request.POST
         errors = []
         head_changed = False
+        snap0 = {f: getattr(n, f) for f in _NC_RECORD_FIELDS} if record else None
         if sec['head'] and 'details' in P:
             before = (n.nc_no, n.date, n.department, n.raised_by, n.clause, n.source, n.audit_id, n.category, n.details, n.proposed_date, n.due_other, n.evaluated_date,
                       n.priority, n.risk_type, n.severity, n.impact_past, n.sig_legal, n.sig_risk, n.sig_halt, n.sig_preventive, n.sig_non_significant, n.category_also_critical,
@@ -999,10 +1021,10 @@ def ia_nc_edit(request, pk=None):
             n.root_cause = (P.get('root_cause') or '').strip()[:6000]
             n.corrective = (P.get('corrective') or '').strip()[:6000]
             n.completion_date = _pdate(P.get('completion_date'))
-            if changed and n.status == 'responded':          # the department's section changed after the HOD signed -> signature cleared, back to 'open'
+            if changed and n.status == 'responded' and not record:          # the department's section changed after the HOD signed -> signature cleared, back to 'open'
                 n.status, n.hod_signed_by, n.hod_signed_at = 'open', None, None
                 _msg.warning(request, 'The department section was changed after the Head of Department signed: that signature is cleared and the response must be signed again.')
-        if sec['head'] and 'details' in P and n.status == 'open' and n.mr_signed_at and head_changed:   # the header changed after the MR signed: the editor re-signs it
+        if sec['head'] and 'details' in P and n.status == 'open' and n.mr_signed_at and head_changed and not record:   # the header changed after the MR signed: the editor re-signs it
             n.mr_signed_by, n.mr_signed_at = user, _tz.now()
             n.raised_by = n.raised_by or _uname(user)
         if sec['mr'] and 'followup_with' in P:
@@ -1012,27 +1034,63 @@ def ia_nc_edit(request, pk=None):
             n.next_followup_date = _pdate(P.get('next_followup_date'))
             n.followup_desc = (P.get('followup_desc') or '').strip()[:4000]
             n.remarks = (P.get('remarks') or '').strip()[:300]
+        close_record = False
+        if record and 'closed_by_name' in P:
+            n.closed_by_name = (P.get('closed_by_name') or '').strip()[:120]
+            n.closing_date = _pdate(P.get('closing_date'))
+            if n.status != 'closed' and P.get('close_record') == '1':
+                if not (n.closing_date and n.closed_by_name and n.root_cause.strip() and n.corrective.strip()):
+                    errors.append('To mark the NC&CA closed as per the paper record, enter the root cause, the corrective action, the closing date and who closed it.')
+                else:
+                    close_record = True
         if errors:
             for e in errors:
                 _msg.error(request, e)
         else:
+            if record:
+                if n.details.strip() and n.details.strip() != Ncca.LOG_ONLY_TEXT:
+                    n.log_only = False              # the paper form is now in the system, not only its log row
+                changed = [f for f in _NC_RECORD_FIELDS if getattr(n, f) != snap0[f]]
+                prev = n.status
+                if close_record:
+                    n.status = 'closed'
+                    changed.append('status')
+                if changed:
+                    n.legacy = dict(n.legacy or {})
+                    if n.legacy.get('verified'):          # changed after the paper-form sign-off: it must be verified again
+                        n.legacy.setdefault('verified_cleared', []).append(n.legacy.pop('verified'))
+                        _msg.warning(request, 'The record was changed after it was verified against the paper form: please verify and sign it again.')
+                    n.legacy.setdefault('completed', []).append({'by': _uname(user), 'at': _tz.localtime().strftime('%d-%m-%Y %H:%M'),
+                                                                 'fields': changed, 'from_status': prev, 'to_status': n.status})
+                n.save()
+                if changed:
+                    _msg.success(request, 'NC&CA %s completed from the paper record (%d field%s); the change is listed in the record trail.'
+                                 % (n.nc_no, len(changed), '' if len(changed) == 1 else 's'))
+                else:
+                    _msg.info(request, 'Nothing was changed.')
+                return _redirect('ia_nc_detail', n.pk)
             n.save()
             _msg.success(request, 'NC&CA %s saved.' % n.nc_no)
             return _redirect('ia_nc_detail', n.pk)
     audits = IaAudit.objects.filter(location=loc).order_by('-year', '-seq')
-    return render(request, 'ia_nc_edit.html', {'n': n, 'loc': loc, 'sec': sec, 'audits': audits, 'sources': Ncca.SOURCES, 'cats': Ncca.CATEGORIES, 'levels': Ncca.LEVELS,
+    return render(request, 'ia_nc_edit.html', {'n': n, 'loc': loc, 'sec': sec, 'record': record, 'audits': audits, 'sources': Ncca.SOURCES, 'cats': Ncca.CATEGORIES, 'levels': Ncca.LEVELS,
                                               'ctrl': _ia_docctrl('nc', loc)})
 
 
 def ia_nc_detail(request, pk):
     n = get_object_or_404(Ncca.objects.select_related('audit', 'finding', 'raised_user', 'evaluated_by', 'mr_signed_by', 'hod_signed_by', 'closed_by', 'created_by'), pk=pk)
     user = request.user
-    rca = getattr(n, 'rca', None) if NccaRca.objects.filter(nc=n).exists() else None
+    rcas = list(NccaRca.objects.filter(nc=n).select_related('performed_by', 'reviewed_by').order_by('part', 'id'))
+    rca = rcas[0] if rcas else None
+    is_ceo, mgr = _is_ceo(user, n.location), _can_manage(user, n.location)
+    for r in rcas:              # per-RCA actions (an NC&CA may carry one RCA per root cause - 26-10-2026)
+        r.can_reopen = r.status != 'draft' and (is_ceo or (r.status == 'performed' and mgr))
+        r.can_edit = mgr and n.status != 'draft' and not r.locked
     sec = _nc_sections(user, n)
     today = _date.today()
     due = n.target_date or n.proposed_date
     return render(request, 'ia_nc_detail.html', {
-        'n': n, 'loc': n.location, 'rca': rca, 'sec': sec, 'ctrl': _ia_docctrl('nc', n.location, _ia_on(n)), 'cat_label': _CAT_LABEL,
+        'n': n, 'loc': n.location, 'rca': rca, 'rcas': rcas, 'sec': sec, 'ctrl': _ia_docctrl('nc', n.location, _ia_on(n)), 'cat_label': _CAT_LABEL,
         'overdue': bool(due and n.status != 'closed' and due < today), 'due': due,
         'can_manage': _can_manage(user, n.location), 'is_member': _is_member(user, n.location), 'is_ceo': _is_ceo(user, n.location),
         'can_raise': n.status == 'draft' and _can_manage(user, n.location),
@@ -1040,7 +1098,9 @@ def ia_nc_detail(request, pk):
         'can_close': n.status == 'responded' and _can_manage(user, n.location),
         'can_reopen': n.status in ('responded', 'closed') and _can_manage(user, n.location),
         'can_reopen_rca': bool(rca) and rca.status != 'draft' and (_is_ceo(user, n.location) or (rca.status == 'performed' and _can_manage(user, n.location))),
-        'can_delete': _can_manage(user, n.location), 'can_rca': _can_manage(user, n.location) and n.status != 'draft' and not (rca and rca.locked)})
+        'can_record': n.inducted and mgr, 'gaps': n.form_gaps, 'can_verify': n.inducted and mgr and not n.verified,
+        'can_delete': _can_manage(user, n.location), 'can_rca': _can_manage(user, n.location) and n.status != 'draft' and not (rca and rca.locked),
+        'can_add_rca': mgr and n.status not in ('draft', 'closed') and bool(rcas)})
 
 
 def _apply_nc_action(user, n, act, reason=''):
@@ -1094,6 +1154,15 @@ def _apply_nc_action(user, n, act, reason=''):
             n.followup_with = _uname(user)
         n.save()
         return 'ok', 'NC&CA %s followed up and closed by you as MR.' % n.nc_no
+    if act == 'verify_record':          # the manager confirms the inducted record matches the signed paper form (26-10-2026)
+        if not (n.inducted and _can_manage(user, n.location)):
+            return 'forbidden', _DENIED % n.location
+        if n.verified:
+            return 'error', 'This record is already verified against the paper form.'
+        n.legacy = dict(n.legacy or {})
+        n.legacy['verified'] = {'by': _uname(user), 'user': user.pk, 'at': _tz.localtime(now).strftime('%d-%m-%Y %H:%M'), 'gaps': n.form_gaps}
+        n.save()
+        return 'ok', 'NC&CA %s verified against the signed paper form and signed by you.' % n.nc_no
     if act == 'reopen':
         if n.status not in ('responded', 'closed') or not _can_manage(user, n.location):
             return 'forbidden', _DENIED % n.location
@@ -1104,7 +1173,10 @@ def _apply_nc_action(user, n, act, reason=''):
         n.hod_signed_by = n.hod_signed_at = n.closed_by = n.closed_at = None
         n.closing_date = n.followup_date = n.satisfactory = n.completion_date = None
         n.closed_by_name = ''
-        n.legacy = dict(n.legacy or {}); n.legacy.setdefault('reopened', []).append({'by': _uname(user), 'at': _d(now.date()), 'from': prev, 'reason': reason.strip()[:500]})
+        n.legacy = dict(n.legacy or {})
+        if n.legacy.get('verified'):
+            n.legacy.setdefault('verified_cleared', []).append(n.legacy.pop('verified'))
+        n.legacy.setdefault('reopened', []).append({'by': _uname(user), 'at': _d(now.date()), 'from': prev, 'reason': reason.strip()[:500]})
         n.save()
         return 'ok', 'NC&CA reopened (awaiting the department\'s response); department and closing signatures cleared.'
     return 'error', 'Unknown action.'
@@ -1135,8 +1207,11 @@ def ia_nc_delete(request, pk):
         _msg.error(request, 'Give the reason for deletion (at least 5 characters).')
         return _redirect('ia_nc_detail', pk)
     extra = {}
-    if NccaRca.objects.filter(nc=n).exists():
-        extra['rca'] = _snap(n.rca)
+    rcas = list(NccaRca.objects.filter(nc=n).order_by('part', 'id'))
+    if rcas:
+        extra['rca'] = _snap(rcas[0])
+        if len(rcas) > 1:
+            extra['rcas'] = [_snap(r) for r in rcas]
     _log_deletion('ia_nc', n, user, why, 'NC&CA %s - %s (%s)' % (n.nc_no, n.location, _d(n.date)), extra)
     loc = n.location
     n.delete()
@@ -1150,14 +1225,28 @@ def ia_rca_edit(request, nc_pk):
     user = request.user
     if not _can_manage(user, n.location):
         return HttpResponse(_DENIED % n.location, status=403)
-    r = NccaRca.objects.filter(nc=n).first()
+    existing = list(NccaRca.objects.filter(nc=n).order_by('part', 'id'))
+    want = request.GET.get('rca') or request.POST.get('rca_pk') or ''
+    add = (request.GET.get('new') or request.POST.get('new')) == '1' and bool(existing)
+    if want.isdigit():
+        r = next((x for x in existing if x.pk == int(want)), None)
+        if r is None:
+            return HttpResponse('RCA not found for this NC&CA.', status=404)
+    else:
+        r = None if add else (existing[0] if existing else None)
     if r is None and (n.status == 'draft' or n.locked):
         _msg.error(request, 'The root cause analysis is prepared once the NC&CA is raised and before it is closed.')
         return _redirect('ia_nc_detail', n.pk)
     if r is None:
-        r = NccaRca(nc=n, clause=n.clause.split(' (')[0], deputed=_uname(user), date=_date.today(), statement=n.details,
-                    rca_no=('R' + n.nc_no[3:]) if n.nc_no.startswith('NC-') else ('RCA-' + n.nc_no),
-                    whys=['', '', '', '', '', ''], performed_name=_uname(user), reviewed_name='')
+        base = ('R' + n.nc_no[3:]) if n.nc_no.startswith('NC-') else ('RCA-' + n.nc_no)
+        part = ''
+        if add:             # another root cause of the same NC&CA: parts a, b, c ... (the first one becomes "a")
+            used = {x.part for x in existing}
+            if not existing[0].part:
+                used.add('a')           # the first RCA becomes "a" when this one is saved
+            part = next(ch for ch in 'abcdefghijklmnopqrstuvwxyz' if ch not in used)
+        r = NccaRca(nc=n, part=part, clause=n.clause.split(' (')[0], deputed=_uname(user), date=_date.today(), statement=n.details if not add else '',
+                    rca_no=base + ('(%s)' % part if part else ''), whys=['', '', '', '', '', ''], performed_name=_uname(user), reviewed_name='')
     if r.pk and r.locked:
         _msg.error(request, 'A reviewed RCA is locked. Reopen it first (CEO / administrator).')
         return _redirect('ia_nc_detail', n.pk)
@@ -1190,6 +1279,8 @@ def ia_rca_edit(request, nc_pk):
             _msg.error(request, 'The statement of problem is required.')
         else:
             r.save()
+            if add and existing and not existing[0].part:
+                existing[0].part = 'a'; existing[0].save(update_fields=['part'])
             _msg.success(request, 'Root cause analysis saved.')
             return _redirect('ia_nc_detail', n.pk)
     mains = []
@@ -1197,7 +1288,7 @@ def ia_rca_edit(request, nc_pk):
         key = _re.sub(r'[^a-z]', '', main.lower())
         mains.append({'main': main, 'key': key, 'subs': [(i, s, s in (r.causes.get(main) or [])) for i, s in enumerate(subs)], 'on': main in r.causes, 'other': r.causes.get(main + ':other', '')})
     whys = list(r.whys or []) + [''] * 6
-    return render(request, 'ia_rca_edit.html', {'n': n, 'r': r, 'loc': n.location, 'mains': mains, 'whys': whys[:6], 'ctrl': _ia_docctrl('rca', n.location, _ia_on(r) if r is not None and r.date else _ia_on(n))})
+    return render(request, 'ia_rca_edit.html', {'n': n, 'r': r, 'add': add and not r.pk, 'loc': n.location, 'mains': mains, 'whys': whys[:6], 'ctrl': _ia_docctrl('rca', n.location, _ia_on(r) if r is not None and r.date else _ia_on(n))})
 
 
 def _apply_rca_action(user, r, act, reason=''):

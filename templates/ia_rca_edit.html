@@ -2,9 +2,9 @@
 {% block cc_title %}RCA - {{ n.nc_no }}{% endblock %}
 {% block crumb %} &rsaquo; <a href="{% url 'ia_ncs' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">NC &amp; CA log</a> &rsaquo; <a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;text-decoration:none">{{ n.nc_no }}</a> &rsaquo; <span>Root cause analysis</span>{% endblock %}
 {% block cc_body %}
-<form method="post" data-autosave="ia_rca_{{ n.pk }}">{% csrf_token %}
+<form method="post" data-autosave="ia_rca_{{ n.pk }}_{% if r.pk %}{{ r.pk }}{% else %}{{ r.part|default:"new" }}{% endif %}">{% csrf_token %}{% if r.pk %}<input type="hidden" name="rca_pk" value="{{ r.pk }}">{% elif add %}<input type="hidden" name="new" value="1">{% endif %}
 <div class="card">
-  <div class="hd"><div class="title"><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis Form - {{ n.nc_no }} <span class="muted">{{ ctrl.doc_no }}</span></div>
+  <div class="hd"><div class="title"><i class="fa-solid fa-diagram-project"></i> Root Cause Analysis Form - {{ n.nc_no }}{% if r.part %} ({{ r.part }}){% endif %}{% if add %} <span class="pill info">additional root cause</span>{% endif %} <span class="muted">{{ ctrl.doc_no }}</span></div>
     <div style="display:flex;gap:8px"><a class="btn" href="{% url 'ia_nc_detail' n.id %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save RCA</button></div></div>
   <div class="form-sheet">
     <div class="sec">Reference</div>

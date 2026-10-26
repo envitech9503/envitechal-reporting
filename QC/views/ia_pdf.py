@@ -8,6 +8,7 @@ import os as _os
 import re as _re
 from datetime import date as _date
 from django.conf import settings as _settings
+from django.http import Http404
 
 from QC.models import IaPlan, IaAudit, IaCircular, IaWitness, Ncca, NccaRca
 from QC.views.control_chart import _CC_OFFICE, _uname, _sig_image, _is_admin, _user_labs, _user_office
@@ -546,6 +547,18 @@ def ia_nc_pdf(request, pk):
     pdf.set_xy(x + 60, y); pdf.set_font(f, 'B', 7.4); pdf.cell(20, 10, 'Remarks:', 1, 0, 'L', fill=True); pdf.set_font(f, '', 7.6); pdf.cell(pdf.W - 110, 10, (n.remarks or '-')[:90], 1, 0, 'L')
     pdf.set_xy(10, y + 11)
     pdf.set_font(f, 'B', 6.4); pdf.multi_cell(pdf.W, 3.2, 'Note: All Observations raised during the internal audits will be reviewed, and verified in the next plan audit by the Internal Auditor(s).', 0, 'L')
+    v = n.verified
+    if v:
+        pdf.set_x(10); pdf.set_font(f, 'B', 6.6); pdf.set_text_color(22, 101, 52)
+        pdf.multi_cell(pdf.W, 3.4, 'Verified against the signed paper form by %s on %s (e-signature in the software).' % (v.get('by', ''), v.get('at', '')), 0, 'L')
+        pdf.set_text_color(0, 0, 0)
+    gaps = n.form_gaps
+    if gaps:            # say why a section is blank instead of printing an unexplained empty form (complaint 26-10-2026)
+        pdf.set_x(10); pdf.set_font(f, '', 6.4); pdf.set_text_color(146, 64, 14)
+        lead = ('only the NC&CA log entry (ETAL-QMS-710-FF-02) was supplied for induction into the software' if n.log_only
+                else 'these parts were not in the record supplied for induction into the software')
+        pdf.multi_cell(pdf.W, 3.2, 'Record note: %s - %s. The signed paper NC&CA form is the record for them until they are completed here.' % (lead, ', '.join(gaps)), 0, 'L')
+        pdf.set_text_color(0, 0, 0)
     return _resp(pdf, 'NCCA_%s_%s' % (n.location, n.nc_no))
 
 
@@ -566,12 +579,29 @@ def _sig_cell(pdf, x, y, w, h, user, when, name=''):
 
 # ---------------------------------------------------------------- 710-FF-01A root cause analysis (landscape)
 def ia_rca_pdf(request, pk):
+    """710-FF-01A: every RCA of the NC&CA, one page each (one RCA per root cause a, b, c ...), or one RCA with ?rca=<id>."""
     n = get_object_or_404(Ncca, pk=pk)
-    r = get_object_or_404(NccaRca.objects.select_related('performed_by', 'reviewed_by'), nc=n)
-    ctrl = _ia_docctrl('rca', n.location, _ia_on(r) if r.date else _ia_on(n))
-    wm = {'reviewed': '', 'draft': 'DRAFT'}.get(r.status, 'AWAITING CEO REVIEW')
+    qs = NccaRca.objects.filter(nc=n).select_related('performed_by', 'reviewed_by').order_by('part', 'id')
+    want = request.GET.get('rca') or ''
+    if want.isdigit():
+        qs = qs.filter(pk=int(want))
+    rcas = list(qs)
+    if not rcas:
+        raise Http404('No root cause analysis for this NC&CA.')
+    r0 = rcas[0]
+    ctrl = _ia_docctrl('rca', n.location, _ia_on(r0) if r0.date else _ia_on(n))
+    sts = {r.status for r in rcas}
+    wm = 'DRAFT' if 'draft' in sts else ('AWAITING CEO REVIEW' if 'performed' in sts else '')
     pdf = _pdf('ROOT CAUSE ANALYSIS FORM', '%s LABORATORY  -  %s' % (n.location.upper(), n.nc_no), ctrl, n.location, 'L', wm)
     f = pdf.fam
+    for i, r in enumerate(rcas):
+        if i:
+            pdf.set_auto_page_break(True, 30); pdf.add_page()
+        _rca_page(pdf, f, n, r)
+    return _resp(pdf, 'RCA_%s_%s' % (n.location, (r0.rca_no if len(rcas) == 1 else n.nc_no) or n.nc_no))
+
+
+def _rca_page(pdf, f, n, r):
     pdf.set_y(38)
     pdf.kv([('NCR #', n.nc_no, 16, 44), ('Clause #', r.clause, 16, 30), ('RCA #', r.rca_no, 14, 40), ('Person Deputed For RCA', r.deputed, 40, 42), ('Date', _d(r.date), 14, 29)], h=5.6)
     pdf.ln(1)
@@ -643,7 +673,7 @@ def ia_rca_pdf(request, pk):
     pdf.set_x(pdf.get_x() + 2); pdf.set_font(f, 'B', 7.2); pdf.cell(20, 5, 'Date:', 0, 0, 'L'); pdf.set_font(f, '', 7.2); pdf.cell(24, 5, _d(r.reviewed_date) or '-', 'B', 0, 'C')
     pdf.set_xy(10, min(max(pdf.get_y(), yb + 20) + 3, pdf.h - 28))
     pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, 'End of Document', 'T', 0, 'C')
-    return _resp(pdf, 'RCA_%s_%s' % (n.location, r.rca_no or n.nc_no))
+
 
 
 # ---------------------------------------------------------------- 710-FF-02 NC&CA log (landscape)

@@ -22,7 +22,7 @@ def _clause_map(loc):
     open_q = Ncca.objects.filter(location__in=labs).exclude(status='closed')
     open_nc = open_q.count()
     overdue = open_q.filter(target_date__lt=today).count() + open_q.filter(target_date__isnull=True, proposed_date__lt=today).count()
-    rca_pending = Ncca.objects.filter(location__in=labs, rca__isnull=True, log_only=False).exclude(status__in=('closed', 'draft')).count()
+    rca_pending = Ncca.objects.filter(location__in=labs, rcas__isnull=True, log_only=False).exclude(status__in=('closed', 'draft')).count()
     audits_y = IaAudit.objects.filter(location__in=labs, year=today.year).count()
     plan_y = IaPlan.objects.filter(location__in=labs, year=today.year).count()
     from QC.models import MrmMeeting, MrmItem

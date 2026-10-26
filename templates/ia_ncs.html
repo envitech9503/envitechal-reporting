@@ -20,6 +20,8 @@
       <a class="btn {% if show == 'closed' %}btn-p{% endif %}" href="?location={{ loc }}&show=closed&source={{ src }}">Closed <span class="pill none">{{ counts.closed }}</span></a>
       <a class="btn {% if show == 'year' %}btn-p{% endif %}" href="?location={{ loc }}&show=year&year={{ year }}&source={{ src }}">By year</a>
       <a class="btn {% if show == 'all' %}btn-p{% endif %}" href="?location={{ loc }}&show=all&source={{ src }}">All <span class="pill none">{{ counts.all }}</span></a>
+      {% if counts.incomplete %}<a class="btn {% if show == 'incomplete' %}btn-p{% endif %}" href="?location={{ loc }}&show=incomplete&source={{ src }}" title="Inducted NC&amp;CAs whose signed paper form is not (fully) in the system">Form incomplete <span class="pill warn">{{ counts.incomplete }}</span></a>{% endif %}
+      {% if counts.unverified %}<a class="btn {% if show == 'unverified' %}btn-p{% endif %}" href="?location={{ loc }}&show=unverified&source={{ src }}" title="Inducted NC&amp;CAs not yet verified against the signed paper form">Not verified <span class="pill warn">{{ counts.unverified }}</span></a>{% endif %}
     </span>
   </form>
   <table>
@@ -28,7 +30,7 @@
     {% for n in rows %}
       <tr>
         <td class="c muted">{{ n.log_sno|default:"-" }}</td>
-        <td class="nw"><a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;font-weight:700">{{ n.nc_no }}</a>{% if n.log_only %} <span class="pill none" title="Row of the log without a form in the record">log</span>{% elif n.inducted %} <span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}</td>
+        <td class="nw"><a href="{% url 'ia_nc_detail' n.id %}" style="color:#0f5132;font-weight:700">{{ n.nc_no }}</a>{% if n.log_only %} <span class="pill none" title="Row of the log without a form in the record">log</span>{% elif n.inducted %} <span class="pill none" title="Inducted from the laboratory's record">REC</span>{% endif %}{% if n.form_gaps %} <span class="pill warn" title="Not in the system: {{ n.form_gaps|join:', ' }}">form incomplete</span>{% endif %}{% if n.verified %} <span class="pill ok" title="Verified against the signed paper form by {{ n.verified.by }} on {{ n.verified.at }}">&#10003; paper</span>{% endif %}</td>
         <td class="nw">{{ n.clause|truncatechars:28 }}</td>
         <td class="nw">{% if n.category == 'major' or n.category == 'critical' %}<span class="pill bad">{{ n.get_category_display }}</span>{% elif n.category == 'minor' %}<span class="pill warn">Minor</span>{% else %}<span class="pill info">{{ n.get_category_display }}</span>{% endif %} <span class="muted">{{ n.get_source_display|truncatechars:14 }}</span></td>
         <td>{{ n.raised_by|default:"-" }}</td>

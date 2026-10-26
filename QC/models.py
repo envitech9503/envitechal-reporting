@@ -1274,6 +1274,43 @@ class Ncca(models.Model):
     def is_nc(self):
         return self.category in ('minor', 'major', 'critical')
 
+    @property
+    def rca_list(self):
+        """All root cause analyses of this NC&CA (one per root cause: a, b, c ...), in order. Uses a prefetch if present."""
+        return sorted(self.rcas.all(), key=lambda r: (r.part or '', r.id or 0))
+
+    @property
+    def rca(self):
+        """The first RCA (most NC&CAs have exactly one) - kept for the pages and PDFs written for one RCA."""
+        rows = self.rca_list
+        return rows[0] if rows else None
+
+    @property
+    def verified(self):
+        """Sign-off that this inducted record matches the signed paper form: {'by', 'user', 'at'} or None (26-10-2026)."""
+        return (self.legacy or {}).get('verified') or None
+
+    LOG_ONLY_TEXT = 'Entry of the NC&CA log (ETAL-QMS-710-FF-02); the NC&CA form is not in the inducted record.'
+
+    @property
+    def form_gaps(self):
+        """Sections of an inducted NC&CA form that were not in the record supplied for induction (complaint 26-10-2026:
+        the forms 'looked empty'). Empty list = nothing missing, or not an inducted record."""
+        if not self.inducted:
+            return []
+        gaps = []
+        if self.log_only or not (self.details or '').strip() or (self.details or '').strip() == self.LOG_ONLY_TEXT:
+            gaps.append('non-conformity details')
+        if not (self.root_cause or '').strip():
+            gaps.append('root cause')
+        if not (self.corrective or '').strip():
+            gaps.append('corrective action')
+        if not self.completion_date:
+            gaps.append('completion date')
+        if self.satisfactory is None and not (self.followup_desc or '').strip():
+            gaps.append('MR follow-up')
+        return gaps
+
 
 class NccaRca(models.Model):
     """Root Cause Analysis (ETAL-QMS-710-FF-01A): potential causes ticked, 6-Why chain, conclusion;
@@ -1286,7 +1323,8 @@ class NccaRca(models.Model):
                    ('Material', ['Required material not available', 'Improvement needed', 'Inappropriate', 'Poor Quality', 'Storage Conditions']),
                    ('Equipment', ['Required material not available', 'Improvement needed', 'Inappropriate', 'Not Calibrated', 'Poor Handling / Transportation']))
     STATUSES = (('draft', 'Draft'), ('performed', 'Performed - awaiting CEO review'), ('reviewed', 'Reviewed by CEO'))
-    nc = models.OneToOneField(Ncca, on_delete=models.CASCADE, related_name='rca')
+    nc = models.ForeignKey(Ncca, on_delete=models.CASCADE, related_name='rcas')
+    part = models.CharField(max_length=4, blank=True, default='')   # a / b / c when one NC&CA carries several root causes (26-10-2026)
     rca_no = models.CharField(max_length=40, blank=True, default='')
     clause = models.CharField(max_length=60, blank=True, default='')
     deputed = models.CharField(max_length=120, blank=True, default='')
@@ -1314,6 +1352,9 @@ class NccaRca(models.Model):
     def inducted(self):
         """True for a record inducted from the laboratory's paper / Word record (legacy.key is set by the import)."""
         return bool((self.legacy or {}).get('key') or (self.legacy or {}).get('inducted'))
+
+    class Meta:
+        ordering = ['part', 'id']
 
     def __str__(self):
         return 'RCA %s of %s' % (self.rca_no, self.nc_id)
