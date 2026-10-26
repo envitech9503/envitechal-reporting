@@ -1,0 +1,65 @@
+{% comment %}In-page navigation of the QC / Management modules (owner review 27-10-2026): Back / Forward buttons and quick
+links to the module's main pages, shown on every page of the module. Back returns to the previous page of the session
+(or the module home when the page was opened directly); the current page's link is highlighted.
+Usage: {% include "_module_nav.html" with mod="soc" home=<url> %}{% endcomment %}
+<style>
+  .mnav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;max-width:1200px;margin:10px auto 0;padding:0 16px}
+  .mnav .mn-l,.mnav .mn-r{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .mnav .mn-b{display:inline-flex;align-items:center;gap:5px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;padding:4px 10px;border-radius:7px;font-size:12.5px;text-decoration:none;cursor:pointer;font-family:inherit;line-height:1.4}
+  .mnav .mn-b:hover{border-color:#0f5132;color:#0f5132}
+  .mnav .mn-t{font-size:12.5px;color:#334155;text-decoration:none;padding:4px 11px;border-radius:999px;border:1px solid #d6dee8;background:#fff;white-space:nowrap}
+  .mnav .mn-t:hover{background:#ecfdf5;color:#0f5132}
+  .mnav .mn-t.on{background:#0f5132;color:#fff;border-color:#0f5132}
+</style>
+<div class="mnav" id="mnav">
+  <div class="mn-l">
+    <button type="button" class="mn-b" onclick="mnBack()" title="Previous page"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    <button type="button" class="mn-b" onclick="history.forward()" title="Next page"><i class="fa-solid fa-arrow-right"></i></button>
+    <a class="mn-b" href="{{ home }}" title="Module home"><i class="fa-solid fa-house"></i></a>
+  </div>
+  <div class="mn-r">
+  {% if mod == "soc" %}
+    <a class="mn-t" data-p="{% url 'soc_list' %}" data-exact="1" href="{% url 'soc_list' %}">Records</a>
+    <a class="mn-t" data-p="{% url 'soc_new' %}" href="{% url 'soc_new' %}">New statement</a>
+    <a class="mn-t" data-p="/qc/soc/request/" href="{% url 'soc_request_new' %}">Request form (FF-17)</a>
+    <a class="mn-t" data-p="{% url 'soc_doccontrol' %}" href="{% url 'soc_doccontrol' %}">Form numbers</a>
+    <a class="mn-t" data-p="{% url 'soc_deletions' %}" href="{% url 'soc_deletions' %}">Deleted</a>
+    <a class="mn-t" data-p="{% url 'soc_manual' %}" href="{% url 'soc_manual' %}">Manual</a>
+  {% elif mod == "ia" %}
+    <a class="mn-t" data-p="{% url 'ia_home' %}" data-exact="1" href="{% url 'ia_home' %}">Overview</a>
+    <a class="mn-t" data-p="{% url 'ia_plans' %}" href="{% url 'ia_plans' %}">Plans</a>
+    <a class="mn-t" data-p="{% url 'ia_circulars' %}" href="{% url 'ia_circulars' %}">Circulars</a>
+    <a class="mn-t" data-p="{% url 'ia_audits' %}" href="{% url 'ia_audits' %}">Audits</a>
+    <a class="mn-t" data-p="{% url 'ia_ncs' %}" href="{% url 'ia_ncs' %}">NC&amp;CA</a>
+    <a class="mn-t" data-p="{% url 'ia_rcas' %}" href="{% url 'ia_rcas' %}">RCA</a>
+    <a class="mn-t" data-p="{% url 'ia_witnessing' %}" href="{% url 'ia_witnessing' %}">Witnessing</a>
+    <a class="mn-t" data-p="{% url 'ia_signing' %}" href="{% url 'ia_signing' %}">Signing</a>
+    <a class="mn-t" data-p="{% url 'ia_manual' %}" href="{% url 'ia_manual' %}">Manual</a>
+  {% elif mod == "mou" %}
+    <a class="mn-t" data-p="{% url 'mou_list' %}" data-exact="1" href="{% url 'mou_list' %}">Studies</a>
+    <a class="mn-t" data-p="{% url 'mou_new' %}" href="{% url 'mou_new' %}">New study</a>
+    <a class="mn-t" data-p="{% url 'mou_library' %}" href="{% url 'mou_library' %}">Library</a>
+    <a class="mn-t" data-p="{% url 'mou_signing' %}" href="{% url 'mou_signing' %}">Signing</a>
+    <a class="mn-t" data-p="{% url 'mou_doccontrol' %}" href="{% url 'mou_doccontrol' %}">Form numbers</a>
+    <a class="mn-t" data-p="{% url 'mou_manual' %}" href="{% url 'mou_manual' %}">Manual</a>
+  {% elif mod == "mrm" %}
+    <a class="mn-t" data-p="{% url 'mrm_home' %}" data-exact="1" href="{% url 'mrm_home' %}">Overview</a>
+    <a class="mn-t" data-p="{% url 'mrm_actions' %}" href="{% url 'mrm_actions' %}">Actions</a>
+    <a class="mn-t" data-p="{% url 'mrm_signing' %}" href="{% url 'mrm_signing' %}">Signing</a>
+    <a class="mn-t" data-p="{% url 'mrm_deletions' %}" href="{% url 'mrm_deletions' %}">Deleted</a>
+  {% endif %}
+  </div>
+</div>
+<script>
+(function(){
+  var p = location.pathname;
+  document.querySelectorAll('#mnav .mn-t').forEach(function(a){
+    var d = a.getAttribute('data-p');
+    if (a.getAttribute('data-exact') ? p === d : p.indexOf(d) === 0) a.classList.add('on');
+  });
+})();
+function mnBack(){
+  var same = document.referrer && document.referrer.indexOf(location.origin) === 0;
+  if (same && history.length > 1) { history.back(); } else { location.href = "{{ home }}"; }
+}
+</script>

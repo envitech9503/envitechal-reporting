@@ -365,3 +365,19 @@ class Review27OctTests(TestCase):
         r = ceo.get('/qc/ia/audits/%d/pdf/' % a.pk); self.assertEqual(r.status_code, 200)
         mgr.post('/qc/ia/audits/%d/action/' % a.pk, {'action': 'reopen', 'reason': 'typing error'}); a.refresh_from_db(); self.assertFalse(a.endorsed)
         self.assertEqual(mgr.get('/qc/ia/log/pdf/?location=Karachi').status_code, 200)
+
+
+class EndOfDocumentTests(TestCase):
+    def test_end_line_stays_on_the_last_page(self):
+        """Owner review 27-10-2026: '---END OF THE DOCUMENT---' used to move alone onto a new page when the last content
+        ended inside the page-break margin; it now uses the space down to the footer."""
+        from fpdf import FPDF
+        from QC.views.ia_pdf import _end_of_document
+        p = FPDF(); p.W = 190; p.set_auto_page_break(True, 30); p.add_page()
+        p.set_y(p.h - 34)                                   # inside the 30 mm margin, above the footer (h - 20)
+        _end_of_document(p, 'Helvetica', 3)
+        self.assertEqual(p.page_no(), 1)
+        self.assertEqual((p.auto_page_break, p.b_margin), (True, 30))
+        p.set_y(p.h - 22)                                   # no room left: a new page
+        _end_of_document(p, 'Helvetica', 3)
+        self.assertEqual(p.page_no(), 2)

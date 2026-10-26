@@ -15,6 +15,9 @@ from contextlib import contextmanager
 
 from QC.soc_rules import DW_PARAMS, WW_PARAMS
 
+FOOTER_HEAD = 'Head Office: 345, First Floor, Street-15, Block-3, Bahadurabad, Karachi 75900, Pakistan.  03102288801'
+FOOTER_LAHORE = 'Lahore Office: 87-E Madina Height, Office # A/30 & A/31, 8th Floor, Maulana Shaukat Ali Road.  +924232296099'
+
 _ALIASES = {}
 for _t in (DW_PARAMS, WW_PARAMS):
     for _f, _name, _u, _l, _acc, _names in _t:
@@ -144,12 +147,37 @@ def soc_pdf_class(base, soc):
         _soc = soc
 
         def header(self):
+            later = self.page_no() > 1
+            if later:                                     # customer & sample block on the first page only (27-10-2026)
+                self.show_full_header = False
             super().header()
+            self._soc_footer()
+            if later:
+                self.set_y(60)
             if self._soc.get('draft'):
                 with self.local_context():
                     self.set_font('Calibri', 'B', 46); self.set_text_color(222, 172, 172)
                     with self.rotation(35, self.w / 2, self.h / 2):
                         self.text(self.w / 2 - self.get_string_width('NOT APPROVED') / 2, self.h / 2, 'NOT APPROVED')
+
+        def _soc_footer(self):
+            """The report footer redrawn with its two address lines centred between the two icons and evenly spaced
+            in the band; the web and e-mail lines on the same baselines (owner review 27-10-2026)."""
+            h, w = self.h, self.w
+            with self.local_context():
+                self.set_fill_color(40, 25, 105); self.rect(0, h - 14, w, 12, 'F')
+                try:
+                    self.image('static/assets/Picture1.png', 5, h - 15, 12, 12)
+                    self.image('static/assets/earth.png', 166, h - 11.5, 7, 7)
+                except Exception:
+                    pass
+                self.set_text_color(255, 255, 255); self.set_font('Calibri', '', 8.6)
+                y1, y2 = h - 9.0, h - 4.9
+                x0, x1 = 19.0, 163.0
+                for t, y in ((FOOTER_HEAD, y1), (FOOTER_LAHORE, y2)):
+                    self.text(x0 + (x1 - x0 - self.get_string_width(t)) / 2, y, t)
+                self.text(175, y1, 'www.envitechal.com')
+                self.text(175, y2, 'info@envitechal.com')
 
         @contextmanager
         def table(self, *args, **kw):
@@ -193,6 +221,10 @@ def soc_pdf_class(base, soc):
                             self._soc['capture'].append({'desc': cells[1], 'result': cells[pos], 'limit': cells[pos + 1]})
                     for i, (a, k) in enumerate(r.cells):
                         span = int(k.get('colspan', 1) or 1)
+                        if n == 0 and self._soc.get('kind') == 'ww2' and col == i and i in (4, 5) and i <= pos:
+                            # the result column's heading, not the free-text label typed on the report (27-10-2026)
+                            lab = 'Results' if pos == 4 else ('Inlet Results' if i == 4 else 'Outlet Results')
+                            a, k = ((lab,) + tuple(a[1:]), k) if a else (a, dict(k, text=lab))
                         if n and rec and i == pos + 1 and col == i:     # the limit judged must be the limit printed
                             from QC.soc_rules import parse_limit
                             if parse_limit(_text((a, k))) != (rec.lower, rec.upper):

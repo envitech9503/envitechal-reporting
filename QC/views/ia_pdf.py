@@ -301,8 +301,20 @@ def ia_plan_pdf(request, pk):
     # two panels with a gap in the middle like the paper form
     gap_panels = [panels[0], ('', '', '', None, ''), panels[1]]
     pdf.sig_panels(gap_panels, top, 26)
-    pdf.set_y(top + 30); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 0, 'C')
+    pdf.set_y(top + 26); _end_of_document(pdf, f, 4)
     return _resp(pdf, 'IA_Plan_%s_%d' % (plan.location, plan.year))
+
+
+def _end_of_document(pdf, f, gap):
+    """'---END OF THE DOCUMENT---' under the last content: it uses the space down to the footer (the page-break
+    margin is kept for tables), so it never moves alone onto a new page (owner review 27-10-2026)."""
+    y = pdf.get_y() + gap
+    if y + 5 > pdf.h - 21:                     # no room above the footer at all
+        pdf.add_page(); y = pdf.get_y() + gap
+    ab, bm = pdf.auto_page_break, pdf.b_margin
+    pdf.set_auto_page_break(False)
+    pdf.set_xy(pdf.l_margin, y); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 1, 'C')
+    pdf.set_auto_page_break(ab, margin=bm)
 
 
 # ---------------------------------------------------------------- FF-03 circular (portrait)
@@ -444,7 +456,7 @@ def ia_audit_pdf(request, pk):
         elif a.ceo_endorsed_at:
             pdf.set_xy(28, y0 + 7); pdf.set_font(f, '', 6.4); pdf.cell(50, 5, 'Electronically signed %s' % _tz.localtime(a.ceo_endorsed_at).strftime('%d-%m-%Y %H:%M'), 0, 0, 'L')
         pdf.set_y(y0 + 22)
-    pdf.ln(3); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 1, 'C')
+    _end_of_document(pdf, f, 3)
     # witnessing records
     for w in a.witnessings.all():
         pdf.add_page()

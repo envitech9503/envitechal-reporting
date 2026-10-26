@@ -58,6 +58,7 @@
   <a href="/qc/qc_main/" style="color:#0f5132;text-decoration:none">QC</a> &rsaquo;
   <a href="{% url 'soc_list' %}" style="color:#0f5132;text-decoration:none">Decision Rule / Statement of Conformity</a>{% block crumb %}{% endblock %}
 </div>
+{% url 'soc_list' as mod_home_url %}{% include "_module_nav.html" with mod="soc" home=mod_home_url %}
 <div class="wrap">
 {% if messages %}{% for m in messages %}<div class="card"><div class="msg {{ m.level_tag }}" data-tags="{{ m.extra_tags }}">{{ m }}</div></div>{% endfor %}{% endif %}
 {% block cc_body %}{% endblock %}

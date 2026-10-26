@@ -104,6 +104,7 @@
   <a href="/management/" style="color:#0f5132;text-decoration:none">Management Records</a> &rsaquo;
   <a href="{% url 'mrm_home' %}" style="color:#0f5132;text-decoration:none">Management Review</a>{% block crumb %}{% endblock %}
 </div>
+{% url 'mrm_home' as mod_home_url %}{% include "_module_nav.html" with mod="mrm" home=mod_home_url %}
 {% include "_mrm_menu.html" %}
 <div class="wrap">
 {% if messages %}{% for m in messages %}<div class="card"><div class="msg {{ m.level_tag }}" data-tags="{{ m.extra_tags }}">{{ m }}</div></div>{% endfor %}{% endif %}

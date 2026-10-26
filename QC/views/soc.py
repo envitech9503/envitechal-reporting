@@ -962,6 +962,7 @@ def soc_sample_pdf(request, sample_id):
         soc = soc_context(recs)
         from QC.soc_report import result_column
         soc['result_col'] = result_column(kind, rep)
+        soc['kind'] = kind
         c = ctrl
         dno = c['doc_no'] if c.get('doc_no') not in (None, '', 'TBA') else _FORMS[form][0]
         idate = (c.get('issue_date') or '').strip()

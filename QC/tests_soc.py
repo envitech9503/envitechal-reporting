@@ -223,6 +223,40 @@ class SocTests(TestCase):
         pdf = build_ff17(q, doc_control('soc_request', 'Lahore'), 'x')
         self.assertGreater(len(bytes(pdf.output())), 1000)
 
+    def test_decision_report_layout_rules(self):
+        """Owner review 27-10-2026: the result column is headed "Results" (not the label typed on the report), and the
+        customer / sample block prints on the first page only."""
+        import shutil, subprocess, tempfile
+        ww = WasteWaterForm2.objects.get(sample_id='WW-202610001')
+        ww.in_out, ww.outlet_result, ww.select = 'out', '<0.0032', 'PEQS'
+        for n in range(1, 33):                                           # a long table: the report runs over pages
+            setattr(ww, 'result_%d_%d' % (n, n), getattr(ww, 'result_%d_%d' % (n, n), None) or '1.5')
+        ww.save()
+        chem = C(self.chem)
+        d = chem.get('/qc/soc/api/sample/', {'sample_id': 'WW-202610001', 'location': 'Karachi'}).json()
+        P = {'sample_id': 'WW-202610001', 'report_type': d['report_type'], 'report_pk': d['report_pk'], 'standard': d['header']['standard']}
+        for i, p in enumerate(d['parameters']):
+            if p['accredited'] and p['value'] is not None:
+                P.update({'p%d_on' % i: '1', 'p%d_parameter' % i: p['parameter'], 'p%d_method' % i: p['method'], 'p%d_unit' % i: p['unit'],
+                          'p%d_v0' % i: p['value'], 'p%d_upper' % i: p['upper'] if p['upper'] is not None else '', 'p%d_lower' % i: p['lower'] if p['lower'] is not None else '',
+                          'p%d_limit' % i: p['limit'], 'p%d_u' % i: '0.2'})
+        self.assertEqual(chem.post('/qc/soc/new/?location=Karachi', P).status_code, 302)
+        r = chem.get('/qc/soc/sample/WW-202610001/pdf/', {'location': 'Karachi'})
+        self.assertEqual(r.status_code, 200)
+        if not shutil.which('pdftotext'):
+            return
+        out = os.environ.get('SOC_PDF_DUMP')
+        with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as fh:
+            fh.write(r.content); path = fh.name
+        if out:
+            shutil.copy(path, out)
+        txt = subprocess.run(['pdftotext', '-opw', 'karachi123', '-layout', path, '-'], capture_output=True, text=True).stdout
+        pages = txt.split('\f')
+        self.assertGreater(len([p for p in pages if p.strip()]), 1)
+        self.assertEqual(txt.count('Report to:'), 1)
+        self.assertEqual(txt.count('Sample Collected By:'), 1)
+        self.assertIn('Results', pages[0]); self.assertNotIn('<0.0032', pages[0].split('Analytical Test Report')[-1].split('\n')[2] if 'Analytical Test Report' in pages[0] else '')
+
     def test_no_cross_lab_view_and_lab_form_numbers(self):
         call_command('import_soc_spec', SPEC, '--apply', stdout=io.StringIO())
         rec = SocRecord.objects.filter(location='Karachi').first(); q = SocRequest.objects.filter(location='Karachi').first()
