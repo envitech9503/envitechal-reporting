@@ -39,9 +39,9 @@
 <div class="card">
   <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-signature"></i> Signatures</div></div>
   <div class="kv" style="grid-template-columns:150px 1fr 150px 1fr 150px 1fr">
-    <b>Performed by</b><span>{% if r.performed_at %}{{ r.performed_by.get_full_name|default:r.performed_by.username }} - {{ r.performed_at|date:"d-m-Y H:i" }}{% elif r.performed_name %}{{ r.performed_name }} (record){% elif r.inducted %}signed on the paper record{% else %}-{% endif %}</span>
-    <b>Reviewed by</b><span>{% if r.reviewed_at %}{{ r.reviewed_by.get_full_name|default:r.reviewed_by.username }} - {{ r.reviewed_at|date:"d-m-Y H:i" }}{% elif r.reviewed_name %}{{ r.reviewed_name }} (record){% elif r.inducted %}signed on the paper record{% else %}-{% endif %}</span>
-    <b>Approved by</b><span>{% if r.approved_at %}{{ r.approved_by.get_full_name|default:r.approved_by.username }} - {{ r.approved_at|date:"d-m-Y H:i" }}{% elif r.approved_name %}{{ r.approved_name }} (record){% elif r.inducted %}signed on the paper record{% else %}-{% endif %}</span>
+    <b>Performed by</b><span>{% if r.performed_at %}{{ r.performed_by.get_full_name|default:r.performed_by.username }} - {{ r.performed_at|date:"d-m-Y H:i" }}{% elif r.performed_name %}{{ r.performed_name }} (record){% elif r.inducted %}{{ r.paper_sign_text }}{% else %}-{% endif %}</span>
+    <b>Reviewed by</b><span>{% if r.reviewed_at %}{{ r.reviewed_by.get_full_name|default:r.reviewed_by.username }} - {{ r.reviewed_at|date:"d-m-Y H:i" }}{% elif r.reviewed_name %}{{ r.reviewed_name }} (record){% elif r.inducted %}{{ r.paper_sign_text }}{% else %}-{% endif %}</span>
+    <b>Approved by</b><span>{% if r.approved_at %}{{ r.approved_by.get_full_name|default:r.approved_by.username }} - {{ r.approved_at|date:"d-m-Y H:i" }}{% elif r.approved_name %}{{ r.approved_name }} (record){% elif r.inducted %}{{ r.paper_sign_text }}{% else %}-{% endif %}</span>
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if can_perform %}<form method="post" action="{% url 'soc_action' r.id %}">{% csrf_token %}<input type="hidden" name="action" value="perform"><button class="btn btn-p" type="submit" onclick="return confirm('Sign this record as performed by you?')"><i class="fa-solid fa-signature"></i> Sign as performed</button></form>{% endif %}

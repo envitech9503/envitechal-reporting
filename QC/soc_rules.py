@@ -101,6 +101,22 @@ def to_float(text):
     return float(s) if m else None
 
 
+_LT = re.compile(r'^\s*(<|\u2264|&lt;|less than)\s*([+-]?\d+(?:\.\d+)?)\s*$', re.I)
+
+
+def parse_result(text):
+    """A result as (value, text): '7.36' -> (7.36, ''); '<0.0080' -> (0.008, '<0.0080') - a result below the limit of
+    quantification is judged at the LOQ and shown as written; 'N.D.' -> (None, '')."""
+    s = str(text if text is not None else '').strip().replace(',', '')
+    v = to_float(s)
+    if v is not None:
+        return v, ''
+    m = _LT.match(s)
+    if m:
+        return float(m.group(2)), '<' + m.group(2)
+    return None, ''
+
+
 def mou_u(location, names, value=None):
     """Expanded uncertainty (absolute) in force in the MOU register for a parameter: (U_abs, label, study id).
     Prefers a study of sample kind SAMPLE, then any; when the register gives only a relative U it is applied to the value."""
@@ -195,10 +211,10 @@ def report_parameters(kind, r, location):
             continue
         n = re.search(r'(\d+)', field).group(1)
         method = getattr(r, 'method_%s' % n, '') or ''
-        val = to_float(res)
+        val, vtxt = parse_result(res)
         u, ulabel, sid = mou_u(location, names, val) if names else (None, '', None)
         lo, hi = parse_limit(limit)
-        rows.append({'field': field, 'parameter': name, 'result': str(res).strip(), 'value': val, 'method': method.strip(), 'unit': unit,
+        rows.append({'field': field, 'parameter': name, 'result': str(res).strip(), 'value': val, 'value_text': vtxt, 'method': method.strip(), 'unit': unit,
                      'limit': limit, 'lower': lo, 'upper': hi, 'accredited': acc, 'u': u, 'u_label': ulabel, 'mou_study': sid})
     for x in extra_parameters(kind, r):                     # parameters added to the report beyond the printed list (Alkalinity, Calcium ...)
         name = (x.get('parameters') or x.get('parameter') or '').strip()
@@ -206,11 +222,11 @@ def report_parameters(kind, r, location):
         if not name or str(res).strip() in ('', '-', 'N/A'):
             continue
         short = name.split('(')[0].strip()
-        val = to_float(res)
+        val, vtxt = parse_result(res)
         u, ulabel, sid = mou_u(location, [short.lower()], val)
         lim = str(x.get('limit') or x.get('custom_limit') or '').strip()
         lo, hi = parse_limit(lim)
-        rows.append({'field': 'extra', 'parameter': short[:80], 'result': str(res).strip(), 'value': val, 'method': str(x.get('methods') or x.get('method') or '').strip(),
+        rows.append({'field': 'extra', 'parameter': short[:80], 'result': str(res).strip(), 'value': val, 'value_text': vtxt, 'method': str(x.get('methods') or x.get('method') or '').strip(),
                      'unit': str(x.get('unit') or 'mg/L').strip(), 'limit': lim, 'lower': lo, 'upper': hi,
                      'accredited': (short in acc_set) if acc_set is not None else False, 'u': u, 'u_label': ulabel, 'mou_study': sid})
     return rows

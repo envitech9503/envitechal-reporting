@@ -62,7 +62,7 @@ class SocTests(TestCase):
         self.assertIsNone(by['TDS']['u']); self.assertIsNone(by['TSS']['value']); self.assertFalse(by['Temperature']['accredited'])
         rows = R.report_parameters('dw', DrinkingWaterForm.objects.get(), 'Karachi')
         by = {r['parameter']: r for r in rows}
-        self.assertEqual(by['Alkalinity']['value'], 120.0); self.assertFalse(by['Alkalinity']['accredited']); self.assertIsNone(by['Nickel']['value'])
+        self.assertEqual(by['Alkalinity']['value'], 120.0); self.assertFalse(by['Alkalinity']['accredited']); self.assertEqual((by['Nickel']['value'], by['Nickel']['value_text']), (0.008, '<0.0080'))
         self.assertTrue(R.report_parameters('dw', DrinkingWaterForm.objects.get(), 'Lahore')[0]['accredited'])
 
     def test_full_flow(self):
@@ -155,3 +155,33 @@ class SocTests(TestCase):
         self.assertEqual(chem.get('/qc/soc/doc-control/').status_code, 403)
         self.assertEqual(ceo.get('/qc/soc/doc-control/').status_code, 200)
         self.assertEqual(chem.get('/qc/soc/sample/NOPE/pdf/?location=Karachi').status_code, 404)
+
+    def test_corrections_and_below_loq(self):
+        call_command('import_soc_spec', SPEC, '--apply', stdout=io.StringIO())
+        corr = os.path.join(os.path.dirname(__file__), 'fixtures', 'soc_karachi_corrections.json')
+        out = io.StringIO(); call_command('correct_soc_spec', corr, stdout=out)
+        self.assertIn('DRY RUN', out.getvalue())
+        self.assertEqual(SocRecord.objects.get(sample_id='WW-202405120', parameter='COD').uncertainty, 2.441)     # dry run rolled back
+        out = io.StringIO(); call_command('correct_soc_spec', corr, '--apply', stdout=out)
+        self.assertIn('corrected 8, added 1', out.getvalue())
+        out = io.StringIO(); call_command('correct_soc_spec', corr, '--apply', stdout=out)
+        self.assertIn('corrected 0, added 0, skipped 9', out.getvalue())
+        cod = SocRecord.objects.get(sample_id='WW-202405120', parameter='COD')
+        self.assertEqual((cod.uncertainty, cod.status), (1.341, 'approved'))
+        self.assertIn('2.441 -> 1.341', cod.remarks)
+        self.assertEqual(cod.history.first().uncertainty, 1.341); self.assertEqual(cod.history.last().uncertainty, 2.441)
+        ni = SocRecord.objects.get(sample_id='DW-202409012', parameter='Nickel')
+        self.assertEqual(([SocRecord.result_text(r) for r in ni.results], ni.mean_text, ni.sd_text, ni.overall, ni.uncertainty),
+                         (['<0.0080'] * 3, '<0.0080', '-', 'Pass', 0.017))
+        no3 = SocRecord.objects.get(sample_id='DW-202409012', parameter='Nitrate')
+        self.assertEqual((no3.overall, no3.sd_text, no3.paper_sign_text), ('Pass', '-', 'Signed on the issued test report'))
+        self.assertEqual(SocRecord.objects.get(sample_id='DW-202409012', parameter='pH').upper, 9)
+        chem = C(self.chem)
+        r = chem.get('/qc/soc/%d/' % ni.pk); self.assertContains(r, '&lt;0.0080'); self.assertContains(r, 'Correction 26-10-2026')
+        self.assertContains(chem.get('/qc/soc/%d/' % no3.pk), 'Signed on the issued test report')
+        for u in ('/qc/soc/%d/pdf/' % ni.pk, '/qc/soc/%d/pdf/' % no3.pk, '/qc/soc/sample/DW-202409012/pdf/?location=Karachi'):
+            self.assertEqual(chem.get(u).status_code, 200, u)
+        # parsing: a below-LOQ report result is offered and judged at the LOQ
+        self.assertEqual(R.parse_result('<0.0080'), (0.008, '<0.0080'))
+        self.assertEqual(R.parse_result('N.D.'), (None, ''))
+        self.assertEqual(R.parse_result('7.36'), (7.36, ''))

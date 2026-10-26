@@ -24,7 +24,7 @@
 <div class="card" id="pcard" style="display:none">
   <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-table"></i> Parameters of the report</div>
     <label class="muted">Name of standard <input type="text" name="standard" id="standard" style="min-width:300px;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px"></label></div>
-  <div class="msg" style="background:#fffbeb;color:#92400e">Tick the parameters to report. Accredited parameters (***) are ticked. Result 1 is the result on the report; enter results 2 and 3 as measured (replicates). The expanded uncertainty is taken from the approved MOU study of the parameter when the register has one; otherwise enter it. The specification limit is the standard's limit as printed on the report (upper / lower may be corrected).</div>
+  <div class="msg" style="background:#fffbeb;color:#92400e">Tick the parameters to report. Accredited parameters (***) are ticked. Result 1 is the result on the report; enter results 2 and 3 as measured (replicates). A result below the limit of quantification is entered as written, e.g. &lt;0.0080; it is judged at the LOQ. The expanded uncertainty is taken from the approved MOU study of the parameter when the register has one; otherwise enter it. The specification limit is the standard's limit as printed on the report (upper / lower may be corrected).</div>
   <table class="ptab">
     <thead><tr><th></th><th>Parameter</th><th>Method</th><th>Unit</th><th>Report result</th><th>Result 1</th><th>Date</th><th>Result 2</th><th>Date</th><th>Result 3</th><th>Date</th><th>Lower</th><th>Upper</th><th>Limit (as printed)</th><th>± U</th><th>U source</th></tr></thead>
     <tbody id="prows"></tbody>
@@ -55,7 +55,7 @@ $(function(){
         tr.append('<td><input class="pn" type="text" name="p'+i+'_parameter" value="'+esc(p.parameter)+'">'+(p.accredited?' <span class="pill ok" title="accredited">***</span>':'')+'</td>');
         tr.append('<td><input class="mt" type="text" name="p'+i+'_method" value="'+esc(p.method)+'"></td><td><input type="text" name="p'+i+'_unit" value="'+esc(p.unit)+'" style="width:60px"></td>');
         tr.append('<td class="num"><b>'+esc(p.result)+'</b><input type="hidden" name="p'+i+'_result" value="'+esc(p.result)+'"></td>');
-        for(var j=0;j<3;j++){tr.append('<td><input class="rep" type="text" name="p'+i+'_v'+j+'" value="'+(j==0&&p.value!==null?p.value:'')+'"></td><td><input class="dt" type="text" name="p'+i+'_d'+j+'" value="'+(j==0?esc(d.header.collection_date):'')+'" placeholder="dd-mm-yyyy"></td>');}
+        for(var j=0;j<3;j++){tr.append('<td><input class="rep" type="text" name="p'+i+'_v'+j+'" value="'+(j==0&&p.value!==null?esc(p.value_text||p.value):'')+'"></td><td><input class="dt" type="text" name="p'+i+'_d'+j+'" value="'+(j==0?esc(d.header.collection_date):'')+'" placeholder="dd-mm-yyyy"></td>');}
         tr.append('<td><input class="rep" type="text" name="p'+i+'_lower" value="'+(p.lower!==null?p.lower:'')+'"></td><td><input class="rep" type="text" name="p'+i+'_upper" value="'+(p.upper!==null?p.upper:'')+'"></td>');
         tr.append('<td><input type="text" name="p'+i+'_limit" value="'+esc(p.limit)+'" style="width:90px"></td>');
         tr.append('<td><input class="rep" type="text" name="p'+i+'_u" value="'+(p.u!==null?p.u:'')+'"></td><td><input type="text" name="p'+i+'_usrc" value="'+esc(p.u_label||(p.u===null?'':''))+'" placeholder="MOU register / typed" style="min-width:160px"><input type="hidden" name="p'+i+'_mou" value="'+(p.mou_study||'')+'"></td>');

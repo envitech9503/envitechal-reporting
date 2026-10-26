@@ -108,6 +108,21 @@ def _num(txt):
         return None
 
 
+def _res(txt):
+    """A typed result: (value, text) - '<0.0080' is kept as written and judged at the LOQ."""
+    from QC.soc_rules import parse_result
+    if txt is None or (isinstance(txt, str) and not txt.strip()):
+        return None, ''
+    return parse_result(txt)
+
+
+def _rd(v, t, dd):
+    d = {'date': dd.isoformat() if dd else '', 'value': v}
+    if t:
+        d['text'] = t
+    return d
+
+
 def _fmt(v, dp=3):
     if v is None:
         return '-'
@@ -212,10 +227,9 @@ def soc_new(request):
                 errors.append('%s: a record for this parameter and sample exists already.' % par); continue
             vals = []
             for j in range(3):
-                v = _num(P.get('p%d_v%d' % (i, j)))
+                v, t = _res(P.get('p%d_v%d' % (i, j)))
                 if v is not None:
-                    dd = _pdate(P.get('p%d_d%d' % (i, j)))
-                    vals.append({'date': dd.isoformat() if dd else '', 'value': v})
+                    vals.append(_rd(v, t, _pdate(P.get('p%d_d%d' % (i, j)))))
             if not vals:
                 errors.append('%s: enter at least one result.' % par); continue
             lim = (P.get('p%d_limit' % i) or '').strip()[:40]
@@ -251,7 +265,7 @@ def _rec_ctx(rec):
     for i, r in enumerate(rec.results or []):
         v = r.get('value')
         dd = _pdate(r.get('date'))
-        rows.append({'n': i + 1, 'date': _d(dd) if dd else (r.get('date') or ''), 'value': v, 'verdict': rec.verdict(v)})
+        rows.append({'n': i + 1, 'date': _d(dd) if dd else (r.get('date') or ''), 'value': rec.result_text(r), 'verdict': rec.verdict(v)})
     return rows
 
 
@@ -260,7 +274,7 @@ def soc_detail(request, pk):
     user = request.user
     siblings = SocRecord.objects.filter(location=rec.location, sample_id=rec.sample_id).exclude(pk=rec.pk).order_by('id')
     return render(request, 'soc_detail.html', {
-        'r': rec, 'rows': _rec_ctx(rec), 'siblings': siblings, 'svg': _chart_svg(rec), 'mean': _fmt(rec.mean), 'sd': _fmt(rec.sd, 4),
+        'r': rec, 'rows': _rec_ctx(rec), 'siblings': siblings, 'svg': _chart_svg(rec), 'mean': rec.mean_text, 'sd': rec.sd_text,
         'can_edit': _can_edit(user, rec), 'can_perform': rec.status == 'draft' and _is_staff_of(user, rec.location) and bool(rec.values),
         'can_review': rec.status == 'performed' and _can_review(user, _Loc(rec.location)),
         'can_approve': rec.status == 'reviewed' and _can_approve(user, _Loc(rec.location)),
@@ -300,10 +314,9 @@ def soc_edit(request, pk):
         rec.remarks = (P.get('remarks') or '').strip()[:2000]
         vals = []
         for j in range(3):
-            v = _num(P.get('v%d' % j))
+            v, t = _res(P.get('v%d' % j))
             if v is not None:
-                dd = _pdate(P.get('d%d' % j))
-                vals.append({'date': dd.isoformat() if dd else '', 'value': v})
+                vals.append(_rd(v, t, _pdate(P.get('d%d' % j))))
         if not vals:
             errors.append('Enter at least one result.')
         rec.results = vals
@@ -316,7 +329,7 @@ def soc_edit(request, pk):
             return _redirect('soc_detail', rec.pk)
         for e in errors:
             _msg.error(request, e)
-    vals = [{'value': x.get('value'), 'date': (_d(_pdate(x.get('date'))) if _pdate(x.get('date')) else x.get('date', ''))} for x in (rec.results or [])] + [{}] * 3
+    vals = [{'value': x.get('text') or x.get('value'), 'date': (_d(_pdate(x.get('date'))) if _pdate(x.get('date')) else x.get('date', ''))} for x in (rec.results or [])] + [{}] * 3
     return render(request, 'soc_edit.html', {'r': rec, 'vals': vals[:3], 'errors': errors, 'ctrl': _docctrl('soc_record', rec.location)})
 
 
@@ -530,17 +543,27 @@ def soc_manual(request):
 
 
 # ---------------------------------------------------------------- chart (SVG for the page)
+def _u_ends(rec, vals):
+    """Ends of the uncertainty bars to fit on the chart (a lower end below zero is not drawn for a one-sided limit)."""
+    u = rec.uncertainty or 0
+    if not u:
+        return []
+    out = [v + u for v in vals if isinstance(v, (int, float))]
+    out += [v - u for v in vals if isinstance(v, (int, float)) and (v - u >= 0 or rec.lower is not None)]
+    return out
+
+
 def _chart_svg(rec):
     vals = [r.get('value') for r in (rec.results or [])]
     pts = [v for v in vals if isinstance(v, (int, float))]
     if not pts:
         return ''
-    cand = pts + [x for x in (rec.upper, rec.lower) if x is not None]
+    cand = pts + [x for x in (rec.upper, rec.lower) if x is not None] + _u_ends(rec, pts)
     lo, hi = min(cand), max(cand)
     span = (hi - lo) or (abs(hi) or 1.0)
     lo, hi = lo - span * 0.25, hi + span * 0.25
-    if rec.lower is None and lo > 0 and min(cand) >= 0:
-        lo = min(lo, 0.0)
+    if rec.lower is None and min(cand) >= 0:          # one-sided limit, non-negative results: the axis starts at zero
+        lo = 0.0
     W, H, L, T, R, B = 640, 260, 60, 20, 20, 40
     def y(v):
         return T + (H - T - B) * (hi - v) / (hi - lo)
@@ -559,7 +582,7 @@ def _chart_svg(rec):
             continue
         u = rec.uncertainty or 0
         if u:
-            out.append('<line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="#16a34a" stroke-width="1"/>' % (x, x, y(v + u), y(v - u)))
+            out.append('<line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="#16a34a" stroke-width="1"/>' % (x, x, y(min(v + u, hi)), y(max(v - u, lo))))
         ok = rec.verdict(v) == 'Pass'
         out.append('<rect x="%.1f" y="%.1f" width="8" height="8" transform="rotate(45 %.1f %.1f)" fill="%s"/>' % (x - 4, y(v) - 4, x, y(v), '#16a34a' if ok else '#dc2626'))
         out.append('<text x="%.1f" y="%d" text-anchor="middle" fill="#334155">%d</text><text x="%.1f" y="%d" text-anchor="middle" font-weight="700" fill="%s">%s</text>'
@@ -576,12 +599,12 @@ def _draw_chart(pdf, rec, x0, y0, w, h):
     vals = [r.get('value') for r in (rec.results or []) if isinstance(r.get('value'), (int, float))]
     if not vals:
         return
-    cand = vals + [x for x in (rec.upper, rec.lower) if x is not None]
+    cand = vals + [x for x in (rec.upper, rec.lower) if x is not None] + _u_ends(rec, vals)
     lo, hi = min(cand), max(cand)
     span = (hi - lo) or (abs(hi) or 1.0)
     lo, hi = lo - span * 0.25, hi + span * 0.25
-    if rec.lower is None and lo > 0 and min(cand) >= 0:
-        lo = min(lo, 0.0)
+    if rec.lower is None and min(cand) >= 0:          # one-sided limit, non-negative results: the axis starts at zero
+        lo = 0.0
     L, T, R, B = x0 + 16, y0 + 8, x0 + w - 4, y0 + h - 10
     def y(v):
         return T + (B - T) * (hi - v) / (hi - lo)
@@ -604,7 +627,12 @@ def _draw_chart(pdf, rec, x0, y0, w, h):
         col = (22, 163, 74) if ok else (220, 38, 38)
         u = rec.uncertainty or 0
         if u:
-            pdf.set_draw_color(*col); pdf.line(x, y(v + u), x, y(v - u)); pdf.line(x - 1, y(v + u), x + 1, y(v + u)); pdf.line(x - 1, y(v - u), x + 1, y(v - u))
+            ut, ub = min(v + u, hi), max(v - u, lo)                     # the bar is kept inside the plot
+            pdf.set_draw_color(*col); pdf.line(x, y(ut), x, y(ub))
+            if ut == v + u:
+                pdf.line(x - 1, y(ut), x + 1, y(ut))
+            if ub == v - u:
+                pdf.line(x - 1, y(ub), x + 1, y(ub))
         pdf.set_fill_color(*col); pdf.set_draw_color(*col)
         s = 1.4
         try:
@@ -616,7 +644,7 @@ def _draw_chart(pdf, rec, x0, y0, w, h):
     pdf.set_draw_color(0, 0, 0)
 
 
-def _panels(pdf, f, items, top, blk_h, LINE, GREY):
+def _panels(pdf, f, items, top, blk_h, LINE, GREY, note='Signed on the paper record'):
     """Signature panels: (label, role, name, image, on_paper). A name signed on the paper record (induction) is printed
     with 'Signed on the paper record' instead of 'Electronically signed'."""
     _sig_panels(pdf, f, [(l, r, (n if not paper else ''), img) for l, r, n, img, paper in items], top, blk_h, LINE, GREY)
@@ -624,7 +652,7 @@ def _panels(pdf, f, items, top, blk_h, LINE, GREY):
         if paper:
             x = 10 + i * (_SIG_W + 2.0)
             pdf.set_xy(x, top + blk_h / 2 - 6); pdf.set_font(f, '', 6.5); pdf.set_text_color(110, 110, 110)
-            pdf.cell(_SIG_W, 4, 'Signed on the paper record', 0, 0, 'C')
+            pdf.cell(_SIG_W, 4, note, 0, 0, 'C')
             pdf.set_xy(x, top + blk_h / 2 - 2); pdf.set_font(f, 'B', 7.5); pdf.set_text_color(0, 0, 0)
             pdf.cell(_SIG_W, 4, n, 0, 0, 'C')
 
@@ -655,13 +683,13 @@ def _record_page(pdf, rec, ctrl):
     for i, r in enumerate(rec.results or []):
         v = r.get('value')
         d = _pdate(r.get('date')) if r.get('date') else None
-        vals = [str(i + 1), _d(d) if d else (r.get('date') or ''), _fmt(v, 4), _fmt(rec.upper, 4), _fmt(rec.lower, 4), _fmt(rec.uncertainty, 4), rec.spec_text]
+        vals = [str(i + 1), _d(d) if d else (r.get('date') or ''), rec.result_text(r), _fmt(rec.upper, 4), _fmt(rec.lower, 4), _fmt(rec.uncertainty, 4), rec.spec_text]
         for (lbl, w), t in zip(cols, vals):
             pdf.cell(w, 5.4, t, 1, 0, 'C')
         pdf.ln(5.4)
     pdf.set_fill_color(*GREY); pdf.set_font(f, 'B', 7.8)
-    pdf.cell(38, 5.4, 'Mean', 1, 0, 'L', fill=True); pdf.cell(26, 5.4, _fmt(rec.mean, 4), 1, 0, 'C'); pdf.cell(126, 5.4, '', 1, 1)
-    pdf.cell(38, 5.4, 'Standard Deviation', 1, 0, 'L', fill=True); pdf.cell(26, 5.4, _fmt(rec.sd, 4), 1, 0, 'C'); pdf.cell(126, 5.4, '', 1, 1)
+    pdf.cell(38, 5.4, 'Mean', 1, 0, 'L', fill=True); pdf.cell(26, 5.4, rec.mean_text, 1, 0, 'C'); pdf.cell(126, 5.4, '', 1, 1)
+    pdf.cell(38, 5.4, 'Standard Deviation', 1, 0, 'L', fill=True); pdf.cell(26, 5.4, rec.sd_text, 1, 0, 'C'); pdf.cell(126, 5.4, '', 1, 1)
     pdf.ln(2)
     y0 = pdf.get_y()
     pdf.set_fill_color(230, 238, 246); pdf.rect(10, y0, 190, 27, 'F')
@@ -684,8 +712,10 @@ def _record_page(pdf, rec, ctrl):
         notes.append('Expanded uncertainty ± %s %s (%s).' % (_fmt(rec.uncertainty, 4), rec.unit, rec.u_source or 'as recorded'))
     if rec.report_pk:
         notes.append('Results of the test report (sample %s); result 1 as reported%s.' % (rec.sample_id, (': %s' % rec.legacy.get('report_result')) if (rec.legacy or {}).get('report_result') else ''))
+    if rec.censored:
+        notes.append('Results written "<x" are below the limit of quantification; the decision is taken at the LOQ x%s.' % (' and the mean (*) takes them at the LOQ' if len(rec.censored) < len(rec.results or []) else ''))
     if rec.inducted:
-        notes.append('Inducted from the laboratory record (%s).' % (rec.legacy.get('file') or '')[:80])
+        notes.append('%s (%s).' % ('Taken from the issued test report' if rec.legacy.get('sign_note') else 'Inducted from the laboratory record', (rec.legacy.get('file') or '')[:80]))
     if rec.remarks:
         notes.append('Remarks: ' + rec.remarks.replace('\n', ' | '))
     pdf.set_font(f, '', 6.6); pdf.set_text_color(60, 60, 60)
@@ -703,7 +733,7 @@ def _record_page(pdf, rec, ctrl):
     roles = _ROLES.get(rec.location, _ROLES['Karachi'])
     _panels(pdf, f, [('Performed By', roles[0]) + who(rec.performed_by, rec.performed_at, rec.performed_name),
                      ('Reviewed By', roles[1]) + who(rec.reviewed_by, rec.reviewed_at, rec.reviewed_name),
-                     ('Approved By', roles[2]) + who(rec.approved_by, rec.approved_at, rec.approved_name)], top, max(_SIG_MIN, _FOOT_TOP - top), LINE, GREY)
+                     ('Approved By', roles[2]) + who(rec.approved_by, rec.approved_at, rec.approved_name)], top, max(_SIG_MIN, _FOOT_TOP - top), LINE, GREY, note=rec.paper_sign_text)
     pdf.set_auto_page_break(True, 30)
 
 
@@ -765,7 +795,7 @@ def soc_sample_pdf(request, sample_id):
         pdf.cell(w, 6, lbl, 1, 0, 'C', fill=True)
     pdf.ln(6); pdf.set_font(f, '', 7.8)
     for i, r in enumerate(recs):
-        res = (r.legacy or {}).get('report_result') or _fmt(r.values[0] if r.values else None, 4)
+        res = (r.legacy or {}).get('report_result') or (r.result_text((r.results or [None])[0]) if r.results else '-')
         vals = [str(i + 1), r.parameter + '***', r.method or '-', r.unit or '-', res, _fmt(r.uncertainty, 4) if r.uncertainty is not None else 'N.A', r.spec_text]
         for (lbl, w), t in zip(cols, vals):
             while pdf.get_string_width(t) > w - 2 and len(t) > 3:

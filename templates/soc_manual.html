@@ -29,7 +29,7 @@
 <section><h2>3. Where the figures come from</h2>
 <table><tr><th>Item</th><th>Source</th></tr>
 <tr><td>Customer, sample, dates, methods</td><td>The drinking-water / waste-water report with that sample ID (newest).</td></tr>
-<tr><td>Result 1</td><td>The result on the report (text results such as "N.D." cannot be judged and are left out).</td></tr>
+<tr><td>Result 1</td><td>The result on the report. A result below the limit of quantification (e.g. "&lt;0.0080") is kept as written and judged at the LOQ (0.008); when every result is below the LOQ the mean prints as the LOQ and the standard deviation as "-". Text results such as "N.D." cannot be judged and are left out.</td></tr>
 <tr><td>Specification limit</td><td>The limit of the standard printed on the report (SEQS / PEQS; waste water: inland-waters column). Both bounds are read from ranges such as "6 - 9"; "&lt; 1000" gives an upper limit.</td></tr>
 <tr><td>Expanded uncertainty</td><td>The approved MOU study of the parameter in the laboratory's MOU register (absolute U; a study of sample kind "Sample" is preferred). When the register has none, type the value and its source.</td></tr>
 <tr><td>Accredited parameters</td><td>Karachi: DW pH, TDS, Hardness, Nitrate, Chloride, Fluoride, Nickel; WW pH, COD, TDS. Lahore: DW pH, Turbidity, TDS, Chloride, Hardness, Nitrate, Alkalinity, Sulphate, Calcium; WW pH, TDS, Chloride, Sulphate.</td></tr></table></section>
@@ -40,5 +40,6 @@
 <tr><td>Approve, unapprove</td><td>CEO / administrator</td></tr>
 <tr><td>Return to draft, delete (with reason, logged), authorise a request form</td><td>Lab Manager or CEO / administrator</td></tr>
 <tr><td>Document control numbers</td><td>Administrator (each laboratory prints its own numbers)</td></tr></table>
+<p class="note">Corrections to an approved record are made by the administrator with the audit trail kept: each change (old value &rarr; new value, reason, date) is written in the record's correction note, printed on the PDF, and the laboratory re-signs the corrected paper copy.</p>
 <p class="note">Records inducted from the laboratory's Excel / Word record carry the printed names and the mark REC; their signatures read "(record)".</p></section>
 </main></body></html>

@@ -1658,6 +1658,45 @@ class SocRecord(models.Model):
     def values(self):
         return [r.get('value') for r in (self.results or []) if isinstance(r.get('value'), (int, float))]
 
+    @staticmethod
+    def result_text(r, dp=4):
+        """A result as shown: '<0.0080' for a result below the LOQ (judged at the LOQ), else the number."""
+        if (r or {}).get('text'):
+            return r['text']
+        v = (r or {}).get('value')
+        if not isinstance(v, (int, float)):
+            return '-'
+        return ('%.*f' % (dp, v)).rstrip('0').rstrip('.') if v != int(v) else '%d' % v
+
+    @property
+    def paper_sign_text(self):
+        """How the signatures of an inducted record are shown (the paper record, or e.g. the issued test report)."""
+        return (self.legacy or {}).get('sign_note') or 'Signed on the paper record'
+
+    @property
+    def censored(self):
+        return [r for r in (self.results or []) if r.get('text')]
+
+    @property
+    def mean_text(self):
+        """Mean as shown: when every result is below the LOQ the LOQ text, else the mean (results below the LOQ taken at the LOQ, marked *)."""
+        c = self.censored
+        if c and len(c) == len(self.results or []):
+            return max((r['text'] for r in c), key=lambda t: float(t.lstrip('<')))
+        m = self.mean
+        if m is None:
+            return '-'
+        return self.result_text({'value': round(m, 4)}) + (' *' if c else '')
+
+    @property
+    def sd_text(self):
+        c = self.censored
+        if c and len(c) == len(self.results or []):
+            return '-'
+        if len(self.values) < 2:
+            return '-'
+        return '%.4f' % self.sd
+
     @property
     def mean(self):
         v = self.values

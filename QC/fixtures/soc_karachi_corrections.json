@@ -1,0 +1,103 @@
+{
+ "location": "Karachi",
+ "id": "SOC-CORR-KHI-26-10-2026",
+ "date": "26-10-2026",
+ "authority": "Owner decision 26-10-2026: harmonise the decision-rule record with the issued test reports",
+ "corrections": [
+  {
+   "sample_id": "WW-202405120",
+   "parameter": "COD",
+   "set": {
+    "uncertainty": 1.341,
+    "u_source": "as on the issued test report 202405120-AFM-WW"
+   },
+   "note": "Uncertainty aligned with the issued test report 202405120-AFM-WW."
+  },
+  {
+   "sample_id": "WW-202405120",
+   "parameter": "TDS",
+   "set": {
+    "uncertainty": 5.882,
+    "u_source": "as on the issued test report 202405120-AFM-WW"
+   },
+   "note": "Uncertainty aligned with the issued test report 202405120-AFM-WW."
+  },
+  {
+   "sample_id": "DW-202409012",
+   "parameter": "TDS",
+   "set": {
+    "uncertainty": 5.882,
+    "u_source": "as on the issued test report 202409012-SEPL-DW"
+   },
+   "note": "Uncertainty aligned with the issued test report 202409012-SEPL-DW."
+  },
+  {
+   "sample_id": "DW-202409012",
+   "parameter": "Chloride",
+   "set": {
+    "uncertainty": 0.913,
+    "u_source": "as on the issued test report 202409012-SEPL-DW",
+    "method": "APHA 4500 Cl"
+   },
+   "note": "Method on the paper record \"APHA 4500 H-B\" (the pH method) corrected to \"APHA 4500 Cl\" as on the issued test report. Uncertainty aligned with the issued test report 202409012-SEPL-DW."
+  },
+  {
+   "sample_id": "DW-202409012",
+   "parameter": "Fluoride",
+   "set": {
+    "uncertainty": 0.009,
+    "u_source": "as on the issued test report 202409012-SEPL-DW"
+   },
+   "note": "Uncertainty aligned with the issued test report 202409012-SEPL-DW."
+  },
+  {
+   "sample_id": "DW-202409012",
+   "parameter": "Hardness",
+   "set": {
+    "uncertainty": 1.754,
+    "u_source": "as on the issued test report 202409012-SEPL-DW"
+   },
+   "note": "Uncertainty aligned with the issued test report 202409012-SEPL-DW."
+  },
+  {
+   "sample_id": "DW-202409012",
+   "parameter": "Nickel",
+   "set": {
+    "uncertainty": 0.017,
+    "u_source": "as on the issued test report 202409012-SEPL-DW",
+    "results_text": "<0.0080"
+   },
+   "note": "Results entered as 0 on the paper record are below the limit of quantification and are written \"<0.0080\" as on the report; the decision is taken at the LOQ 0.008 against the limit 0.02 (Pass). Uncertainty aligned with the issued test report 202409012-SEPL-DW."
+  },
+  {
+   "sample_id": "DW-202409012",
+   "parameter": "pH",
+   "set": {},
+   "note": "Limit 6 to 9 retained as on the laboratory record by owner decision 26-10-2026; the issued test report prints 6.5-8.5. The result 7.00 is within both (Pass)."
+  }
+ ],
+ "add": [
+  {
+   "sample_id": "DW-202409012",
+   "report_type": "dw",
+   "parameter": "Nitrate",
+   "method": "HACH 8039",
+   "unit": "mg/L",
+   "limit_text": "50",
+   "lower": null,
+   "upper": 50,
+   "uncertainty": 0.129,
+   "u_source": "as on the issued test report 202409012-SEPL-DW",
+   "results": [
+    {
+     "date": "",
+     "value": 0.3
+    }
+   ],
+   "report_result": "0.3",
+   "file": "Soorty Decision rule Record/202409012-SEPL-DW (1).docx",
+   "sign_note": "Signed on the issued test report",
+   "remarks": "Added 26-10-2026 from the issued test report 202409012-SEPL-DW (Nitrate is accredited and is named in its statement of conformity); the paper record has no Nitrate sheet, so replicates 2 and 3 and the test date are not available."
+  }
+ ]
+}
