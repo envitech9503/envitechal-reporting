@@ -1,0 +1,33 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Edit SOC {{ r.sample_id }} - {{ r.parameter }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'soc_detail' r.id %}" style="color:#0f5132;text-decoration:none">{{ r.sample_id }} {{ r.parameter }}</a> &rsaquo; <span>edit</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="soc_edit_{{ r.id }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-pen"></i> Statement of conformity record - {{ r.sample_id }} <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% url 'soc_detail' r.id %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div></div>
+  {% for e in errors %}<div class="msg error">{{ e }}</div>{% endfor %}
+  <div class="frm">
+    <label>Parameter <input type="text" name="parameter" value="{{ r.parameter }}" required></label>
+    <label>Method <input type="text" name="method" value="{{ r.method }}"></label>
+    <label>Unit <input type="text" name="unit" value="{{ r.unit }}" style="width:80px"></label>
+    <label>Name of standard <input type="text" name="standard" value="{{ r.standard }}" style="min-width:300px"></label>
+  </div>
+  <div class="frm">
+    <label>Limit as printed <input type="text" name="limit_text" value="{{ r.limit_text }}" placeholder="e.g. 6-9 or 150"></label>
+    <label>Lower specification <input type="text" name="lower" value="{{ r.lower|default_if_none:'' }}" style="width:110px"></label>
+    <label>Upper specification <input type="text" name="upper" value="{{ r.upper|default_if_none:'' }}" style="width:110px"></label>
+    <label>Expanded uncertainty &plusmn; U <input type="text" name="uncertainty" value="{{ r.uncertainty|default_if_none:'' }}" style="width:110px"></label>
+    <label>U source <input type="text" name="u_source" value="{{ r.u_source }}" style="min-width:260px" placeholder="MOU register / typed"></label>
+  </div>
+  <div class="frm">
+    {% for v in vals %}<label>Result {{ forloop.counter }} <input type="text" name="v{{ forloop.counter0 }}" value="{{ v.value|default_if_none:'' }}" style="width:100px"></label>
+    <label>Date {{ forloop.counter }} <input type="text" name="d{{ forloop.counter0 }}" value="{{ v.date|default:'' }}" placeholder="dd-mm-yyyy" style="width:110px"></label>{% endfor %}
+  </div>
+  <div class="frm">
+    <label style="flex:1">Decision rule <input type="text" name="decision_rule" value="{{ r.decision_rule }}" style="width:100%"></label>
+  </div>
+  <div class="frm"><label style="flex:1">Remarks <textarea name="remarks" rows="3" style="width:100%">{{ r.remarks }}</textarea></label></div>
+</div>
+</form>
+{% endblock %}

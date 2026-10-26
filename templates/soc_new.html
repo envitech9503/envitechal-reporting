@@ -1,0 +1,74 @@
+{% extends "_soc_base.html" %}{% load static %}
+{% block cc_title %}New statement of conformity - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'soc_list' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">{{ loc }}</a> &rsaquo; <span>New statement</span>{% endblock %}
+{% block cc_body %}
+<link rel="stylesheet" href="{% static 'vendor/select2/select2.min.css' %}"><script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<style>.select2-container{min-width:360px}.ptab td input{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;font-size:12.5px;font-family:inherit}.ptab td input.rep{width:70px;text-align:right}.ptab td input.pn{width:110px}.ptab td input.mt{width:120px}.ptab td input.dt{width:92px}.ptab tr.off td{opacity:.45}</style>
+<form method="post" id="socform" data-autosave="soc_new_{{ loc }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-scale-balanced"></i> Statement of conformity from a test report - {{ loc }} <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% url 'soc_list' %}?location={{ loc }}">Cancel</a><button class="btn btn-p" type="submit" id="savebtn" disabled><i class="fa-solid fa-floppy-disk"></i> Create records</button></div></div>
+  <div class="frm">
+    <label>Sample ID (requisitions asking for MOU / statement of conformity)
+      <select id="sample" name="sample_id">
+        <option value="">- choose -</option>
+        {% for s in samples %}<option value="{{ s.sample_id }}" {% if s.sample_id == preset %}selected{% endif %} data-rt="{{ s.report }}" data-pk="{{ s.report_pk|default:'' }}">{{ s.sample_id }} - {{ s.customer|default:"(no report yet)"|truncatechars:50 }}{% if s.sample_id in done %} [has records]{% endif %}{% if not s.report %} [no report]{% endif %}</option>{% endfor %}
+      </select></label>
+    <label>Other sample ID (if not listed) <input type="text" id="sample_other" placeholder="e.g. WW-202405120" style="min-width:200px"></label>
+    <button class="btn" type="button" id="loadbtn"><i class="fa-solid fa-magnifying-glass"></i> Load report</button>
+    <input type="hidden" name="report_type" id="report_type"><input type="hidden" name="report_pk" id="report_pk">
+  </div>
+  <div id="info" class="msg" style="display:none;background:#f8fafc;color:#334155"></div>
+  <div id="err" class="msg error" style="display:none"></div>
+</div>
+<div class="card" id="pcard" style="display:none">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-table"></i> Parameters of the report</div>
+    <label class="muted">Name of standard <input type="text" name="standard" id="standard" style="min-width:300px;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px"></label></div>
+  <div class="msg" style="background:#fffbeb;color:#92400e">Tick the parameters to report. Accredited parameters (***) are ticked. Result 1 is the result on the report; enter results 2 and 3 as measured (replicates). The expanded uncertainty is taken from the approved MOU study of the parameter when the register has one; otherwise enter it. The specification limit is the standard's limit as printed on the report (upper / lower may be corrected).</div>
+  <table class="ptab">
+    <thead><tr><th></th><th>Parameter</th><th>Method</th><th>Unit</th><th>Report result</th><th>Result 1</th><th>Date</th><th>Result 2</th><th>Date</th><th>Result 3</th><th>Date</th><th>Lower</th><th>Upper</th><th>Limit (as printed)</th><th>± U</th><th>U source</th></tr></thead>
+    <tbody id="prows"></tbody>
+  </table>
+  <div class="muted" style="padding:10px 18px">Decision rule: {{ rule }}. Pass when the measured value is within the specification limits, else Fail.</div>
+</div>
+</form>
+<script>
+$(function(){
+  $('#sample').select2({width:'resolve'});
+  function esc(s){return $('<div>').text(s==null?'':s).html();}
+  function load(){
+    var sid=$('#sample_other').val().trim()||$('#sample').val(); if(!sid){alert('Choose a sample ID.');return;}
+    var opt=$('#sample option:selected'); var rt=$('#sample_other').val().trim()?'':(opt.data('rt')||''); var pk=$('#sample_other').val().trim()?'':(opt.data('pk')||'');
+    $('#err').hide(); $('#info').hide(); $('#pcard').hide(); $('#savebtn').prop('disabled',true);
+    $.getJSON("{% url 'soc_api_sample' %}",{sample_id:sid,location:'{{ loc }}',report_type:rt,report_pk:pk}).done(function(d){
+      $('#report_type').val(d.report_type); $('#report_pk').val(d.report_pk); $('#standard').val(d.header.standard||'Sindh Environmental Quality Standard 2016');
+      var req=d.requisition; var rq=req.found?('Requisition: MOU '+(req.mou?'<b>required</b>':'not required')+', statement of conformity '+(req.soc?'<b>required</b>':'not required')+(req.soc_text?' ('+esc(req.soc_text)+')':'')):'<span class="pill warn">no sample requisition found for this ID</span>';
+      var rf=d.request_form?('Customer request form: <a href="/qc/soc/request/'+d.request_form.id+'/">'+esc(d.request_form.decision||'open')+'</a>'):('<a href="/qc/soc/request/new/?location={{ loc }}&sample='+encodeURIComponent(sid)+'">+ customer request form (FF-17)</a>');
+      $('#info').html('<b>'+esc(d.report_label)+' report</b> '+esc(d.header.lab_report_no)+' &middot; '+esc(d.header.customer)+' &middot; collected '+esc(d.header.collection_date)+' &middot; analysis '+esc(d.header.analysis.trim()==='to'?'-':d.header.analysis)+'<br>'+rq+' &middot; '+rf+(d.existing.length?'<br><span class="pill warn">records exist for: '+esc(d.existing.join(', '))+'</span>':'')).show();
+      var tb=$('#prows').empty();
+      if(!d.parameters.length){$('#err').text('The report has no results.').show();return;}
+      $.each(d.parameters,function(i,p){
+        var has=d.existing.map(function(x){return x.toLowerCase()}).indexOf(p.parameter.toLowerCase())>=0;
+        var on=p.accredited&&!has&&p.value!==null;
+        var tr=$('<tr>').toggleClass('off',!on);
+        tr.append('<td><input type="checkbox" name="p'+i+'_on" value="1" '+(on?'checked':'')+' '+(has?'disabled title="record exists"':'')+'></td>');
+        tr.append('<td><input class="pn" type="text" name="p'+i+'_parameter" value="'+esc(p.parameter)+'">'+(p.accredited?' <span class="pill ok" title="accredited">***</span>':'')+'</td>');
+        tr.append('<td><input class="mt" type="text" name="p'+i+'_method" value="'+esc(p.method)+'"></td><td><input type="text" name="p'+i+'_unit" value="'+esc(p.unit)+'" style="width:60px"></td>');
+        tr.append('<td class="num"><b>'+esc(p.result)+'</b><input type="hidden" name="p'+i+'_result" value="'+esc(p.result)+'"></td>');
+        for(var j=0;j<3;j++){tr.append('<td><input class="rep" type="text" name="p'+i+'_v'+j+'" value="'+(j==0&&p.value!==null?p.value:'')+'"></td><td><input class="dt" type="text" name="p'+i+'_d'+j+'" value="'+(j==0?esc(d.header.collection_date):'')+'" placeholder="dd-mm-yyyy"></td>');}
+        tr.append('<td><input class="rep" type="text" name="p'+i+'_lower" value="'+(p.lower!==null?p.lower:'')+'"></td><td><input class="rep" type="text" name="p'+i+'_upper" value="'+(p.upper!==null?p.upper:'')+'"></td>');
+        tr.append('<td><input type="text" name="p'+i+'_limit" value="'+esc(p.limit)+'" style="width:90px"></td>');
+        tr.append('<td><input class="rep" type="text" name="p'+i+'_u" value="'+(p.u!==null?p.u:'')+'"></td><td><input type="text" name="p'+i+'_usrc" value="'+esc(p.u_label||(p.u===null?'':''))+'" placeholder="MOU register / typed" style="min-width:160px"><input type="hidden" name="p'+i+'_mou" value="'+(p.mou_study||'')+'"></td>');
+        tb.append(tr);
+      });
+      tb.on('change','input[type=checkbox]',function(){$(this).closest('tr').toggleClass('off',!this.checked)});
+      $('#pcard').show(); $('#savebtn').prop('disabled',false);
+    }).fail(function(x){var m=(x.responseJSON&&x.responseJSON.error)||'Could not load the report.';$('#err').text(m).show();});
+  }
+  $('#loadbtn').on('click',load);
+  $('#sample').on('change',function(){$('#sample_other').val('');load();});
+  if($('#sample').val()){load();}
+  $('#socform').on('submit',function(){ if(!$('#report_type').val()){alert('Load a report first.');return false;} });
+});
+</script>
+{% endblock %}

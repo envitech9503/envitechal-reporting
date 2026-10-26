@@ -1,0 +1,57 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}SOC {{ r.sample_id }} - {{ r.parameter }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'soc_list' %}?location={{ r.location }}&q={{ r.sample_id|urlencode }}&show=all" style="color:#0f5132;text-decoration:none">{{ r.sample_id }}</a> &rsaquo; <span>{{ r.parameter }}</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-scale-balanced"></i> {{ r.parameter }} <span class="muted">sample {{ r.sample_id }} - {{ r.location }}</span>
+      {% if r.status == 'approved' %}<span class="pill ok">Approved</span>{% elif r.status == 'reviewed' %}<span class="pill info">Reviewed - awaiting approval</span>{% elif r.status == 'performed' %}<span class="pill warn">Performed - awaiting review</span>{% else %}<span class="pill none">Draft</span>{% endif %}
+      {% if r.overall == 'Pass' %}<span class="pill ok">Statement: Pass</span>{% elif r.overall == 'Fail' %}<span class="pill bad">Statement: Fail</span>{% endif %}
+      {% if r.inducted %}<span class="pill none" title="Inducted from the laboratory record">REC</span>{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if can_edit %}<a class="btn btn-p" href="{% url 'soc_edit' r.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
+      <a class="btn" href="{% url 'soc_pdf' r.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Record PDF ({{ ctrl.doc_no }})</a>
+      <a class="btn" href="{% url 'soc_sample_pdf' r.sample_id %}?location={{ r.location }}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Report with decision rule</a>
+      {% if report_url %}<a class="btn" href="{{ report_url }}" target="_blank" rel="noopener"><i class="fa-solid fa-flask"></i> Test report</a>{% endif %}
+      {% if r.request %}<a class="btn" href="{% url 'soc_request_detail' r.request.id %}"><i class="fa-solid fa-file-signature"></i> Request form</a>{% endif %}
+    </div>
+  </div>
+  <div class="kv">
+    <b>Customer</b><span>{{ r.customer|default:"-" }}</span><b>Report</b><span>{{ report_label }}{% if r.report_pk %} #{{ r.report_pk }}{% endif %}</span>
+    <b>Method</b><span>{{ r.method|default:"-" }}</span><b>Unit</b><span>{{ r.unit|default:"-" }}</span>
+    <b>Standard</b><span>{{ r.standard }}</span><b>Specification</b><span>{{ r.spec_text }}{% if r.lower is not None or r.upper is not None %} <span class="muted">(lower {{ r.lower|default_if_none:"-" }}, upper {{ r.upper|default_if_none:"-" }})</span>{% endif %}</span>
+    <b>Expanded uncertainty</b><span>{% if r.uncertainty is not None %}&plusmn; {{ r.uncertainty }} {{ r.unit }}{% else %}-{% endif %} <span class="muted">{{ r.u_source }}</span>{% if r.mou_study %} <a href="{% url 'mou_detail' r.mou_study.id %}" style="color:#0f5132">MOU study</a>{% endif %}</span>
+    <b>Decision rule</b><span>{{ r.decision_rule }}</span>
+    <b>Created</b><span>{{ r.created_by.username|default:"induction" }} {{ r.created_at|date:"d-m-Y H:i" }}</span><b>Form</b><span>{{ ctrl.doc_no }} &middot; issue {{ ctrl.issue_date }} &middot; {{ ctrl.issue_no }}/{{ ctrl.rev_no }}</span>
+    {% if r.remarks %}<b>Remarks</b><span style="grid-column:2/-1;white-space:pre-line">{{ r.remarks }}</span>{% endif %}
+  </div>
+</div>
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-table"></i> Results and statement</div></div>
+  <table><thead><tr><th>S. No.</th><th>Date</th><th class="num">Result</th><th class="num">Upper specification</th><th class="num">Lower specification</th><th class="num">Uncertainty &plusmn;</th><th>Limit</th><th>Statement</th></tr></thead>
+    <tbody>{% for x in rows %}<tr><td>{{ x.n }}</td><td class="nw">{{ x.date|default:"-" }}</td><td class="num"><b>{{ x.value }}</b></td><td class="num">{{ r.upper|default_if_none:"-" }}</td><td class="num">{{ r.lower|default_if_none:"-" }}</td><td class="num">{{ r.uncertainty|default_if_none:"-" }}</td><td>{{ r.spec_text }}</td>
+      <td>{% if x.verdict == 'Pass' %}<span class="pill ok">Pass</span>{% elif x.verdict == 'Fail' %}<span class="pill bad">Fail</span>{% else %}-{% endif %}</td></tr>{% endfor %}</tbody></table>
+  <div class="stat"><div class="box"><b>Mean</b><span>{{ mean }}</span> <small>{{ r.unit }}</small></div><div class="box"><b>Standard deviation</b><span>{{ sd }}</span></div>
+    <div class="box"><b>Statement of conformity</b><span style="color:{% if r.overall == 'Fail' %}#b91c1c{% endif %}">{{ r.overall|default:"-" }}</span></div></div>
+  <div class="msg" style="background:#eef4fb;color:#1e3a8a"><b>Decision criteria (by decision rule):</b> {{ r.decision_rule }}<br>Statement of conformity reported as: <b>Pass</b> - the measured value is within (below) the specification limit; <b>Fail</b> - the measured value is outside (above) the specification limit.</div>
+  {% if svg %}<div class="chartbox">{{ svg|safe }}</div>{% endif %}
+</div>
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-signature"></i> Signatures</div></div>
+  <div class="kv" style="grid-template-columns:150px 1fr 150px 1fr 150px 1fr">
+    <b>Performed by</b><span>{% if r.performed_at %}{{ r.performed_by.get_full_name|default:r.performed_by.username }} - {{ r.performed_at|date:"d-m-Y H:i" }}{% elif r.performed_name %}{{ r.performed_name }} (record){% elif r.inducted %}signed on the paper record{% else %}-{% endif %}</span>
+    <b>Reviewed by</b><span>{% if r.reviewed_at %}{{ r.reviewed_by.get_full_name|default:r.reviewed_by.username }} - {{ r.reviewed_at|date:"d-m-Y H:i" }}{% elif r.reviewed_name %}{{ r.reviewed_name }} (record){% elif r.inducted %}signed on the paper record{% else %}-{% endif %}</span>
+    <b>Approved by</b><span>{% if r.approved_at %}{{ r.approved_by.get_full_name|default:r.approved_by.username }} - {{ r.approved_at|date:"d-m-Y H:i" }}{% elif r.approved_name %}{{ r.approved_name }} (record){% elif r.inducted %}signed on the paper record{% else %}-{% endif %}</span>
+  </div>
+  <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
+    {% if can_perform %}<form method="post" action="{% url 'soc_action' r.id %}">{% csrf_token %}<input type="hidden" name="action" value="perform"><button class="btn btn-p" type="submit" onclick="return confirm('Sign this record as performed by you?')"><i class="fa-solid fa-signature"></i> Sign as performed</button></form>{% endif %}
+    {% if can_review %}<form method="post" action="{% url 'soc_action' r.id %}">{% csrf_token %}<input type="hidden" name="action" value="review"><button class="btn btn-p" type="submit" onclick="return confirm('Review and sign this record?')"><i class="fa-solid fa-check"></i> Review &amp; sign</button></form>{% endif %}
+    {% if can_approve %}<form method="post" action="{% url 'soc_action' r.id %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn btn-p" type="submit" onclick="return confirm('Approve and lock this record?')"><i class="fa-solid fa-lock"></i> Approve &amp; lock</button></form>{% endif %}
+    {% if can_return %}<form method="post" action="{% url 'soc_action' r.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="return"><label>Reason <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-rotate-left"></i> Return to draft</button></form>{% endif %}
+    {% if can_unapprove %}<form method="post" action="{% url 'soc_action' r.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="unapprove"><label>Reason <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-w" type="submit"><i class="fa-solid fa-unlock"></i> Unapprove</button></form>{% endif %}
+    {% if can_delete %}<form method="post" action="{% url 'soc_delete' r.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<label>Reason for deletion <input name="reason" required minlength="5" style="width:200px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this record? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
+  </div>
+</div>
+{% if siblings %}<div class="card"><div class="hd"><div class="title" style="font-size:15px">Other parameters of sample {{ r.sample_id }}</div></div>
+  <div style="padding:10px 18px;display:flex;gap:8px;flex-wrap:wrap">{% for s in siblings %}<a class="btn" href="{% url 'soc_detail' s.id %}">{{ s.parameter }} {% if s.overall == 'Pass' %}<span class="pill ok">Pass</span>{% elif s.overall == 'Fail' %}<span class="pill bad">Fail</span>{% endif %}</a>{% endfor %}</div></div>{% endif %}
+{% endblock %}

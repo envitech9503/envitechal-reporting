@@ -1,0 +1,13 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Document control - decision rule{% endblock %}
+{% block crumb %} &rsaquo; <span>Document control</span>{% endblock %}
+{% block cc_body %}
+<div class="card"><div class="hd"><div class="title"><i class="fa-solid fa-stamp"></i> Document control - decision rule forms</div><a class="btn" href="{% url 'doc_register' %}">Register (revision history)</a></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">Each laboratory prints its own document number on the forms. The numbers below are the current ones; use the Document Control register to add a revision with an effective date.</div>
+  <table><thead><tr><th>Form</th><th>Laboratory</th><th>Doc. No</th><th>Issue date</th><th>Issue no.</th><th>Rev. no.</th><th></th></tr></thead><tbody>
+  {% for g in grid %}<tr><form method="post">{% csrf_token %}<input type="hidden" name="form" value="{{ g.form }}"><input type="hidden" name="location" value="{{ g.location }}">
+    <td>{{ g.title }}</td><td>{{ g.location }}</td>
+    <td><input name="doc_no" value="{% if g.ctrl.set %}{{ g.ctrl.doc_no }}{% endif %}" style="width:160px"></td><td><input name="issue_date" value="{{ g.ctrl.issue_date }}" style="width:100px"></td>
+    <td><input name="issue_no" value="{{ g.ctrl.issue_no }}" style="width:50px"></td><td><input name="rev_no" value="{{ g.ctrl.rev_no }}" style="width:50px"></td>
+    <td><button class="btn" type="submit">Save</button></td></form></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

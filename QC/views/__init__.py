@@ -16,8 +16,9 @@ from .mou import *  # noqa: F401,F403
 from .ia import *  # noqa: F401,F403
 from .doc_register import doc_register  # noqa: F401
 from .ia_pdf import *  # noqa: F401,F403
+from .soc import *  # noqa: F401,F403
 
-_FAMILY_MODULES = ['dw', 'ww', 'core', 'reagent_prep', 'control_chart', 'mou', 'ia', 'ia_pdf']
+_FAMILY_MODULES = ['dw', 'ww', 'core', 'reagent_prep', 'control_chart', 'mou', 'ia', 'ia_pdf', 'soc']
 
 
 def _link():

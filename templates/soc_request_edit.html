@@ -1,0 +1,45 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Customer request form - {{ f.sample_id|default:"new" }}{% endblock %}
+{% block crumb %} &rsaquo; <span>Customer request form{% if f.pk %} {{ f.sample_id }}{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<form method="post" data-autosave="soc_req_{{ f.pk|default:'new' }}">{% csrf_token %}
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-file-signature"></i> Customer Request Form for MOU &amp; SOC - {{ loc }} <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px"><a class="btn" href="{% if f.pk %}{% url 'soc_request_detail' f.pk %}{% else %}{% url 'soc_list' %}?location={{ loc }}{% endif %}">Cancel</a><button class="btn btn-p" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save</button></div></div>
+  <div class="frm">
+    <label>Sample ID <input type="text" name="sample_id" value="{{ f.sample_id }}" required></label>
+    <label>Date <input type="text" name="date" value="{{ f.date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+    <label style="flex:1">Reason for request <input type="text" name="reason" value="{{ f.reason }}" style="width:100%"></label>
+  </div>
+  <div class="frm">
+    <label style="flex:1">Name of organization <input type="text" name="organization" value="{{ f.organization }}" style="width:100%"></label>
+    <label>Name of customer <input type="text" name="customer_name" value="{{ f.customer_name }}"></label>
+    <label>Contact details <input type="text" name="contact" value="{{ f.contact }}"></label>
+  </div>
+  <div class="frm"><label style="flex:1">Address <input type="text" name="address" value="{{ f.address }}" style="width:100%"></label></div>
+  <div class="hd"><div class="title" style="font-size:14px">Sample information</div></div>
+  <div class="frm">
+    <label>Analysis requested <select name="analysis">{% for k, v in analyses %}<option value="{{ k }}" {% if f.analysis == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+    <label>Others (specify) <input type="text" name="analysis_other" value="{{ f.analysis_other }}"></label>
+    <label style="flex:1">Parameters <input type="text" name="parameters" value="{{ f.parameters }}" style="width:100%"></label>
+  </div>
+  <div class="hd"><div class="title" style="font-size:14px">Type of request</div></div>
+  <div class="frm">
+    <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="req_mou" value="1" {% if f.req_mou %}checked{% endif %}> Measurement of Uncertainty</label>
+    <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="req_soc" value="1" {% if f.req_soc %}checked{% endif %}> Statement of Conformity</label>
+    <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="req_opinion" value="1" {% if f.req_opinion %}checked{% endif %}> Opinions &amp; Interpretation</label>
+    <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="req_limits" value="1" {% if f.req_limits %}checked{% endif %}> Customer Specification Limit</label>
+    <label style="flex:1">Others (specify) <input type="text" name="req_other" value="{{ f.req_other }}" style="width:100%"></label>
+  </div>
+  <div class="hd"><div class="title" style="font-size:14px">Reporting of results</div></div>
+  <div class="frm"><label style="flex:1">Specification limit, decision rule and statement of conformity the customer wishes to use <textarea name="reporting" rows="2" style="width:100%">{{ f.reporting }}</textarea></label></div>
+  <div class="hd"><div class="title" style="font-size:14px">Envi Tech AL - follow-up action</div></div>
+  <div class="frm">
+    <label>Decision <select name="decision"><option value="" {% if not f.decision %}selected{% endif %}>-</option><option value="approved" {% if f.decision == 'approved' %}selected{% endif %}>Request approved</option><option value="denied" {% if f.decision == 'denied' %}selected{% endif %}>Request denied</option></select></label>
+    <label>Date <input type="text" name="decision_date" value="{{ f.decision_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+    <label style="flex:1">Comment <input type="text" name="decision_comment" value="{{ f.decision_comment }}" style="width:100%"></label>
+    <label>Name (customer / signatory) <input type="text" name="customer_sign_name" value="{{ f.customer_sign_name }}"></label>
+  </div>
+</div>
+</form>
+{% endblock %}

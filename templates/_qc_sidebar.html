@@ -141,6 +141,21 @@ partial then pins itself to the left edge and indents the page body to match.
     </div>
     <hr class="etqc-hr">
 
+    <button type="button" class="etqc-sec" data-etqc="etqcSOC" aria-expanded="false">
+      <i class="fa-solid fa-scale-balanced"></i>Decision Rule / Conformity<i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="etqc-panel" id="etqcSOC">
+      <a href="{% url 'soc_list' %}?show=open">Register (open statements)</a>
+      <a href="{% url 'soc_list' %}?show=pending">Samples Awaiting Statement</a>
+      <a href="{% url 'soc_list' %}?show=all">All Samples &amp; Request Forms</a>
+      <a href="{% url 'soc_new' %}">New Statement (from report)</a>
+      <a href="{% url 'soc_request_new' %}">Customer Request Form (708-FF-17)</a>
+      <a href="{% url 'soc_deletions' %}">Deletion Log (managers)</a>
+      <a href="{% url 'soc_manual' %}" target="_blank" rel="noopener">User Manual</a>
+      {% if request.user.is_superuser %}<a href="{% url 'soc_doccontrol' %}">Document Control (admin)</a>{% endif %}
+    </div>
+    <hr class="etqc-hr">
+
     <a href="{% url 'mgmt_home' %}" class="etqc-sec" style="text-decoration:none;color:#6fe39a"><i class="fa-solid fa-sitemap"></i>Management Records / Reports<i class="fa-solid fa-arrow-right" style="margin-left:auto;font-size:.65rem"></i></a>
     <p style="font-size:.72rem;color:#9ca3af;margin:.1rem 0 0 1.45rem">Internal Audit and the Document Control register have moved to the Management module.</p>
   {% else %}

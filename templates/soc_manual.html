@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Rule / Statement of Conformity — User Manual | Envi Tech AL</title>
+<style>
+  body{margin:0;font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.55;color:#1f2937;background:#f4f6f8}
+  header{background:linear-gradient(135deg,#0f5132,#14663f);color:#fff;padding:20px 26px}
+  main{max-width:960px;margin:20px auto;padding:0 16px}
+  section{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 22px;margin-bottom:16px}
+  h2{color:#0f5132;margin-top:0;font-size:19px}h3{font-size:16px;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #e2e8f0;padding:6px 8px;text-align:left}th{background:#f1f5f9}
+  .note{background:#fef9c3;color:#854d0e;border-radius:8px;padding:10px 12px;font-size:14px}
+</style>
+</head>
+<body>
+<header><h1 style="margin:0;font-size:22px">Decision Rule / Statement of Conformity — User Manual</h1><div style="opacity:.85">QC module - forms ETAL-LAB-708-FF-17 (customer request), FF-20 (statement of conformity record), FF-18 / FF-19 (lab test report with decision rule). Applies to drinking-water and waste-water test reports.</div></header>
+<main>
+<section><h2>1. Purpose</h2>
+<p>ISO/IEC 17025:2017 (7.1.3, 7.8.6) requires the laboratory to apply a documented decision rule when it states conformity with a specification, and to report the rule. In the software a statement of conformity is prepared for a test report when the customer asked for <b>Measurement of Uncertainty</b> and / or <b>Statement of Conformity</b> under "Additional Requirements of Customer" on the sample requisition form. The register shows those samples under <b>Awaiting statement</b>.</p>
+<p><b>Decision rule (as recorded):</b> Binary Statement for Simple acceptance Rule (Guard band = 0), Specific Risk is &lt; 50 % PFA (Probability of False accept). The result is <b>Pass</b> when the measured value is within the specification limits of the standard, otherwise <b>Fail</b>. The expanded uncertainty (k = 2, 95 %) is reported beside each result.</p></section>
+<section><h2>2. Steps</h2>
+<ol>
+<li><b>Customer request form (FF-17)</b> - record the customer's request as received (organisation, parameters, type of request, specification limit / decision rule wished). The Lab Manager / MR records the follow-up action (approved / denied) and authorises the form. The form is pre-filled from the report when a sample ID is given.</li>
+<li><b>New statement (from a report)</b> - choose the sample ID. The software loads the drinking-water or waste-water report: customer, parameters with their results, methods and units, the standard's limit as printed on the report, and the expanded uncertainty in force in the MOU register for the parameter. Accredited parameters (***) are ticked. Result 1 is the reported result; enter results 2 and 3 (replicates) and their dates. Correct a limit or uncertainty when needed. <i>Create records</i> makes one record per ticked parameter.</li>
+<li><b>Record (FF-20)</b> - each parameter's page shows the three results, mean, standard deviation, the Pass / Fail of each result and the graph (results against the specification lines). Sign as <b>Performed</b> (chemist / assistant manager), then <b>Review</b> (QC / Lab Manager) and <b>Approve</b> (CEO). An approved record is locked; the CEO may unapprove it with a reason. "Sign all / Review all / Approve all" on the register act on every record of the sample.</li>
+<li><b>PDFs</b> - the record PDF (FF-20) per parameter; the <b>lab test report with decision rule</b> (FF-18 waste water / FF-19 drinking water) for the sample: accredited parameters with uncertainty and limits, the statement of conformity paragraph (Result = Pass / Fail) and the three signatures. Drafts print with a NOT APPROVED watermark.</li>
+</ol></section>
+<section><h2>3. Where the figures come from</h2>
+<table><tr><th>Item</th><th>Source</th></tr>
+<tr><td>Customer, sample, dates, methods</td><td>The drinking-water / waste-water report with that sample ID (newest).</td></tr>
+<tr><td>Result 1</td><td>The result on the report (text results such as "N.D." cannot be judged and are left out).</td></tr>
+<tr><td>Specification limit</td><td>The limit of the standard printed on the report (SEQS / PEQS; waste water: inland-waters column). Both bounds are read from ranges such as "6 - 9"; "&lt; 1000" gives an upper limit.</td></tr>
+<tr><td>Expanded uncertainty</td><td>The approved MOU study of the parameter in the laboratory's MOU register (absolute U; a study of sample kind "Sample" is preferred). When the register has none, type the value and its source.</td></tr>
+<tr><td>Accredited parameters</td><td>Karachi: DW pH, TDS, Hardness, Nitrate, Chloride, Fluoride, Nickel; WW pH, COD, TDS. Lahore: DW pH, Turbidity, TDS, Chloride, Hardness, Nitrate, Alkalinity, Sulphate, Calcium; WW pH, TDS, Chloride, Sulphate.</td></tr></table></section>
+<section><h2>4. Roles</h2>
+<table><tr><th>Action</th><th>Who</th></tr>
+<tr><td>Create / edit a draft, sign as performed</td><td>The laboratory's own staff (office on the e-signature profile), its managers, the administrator</td></tr>
+<tr><td>Review</td><td>The laboratory's QC / Lab Manager (Laboratory Reviewers page)</td></tr>
+<tr><td>Approve, unapprove</td><td>CEO / administrator</td></tr>
+<tr><td>Return to draft, delete (with reason, logged), authorise a request form</td><td>Lab Manager or CEO / administrator</td></tr>
+<tr><td>Document control numbers</td><td>Administrator (each laboratory prints its own numbers)</td></tr></table>
+<p class="note">Records inducted from the laboratory's Excel / Word record carry the printed names and the mark REC; their signatures read "(record)".</p></section>
+</main></body></html>

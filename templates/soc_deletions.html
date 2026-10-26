@@ -1,0 +1,9 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Deletion log - decision rule{% endblock %}
+{% block crumb %} &rsaquo; <span>Deletion log</span>{% endblock %}
+{% block cc_body %}
+<div class="card"><div class="hd"><div class="title"><i class="fa-solid fa-trash"></i> Deleted statement-of-conformity records - {{ loc }}</div>
+  <form method="get"><select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></form></div>
+  <table><thead><tr><th>Deleted</th><th>By</th><th>Record</th><th>Reason</th></tr></thead><tbody>
+  {% for d in rows %}<tr><td class="nw">{{ d.deleted_at|date:"d-m-Y H:i" }}</td><td>{{ d.deleted_by.username|default:"-" }}</td><td>{{ d.label }}</td><td>{{ d.reason }}</td></tr>{% empty %}<tr><td colspan="4" class="empty">Nothing deleted.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

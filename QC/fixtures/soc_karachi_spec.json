@@ -1,0 +1,390 @@
+{
+ "location": "Karachi",
+ "built": "26-10-2026",
+ "source": "Decision_rule_Record.zip (Karachi)",
+ "requests": [
+  {
+   "sample_id": "WW-202405120",
+   "date": "2024-05-11",
+   "reason": "To ensure the Wastewater sample after treatment (outlet) parameters results are within limits according to SEQS-2016",
+   "organization": "Artistic Fabric Mills (Pvt) Limited Unit#04",
+   "customer_name": "Ameer Hussain Thebo",
+   "contact": "0300-8276926",
+   "address": "Plot# 6 & 7, Sector. 21, Korangi Industrial Area, Karachi, Pakistan",
+   "analysis": "ww",
+   "parameters": "Temperature, pH, Chemical Oxygen Demand (COD), Biological Oxygen Demand (BOD), Total Dissolved Solids (TDS), Total Suspended Solids (TSS), Copper (Cu), Chromium (Cr)",
+   "req_mou": true,
+   "req_soc": true,
+   "req_opinion": false,
+   "req_limits": false,
+   "req_other": "-",
+   "reporting": "-",
+   "decision": "approved",
+   "decision_comment": "Accredited parameters (pH, COD & TDS) results will be followed by above request",
+   "decision_date": "2024-05-15",
+   "customer_sign_name": "",
+   "file": "AFM 4 -Decision rule Reocrd/ETAL-LAB-708-FF-17 Customer Request Form For MOU & SOC.docx",
+   "notes": [
+    "Name and authorised signature blank on the form."
+   ]
+  },
+  {
+   "sample_id": "DW-202409012",
+   "date": "2024-09-02",
+   "reason": "To ensure the Drinking water parameters results are within limits according to SEQS-2016",
+   "organization": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "customer_name": "Ammad Hasan",
+   "contact": "0300-5778773",
+   "address": "Plot # 526-529, 533-538 Deh Landhi, Karachi",
+   "analysis": "dw",
+   "parameters": "pH, Total Dissolved Solids (TDS), Hardness, Color, Turbidity, Nitrite, Nitrate, Taste, Odor, Chloride, Fluoride, Aluminum, Nickel, Lead, Barium, Antimony, Arsenic, Boron, Cadmium, Chromium, Selenium, Copper, Cyanide, Mercury, Manganese, Zinc, Residual Chlorine, Phenolic Compounds, Fecal Coliform, Total Coliform, E-Coli, Total Bacterial Count",
+   "req_mou": true,
+   "req_soc": true,
+   "req_opinion": false,
+   "req_limits": false,
+   "req_other": "",
+   "reporting": "According to SEQS-2016 limits",
+   "decision": "approved",
+   "decision_comment": "Accredited parameters (pH, TDS, Hardness, Fluoride, Chloride, Nickel, Nitrate) results will be followed by above request",
+   "decision_date": "2024-09-06",
+   "customer_sign_name": "Ammad Hassan",
+   "file": "Soorty Decision rule Record/ETAL-LAB-708-FF-17 Customer Request Form For MOU  SOC SP-11.docx",
+   "notes": [
+    "The address on the form is cut on the paper (\"Plot # 526-529,533-538 Deh L...\")."
+   ]
+  }
+ ],
+ "records": [
+  {
+   "sample_id": "WW-202405120",
+   "customer": "Artistic Fabric Mills (Pvt) Limited - Unit#04",
+   "report_type": "ww2",
+   "parameter": "pH",
+   "method": "APHA 4500 H-B",
+   "unit": "-",
+   "lower": 6,
+   "upper": 9,
+   "limit_text": "6 to 9",
+   "uncertainty": 0.197,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-05-21",
+     "value": 7.36
+    },
+    {
+     "date": "",
+     "value": 7.36
+    },
+    {
+     "date": "",
+     "value": 7.37
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "7.36",
+   "file": "AFM 4 -Decision rule Reocrd/Statement of conformity Record (pH wasteWater).xlsx",
+   "notes": [],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "WW-202405120",
+   "customer": "Artistic Fabric Mills (Pvt) Limited - Unit#04",
+   "report_type": "ww2",
+   "parameter": "COD",
+   "method": "HACH 8000",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 150,
+   "limit_text": "150",
+   "uncertainty": 2.441,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-05-21",
+     "value": 70
+    },
+    {
+     "date": "",
+     "value": 70
+    },
+    {
+     "date": "",
+     "value": 69
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "70",
+   "file": "AFM 4 -Decision rule Reocrd/statement of conformity(COD).xlsx",
+   "notes": [
+    "The record gives the uncertainty as 2.441; the test report 202405120-AFM-WW prints 1.341."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "WW-202405120",
+   "customer": "Artistic Fabric Mills (Pvt) Limited - Unit#04",
+   "report_type": "ww2",
+   "parameter": "TDS",
+   "method": "APHA 2540-C",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 3500,
+   "limit_text": "3500",
+   "uncertainty": 3.449,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-05-22",
+     "value": 2040
+    },
+    {
+     "date": "",
+     "value": 2042
+    },
+    {
+     "date": "",
+     "value": 2038
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "2040",
+   "file": "AFM 4 -Decision rule Reocrd/statement of conformity(TDS).xlsx",
+   "notes": [
+    "The record gives the uncertainty as 3.449; the test report prints 5.882."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "DW-202409012",
+   "customer": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "report_type": "dw",
+   "parameter": "pH",
+   "method": "APHA 4500 H-B",
+   "unit": "-",
+   "lower": 6,
+   "upper": 9,
+   "limit_text": "6 to 9",
+   "uncertainty": 0.197,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-09-07",
+     "value": 7
+    },
+    {
+     "date": "",
+     "value": 7.01
+    },
+    {
+     "date": "",
+     "value": 7
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "7.00",
+   "file": "Soorty Decision rule Record/Statement of conformity Record (pH DrinkingWater).xlsx",
+   "notes": [
+    "The record uses the limits 6 to 9; the drinking-water report prints the SEQS limit 6.5-8.5."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "DW-202409012",
+   "customer": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "report_type": "dw",
+   "parameter": "Chloride",
+   "method": "APHA 4500 Cl",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 250,
+   "limit_text": "250",
+   "uncertainty": 0.043,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-09-07",
+     "value": 143.95
+    },
+    {
+     "date": "",
+     "value": 143.95
+    },
+    {
+     "date": "",
+     "value": 143.95
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "143.95",
+   "file": "Soorty Decision rule Record/statement of conformity(Chloride).xlsx",
+   "notes": [
+    "The record prints the method as \"APHA 4500 H-B\"; the report gives APHA 4500 Cl. Uncertainty on the record 0.043; the report prints 0.913."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "DW-202409012",
+   "customer": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "report_type": "dw",
+   "parameter": "Fluoride",
+   "method": "HACH 8029",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 1.5,
+   "limit_text": "1.5",
+   "uncertainty": 0.245,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-09-07",
+     "value": 0.24
+    },
+    {
+     "date": "",
+     "value": 0.26
+    },
+    {
+     "date": "",
+     "value": 0.22
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "0.24",
+   "file": "Soorty Decision rule Record/statement of conformity(Fluoride).xlsx",
+   "notes": [
+    "Uncertainty on the record 0.245; the report prints 0.009."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "DW-202409012",
+   "customer": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "report_type": "dw",
+   "parameter": "Hardness",
+   "method": "ASTM D 1126",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 500,
+   "limit_text": "500",
+   "uncertainty": 2.269,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-09-07",
+     "value": 60
+    },
+    {
+     "date": "",
+     "value": 60
+    },
+    {
+     "date": "",
+     "value": 60
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "60",
+   "file": "Soorty Decision rule Record/statement of conformity(Hardness).xlsx",
+   "notes": [
+    "Uncertainty on the record 2.269; the report prints 1.754."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "DW-202409012",
+   "customer": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "report_type": "dw",
+   "parameter": "Nickel",
+   "method": "APHA 3111 B",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 0.02,
+   "limit_text": "0.02",
+   "uncertainty": 0.012,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-09-12",
+     "value": 0
+    },
+    {
+     "date": "",
+     "value": 0
+    },
+    {
+     "date": "",
+     "value": 0
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "<0.0080",
+   "file": "Soorty Decision rule Record/statement of conformity(Nickel).xlsx",
+   "notes": [
+    "The report prints \"<0.0080\"; the record enters 0. Uncertainty on the record 0.012; the report prints 0.017."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  },
+  {
+   "sample_id": "DW-202409012",
+   "customer": "Soorty Enterprises Pvt Ltd (Spinning Unit -11)",
+   "report_type": "dw",
+   "parameter": "TDS",
+   "method": "APHA 2540-C",
+   "unit": "mg/L",
+   "lower": null,
+   "upper": 1000,
+   "limit_text": "1000",
+   "uncertainty": 3.449,
+   "u_source": "as on the laboratory record",
+   "results": [
+    {
+     "date": "2024-09-12",
+     "value": 264
+    },
+    {
+     "date": "",
+     "value": 262
+    },
+    {
+     "date": "",
+     "value": 266
+    }
+   ],
+   "standard": "Sindh Environmental Quality Standard 2016",
+   "decision_rule": "Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)",
+   "report_result": "264",
+   "file": "Soorty Decision rule Record/statement of conformity(TDS).xlsx",
+   "notes": [
+    "Uncertainty on the record 3.449; the report prints 5.882."
+   ],
+   "performed_name": "",
+   "reviewed_name": "",
+   "approved_name": ""
+  }
+ ]
+}

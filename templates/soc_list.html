@@ -1,0 +1,72 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Decision Rule - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <span>{{ loc }} register</span>{% endblock %}
+{% block cc_body %}
+<div class="card">
+  <div class="hd">
+    <div class="title"><i class="fa-solid fa-scale-balanced"></i> Decision Rule / Statement of Conformity - {{ loc }} laboratory</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-p" href="{% url 'soc_new' %}?location={{ loc }}"><i class="fa-solid fa-plus"></i> New statement (from a report)</a>
+      <a class="btn" href="{% url 'soc_request_new' %}?location={{ loc }}"><i class="fa-solid fa-file-signature"></i> Customer request form</a>
+      <a class="btn" href="{% url 'soc_manual' %}" target="_blank" rel="noopener"><i class="fa-solid fa-circle-question"></i> Manual</a>
+    </div>
+  </div>
+  <form class="toolbar" method="get">
+    <label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label>
+    <input type="hidden" name="show" value="{{ show }}">
+    <input name="q" value="{{ q }}" placeholder="sample ID, customer, parameter ..." style="min-width:240px">
+    <button class="btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+      <a class="btn {% if show == 'open' %}btn-p{% endif %}" href="?location={{ loc }}&show=open&q={{ q|urlencode }}">Open <span class="pill none">{{ counts.open }}</span></a>
+      <a class="btn {% if show == 'approved' %}btn-p{% endif %}" href="?location={{ loc }}&show=approved&q={{ q|urlencode }}">Approved <span class="pill none">{{ counts.approved }}</span></a>
+      <a class="btn {% if show == 'all' %}btn-p{% endif %}" href="?location={{ loc }}&show=all&q={{ q|urlencode }}">All samples <span class="pill none">{{ counts.all }}</span></a>
+      <a class="btn {% if show == 'pending' %}btn-p{% endif %}" href="?location={{ loc }}&show=pending">Awaiting statement{% if counts.pending is not None %} <span class="pill warn">{{ counts.pending }}</span>{% endif %}</a>
+    </span>
+  </form>
+  <div class="msg" style="background:#f8fafc;color:#475569">A statement of conformity is prepared for a drinking-water or waste-water report when the customer asked for <b>measurement of uncertainty / statement of conformity</b> on the sample requisition form. The test results come from the report, the specification limits from the standard printed on it and the expanded uncertainty from the MOU register. Decision rule: binary statement, simple acceptance (guard band 0). Forms {{ ctrl_req.doc_no }} (request) and {{ ctrl.doc_no }} (record).</div>
+  {% if show != 'pending' %}
+  <table>
+    <thead><tr><th>Sample ID</th><th>Customer</th><th>Report</th><th>Parameters</th><th>Statement</th><th>Stage</th><th>Request form</th><th></th></tr></thead>
+    <tbody>
+    {% for g in groups %}
+      <tr>
+        <td class="nw"><b>{{ g.sample_id }}</b></td>
+        <td>{{ g.customer|default:"-" }}</td>
+        <td class="nw">{{ g.report_label }}</td>
+        <td>{% for r in g.records %}<a href="{% url 'soc_detail' r.id %}" style="color:#0f5132;text-decoration:none;white-space:nowrap"><b>{{ r.parameter }}</b> {% if r.overall == 'Pass' %}<span class="pill ok">Pass</span>{% elif r.overall == 'Fail' %}<span class="pill bad">Fail</span>{% else %}<span class="pill none">-</span>{% endif %}</a>{% if not forloop.last %} &middot; {% endif %}{% endfor %}</td>
+        <td class="nw">{% if g.overall == 'Pass' %}<span class="pill ok">Result = Pass</span>{% elif g.overall == 'Fail' %}<span class="pill bad">Result = Fail</span>{% else %}<span class="pill none">incomplete</span>{% endif %}</td>
+        <td class="nw">{% if g.status == 'approved' %}<span class="pill ok">Approved</span>{% elif g.status == 'reviewed' %}<span class="pill info">Reviewed - awaiting CEO</span>{% elif g.status == 'performed' %}<span class="pill warn">Awaiting review</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
+        <td class="nw">{% if g.request %}<a class="btn" href="{% url 'soc_request_detail' g.request.id %}"><i class="fa-solid fa-file-signature"></i> {% if g.request.decision == 'approved' %}approved{% elif g.request.decision == 'denied' %}denied{% else %}open{% endif %}</a>{% else %}<a class="btn" href="{% url 'soc_request_new' %}?location={{ loc }}&sample={{ g.sample_id|urlencode }}"><i class="fa-solid fa-plus"></i> request form</a>{% endif %}</td>
+        <td class="nw"><a class="btn" href="{% url 'soc_sample_pdf' g.sample_id %}?location={{ loc }}" target="_blank" rel="noopener" title="All records of the sample, with the summary for the test report"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+          {% if g.status == 'draft' %}<form method="post" action="{% url 'soc_sample_action' g.sample_id %}?location={{ loc }}" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="perform"><button class="btn" type="submit" onclick="return confirm('Sign every draft record of sample {{ g.sample_id|escapejs }} as performed by you?')"><i class="fa-solid fa-signature"></i> Sign all</button></form>
+          {% elif g.status == 'performed' and can_manage %}<form method="post" action="{% url 'soc_sample_action' g.sample_id %}?location={{ loc }}" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="review"><button class="btn" type="submit"><i class="fa-solid fa-check"></i> Review all</button></form>
+          {% elif g.status == 'reviewed' and can_manage %}<form method="post" action="{% url 'soc_sample_action' g.sample_id %}?location={{ loc }}" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="approve"><button class="btn btn-p" type="submit"><i class="fa-solid fa-lock"></i> Approve all</button></form>{% endif %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="8" class="empty">No {% if show == 'open' %}open{% elif show == 'approved' %}approved{% endif %} statements for the {{ loc }} laboratory{% if q %} matching "{{ q }}"{% endif %}.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% if pending %}
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-hourglass-half"></i> Samples whose requisition asks for MOU / statement of conformity - no statement yet</div></div>
+  <table>
+    <thead><tr><th>Sample ID</th><th>Customer</th><th>Requested</th><th>Report</th><th>Date</th><th></th></tr></thead>
+    <tbody>{% for s in pending %}<tr>
+      <td class="nw"><b>{{ s.sample_id }}</b></td><td>{{ s.customer|default:"-" }}</td>
+      <td class="nw">{% if s.mou %}<span class="pill info">MOU</span>{% endif %} {% if s.soc %}<span class="pill info">SOC</span>{% endif %}</td>
+      <td class="nw">{% if s.report %}{{ s.report_label }}{% else %}<span class="pill warn">no report yet</span>{% endif %}</td>
+      <td class="nw">{{ s.date|default:"-" }}</td>
+      <td class="nw">{% if s.report %}<a class="btn btn-p" href="{% url 'soc_new' %}?location={{ loc }}&sample={{ s.sample_id|urlencode }}"><i class="fa-solid fa-plus"></i> Prepare statement</a>{% endif %}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% elif show == 'pending' %}<div class="empty">Every sample whose requisition asks for MOU / statement of conformity has a statement.</div>{% endif %}
+  {% if show == 'all' and requests %}
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-file-signature"></i> Customer request forms ({{ ctrl_req.doc_no }})</div></div>
+  <table><thead><tr><th>Date</th><th>Sample ID</th><th>Organization</th><th>Customer</th><th>Requested</th><th>Follow-up</th><th></th></tr></thead>
+    <tbody>{% for r in requests %}<tr><td class="nw">{{ r.date|date:"d-m-Y"|default:"-" }}</td><td class="nw"><b>{{ r.sample_id }}</b></td><td>{{ r.organization }}</td><td>{{ r.customer_name }}</td>
+      <td class="nw">{% if r.req_mou %}MOU {% endif %}{% if r.req_soc %}SOC {% endif %}{% if r.req_opinion %}O&amp;I {% endif %}{% if r.req_limits %}CSL{% endif %}</td>
+      <td class="nw">{% if r.decision == 'approved' %}<span class="pill ok">Approved {{ r.decision_date|date:"d-m-Y" }}</span>{% elif r.decision == 'denied' %}<span class="pill bad">Denied</span>{% else %}<span class="pill none">open</span>{% endif %}{% if r.locked %} <span class="pill ok">&#10003;</span>{% endif %}</td>
+      <td class="nw"><a class="btn" href="{% url 'soc_request_detail' r.id %}">Open</a> <a class="btn" href="{% url 'soc_request_pdf' r.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td></tr>{% endfor %}</tbody></table>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1547,3 +1547,163 @@ class MrmItem(models.Model):
 
 for _m in (MrmPlan, MrmMeeting, MrmItem):
     _sh_register(_m)
+
+
+# ---------------------------------------------------------------- Decision rule / Statement of conformity (26-10-2026)
+class SocRequest(models.Model):
+    """Customer Request Form for MOU & SOC (ETAL-LAB-708-FF-17): the customer's request, received with the
+    sample, for measurement uncertainty / statement of conformity on the test report, and the laboratory's
+    follow-up (approved / denied). One per sample (sample ID of the requisition / report)."""
+    ANALYSES = (('ww', 'Wastewater'), ('dw', 'Drinking water'), ('other', 'Others'))
+    DECISIONS = (('', '-'), ('approved', 'Request approved'), ('denied', 'Request denied'))
+    location = models.CharField(max_length=20, default='Karachi', db_index=True)
+    sample_id = models.CharField(max_length=60, db_index=True)
+    date = models.DateField(null=True, blank=True)
+    reason = models.TextField(blank=True, default='')
+    organization = models.CharField(max_length=200, blank=True, default='')
+    customer_name = models.CharField(max_length=150, blank=True, default='')
+    contact = models.CharField(max_length=120, blank=True, default='')
+    address = models.CharField(max_length=300, blank=True, default='')
+    analysis = models.CharField(max_length=6, choices=ANALYSES, default='ww')
+    analysis_other = models.CharField(max_length=200, blank=True, default='')
+    parameters = models.TextField(blank=True, default='')
+    req_mou = models.BooleanField(default=True)
+    req_soc = models.BooleanField(default=True)
+    req_opinion = models.BooleanField(default=False)
+    req_limits = models.BooleanField(default=False)
+    req_other = models.CharField(max_length=300, blank=True, default='')
+    reporting = models.TextField(blank=True, default='')          # specification limit / decision rule the customer wishes to use
+    decision = models.CharField(max_length=10, choices=DECISIONS, blank=True, default='')
+    decision_comment = models.TextField(blank=True, default='')
+    decision_date = models.DateField(null=True, blank=True)
+    customer_sign_name = models.CharField(max_length=150, blank=True, default='')
+    authorised_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    authorised_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    legacy = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ['-date', '-id']
+        unique_together = ('location', 'sample_id')
+
+    @property
+    def inducted(self):
+        return bool((self.legacy or {}).get('inducted'))
+
+    @property
+    def locked(self):
+        return bool(self.authorised_at)
+
+    def __str__(self):
+        return 'MOU & SOC request %s (%s)' % (self.sample_id, self.location)
+
+
+class SocRecord(models.Model):
+    """Statement of Conformity Record (ETAL-LAB-708-FF-20): one parameter of one test report. Three
+    replicate results against the specification limits of the standard, with the expanded uncertainty;
+    decision rule = binary statement, simple acceptance (guard band 0, specific risk < 50 % PFA):
+    Pass when the measured value lies within the specification limits, else Fail.
+    Performed by the chemist, reviewed by the QC Manager, approved by the CEO."""
+    REPORTS = (('dw', 'Drinking water'), ('ww2', 'Waste water'))
+    STATUSES = (('draft', 'Draft'), ('performed', 'Performed - awaiting review'), ('reviewed', 'Reviewed - awaiting approval'), ('approved', 'Approved'))
+    RULE = 'Binary Statement for Simple acceptance Rule (Guard band=0), Specific Risk is <50% PFA (Probability of False accept)'
+    location = models.CharField(max_length=20, default='Karachi', db_index=True)
+    request = models.ForeignKey(SocRequest, null=True, blank=True, on_delete=models.SET_NULL, related_name='records')
+    report_type = models.CharField(max_length=4, choices=REPORTS, default='ww2')
+    report_pk = models.IntegerField(null=True, blank=True)        # id of the DrinkingWaterForm / WasteWaterForm2 row the results were taken from
+    sample_id = models.CharField(max_length=60, db_index=True)
+    customer = models.CharField(max_length=200, blank=True, default='')
+    parameter = models.CharField(max_length=80)
+    method = models.CharField(max_length=120, blank=True, default='')
+    unit = models.CharField(max_length=20, blank=True, default='')
+    standard = models.CharField(max_length=120, default='Sindh Environmental Quality Standard 2016')
+    limit_text = models.CharField(max_length=40, blank=True, default='')      # the limit as printed on the report / standard ("6 to 9", "150")
+    upper = models.FloatField(null=True, blank=True)
+    lower = models.FloatField(null=True, blank=True)
+    uncertainty = models.FloatField(null=True, blank=True)                     # expanded U (absolute, same unit)
+    u_source = models.CharField(max_length=200, blank=True, default='')        # where U came from (MOU study / typed)
+    mou_study = models.ForeignKey('QC.MouStudy', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    results = models.JSONField(default=list, blank=True)                       # [{'date': 'yyyy-mm-dd' or '', 'value': float}]
+    decision_rule = models.CharField(max_length=200, default=RULE)
+    remarks = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=10, choices=STATUSES, default='draft')
+    performed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    performed_at = models.DateTimeField(null=True, blank=True)
+    performed_name = models.CharField(max_length=120, blank=True, default='')
+    reviewed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_name = models.CharField(max_length=120, blank=True, default='')
+    approved_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approved_name = models.CharField(max_length=120, blank=True, default='')
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    legacy = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ['-id']
+
+    @property
+    def inducted(self):
+        return bool((self.legacy or {}).get('inducted'))
+
+    @property
+    def locked(self):
+        return self.status == 'approved'
+
+    @property
+    def values(self):
+        return [r.get('value') for r in (self.results or []) if isinstance(r.get('value'), (int, float))]
+
+    @property
+    def mean(self):
+        v = self.values
+        return sum(v) / len(v) if v else None
+
+    @property
+    def sd(self):
+        v = self.values
+        return _stats.stdev(v) if len(v) > 1 else (0.0 if v else None)
+
+    def verdict(self, value):
+        """Pass / Fail of one measured value under the simple-acceptance rule (guard band 0)."""
+        if value is None:
+            return ''
+        if self.lower is not None and value < self.lower:
+            return 'Fail'
+        if self.upper is not None and value > self.upper:
+            return 'Fail'
+        return 'Pass'
+
+    @property
+    def verdicts(self):
+        return [self.verdict(r.get('value')) for r in (self.results or [])]
+
+    @property
+    def overall(self):
+        v = [x for x in self.verdicts if x]
+        if not v:
+            return ''
+        return 'Fail' if 'Fail' in v else 'Pass'
+
+    @property
+    def spec_text(self):
+        if self.limit_text:
+            return self.limit_text
+        if self.lower is not None and self.upper is not None:
+            return '%g to %g' % (self.lower, self.upper)
+        if self.upper is not None:
+            return '%g' % self.upper
+        if self.lower is not None:
+            return '>= %g' % self.lower
+        return '-'
+
+    def __str__(self):
+        return 'SOC %s %s (%s)' % (self.sample_id, self.parameter, self.location)
+
+
+for _m in (SocRequest, SocRecord):
+    _sh_register(_m)
