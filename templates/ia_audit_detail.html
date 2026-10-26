@@ -4,8 +4,9 @@
 {% block cc_body %}
 <div class="card">
   <div class="hd">
-    <div class="title"><i class="fa-solid fa-file-lines"></i> Internal Audit {{ a.audit_no }} - {{ loc }} laboratory
+    <div class="title"><i class="fa-solid fa-file-lines"></i> Internal Audit {{ a.audit_no }} - {{ loc }} laboratory <span class="pill info">{{ a.standard_label }}</span>
       {% if a.status == 'closed' %}<span class="pill ok">Signed by auditor and auditee</span>{% elif a.status == 'auditor' %}<span class="pill info">Signed by auditor - awaiting auditee</span>{% else %}<span class="pill none">Draft</span>{% endif %}
+      {% if a.endorsed %}<span class="pill ok">Endorsed by CEO</span>{% endif %}
       {% if legacy %}<span class="pill none" title="Inducted from the laboratory's Word record: {{ legacy.file }}">REC</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if can_edit %}<a class="btn" href="{% url 'ia_audit_edit' a.id %}"><i class="fa-solid fa-pen"></i> Edit checklist</a>{% endif %}
@@ -35,11 +36,12 @@
     <div class="tile"><b>Time frame to close</b><span style="font-size:14px;line-height:1.3">{{ a.timeframe|default:"-" }}</span></div>
   </div>
   {% if a.conclusion %}<div style="padding:0 18px 12px;font-size:13px"><b>Conclusion statement:</b> {{ a.conclusion }}</div>{% endif %}
+  {% if a.remarks and can_manage %}<div style="padding:0 18px 12px;font-size:12.5px;color:#475569;white-space:pre-line"><b>Remarks (internal, not printed):</b> {{ a.remarks }}</div>{% endif %}
   {% if legacy.notes %}<div class="msg warning"><b>Record notes</b> (induction {{ legacy.inducted }}): {% for n in legacy.notes %}<br>{{ n }}{% endfor %}</div>{% endif %}
 </div>
 
 <div class="card">
-  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-list-check"></i> Checklist - ISO/IEC 17025:2017</div>
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-list-check"></i> Checklist - {{ a.standard_label }}</div>
     <div style="display:flex;gap:6px"><a class="btn {% if show == 'all' %}btn-p{% endif %}" href="?show=all">All rows</a><a class="btn {% if show == 'findings' %}btn-p{% endif %}" href="?show=findings">Findings only</a></div></div>
   <table class="cl-table">
     <thead><tr><th style="width:62px">Clause</th><th style="width:28%">Requirement</th><th style="width:15%">Lab's reference</th><th>Auditor findings</th><th style="width:96px">Result</th>{% if can_raise_nc %}<th style="width:70px"></th>{% endif %}</tr></thead>
@@ -85,10 +87,12 @@
   <div class="sigline">
     <div class="s"><b>Signature of internal auditor</b>{% if a.auditor_signed_at %}{{ a.auditor_signed_by.get_full_name|default:a.auditor_signed_by.username }} - {{ a.auditor_signed_at|date:"d-m-Y H:i" }}{% elif legacy and a.auditor %}{{ a.auditor }} - {{ a.auditor_sign_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}-{% endif %}</div>
     <div class="s"><b>Signature of internal auditee</b>{% if a.auditee_signed_at %}{{ a.auditee_signed_by.get_full_name|default:a.auditee_signed_by.username }} - {{ a.auditee_signed_at|date:"d-m-Y H:i" }}{% elif legacy and a.auditee %}{{ a.auditee }} - {{ a.auditee_sign_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}-{% endif %}</div>
+    <div class="s"><b>CEO / Top Management endorsement</b>{% if a.ceo_endorsed_at %}{{ a.ceo_endorsed_by.get_full_name|default:a.ceo_endorsed_by.username }} - {{ a.ceo_endorsed_at|date:"d-m-Y H:i" }}{% elif a.ceo_name %}{{ a.ceo_name }} - {{ a.ceo_endorse_date|date:"d-m-Y" }} <span class="muted">(record; not e-signed)</span>{% else %}<span class="muted">awaiting - after the auditee's acknowledgement</span>{% endif %}</div>
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
     {% if can_sign_auditor %}<form method="post" action="{% url 'ia_audit_action' a.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_auditor"><button class="btn btn-p" type="submit" onclick="return confirm('Sign audit report {{ a.audit_no|escapejs }} as internal auditor? The report is then locked for the auditee\'s acknowledgement.')"><i class="fa-solid fa-signature"></i> Sign as internal auditor</button></form>{% endif %}
     {% if can_sign_auditee %}<form method="post" action="{% url 'ia_audit_action' a.id %}">{% csrf_token %}<input type="hidden" name="action" value="sign_auditee"><button class="btn btn-p" type="submit" onclick="return confirm('Sign audit report {{ a.audit_no|escapejs }} as auditee (acknowledgement of the findings)?')"><i class="fa-solid fa-signature"></i> Sign as auditee</button></form>{% endif %}
+    {% if can_endorse %}<form method="post" action="{% url 'ia_audit_action' a.id %}">{% csrf_token %}<input type="hidden" name="action" value="endorse"><button class="btn btn-p" type="submit" onclick="return confirm('Endorse audit report {{ a.audit_no|escapejs }}: I have reviewed and acknowledged the results and findings of this internal audit report?')"><i class="fa-solid fa-stamp"></i> Endorse (CEO / Top Management)</button></form>{% endif %}
     {% if can_reopen %}<form method="post" action="{% url 'ia_audit_action' a.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="reopen"><label>Reason <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-w" type="submit" onclick="return confirm('Reopen the report as draft? Both signatures are cleared.')"><i class="fa-solid fa-rotate-left"></i> Reopen</button></form>{% endif %}
     {% if can_delete %}<form method="post" action="{% url 'ia_audit_delete' a.id %}" style="display:flex;gap:6px;align-items:flex-end;margin-left:auto">{% csrf_token %}<label>Reason for deletion <input name="reason" required minlength="5" style="width:240px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Delete this audit report and its witnessing records? A copy is kept in the deletion log.')"><i class="fa-solid fa-trash"></i> Delete</button></form>{% endif %}
   </div>

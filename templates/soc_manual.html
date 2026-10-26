@@ -22,9 +22,9 @@
 <section><h2>2. Steps</h2>
 <ol>
 <li><b>Customer request form (FF-17)</b> - record the customer's request as received (organisation, parameters, type of request, specification limit / decision rule wished). The Lab Manager / MR records the follow-up action (approved / denied) and authorises the form. The form is pre-filled from the report when a sample ID is given.</li>
-<li><b>New statement (from a report)</b> - choose the sample ID. The software loads the drinking-water or waste-water report: customer, parameters with their results, methods and units, the standard's limit as printed on the report, and the expanded uncertainty in force in the MOU register for the parameter. Accredited parameters (***) are ticked. Result 1 is the reported result; enter results 2 and 3 (replicates) and their dates. Correct a limit or uncertainty when needed. <i>Create records</i> makes one record per ticked parameter.</li>
+<li><b>New statement (from a report)</b> - choose the sample ID. The software loads the drinking-water or waste-water report: customer, parameters with their results, methods and units, the standard's limit as printed on the report, and the expanded uncertainty in force in the MOU register for the parameter. Only the laboratory's accredited parameters (***) can be ticked: the statement of conformity applies to the accreditation scope. Result 1 is the reported result; enter results 2 and 3 (replicates) and their dates. Correct a limit or uncertainty when needed. <i>Create records</i> makes one record per ticked parameter.</li>
 <li><b>Record (FF-20)</b> - each parameter's page shows the three results, mean, standard deviation, the Pass / Fail of each result and the graph (results against the specification lines). Sign as <b>Performed</b> (chemist / assistant manager), then <b>Review</b> (QC / Lab Manager) and <b>Approve</b> (CEO). An approved record is locked; the CEO may unapprove it with a reason. "Sign all / Review all / Approve all" on the register act on every record of the sample.</li>
-<li><b>PDFs</b> - the record PDF (FF-20) per parameter; the <b>lab test report with decision rule</b> (FF-18 waste water / FF-19 drinking water) for the sample: accredited parameters with uncertainty and limits, the statement of conformity paragraph (Result = Pass / Fail) and the three signatures. Drafts print with a NOT APPROVED watermark.</li>
+<li><b>PDFs</b> - the record PDF (FF-20) per parameter; the <b>lab test report with decision rule</b> (FF-18 waste water / FF-19 drinking water): the sample's normal test report, unchanged, with the column "Uncertainty &plusmn;U" after the result (N.A for parameters without a statement), *** on the accredited parameters with a statement, the Statement of Conformity block (Result = Pass / Fail) above the signatures and the FF-18 / FF-19 document control at the foot. It carries the test report's own signatures (Analyzed / Reviewed / Approved by), as every test report does; the statement records carry the Performed / Reviewed / Approved signatures. Drafts print with a NOT APPROVED watermark. When a record's limit was corrected, the limit judged is printed.</li>
 </ol></section>
 <section><h2>3. Where the figures come from</h2>
 <table><tr><th>Item</th><th>Source</th></tr>
@@ -35,11 +35,12 @@
 <tr><td>Accredited parameters</td><td>Karachi: DW pH, TDS, Hardness, Nitrate, Chloride, Fluoride, Nickel; WW pH, COD, TDS. Lahore: DW pH, Turbidity, TDS, Chloride, Hardness, Nitrate, Alkalinity, Sulphate, Calcium; WW pH, TDS, Chloride, Sulphate.</td></tr></table></section>
 <section><h2>4. Roles</h2>
 <table><tr><th>Action</th><th>Who</th></tr>
-<tr><td>Create / edit a draft, sign as performed</td><td>The laboratory's own staff (office on the e-signature profile), its managers, the administrator</td></tr>
-<tr><td>Review</td><td>The laboratory's QC / Lab Manager (Laboratory Reviewers page)</td></tr>
+<tr><td>Create / edit a draft, sign as performed</td><td>The laboratory's own staff (office on the e-signature profile), its managers, the administrator. The expanded uncertainty must be entered before signing.</td></tr>
+<tr><td>Review</td><td>The laboratory's QC / Lab Manager (Laboratory Reviewers page) or the CEO; never the person who performed the record</td></tr>
 <tr><td>Approve, unapprove</td><td>CEO / administrator</td></tr>
-<tr><td>Return to draft, delete (with reason, logged), authorise a request form</td><td>Lab Manager or CEO / administrator</td></tr>
-<tr><td>Document control numbers</td><td>Administrator (each laboratory prints its own numbers)</td></tr></table>
-<p class="note">Corrections to an approved record are made by the administrator with the audit trail kept: each change (old value &rarr; new value, reason, date) is written in the record's correction note, printed on the PDF, and the laboratory re-signs the corrected paper copy.</p>
-<p class="note">Records inducted from the laboratory's Excel / Word record carry the printed names and the mark REC; their signatures read "(record)".</p></section>
+<tr><td>Return to draft, delete a record that is not approved (with reason, logged), approve / deny and authorise a request form</td><td>Lab Manager or CEO / administrator</td></tr>
+<tr><td>Form numbers (FF-17 / 18 / 19 / 20)</td><td>The laboratory's QC / Lab Manager for its own laboratory, and the administrator (each laboratory prints its own numbers)</td></tr>
+<tr><td>Viewing</td><td>Each laboratory's records, request forms and PDFs are visible to its own staff, its QC / Lab Manager and the CEO only - no cross-laboratory viewing</td></tr></table>
+<p class="note">Corrections to an approved record are made by the administrator through the system's correction procedure (management command correct_soc_spec, applied with the owner's approval) with the audit trail kept: each change (old value &rarr; new value, reason, date) is written in the record's correction note, printed on the PDF, and the laboratory re-signs the corrected paper copy.</p>
+<p class="note">Records inducted from the laboratory's Excel / Word record carry the mark REC; their signatures print as "Signed on the paper record".</p></section>
 </main></body></html>

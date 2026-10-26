@@ -67,6 +67,7 @@
                   <label>Issue date<input name="issue_date" value="{{ v.issue_date }}" maxlength="20" style="width:100px"></label>
                   <label>Issue<input name="issue_no" value="{{ v.issue_no }}" maxlength="10" style="width:55px"></label>
                   <label>Rev.<input name="rev_no" value="{{ v.rev_no }}" maxlength="10" style="width:55px"></label>
+                  {% if v.effective_from.year != 2000 %}<label>Effective from<input type="date" name="effective_from" value="{{ v.effective_from|date:'Y-m-d' }}"></label>{% endif %}
                   <label>Reason for the correction<input name="note" required minlength="5" style="width:240px" placeholder="e.g. typing error in the issue date"></label>
                   <button class="btn" type="submit" onclick="return confirm('Correct this revision? Every document dated in its period prints the corrected values.')">Save correction</button></form></details>{% endif %}</td>
             </tr>
@@ -80,7 +81,7 @@
           <label>Issue date<input name="issue_date" value="{{ r.cv.issue_date }}" placeholder="dd-mm-yyyy" maxlength="20" style="width:100px"></label>
           <label>Issue<input name="issue_no" value="{{ r.cv.issue_no|default:'01' }}" maxlength="10" style="width:55px"></label>
           <label>Rev.<input name="rev_no" value="{{ r.cv.rev_no|default:'00' }}" maxlength="10" style="width:55px"></label>
-          <label>Effective from (documents dated on/after)<input type="date" name="effective_from" value="{{ today|date:'Y-m-d' }}" required></label>
+          <label title="Normally the issue date of the new revision: documents dated from then on print it">Effective from (documents dated on/after)<input type="date" name="effective_from" value="{{ today|date:'Y-m-d' }}" required data-eff></label>
           <label>Reason<input name="note" required minlength="5" style="width:240px" placeholder="e.g. form revised, Issue 03 Rev 00 approved by CEO"></label>
           <button class="btn btn-p" type="submit" onclick="return confirm('Issue this new revision? Documents dated from the effective date print it; earlier documents keep theirs.')"><i class="fa-solid fa-file-circle-plus"></i> Issue new revision</button></form>{% endif %}
       </div>
@@ -89,4 +90,12 @@
   {% endfor %}
 </div>
 {% endfor %}
+<script>
+/* the effective date follows the issue date typed (dd-mm-yyyy) unless it was changed by hand - 27-10-2026 */
+document.querySelectorAll('form.dr-form').forEach(function(f){
+  var idt=f.querySelector('input[name=issue_date]'), eff=f.querySelector('input[data-eff]'); if(!idt||!eff) return;
+  var touched=false; eff.addEventListener('input',function(){touched=true;});
+  idt.addEventListener('input',function(){ var m=(idt.value||'').trim().match(/^(\d{2})[-\/.](\d{2})[-\/.](\d{4})$/); if(m&&!touched){ eff.value=m[3]+'-'+m[2]+'-'+m[1]; } });
+});
+</script>
 {% endblock %}

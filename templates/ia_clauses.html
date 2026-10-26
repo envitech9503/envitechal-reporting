@@ -1,11 +1,12 @@
 {% extends "_ia_base.html" %}
-{% block cc_title %}ISO 17025 checklist master{% endblock %}
+{% block cc_title %}{{ std_label }} checklist master{% endblock %}
 {% block crumb %} &rsaquo; <span>Checklist master</span>{% endblock %}
 {% block cc_body %}
 <div class="card">
-  <div class="hd"><div class="title"><i class="fa-solid fa-list-ol"></i> ISO/IEC 17025:2017 checklist - master clause list <span class="muted">{{ rows|length }} rows</span></div></div>
+  <div class="hd"><div class="title"><i class="fa-solid fa-list-ol"></i> {{ std_label }} checklist - master clause list <span class="muted">{{ rows|length }} rows</span></div>
+    <div style="display:flex;gap:6px">{% for k, lbl in standards %}<a class="btn {% if k == std %}btn-p{% endif %}" href="?std={{ k }}">{{ lbl }}</a>{% endfor %}</div></div>
   <div class="msg" style="background:#f8fafc;color:#475569">The clause list and the laboratory's checklist wording used when an audit is started from the master. Findings keep their own copy of the wording, so changes here never alter a signed report. Inactive clauses are left out of new audits.</div>
-  {% if can %}<form method="post" class="frm">{% csrf_token %}<input type="hidden" name="action" value="add">
+  {% if can %}<form method="post" class="frm">{% csrf_token %}<input type="hidden" name="action" value="add"><input type="hidden" name="std" value="{{ std }}">
     <label>Code <input name="code" required placeholder="7.2.1.4" style="width:90px"></label><label>After clause <input name="after" placeholder="7.2.1.3" style="width:90px"></label>
     <label style="flex:1 1 220px">Title <input name="title"></label><label style="flex:2 1 320px">Requirement <input name="requirement"></label><button class="btn btn-p" type="submit">Add clause</button></form>{% endif %}
   <table>
@@ -13,12 +14,12 @@
     <tbody>
     {% for c in rows %}
       {% if can and edit == c.code %}
-      <tr style="background:#fffbeb"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save"><input type="hidden" name="id" value="{{ c.id }}">
+      <tr style="background:#fffbeb"><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save"><input type="hidden" name="std" value="{{ std }}"><input type="hidden" name="id" value="{{ c.id }}">
         <td><b>{{ c.code }}</b></td><td><input name="title" value="{{ c.title }}" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px"></td>
         <td><textarea name="requirement" rows="4" style="width:100%;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;font:inherit;font-size:12.5px">{{ c.requirement }}</textarea></td>
-        <td><input type="checkbox" name="active" value="1" {% if c.active %}checked{% endif %}></td><td class="nw"><button class="btn btn-p" type="submit">Save</button> <a class="btn" href="?">Cancel</a></td></form></tr>
+        <td><input type="checkbox" name="active" value="1" {% if c.active %}checked{% endif %}></td><td class="nw"><button class="btn btn-p" type="submit">Save</button> <a class="btn" href="?std={{ std }}">Cancel</a></td></form></tr>
       {% else %}
-      <tr class="{% if c.is_heading %}heading{% endif %}" {% if c.is_heading %}style="background:#f1f5f9;font-weight:700"{% endif %}><td class="nw">{{ c.code }}</td><td>{{ c.title }}</td><td style="font-size:12px;color:#334155">{{ c.requirement|truncatechars:220 }}</td><td>{% if c.active %}<span class="pill ok">yes</span>{% else %}<span class="pill none">no</span>{% endif %}</td>{% if can %}<td><a class="btn" href="?edit={{ c.code }}#c{{ c.id }}" id="c{{ c.id }}">Edit</a></td>{% endif %}</tr>
+      <tr class="{% if c.is_heading %}heading{% endif %}" {% if c.is_heading %}style="background:#f1f5f9;font-weight:700"{% endif %}><td class="nw">{{ c.code }}</td><td>{{ c.title }}</td><td style="font-size:12px;color:#334155">{{ c.requirement|truncatechars:220 }}</td><td>{% if c.active %}<span class="pill ok">yes</span>{% else %}<span class="pill none">no</span>{% endif %}</td>{% if can %}<td><a class="btn" href="?std={{ std }}&edit={{ c.code }}#c{{ c.id }}" id="c{{ c.id }}">Edit</a></td>{% endif %}</tr>
       {% endif %}
     {% endfor %}
     </tbody>

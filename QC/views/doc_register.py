@@ -315,6 +315,9 @@ def doc_register(request):
             if cur is not None and all(DC._vals(cur)[f] == vals[f] for f in DC.FIELDS):
                 _msg.error(request, 'Nothing was changed: the values are the same as the revision in force on %s.' % eff.strftime('%d-%m-%Y'))
                 return back
+            if DocControlRevision.objects.filter(module=DC._key(module, location)[0], location=DC._key(module, location)[1], effective_from=eff).exists():
+                _msg.error(request, 'Nothing was changed: a revision is already effective from %s; correct that revision instead.' % eff.strftime('%d-%m-%Y'))
+                return back
             DC.issue_revision(module, location, vals, eff, note, user)
             _msg.success(request, 'New revision of %s (%s) issued: %s, issue date %s, issue %s rev. %s - applies to documents dated from %s; '
                                   'documents dated earlier keep their revision.' % (module, location, vals['doc_no'], vals['issue_date'] or '-',
@@ -324,6 +327,26 @@ def doc_register(request):
             rev = DocControlRevision.objects.filter(pk=int(rid), module=module, location=location).first() if rid.isdigit() else None
             if rev is None:
                 return HttpResponse('unknown revision', status=404)
+            eff_txt = (P.get('effective_from') or '').strip()
+            if eff_txt and rev.effective_from != DC.BASELINE:
+                try:
+                    neweff = _dt.datetime.strptime(eff_txt, '%Y-%m-%d').date()
+                except ValueError:
+                    neweff = None
+                if neweff and neweff != rev.effective_from:
+                    if neweff <= DC.BASELINE:
+                        _msg.error(request, 'Nothing was changed: the effective date must be after 01-01-2000.'); return back
+                    order = list(DocControlRevision.objects.filter(module=rev.module, location=rev.location).order_by('effective_from', 'id'))
+                    k = [x.pk for x in order].index(rev.pk)
+                    prev_r = order[k - 1] if k > 0 else None
+                    next_r = order[k + 1] if k + 1 < len(order) else None
+                    if (prev_r and neweff <= prev_r.effective_from) or (next_r and neweff >= next_r.effective_from):
+                        _msg.error(request, 'Nothing was changed: the effective date must stay after the previous revision (%s)%s, so the revisions keep their order.'
+                                   % (prev_r.effective_from.strftime('%d-%m-%Y') if prev_r and prev_r.effective_from != DC.BASELINE else 'the start',
+                                      (' and before the next one (%s)' % next_r.effective_from.strftime('%d-%m-%Y')) if next_r else ''))
+                        return back
+                    note = '%s (effective date %s -> %s)' % (note, rev.effective_from.strftime('%d-%m-%Y'), neweff.strftime('%d-%m-%Y'))
+                    rev.effective_from = neweff
             DC.correct_revision(rev, vals, note, user)
             _msg.success(request, 'Revision of %s (%s) effective %s corrected. Every document dated in its period prints the corrected values; '
                                   'the previous values are kept in the audit history.' % (module, location, rev.effective_from.strftime('%d-%m-%Y')))

@@ -1,0 +1,15 @@
+{
+ "location": "Karachi",
+ "id": "SOC-CORR-KHI-27-10-2026",
+ "date": "27-10-2026",
+ "authority": "Owner: FF-17 SP-11 control document supplied 26-10-2026",
+ "request_corrections": [
+  {
+   "sample_id": "DW-202409012",
+   "set": {
+    "address": "Plot # 526-529,533-538 Deh Landhi Bin Qasim Town National Highway, Karachi."
+   },
+   "note": "Address completed from the controlled form ETAL-LAB-708-FF-17 (SP-11); the earlier copy was cut on the page."
+  }
+ ]
+}

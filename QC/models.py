@@ -955,11 +955,19 @@ for _m in (MouSource, MouStudy, MouOperator, MouComponent):
 # Quality - Internal Audit (ETAL-QMS-808-FF-01/02/03) and Non-conformance & Corrective Action
 # (ETAL-QMS-710-FF-01 / 01A / 02). 22-10-2026. One function for both laboratories, lab-scoped.
 # ====================================================================================================
+IA_STANDARDS = (('17025', 'ISO/IEC 17025:2017'), ('9001', 'ISO 9001:2015'), ('14001', 'ISO 14001:2015'))
+IA_STANDARD_LABEL = dict(IA_STANDARDS)
+IA_SCOPE = {'17025': 'To check all clauses of ISO/IEC 17025:2017 (technical & management) and to evaluate the performance of testing activities.',
+            '9001': 'To check all clauses of ISO 9001:2015 (quality management system).',
+            '14001': 'To check all clauses of ISO 14001:2015 (environmental management system).'}
+
+
 class IaClause(models.Model):
-    """Master checklist row: ISO/IEC 17025:2017 clause (or a PNAC policy) with the laboratory's own
-    checklist wording. Findings copy the wording at audit time, so editing the master never changes
-    a signed report."""
-    code = models.CharField(max_length=12, unique=True)             # 4.1.1, 7.8.2.1, PNAC-1
+    """Master checklist row of a standard (ISO/IEC 17025:2017 with the PNAC policies, ISO 9001:2015, ISO 14001:2015)
+    with the laboratory's own checklist wording. Findings copy the wording at audit time, so editing the master never
+    changes a signed report."""
+    standard = models.CharField(max_length=6, choices=IA_STANDARDS, default='17025')
+    code = models.CharField(max_length=12)                         # 4.1.1, 7.8.2.1, PNAC-1 (unique per standard)
     title = models.CharField(max_length=400, blank=True, default='')
     requirement = models.TextField(blank=True, default='')
     level = models.PositiveSmallIntegerField(default=1)
@@ -968,6 +976,7 @@ class IaClause(models.Model):
 
     class Meta:
         ordering = ['order', 'code']
+        unique_together = ('standard', 'code')
 
     def __str__(self):
         return '%s %s' % (self.code, self.title)
@@ -1021,6 +1030,7 @@ class IaAudit(models.Model):
     conclusion; signed by the internal auditor, then acknowledged by the auditee."""
     STATUSES = (('draft', 'Draft - being audited'), ('auditor', 'Signed by auditor - awaiting auditee'), ('closed', 'Signed by auditor and auditee'))
     location = models.CharField(max_length=20, default='Karachi')
+    standard = models.CharField(max_length=6, choices=IA_STANDARDS, default='17025')
     audit_no = models.CharField(max_length=20)                        # 01/2025
     year = models.PositiveIntegerField()
     seq = models.PositiveSmallIntegerField(default=1)
@@ -1047,6 +1057,11 @@ class IaAudit(models.Model):
     auditee_signed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     auditee_signed_at = models.DateTimeField(null=True, blank=True)
     auditee_sign_date = models.DateField(null=True, blank=True)
+    # CEO / Top Management endorsement (form issue 02 rev 01, after the first PNAC surveillance audit)
+    ceo_endorsed_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    ceo_endorsed_at = models.DateTimeField(null=True, blank=True)
+    ceo_endorse_date = models.DateField(null=True, blank=True)
+    ceo_name = models.CharField(max_length=120, blank=True, default='')      # printed name when inducted
     remarks = models.TextField(blank=True, default='')
     legacy = models.JSONField(default=dict, blank=True)
     created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
@@ -1072,6 +1087,14 @@ class IaAudit(models.Model):
     @property
     def n_total(self):
         return self.n_minor + self.n_major
+
+    @property
+    def standard_label(self):
+        return IA_STANDARD_LABEL.get(self.standard, 'ISO/IEC 17025:2017')
+
+    @property
+    def endorsed(self):
+        return bool(self.ceo_endorsed_at)
 
     def recount(self, save=True):
         """Summary counts from the findings (the printed summary of an inducted report is kept in legacy)."""
@@ -1669,6 +1692,17 @@ class SocRecord(models.Model):
         return ('%.*f' % (dp, v)).rstrip('0').rstrip('.') if v != int(v) else '%d' % v
 
     @property
+    def band_within(self):
+        """Every result with its expanded uncertainty band inside the specification limits."""
+        u = self.uncertainty or 0
+        for v in self.values:
+            if self.lower is not None and v - u < self.lower:
+                return False
+            if self.upper is not None and v + u > self.upper:
+                return False
+        return True
+
+    @property
     def paper_sign_text(self):
         """How the signatures of an inducted record are shown (the paper record, or e.g. the issued test report)."""
         return (self.legacy or {}).get('sign_note') or 'Signed on the paper record'
@@ -1707,13 +1741,20 @@ class SocRecord(models.Model):
         v = self.values
         return _stats.stdev(v) if len(v) > 1 else (0.0 if v else None)
 
+    @property
+    def strict(self):
+        """(lower strict, upper strict): a limit printed "< 1000" / "> 5" excludes the limit value itself."""
+        t = (self.limit_text or '').strip().replace('&lt;', '<')
+        return (t.startswith('>') and not t.startswith('>=')), (t.startswith('<') and not t.startswith('<='))
+
     def verdict(self, value):
         """Pass / Fail of one measured value under the simple-acceptance rule (guard band 0)."""
         if value is None:
             return ''
-        if self.lower is not None and value < self.lower:
+        ls, us = self.strict
+        if self.lower is not None and (value < self.lower or (ls and value == self.lower)):
             return 'Fail'
-        if self.upper is not None and value > self.upper:
+        if self.upper is not None and (value > self.upper or (us and value == self.upper)):
             return 'Fail'
         return 'Pass'
 

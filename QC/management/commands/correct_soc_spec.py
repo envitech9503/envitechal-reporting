@@ -62,6 +62,23 @@ class Command(BaseCommand):
                 rec.save()
                 n['corrected'] += 1
                 self.stdout.write('  correct %s %s: %s' % (rec.sample_id, rec.parameter, '; '.join(changes) or 'note only'))
+            for c in spec.get('request_corrections', []):
+                q = SocRequest.objects.get(location=loc, sample_id=c['sample_id'])
+                lg = dict(q.legacy or {})
+                done = lg.get('corrections', [])
+                if any(x.get('id') == cid for x in done):
+                    n['skipped'] += 1; self.stdout.write('  skip    request %s (already corrected)' % q.sample_id); continue
+                changes = []
+                for field, new in (c.get('set') or {}).items():
+                    old = getattr(q, field)
+                    if old != new:
+                        changes.append('%s %s -> %s' % (field, old or '-', new)); setattr(q, field, new)
+                lg['corrections'] = done + [{'id': cid, 'date': when, 'authority': why, 'changes': changes, 'note': c['note']}]
+                q.legacy = lg
+                q._change_reason = ('%s: %s' % (cid, why))[:100]
+                q.save()
+                n['corrected'] += 1
+                self.stdout.write('  correct request %s: %s' % (q.sample_id, '; '.join(changes) or 'note only'))
             for r in spec.get('add', []):
                 if SocRecord.objects.filter(location=loc, sample_id=r['sample_id'], parameter__iexact=r['parameter']).exists():
                     n['skipped'] += 1; self.stdout.write('  skip    %s %s (exists)' % (r['sample_id'], r['parameter'])); continue

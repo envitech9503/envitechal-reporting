@@ -152,7 +152,7 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'soc_request_new' %}">Customer Request Form (708-FF-17)</a>
       <a href="{% url 'soc_deletions' %}">Deletion Log (managers)</a>
       <a href="{% url 'soc_manual' %}" target="_blank" rel="noopener">User Manual</a>
-      {% if request.user.is_superuser %}<a href="{% url 'soc_doccontrol' %}">Document Control (admin)</a>{% endif %}
+      <a href="{% url 'soc_doccontrol' %}">Form numbers (Lab Manager / admin)</a>
     </div>
     <hr class="etqc-hr">
 
@@ -189,7 +189,7 @@ partial then pins itself to the left edge and indents the page body to match.
       <a href="{% url 'ia_rcas' %}">Root Cause Analysis (710-FF-01A)</a>
       <a href="{% url 'ia_ncs' %}?show=all">NC&amp;CA Log (710-FF-02)</a>
       <a href="{% url 'ia_signing' %}">Signing (my sign-offs)</a>
-      <a href="{% url 'ia_clauses' %}">ISO 17025 Checklist (master)</a>
+      <a href="{% url 'ia_clauses' %}">Checklist masters (ISO 17025 / 9001 / 14001)</a>
       <a href="{% url 'ia_deletions' %}">Deletion Log (managers)</a>
       <a href="{% url 'ia_manual' %}" target="_blank" rel="noopener">User Manual</a>
       {% if request.user.is_superuser %}<a href="{% url 'ia_doccontrol' %}">Document Control (admin)</a>{% endif %}

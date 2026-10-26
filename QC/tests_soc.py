@@ -71,7 +71,7 @@ class SocTests(TestCase):
         r = chem.get('/qc/soc/api/sample/?sample_id=WW-202610001&location=Karachi'); d = r.json()
         self.assertEqual((d['report_type'], d['header']['customer'], d['requisition']['soc'], len(d['parameters'])), ('ww2', 'Test Mills Ltd', True, 5))
         self.assertEqual(chem.get('/qc/soc/api/sample/?sample_id=NOPE&location=Karachi').status_code, 404)
-        self.assertEqual(lchem.get('/qc/soc/new/?location=Karachi').status_code, 403)           # Lahore staff cannot prepare Karachi statements
+        r = lchem.get('/qc/soc/new/?location=Karachi'); self.assertEqual((r.status_code, r['Location']), (302, '/qc/soc/new/?location=Lahore'))   # Lahore staff are sent to their own laboratory
         self.assertContains(chem.get('/qc/soc/new/?location=Karachi&sample=WW-202610001'), 'WW-202610001')
         post = {'sample_id': 'WW-202610001', 'report_type': 'ww2', 'report_pk': str(WasteWaterForm2.objects.get().pk), 'standard': 'Sindh Environmental Quality Standard 2016',
                 'p1_on': '1', 'p1_parameter': 'pH', 'p1_method': '*APHA 4500 H-B', 'p1_unit': '-', 'p1_result': '7.36', 'p1_v0': '7.36', 'p1_d0': '20-10-2026', 'p1_v1': '7.36', 'p1_v2': '7.37',
@@ -185,3 +185,58 @@ class SocTests(TestCase):
         self.assertEqual(R.parse_result('<0.0080'), (0.008, '<0.0080'))
         self.assertEqual(R.parse_result('N.D.'), (None, ''))
         self.assertEqual(R.parse_result('7.36'), (7.36, ''))
+
+    def test_report_format_and_ff17(self):
+        from QC import soc_report as SR
+        self.assertTrue(SR._matches('pH @ 25°C', 'pH')); self.assertFalse(SR._matches('Phenolic Compounds', 'pH'))
+        self.assertTrue(SR._matches('Total Hardness as CaCO₃', 'Hardness')); self.assertTrue(SR._matches('Total Dissolved Solids (TDS)', 'TDS'))
+        self.assertFalse(SR._matches('Nitrite', 'Nitrate')); self.assertFalse(SR._matches('Residual Chlorine', 'Chloride'))
+        self.assertTrue(SR._matches('Chemical Oxygen Demand(COD)', 'COD'))
+        class _W: in_out = 'out'
+        class _B: in_out = 'in-out'
+        self.assertEqual((SR.result_column('dw', None), SR.result_column('ww2', _W()), SR.result_column('ww2', _B())), (4, 4, 5))
+        chem = C(self.chem)
+        # a statement made from the waste-water report prints in the report's own format
+        d = chem.get('/qc/soc/api/sample/', {'sample_id': 'WW-202610001', 'location': 'Karachi'}).json()
+        P = {'sample_id': 'WW-202610001', 'report_type': d['report_type'], 'report_pk': d['report_pk'], 'standard': d['header']['standard']}
+        for i, p in enumerate(d['parameters']):
+            if p['accredited'] and p['value'] is not None:
+                P.update({'p%d_on' % i: '1', 'p%d_parameter' % i: p['parameter'], 'p%d_method' % i: p['method'], 'p%d_unit' % i: p['unit'],
+                          'p%d_v0' % i: p['value'], 'p%d_upper' % i: p['upper'] if p['upper'] is not None else '', 'p%d_lower' % i: p['lower'] if p['lower'] is not None else '',
+                          'p%d_limit' % i: p['limit'], 'p%d_u' % i: '0.2'})
+        self.assertEqual(chem.post('/qc/soc/new/?location=Karachi', P).status_code, 302)
+        r = chem.get('/qc/soc/sample/WW-202610001/pdf/', {'location': 'Karachi'})
+        self.assertEqual(r.status_code, 200); self.assertIn('Decision-Rule', r['Content-Disposition'])
+        r2 = chem.get('/qc/soc/sample/WW-202610001/pdf/', {'location': 'Karachi', 'format': 'record'})
+        self.assertEqual(r2.status_code, 200); self.assertNotIn('Decision-Rule', r2.get('Content-Disposition', ''))
+        recs = list(SocRecord.objects.filter(sample_id='WW-202610001'))
+        ctx = SR.soc_context(recs)
+        self.assertIn('Statement of conformity only applicable on accredited parameters', SR.statement_text(ctx))
+        self.assertTrue(ctx['draft'])
+        # FF-17 as the controlled form, both laboratories
+        call_command('import_soc_spec', SPEC, '--apply', stdout=io.StringIO())
+        q = SocRequest.objects.get(sample_id='DW-202409012')
+        self.assertEqual(chem.get('/qc/soc/request/%d/pdf/' % q.pk).status_code, 200)
+        from QC.soc_ff17 import build_ff17
+        from EnviTechAlApp.doccontrol import doc_control
+        q.location = 'Lahore'
+        pdf = build_ff17(q, doc_control('soc_request', 'Lahore'), 'x')
+        self.assertGreater(len(bytes(pdf.output())), 1000)
+
+    def test_no_cross_lab_view_and_lab_form_numbers(self):
+        call_command('import_soc_spec', SPEC, '--apply', stdout=io.StringIO())
+        rec = SocRecord.objects.filter(location='Karachi').first(); q = SocRequest.objects.filter(location='Karachi').first()
+        lchem, chem, mgr, ceo = C(self.lchem), C(self.chem), C(self.mgr), C(self.ceo)
+        for u in ('/qc/soc/%d/' % rec.pk, '/qc/soc/%d/pdf/' % rec.pk, '/qc/soc/request/%d/' % q.pk, '/qc/soc/request/%d/pdf/' % q.pk,
+                  '/qc/soc/sample/%s/pdf/?location=Karachi' % rec.sample_id):
+            self.assertEqual(lchem.get(u).status_code, 403, u)
+            self.assertEqual(chem.get(u).status_code, 200, u)
+            self.assertEqual(ceo.get(u).status_code, 200, u)
+        r = lchem.get('/qc/soc/?location=Karachi'); self.assertEqual((r.status_code, r['Location']), (302, '/qc/soc/?location=Lahore'))
+        self.assertEqual(lchem.get('/qc/soc/api/sample/', {'sample_id': rec.sample_id, 'location': 'Karachi'}).status_code, 403)
+        # the Karachi QC Manager keeps the Karachi form numbers (FF-18 / FF-19 not on the record), not Lahore's
+        self.assertEqual(mgr.get('/qc/soc/doc-control/').status_code, 200)
+        self.assertEqual(mgr.post('/qc/soc/doc-control/', {'form': 'soc_report_dw', 'location': 'Lahore', 'doc_no': 'X'}).status_code, 403)
+        mgr.post('/qc/soc/doc-control/', {'form': 'soc_report_dw', 'location': 'Karachi', 'doc_no': 'ETAL-LAB-708-FF-19', 'issue_date': '01-01-2025', 'issue_no': '01', 'rev_no': '00'})
+        from EnviTechAlApp.doccontrol import doc_control
+        self.assertEqual(doc_control('soc_report_dw', 'Karachi')['issue_date'], '01-01-2025')

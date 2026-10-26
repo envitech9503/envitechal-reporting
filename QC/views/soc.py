@@ -45,7 +45,10 @@ def _docctrl(form, location, on=None):
     no, title, per = _FORMS[form]
     d0 = per.get(location)
     default = {'doc_no': no, 'issue_date': d0[0], 'issue_no': d0[1], 'rev_no': d0[2]} if d0 else None
-    return DC.doc_control(form, location, on, default=default)
+    c = DC.doc_control(form, location, on, default=default)
+    if not c.get('set') and not d0:                 # not issued for this laboratory yet: no invented issue / revision
+        c = dict(c, issue_no='-', rev_no='-')
+    return c
 
 
 class _Loc:
@@ -68,8 +71,39 @@ def _is_staff_of(user, location):
     labs = _user_labs(user)
     if labs and location not in labs:
         return False
-    office = _user_office(user)
-    return office == location or not office
+    return _user_office(user) == location          # a user with no office on the e-signature profile is nobody's staff
+
+
+def _can_view(user, location):
+    """No cross-laboratory viewing (owner decision 27-10-2026): the laboratory's own staff, its QC / Lab Manager and the
+    CEO / administrator (an administrator assigned to one laboratory sees that laboratory only)."""
+    if not (user and user.is_authenticated and user.is_active):
+        return False
+    return _is_staff_of(user, location) or _can_manage(user, location)
+
+
+def _own_lab(user):
+    """The laboratory a user may see first: the office on the e-signature profile, else the assigned laboratory."""
+    off = _user_office(user)
+    if off in _CC_LOCS:
+        return off
+    labs = sorted(_user_labs(user))
+    return labs[0] if labs else ''
+
+
+def _denied_view(request, location):
+    own = _own_lab(request.user)
+    if not request.user.is_authenticated:
+        return _redirect('/login/?next=' + request.get_full_path())
+    return HttpResponse('Records of the %s laboratory are visible to its own staff, its QC / Lab Manager and the CEO only.%s'
+                        % (location, (' Your laboratory: %s.' % own) if own else ''), status=403)
+
+
+def _soc_can_review(user, location):
+    """Review: the laboratory's own QC / Lab Manager (Laboratory Reviewers page) or the CEO / administrator."""
+    if not (user and user.is_authenticated and user.is_active):
+        return False
+    return location in _user_labs(user) or _can_approve(user, _Loc(location))
 
 
 def _can_edit(user, rec):
@@ -90,12 +124,46 @@ def _loc_of(request):
 
 def _pdate(txt):
     s = (txt or '').strip()
-    for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d/%m/%Y', '%d.%m.%Y'):
+    for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d/%m/%Y', '%d.%m.%Y', '%d-%B-%Y', '%d-%b-%Y', '%d %B %Y', '%d %b %Y', '%d-%m-%y', '%d/%m/%y'):
         try:
             return _dt.strptime(s, fmt).date()
         except ValueError:
             pass
     return None
+
+
+def _date_field(txt, label, errors):
+    """A typed date: blank -> None; unreadable -> an error (never silently dropped)."""
+    if not (txt or '').strip():
+        return None
+    d = _pdate(txt)
+    if d is None:
+        errors.append('%s: "%s" is not a date (use dd-mm-yyyy).' % (label, txt.strip()))
+    return d
+
+
+def _num_field(txt, label, errors):
+    if not (txt or '').strip():
+        return None
+    v = _num(txt)
+    if v is None:
+        errors.append('%s: "%s" is not a number.' % (label, txt.strip()))
+    return v
+
+
+def _results(P, prefix, label, errors):
+    """Three replicate results with dates from the form; unreadable entries are reported, not dropped."""
+    vals = []
+    for j in range(3):
+        raw = (P.get('%sv%d' % (prefix, j)) or '').strip()
+        dd = _date_field(P.get('%sd%d' % (prefix, j)), '%s result %d date' % (label, j + 1), errors)
+        if not raw:
+            continue
+        v, t = _res(raw)
+        if v is None:
+            errors.append('%s result %d: "%s" cannot be judged (enter a number, or "<LOQ" such as <0.0080).' % (label, j + 1, raw)); continue
+        vals.append(_rd(v, t, dd))
+    return vals
 
 
 def _num(txt):
@@ -157,6 +225,12 @@ def _sample_groups(qs):
 # ---------------------------------------------------------------- register
 def soc_list(request):
     loc = _loc_of(request)
+    if not _can_view(request.user, loc):
+        own = _own_lab(request.user)
+        if own and own != loc and _can_view(request.user, own):
+            request.session['soc_loc'] = own
+            return _redirect('/qc/soc/?location=%s' % own)
+        return _denied_view(request, loc)
     show = request.GET.get('show') or 'open'
     show = show if show in ('open', 'approved', 'all', 'pending') else 'open'
     q = (request.GET.get('q') or '').strip()
@@ -167,9 +241,13 @@ def soc_list(request):
         qs = qs.exclude(status='approved')
     elif show == 'approved':
         qs = qs.filter(status='approved')
-    groups = _sample_groups(qs.order_by('-id')) if show != 'pending' else []
+    sids = list(dict.fromkeys(qs.order_by('-id').values_list('sample_id', flat=True)))     # samples matching; status from all their records
+    allrecs = SocRecord.objects.filter(location=loc, sample_id__in=sids).select_related('request').order_by('-id')
+    groups = sorted(_sample_groups(allrecs), key=lambda g: sids.index(g['sample_id'])) if show != 'pending' else []
     done = set(SocRecord.objects.filter(location=loc).values_list('sample_id', flat=True))
     pending = [s for s in _R.eligible_samples(loc) if s['sample_id'] not in done] if show in ('pending', 'open') else []
+    if q:
+        pending = [s for s in pending if q.lower() in (s['sample_id'] + ' ' + (s.get('customer') or '')).lower()]
     for s in pending:
         s['report_label'] = _REPORT_LABEL.get(s['report'], '')
     counts = {'open': len(_sample_groups(SocRecord.objects.filter(location=loc).exclude(status='approved').order_by('-id'))),
@@ -177,7 +255,8 @@ def soc_list(request):
               'all': len(set(SocRecord.objects.filter(location=loc).values_list('sample_id', flat=True))), 'pending': len(pending) if show in ('pending', 'open') else None}
     requests_ = SocRequest.objects.filter(location=loc).order_by('-date', '-id')[:200] if show == 'all' else []
     return render(request, 'soc_list.html', {'loc': loc, 'locs': _CC_LOCS, 'show': show, 'q': q, 'groups': groups, 'pending': pending, 'counts': counts,
-                                             'requests': requests_, 'can_manage': _can_manage(request.user, loc), 'ctrl': _docctrl('soc_record', loc),
+                                             'requests': requests_, 'can_manage': _can_manage(request.user, loc), 'is_staff': _is_staff_of(request.user, loc),
+                                             'can_review': _soc_can_review(request.user, loc), 'can_approve': _can_approve(request.user, _Loc(loc)), 'ctrl': _docctrl('soc_record', loc),
                                              'ctrl_req': _docctrl('soc_request', loc), 'report_label': _REPORT_LABEL})
 
 
@@ -186,19 +265,52 @@ def soc_api_sample(request):
     """?sample_id= -> the report's header and parameters (results, methods, limits, U from the MOU register) as JSON."""
     sid = (request.GET.get('sample_id') or '').strip()
     loc = request.GET.get('location') or _loc_of(request)
+    if not _can_view(request.user, loc):
+        return JsonResponse({'error': 'Not your laboratory.'}, status=403)
     if not sid:
         return JsonResponse({'error': 'sample_id is required'}, status=400)
     kind, rep = _R.report_for(sid, request.GET.get('report_type') or '', int(request.GET['report_pk']) if (request.GET.get('report_pk') or '').isdigit() else None)
     if not rep:
         return JsonResponse({'error': 'No drinking-water or waste-water report with sample ID %s.' % sid}, status=404)
+    other = _other_lab(rep, loc)
+    if other:
+        return JsonResponse({'error': 'Sample %s belongs to the %s laboratory; its statement is prepared there.' % (sid, other)}, status=403)
     mou, soc, reg = _R.requisition_flags(sid)
     hdr = _R.report_header(kind, rep)
-    rows = _R.report_parameters(kind, rep, loc)
+    rows = _with_printed_limits(request, kind, rep, _R.report_parameters(kind, rep, loc))
     req = SocRequest.objects.filter(location=loc, sample_id=sid).first()
     existing = list(SocRecord.objects.filter(location=loc, sample_id=sid).values_list('parameter', flat=True))
+    _cd = _pdate(hdr.get('collection_date')); hdr['collection_dmy'] = _cd.strftime('%d-%m-%Y') if _cd else ''
     return JsonResponse({'sample_id': sid, 'report_type': kind, 'report_label': _REPORT_LABEL.get(kind, kind), 'report_pk': rep.pk, 'header': hdr,
                          'requisition': {'found': bool(reg), 'mou': mou, 'soc': soc, 'mou_text': (reg.inp109 if reg else '') or '', 'soc_text': (reg.inp112 if reg else '') or ''},
                          'request_form': {'id': req.pk, 'decision': req.decision} if req else None, 'existing': existing, 'parameters': rows})
+
+
+def _other_lab(rep, loc):
+    """The other laboratory a report belongs to ('' when it is this laboratory's, or not recorded)."""
+    c = (getattr(rep, 'city_location', '') or '').strip().lower()
+    for l in _CC_LOCS:
+        if c == l.lower() and l != loc:
+            return l
+    return ''
+
+
+def _with_printed_limits(request, kind, rep, rows):
+    """Limits as the normal test report prints them (its own standard: SEQS / PEQS / NEQS / custom limits)."""
+    from QC.soc_report import printed_rows, _matches
+    printed = printed_rows(request, kind, rep)
+    used = set()
+    for r in rows:
+        for i, pr in enumerate(printed):
+            if i not in used and _matches(pr['desc'], r['parameter']):
+                used.add(i)
+                lim = (pr.get('limit') or '').strip()
+                lo, hi = _R.parse_limit(lim)
+                if lim:
+                    r['limit'] = lim
+                    r['lower'], r['upper'] = lo, hi
+                break
+    return rows
 
 
 def soc_new(request):
@@ -207,14 +319,26 @@ def soc_new(request):
         return _redirect('/login/')
     loc = _loc_of(request)
     if not _is_staff_of(user, loc):
+        own = _user_office(user)
+        if own in _CC_LOCS and own != loc and _is_staff_of(user, own):     # remembered choice of the other laboratory: back to the user's own
+            return _redirect('/qc/soc/new/?location=%s' % own)
         return HttpResponse('Statements of conformity of the %s laboratory are prepared by its own staff.' % loc, status=403)
     if request.method == 'POST':
         P = request.POST
         sid = (P.get('sample_id') or '').strip()[:60]
+        if not sid:
+            _msg.error(request, 'Choose the sample ID (or type it) and load its report before creating records.')
+            return _redirect('/qc/soc/new/?location=%s' % loc)
         kind, rep = _R.report_for(sid, P.get('report_type') or '', int(P['report_pk']) if (P.get('report_pk') or '').isdigit() else None)
+        if rep and (rep.sample_id or '').strip() != sid:                  # the loaded report must be this sample's
+            kind, rep = _R.report_for(sid)
         if not rep:
             _msg.error(request, 'No drinking-water or waste-water report with sample ID %s.' % sid)
-            return _redirect('soc_new')
+            return _redirect('/qc/soc/new/?location=%s' % loc)
+        other = _other_lab(rep, loc)
+        if other:
+            _msg.error(request, 'Sample %s belongs to the %s laboratory; its statement is prepared there.' % (sid, other))
+            return _redirect('/qc/soc/new/?location=%s' % loc)
         hdr = _R.report_header(kind, rep)
         req = SocRequest.objects.filter(location=loc, sample_id=sid).first()
         idx = sorted({int(m.group(1)) for k in P for m in [_re.match(r'^p(\d+)_on$', k)] if m})
@@ -223,35 +347,50 @@ def soc_new(request):
             par = (P.get('p%d_parameter' % i) or '').strip()[:80]
             if not par:
                 continue
-            if SocRecord.objects.filter(location=loc, sample_id=sid, parameter__iexact=par).exists():
-                errors.append('%s: a record for this parameter and sample exists already.' % par); continue
-            vals = []
-            for j in range(3):
-                v, t = _res(P.get('p%d_v%d' % (i, j)))
-                if v is not None:
-                    vals.append(_rd(v, t, _pdate(P.get('p%d_d%d' % (i, j)))))
-            if not vals:
-                errors.append('%s: enter at least one result.' % par); continue
+            from QC.soc_report import _matches as _pm
+            dup = next((x for x in SocRecord.objects.filter(location=loc, sample_id=sid) if x.parameter.lower() == par.lower() or _pm(par, x.parameter) or _pm(x.parameter, par)), None)
+            if dup:
+                errors.append('%s: a record for this parameter and sample exists already (%s).' % (par, dup.parameter)); continue
+            if not _R.is_accredited(par, _R.ACCREDITED.get((loc, kind))):
+                errors.append('%s: not in the %s laboratory\'s accreditation scope - a statement of conformity applies to accredited parameters only.' % (par, loc)); continue
+            perr = []
+            vals = _results(P, 'p%d_' % i, par, perr)
+            if not vals and not perr:
+                perr.append('%s: enter at least one result.' % par)
             lim = (P.get('p%d_limit' % i) or '').strip()[:40]
-            lo, hi = _num(P.get('p%d_lower' % i)), _num(P.get('p%d_upper' % i))
+            lo, hi = _num_field(P.get('p%d_lower' % i), par + ' lower specification', perr), _num_field(P.get('p%d_upper' % i), par + ' upper specification', perr)
             if lo is None and hi is None:
                 lo, hi = _R.parse_limit(lim)
             if lo is None and hi is None:
-                errors.append('%s: enter the specification limit (upper and / or lower).' % par); continue
+                perr.append('%s: enter the specification limit (upper and / or lower).' % par)
+            if lo is not None and hi is not None and lo > hi:
+                perr.append('%s: the lower specification is above the upper.' % par)
+            uval = _num_field(P.get('p%d_u' % i), par + ' uncertainty', perr)
+            if perr:
+                errors.extend(perr); continue
+            lim = _R.limit_text(lim, lo, hi)
             sidm = P.get('p%d_mou' % i)
+            study = MouStudy.objects.filter(pk=int(sidm)).first() if (sidm or '').isdigit() else None
+            usrc = (P.get('p%d_usrc' % i) or '').strip()[:200]
+            if study is not None:
+                su, _lbl, _sid = _R.mou_u(loc, _R.aliases_for(par), vals[0]['value'] if vals else None)
+                if uval is None or su is None or abs(uval - su) > 1e-9:          # U typed over the register's value
+                    study = None
+                    usrc = 'typed by the analyst' + ((' (MOU register gives %s)' % _fmt(su, 4)) if su is not None else '')
             rec = SocRecord(location=loc, request=req, report_type=kind, report_pk=rep.pk, sample_id=sid, customer=hdr['customer'][:200], parameter=par,
                             method=(P.get('p%d_method' % i) or '').strip()[:120], unit=(P.get('p%d_unit' % i) or '').strip()[:20],
                             standard=(P.get('standard') or hdr['standard'] or 'Sindh Environmental Quality Standard 2016')[:120],
-                            limit_text=lim, lower=lo, upper=hi, uncertainty=_num(P.get('p%d_u' % i)), u_source=(P.get('p%d_usrc' % i) or '').strip()[:200],
-                            mou_study=MouStudy.objects.filter(pk=int(sidm)).first() if (sidm or '').isdigit() else None, results=vals,
+                            limit_text=lim, lower=lo, upper=hi, uncertainty=uval, u_source=usrc,
+                            mou_study=study, results=vals,
                             created_by=user, legacy={'report_result': (P.get('p%d_result' % i) or '').strip()[:40]})
             rec.save(); made.append(rec)
         for e in errors:
             _msg.error(request, e)
         if made:
             _msg.success(request, '%d statement-of-conformity record%s created for sample %s as draft%s. Check the figures, then sign each record as performed.'
-                         % (len(made), '' if len(made) == 1 else 's', sid, '' if len(made) == 1 else 's'))
-            return _redirect('/qc/soc/?location=%s&q=%s' % (loc, sid))
+                         % (len(made), '' if len(made) == 1 else 's', sid, '' if len(made) == 1 else 's'), extra_tags=('' if errors else 'ccsaved:soc_new_%s' % loc))
+            if not errors:
+                return _redirect('/qc/soc/?location=%s&q=%s' % (loc, sid))
         return _redirect('/qc/soc/new/?location=%s&sample=%s' % (loc, sid))
     done = set(SocRecord.objects.filter(location=loc).values_list('sample_id', flat=True))
     samples = _R.eligible_samples(loc)
@@ -272,14 +411,16 @@ def _rec_ctx(rec):
 def soc_detail(request, pk):
     rec = get_object_or_404(SocRecord.objects.select_related('request', 'performed_by', 'reviewed_by', 'approved_by', 'created_by', 'mou_study'), pk=pk)
     user = request.user
+    if not _can_view(user, rec.location):
+        return _denied_view(request, rec.location)
     siblings = SocRecord.objects.filter(location=rec.location, sample_id=rec.sample_id).exclude(pk=rec.pk).order_by('id')
     return render(request, 'soc_detail.html', {
         'r': rec, 'rows': _rec_ctx(rec), 'siblings': siblings, 'svg': _chart_svg(rec), 'mean': rec.mean_text, 'sd': rec.sd_text,
         'can_edit': _can_edit(user, rec), 'can_perform': rec.status == 'draft' and _is_staff_of(user, rec.location) and bool(rec.values),
-        'can_review': rec.status == 'performed' and _can_review(user, _Loc(rec.location)),
-        'can_approve': rec.status == 'reviewed' and _can_approve(user, _Loc(rec.location)),
+        'can_review': rec.status == 'performed' and _soc_can_review(user, rec.location) and rec.performed_by_id != user.id,
+        'can_approve': rec.status == 'reviewed' and _can_approve(user, _Loc(rec.location)) and user.id not in (rec.performed_by_id, rec.reviewed_by_id),
         'can_return': rec.status in ('performed', 'reviewed') and _can_manage(user, rec.location),
-        'can_unapprove': rec.status == 'approved' and _can_approve(user, _Loc(rec.location)), 'can_delete': _can_manage(user, rec.location),
+        'can_unapprove': rec.status == 'approved' and _can_approve(user, _Loc(rec.location)), 'can_delete': _can_manage(user, rec.location) and rec.status != 'approved',
         'ctrl': _docctrl('soc_record', rec.location, rec.created_at.date() if rec.created_at else None), 'report_label': _REPORT_LABEL.get(rec.report_type, rec.report_type),
         'report_url': _report_url(rec)})
 
@@ -303,21 +444,20 @@ def soc_edit(request, pk):
         rec.unit = (P.get('unit') or '').strip()[:20]
         rec.standard = (P.get('standard') or '').strip()[:120] or rec.standard
         rec.limit_text = (P.get('limit_text') or '').strip()[:40]
-        rec.lower, rec.upper = _num(P.get('lower')), _num(P.get('upper'))
+        rec.lower, rec.upper = _num_field(P.get('lower'), 'Lower specification', errors), _num_field(P.get('upper'), 'Upper specification', errors)
         if rec.lower is None and rec.upper is None:
             rec.lower, rec.upper = _R.parse_limit(rec.limit_text)
         if rec.lower is None and rec.upper is None:
             errors.append('Enter the specification limit (upper and / or lower).')
-        rec.uncertainty = _num(P.get('uncertainty'))
+        elif rec.lower is not None and rec.upper is not None and rec.lower > rec.upper:
+            errors.append('The lower specification is above the upper.')
+        rec.limit_text = _R.limit_text(rec.limit_text, rec.lower, rec.upper)
+        rec.uncertainty = _num_field(P.get('uncertainty'), 'Expanded uncertainty', errors)
         rec.u_source = (P.get('u_source') or '').strip()[:200]
         rec.decision_rule = (P.get('decision_rule') or '').strip()[:200] or SocRecord.RULE
         rec.remarks = (P.get('remarks') or '').strip()[:2000]
-        vals = []
-        for j in range(3):
-            v, t = _res(P.get('v%d' % j))
-            if v is not None:
-                vals.append(_rd(v, t, _pdate(P.get('d%d' % j))))
-        if not vals:
+        vals = _results(P, '', 'Record', errors)
+        if not vals and not any('result' in e for e in errors):
             errors.append('Enter at least one result.')
         rec.results = vals
         if not errors:
@@ -325,10 +465,8 @@ def soc_edit(request, pk):
                 rec.status, rec.performed_by, rec.performed_at, rec.reviewed_by, rec.reviewed_at = 'draft', None, None, None, None
                 _msg.warning(request, 'The record was changed after it was signed: the signatures are cleared and it must be signed again.')
             rec.save()
-            _msg.success(request, 'Record saved.')
+            _msg.success(request, 'Record saved.', extra_tags='ccsaved:soc_edit_%d' % rec.pk)
             return _redirect('soc_detail', rec.pk)
-        for e in errors:
-            _msg.error(request, e)
     vals = [{'value': x.get('text') or x.get('value'), 'date': (_d(_pdate(x.get('date'))) if _pdate(x.get('date')) else x.get('date', ''))} for x in (rec.results or [])] + [{}] * 3
     return render(request, 'soc_edit.html', {'r': rec, 'vals': vals[:3], 'errors': errors, 'ctrl': _docctrl('soc_record', rec.location)})
 
@@ -337,25 +475,37 @@ def _apply_action(user, rec, act, reason=''):
     now = _tz.now()
     if act == 'perform':
         if rec.status != 'draft':
-            return 'error', 'The record is already signed as performed.'
+            return 'skip', 'Already signed as performed.'
         if not _is_staff_of(user, rec.location):
             return 'forbidden', 'Performed-by signing is reserved to the %s laboratory\'s own staff.' % rec.location
         if not rec.values:
             return 'error', 'Enter the results first.'
         if rec.lower is None and rec.upper is None:
             return 'error', 'Enter the specification limit first.'
+        if rec.uncertainty is None:
+            return 'error', 'Enter the expanded uncertainty first (it is printed with the statement).'
         rec.status, rec.performed_by, rec.performed_at = 'performed', user, now
         rec.save()
         return 'ok', 'Signed as performed by you. The record now awaits the QC Manager\'s review.'
     if act == 'review':
-        if rec.status != 'performed' or not _can_review(user, _Loc(rec.location)):
+        if rec.status != 'performed':
+            return 'skip', 'Not awaiting review.'
+        if not _soc_can_review(user, rec.location):
             return 'forbidden', _DENIED % rec.location
+        if rec.performed_by_id == user.id:
+            return 'error', 'The person who performed the record cannot also review it.'
+
         rec.status, rec.reviewed_by, rec.reviewed_at = 'reviewed', user, now
         rec.save()
         return 'ok', 'Reviewed and signed. The record now awaits the CEO\'s approval.'
     if act == 'approve':
-        if rec.status != 'reviewed' or not _can_approve(user, _Loc(rec.location)):
-            return 'forbidden', _DENIED % rec.location
+        if rec.status != 'reviewed':
+            return 'skip', 'Not awaiting approval.'
+        if not _can_approve(user, _Loc(rec.location)):
+            return 'forbidden', 'Approval is reserved to the CEO / administrator.'
+        if user.id in (rec.performed_by_id, rec.reviewed_by_id):
+            return 'error', 'The person who performed or reviewed the record cannot also approve it.'
+
         rec.status, rec.approved_by, rec.approved_at = 'approved', user, now
         rec.save()
         return 'ok', 'Approved and locked.'
@@ -396,15 +546,19 @@ def soc_sample_action(request, sample_id):
     loc = _loc_of(request)
     if request.method != 'POST':
         return _redirect('/qc/soc/?location=%s&q=%s' % (loc, sample_id))
-    done, problems = 0, []
+    done, skipped, problems = 0, 0, []
     for rec in SocRecord.objects.filter(location=loc, sample_id=sample_id).order_by('id'):
         st, text = _apply_action(request.user, rec, request.POST.get('action'), request.POST.get('reason') or '')
         if st == 'ok':
             done += 1
+        elif st == 'skip':
+            skipped += 1
         else:
             problems.append('%s: %s' % (rec.parameter, text))
     if done:
         _msg.success(request, '%d record%s of sample %s: done.' % (done, '' if done == 1 else 's', sample_id))
+    elif not problems:
+        _msg.info(request, 'Nothing to do: no record of sample %s is at that stage.' % sample_id)
     for p in problems[:6]:
         _msg.error(request, p)
     return _redirect('/qc/soc/?location=%s&q=%s' % (loc, sample_id))
@@ -416,6 +570,9 @@ def soc_delete(request, pk):
     rec = get_object_or_404(SocRecord, pk=pk)
     if not _can_manage(request.user, rec.location):
         return HttpResponse(_DENIED % rec.location, status=403)
+    if rec.status == 'approved':
+        _msg.error(request, 'An approved record is locked: the CEO unapproves it (with the reason) before it can be deleted.')
+        return _redirect('soc_detail', pk)
     reason = (request.POST.get('reason') or '').strip()
     if len(reason) < 5:
         _msg.error(request, 'Nothing was deleted: a reason (at least 5 characters) is required.')
@@ -445,30 +602,44 @@ def soc_request_edit(request, pk=None):
     req = get_object_or_404(SocRequest, pk=pk) if pk else None
     loc = req.location if req else _loc_of(request)
     if not _is_staff_of(user, loc):
+        own = _user_office(user)
+        if not req and own in _CC_LOCS and own != loc and _is_staff_of(user, own):
+            return _redirect('/qc/soc/request/new/?location=%s%s' % (own, ('&sample=' + request.GET['sample']) if request.GET.get('sample') else ''))
         return HttpResponse('Requests of the %s laboratory are entered by its own staff.' % loc, status=403)
-    if req and req.locked and not _can_manage(user, loc):
-        return HttpResponse('This request form is authorised and locked.', status=403)
+    if req and req.locked:
+        return HttpResponse('This request form is authorised and locked. The QC / Lab Manager or the CEO clears the authorisation first ("Unlock").', status=403)
+    manager = _can_manage(user, loc)
     if request.method == 'POST':
         P = request.POST
         obj = req or SocRequest(location=loc, created_by=user)
+        errors = []
         obj.sample_id = (P.get('sample_id') or '').strip()[:60]
         if not obj.sample_id:
-            _msg.error(request, 'Sample ID is required.')
-            return _redirect(request.get_full_path())
-        if SocRequest.objects.filter(location=loc, sample_id=obj.sample_id).exclude(pk=obj.pk).exists():
-            _msg.error(request, 'A request form for sample %s exists already.' % obj.sample_id)
-            return _redirect(request.get_full_path())
-        obj.date = _pdate(P.get('date'))
-        for f in ('reason', 'organization', 'customer_name', 'contact', 'address', 'analysis_other', 'parameters', 'req_other', 'reporting', 'decision_comment', 'customer_sign_name'):
+            errors.append('Sample ID is required.')
+        elif SocRequest.objects.filter(location=loc, sample_id=obj.sample_id).exclude(pk=obj.pk).exists():
+            errors.append('A request form for sample %s exists already.' % obj.sample_id)
+        else:
+            kind, rep = _R.report_for(obj.sample_id)
+            other = _other_lab(rep, loc) if rep else ''
+            if other:
+                errors.append('Sample %s belongs to the %s laboratory; its request form is kept there.' % (obj.sample_id, other))
+        obj.date = _date_field(P.get('date'), 'Date', errors)
+        for f in ('reason', 'organization', 'customer_name', 'contact', 'address', 'analysis_other', 'parameters', 'req_other', 'reporting', 'customer_sign_name'):
             setattr(obj, f, (P.get(f) or '').strip()[:obj._meta.get_field(f).max_length or 4000])
         obj.analysis = P.get('analysis') if P.get('analysis') in dict(SocRequest.ANALYSES) else 'ww'
         for f in ('req_mou', 'req_soc', 'req_opinion', 'req_limits'):
             setattr(obj, f, P.get(f) == '1')
-        obj.decision = P.get('decision') if P.get('decision') in ('approved', 'denied', '') else ''
-        obj.decision_date = _pdate(P.get('decision_date'))
+        if manager:                                   # the follow-up action is the laboratory's (QC / Lab Manager, CEO)
+            obj.decision = P.get('decision') if P.get('decision') in ('approved', 'denied', '') else ''
+            obj.decision_comment = (P.get('decision_comment') or '').strip()[:obj._meta.get_field('decision_comment').max_length or 4000]
+            obj.decision_date = _date_field(P.get('decision_date'), 'Follow-up date', errors)
+        if errors:
+            for e in errors:
+                _msg.error(request, e)
+            return render(request, 'soc_request_edit.html', {'f': obj, 'loc': loc, 'analyses': SocRequest.ANALYSES, 'ctrl': _docctrl('soc_request', loc), 'manager': manager})
         obj.save()
         SocRecord.objects.filter(location=loc, sample_id=obj.sample_id, request__isnull=True).update(request=obj)
-        _msg.success(request, 'Request form saved.')
+        _msg.success(request, 'Request form saved.', extra_tags='ccsaved:soc_req_%s' % (pk or 'new'))
         return _redirect('soc_request_detail', obj.pk)
     f = req or SocRequest(location=loc, sample_id=(request.GET.get('sample') or '').strip(), date=_date.today())
     if not req and f.sample_id:                                     # prefill from the report / requisition
@@ -481,13 +652,15 @@ def soc_request_edit(request, pk=None):
             f.reason = 'To ensure the %s sample parameters results are within limits according to %s' % ('drinking water' if kind == 'dw' else 'wastewater', h['standard'] or 'SEQS-2016')
         mou, soc, reg = _R.requisition_flags(f.sample_id)
         f.req_mou, f.req_soc = mou or not reg, soc or not reg
-    return render(request, 'soc_request_edit.html', {'f': f, 'loc': loc, 'analyses': SocRequest.ANALYSES, 'ctrl': _docctrl('soc_request', loc)})
+    return render(request, 'soc_request_edit.html', {'f': f, 'loc': loc, 'analyses': SocRequest.ANALYSES, 'ctrl': _docctrl('soc_request', loc), 'manager': manager})
 
 
 def soc_request_detail(request, pk):
     req = get_object_or_404(SocRequest.objects.select_related('authorised_by', 'created_by'), pk=pk)
     user = request.user
-    return render(request, 'soc_request_detail.html', {'q': req, 'records': req.records.order_by('id'), 'can_edit': _is_staff_of(user, req.location) and (not req.locked or _can_manage(user, req.location)),
+    if not _can_view(user, req.location):
+        return _denied_view(request, req.location)
+    return render(request, 'soc_request_detail.html', {'q': req, 'records': req.records.order_by('id'), 'can_edit': _is_staff_of(user, req.location) and not req.locked,
                                                        'can_authorise': not req.locked and _can_manage(user, req.location), 'can_unlock': req.locked and _can_manage(user, req.location),
                                                        'ctrl': _docctrl('soc_request', req.location, req.date)})
 
@@ -499,12 +672,21 @@ def soc_request_action(request, pk):
     act = request.POST.get('action')
     if not _can_manage(request.user, req.location):
         return HttpResponse(_DENIED % req.location, status=403)
-    if act == 'authorise':
-        req.authorised_by, req.authorised_at = request.user, _tz.now()
-        if not req.decision:
+    if act in ('authorise', 'deny'):
+        if req.locked:
+            _msg.error(request, 'The form is authorised already.'); return _redirect('soc_request_detail', pk)
+        if act == 'deny':
+            note = (request.POST.get('comment') or '').strip()
+            if len(note) < 5:
+                _msg.error(request, 'Give the comment for denying the request (at least 5 characters).'); return _redirect('soc_request_detail', pk)
+            req.decision, req.decision_comment = 'denied', note[:2000]
+        else:
+            if req.decision == 'denied':                 # a denial comment does not stay under "Request Approved"
+                req.decision_comment = (request.POST.get('comment') or '').strip()[:2000]
             req.decision = 'approved'
+        req.authorised_by, req.authorised_at = request.user, _tz.now()
         req.decision_date = req.decision_date or _date.today()
-        req.save(); _msg.success(request, 'Request form authorised and signed by you.')
+        req.save(); _msg.success(request, 'Request %s; the form is authorised and signed by you.' % ('denied' if req.decision == 'denied' else 'approved'))
     elif act == 'unlock':
         req.authorised_by = req.authorised_at = None
         req.save(); _msg.success(request, 'Authorisation cleared; the form can be edited and must be authorised again.')
@@ -514,15 +696,20 @@ def soc_request_action(request, pk):
 # ---------------------------------------------------------------- document control, manual
 def soc_doccontrol(request):
     from EnviTechAlApp.doccontrol import revision_on
-    if not _is_admin(request.user):
-        return HttpResponse('Document control is managed by the administrator.', status=403)
+    user = request.user
+    labs = set(_CC_LOCS) if (_is_admin(user) and not _user_labs(user)) else (_user_labs(user) if user.is_authenticated else set())
+    if not labs:
+        return HttpResponse('The form numbers are kept by the laboratory\'s QC / Lab Manager and the administrator.', status=403)
     if request.method == 'POST':
         P = request.POST
         form, loc = P.get('form'), P.get('location')
+        if form in _FORMS and loc in _CC_LOCS and loc not in labs:
+            return HttpResponse('You keep the form numbers of the %s laboratory only.' % ', '.join(sorted(labs)), status=403)
         if form in _FORMS and loc in _CC_LOCS:
             from EnviTechAlApp.models import InventoryDocControl
             obj, _ = InventoryDocControl.objects.get_or_create(module=form, location=loc)
-            obj.doc_no, obj.issue_date, obj.issue_no, obj.rev_no = (P.get('doc_no') or '').strip()[:60], (P.get('issue_date') or '').strip()[:20], (P.get('issue_no') or '').strip()[:10], (P.get('rev_no') or '').strip()[:10]
+            clean = lambda v, n: '' if (v or '').strip() in ('-', 'TBA') else (v or '').strip()[:n]
+            obj.doc_no, obj.issue_date, obj.issue_no, obj.rev_no = clean(P.get('doc_no'), 60), clean(P.get('issue_date'), 20), clean(P.get('issue_no'), 10), clean(P.get('rev_no'), 10)
             try:
                 obj.updated_by = request.user
             except Exception:
@@ -533,6 +720,8 @@ def soc_doccontrol(request):
     grid = []
     for form, (no, title, per) in _FORMS.items():
         for loc in _CC_LOCS:
+            if loc not in labs:
+                continue
             c = _docctrl(form, loc)
             grid.append({'form': form, 'title': title, 'location': loc, 'ctrl': c})
     return render(request, 'soc_doccontrol.html', {'grid': grid})
@@ -666,7 +855,9 @@ def _record_page(pdf, rec, ctrl):
     def kv(items, h=5.6):
         for lbl, val, wl, wv in items:
             pdf.set_font(f, 'B', 7.8); pdf.set_fill_color(*GREY); pdf.cell(wl, h, lbl, 1, 0, 'L', fill=True)
-            pdf.set_font(f, '', 8); txt = str(val if val not in (None, '') else '-')
+            fs = 8.0; pdf.set_font(f, '', fs); txt = str(val if val not in (None, '') else '-')
+            while pdf.get_string_width(txt) > wv - 2 and fs > 6.0:          # smaller type before anything is cut
+                fs -= 0.4; pdf.set_font(f, '', fs)
             while pdf.get_string_width(txt) > wv - 2 and len(txt) > 4:
                 txt = txt[:-1]
             pdf.cell(wv, h, txt, 1, 0, 'L')
@@ -696,8 +887,8 @@ def _record_page(pdf, rec, ctrl):
     pdf.set_xy(12, y0 + 1); pdf.set_font(f, 'B', 7.8); pdf.cell(186, 4.5, 'Decision Criteria (By Decision Rule)', 0, 1)
     pdf.set_x(12); pdf.set_font(f, '', 7.6); pdf.multi_cell(186, 4, rec.decision_rule, new_x='LMARGIN', new_y='NEXT')
     pdf.set_x(12); pdf.set_font(f, 'B', 7.6); pdf.cell(186, 4.5, 'Statement of conformity reported as:', 0, 1)
-    pdf.set_x(12); pdf.set_font(f, '', 7.4); pdf.cell(186, 3.8, '*Pass - the measured value is within (below) the specification Limit', 0, 1)
-    pdf.set_x(12); pdf.cell(186, 3.8, '*Fail - the measured value is outside (above) the specification Limit', 0, 1)
+    pdf.set_x(12); pdf.set_font(f, '', 7.4); pdf.cell(186, 3.8, '*Pass - the measured value is within %sthe specification Limit' % ('(below) ' if rec.lower is None else ''), 0, 1)
+    pdf.set_x(12); pdf.cell(186, 3.8, '*Fail - the measured value is outside %sthe specification Limit' % ('(above) ' if rec.lower is None else ''), 0, 1)
     pdf.set_y(y0 + 29); yc = pdf.get_y()
     _draw_chart(pdf, rec, 10, yc, 190, 64)
     pdf.set_y(yc + 66)
@@ -713,7 +904,7 @@ def _record_page(pdf, rec, ctrl):
     if rec.report_pk:
         notes.append('Results of the test report (sample %s); result 1 as reported%s.' % (rec.sample_id, (': %s' % rec.legacy.get('report_result')) if (rec.legacy or {}).get('report_result') else ''))
     if rec.censored:
-        notes.append('Results written "<x" are below the limit of quantification; the decision is taken at the LOQ x%s.' % (' and the mean (*) takes them at the LOQ' if len(rec.censored) < len(rec.results or []) else ''))
+        notes.append('Results written "<x" are below the limit of quantification (LOQ = x); the decision is taken at the LOQ%s.' % (', and the mean (*) takes them at the LOQ' if len(rec.censored) < len(rec.results or []) else ''))
     if rec.inducted:
         notes.append('%s (%s).' % ('Taken from the issued test report' if rec.legacy.get('sign_note') else 'Inducted from the laboratory record', (rec.legacy.get('file') or '')[:80]))
     if rec.remarks:
@@ -739,6 +930,8 @@ def _record_page(pdf, rec, ctrl):
 
 def soc_pdf(request, pk):
     rec = get_object_or_404(SocRecord, pk=pk)
+    if not _can_view(request.user, rec.location):
+        return _denied_view(request, rec.location)
     ctrl = _docctrl('soc_record', rec.location, rec.created_at.date() if rec.created_at else None)
     wm = '' if rec.status == 'approved' else 'NOT APPROVED'
     pdf = _pdf(_FORMS['soc_record'][1], '%s LABORATORY  -  %s  -  %s' % (rec.location.upper(), rec.sample_id, rec.parameter.upper()), ctrl, rec.location, wm=wm)
@@ -752,6 +945,8 @@ def soc_sample_pdf(request, sample_id):
     sample with their uncertainty, the standard's limits and the statement of conformity; signed by the people who
     performed, reviewed and approved the records."""
     loc = _loc_of(request)
+    if not _can_view(request.user, loc):
+        return _denied_view(request, loc)
     recs = list(SocRecord.objects.filter(location=loc, sample_id=sample_id).select_related('performed_by', 'reviewed_by', 'approved_by').order_by('id'))
     if not recs:
         return HttpResponse('No statement of conformity for sample %s.' % sample_id, status=404)
@@ -761,6 +956,28 @@ def soc_sample_pdf(request, sample_id):
     wm = '' if all(r.status == 'approved' for r in recs) else 'NOT APPROVED'
     kind, rep = _R.report_for(sample_id, r0.report_type, r0.report_pk)
     kind = kind or r0.report_type
+    if rep and request.GET.get('format') != 'record':
+        # the laboratory's normal test report of the sample, with the uncertainty column and the statement of conformity
+        from QC.soc_report import soc_context
+        soc = soc_context(recs)
+        from QC.soc_report import result_column
+        soc['result_col'] = result_column(kind, rep)
+        c = ctrl
+        dno = c['doc_no'] if c.get('doc_no') not in (None, '', 'TBA') else _FORMS[form][0]
+        idate = (c.get('issue_date') or '').strip()
+        if _re.match(r'^\d{2}-\d{2}-\d{4}$', idate):
+            idate = idate[:6] + idate[8:]                  # dd-mm-yy, as the reports print it
+        soc['doc'] = (dno, 'Issue Date: %s' % (idate if idate not in ('', '-') else 'TBA'),
+                      'Issue:%s Rev:%s' % (c.get('issue_no') or '-', c.get('rev_no') or '-'))
+        if kind == 'dw':
+            from EnviTechAlApp.views.generate import generatePDF_report as _gen
+        else:
+            from EnviTechAlApp.views.waste import wasteWater2Pdf1 as _gen
+        buf = _gen(request, rep.pk, return_bytes=True, soc=soc)
+        resp = HttpResponse(buf.getvalue(), content_type='application/pdf')
+        resp['Content-Disposition'] = 'inline; filename="%s-Decision-Rule.pdf"' % (rep.lab_report_no or sample_id)
+        resp['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        return resp
     if rep:
         hdr = _R.report_header(kind, rep)
     else:                                   # inducted record without the report in the software: the request form supplies the customer details
@@ -778,15 +995,17 @@ def soc_sample_pdf(request, sample_id):
     def kv(items, h=5.4):
         for lbl, val, wl, wv in items:
             pdf.set_font(f, 'B', 7.8); pdf.set_fill_color(*GREY); pdf.cell(wl, h, lbl, 1, 0, 'L', fill=True)
-            pdf.set_font(f, '', 8); txt = str(val if val not in (None, '') else '-')
+            fs = 8.0; pdf.set_font(f, '', fs); txt = str(val if val not in (None, '') else '-')
+            while pdf.get_string_width(txt) > wv - 2 and fs > 6.0:          # smaller type before anything is cut
+                fs -= 0.4; pdf.set_font(f, '', fs)
             while pdf.get_string_width(txt) > wv - 2 and len(txt) > 4:
                 txt = txt[:-1]
             pdf.cell(wv, h, txt, 1, 0, 'L')
         pdf.ln(h)
-    kv([('Report to', hdr['customer'], 30, 110), ('Lab Report No', hdr['lab_report_no'], 26, 24)])
-    kv([('Address', hdr['address'], 30, 110), ('Sample ID', sample_id, 26, 24)])
-    kv([('Attention', hdr['attention'], 30, 110), ('Collection date', hdr['collection_date'], 26, 24)])
-    kv([('Sample description', hdr['description'], 30, 110), ('Date of analysis', hdr['analysis'], 26, 24)])
+    kv([('Report to', hdr['customer'], 28, 86), ('Lab Report No', hdr['lab_report_no'], 26, 50)])
+    kv([('Address', hdr['address'], 28, 86), ('Sample ID', sample_id, 26, 50)])
+    kv([('Attention', hdr['attention'], 28, 86), ('Collection date', hdr['collection_date'], 26, 50)])
+    kv([('Sample description', hdr['description'], 28, 86), ('Date of analysis', hdr['analysis'], 26, 50)])
     pdf.ln(2)
     pdf.set_font(f, 'B', 9); pdf.cell(190, 6, 'ANALYTICAL TEST REPORT', 1, 1, 'C')
     cols = [('Sr. #', 10), ('Parameters / Analytes Description', 56), ('Methods', 34), ('Unit', 14), ('Test Results', 24), ('Uncertainty ±U', 24), ('%s Limits' % std_short, 28)]
@@ -840,51 +1059,17 @@ def soc_sample_pdf(request, sample_id):
 
 
 def soc_request_pdf(request, pk):
+    """ETAL-LAB-708-FF-17 laid out as the laboratory's controlled Word form (Karachi and Lahore versions)."""
+    from QC.soc_ff17 import build_ff17
     q = get_object_or_404(SocRequest, pk=pk)
+    if not _can_view(request.user, q.location):
+        return _denied_view(request, q.location)
     ctrl = _docctrl('soc_request', q.location, q.date)
-    pdf = _pdf(_FORMS['soc_request'][1], '%s LABORATORY  -  SAMPLE %s' % (q.location.upper(), q.sample_id), ctrl, q.location)
-    pdf.alias_nb_pages(); pdf.set_auto_page_break(True, 30)
-    f = pdf.fam
-    GREY, LINE = (242, 245, 243), (120, 120, 120)
-    pdf.set_draw_color(*LINE)
-    def sec(t):
-        pdf.set_fill_color(214, 228, 240); pdf.set_font(f, 'B', 8); pdf.cell(190, 6, t, 1, 1, 'L', fill=True)
-    def line(label, val, h=5.6):
-        pdf.set_font(f, 'B', 7.8); pdf.cell(42, h, label, 'LB', 0); pdf.set_font(f, '', 8); pdf.cell(148, h, str(val or '-')[:120], 'RB', 1)
-    def box(label, val, min_h=10):
-        pdf.set_font(f, 'B', 7.8); x, y = pdf.get_x(), pdf.get_y(); pdf.cell(42, min_h, label, 'LB', 0)
-        pdf.set_xy(x + 42, y); pdf.set_font(f, '', 8); pdf.multi_cell(148, 4.2, str(val or '-'), 'RB', 'L', new_x='LMARGIN', new_y='NEXT')
-        if pdf.get_y() < y + min_h:
-            pdf.set_y(y + min_h)
-    def tick(b):
-        return ('[X] ' if b else '[  ] ')
-    pdf.set_font(f, 'B', 10); pdf.cell(190, 7, 'CUSTOMER REQUEST FORM FOR MOU & SOC', 1, 1, 'C')
-    line('Date', _d(q.date)); box('Reason for Request', q.reason, 8)
-    line('Name of Organization', q.organization); line('Name of Customer', q.customer_name); line('Contact Details', q.contact); line('Address', q.address)
-    sec('Sample Information:')
-    line('Sample ID', q.sample_id)
-    line('Analysis Requested', '%sWastewater   %sDrinking Water   %sOthers: %s' % (tick(q.analysis == 'ww'), tick(q.analysis == 'dw'), tick(q.analysis == 'other'), q.analysis_other or '-'))
-    box('Parameters', q.parameters, 8)
-    sec('Type of Request:')
-    box('', '%sMeasurement of Uncertainty   %sStatement of Conformity   %sOpinions & Interpretation   %sCustomer Specification Limit\nOthers: %s'
-        % (tick(q.req_mou), tick(q.req_soc), tick(q.req_opinion), tick(q.req_limits), q.req_other or '-'), 10)
-    sec('Reporting of Results:')
-    pdf.set_font(f, '', 7.4); pdf.cell(190, 4.6, 'Please specify specification limit, select decision rules, and select decision rules statements of conformity wishes to use:', 'LR', 1)
-    box('', q.reporting, 10)
-    sec('Envi Tech AL - Follow Up Action')
-    y = pdf.get_y()
-    pdf.set_font(f, 'B', 7.8); pdf.cell(95, 5, tick(q.decision == 'approved') + 'Request Approved', 'LB', 0); pdf.cell(95, 5, tick(q.decision == 'denied') + 'Request Denied', 'RB', 1)
-    pdf.set_font(f, '', 7.8)
-    pdf.cell(95, 12, '', 'L', 0); x = pdf.get_x(); pdf.set_xy(10, pdf.get_y())
-    pdf.multi_cell(95, 4, 'Comment: %s' % (q.decision_comment or '-'), 'L', 'L'); yy = pdf.get_y()
-    pdf.set_xy(105, y + 5); pdf.multi_cell(95, 4, 'Date: %s' % _d(q.decision_date), 'R', 'L')
-    pdf.set_y(max(yy, pdf.get_y()) + 2); pdf.cell(190, 0, '', 'T', 1)
-    pdf.ln(4)
-    pdf.set_font(f, '', 8); pdf.cell(95, 6, 'Name: %s' % (q.customer_sign_name or '-'), 0, 0)
-    pdf.cell(95, 6, 'Authorised: %s' % ((_uname(q.authorised_by) + ' ' + _tz.localtime(q.authorised_at).strftime('%d-%m-%Y')) if q.authorised_at and q.authorised_by else ('on the paper record' if q.inducted else '-')), 0, 1, 'R')
-    if q.authorised_at and q.authorised_by and _sig_image(q.authorised_by):
-        try:
-            pdf.image(_sig_image(q.authorised_by), 160, pdf.get_y(), 30, 12)
-        except Exception:
-            pass
+    signer, img = '', None
+    if q.authorised_at and q.authorised_by:
+        signer = '%s  %s' % (_uname(q.authorised_by), _tz.localtime(q.authorised_at).strftime('%d-%m-%Y'))
+        img = _sig_image(q.authorised_by)
+    elif q.inducted:
+        signer = 'Signed on the paper form'
+    pdf = build_ff17(q, ctrl, signer, img, watermark='' if (q.decision and (q.authorised_at or q.inducted)) else 'DRAFT')
     return _resp(pdf, 'SOC_request_%s_%s' % (q.location, q.sample_id))

@@ -9,6 +9,7 @@ import re as _re
 from datetime import date as _date
 from django.conf import settings as _settings
 from django.http import Http404
+from django.utils import timezone as _tz
 
 from QC.models import IaPlan, IaAudit, IaCircular, IaWitness, Ncca, NccaRca
 from QC.views.control_chart import _CC_OFFICE, _uname, _sig_image, _is_admin, _user_labs, _user_office
@@ -34,6 +35,8 @@ def _pdf(title, sub, ctrl, location, orientation='P', wm=''):
             try:
                 if _os.path.exists(_CAL):
                     self.add_font('Calibri', '', _CAL); self.add_font('Calibri', 'B', _CALB if _os.path.exists(_CALB) else _CAL)
+                    _CALI = _CAL.replace('calibri.ttf', 'calibrii.ttf')
+                    self.add_font('Calibri', 'I', _CALI if _os.path.exists(_CALI) else _CAL)
                     self.fam = 'Calibri'
             except Exception:
                 pass
@@ -41,7 +44,7 @@ def _pdf(title, sub, ctrl, location, orientation='P', wm=''):
 
         def header(self):
             if wm:
-                self.set_font(self.fam, 'B', 54); self.set_text_color(238, 238, 238)
+                self.set_font(self.fam, 'B', 54); self.set_text_color(226, 226, 226)
                 try:
                     with self.rotation(45 if orientation == 'P' else 30, self.w / 2, self.h / 2):
                         self.text(self.w / 2 - self.get_string_width(wm) / 2, self.h / 2 + 10, wm)
@@ -365,7 +368,12 @@ def ia_audit_pdf(request, pk):
     a = get_object_or_404(IaAudit.objects.select_related('auditor_signed_by', 'auditee_signed_by'), pk=pk)
     ctrl = _ia_docctrl('report', a.location, _ia_on(a))
     wm = {'closed': '', 'auditor': 'AWAITING AUDITEE'}.get(a.status, 'DRAFT')
-    pdf = _pdf('INTERNAL AUDIT REPORT', '%s LABORATORY  -  AUDIT NO. %s  -  ISO/IEC 17025:2017' % (a.location.upper(), a.audit_no), ctrl, a.location, 'P', wm)
+    try:
+        _iss = int(_re.sub(r'\D', '', str(ctrl.get('issue_no') or '0')) or 0)
+    except ValueError:
+        _iss = 0
+    title = 'INTERNAL AUDIT CHECKLIST & REPORT' if _iss >= 2 else 'INTERNAL AUDIT REPORT'      # issue 02 rev 01 title (15-08-2026)
+    pdf = _pdf(title, '%s LABORATORY  -  AUDIT NO. %s  -  %s' % (a.location.upper(), a.audit_no, a.standard_label), ctrl, a.location, 'P', wm)
     f = pdf.fam
     pdf.set_y(39)
     dates = '%s - %s (%02d day%s audit)' % (_d(a.date_start), _d(a.date_end), a.days, '' if a.days == 1 else 's') if a.date_start else '-'
@@ -374,7 +382,7 @@ def ia_audit_pdf(request, pk):
     pdf.kv([('Location:', '%s Laboratory Facility' % a.location, 30, 65), ('Auditee:', '%s%s' % (a.auditee, (' - ' + a.auditee_title) if a.auditee_title else ''), 30, 65)])
     pdf.kv([('Address:', a.address, 30, 160)])
     pdf.ln(2)
-    cols = [('Clause', 18), ('Requirement', 58), ("Lab's Reference to its QMS", 32), ('Auditor Findings', 68), ('Result', 14)]
+    cols = [('Clause', 17), ('Requirement', 57), ("Lab's Reference to its QMS", 31), ('Auditor Findings', 66), ('Result', 19)]
     def head():
         pdf.set_font(f, 'B', 7.2); pdf.set_fill_color(*GREY_FILL); pdf.set_draw_color(*LINE)
         for lbl, w in cols:
@@ -403,8 +411,7 @@ def ia_audit_pdf(request, pk):
     pdf.kv([('Time frame agreed to close the NCs:', a.timeframe, 55, 135)])
     if a.conclusion:
         pdf.ln(1.5); pdf.box('Conclusion Statement', a.conclusion, min_h=10)
-    if a.remarks:
-        pdf.ln(1.5); pdf.box('Remarks', a.remarks, min_h=8, fs=6.8)
+    # a.remarks is the internal remark (reopen reasons, induction notes): kept on the record page, not printed on the controlled form
     _sig_block_space(pdf, 34)
     pdf.ln(3)
     top = pdf.get_y()
@@ -413,6 +420,30 @@ def ia_audit_pdf(request, pk):
               ('', '', '', None, ''),
               ('Signature of Internal Auditee', 'Name of Internal Auditee', _uname(a.auditee_signed_by) if a.auditee_signed_at else (lgs.get('auditee', '') if a.inducted else ''), _sig_image(a.auditee_signed_by) if a.auditee_signed_at else None, _d(a.auditee_sign_date), '' if a.auditee_signed_at else 'paper')]
     pdf.sig_panels(panels, top, 28)
+    # CEO / Top Management endorsement (form issue 02 rev 01): printed on reports of that issue and on any endorsed report
+    show_endorse = a.endorsed or bool(a.ceo_name) or _iss >= 2
+    if show_endorse:
+        _sig_block_space(pdf, 30)
+        pdf.ln(3); pdf.set_font(f, 'B', 8)
+        pdf.cell(pdf.W, 5, 'CEO / Top Management Endorsement:', 0, 1, 'L')
+        pdf.set_font(f, 'I', 7.6)
+        pdf.cell(pdf.W, 4.6, 'I have reviewed and acknowledged the results and findings of this internal audit report.', 0, 1, 'L')
+        en_name = _uname(a.ceo_endorsed_by) if a.ceo_endorsed_at else (a.ceo_name or '')
+        en_date = _d(a.ceo_endorse_date) if (a.ceo_endorsed_at or a.ceo_name) else ''
+        y0 = pdf.get_y() + 1
+        for i, (lbl, val) in enumerate((('Name:', en_name), ('Signature:', ''), ('Date:', en_date))):
+            yy = y0 + i * 7
+            pdf.set_xy(10, yy); pdf.set_font(f, 'B', 7.6); pdf.cell(18, 5, lbl, 0, 0, 'L')
+            pdf.set_font(f, '', 7.6); pdf.cell(50, 5, val if val not in ('-',) else '', 0, 0, 'L')
+            pdf.set_draw_color(*LINE); pdf.line(28, yy + 4.6, 78, yy + 4.6)
+        if a.ceo_endorsed_at and _sig_image(a.ceo_endorsed_by):
+            try:
+                pdf.image(_sig_image(a.ceo_endorsed_by), 32, y0 + 5.2, 26, 8)
+            except Exception:
+                pass
+        elif a.ceo_endorsed_at:
+            pdf.set_xy(28, y0 + 7); pdf.set_font(f, '', 6.4); pdf.cell(50, 5, 'Electronically signed %s' % _tz.localtime(a.ceo_endorsed_at).strftime('%d-%m-%Y %H:%M'), 0, 0, 'L')
+        pdf.set_y(y0 + 22)
     pdf.ln(3); pdf.set_font(f, 'B', 7.5); pdf.cell(pdf.W, 5, '---END OF THE DOCUMENT---', 0, 1, 'C')
     # witnessing records
     for w in a.witnessings.all():
@@ -690,6 +721,8 @@ def ia_log_pdf(request):
     pdf.set_y(38)
     cols = [('S. No.', 11), ('NC & CA #', 34), ('Standard & Clause Reference', 30), ('Category (if NC)', 20), ('Reported By (Name and Designation)', 34), ('Date', 18),
             ('Assigned To (Name and Designation)', 32), ('Date', 18), ('Target Date', 18), ('Follow up Date', 18), ('Closing Date', 18), ('Close By (Name and Designation)', 32), ('Closed By Sign', 20)]
+    k = pdf.W / float(sum(w for lbl, w in cols))           # the 13 columns fit the landscape page (27-10-2026: the last columns were cut off)
+    cols = [(lbl, round(w * k, 2)) for lbl, w in cols]
     def head():
         pdf.set_font(f, 'B', 6.6); pdf.set_fill_color(*GREY_FILL); pdf.set_draw_color(*LINE)
         x = 10; y = pdf.get_y()
@@ -698,7 +731,7 @@ def ia_log_pdf(request):
         pdf.set_xy(10, y + 10)
     head()
     for i, n in enumerate(rows):
-        vals = [str(n.log_sno or i + 1), n.nc_no, '%s (ISO/IEC 17025:2017)' % n.clause.split(' (')[0] if n.clause else '', _CAT_LABEL.get(n.category, '').replace(' nonconformance', ''),
+        vals = [str(n.log_sno or i + 1), n.nc_no, (n.clause if ('(' in n.clause or _re.search(r'17025|9001|14001', n.clause)) else '%s (%s)' % (n.clause, n.audit.standard_label if n.audit_id else 'ISO/IEC 17025:2017')) if n.clause else '', _CAT_LABEL.get(n.category, '').replace(' nonconformance', ''),
                 n.raised_by, _d(n.date), n.assigned_to, _d(n.assigned_date), _d(n.target_date), _d(n.followup_date), _d(n.closing_date),
                 n.closed_by_name or (_uname(n.closed_by) if n.closed_by else ''), '']
         y0 = pdf.get_y(); page0 = pdf.page_no()

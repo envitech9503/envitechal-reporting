@@ -8,25 +8,26 @@
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if can_manage %}<form method="post" action="{% url 'ia_audit_new' %}?location={{ loc }}" style="display:flex;gap:6px;align-items:center">{% csrf_token %}
         <select name="year" style="border:1px solid #cbd5e1;border-radius:7px;padding:6px">{% now "Y" as yr %}<option value="{{ yr }}">{{ yr }}</option><option value="{{ yr|add:1 }}">{{ yr|add:1 }}</option></select>
+        <select name="standard" style="border:1px solid #cbd5e1;border-radius:7px;padding:6px"><option value="17025">ISO/IEC 17025:2017</option><option value="9001">ISO 9001:2015</option><option value="14001">ISO 14001:2015</option></select>
         <select name="seed" style="border:1px solid #cbd5e1;border-radius:7px;padding:6px"><option value="prev">Checklist from the previous audit</option><option value="master">Checklist from the master list (blank)</option></select>
         <button class="btn btn-p" type="submit"><i class="fa-solid fa-plus"></i> New audit</button></form>{% endif %}
     </div>
   </div>
   <form class="toolbar" method="get"><label>Laboratory <select name="location" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></label></form>
   <table>
-    <thead><tr><th>Audit No.</th><th>Dates</th><th>Auditor</th><th>Auditee</th><th class="c">Obs</th><th class="c">Minor</th><th class="c">Major</th><th class="c">NC&amp;CA</th><th class="c">Witnessing</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Audit No.</th><th>Standard</th><th>Dates</th><th>Auditor</th><th>Auditee</th><th class="c">Obs</th><th class="c">Minor</th><th class="c">Major</th><th class="c">NC&amp;CA</th><th class="c">Witnessing</th><th>Status</th><th></th></tr></thead>
     <tbody>
     {% for a in rows %}
       <tr>
-        <td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.inducted %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td>
-        <td class="nw">{{ a.date_start|date:"d-m-Y"|default:"-" }}{% if a.date_end and a.date_end != a.date_start %} - {{ a.date_end|date:"d-m-Y" }}{% endif %} <span class="muted">({{ a.days }} d)</span></td>
+        <td><a href="{% url 'ia_audit_detail' a.id %}" style="color:#0f5132;font-weight:700">{{ a.audit_no }}</a>{% if a.inducted %} <span class="pill none" title="Inducted from the laboratory's Word record">REC</span>{% endif %}</td><td class="nw">{{ a.standard_label }}</td>
+        <td class="nw">{{ a.date_start|date:"d-m-Y"|default:"-" }}{% if a.date_end and a.date_end != a.date_start %} - {{ a.date_end|date:"d-m-Y" }}{% endif %} {% if a.date_start %}<span class="muted">({{ a.days }} d)</span>{% endif %}</td>
         <td>{{ a.auditor|default:"-" }}</td><td>{{ a.auditee|default:"-" }}</td>
         <td class="c">{{ a.n_obs }}</td><td class="c">{{ a.n_minor }}</td><td class="c"><b>{{ a.n_major }}</b></td>
         <td class="c">{{ a.ncs.count }}</td><td class="c">{{ a.witnessings.count }}</td>
         <td class="nw">{% if a.status == 'closed' %}<span class="pill ok">Signed</span>{% elif a.status == 'auditor' %}<span class="pill info">Awaiting auditee</span>{% else %}<span class="pill none">Draft</span>{% endif %}</td>
         <td class="nw"><a class="btn" href="{% url 'ia_audit_detail' a.id %}">Open</a> <a class="btn" href="{% url 'ia_audit_pdf' a.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i></a></td>
       </tr>
-    {% empty %}<tr><td colspan="11" class="empty">No audit reports for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="12" class="empty">No audit reports for the {{ loc }} laboratory yet.</td></tr>{% endfor %}
     </tbody>
   </table>
   <div class="muted" style="padding:10px 18px">A new audit carries forward the previous audit's checklist (clause wording, the laboratory's QMS references and the last findings, with the results cleared) so the auditor revises rather than retypes. "REC" marks a report inducted from the laboratory's Word record.</div>

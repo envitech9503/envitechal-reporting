@@ -19,7 +19,7 @@
   <div class="kv">
     <b>Customer</b><span>{{ r.customer|default:"-" }}</span><b>Report</b><span>{{ report_label }}{% if r.report_pk %} #{{ r.report_pk }}{% endif %}</span>
     <b>Method</b><span>{{ r.method|default:"-" }}</span><b>Unit</b><span>{{ r.unit|default:"-" }}</span>
-    <b>Standard</b><span>{{ r.standard }}</span><b>Specification</b><span>{{ r.spec_text }}{% if r.lower is not None or r.upper is not None %} <span class="muted">(lower {{ r.lower|default_if_none:"-" }}, upper {{ r.upper|default_if_none:"-" }})</span>{% endif %}</span>
+    <b>Standard</b><span>{{ r.standard }}</span><b>Specification</b><span>{{ r.spec_text }}{% if r.lower is not None or r.upper is not None %} <span class="muted">(lower {% if r.lower is not None %}{{ r.lower|floatformat:"-4" }}{% else %}-{% endif %}, upper {% if r.upper is not None %}{{ r.upper|floatformat:"-4" }}{% else %}-{% endif %})</span>{% endif %}</span>
     <b>Expanded uncertainty</b><span>{% if r.uncertainty is not None %}&plusmn; {{ r.uncertainty }} {{ r.unit }}{% else %}-{% endif %} <span class="muted">{{ r.u_source }}</span>{% if r.mou_study %} <a href="{% url 'mou_detail' r.mou_study.id %}" style="color:#0f5132">MOU study</a>{% endif %}</span>
     <b>Decision rule</b><span>{{ r.decision_rule }}</span>
     <b>Created</b><span>{{ r.created_by.username|default:"induction" }} {{ r.created_at|date:"d-m-Y H:i" }}</span><b>Form</b><span>{{ ctrl.doc_no }} &middot; issue {{ ctrl.issue_date }} &middot; {{ ctrl.issue_no }}/{{ ctrl.rev_no }}</span>
@@ -29,11 +29,11 @@
 <div class="card">
   <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-table"></i> Results and statement</div></div>
   <table><thead><tr><th>S. No.</th><th>Date</th><th class="num">Result</th><th class="num">Upper specification</th><th class="num">Lower specification</th><th class="num">Uncertainty &plusmn;</th><th>Limit</th><th>Statement</th></tr></thead>
-    <tbody>{% for x in rows %}<tr><td>{{ x.n }}</td><td class="nw">{{ x.date|default:"-" }}</td><td class="num"><b>{{ x.value }}</b></td><td class="num">{{ r.upper|default_if_none:"-" }}</td><td class="num">{{ r.lower|default_if_none:"-" }}</td><td class="num">{{ r.uncertainty|default_if_none:"-" }}</td><td>{{ r.spec_text }}</td>
+    <tbody>{% for x in rows %}<tr><td>{{ x.n }}</td><td class="nw">{{ x.date|default:"-" }}</td><td class="num"><b>{{ x.value }}</b></td><td class="num">{% if r.upper is not None %}{{ r.upper|floatformat:"-4" }}{% else %}-{% endif %}</td><td class="num">{% if r.lower is not None %}{{ r.lower|floatformat:"-4" }}{% else %}-{% endif %}</td><td class="num">{% if r.uncertainty is not None %}{{ r.uncertainty|floatformat:"-4" }}{% else %}-{% endif %}</td><td>{{ r.spec_text }}</td>
       <td>{% if x.verdict == 'Pass' %}<span class="pill ok">Pass</span>{% elif x.verdict == 'Fail' %}<span class="pill bad">Fail</span>{% else %}-{% endif %}</td></tr>{% endfor %}</tbody></table>
-  <div class="stat"><div class="box"><b>Mean</b><span>{{ mean }}</span> <small>{{ r.unit }}</small></div><div class="box"><b>Standard deviation</b><span>{{ sd }}</span></div>
+  <div class="stat"><div class="box"><b>Mean</b><span>{{ mean }}</span>{% if r.unit and r.unit != "-" %} <small>{{ r.unit }}</small>{% endif %}</div><div class="box"><b>Standard deviation</b><span>{{ sd }}</span></div>
     <div class="box"><b>Statement of conformity</b><span style="color:{% if r.overall == 'Fail' %}#b91c1c{% endif %}">{{ r.overall|default:"-" }}</span></div></div>
-  <div class="msg" style="background:#eef4fb;color:#1e3a8a"><b>Decision criteria (by decision rule):</b> {{ r.decision_rule }}<br>Statement of conformity reported as: <b>Pass</b> - the measured value is within (below) the specification limit; <b>Fail</b> - the measured value is outside (above) the specification limit.</div>
+  <div class="msg" style="background:#eef4fb;color:#1e3a8a"><b>Decision criteria (by decision rule):</b> {{ r.decision_rule }}<br>Statement of conformity reported as: <b>Pass</b> - the measured value is within the specification limit{% if r.lower is None %} (below the upper limit){% endif %}; <b>Fail</b> - the measured value is outside the specification limit{% if r.lower is None %} (above the upper limit){% endif %}.</div>
   {% if svg %}<div class="chartbox">{{ svg|safe }}</div>{% endif %}
 </div>
 <div class="card">

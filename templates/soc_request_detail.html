@@ -3,8 +3,8 @@
 {% block crumb %} &rsaquo; <span>Customer request form {{ q.sample_id }}</span>{% endblock %}
 {% block cc_body %}
 <div class="card">
-  <div class="hd"><div class="title"><i class="fa-solid fa-file-signature"></i> Customer Request Form for MOU &amp; SOC - sample {{ q.sample_id }} <span class="muted">{{ q.location }}</span>
-      {% if q.decision == 'approved' %}<span class="pill ok">Request approved</span>{% elif q.decision == 'denied' %}<span class="pill bad">Request denied</span>{% else %}<span class="pill none">open</span>{% endif %}{% if q.locked %}<span class="pill ok">Authorised</span>{% endif %}{% if q.inducted %}<span class="pill none" title="Inducted from the laboratory record">REC</span>{% endif %}</div>
+  <div class="hd"><div class="title"><i class="fa-solid fa-file-signature"></i> {% if q.location == 'Lahore' %}Customer Request Form{% else %}Customer Request Form for MOU &amp; SOC{% endif %} - sample {{ q.sample_id }} <span class="muted">{{ q.location }}</span>
+      {% if q.decision == 'approved' %}<span class="pill ok">Request approved</span>{% elif q.decision == 'denied' %}<span class="pill bad">Request denied</span>{% else %}<span class="pill none">open</span>{% endif %} {% if q.locked %}<span class="pill ok">Authorised</span>{% endif %}{% if q.inducted %}<span class="pill none" title="Inducted from the laboratory record">REC</span>{% endif %}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       {% if can_edit %}<a class="btn btn-p" href="{% url 'soc_request_edit' q.id %}"><i class="fa-solid fa-pen"></i> Edit</a>{% endif %}
       <a class="btn" href="{% url 'soc_request_pdf' q.id %}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF ({{ ctrl.doc_no }})</a>
@@ -13,7 +13,7 @@
     </div></div>
   <div class="kv">
     <b>Date</b><span>{{ q.date|date:"d-m-Y"|default:"-" }}</span><b>Reason</b><span>{{ q.reason|default:"-" }}</span>
-    <b>Organization</b><span>{{ q.organization|default:"-" }}</span><b>Customer</b><span>{{ q.customer_name|default:"-" }} {{ q.contact }}</span>
+    <b>Organisation</b><span>{{ q.organization|default:"-" }}</span><b>Customer</b><span>{{ q.customer_name|default:"-" }} {{ q.contact }}</span>
     <b>Address</b><span style="grid-column:2/-1">{{ q.address|default:"-" }}</span>
     <b>Analysis requested</b><span>{{ q.get_analysis_display }} {{ q.analysis_other }}</span><b>Parameters</b><span>{{ q.parameters|default:"-" }}</span>
     <b>Type of request</b><span style="grid-column:2/-1">{% if q.req_mou %}Measurement of Uncertainty. {% endif %}{% if q.req_soc %}Statement of Conformity. {% endif %}{% if q.req_opinion %}Opinions &amp; Interpretation. {% endif %}{% if q.req_limits %}Customer Specification Limit. {% endif %}{{ q.req_other }}</span>
@@ -22,7 +22,8 @@
     <b>Name</b><span>{{ q.customer_sign_name|default:"-" }}</span><b>Authorised</b><span>{% if q.authorised_at %}{{ q.authorised_by.get_full_name|default:q.authorised_by.username }} - {{ q.authorised_at|date:"d-m-Y H:i" }}{% elif q.inducted %}on the paper record{% else %}-{% endif %}</span>
   </div>
   <div class="frm" style="gap:14px;border-top:1px solid #eef2f6">
-    {% if can_authorise %}<form method="post" action="{% url 'soc_request_action' q.id %}">{% csrf_token %}<input type="hidden" name="action" value="authorise"><button class="btn btn-p" type="submit" onclick="return confirm('Authorise and sign this request form?')"><i class="fa-solid fa-signature"></i> Authorise &amp; sign</button></form>{% endif %}
+    {% if can_authorise %}<form method="post" action="{% url 'soc_request_action' q.id %}">{% csrf_token %}<input type="hidden" name="action" value="authorise"><button class="btn btn-p" type="submit" onclick="return confirm('Authorise and sign this request form?')"><i class="fa-solid fa-signature"></i> Approve request &amp; sign</button></form>
+    <form method="post" action="{% url 'soc_request_action' q.id %}" style="display:flex;gap:6px;align-items:flex-end">{% csrf_token %}<input type="hidden" name="action" value="deny"><label>Comment <input name="comment" required minlength="5" style="width:240px"></label><button class="btn btn-d" type="submit" onclick="return confirm('Deny this request and sign the form?')"><i class="fa-solid fa-ban"></i> Deny request &amp; sign</button></form>{% endif %}
     {% if can_unlock %}<form method="post" action="{% url 'soc_request_action' q.id %}">{% csrf_token %}<input type="hidden" name="action" value="unlock"><button class="btn btn-w" type="submit"><i class="fa-solid fa-unlock"></i> Clear authorisation</button></form>{% endif %}
   </div>
 </div>

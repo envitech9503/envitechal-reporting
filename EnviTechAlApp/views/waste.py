@@ -5451,15 +5451,20 @@ def wasteWater2Pdf(request,pk):
 
      return response
 
-def wasteWater2Pdf1(request,pk,return_bytes=False):
+def wasteWater2Pdf1(request,pk,return_bytes=False,soc=None):
      from fpdf import FPDF
      from EnviTechAlApp.pdf_common import PDF_wasteWater2Pdf1 as PDFWithPageNumbers
+     if soc:                                   # lab test report with decision rule (QC): same format + U column + statement
+          from QC.soc_report import soc_pdf_class
+          PDFWithPageNumbers = soc_pdf_class(PDFWithPageNumbers, soc)
 
 
 
 
      ww = WasteWaterForm2.objects.get(id=pk)
      ww.extra_field = _safe_json_list(ww.extra_field)
+     if soc and soc.get('doc'):                # the decision-rule report prints its own form number (FF-18)
+          ww.doc1, ww.doc2, ww.doc3 = soc['doc']
 
      pdf = PDFWithPageNumbers(lab_report_no=ww.lab_report_no,invoice_bill_no=ww.invoice_bill_no,reporting_date=ww.reporting_date,report_to=ww.report_to,
                                    address=ww.address,attention=ww.attention,email=ww.email,sample_id=ww.sample_id,sample_Col_date=ww.sample_Col_date,
@@ -8310,6 +8315,9 @@ def wasteWater2Pdf1(request,pk,return_bytes=False):
      # pdf.line(155,252,165+pdf.get_string_width("Approved By (Lab Manager)"),252)
      # pdf.text(160,256,"Approved By (Lab Manager)")
      
+     if soc and not soc.get('no_statement'):
+          from QC.soc_report import draw_statement
+          draw_statement(pdf, soc, sign_top=228)
      if ww.analyst_signature:
          pdf.image(ww.analyst_signature.signature,30,234,20.32,20.32)
      pdf.line(19,252,36+pdf.get_string_width(f"Analyzed By ({(ww.analyst_signature.role if ww.analyst_signature else '')})"),252)

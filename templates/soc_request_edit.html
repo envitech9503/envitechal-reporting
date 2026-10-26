@@ -35,9 +35,9 @@
   <div class="frm"><label style="flex:1">Specification limit, decision rule and statement of conformity the customer wishes to use <textarea name="reporting" rows="2" style="width:100%">{{ f.reporting }}</textarea></label></div>
   <div class="hd"><div class="title" style="font-size:14px">Envi Tech AL - follow-up action</div></div>
   <div class="frm">
-    <label>Decision <select name="decision"><option value="" {% if not f.decision %}selected{% endif %}>-</option><option value="approved" {% if f.decision == 'approved' %}selected{% endif %}>Request approved</option><option value="denied" {% if f.decision == 'denied' %}selected{% endif %}>Request denied</option></select></label>
+    {% if manager %}<label>Decision <select name="decision"><option value="" {% if not f.decision %}selected{% endif %}>-</option><option value="approved" {% if f.decision == 'approved' %}selected{% endif %}>Request approved</option><option value="denied" {% if f.decision == 'denied' %}selected{% endif %}>Request denied</option></select></label>
     <label>Date <input type="text" name="decision_date" value="{{ f.decision_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
-    <label style="flex:1">Comment <input type="text" name="decision_comment" value="{{ f.decision_comment }}" style="width:100%"></label>
+    <label style="flex:1">Comment <input type="text" name="decision_comment" value="{{ f.decision_comment }}" style="width:100%"></label>{% else %}<span class="muted" style="align-self:center">Follow-up: {{ f.get_decision_display|default:"open" }}{% if f.decision_comment %} - {{ f.decision_comment }}{% endif %} (entered by the QC / Lab Manager or the CEO)</span>{% endif %}
     <label>Name (customer / signatory) <input type="text" name="customer_sign_name" value="{{ f.customer_sign_name }}"></label>
   </div>
 </div>

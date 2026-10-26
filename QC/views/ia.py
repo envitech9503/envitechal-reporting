@@ -22,7 +22,7 @@ from django.shortcuts import redirect as _redirect
 from django.db.models import Q as _Q
 from django.contrib import messages as _msg
 
-from QC.models import IaClause, IaPlan, IaAudit, IaFinding, IaCircular, IaWitness, Ncca, NccaRca, ControlChartDeletion
+from QC.models import IaClause, IaPlan, IaAudit, IaFinding, IaCircular, IaWitness, Ncca, NccaRca, ControlChartDeletion, IA_STANDARDS, IA_STANDARD_LABEL, IA_SCOPE
 from QC.views.control_chart import (_CC_LOCS, _CC_OFFICE, _uname, _user_labs, _is_admin, _can_review, _can_approve,
                                     _default_loc, _user_office, _sig_image)
 
@@ -81,8 +81,12 @@ def _is_member(user, location):
     labs = _user_labs(user)
     if labs and location not in labs:
         return False
-    office = _user_office(user)
-    return office == location or not office
+    return _user_office(user) == location          # no office on the e-signature profile = nobody's staff (27-10-2026)
+
+
+def _is_top_mgmt(user):
+    """CEO / Top Management: an administrator who is not assigned to a laboratory as its QC / Lab Manager."""
+    return bool(user and user.is_authenticated and _is_admin(user) and not _user_labs(user))
 
 
 def _is_ceo(user, location):
@@ -523,7 +527,7 @@ def _seed_findings(audit, source=None):
         for i, f in enumerate(source.findings.select_related('clause')):
             rows.append(IaFinding(audit=audit, order=(i + 1) * 10, clause=f.clause, label=f.label, requirement=f.requirement, ref=f.ref, finding=f.finding, result='', tag=''))
     else:
-        for i, c in enumerate(IaClause.objects.filter(active=True)):
+        for i, c in enumerate(IaClause.objects.filter(active=True, standard=audit.standard)):
             rows.append(IaFinding(audit=audit, order=(i + 1) * 10, clause=c, label='' if c.code.startswith('PNAC') else c.code,
                                   requirement=c.title if (c.is_heading or not c.requirement) else c.requirement, ref='', finding='', result='', tag=''))
     IaFinding.objects.bulk_create(rows)
@@ -544,13 +548,14 @@ def ia_audit_new(request):
     if request.method != 'POST':
         return _redirect('/qc/ia/audits/?location=%s' % loc)
     P = request.POST
+    std = P.get('standard') if P.get('standard') in IA_STANDARD_LABEL else '17025'
     year = int(P.get('year')) if (P.get('year') or '').isdigit() else _date.today().year
     audit_no, seq = _next_audit_no(loc, year)
-    prev = IaAudit.objects.filter(location=loc).order_by('-year', '-seq').first()
+    prev = IaAudit.objects.filter(location=loc, standard=std).order_by('-year', '-seq').first()     # copy-forward within the same standard
     src = prev if (P.get('seed') != 'master' and prev) else None
-    a = IaAudit(location=loc, audit_no=audit_no, year=year, seq=seq, created_by=user, auditor=_uname(user), auditor_user=user,
+    a = IaAudit(location=loc, standard=std, audit_no=audit_no, year=year, seq=seq, created_by=user, auditor=_uname(user), auditor_user=user,
                 address=(prev.address if prev else ''), auditee_title=(prev.auditee_title if prev else ''), auditor_title=(prev.auditor_title if prev else ''),
-                timeframe=(prev.timeframe if prev else ''), scope=(prev.scope if prev else IaAudit._meta.get_field('scope').default))
+                timeframe=(prev.timeframe if prev else ''), scope=(prev.scope if prev else IA_SCOPE[std]))
     if not a.address:
         a.address = _CC_OFFICE.get(loc, {}).get('address', '')
     a.save()
@@ -577,6 +582,17 @@ def ia_audit_edit(request, pk):
         P = request.POST
         errors = []
         a.date_start, a.date_end = _pdate(P.get('date_start')), _pdate(P.get('date_end'))
+        no = (P.get('audit_no') or '').strip()
+        if no and no != a.audit_no:                  # the audit number / year is the laboratory's (e.g. a 2025 audit entered in 2026)
+            m = _re.match(r'^(\d{1,2})\s*/\s*(\d{4})$', no)
+            if not m:
+                errors.append('Audit No. / Year must be like 01/2025.')
+            else:
+                no = '%02d/%s' % (int(m.group(1)), m.group(2))
+                if IaAudit.objects.filter(location=a.location, audit_no=no).exclude(pk=a.pk).exists():
+                    errors.append('Audit %s exists already for the %s laboratory.' % (no, a.location))
+                else:
+                    a.audit_no, a.seq, a.year = no, int(m.group(1)), int(m.group(2))
         if P.get('date_start') and not a.date_start:
             errors.append('Audit start date must be dd-mm-yyyy.')
         if P.get('date_end') and not a.date_end:
@@ -617,7 +633,7 @@ def ia_audit_edit(request, pk):
                 continue
             after = P.get('n%d_after' % i)
             base = next((f.order for f in keep if str(f.pk) == after), (keep[-1].order if keep else 0))
-            cl = IaClause.objects.filter(code=lab).first()
+            cl = IaClause.objects.filter(code=lab, standard=a.standard).first()
             IaFinding.objects.create(audit=a, order=base + 1, clause=cl, label=lab, requirement=req or (cl.requirement if cl else ''),
                                      ref=(P.get('n%d_ref' % i) or '').strip()[:400], finding=(P.get('n%d_finding' % i) or '').strip()[:6000],
                                      result=P.get('n%d_result' % i) if P.get('n%d_result' % i) in _RESULT_LABEL else '')
@@ -650,7 +666,8 @@ def ia_audit_detail(request, pk):
         'can_sign_auditor': a.status == 'draft' and _can_manage(user, a.location),
         'can_sign_auditee': a.status == 'auditor' and is_member and (a.auditor_signed_by_id != user.id),
         'can_reopen': a.status != 'draft' and _can_manage(user, a.location), 'can_delete': _can_manage(user, a.location),
-        'can_raise_nc': _can_manage(user, a.location), 'is_member': is_member, 'result_label': _RESULT_LABEL})
+        'can_raise_nc': _can_manage(user, a.location), 'is_member': is_member, 'result_label': _RESULT_LABEL,
+        'can_endorse': a.status == 'closed' and not a.endorsed and _is_top_mgmt(user) and user.id not in (a.auditor_signed_by_id, a.auditee_signed_by_id)})
 
 
 def _apply_audit_action(user, a, act, reason=''):
@@ -691,9 +708,24 @@ def _apply_audit_action(user, a, act, reason=''):
             return 'error', 'Give the reason for reopening (at least 5 characters).'
         a.status = 'draft'
         a.auditor_signed_by = a.auditor_signed_at = a.auditee_signed_by = a.auditee_signed_at = None
+        a.ceo_endorsed_by = a.ceo_endorsed_at = None
+        a.ceo_endorse_date = None
         a.remarks = (a.remarks + '\n' if a.remarks else '') + 'Reopened %s by %s: %s' % (_d(now.date()), _uname(user), reason.strip()[:500])
         a.save()
-        return 'ok', 'Report reopened as draft; both signatures cleared.'
+        return 'ok', 'Report reopened as draft; the signatures and the CEO endorsement are cleared.'
+    if act == 'endorse':
+        if a.status != 'closed':
+            return 'error', 'The CEO / Top Management endorses the report after the auditor and the auditee have signed.'
+        if a.endorsed:
+            return 'error', 'The report is endorsed already.'
+        if not _is_top_mgmt(user):
+            return 'forbidden', 'The endorsement is signed by the CEO / Top Management.'
+        if user.id in (a.auditor_signed_by_id, a.auditee_signed_by_id):
+            return 'error', 'The internal auditor or auditee cannot also endorse the report.'
+        a.ceo_endorsed_by, a.ceo_endorsed_at = user, now
+        a.ceo_endorse_date = a.ceo_endorse_date or now.date()
+        a.save()
+        return 'ok', 'Report %s endorsed by you: results and findings reviewed and acknowledged.' % a.audit_no
     return 'error', 'Unknown action.'
 
 
@@ -965,7 +997,7 @@ def ia_nc_edit(request, pk=None):
         if (fid or '').isdigit():
             f = IaFinding.objects.select_related('audit').filter(pk=int(fid), audit__location=loc).first()
             if f:
-                n.audit, n.finding, n.clause = f.audit, f, '%s (ISO/IEC 17025:2017)' % (f.label or (f.clause.code if f.clause else ''))
+                n.audit, n.finding, n.clause = f.audit, f, '%s (%s)' % (f.label or (f.clause.code if f.clause else ''), f.audit.standard_label)
                 n.details = f.finding; n.category = f.result if f.result in ('obs', 'minor', 'major') else 'major'
                 n.raised_by = f.audit.auditor or n.raised_by
         aid = request.GET.get('audit')
@@ -1470,29 +1502,33 @@ def ia_deletions(request):
 def ia_clauses(request):
     user = request.user
     loc = _loc_of(request)
+    std = request.GET.get('std') or request.POST.get('std') or '17025'
+    std = std if std in IA_STANDARD_LABEL else '17025'
     can = user.is_authenticated and (_is_admin(user) or bool(_user_labs(user)))
     if request.method == 'POST':
         if not can:
             return HttpResponse('The master checklist is maintained by the QC / Lab Managers and the administrator.', status=403)
         P = request.POST
         act = P.get('action')
+        rows = IaClause.objects.filter(standard=std)
         if act == 'add':
             code = (P.get('code') or '').strip()[:12]
-            if not code or IaClause.objects.filter(code=code).exists():
-                _msg.error(request, 'Clause code missing or already present.')
+            if not code or rows.filter(code=code).exists():
+                _msg.error(request, 'Clause code missing or already present in the %s list.' % IA_STANDARD_LABEL[std])
             else:
-                after = IaClause.objects.filter(code=(P.get('after') or '').strip()).first()
-                order = (after.order + 1) if after else (IaClause.objects.order_by('-order').first().order + 10 if IaClause.objects.exists() else 10)
-                IaClause.objects.create(code=code, title=(P.get('title') or '').strip()[:400], requirement=(P.get('requirement') or '').strip()[:4000],
+                after = rows.filter(code=(P.get('after') or '').strip()).first()
+                order = (after.order + 1) if after else (rows.order_by('-order').first().order + 10 if rows.exists() else 10)
+                IaClause.objects.create(standard=std, code=code, title=(P.get('title') or '').strip()[:400], requirement=(P.get('requirement') or '').strip()[:4000],
                                         level=code.count('.') + 1, order=order)
-                _msg.success(request, 'Clause %s added.' % code)
+                _msg.success(request, 'Clause %s added to the %s list.' % (code, IA_STANDARD_LABEL[std]))
         elif act == 'save' and (P.get('id') or '').isdigit():
             c = get_object_or_404(IaClause, pk=int(P.get('id')))
             c.title = (P.get('title') or '').strip()[:400]; c.requirement = (P.get('requirement') or '').strip()[:4000]; c.active = P.get('active') == '1'
             c.save()
             _msg.success(request, 'Clause %s saved.' % c.code)
-        return _redirect('ia_clauses')
-    return render(request, 'ia_clauses.html', {'rows': IaClause.objects.all(), 'can': can, 'loc': loc, 'edit': request.GET.get('edit') or ''})
+        return _redirect('/qc/ia/clauses/?std=%s' % std)
+    return render(request, 'ia_clauses.html', {'rows': IaClause.objects.filter(standard=std), 'can': can, 'loc': loc, 'edit': request.GET.get('edit') or '',
+                                               'std': std, 'std_label': IA_STANDARD_LABEL[std], 'standards': IA_STANDARDS})
 
 
 def ia_manual(request):

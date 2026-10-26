@@ -43,7 +43,7 @@ class InductionTests(TestCase):
         call_command('import_ia_spec', SPEC, '--apply', stdout=io.StringIO())
 
     def test_counts_and_idempotence(self):
-        self.assertEqual(IaClause.objects.count(), 120)
+        self.assertEqual(IaClause.objects.filter(standard="17025").count(), 120); self.assertEqual((IaClause.objects.filter(standard="9001").count(), IaClause.objects.filter(standard="14001").count()), (61, 45))
         self.assertEqual(IaAudit.objects.count(), 4); self.assertEqual(IaFinding.objects.count(), 318)
         self.assertEqual(IaPlan.objects.count(), 2); self.assertEqual(IaCircular.objects.count(), 6); self.assertEqual(IaWitness.objects.count(), 2)
         self.assertEqual(Ncca.objects.filter(location='Karachi', log_only=False).count(), 4); self.assertEqual(NccaRca.objects.count(), 4)
@@ -170,7 +170,7 @@ class WorkflowTests(TestCase):
         # master seed
         mgr.post('/qc/ia/audits/new/?location=Karachi', {'year': '2026', 'seed': 'master'})
         b = IaAudit.objects.get(location='Karachi', audit_no='02/2026')
-        self.assertEqual(b.findings.count(), IaClause.objects.filter(active=True).count()); self.assertEqual(b.findings.filter(finding='').count(), b.findings.count())
+        self.assertEqual(b.findings.count(), IaClause.objects.filter(active=True, standard='17025').count()); self.assertEqual(b.findings.filter(finding='').count(), b.findings.count())
         # edit: header, two results, a dropped row, an inserted row
         g = a.findings.get(label='6.4.1'); h = a.findings.get(label='7.8.5')
         data = {'date_start': '17-06-2026', 'date_end': '18-06-2026', 'auditor': 'MR', 'auditor_title': 'Lab Manager', 'auditee': 'Chemist', 'auditee_title': 'Chemist', 'address': 'x', 'scope': 'all',
@@ -336,3 +336,32 @@ class WorkflowTests(TestCase):
         self.assertEqual(mgr.get('/qc/ia/doc-control/').status_code, 403)
         ceo.post('/qc/ia/doc-control/', {'form': 'report', 'location': 'Lahore', 'doc_no': 'ETAL-QMS-808-FF-02', 'issue_date': '05-01-2024', 'issue_no': '01', 'rev_no': '01'})
         self.assertContains(ceo.get('/qc/ia/audits/%d/pdf/' % IaAudit.objects.get(location='Lahore', audit_no='01/2026').pk), b'', status_code=200)
+
+
+class Review27OctTests(TestCase):
+    """Lab Manager's review of the IA software (27-10-2026): ISO 9001 / 14001 checklists, editable audit number,
+    CEO / Top Management endorsement, NC&CA log fitting the page."""
+    @classmethod
+    def setUpTestData(cls):
+        mk_users(cls)
+
+    def test_standards_audit_no_endorsement_log(self):
+        mgr, ceo, chem = C(self.mgr), C(self.ceo), C(self.chem)
+        self.assertEqual(mgr.post('/qc/ia/audits/new/?location=Karachi', {'year': '2026', 'seed': 'master', 'standard': '9001'}).status_code, 302)
+        a = IaAudit.objects.get(location='Karachi', standard='9001')
+        self.assertEqual(a.findings.count(), IaClause.objects.filter(standard='9001', active=True).count())
+        self.assertEqual(a.standard_label, 'ISO 9001:2015'); self.assertIn('9001', a.scope)
+        self.assertContains(mgr.get('/qc/ia/audits/%d/' % a.pk), 'Checklist - ISO 9001:2015')
+        self.assertContains(mgr.get('/qc/ia/clauses/?std=14001'), 'ISO 14001:2015 checklist')
+        # the audit number / year is editable (a 2025 audit entered in 2026)
+        r = mgr.post('/qc/ia/audits/%d/edit/' % a.pk, {'audit_no': '3/2025', 'date_start': '14-07-2025', 'date_end': '15-07-2025', 'auditor': 'A', 'auditee': 'B', 'then': 'detail'})
+        a.refresh_from_db(); self.assertEqual((a.audit_no, a.year, a.seq), ('03/2025', 2025, 3))
+        self.assertEqual(mgr.post('/qc/ia/audits/%d/edit/' % a.pk, {'audit_no': '2025-3'}).status_code, 200); a.refresh_from_db(); self.assertEqual(a.audit_no, '03/2025')
+        # sign, acknowledge, endorse
+        mgr.post('/qc/ia/audits/%d/action/' % a.pk, {'action': 'sign_auditor'}); chem.post('/qc/ia/audits/%d/action/' % a.pk, {'action': 'sign_auditee'})
+        a.refresh_from_db(); self.assertEqual(a.status, 'closed')
+        self.assertEqual(mgr.post('/qc/ia/audits/%d/action/' % a.pk, {'action': 'endorse'}).status_code, 403)
+        ceo.post('/qc/ia/audits/%d/action/' % a.pk, {'action': 'endorse'}); a.refresh_from_db(); self.assertTrue(a.endorsed)
+        r = ceo.get('/qc/ia/audits/%d/pdf/' % a.pk); self.assertEqual(r.status_code, 200)
+        mgr.post('/qc/ia/audits/%d/action/' % a.pk, {'action': 'reopen', 'reason': 'typing error'}); a.refresh_from_db(); self.assertFalse(a.endorsed)
+        self.assertEqual(mgr.get('/qc/ia/log/pdf/?location=Karachi').status_code, 200)

@@ -1005,9 +1005,12 @@ def generatePDF(request,pk):
 
      return response
 
-def generatePDF_report(request,pk,return_bytes=False):
+def generatePDF_report(request,pk,return_bytes=False,soc=None):
      from fpdf import FPDF
      from EnviTechAlApp.pdf_common import PDF_generatePDF_report as PDFWithPageNumbers
+     if soc:                                   # lab test report with decision rule (QC): same format + U column + statement
+          from QC.soc_report import soc_pdf_class
+          PDFWithPageNumbers = soc_pdf_class(PDFWithPageNumbers, soc)
 
      # def add_table_with_page_breaks(pdf, table_data, col_widths, line_height=6):
      #    """Helper function to add table with proper page break handling"""
@@ -1046,6 +1049,8 @@ def generatePDF_report(request,pk,return_bytes=False):
 
      waterForm = DrinkingWaterForm.objects.get(id=pk)
      waterForm.extra_field = _safe_json_list(waterForm.extra_field)
+     if soc and soc.get('doc'):                # the decision-rule report prints its own form number (FF-19)
+          waterForm.doc_controll_1, waterForm.doc_controll_2, waterForm.doc_controll_3 = soc['doc']
 
      if waterForm.in_out == 'customLimits':
           TABLE_DATA = [
@@ -1525,6 +1530,9 @@ def generatePDF_report(request,pk,return_bytes=False):
      
      
 
+     if soc and not soc.get('no_statement'):
+          from QC.soc_report import draw_statement
+          draw_statement(pdf, soc, sign_top=226)
      if waterForm.analyst_signature:
          pdf.image(waterForm.analyst_signature.signature,30,231,20.32,20.32)
      pdf.line(19,250,36+pdf.get_string_width(f"Analyzed By ({(waterForm.analyst_signature.role if waterForm.analyst_signature else '')})"),250)

@@ -15,6 +15,8 @@
   <div class="form-sheet">
     <div class="sec">Audit header</div>
     <div class="grid2">
+      <label>Audit No. / Year <input type="text" name="audit_no" value="{{ a.audit_no }}" placeholder="01/2025" pattern="\d{1,2}\s*/\s*\d{4}" title="like 01/2025"></label>
+      <label>Standard <input type="text" value="{{ a.standard_label }}" disabled></label>
       <label>Audit start date <input type="text" name="date_start" value="{{ a.date_start|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
       <label>Audit end date <input type="text" name="date_end" value="{{ a.date_end|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
       <label>Auditor <input type="text" name="auditor" value="{{ a.auditor }}"></label>
@@ -24,7 +26,7 @@
       <label style="grid-column:1/-1">Address <input type="text" name="address" value="{{ a.address }}"></label>
       <label style="grid-column:1/-1">Scope <input type="text" name="scope" value="{{ a.scope }}"></label>
     </div>
-    <div class="sec">Checklist - ISO/IEC 17025:2017 <span class="muted" style="font-weight:400">(results: Conforms / Observation / Minor NC / Major NC / N.A.; leave blank for headings)</span></div>
+    <div class="sec">Checklist - {{ a.standard_label }} <span class="muted" style="font-weight:400">(results: Conforms / Observation / Minor NC / Major NC / N.A.; leave blank for headings)</span></div>
     <div class="full" style="padding:0;overflow-x:auto">
       <div class="toolbar" style="border:none">
         <input id="clFilter" placeholder="filter clauses / text" style="min-width:220px">

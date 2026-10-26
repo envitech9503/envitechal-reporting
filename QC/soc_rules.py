@@ -80,18 +80,63 @@ STANDARD = {'SEQS': 'Sindh Environmental Quality Standard 2016', 'PEQS': 'Punjab
 
 
 def parse_limit(text):
-    """'6-9' / '6.5 - 8.5' / '6 to 9' -> (lower, upper); '<1000' / '<= 250' / '150' -> (None, upper); else (None, None)."""
-    s = (text or '').strip().replace('≤', '<=').replace('–', '-')
+    """'6-9' / '6.5 - 8.5' / '6 to 9' -> (lower, upper); '<1000' / '<= 250' / '≤ 250' / '150' / '1,000' -> (None, upper);
+    '>= 5' / '≥ 5' / '> 5' -> (lower, None); else (None, None)."""
+    s = (text or '').strip().replace('\u2264', '<=').replace('\u2265', '>=').replace('\u2013', '-').replace('\u2014', '-')
+    s = re.sub(r'(?<=\d),(?=\d{3}\b)', '', s)
     m = re.match(r'^\s*([\d.]+)\s*(?:-|to)\s*([\d.]+)\s*$', s)
     if m:
         return float(m.group(1)), float(m.group(2))
-    m = re.match(r'^\s*(?:<=|<|=<)?\s*([\d.]+)\s*[A-Za-z]*\s*$', s)
+    m = re.match(r'^\s*(?:<=|<|=<)?\s*([\d.]+)\s*$', s)
     if m:
         return None, float(m.group(1))
-    m = re.match(r'^\s*(?:>=|>)\s*([\d.]+)\s*$', s)
+    m = re.match(r'^\s*(?:>=|>|=>)\s*([\d.]+)\s*$', s)
     if m:
         return float(m.group(1)), None
     return None, None
+
+
+def limit_text(text, lower, upper):
+    """The limit as printed: the text typed / taken from the report when it says what is judged, else rebuilt from the
+    lower / upper specification actually used (so the printed limit never contradicts the decision)."""
+    t = (text or '').strip()
+    if t and parse_limit(t) == (lower, upper):
+        return t
+    def f(v):
+        return ('%.6f' % v).rstrip('0').rstrip('.')
+    if lower is not None and upper is not None:
+        return '%s - %s' % (f(lower), f(upper))
+    if upper is not None:
+        return '\u2264 %s' % f(upper)
+    if lower is not None:
+        return '\u2265 %s' % f(lower)
+    return t
+
+
+def name_matches(name, alias):
+    """A parameter / study name matches an alias as a whole word: 'ph' matches 'pH @ 25 C' but not 'Sulphate'."""
+    n = re.sub(r'\s+', ' ', (name or '').lower().replace('***', '')).strip()
+    a = (alias or '').lower().strip()
+    return bool(a) and bool(re.search(r'(^|[^a-z])%s($|[^a-z])' % re.escape(a), n))
+
+
+def aliases_for(name):
+    """MOU-register names of a parameter: its alias list from the DW / WW tables ('TDS' -> tds, total dissolved solids)."""
+    n = (name or '').strip().lower()
+    out = [n] if n else []
+    for table in (DW_PARAMS, WW_PARAMS):
+        for f, nm, u, l, acc, names in table:
+            if nm.lower() == n or name_matches(name, nm.lower()):
+                out += [x for x in [nm.lower()] + list(names) if x not in out]
+    return out
+
+
+def is_accredited(name, acc_set):
+    """A report parameter name against the laboratory's accredited set ('Alkalinity as CaCO3' -> Alkalinity)."""
+    if not acc_set:
+        return False
+    n = (name or '').split('(')[0].strip().lower()
+    return any(n == a.lower() or n.startswith(a.lower() + ' ') for a in acc_set)
 
 
 def to_float(text):
@@ -125,7 +170,7 @@ def mou_u(location, names, value=None):
     best = None
     for s in qs.order_by('-approved_at'):
         p = (s.parameter or '').strip().lower()
-        if any(p == n or p.startswith(n + ' ') or n in p.split('(')[0] for n in names):
+        if any(name_matches(p.split('(')[0], n) for n in names):
             if best is None or (s.sample_kind == 'SAMPLE' and best.sample_kind != 'SAMPLE'):
                 best = s
     if best is None:
@@ -133,7 +178,7 @@ def mou_u(location, names, value=None):
     u = best.u_abs
     if (u is None or u == 0) and best.u_exp and value is not None:
         u = best.u_exp * value
-    label = 'MOU register: %s %s v%d (approved %s)' % (best.parameter, best.level or '', best.version, best.approved_at.strftime('%d-%m-%Y') if best.approved_at else '-')
+    label = 'MOU register: %s v%d (approved %s)' % (' '.join(x for x in (best.parameter, best.level or '') if x), best.version, best.approved_at.strftime('%d-%m-%Y') if best.approved_at else '-')
     return (round(u, 4) if u is not None else None), label, best.pk
 
 
@@ -205,7 +250,7 @@ def report_parameters(kind, r, location):
     acc_set = ACCREDITED.get((location, kind))
     for field, name, unit, limit, acc, names in table:
         if acc_set is not None:
-            acc = name in acc_set
+            acc = is_accredited(name, acc_set)
         res = getattr(r, field, None)
         if res in (None, '') or str(res).strip() in ('-', 'N/A', 'NA'):
             continue
@@ -226,9 +271,9 @@ def report_parameters(kind, r, location):
         u, ulabel, sid = mou_u(location, [short.lower()], val)
         lim = str(x.get('limit') or x.get('custom_limit') or '').strip()
         lo, hi = parse_limit(lim)
-        rows.append({'field': 'extra', 'parameter': short[:80], 'result': str(res).strip(), 'value': val, 'value_text': vtxt, 'method': str(x.get('methods') or x.get('method') or '').strip(),
+        rows.append({'field': 'extra', 'parameter': name[:80], 'result': str(res).strip(), 'value': val, 'value_text': vtxt, 'method': str(x.get('methods') or x.get('method') or '').strip(),
                      'unit': str(x.get('unit') or 'mg/L').strip(), 'limit': lim, 'lower': lo, 'upper': hi,
-                     'accredited': (short in acc_set) if acc_set is not None else False, 'u': u, 'u_label': ulabel, 'mou_study': sid})
+                     'accredited': is_accredited(name, acc_set) if acc_set is not None else False, 'u': u, 'u_label': ulabel, 'mou_study': sid})
     return rows
 
 

@@ -41,7 +41,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             clause_by_code = {}
             for c in spec['clauses']:
-                obj = IaClause.objects.filter(code=c['code']).first()
+                obj = IaClause.objects.filter(code=c['code'], standard='17025').first()
                 if obj is None:
                     obj = IaClause.objects.create(code=c['code'], title=c['title'], requirement=c['requirement'], level=c['level'], order=c['order'])
                     n['clauses'] += 1
