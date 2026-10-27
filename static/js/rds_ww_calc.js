@@ -111,8 +111,10 @@
     if (!vals.length) { alert('Enter at least one working-standard reading.'); return; }
     var avg = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
     put('cod_divi1' + s, vals.length, 0); put('cod_ans' + s, avg, 4);
-    var rec = 100 * avg / WS_TRUE, msgs = [];
-    msgs.push('recovery ' + fmt(rec, 1) + ' % of ' + WS_TRUE + ' mg/L');
+    var head = (($('cod_head' + s) || {}).value || ''), mt = head.match(/(\d+(?:\.\d+)?)\s*(?:ppm|mg\/l)/i);
+    var wsTrue = mt ? parseFloat(mt[1]) : WS_TRUE;                       // the standard named in the heading (QA RDS-34)
+    var rec = 100 * avg / wsTrue, msgs = [];
+    msgs.push('recovery ' + fmt(rec, 1) + ' % of ' + wsTrue + ' mg/L');
     var ok = rec >= WS_LO && rec <= WS_HI;
     if (!ok) msgs.push('outside ' + WS_LO + '-' + WS_HI + ' %');
     if (box) { box.value = msgs.join('; ') + (ok ? ' - acceptable' : ''); box.classList.toggle('rdsw-warn', !ok); box.classList.toggle('rdsw-ok', ok); }

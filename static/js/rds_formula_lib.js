@@ -43,7 +43,7 @@
     'total hardness as caco3': 'total hardness', 'total alkalinity': 'alkalinity', 'alkalinity as caco3': 'alkalinity', 'mbas': 'an ionic detergent as mbas', 'anionic surfactants as mbas': 'an-ionic surfactants as mbas',
     'oil grease': 'oil & grease', 'oil and grease': 'oil & grease', 'chemical oxygen demand': 'cod', 'cod': 'chemical oxygen demand',
     'nitrate no3': 'nitrate', 'total chromium': 'chromium', 'aluminum': 'aluminium', 'heterotrophic plate count': 'heterotrophic bacteria',
-    'hpc': 'heterotrophic bacteria', 'fecal enterococci': 'fecal enterococci', 'faecal enterococci': 'fecal enterococci', 'ph @ 25°c': 'ph', 'ph @ 20°c': 'ph'
+    'hpc': 'heterotrophic bacteria', 'fecal enterococci': 'fecal enterococci', 'faecal enterococci': 'fecal enterococci', 'ph @ 25°c': 'ph', 'ph @ 20°c': 'ph', 'colour': 'color', 'true colour': 'color', 'apparent colour': 'color'
   };
   var KNOWN = null;
   function known() {
@@ -101,7 +101,7 @@
         if (!x.v || x.n === null || x.at === null) return { err: 'enter V, N and the titrant to pH 4.5' };
         var P = (x.ap || 0) * x.n * 50000 / x.v, T = x.at * x.n * 50000 / x.v, OH = 0, CO3 = 0, HCO3 = 0, e = 1e-9 * Math.max(1, T);
         if (P <= e) { HCO3 = T; } else if (P < T / 2 - e) { CO3 = 2 * P; HCO3 = T - 2 * P; } else if (Math.abs(P - T / 2) <= e) { CO3 = 2 * P; }
-        else if (P < T - e) { OH = 2 * P - T; CO3 = 2 * (T - P); } else { OH = T; }
+        else if (P < T - e) { OH = 2 * P - T; CO3 = 2 * (T - P); } else if (P <= T + e) { OH = T; } else { return { err: 'P alkalinity is greater than total alkalinity - check the titrant volumes' }; }
         return { out: { P: P, T: T, OH: OH, CO3: CO3, HCO3: HCO3, CO3ion: CO3 * 0.6, HCO3ion: HCO3 * 1.22, OHion: OH * 0.34 },
                  lines: ['P = ' + r(x.ap || 0) + ' x ' + r(x.n) + ' x 50000 / ' + r(x.v) + ' = ' + r(P, 2) + ' mg/L as CaCO3',
                          'T = ' + r(x.at) + ' x ' + r(x.n) + ' x 50000 / ' + r(x.v) + ' = ' + r(T, 2) + ' mg/L as CaCO3',
@@ -232,7 +232,7 @@
     salinity: {
       title: 'Salinity from conductivity', method: 'APHA 2520 B (PSS-78)',
       formula: 'S = sum a_i Rt^(i/2) + dS(t), Rt = C / C(35,t,0) (Practical Salinity Scale 1978)',
-      inputs: [['ec', 'Conductivity (µS/cm)'], ['t', 'Temperature (°C)', '25']],
+      inputs: [['ec', 'Conductivity at the sample temperature, not compensated (µS/cm)'], ['t', 'Temperature (°C)', '25']],
       run: function (x) {
         if (x.ec === null || x.t === null) return { err: 'enter conductivity and temperature' };
         var t = x.t, C = x.ec / 1000, rt = 0.6766097 + 2.00564e-2 * t + 1.104259e-4 * t * t - 6.9698e-7 * t * t * t + 1.0031e-9 * t * t * t * t;
@@ -388,6 +388,10 @@
   function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function reportedNum(rep) { var s = String(rep || '').trim(); if (!s || /^[<>]|n\.?d|n\/a|nil|absent|present|tntc/i.test(s)) return null; var m = s.match(/-?\d+(\.\d+)?/); return m ? parseFloat(m[0]) : null; }
 
+  function rdp(rep, calc) {                              // decimals of the result: those reported plus one (QA RDS-40)
+    if (calc === 'mf' || calc === 'plate') return 0;
+    var m = String(rep || '').match(/\d(?:\.(\d+))?/); return m ? Math.min(4, (m[1] || '').length + 1) : 4;
+  }
   function compute(card, item, side, rep, cf, C, method) {
     var warn = [], lines = [], result = null, dp = 4;
     if (C.obs) {
@@ -414,7 +418,7 @@
         var t = f(card.querySelector('[data-std=t]').value), m = f(card.querySelector('[data-std=m]').value);
         if (t && m !== null) { var rc = 100 * m / t; lines.push('Check standard: ' + r(m) + ' / ' + r(t) + ' = ' + r(rc, 1) + ' % recovery'); if (rc < REC_LO || rc > REC_HI) warn.push('check standard recovery ' + r(rc, 1) + ' % outside ' + REC_LO + '-' + REC_HI + ' %'); }
       }
-      card.querySelector('.rl-ans').value = r(result, 4);
+      card.querySelector('.rl-ans').value = r(result, rdp(rep, cf.calc));
     } else {
       var y = {}; C.inputs.forEach(function (p) { var e = card.querySelector('input[data-k=' + p[0] + ']'); y[p[0]] = e ? f(e.value) : null; });
       var o2 = C.run(y);
@@ -423,7 +427,7 @@
       var key = cf.out || 'R';
       result = o2.out[key] !== undefined ? o2.out[key] : o2.out.R;
       if (result === undefined) result = o2.out[Object.keys(o2.out)[0]];
-      card.querySelector('.rl-ans').value = r(result, 4);
+      card.querySelector('.rl-ans').value = r(result, rdp(rep, cf.calc));
     }
     var rn = reportedNum(rep), num = typeof result === 'number' ? result : null;
     if (rn !== null && num !== null) {

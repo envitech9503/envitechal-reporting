@@ -21,7 +21,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
 {% endblock %}{% block w2_mid %}</head>
-<body class="bg-gray-100">{% endblock %}{% block w2_content %}<!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}{% include "_unified_nav.html" %}<div class="flex" style="align-items:stretch">{% include "_qc_sidebar.html" %}<div class="flex-1 min-w-0 p-6" style="background:#f3f4f6">
+<body class="bg-gray-100">{% endblock %}{% block w2_content %}<!-- etal-toasts -->{% if messages %}<div style="position:fixed;top:70px;right:20px;z-index:9999" id="etalToasts">{% for m in messages %}<div style="background:#00A651;color:#fff;padding:10px 18px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:8px;font-size:14px">{{ m }}</div>{% endfor %}</div><script>setTimeout(function(){var t=document.getElementById("etalToasts");if(t)t.style.display="none";},4000);</script>{% endif %}{% include "_unified_nav.html" %}<style>#data-table{width:max-content;min-width:100%}#qcForm{max-width:100%}</style><div class="flex" style="align-items:stretch;min-height:calc(100vh - 64px)">{% include "_qc_sidebar.html" %}<div class="flex-1 min-w-0 p-6" style="background:#f3f4f6">
     <div class="container mx-auto p-6">
         <h1 class="text-2xl font-bold mb-4">DW Testing Results</h1>
         

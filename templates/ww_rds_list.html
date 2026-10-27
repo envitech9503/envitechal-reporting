@@ -1,153 +1,68 @@
-{% extends "report_base.html" %}{% load static %}
-{% block w2_prefix %}{% load static %}
-<!DOCTYPE html>
+{% extends "report_base.html" %}{% load static %}{% block w2_prefix %}<!DOCTYPE html>
 <html lang="en">
 <head>{% endblock %}{% block w2_head %}<link rel="icon" href="{% static 'assets/favicon.ico' %}" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon-32.png' %}"><link rel="apple-touch-icon" href="{% static 'assets/apple-touch-icon.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/tailwind.min.css' %}">
-<link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/etal-theme.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/datatables/jquery.dataTables.min.css' %}">
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-    <title>List of WW RDS</title>
+    <title>RDS WW list</title>
     <script src="{% static 'vendor/jquery-3.6.4.min.js' %}"></script>
     <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuButton = document.getElementById('menu-button');
-            const sidebar = document.getElementById('sidebar');
-            
-            if(menuButton&&sidebar)menuButton.addEventListener('click', function() {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebar.classList.toggle('transform-none');
-            });
-        });
-    </script>
     <style>
-        .NEQS,
-        .PEQS {
-            display: none;
-        }
-        
-        @media screen and (min-width: 768px) and (max-width: 1024px) {
-            .side-nav {
-                width: 100%;
-                left: -100%;
-                transition: left 0.3s ease;
-                font-size:15px;
-            }
-
-            .side-nav.show {
-                left: 0;
-            }
-        }
-
-        @media screen and (min-width: 768px) and (max-width: 1024px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .menu-toggle a {
-                cursor: pointer;
-            }
-        }
-
-        .menu-toggle i {
-            font-size: 24px;
-            margin-right: 10px;
-        }
-
-        @media screen and (min-width: 768px) and (max-width: 1024px) {
-            .sub-menu.show {
-                display: block;
-            }
-        }
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-        table {
-            min-width: 800px;
-        }
-        .water-form-table {
-            table-layout: fixed;
-            width: 100%;
-        }
-        .water-form-table td, .water-form-table th {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            padding: 8px;
-        }
-        
-        .water-form-table input {
-            width: 100%;
-            box-sizing: border-box;
-        }
+        .rdsl-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:22px 24px}
+        .rdsl-title{font-size:22px;font-weight:700;color:#111827}
+        .rdsl-sub{font-size:13px;color:#6b7280;margin-top:2px}
+        .rdsl-lab a{display:inline-block;padding:5px 12px;border:1px solid #d1d5db;border-radius:999px;font-size:13px;color:#374151;margin-right:6px}
+        .rdsl-lab a.on{background:#0f5132;border-color:#0f5132;color:#fff}
+        #rdsTable{width:100%!important;border-collapse:separate;border-spacing:0}
+        #rdsTable thead th{background:#0f172a;color:#e5e7eb;font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;text-align:left}
+        #rdsTable tbody td{padding:10px 12px;font-size:14px;color:#1f2937;border-bottom:1px solid #f1f5f9}
+        #rdsTable tbody tr:hover td{background:#f8fafc}
+        .rdsl-rev{display:inline-block;min-width:28px;text-align:center;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:600;font-size:12px}
+        .rdsl-latest{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11.5px;font-weight:600}
+        .rdsl-pdf{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:#b91c1c;color:#fff;font-size:13px;font-weight:600}
+        .rdsl-pdf:hover{background:#991b1b}
+        .rdsl-new{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:#0f5132;color:#fff;font-size:14px;font-weight:600}
     </style>
 {% endblock %}{% block w2_mid %}</head>
-<body class="bg-gray-100 font-sans overflow-hidden">{% endblock %}{% block w2_content %}
-    <section id="header" class="h-20 w-full bg-gray-900 flex flex-wrap items-center justify-between p-4 fixed top-0">
-        <a href="{% url 'nav' %}"><img class="h-14 ml-10" src="{% static 'assets/logo-light.png' %}" alt="image"></a><nav class="hdrnav" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><style>.hq{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border:1px solid rgba(255,255,255,.28);border-radius:8px;color:#d1d5db;font-size:13px;font-weight:600;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}.hq:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.55);color:#fff}.hq.hqact{background:#059669;border-color:#059669;color:#fff}.hq i{font-size:12px}</style><a class="hq" href="{% url 'nav' %}"><i class="fa-solid fa-house"></i>Home</a><a class="hq" href="{% url 'home' %}"><i class="fa-solid fa-file-lines"></i>Reports</a><a class="hq" href="{% url 'certificate' %}"><i class="fa-solid fa-certificate"></i>Certificates</a><a class="hq" href="{% url 'sample_main' %}"><i class="fa-solid fa-flask"></i>Samples</a><a class="hq" href="{% url 'qc_main' %}"><i class="fa-solid fa-clipboard-check"></i>QC</a><a class="hq" href="/dashboard/dashboard/"><i class="fa-solid fa-chart-line"></i>Dashboard</a><a class="hq" href="{% url 'job_main' %}"><i class="fa-solid fa-list-check"></i>Work</a></nav><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.hq").forEach(function(a){if(a.getAttribute("href")===window.location.pathname){a.classList.add("hqact");}});});</script>
-        
-        <div id="profile" class="flex space-x-10 mr-10">
-            <span class="text-gray-200 text-xl flex gap-2"><i class="fa-regular fa-user pt-1" style="color: #00ad54;"></i><p class="text-gray-400">{{user.username}}</p></span>
-            <a href="{% url 'logout' %}" class="w-24 mt-1 text-gray-200"><i class="fa-solid fa-power-off pr-2 text-red-400"></i>Logout</a>
+<body class="bg-gray-100 font-sans">{% endblock %}{% block w2_content %}{% include "_unified_nav.html" %}
+<div class="flex" style="align-items:stretch;min-height:calc(100vh - 64px)">{% include "_qc_sidebar.html" %}
+  <div class="flex-1 min-w-0 p-6" style="background:#f3f4f6">
+    <div class="rdsl-card">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="rdsl-title">RDS WW records{% if lab %} &middot; {{ lab }} laboratory{% endif %}</div>
+          <div class="rdsl-sub">Every save is kept as a revision; the latest revision is used by Testing Results.</div>
         </div>
-    </section>
-    
-    <div class="flex h-screen overflow-hidden">
-        <button id="menu-button" class="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-900 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-
-        {% include "_qc_sidebar.html" %}
-
-        <div class="flex-1 overflow-auto mt-20 flex justify-center items-center flex-col">
-            <h1 class="text-4xl font-bold mt-20 text-gray-700">WW RDS List{% if lab %} - {{ lab }} laboratory{% endif %}</h1>
-            {% if not own_lab %}<div style="margin-top:10px;font-size:14px">Laboratory:
-              <a href="?lab=" style="margin:0 6px;{% if not lab %}font-weight:700;{% endif %}">Both</a>
-              <a href="?lab=Karachi" style="margin:0 6px;{% if lab == 'Karachi' %}font-weight:700;{% endif %}">Karachi</a>
-              <a href="?lab=Lahore" style="margin:0 6px;{% if lab == 'Lahore' %}font-weight:700;{% endif %}">Lahore</a></div>{% endif %}
-
-            <div class="table-container mt-8 w-full px-4">
-                <table id="myTable" class="display" style="width:100%;" cellspacing="10">
-                    <thead>
-                        <tr class="bg-gray-900 text-gray-200 font-mono p-4">
-                            <th>Sample ID</th>
-                            <th>Rev.</th>
-                            <th>Saved on</th>
-                            <th>PDF</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if list %}
-                            {% for data in list %}
-                            <tr>
-                                <td>{{data.sample_id}}</td>
-                                <td>{{ data.rev }}{% if data.is_latest %} (latest){% endif %}</td>
-                                <td data-order="{{ data.created_at|date:'Y-m-d H:i' }}">{{ data.created_at|date:"d-m-Y H:i" }}</td>
-                                <td><a href="{% url 'generate_ww_qc_pdf_response' data.id %}"><i class="fa-solid fa-file text-3xl cursor-pointer" style="color:#c00c0c;"></i></a></td>
-                            </tr>
-                            {% endfor %}
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <a class="rdsl-new" href="{% url 'create_ww_qc' %}"><i class="fa-solid fa-plus"></i>Add RDS</a>
+      </div>
+      {% if not own_lab %}<div class="rdsl-lab mt-4">
+        <a href="?lab=" class="{% if not lab %}on{% endif %}">Both laboratories</a>
+        <a href="?lab=Karachi" class="{% if lab == 'Karachi' %}on{% endif %}">Karachi</a>
+        <a href="?lab=Lahore" class="{% if lab == 'Lahore' %}on{% endif %}">Lahore</a></div>{% endif %}
+      <div class="mt-5 overflow-x-auto">
+        <table id="rdsTable" class="display">
+          <thead><tr><th>Sample ID</th><th>Revision</th><th>Saved on</th><th>RDS</th></tr></thead>
+          <tbody>
+            {% for data in list %}
+            <tr>
+              <td><b>{{ data.sample_id }}</b></td>
+              <td data-order="{{ data.rev }}"><span class="rdsl-rev">Rev. {{ data.rev }}</span>{% if data.is_latest %}<span class="rdsl-latest">latest</span>{% endif %}</td>
+              <td data-order="{{ data.created_at|date:'Y-m-d H:i:s' }}">{{ data.created_at|date:"d-m-Y H:i" }}</td>
+              <td><a class="rdsl-pdf" target="_blank" href="{% url 'generate_ww_qc_pdf_response' data.id %}"><i class="fa-solid fa-file-pdf"></i>PDF</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    
-    <script src="{% static 'js/app.js' %}"></script>
-    <script>
-        $(document).ready(function () {
-        $('#myTable').DataTable({
-            "order": []  // Sort by first column (Reporting Date) descending
-        });
-    });
-    </script>
-<script>/* etal-select-col */(function(){function init(){var t=document.querySelector("#example")||document.querySelector("#myTable");if(!t||t.getAttribute("data-etal-sel"))return;t.setAttribute("data-etal-sel","1");var hr=t.tHead&&t.tHead.rows[0];if(!hr)return;var th=document.createElement("th");th.setAttribute("style","white-space:nowrap");th.innerHTML='<label style="display:flex;align-items:center;gap:6px;justify-content:center;cursor:pointer;margin:0"><input type="checkbox" id="etalSelAll" style="width:15px;height:15px;accent-color:#00A651"> Select All</label>';hr.insertBefore(th,hr.firstElementChild);var tb=t.tBodies[0];if(tb){for(var i=0;i<tb.rows.length;i++){var r=tb.rows[i];if(r.cells.length===1&&r.cells[0].colSpan>1){r.cells[0].colSpan+=1;continue;}var td=document.createElement("td");td.setAttribute("style","text-align:center");td.innerHTML='<input type="checkbox" class="etal-row-sel" style="width:15px;height:15px;accent-color:#00A651">';r.insertBefore(td,r.firstElementChild);}}var badge=document.createElement("div");badge.id="etalSelCount";badge.setAttribute("style","display:none;margin:6px 0;font-size:13px;color:#065f46;font-weight:600");t.parentElement.insertBefore(badge,t);function upd(){var c=t.querySelectorAll(".etal-row-sel:checked").length;badge.style.display=c?"block":"none";badge.textContent=c+" selected";}document.addEventListener("change",function(e){var el=e.target;if(!el)return;if(el.id==="etalSelAll"){var bs=t.querySelectorAll(".etal-row-sel");for(var k=0;k<bs.length;k++)bs[k].checked=el.checked;upd();}else if(el.classList&&el.classList.contains("etal-row-sel")){upd();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();})();</script>
+  </div>
+</div>
+<script>
+  $(function () { $('#rdsTable').DataTable({ order: [[2, 'desc']], pageLength: 25, language: { search: 'Search:', emptyTable: 'No RDS saved yet.' } }); });
+</script>
+{% endblock %}{% block w2_tail %}</body>
+</html>
 {% endblock %}

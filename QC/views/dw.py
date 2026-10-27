@@ -1473,8 +1473,8 @@ def generate_dw_qc_pdf_response(report, pk):
     #     ('for_residual1', 'Residual Calculation', 'residual_head', 'residual_ans', 'residual_param', 'residual_divi'),
     #     ('for_trubidity1', 'Turbidity Calculation', 'trubidity_head', 'trubidity_ans', 'trubidity_param', 'trubidity_divi'),
     #     ('for_ammonia1', 'Ammonia Calculation', 'ammonia_head', 'ammonia_ans', 'ammonia_param', 'ammonia_divi'),
-    #     ('for_ionic_det1', 'Ionic Detergent Calculation', 'ionic_det_head', 'ionic_det_ans', 'ionic_det_param', 'ionic_det_divi'),
-    #     ('for_freechlorine1', 'Freechlorine Calculation', 'freechlorine_head', 'freechlorine_ans', 'freechlorine_param', 'freechlorine_divi'),
+    #     ('for_ionic_det1', 'Anionic Surfactants (MBAS) Calculation', 'ionic_det_head', 'ionic_det_ans', 'ionic_det_param', 'ionic_det_divi'),
+    #     ('for_freechlorine1', 'Free Chlorine Calculation', 'freechlorine_head', 'freechlorine_ans', 'freechlorine_param', 'freechlorine_divi'),
     #     ('for_sulphate1', 'sulphate Calculation', 'sulphate_head', 'sulphate_ans', 'sulphate_param', 'sulphate_divi'),
     # ]
 
@@ -1790,7 +1790,7 @@ def generate_dw_qc_pdf_response(report, pk):
         
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
-        pdf.cell(0, 8, "Trubidity Calculations", ln=True)
+        pdf.cell(0, 8, "Turbidity Calculations", ln=True)
         pdf.cell(0,6,data.get('trubidity_head'),ln=True)
         pdf.set_font("Calibri", '', 10)
         add_formula_block(
@@ -1836,14 +1836,14 @@ def generate_dw_qc_pdf_response(report, pk):
         )
         
     add_average_formula_section('for_ammonia1', 'Ammonia Calculation', 'ammonia_head', 'ammonia_ans', 'ammonia_param', 'ammonia_divi')  
-    add_average_formula_section('for_ionic_det1', 'Ionic Detergent Calculation', 'ionic_det_head', 'ionic_det_ans', 'ionic_det_param', 'ionic_det_divi')   
-    add_average_formula_section('for_freechlorine1', 'Freechlorine Calculation', 'freechlorine_head', 'freechlorine_ans', 'freechlorine_param', 'freechlorine_divi')
+    add_average_formula_section('for_ionic_det1', 'Anionic Surfactants (MBAS) Calculation', 'ionic_det_head', 'ionic_det_ans', 'ionic_det_param', 'ionic_det_divi')   
+    add_average_formula_section('for_freechlorine1', 'Free Chlorine Calculation', 'freechlorine_head', 'freechlorine_ans', 'freechlorine_param', 'freechlorine_divi')
     # add_average_formula_section('for_sulphate1', 'sulphate Calculation', 'sulphate_head', 'sulphate_ans', 'sulphate_param', 'sulphate_divi')
     if(data.get('sulphate_ans')):
         
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
-        pdf.cell(0, 8, "sulphate Calculations", ln=True)
+        pdf.cell(0, 8, "Sulphate Calculations", ln=True)
         pdf.cell(0,6,data.get('sulphate_head'),ln=True)
         pdf.set_font("Calibri", '', 10)
         add_formula_block(
@@ -2284,7 +2284,7 @@ def generate_dw_qc_pdf_response(report, pk):
     if data.get('ecoli_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
-        pdf.cell(0, 8, "E.Coli Calculation:", 0, 1, 'L')
+        pdf.cell(0, 8, "E. coli Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
         pdf.cell(0, 6, f"Result: {data.get('ecoli_ans', '')} {data.get('ecoli_param', '')}", ln=True)
 
@@ -2298,7 +2298,7 @@ def generate_dw_qc_pdf_response(report, pk):
     if data.get('hetrobacteria_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
-        pdf.cell(0, 8, "Heterotrophic Bacteria calculations:", 0, 1, 'L')
+        pdf.cell(0, 8, "Heterotrophic Plate Count Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
         pdf.cell(0, 6, f"Result: {data.get('hetrobacteria_ans', '')} {data.get('hetrobacteria_param', '')}", ln=True)
         
@@ -2313,7 +2313,7 @@ def generate_dw_qc_pdf_response(report, pk):
     if data.get('bacteria_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
-        pdf.cell(0, 8, "Total Bacteria Count:", 0, 1, 'L')
+        pdf.cell(0, 8, "Total Bacterial Count:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
         pdf.cell(0, 6, f"Result: {data.get('bacteria_ans', '')} {data.get('bacteria_param', '')}", ln=True)
         

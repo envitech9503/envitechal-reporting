@@ -106,6 +106,36 @@
     });
     if (opt) window.jQuery(sel).val(opt.value).trigger('change');
   }
+  /* premium finish (QA R4): one look for every calculation section, field tips from the placeholders, headings with
+     the reported result shown as such */
+  var css = document.createElement('style');
+  css.textContent =
+    '#qcForm input[type=number],#qcForm input[type=text]:not(.select2-search__field){border:1px solid #cbd5e1;border-radius:6px;background:#fff;min-height:36px}' +
+    '#qcForm input[type=number]:focus,#qcForm input[type=text]:focus{outline:none;border-color:#0f5132;box-shadow:0 0 0 3px rgba(15,81,50,.15)}' +
+    '#qcForm input[readonly]{background:#f1f5f9}' +
+    '#qcForm input::placeholder{color:#94a3b8}' +
+    '#qcForm h1.text-3xl,#qcForm h1.text-2xl{font-size:1.25rem!important;font-weight:700;color:#0f5132;text-align:left!important;border-left:4px solid #0f5132;padding:6px 0 6px 12px;margin:30px 0 14px!important;background:linear-gradient(90deg,#ecfdf5,transparent)}' +
+    '#qcForm button.bg-blue-600{background:#0f5132!important;border-radius:8px;font-weight:600}' +
+    '#qcForm button.bg-blue-600:hover{background:#0b3d26!important}' +
+    '#qcForm hr.my-20{margin:28px 0!important;border-color:#e2e8f0}' +
+    '#qcForm .rds-rep{font-weight:500;color:#1e40af;font-size:.9rem;margin-left:8px}';
+  (document.head || document.documentElement).appendChild(css);
+  function polish() {
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm input[placeholder]'), function (i) { if (!i.title) i.title = i.placeholder; });
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm h1'), function (h) {
+      if (h.dataset.rdsDone || h.children.length) return;
+      var t = (h.textContent || '').replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+      if (!t) return;
+      var m = t.match(/^(.*?\b[Cc]alculations?)\s+(\S.*)$/);
+      h.dataset.rdsDone = '1';
+      if (m && !/undefined/.test(m[2])) { h.textContent = m[1].replace(/\bcalculations?\b/i, 'Calculation'); var sp = document.createElement('span'); sp.className = 'rds-rep'; sp.textContent = 'reported: ' + m[2]; h.appendChild(sp); }
+      else h.textContent = t.replace(/\bcalculations?\b/i, 'Calculation');
+    });
+  }
+  window.RDSPage = { polish: polish };
+  document.addEventListener('DOMContentLoaded', polish);
+  var _pq = window.populateQCTable;
+  if (typeof _pq === 'function') window.populateQCTable = function () { var r = _pq.apply(this, arguments); try { polish(); } catch (e) {} return r; };
   if (document.readyState === 'complete') setTimeout(preselect, 300);
   else window.addEventListener('load', function () { setTimeout(preselect, 300); });
 })();
