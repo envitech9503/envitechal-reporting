@@ -91,3 +91,13 @@ class RdsLibTests(TestCase):
         for M, k, sid in ((Dw_rds, 'dw', 'DW-L2-LHR'), (Ww_rds, 'ww', 'WW-L1-LHR')):
             rec = M.objects.create(sample_id=sid, rds={})                         # no dated rows (was a server error on DW)
             self.assertEqual(lc.get('/qc/generate_%s_qc_pdf_response/%d/' % (k, rec.pk)).status_code, 200)
+
+
+class RdsLibNameMapJsTest(TestCase):
+    def test_every_reported_name_reaches_its_section(self):
+        node = shutil.which('node')
+        if not node:
+            self.skipTest('node not installed')
+        import os
+        r = subprocess.run([node, os.path.join(os.path.dirname(__file__), 'jstests', 'rds_lib_names.js')], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout[-2000:] + r.stderr[-2000:])

@@ -49,6 +49,19 @@
   function known() {
     if (KNOWN) return KNOWN;
     KNOWN = {};
+    // first: a section that looks its heading up with qcData.find(item => item.parameter === "X") must receive exactly
+    // "X", whichever of its params.includes(...) names the report used (27-10-2026: "Alkalinity" mapped to
+    // "Alkalinity*" left find() empty and stopped the page)
+    Array.prototype.forEach.call(document.scripts, function (sc) {
+      var t = (sc.textContent || '').replace(/^[ \t]*\/\/.*$/gm, ''), re = /if\s*\(((?:\s*\|\|\s*)?(?:params\.includes\("[^"]*"\)(?:\s*\|\|\s*)?)+)\)\s*\{\s*(?:\/\/[^\n]*\s*)*(?:(?:const|let|var)\s+)?[\w.$]+\s*=\s*qcData\.find\(\s*item\s*=>\s*item\.parameter\s*===\s*"([^"]*)"\s*\)/g, m;
+      while ((m = re.exec(t))) {
+        var target = m[2], names = m[1].match(/"([^"]*)"/g).map(function (q) { return q.slice(1, -1); });
+        if (names.indexOf(target) < 0) continue;                    // a section whose look-up names another parameter
+        names.concat([target]).forEach(function (name) {
+          [norm(name), bare(name)].forEach(function (k) { if (k && !(k in KNOWN)) KNOWN[k] = target; });
+        });
+      }
+    });
     Array.prototype.forEach.call(document.scripts, function (sc) {
       var t = sc.textContent || '', re = /params\.includes\("([^"]*)"\)/g, m;
       while ((m = re.exec(t))) {
