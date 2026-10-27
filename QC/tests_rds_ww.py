@@ -78,7 +78,7 @@ class RdsWwTests(TestCase):
             self.assertIn('Check: calculated 34 differs', t)
             self.assertIn('recovery 99.5', t)
             self.assertIn('(74 X 1) + (76 X 1)', t)                           # replicates 1 and 2 (was replicate 1 twice)
-        io = {'sample_id': 'WW-T2-LHR', 'report_type': 'in-out', 'for_cod1_outlet': '99', 'for_cod2_outlet': '100', 'cod_divi1_outlet': '2', 'cod_ans_outlet': '99.5',
+        io = {'sample_id': 'WW-T2-LHR', 'report_type': 'in-out', 'date_1': '25-10-2026', 'parameter_1': 'COD', 'for_cod1_outlet': '99', 'for_cod2_outlet': '100', 'cod_divi1_outlet': '2', 'cod_ans_outlet': '99.5',
               'cod_head_outlet': 'WS-COD-100ppm (Outlet):', 'cod_ws_check_outlet': 'recovery 99.5 % of 100 mg/L - acceptable',
               'bod_initial_outlet': '8.2', 'bod_final_outlet': '4.0', 'bod_seed_1_outlet': '8', 'bod_seed_2_outlet': '2', 'bod_seed_ctrl_outlet': '15',
               'bod_seed_vol_outlet': '2', 'bod_ans_outlet': '34', 'bod_param_outlet': 'mg/L', 'bod_divi_outlet': '0.1', 'bod_1_p_outlet': '0.1',

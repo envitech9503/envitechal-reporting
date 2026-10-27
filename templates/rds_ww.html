@@ -5494,30 +5494,7 @@
 
 
 
- $(document).ready(async () => {
-    $("#loc_err").show()
-    const req_pip = await fetch('https://api.ipify.org?format=json');
-    var public_ip = await req_pip.json();
-    public_ip = public_ip.ip ? public_ip.ip : null;
-    if (public_ip) {
-        let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
-        const req_loc_ip = await fetch(url);
-        var location = await req_loc_ip.json();
-        console.log(location)
-        if (location) {
-            let region = location.region.toLowerCase();
-            switch (region) {
-                case "sindh": $("input[value='SEQS_']").trigger("click"); break;
-                case "punjab": $("input[value='PEQS_']").trigger("click"); break;
-                case "kpk": $("input[value='NEQS_']").trigger("click"); break;
-            }
-            setTimeout(function(){
-                $("#loc_err").hide()
-            },1000)
-          
-        }
-    }
-})
+ /* the IP look-up that pre-ticked SEQS / PEQS / NEQS was removed: no such boxes on this page (QA RDS-30) */
     </script>
     <script src="{% static 'js/app.js' %}"></script>
     <script defer>
@@ -21168,15 +21145,17 @@ function calculateSulphideCrm(prefix) {
             
             // Add sample_id to the data object directly
             data.sample_id = sample_id_form;
+            if (!rdsBeforeSave(data)) return;   // QA RDS-18
 
             fetch("/qc/create_ww_qc/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "X-CSRFToken": rdsCsrf(),
                 },
                 body: JSON.stringify(data)  // Send the flat object
             })
-            .then(response => response.blob())   // ✅ PDF as Blob
+            .then(rdsPdfResponse)   // ✅ PDF as Blob
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
 
@@ -21204,5 +21183,5 @@ function calculateSulphideCrm(prefix) {
     </script> 
     
 <script src="{% static 'js/rds_ww_calc.js' %}?v=20261027"></script>
-<script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_page.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
 {% endblock %}

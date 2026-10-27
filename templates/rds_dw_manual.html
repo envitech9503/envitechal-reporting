@@ -5305,30 +5305,7 @@
 
 
 
-        $(document).ready(async () => {
-            $("#loc_err").show()
-            const req_pip = await fetch('https://api.ipify.org?format=json');
-            var public_ip = await req_pip.json();
-            public_ip = public_ip.ip ? public_ip.ip : null;
-            if (public_ip) {
-                let url = `https://ipinfo.io/${public_ip}/json?token=fdc5faa922a0b1`
-                const req_loc_ip = await fetch(url);
-                var location = await req_loc_ip.json();
-                console.log(location)
-                if (location) {
-                    let region = location.region.toLowerCase();
-                    switch (region) {
-                        case "sindh": $("input[value='SEQS_']").trigger("click"); break;
-                        case "punjab": $("input[value='PEQS_']").trigger("click"); break;
-                        case "kpk": $("input[value='NEQS_']").trigger("click"); break;
-                    }
-                    setTimeout(function () {
-                        $("#loc_err").hide()
-                    }, 1000)
-
-                }
-            }
-        })
+        /* the IP look-up that pre-ticked SEQS / PEQS / NEQS was removed: no such boxes on this page (QA RDS-30) */
     </script>
     <script src="{% static 'js/app.js' %}"></script>
     <script defer>
@@ -8835,7 +8812,7 @@ function generateCRMCalculation(param, label, unit, type) {
             row.innerHTML = `
         <td class="border text-gray-700 border-gray-300 p-3 main-sno">${sno}</td>
         <td class="border text-gray-700 border-gray-300 p-3">
-            <input class="datepicker p-3 w-full" value=${item.reporting_data} type="text" name="date_${sno}">
+            <input class="datepicker p-3 w-full" value="${item.reporting_data || window.__rdsStartDate || ''}" type="text" name="date_${sno}">
         </td>
         <td class="border text-gray-700 border-gray-300 p-3">
             <input class="p-3 w-full skip-reset" type="text" value="${item.parameter || ''}" name="parameter_${sno}" >
@@ -9495,15 +9472,17 @@ function performCRM7Calculation(prefix) {
 
             // Add sample_id to the data object directly
             data.sample_id = sample_id_form;
+            if (!rdsBeforeSave(data)) return;   // QA RDS-18
 
             fetch("/qc/create_dw_qc_manual/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "X-CSRFToken": rdsCsrf(),
                 },
                 body: JSON.stringify(data)  // Send the flat object
             })
-                .then(response => response.blob())   // ✅ PDF as Blob
+                .then(rdsPdfResponse)   // ✅ PDF as Blob
                 .then(blob => {
                     const url = window.URL.createObjectURL(blob);
 
@@ -9531,5 +9510,5 @@ function performCRM7Calculation(prefix) {
 
 {% endblock %}{% block w2_tail %}</body>
 
-</html><script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
+</html><script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_page.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
 {% endblock %}

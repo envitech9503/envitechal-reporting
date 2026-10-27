@@ -118,6 +118,8 @@
                     <thead>
                         <tr class="bg-gray-900 text-gray-200 font-mono p-4">
                             <th>Sample ID</th>
+                            <th>Rev.</th>
+                            <th>Saved on</th>
                             <th>PDF</th>
                             
                         </tr>
@@ -127,6 +129,8 @@
                             {% for data in list %}
                             <tr>
                                 <td>{{data.sample_id}}</td>
+                                <td>{{ data.rev }}{% if data.is_latest %} (latest){% endif %}</td>
+                                <td data-order="{{ data.created_at|date:'Y-m-d H:i' }}">{{ data.created_at|date:"d-m-Y H:i" }}</td>
                                 <td><a href="{% url 'generate_dw_qc_pdf_response' data.id %}"><i class="fa-solid fa-file text-3xl cursor-pointer" style="color:#c00c0c;"></i></a></td>
                             </tr>
                             {% endfor %}

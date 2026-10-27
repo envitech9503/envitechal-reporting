@@ -33,7 +33,6 @@ def _rds_dw_samples(request):
     return json.dumps(out)
 
 
-@csrf_exempt
 def create_dw_qc(request):
     if request.method == 'POST':
         try:
@@ -47,6 +46,10 @@ def create_dw_qc(request):
             data = body.copy()
             if 'sample_id' in data:
                 del data['sample_id']
+            from QC.rds_guard import check_save                                   # QA RDS-18
+            _bad = check_save(request, 'dw', sample_id, data)
+            if _bad is not None:
+                return _bad
 
             report = Dw_rds.objects.create(
                 sample_id=sample_id,
@@ -80,6 +83,8 @@ def create_dw_qc(request):
 
 def generate_dw_qc_pdf_response(report, pk):
     """Generate PDF for DW QC report with proper page breaks"""
+    from QC.rds_guard import pdf_record
+    pdf_record(report, Dw_rds, 'dw', pk)                     # QA RDS-29: own laboratory, 404 when missing
 
     pdf = CustomPDF()
     try:
@@ -2979,11 +2984,11 @@ def dw_rds_list(request):
     if lab in ('Karachi', 'Lahore'):
         ids = DrinkingWaterForm.objects.filter(city_location__iexact=lab).values_list('sample_id', flat=True)
         dw_list = dw_list.filter(sample_id__in=list(ids))
-    return render(request,'dw_rds_list.html',context={'list':dw_list, 'lab': lab, 'own_lab': own})
+    from QC.rds_guard import with_revisions
+    return render(request,'dw_rds_list.html',context={'list':with_revisions(dw_list), 'lab': lab, 'own_lab': own})
 
 
 
-@csrf_exempt
 def create_dw_qc_manual(request):
     if request.method == 'POST':
         try:
@@ -2997,6 +3002,10 @@ def create_dw_qc_manual(request):
             data = body.copy()
             if 'sample_id' in data:
                 del data['sample_id']
+            from QC.rds_guard import check_save                                   # QA RDS-18
+            _bad = check_save(request, 'dw', sample_id, data)
+            if _bad is not None:
+                return _bad
 
             report = Dw_rds.objects.create(
                 sample_id=sample_id,
@@ -3039,7 +3048,9 @@ def dw_testing_results_sample(request):
             return JsonResponse({'error': 'sample_id is required'}, status=400)
         
         try:
-            dw_data = Dw_rds.objects.get(sample_id=sample_id)
+            dw_data = Dw_rds.objects.filter(sample_id=sample_id).order_by('-id').first()   # latest revision (QA RDS-19)
+            if dw_data is None:
+                raise Dw_rds.DoesNotExist
             
             # Convert model to dictionary
             dw_data_dict = {
@@ -3060,8 +3071,9 @@ def dw_testing_results_sample(request):
             return JsonResponse({'error': str(e)}, status=500)
     
     # For GET requests
-    all_sample_ids = Dw_rds.objects.values_list('sample_id', flat=True)
-    return render(request, 'rds_testing_results_dw.html', {'all_sample_ids': all_sample_ids})
+    from QC.rds_guard import sample_ids_for_lab, user_lab
+    all_sample_ids = sample_ids_for_lab(Dw_rds, 'dw', request)
+    return render(request, 'rds_testing_results_dw.html', {'all_sample_ids': all_sample_ids, 'rds_lab': user_lab(request)})
 
 
 
