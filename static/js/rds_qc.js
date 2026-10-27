@@ -248,7 +248,7 @@
       if (acc && !hasOwnWs(ins) && !(sn.side === 'Outlet' && hs.some(function (o) { return o !== h && vis(o) && sectionName(o).name === sn.name && sectionName(o).side === 'Inlet'; })))
         DEFAULT_CHECKS.forEach(function (t) { addCheck(b, t, { ident: t === 'WS' ? 'WS-' + acc + '-' : '' }); });
     });
-    Array.prototype.forEach.call(f.querySelectorAll('#rdsLib .rl-card'), function (c) {
+    Array.prototype.forEach.call(f.querySelectorAll('#rdsLib .rl-card, .rq-cardslot .rl-card'), function (c) {
       if (c.dataset.rq) return;
       c.dataset.rq = '1';
       var t = c.querySelector('.rl-title b'); if (!t || c.querySelector('input[data-k="val"]')) return;   // an observation has no check
@@ -349,10 +349,79 @@
     function fill() {
       var list = btn.querySelector('.rq-jlist'); list.innerHTML = '';
       var items = headings().filter(function (h) { return vis(h) && h.dataset.rq; }).map(function (h) { var s = sectionName(h); return [s.name + (s.side ? ' (' + s.side + ')' : ''), h]; });
-      Array.prototype.forEach.call(document.querySelectorAll('#rdsLib .rl-card'), function (c) { if (vis(c)) items.push([(c.querySelector('.rl-title b') || {}).textContent + ' (library)', c]); });
+      Array.prototype.forEach.call(document.querySelectorAll('#rdsLib .rl-card, .rq-cardslot .rl-card'), function (c) { if (vis(c)) items.push([(c.querySelector('.rl-title b') || {}).textContent + (c.closest('#rdsLib') ? ' (library)' : ''), c]); });
+      items.sort(function (a, b) { return (a[1].compareDocumentPosition(b[1]) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1; });
       if (!items.length) { list.innerHTML = '<p>No calculation on the page yet.</p>'; return; }
       items.forEach(function (it) { var a = document.createElement('a'); a.href = '#'; a.textContent = it[0]; a.addEventListener('click', function (e) { e.preventDefault(); btn.classList.remove('open'); it[1].scrollIntoView({ block: 'start', behavior: 'smooth' }); }); list.appendChild(a); });
     }
+  }
+
+  /* ------------------------------------------------------------------ 5. sections in the order of the result table (R6) */
+  function bareName(x) { return (window.RDSLib ? window.RDSLib.bare(x) : String(x || '').toLowerCase()).replace(/\b(inlet|outlet)\b/g, '').replace(/\s+/g, ' ').trim(); }
+  function sameParam(head, row) {
+    var lib = window.RDSLib, h = bareName(head), keys = [bareName(row)];
+    if (lib) keys.push(bareName(lib.pageName(row) || ''));
+    var ab = String(row || '').match(/\(([^)]+)\)/);                  // "Biological Oxygen Demand(BOD)5" -> BOD
+    if (ab && !/^as\b/i.test(ab[1].trim())) keys.push(bareName(ab[1]));
+    if (/\bmbas\b/.test(h) && /\bmbas\b/i.test(row)) return true;
+    return keys.some(function (k) {
+      if (!k || !h) return false;
+      if (h === k || h.indexOf(k + ' ') === 0 || k.indexOf(h + ' ') === 0) return true;
+      var hw = h.split(' ')[0], kw = k.split(' ')[0];                     // "Hardness" / "Total Hardness as CaCO3", "Phenolic"
+      var gen = /^(total|free|residual|combined|dissolved|suspended|biological|chemical|oxygen|demand|solids|chlorine)$/;
+      return (hw.length >= 5 && !gen.test(hw) && k.split(' ').indexOf(hw) >= 0) || (kw.length >= 5 && !gen.test(kw) && h.split(' ').indexOf(kw) >= 0);
+    });
+  }
+  var ordered = false;
+  function orderSections() {
+    var f = form(); if (!f || ordered) return;
+    var rows = Array.prototype.filter.call(f.querySelectorAll('tbody tr'), function (tr) {
+      var sn = ((tr.querySelector('.main-sno') || {}).textContent || '').trim(); return sn && sn.indexOf('.') < 0;
+    }).map(function (tr) { return ((tr.querySelector('input[name^="parameter_"]') || {}).value || '').trim(); });
+    if (rows.length < 2) return;
+    ordered = true;
+    var kids = Array.prototype.slice.call(f.children);
+    var stopper = function (n) { return n.querySelector && (n.id === 'rdsLib' || n.id === 'rqOther' || n.querySelector('#rdsLib, #rqOther, button[type=submit], table') || n.matches('button[type=submit], table')); };
+    var tops = [];
+    headings().forEach(function (h) {
+      if (!vis(h) || !h.dataset.rq) return;
+      var t = h; while (t.parentElement && t.parentElement !== f) t = t.parentElement;
+      if (t.parentElement !== f || stopper(t)) return;
+      var i = kids.indexOf(t);
+      var key = rows.length + 1000 + i, nm = sectionName(h).name;
+      var exact = rows.map(bareName).indexOf(bareName(nm));
+      if (exact >= 0) key = exact; else rows.some(function (r, ri) { if (sameParam(nm, r)) { key = ri; return true; } return false; });
+      var last = tops[tops.length - 1];
+      if (last && last.i === i) { last.key = Math.min(last.key, key); return; }
+      tops.push({ i: i, key: key });
+    });
+    if (tops.length < 2) return;
+    var groups = tops.map(function (t, g) {
+      var end = g + 1 < tops.length ? tops[g + 1].i : kids.length, nodes = [];
+      for (var j = t.i; j < end; j++) {
+        if (g + 1 === tops.length && j > t.i && (stopper(kids[j]) || (vis(kids[j]) && !/dynamic-.*-calcs/.test(kids[j].className || '')))) break;
+        nodes.push(kids[j]);
+      }
+      return { key: t.key, nodes: nodes, i: t.i };
+    });
+    // library cards join the flow at their parameter's place in the table
+    Array.prototype.forEach.call(document.querySelectorAll('#rdsLib .rl-cards > .rl-card'), function (c) {
+      var t = c.querySelector('.rl-title b'); if (!t) return;
+      var nm = t.textContent.replace(/\s*\((Inlet|Outlet)\)\s*$/, ''), key = -1;
+      key = rows.indexOf(nm);
+      if (key < 0) key = rows.map(bareName).indexOf(bareName(nm));
+      if (key < 0) rows.some(function (r, ri) { if (sameParam(nm, r)) { key = ri; return true; } return false; });
+      if (key < 0) return;
+      var slot = document.createElement('div'); slot.className = 'rq-cardslot';
+      slot.appendChild(c);
+      groups.push({ key: key + 0.5, nodes: [slot], i: 1e6 });
+    });
+    groups.sort(function (a, b) { return a.key - b.key || a.i - b.i; });
+    var mark = document.createElement('div'); f.insertBefore(mark, kids[tops[0].i]);
+    groups.forEach(function (g) { g.nodes.forEach(function (n) { f.insertBefore(n, mark); }); });
+    mark.remove();
+    var lib = document.getElementById('rdsLib');
+    if (lib && !lib.querySelector('.rl-card')) { var hd = lib.querySelector('.rl-head span'); if (hd) hd.textContent = 'Every parameter of this sample now sits in the order of the result table above; add a calculation here when one is needed.'; }
   }
 
   /* ------------------------------------------------------------------ save check, styles, hooks */
@@ -387,6 +456,7 @@
     '.rq-ok{background:#f0fdf4!important;border-color:#22c55e!important;color:#166534}.rq-bad{background:#fef2f2!important;border-color:#ef4444!important;color:#991b1b}' +
     '.rq-other{margin:30px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.rq-other h2{font-size:20px;font-weight:700;color:#0f5132}' +
     '.rq-bod{margin:6px 0 14px}.rq-bod-note{font-size:13px;color:#0f5132;font-weight:600}.rq-old{margin:10px 0;border:1px dashed #cbd5e1;border-radius:8px;padding:6px 10px}.rq-old summary{cursor:pointer;color:#475569;font-size:13px}' +
+    '.rq-cardslot{margin:6px 0 18px}.rq-cardslot .rl-card{max-width:1200px}' +
     '.rq-empty{margin:14px 0;padding:12px 16px;border:1px solid #fca5a5;border-left:4px solid #b91c1c;border-radius:8px;background:#fef2f2;color:#7f1d1d;font-size:14px}' +
     '#rqJump{position:fixed;right:18px;bottom:18px;z-index:60;font-size:13px}#rqJump .rq-jbtn{background:#0f5132;color:#fff;border-radius:999px;padding:8px 16px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.18)}' +
     '#rqJump .rq-jlist{display:none;position:absolute;right:0;bottom:44px;max-height:60vh;overflow:auto;min-width:260px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px}' +
@@ -407,6 +477,7 @@
         emptyNotice(rows === 0);
       } catch (e) { /* page without a table */ }
       refresh();
+      try { orderSections(); } catch (e) { if (window.console) console.error('RDS order', e); }
       return res;
     };
   }

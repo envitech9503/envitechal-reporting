@@ -306,7 +306,7 @@
     [/sodium adsorption|^sar\b/, 'sar', 'R'], [/residual sodium carbonate|^rsc\b/, 'rsc', 'R'], [/langel?l?ier|^lsi\b|saturation index/, 'lsi', 'R'],
     [/^salinity/, 'salinity', 'R'], [/^resistivity/, 'resist', 'R'], [/silt density|^sdi\b/, 'sdi', 'R'],
     [/coliform|coli\b|enterococc|streptococ|pseudomonas|psudomonas|clostridium/, 'mf'],
-    [/plate count|colony count|heterotrophic|microbial content|aerobic microbe|bacterial count|viable count|\btpc\b|\bhpc\b|\btbc\b/, 'plate'],
+    [/plate count|colony count|heterotrophic|microbial content|aerobic microbe|bacterial count|viable count|\btpc\b|\bhpc\b|\btbc\b|enterobacteriaceae/, 'plate'],   // Enterobacteriaceae: plate count (owner 28-10-2026)
     [/^bod\b|biological oxygen/, 'bod', 'R'],
     [/^temperature|^odou?r|^taste|^appearance|^flow ?rate|particle size|particulate|corrosivity|settleable|^colou?r|^ph\b/, 'obs']
   ];
@@ -501,8 +501,25 @@
       });
       args[0] = mapped;
       var res = orig.apply(this, args);
-      mapped.forEach(function (it, i) {                          // the RDS table keeps the name as reported
-        if (it._reported) { var e = document.querySelector('[name="parameter_' + (i + 1) + '"]'); if (e) e.value = it._reported; }
+      // the RDS table keeps the name as reported. The page leaves out parameters not reported (N/A, rds_page.js), so a
+      // row is found by its place among the reported parameters and checked by the name the page wrote in it (R6: the
+      // row number of the full list put names on the wrong rows when an N/A parameter came before them)
+      var rt = args[3], na = function (v) { return /^\s*(n\/?a|-|)\s*$/i.test(String(v === undefined || v === null ? '' : v)); };
+      var kept = mapped.filter(function (it) {
+        return rt === 'in-out' ? !(na(it.inlet_result) && na(it.outlet_result)) : !na(it.test_result !== undefined ? it.test_result : it.result);
+      });
+      var rows = Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (tr) {
+        var sn = ((tr.querySelector('.main-sno') || {}).textContent || '').trim(); return sn && sn.indexOf('.') < 0;
+      }), used = {};
+      kept.forEach(function (it, k) {
+        var order = [k].concat(rows.map(function (_, j) { return j; }));
+        for (var n = 0; n < order.length; n++) {
+          var j = order[n], e = rows[j] && rows[j].querySelector('input[name^="parameter_"]');
+          if (used[j] || !e || e.value !== it.parameter) continue;
+          used[j] = true;
+          if (it._reported) e.value = it._reported;
+          break;
+        }
       });
       try { build(qcData, PAGE === 'ww' ? args[3] : ''); } catch (e) { if (window.console) console.error('formula library', e); }
       return res;
