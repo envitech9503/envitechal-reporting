@@ -175,6 +175,8 @@ def get_ww(request):
                         'parameter': parameter,
                         'reporting_data': ww_report.reporting_date or '',  # This will be used as 'date' field
                         'date': ww_report.reporting_date or '',  # Add this for consistency with frontend
+                        'method': (param.get('methods') or param.get('method') or '').strip(),   # the RDS formula library picks the card by method
+                        'unit': (param.get('unit') or '').strip(),
                     }
                     
                     if report_type == 'in':
@@ -220,6 +222,8 @@ def get_ww(request):
                         'parameter': parameter,
                         'reporting_data': ww_report.reporting_date or '',
                         'date': ww_report.reporting_date or '',  # Add this for consistency
+                        'method': (extra_param.get('methods') or extra_param.get('method') or '').strip(),
+                        'unit': (extra_param.get('unit') or '').strip(),
                     }
                     
                     if report_type == 'in':
@@ -317,6 +321,8 @@ def get_ww(request):
                                 'parameter': parameter,
                                 'reporting_data': ww_report.reporting_date or '',
                                 'date': ww_report.reporting_date or '',  # Add this for consistency
+                                'method': str(item.get('methods') or item.get('method') or '').strip(),
+                                'unit': str(item.get('unit') or '').strip(),
                             }
                             
                             if report_type == 'in':
@@ -8696,6 +8702,12 @@ def generate_ww_qc_pdf_response(report, pk):
                 f"{data.get('toxic_ans')} {data.get('toxic_param')}",
                 data.get('toxic_divi')
             )
+
+    try:
+        from QC.rds_lib_pdf import print_lib_cards
+        print_lib_cards(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # formula library cards (27-10-2026)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS formula library print')
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={sample_id}.pdf'

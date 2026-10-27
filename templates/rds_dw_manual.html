@@ -5341,7 +5341,7 @@
             const sample_id_form = $("#samples option:selected").attr("data-sample-id");
             console.log('t--->>>',t.value)
             {% comment %} try {
-                const response = await fetch('https://report.envitechal.com/qc/get_dw/', {
+                const response = await fetch('/qc/get_dw/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -9494,7 +9494,7 @@ function performCRM7Calculation(prefix) {
             // Add sample_id to the data object directly
             data.sample_id = sample_id_form;
 
-            fetch("https://report.envitechal.com/qc/create_dw_qc_manual/", {
+            fetch("/qc/create_dw_qc_manual/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -9529,4 +9529,5 @@ function performCRM7Calculation(prefix) {
 
 {% endblock %}{% block w2_tail %}</body>
 
-</html>{% endblock %}
+</html><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027"></script>
+{% endblock %}

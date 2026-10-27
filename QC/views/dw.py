@@ -3,6 +3,25 @@
 from .shared import *  # noqa: F401,F403
 
 
+
+def _rds_dw_samples(request):
+    """Samples offered on Add RDS DW: drinking-water reports of the user's laboratory, newest first (both laboratories
+    for a user without one); the page used to list every registered sample of every type (27-10-2026)."""
+    from QC.views.ww import _rds_ww_lab
+    lab = _rds_ww_lab(request)
+    qs = DrinkingWaterForm.objects.exclude(sample_id__isnull=True).exclude(sample_id='')
+    qs = qs.filter(sample_id__in=Sample_registration.objects.values('sample_id'))   # get_dw needs the registration too
+    if lab:
+        qs = qs.filter(city_location__iexact=lab)
+    seen, out = set(), []
+    for pk, sid in qs.order_by('-id').values_list('pk', 'sample_id'):
+        if sid in seen:
+            continue
+        seen.add(sid)
+        out.append({'pk': pk, 'model': 'EnviTechAlApp.drinkingwaterform', 'fields': {'sample_id': sid}})
+    return json.dumps(out)
+
+
 @csrf_exempt
 def create_dw_qc(request):
     if request.method == 'POST':
@@ -35,10 +54,8 @@ def create_dw_qc(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     
-    sample_ids = Sample_registration.objects.all()
-    dw_ids = DrinkingWaterForm.objects.all()
-    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
-    dw = serializers.serialize('json',dw_ids,fields=('sample_id',))
+    sample = _rds_dw_samples(request)
+    dw = sample
     context={'sample':sample,'dw':dw,'signs':signs}
     return render(request,"rds_dw.html",context)
 
@@ -2812,6 +2829,12 @@ def generate_dw_qc_pdf_response(report, pk):
             divisor
         )
 
+    try:
+        from QC.rds_lib_pdf import print_lib_cards
+        print_lib_cards(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # formula library cards (27-10-2026)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS formula library print')
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={sample_id}.pdf'
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -2891,14 +2914,23 @@ def get_dw(request):
                         'parameter': parameter_name,
                         'test_result': result_value,
                         'type': 'other', 
-                        'source_field': 'extra_field'
+                        'source_field': 'extra_field',
+                        'method': str(param.get('methods') or param.get('method') or '').strip(),   # for the RDS formula library
+                        'unit': str(param.get('unit') or '').strip(),
                     })
                     processed_parameters.add(normalized_name)
 
-            signatures_data = [{
-                'id': sign.id,
-                'name': f"{sign.user.username} ({sign.role})"
-            } for sign in signs]
+            # the report's signatories and the laboratory's active staff (all signatures of both laboratories were
+            # listed, from a list read once at start-up; 27-10-2026)
+            _lab = (dw_report.city_location or '').strip()
+            _sg = [x for x in (dw_report.analyst_signature, dw_report.assistant_manager_signature, dw_report.lab_manager_signature) if x]
+            _sg += list(Signatures.objects.filter(user__is_active=True, office__iexact=_lab).select_related('user', 'role').order_by('user__username')) if _lab else list(Signatures.objects.filter(user__is_active=True).select_related('user', 'role'))
+            _seen, signatures_data = set(), []
+            for sign in _sg:
+                if sign.id in _seen:
+                    continue
+                _seen.add(sign.id)
+                signatures_data.append({'id': sign.id, 'name': f"{sign.user.get_full_name() or sign.user.username} ({sign.role or 'Staff'})"})
             
             return JsonResponse({
                 'status': 'success',
@@ -2915,8 +2947,15 @@ def get_dw(request):
 
 
 def dw_rds_list(request):
+    """RDS DW records of the user's laboratory (both for a user without one; ?lab= narrows it) - 27-10-2026."""
+    from QC.views.ww import _rds_ww_lab
+    own = _rds_ww_lab(request)
+    lab = own or (request.GET.get('lab') or '').strip().title()
     dw_list = Dw_rds.objects.all().order_by('-created_at')
-    return render(request,'dw_rds_list.html',context={'list':dw_list})
+    if lab in ('Karachi', 'Lahore'):
+        ids = DrinkingWaterForm.objects.filter(city_location__iexact=lab).values_list('sample_id', flat=True)
+        dw_list = dw_list.filter(sample_id__in=list(ids))
+    return render(request,'dw_rds_list.html',context={'list':dw_list, 'lab': lab, 'own_lab': own})
 
 
 
@@ -2952,10 +2991,8 @@ def create_dw_qc_manual(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
     
-    sample_ids = Sample_registration.objects.all()
-    dw_ids = DrinkingWaterForm.objects.all()
-    sample = serializers.serialize('json',sample_ids,fields=('sample_id',))
-    dw = serializers.serialize('json',dw_ids,fields=('sample_id',))
+    sample = _rds_dw_samples(request)
+    dw = sample
     signs_list = []
     for sign in signs:
         signs_list.append({
