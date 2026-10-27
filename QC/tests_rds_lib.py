@@ -85,3 +85,9 @@ class RdsLibTests(TestCase):
         print_lib_cards(pdf, {'lib_print_001': 'not json', 'lib_print_002': '', 'other': 'x'})
         print_lib_cards(pdf, {'lib_print_001': json.dumps(CARD)})
         self.assertGreater(len(bytes(pdf.output())), 500)
+
+    def test_rds_without_dated_rows_prints(self):
+        lc = C(self.lhr)
+        for M, k, sid in ((Dw_rds, 'dw', 'DW-L2-LHR'), (Ww_rds, 'ww', 'WW-L1-LHR')):
+            rec = M.objects.create(sample_id=sid, rds={})                         # no dated rows (was a server error on DW)
+            self.assertEqual(lc.get('/qc/generate_%s_qc_pdf_response/%d/' % (k, rec.pk)).status_code, 200)

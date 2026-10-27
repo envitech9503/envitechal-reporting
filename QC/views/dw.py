@@ -141,7 +141,7 @@ def generate_dw_qc_pdf_response(report, pk):
         check_page_break(row_height)
         pdf.set_x(12)
         pdf.cell(sum(col_widths), row_height, "No data available", 1, 1, 'C')
-        return pdf
+        # (returning the PDF object here gave a server error for an RDS without dated rows; 27-10-2026)
 
     # 🔢 Sequential S.no
     s_no = 1
