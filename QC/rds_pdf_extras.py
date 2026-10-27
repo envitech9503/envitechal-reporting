@@ -214,3 +214,18 @@ def fill_last_weights(data):
                 if vals:
                     out[key] = vals[-1]
     return out
+
+
+def edta_b(data, key):
+    """' X <B>' for an EDTA titration reading saved with its factor B (QA RDS-23, release R5): the section and the
+    inlet / outlet side follow from the reading's own key (hardness_2_1_inlet, cal_r1_final, ch_r2_final, r1_1_final).
+    Records saved before R5 have no B and print as before."""
+    k = str(key or '')
+    sfx = '_inlet' if k.endswith('_inlet') else ('_outlet' if k.endswith('_outlet') else '')
+    base = 'calcium' if k.startswith(('cal_', 'ch_')) else ('magnesium' if re.match(r'r\d', k) else 'hardness')
+    b = str((data or {}).get(base + '_edta_b' + sfx) or '').strip()
+    try:
+        float(b)
+    except ValueError:
+        return ''
+    return ' X ' + b

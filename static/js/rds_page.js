@@ -123,13 +123,14 @@
   function polish() {
     Array.prototype.forEach.call(document.querySelectorAll('#qcForm input[placeholder]'), function (i) { if (!i.title) i.title = i.placeholder; });
     Array.prototype.forEach.call(document.querySelectorAll('#qcForm h1'), function (h) {
-      if (h.dataset.rdsDone || h.children.length) return;
+      if (h.dataset.rdsDone === h.textContent || (h.children.length && !h.querySelector('.rds-rep'))) return;   // R5: polished again when the page rewrites the heading
+      if (h.querySelector('.rds-rep')) return;
       var t = (h.textContent || '').replace(/\*/g, '').replace(/\s+/g, ' ').trim();
       if (!t) return;
       var m = t.match(/^(.*?\b[Cc]alculations?)\s+(\S.*)$/);
-      h.dataset.rdsDone = '1';
       if (m && !/undefined/.test(m[2])) { h.textContent = m[1].replace(/\bcalculations?\b/i, 'Calculation'); var sp = document.createElement('span'); sp.className = 'rds-rep'; sp.textContent = 'reported: ' + m[2]; h.appendChild(sp); }
       else h.textContent = t.replace(/\bcalculations?\b/i, 'Calculation');
+      h.dataset.rdsDone = h.textContent;
     });
   }
   window.RDSPage = { polish: polish };

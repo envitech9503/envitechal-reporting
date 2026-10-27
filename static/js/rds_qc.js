@@ -1,0 +1,424 @@
+/* RDS release R5 (owner requests 27-10-2026), loaded after rds_formula_lib.js on the four RDS pages.
+ *
+ * 1. EDTA factor B (QA RDS-23): every EDTA titration (total hardness, calcium, magnesium) takes the standardised
+ *    factor B (mg CaCO3 equivalent to 1.00 mL EDTA) from one box at the top of its section; the readings use it
+ *    (rdsEdtaB in rds_avg.js), it is saved with the RDS and printed in the formula. A reading entered without B
+ *    stops the save.
+ * 2. Quality-control checks: every calculation section and library card has "+ Working standard (WS)",
+ *    "+ Reference material (RM)" and "+ Certified reference material (CRM)". A check takes its identification,
+ *    the true / certified value, three readings, the acceptance limits, and gives mean, recovery and verdict;
+ *    it is saved in qc_print_<n> (JSON) and printed on the RDS PDF (QC/rds_qc_pdf.py). Parameters in the
+ *    laboratory's accreditation scope (as QC/soc_rules.ACCREDITED) get a WS check by default when their section
+ *    carries no working standard of its own. The table's "+" (CRM row) gives a CRM check where the page has no
+ *    CRM block of its own for that parameter.
+ * 3. BOD (WW): triplicate cards (HACH 10099 readings and APHA 5210 B bottles) at the top of the BOD section; the
+ *    previous single-determination layout stays available under "Single-determination layout".
+ * 4. A sample whose report carries no reported result says so instead of showing an empty page; a "Sections" list
+ *    jumps to any calculation on the page.
+ */
+(function () {
+  'use strict';
+  var PAGE = /create_ww_qc/.test(location.pathname) ? 'ww' : 'dw';
+  var SFX = ['', '_inlet', '_outlet'];
+  var DEFAULT_CHECKS = ['WS'];                // added by default to accredited parameters without a working standard
+  // mirrors QC/soc_rules.ACCREDITED (QC.tests_rds_r5 keeps the two equal)
+  var ACCREDITED = {
+    'Karachi|dw': ['pH', 'TDS', 'Hardness', 'Nitrate', 'Chloride', 'Fluoride', 'Nickel'],
+    'Karachi|ww2': ['pH', 'COD', 'TDS'],
+    'Lahore|dw': ['pH', 'Turbidity', 'TDS', 'Chloride', 'Hardness', 'Nitrate', 'Alkalinity', 'Sulphate', 'Calcium'],
+    'Lahore|ww2': ['pH', 'TDS', 'Chloride', 'Sulphate']
+  };
+  var ACC_RE = {
+    ph: /^ph\b/, tds: /^tds\b|^total dissolved solids/, hardness: /^(total )?hardness\b/, nitrate: /^nitrate\b/, chloride: /^chloride\b/,
+    fluoride: /^fluoride\b/, nickel: /^nickel\b/, turbidity: /^turbidity\b/, alkalinity: /^(total )?alkalinity\b/,
+    sulphate: /^(sulphate|sulfate)\b/, calcium: /^calcium\b(?! hardness)/, cod: /^cod\b|^chemical oxygen demand/
+  };
+  var TYPES = { WS: 'Working standard (WS)', RM: 'Reference material (RM)', CRM: 'Certified reference material (CRM)' };
+
+  function $(id) { return document.getElementById(id); }
+  function form() { return $('qcForm'); }
+  function vis(e) { return !!(e && e.offsetParent !== null); }
+  function esc(s) { return String(s === null || s === undefined ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function num(v) { if (v === null || v === undefined || String(v).trim() === '') return null; var x = parseFloat(v); return isFinite(x) ? x : null; }
+  function rd(v, dp) { return (v === null || !isFinite(v)) ? '' : String(+v.toFixed(dp === undefined ? 4 : dp)); }
+  function after(a, b) { return !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING); }
+  function headings() {
+    var f = form(); if (!f) return [];
+    return Array.prototype.filter.call(f.querySelectorAll('h1, p.text-3xl'), function (h) { return !h.closest('#rdsLib') && !h.closest('table') && !h.closest('.rq-block') && !h.closest('[id^="calc_"]'); });   // not a CRM row's own block
+  }
+  function headingBefore(el) {
+    var hs = headings(), last = null;
+    for (var i = 0; i < hs.length; i++) { if (after(hs[i], el)) last = hs[i]; else break; }
+    return last;
+  }
+  function insertAfterHeading(h, node) {
+    var p = h.parentElement;      // a heading alone in its wrapper: insert after the wrapper
+    if (p && p !== form() && p.children.length === 1 && !p.classList.contains('flex')) p.insertAdjacentElement('afterend', node);
+    else h.insertAdjacentElement('afterend', node);
+  }
+
+  /* ------------------------------------------------------------------ lab and accreditation */
+  function sampleId() {
+    var o = document.querySelector('#samples option:checked');
+    if (!o || !o.value) return '';
+    try { return JSON.parse(o.value).sample_id || ''; } catch (e) { return o.getAttribute('data-sample-id') || ''; }
+  }
+  function lab() {
+    var s = sampleId();
+    if (/-LHR\b/i.test(s)) return 'Lahore';
+    if (/-KHI\b/i.test(s)) return 'Karachi';
+    return '';
+  }
+  function accredited(name) {
+    var b = String(name || '').toLowerCase().replace(/\*/g, '').replace(/\s*\(.*$/, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    var kind = PAGE === 'ww' ? 'ww2' : 'dw', labs = lab() ? [lab()] : ['Karachi', 'Lahore'];
+    var hit = '';                                            // the accreditation-scope name ('Hardness'), '' when not in scope
+    labs.some(function (l) {
+      return (ACCREDITED[l + '|' + kind] || []).some(function (a) { var re = ACC_RE[a.toLowerCase()]; if (re && re.test(b)) { hit = a; return true; } return false; });
+    });
+    return hit;
+  }
+
+  /* ------------------------------------------------------------------ 1. EDTA factor B */
+  var EDTA = [
+    { base: 'hardness', title: 'total hardness', anchors: ['hardness_2_1'], initials: ['hardness_2_2', 'hardness_3_2', 'hardness_4_2'],
+      equals: ['hardness_equal2', 'hardness_equal3', 'hardness_equal4'], finals: ['hardness_2_1', 'hardness_3_1', 'hardness_4_1'] },
+    { base: 'calcium', title: 'calcium hardness / calcium', anchors: ['cal_r1_final', 'ch_r1_final'],
+      initials: ['cal_r1_initial', 'cal_r2_initial', 'cal_r3_initial', 'ch_r1_initial', 'ch_r2_initial', 'ch_r3_initial'],
+      equals: ['cal_r1_equal', 'cal_r2_equal', 'cal_r3_equal', 'ch_r1_equal', 'ch_r2_equal', 'ch_r3_equal'],
+      finals: ['cal_r1_final', 'cal_r2_final', 'cal_r3_final', 'ch_r1_final', 'ch_r2_final', 'ch_r3_final'] },
+    { base: 'magnesium', title: 'total and calcium hardness (magnesium)', anchors: ['r1_final'],
+      initials: ['r1_initial', 'r2_initial', 'r3_initial', 'r1_1_initial', 'r2_1_initial', 'r3_1_initial'],
+      equals: ['r1_equal', 'r2_equal', 'r3_equal', 'r1_1_equal', 'r2_1_equal', 'r3_1_equal'],
+      finals: ['r1_final', 'r2_final', 'r3_final', 'r1_1_final', 'r2_1_final', 'r3_1_final'] }
+  ];
+  function edtaBoxes() {
+    EDTA.forEach(function (g) {
+      SFX.forEach(function (s) {
+        var key = g.base + '_edta_b' + s;
+        if ($(key)) return;
+        var anchor = null;
+        g.anchors.some(function (a) { anchor = $(a + s); return !!anchor; });
+        if (!anchor) return;
+        var h = headingBefore(anchor);
+        var box = document.createElement('div');
+        box.className = 'rds-edta';
+        box.innerHTML = '<label><b>EDTA factor B</b><span>mg CaCO₃ equivalent to 1.00 mL of the EDTA titrant (today\'s standardisation)</span>' +
+          '<input type="number" step="any" min="0" id="' + key + '" name="' + key + '" placeholder="e.g. 1.000" title="EDTA factor B"></label>' +
+          '<p class="rds-edta-note">Every ' + esc(g.title) + ' reading below is (Final − Initial) × B × … ÷ sample volume. Enter B before pressing =.</p>';
+        if (h) insertAfterHeading(h, box); else anchor.closest('div').insertAdjacentElement('beforebegin', box);
+        var inp = box.querySelector('input'), note = box.querySelector('.rds-edta-note');
+        inp.addEventListener('change', function () {
+          var redone = 0;
+          g.finals.forEach(function (fId, i) {
+            var fe = $(fId + s), eq = $(g.equals[i] + s);
+            if (fe && eq && String(fe.value).trim() !== '') { eq.click(); redone++; }
+          });
+          if (redone) { note.textContent = 'B changed: ' + redone + ' reading(s) recalculated with B = ' + inp.value + '. Press = again on the averages and the steps that use these readings.'; note.classList.add('rds-edta-warn'); }
+        });
+      });
+      SFX.forEach(function (s) {
+        g.initials.forEach(function (id) {
+          var e = $(id + s); if (!e || e.dataset.rdsB) return;
+          e.dataset.rdsB = '1';
+          var sib = e.nextElementSibling;
+          if (sib && sib.textContent.trim() === ')') { var m = document.createElement('p'); m.className = 'px-1 font-bold rds-bmark'; m.title = 'EDTA factor B'; m.textContent = '× B'; sib.insertAdjacentElement('afterend', m); }
+        });
+      });
+    });
+  }
+  function edtaMissing() {
+    var miss = [];
+    EDTA.forEach(function (g) {
+      SFX.forEach(function (s) {
+        var b = $(g.base + '_edta_b' + s); if (!b || !vis(b)) return;
+        var used = g.finals.some(function (fId) { var fe = $(fId + s); return fe && vis(fe) && String(fe.value).trim() !== ''; });
+        if (used && !(num(b.value) > 0)) miss.push(g.title + (s ? ' (' + s.slice(1) + ')' : ''));
+      });
+    });
+    return miss;
+  }
+
+  /* ------------------------------------------------------------------ 2. QC checks (WS / RM / CRM) */
+  var nQc = 0;
+  function sectionName(h) {
+    var t = '';
+    Array.prototype.forEach.call(h.childNodes, function (n) { if (n.nodeType === 3 || (n.nodeType === 1 && !n.classList.contains('rds-rep'))) t += n.textContent; });
+    t = t.replace(/\s+/g, ' ').trim().replace(/\bcalculations?\b.*$/i, '').replace(/\*/g, '').trim();
+    var side = /\binlet\b/i.test(t) ? 'Inlet' : (/\boutlet\b/i.test(t) ? 'Outlet' : '');
+    t = t.replace(/\b(inlet|outlet)\b/ig, '').replace(/\s+/g, ' ').trim();
+    return { name: t, side: side };
+  }
+  function sectionMap() {                     // heading -> the inputs of its section, in one pass in document order
+    var f = form(), m = new Map(), cur = null;
+    if (!f) return m;
+    var out = function (e) { return e.closest('#rdsLib') || e.closest('table') || e.closest('.rq-block'); };
+    Array.prototype.forEach.call(f.querySelectorAll('h1, p.text-3xl, input'), function (e) {
+      if (e.tagName !== 'INPUT') { if (!out(e) && !e.closest('[id^="calc_"]')) { cur = e; m.set(e, []); } return; }
+      if (cur && !out(e)) m.get(cur).push(e);
+    });
+    return m;
+  }
+  function hasOwnWs(inputs) {
+    return inputs.some(function (e) { return e.type === 'text' && /(^|\(|\s)WS[-\s]/i.test(e.value || ''); });
+  }
+  function bar(name, side) {
+    var d = document.createElement('div');
+    d.className = 'rq-bar';
+    d.innerHTML = '<span class="rq-lbl">Quality control:</span>' + Object.keys(TYPES).map(function (k) { return '<button type="button" class="rq-add" data-t="' + k + '">+ ' + esc(TYPES[k]) + '</button>'; }).join('') + '<div class="rq-list"></div>';
+    d.dataset.param = name; d.dataset.side = side || '';
+    Array.prototype.forEach.call(d.querySelectorAll('.rq-add'), function (b) { b.addEventListener('click', function () { addCheck(d, b.dataset.t); }); });
+    return d;
+  }
+  function addCheck(barEl, type, opts) {
+    opts = opts || {};
+    var n = ++nQc, p = 'qc_' + n, param = barEl.dataset.param, side = barEl.dataset.side;
+    var isPh = /^ph\b/i.test(param);
+    var blk = document.createElement('div');
+    blk.className = 'rq-block'; blk.dataset.type = type;
+    if (opts.id) blk.id = opts.id;
+    blk.innerHTML =
+      '<div class="rq-head"><b>' + esc(TYPES[type]) + '</b><span>' + esc(param + (side ? ' (' + side + ')' : '')) + '</span>' +
+      '<button type="button" class="rq-del" title="Remove this check">Remove</button></div>' +
+      '<div class="rq-grid">' +
+      '<label>Identification<input type="text" name="' + p + '_ident" value="' + esc(opts.ident || '') + '" placeholder="' + (type === 'WS' ? 'e.g. WS-' + esc(param.split(' ')[0]) + '-500ppm' : 'material / lot no.') + '"></label>' +
+      '<label>' + (type === 'CRM' ? 'Certified value' : 'True value') + '<input type="number" step="any" name="' + p + '_true"></label>' +
+      (type !== 'WS' ? '<label>Uncertainty ± (optional)<input type="number" step="any" name="' + p + '_u"></label>' : '') +
+      '<label>Unit<input type="text" name="' + p + '_unit" value="' + esc(isPh ? 'pH units' : (opts.unit || 'mg/L')) + '"></label>' +
+      '</div><div class="rq-grid">' +
+      [1, 2, 3].map(function (i) { return '<label>Reading ' + i + '<input type="number" step="any" class="rq-r" name="' + p + '_r' + i + '"></label>'; }).join('') +
+      (isPh
+        ? '<label>Acceptance ± (pH units)<input type="number" step="any" name="' + p + '_abs" value="0.05"></label>'
+        : '<label>Acceptance, recovery from (%)<input type="number" step="any" name="' + p + '_lo" value="90"></label><label>to (%)<input type="number" step="any" name="' + p + '_hi" value="110"></label>') +
+      '</div><div class="rq-res"><button type="button" class="rq-eq">=</button>' +
+      '<label>Mean<input type="text" readonly name="' + p + '_mean"></label>' +
+      '<label>' + (isPh ? 'Difference' : 'Recovery (%)') + '<input type="text" readonly name="' + p + '_rec"></label>' +
+      '<label>Verdict<input type="text" readonly class="rq-verdict" name="' + p + '_verdict"></label></div>' +
+      '<input type="hidden" name="' + p + '_type" value="' + type + '"><input type="hidden" name="' + p + '_param" value="' + esc(param) + '"><input type="hidden" name="' + p + '_side" value="' + esc(side) + '">' +
+      '<input type="hidden" class="rq-print" name="qc_print_' + String(n).padStart(3, '0') + '">';
+    barEl.querySelector('.rq-list').appendChild(blk);
+    blk.querySelector('.rq-del').addEventListener('click', function () { blk.remove(); });
+    blk.querySelector('.rq-eq').addEventListener('click', function () { compute(blk, true); });
+    blk.addEventListener('input', function () { compute(blk, false); });
+    return blk;
+  }
+  function val(blk, f) { var e = blk.querySelector('[name$="_' + f + '"]'); return e ? e.value : ''; }
+  function setv(blk, f, v) { var e = blk.querySelector('[name$="_' + f + '"]'); if (e) e.value = v; }
+  function compute(blk, loud) {
+    var type = blk.dataset.type, tv = num(val(blk, 'true')), reads = [1, 2, 3].map(function (i) { return num(val(blk, 'r' + i)); }).filter(function (x) { return x !== null; });
+    var out = { mean: '', rec: '', verdict: '' }, abs = blk.querySelector('[name$="_abs"]');
+    if (reads.length) {
+      var m = reads.reduce(function (a, b) { return a + b; }, 0) / reads.length;
+      out.mean = rd(m, 4) + ' (n = ' + reads.length + ')';
+      if (tv !== null && tv !== 0) {
+        if (abs) {
+          var d = m - tv, lim = num(abs.value);
+          out.rec = (d >= 0 ? '+' : '') + rd(d, 3);
+          if (lim !== null) out.verdict = Math.abs(d) <= lim + 1e-12 ? 'Within acceptance' : 'Outside acceptance';
+        } else {
+          var rec = 100 * m / tv, lo = num(val(blk, 'lo')), hi = num(val(blk, 'hi'));
+          out.rec = rd(rec, 1);
+          if (lo !== null && hi !== null) out.verdict = (rec >= lo - 1e-9 && rec <= hi + 1e-9) ? 'Within acceptance' : 'Outside acceptance';
+        }
+      } else if (loud) alert('Enter the ' + (type === 'CRM' ? 'certified' : 'true') + ' value of the ' + type + '.');
+    } else if (loud) alert('Enter at least one reading of the ' + type + '.');
+    setv(blk, 'mean', out.mean); setv(blk, 'rec', out.rec); setv(blk, 'verdict', out.verdict);
+    var ve = blk.querySelector('.rq-verdict');
+    ve.classList.toggle('rq-ok', /^Within/.test(out.verdict)); ve.classList.toggle('rq-bad', /^Outside/.test(out.verdict));
+    blk.querySelector('.rq-print').value = reads.length ? JSON.stringify({
+      type: type, type_label: TYPES[type], parameter: val(blk, 'param'), side: val(blk, 'side'), ident: val(blk, 'ident'),
+      true_value: val(blk, 'true'), u: val(blk, 'u'), unit: val(blk, 'unit'), readings: [1, 2, 3].map(function (i) { return val(blk, 'r' + i); }),
+      mean: out.mean, result: out.rec, mode: abs ? 'abs' : 'rec', lo: val(blk, 'lo'), hi: val(blk, 'hi'), abs: abs ? abs.value : '', verdict: out.verdict
+    }) : '';
+  }
+  function qcBars() {
+    var f = form(); if (!f) return;
+    var hs = headings(), SM = sectionMap();
+    hs.forEach(function (h) {
+      if (!vis(h) || h.dataset.rq) return;
+      var ins = SM.get(h) || [];
+      if (!ins.some(function (e) { return e.type === 'number' && vis(e); })) return;      // a wrapper heading without a calculation
+      var sn = sectionName(h); if (!sn.name) return;
+      h.dataset.rq = '1';
+      var b = bar(sn.name, sn.side);
+      var edta = (function () { var n = h.parentElement && h.parentElement.nextElementSibling; return n && n.classList && n.classList.contains('rds-edta') ? n : null; })() ||
+                 (h.nextElementSibling && h.nextElementSibling.classList.contains('rds-edta') ? h.nextElementSibling : null);
+      if (edta) edta.insertAdjacentElement('afterend', b); else insertAfterHeading(h, b);
+      var acc = accredited(sn.name);
+      if (acc && !hasOwnWs(ins) && !(sn.side === 'Outlet' && hs.some(function (o) { return o !== h && vis(o) && sectionName(o).name === sn.name && sectionName(o).side === 'Inlet'; })))
+        DEFAULT_CHECKS.forEach(function (t) { addCheck(b, t, { ident: t === 'WS' ? 'WS-' + acc + '-' : '' }); });
+    });
+    Array.prototype.forEach.call(f.querySelectorAll('#rdsLib .rl-card'), function (c) {
+      if (c.dataset.rq) return;
+      c.dataset.rq = '1';
+      var t = c.querySelector('.rl-title b'); if (!t || c.querySelector('input[data-k="val"]')) return;   // an observation has no check
+      var m = t.textContent.match(/^(.*?)(?:\s*\((Inlet|Outlet)\))?$/);
+      var b = bar(m[1].trim(), m[2] || '');
+      var del = c.querySelector('.rl-del'); c.insertBefore(b, del || null);
+      var acc2 = accredited(m[1]);
+      if (acc2 && m[2] !== 'Outlet') DEFAULT_CHECKS.forEach(function (tp) { addCheck(b, tp, { ident: tp === 'WS' ? 'WS-' + acc2 + '-' : '' }); });
+    });
+  }
+  function barFor(param) {
+    var want = String(param || '').toLowerCase().replace(/\s+crm$/i, '').replace(/\*/g, '').trim();
+    var lib = window.RDSLib, pn = lib ? String(lib.pageName(want) || want).toLowerCase().replace(/\*/g, '') : want;
+    var bars = Array.prototype.filter.call(document.querySelectorAll('.rq-bar'), function (b) { return vis(b); });
+    var key = function (s) { return lib ? lib.bare(s) : s; };
+    return bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p === key(want) || p === key(pn); })[0] ||
+           bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p && (key(pn).indexOf(p) === 0 || p.indexOf(key(pn)) === 0); })[0] || null;
+  }
+  /* the table's "+" adds a CRM row; where the page has no CRM block for the parameter the row gets a CRM check */
+  var rowsBefore = null;
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains('add-row-btn')) rowsBefore = Array.prototype.slice.call(document.querySelectorAll('#qcForm tbody tr'));
+  }, true);
+  document.addEventListener('click', function (e) {
+    if (!rowsBefore || !e.target || !e.target.closest || !e.target.closest('tbody')) return;
+    var before = rowsBefore; rowsBefore = null;
+    var added = Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (r) { return before.indexOf(r) < 0; })[0];
+    if (!added) return;
+    var sno = ((added.querySelector('.main-sno') || {}).textContent || '').trim(); if (!sno) return;
+    var cid = 'calc_' + sno.replace('.', '_'), blk = $(cid);
+    if (blk && !/not supported/i.test(blk.textContent)) return;          // the page's own CRM block
+    if (blk) blk.remove();
+    var pi = added.querySelector('input[name^="parameter_"]'), param = pi ? pi.value : '';
+    var b = barFor(param);
+    if (!b) {
+      var host = $('rqOther');
+      if (!host) {
+        host = document.createElement('div'); host.id = 'rqOther'; host.className = 'rq-other';
+        host.innerHTML = '<h2>Quality-control checks</h2>';
+        var lib = $('rdsLib'); if (lib) lib.insertAdjacentElement('beforebegin', host); else form().appendChild(host);
+      }
+      b = bar(param.replace(/\s+CRM$/i, ''), ''); host.appendChild(b);
+    }
+    var c = addCheck(b, 'CRM', { id: cid, ident: '' });
+    c.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
+
+  /* ------------------------------------------------------------------ 3. BOD triplicate (WW) */
+  function bodTriplicate() {
+    if (PAGE !== 'ww' || !window.RDSLib || !window.RDSLib.addCard) return;
+    var SM = sectionMap();
+    headings().forEach(function (h) {
+      if (!vis(h) || h.dataset.rqBod) return;
+      var sn = sectionName(h);
+      if (!/^bod\b/i.test(sn.name) && !/biological oxygen/i.test(sn.name)) return;
+      var ins = SM.get(h) || [];
+      if (!ins.some(function (e) { return /^bod_/.test(e.name || ''); })) return;
+      h.dataset.rqBod = '1';
+      var hold = document.createElement('div'); hold.className = 'rq-bod';
+      hold.innerHTML = '<p class="rq-bod-note">Triplicate determination: enter each replicate; the average is the reported result.</p>';
+      var rep = (h.querySelector('.rds-rep') || {}).textContent || '';
+      rep = rep.replace(/^reported:\s*/i, '').trim() || null;
+      var nm = 'Biological Oxygen Demand (BOD5)';
+      window.RDSLib.addCard({ parameter: nm, method: 'HACH 10099' }, sn.side, rep, { calc: 'reading', out: 'R' }, hold);
+      window.RDSLib.addCard({ parameter: nm, method: 'APHA 5210 B / 4500-O C' }, sn.side, rep, { calc: 'bod', out: 'R' }, hold);
+      Array.prototype.forEach.call(hold.querySelectorAll('.rl-card'), function (c) { c.classList.add('rq-libcard'); });
+      // the single-determination fields of this section go into a closed panel (kept, still saved and printed)
+      var blocks = [], node = h.parentElement && h.parentElement.children.length === 1 ? h.parentElement : h;
+      var hs = headings(), next = hs[hs.indexOf(h) + 1] || null;
+      var sib = node.nextElementSibling;
+      while (sib && !(next && (sib === next || sib.contains(next))) && !sib.classList.contains('rq-bar') && !sib.classList.contains('rds-edta')) { blocks.push(sib); sib = sib.nextElementSibling; }
+      var det = document.createElement('details'); det.className = 'rq-old';
+      det.innerHTML = '<summary>Single-determination layout (previous)</summary>';
+      if (blocks.length) { blocks[0].insertAdjacentElement('beforebegin', det); blocks.forEach(function (b) { det.appendChild(b); }); }
+      (det.parentNode ? det : node).insertAdjacentElement('beforebegin', hold);
+      if (!det.parentNode) node.insertAdjacentElement('afterend', hold);
+    });
+  }
+
+  /* ------------------------------------------------------------------ 4. empty sample, section list */
+  function emptyNotice(show) {
+    var n = $('rqEmpty');
+    if (!show) { if (n) n.remove(); return; }
+    if (n) return;
+    n = document.createElement('div'); n.id = 'rqEmpty'; n.className = 'rq-empty';
+    n.innerHTML = '<b>No reported result on this sample\'s test report.</b> The report has no parameter with a result (or no parameter ticked at registration), so there is nothing to calculate. Complete the test report first, or choose another sample.';
+    var t = document.querySelector('#qcForm table'); if (t) t.insertAdjacentElement('beforebegin', n); else if (form()) form().insertBefore(n, form().firstChild);
+  }
+  function jumpList() {
+    var btn = $('rqJump');
+    if (!btn) {
+      btn = document.createElement('div'); btn.id = 'rqJump';
+      btn.innerHTML = '<button type="button" class="rq-jbtn">Sections ▾</button><div class="rq-jlist"></div>';
+      document.body.appendChild(btn);
+      btn.querySelector('.rq-jbtn').addEventListener('click', function () { fill(); btn.classList.toggle('open'); });
+      document.addEventListener('click', function (e) { if (!btn.contains(e.target)) btn.classList.remove('open'); });
+    }
+    function fill() {
+      var list = btn.querySelector('.rq-jlist'); list.innerHTML = '';
+      var items = headings().filter(function (h) { return vis(h) && h.dataset.rq; }).map(function (h) { var s = sectionName(h); return [s.name + (s.side ? ' (' + s.side + ')' : ''), h]; });
+      Array.prototype.forEach.call(document.querySelectorAll('#rdsLib .rl-card'), function (c) { if (vis(c)) items.push([(c.querySelector('.rl-title b') || {}).textContent + ' (library)', c]); });
+      if (!items.length) { list.innerHTML = '<p>No calculation on the page yet.</p>'; return; }
+      items.forEach(function (it) { var a = document.createElement('a'); a.href = '#'; a.textContent = it[0]; a.addEventListener('click', function (e) { e.preventDefault(); btn.classList.remove('open'); it[1].scrollIntoView({ block: 'start', behavior: 'smooth' }); }); list.appendChild(a); });
+    }
+  }
+
+  /* ------------------------------------------------------------------ save check, styles, hooks */
+  var origSave = window.rdsBeforeSave;
+  window.rdsBeforeSave = function (data) {
+    var miss = edtaMissing();
+    if (miss.length) { alert('Enter the EDTA factor B for ' + miss.join(', ') + ' (QA RDS-23): the readings depend on it.'); return false; }
+    Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) {
+      compute(b, false);
+      var pr = b.querySelector('.rq-print'); if (data && pr) data[pr.name] = pr.value;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.rds-edta input'), function (i) { if (data) data[i.name] = i.value; });
+    return typeof origSave === 'function' ? origSave(data) : true;
+  };
+
+  var css = document.createElement('style');
+  css.textContent =
+    '.rds-edta{margin:10px 0 18px;padding:10px 14px;border:1px solid #fcd34d;border-left:4px solid #d97706;border-radius:8px;background:#fffbeb;max-width:760px}' +
+    '.rds-edta label{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px}.rds-edta label span{color:#78350f;font-size:12.5px}' +
+    '.rds-edta input{width:140px!important}.rds-edta-note{font-size:12px;color:#92400e;margin:6px 0 0}.rds-edta-warn{font-weight:700}' +
+    '.rds-bmark{color:#b45309;white-space:nowrap}' +
+    '.rq-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 16px;font-size:13px}.rq-lbl{font-weight:700;color:#334155}' +
+    '.rq-add{border:1px dashed #0f5132;color:#0f5132;background:#f0fdf4;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600}.rq-add:hover{background:#dcfce7}' +
+    '.rq-list{flex-basis:100%}' +
+    '.rq-block{border:1px solid #cbd5e1;border-left:4px solid #1e40af;border-radius:8px;padding:10px 12px;margin:8px 0;background:#f8fafc;position:relative;max-width:1100px}' +
+    '.rq-head{display:flex;gap:10px;align-items:baseline;font-size:14px;padding-right:70px}.rq-head span{color:#475569;font-size:13px}' +
+    '.rq-del{position:absolute;top:8px;right:10px;font-size:12px;color:#b91c1c;background:none;border:none;cursor:pointer}' +
+    '.rq-grid,.rq-res{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:8px}' +
+    '.rq-grid label,.rq-res label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px}' +
+    '.rq-grid input,.rq-res input{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:150px!important;font-size:13px;min-height:34px}' +
+    '.rq-res input[readonly]{background:#f1f5f9;font-weight:700}.rq-eq{background:#1e40af;color:#fff;border-radius:7px;padding:6px 16px}' +
+    '.rq-ok{background:#f0fdf4!important;border-color:#22c55e!important;color:#166534}.rq-bad{background:#fef2f2!important;border-color:#ef4444!important;color:#991b1b}' +
+    '.rq-other{margin:30px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.rq-other h2{font-size:20px;font-weight:700;color:#0f5132}' +
+    '.rq-bod{margin:6px 0 14px}.rq-bod-note{font-size:13px;color:#0f5132;font-weight:600}.rq-old{margin:10px 0;border:1px dashed #cbd5e1;border-radius:8px;padding:6px 10px}.rq-old summary{cursor:pointer;color:#475569;font-size:13px}' +
+    '.rq-empty{margin:14px 0;padding:12px 16px;border:1px solid #fca5a5;border-left:4px solid #b91c1c;border-radius:8px;background:#fef2f2;color:#7f1d1d;font-size:14px}' +
+    '#rqJump{position:fixed;right:18px;bottom:18px;z-index:60;font-size:13px}#rqJump .rq-jbtn{background:#0f5132;color:#fff;border-radius:999px;padding:8px 16px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.18)}' +
+    '#rqJump .rq-jlist{display:none;position:absolute;right:0;bottom:44px;max-height:60vh;overflow:auto;min-width:260px;background:#fff;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px}' +
+    '#rqJump.open .rq-jlist{display:block}#rqJump a{display:block;padding:6px 10px;border-radius:6px;color:#0f172a}#rqJump a:hover{background:#f1f5f9}#rqJump p{padding:6px 10px;color:#64748b}';
+  (document.head || document.documentElement).appendChild(css);
+
+  function refresh() {
+    try { edtaBoxes(); } catch (e) { if (window.console) console.error('RDS EDTA', e); }
+    try { bodTriplicate(); } catch (e) { if (window.console) console.error('RDS BOD', e); }
+    try { qcBars(); } catch (e) { if (window.console) console.error('RDS QC', e); }
+  }
+  var orig = window.populateQCTable;
+  if (typeof orig === 'function') {
+    window.populateQCTable = function () {
+      var res = orig.apply(this, arguments);
+      try {
+        var rows = document.querySelectorAll('#qcForm tbody tr').length;
+        emptyNotice(rows === 0);
+      } catch (e) { /* page without a table */ }
+      refresh();
+      return res;
+    };
+  }
+  var tmr = null;
+  function later() { clearTimeout(tmr); tmr = setTimeout(refresh, 250); }
+  function start() {
+    refresh(); jumpList();
+    var f = form();
+    if (f && window.MutationObserver) new MutationObserver(function (ms) {
+      if (ms.some(function (m) { return Array.prototype.some.call(m.addedNodes, function (n) { return n.nodeType === 1 && !(n.closest && (n.closest('.rq-bar') || n.closest('.rds-edta') || n.closest('.rq-bod'))) && !(n.classList && (n.classList.contains('rq-bar') || n.classList.contains('rds-edta') || n.classList.contains('rds-bmark') || n.classList.contains('rq-bod') || n.classList.contains('rq-old'))); }) || m.type === 'attributes'; })) later();
+    }).observe(f, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  window.RDSQC = { refresh: refresh, accredited: accredited, addCheck: addCheck, edtaMissing: edtaMissing, ACCREDITED: ACCREDITED, compute: compute };
+})();

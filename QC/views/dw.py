@@ -1952,7 +1952,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('hardness_head_2'),
                 data.get('hardness_reading_1'),
-                f"({data.get('hardness_2_1')} - {data.get('hardness_2_2')}) X 1000",
+                f"({data.get('hardness_2_1')} - {data.get('hardness_2_2')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, 'hardness_2_1')} X 1000",
                 f"{data.get('hardness_ans2', '')} {data.get('hardness_param2')}",
                 data.get('hardness_2_3')
             )
@@ -1963,7 +1963,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 None,  # No head for subsequent readings
                 data.get('hardness_reading_2'),
-                f"({data.get('hardness_3_1')} - {data.get('hardness_3_2')}) X 1000",
+                f"({data.get('hardness_3_1')} - {data.get('hardness_3_2')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, 'hardness_3_1')} X 1000",
                 f"{data.get('hardness_ans3', '')} {data.get('hardness_param3')}",
                 data.get('hardness_3_3')
             )
@@ -1974,7 +1974,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 None,  # No head for subsequent readings
                 data.get('hardness_readinng_3'),
-                f"({data.get('hardness_4_1')} - {data.get('hardness_4_2')}) X 1000",
+                f"({data.get('hardness_4_1')} - {data.get('hardness_4_2')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, 'hardness_4_1')} X 1000",
                 f"{data.get('hardness_ans4', '')} {data.get('hardness_param4')}",
                 data.get('hardness_4_3')
             )
@@ -2454,7 +2454,7 @@ def generate_dw_qc_pdf_response(report, pk):
                     
                     pdf.set_font("Calibri", '', 10)
                     
-                    formula_text = f"({data.get(final_key, '')} - {data.get(initial_key, '')}) X {data.get(multiply_key, '1000')}"
+                    formula_text = f"({data.get(final_key, '')} - {data.get(initial_key, '')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, final_key)} X {data.get(multiply_key, '1000')}"
                     result_text = f"{data.get(ans_key, '')} {data.get(param_key, 'mg/L')}"
                     divisor = data.get(divi_key, '50')
                     
@@ -2472,7 +2472,7 @@ def generate_dw_qc_pdf_response(report, pk):
                     pdf.set_font("Calibri", '', 10)
                     pdf.cell(40, 6, f"{data.get(ch_head, 'Calcium Hardness')} = ", border=False, align="L")
                     
-                    formula_text = f"({data.get(ch_final_key, '')} - {data.get(ch_initial_key, '')}) X {data.get(ch_multiply_key, '1000')}"
+                    formula_text = f"({data.get(ch_final_key, '')} - {data.get(ch_initial_key, '')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, ch_final_key)} X {data.get(ch_multiply_key, '1000')}"
                     result_text = f"{data.get(ch_ans_key, '')} {data.get(ch_param_key, 'mg/L')}"
                     divisor = data.get(ch_divi_key, '50')
                     add_formula_with_line(formula_text, result_text, divisor, 40)
@@ -2624,7 +2624,7 @@ def generate_dw_qc_pdf_response(report, pk):
                     pdf.set_x(10)
                     pdf.set_font("Calibri", '', 10)
                     
-                    formula_text = f"({data.get(final_key, '')} - {data.get(initial_key, '')}) X {data.get(multiply_key, '1000')}"
+                    formula_text = f"({data.get(final_key, '')} - {data.get(initial_key, '')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, final_key)} X {data.get(multiply_key, '1000')}"
                     result_text = f"{data.get(ans_key, '')} {data.get(param_key, 'mg/L')}"
                     divisor = data.get(divi_key, '50')
                     add_formula_with_line(formula_text, result_text, divisor, 25)
@@ -2689,7 +2689,7 @@ def generate_dw_qc_pdf_response(report, pk):
                     pdf.ln(4)
                     pdf.cell(40, 6, f"{data.get(f'ch_{reading_key[-1]}', 'Calcium Hardness')} = ", border=False, align="L")
                     
-                    formula_text = f"({data.get(final_key, '')} - {data.get(initial_key, '')}) X {data.get(multiply_key, '1000')}"
+                    formula_text = f"({data.get(final_key, '')} - {data.get(initial_key, '')}){__import__('QC.rds_pdf_extras', fromlist=['edta_b']).edta_b(data, final_key)} X {data.get(multiply_key, '1000')}"
                     result_text = f"{data.get(ans_key, '')} {data.get(param_key, 'mg/L')}"
                     divisor = data.get(divi_key, '50')
                     add_formula_with_line(formula_text, result_text, divisor, 45)
@@ -2800,6 +2800,11 @@ def generate_dw_qc_pdf_response(report, pk):
         print_lib_cards(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # formula library cards (27-10-2026)
     except Exception:
         logging.getLogger(__name__).exception('RDS formula library print')
+    try:
+        from QC.rds_qc_pdf import print_qc_checks
+        print_qc_checks(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # WS / RM / CRM checks (R5)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS quality-control checks print')
     try:
         from QC.rds_pdf_extras import closing
         closing(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # analysts, checkers, end line (QA RDS-32)

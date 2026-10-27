@@ -2768,7 +2768,7 @@
 
                     <h1 id="ionic_cal_head" class="text-center text-3xl my-10">Ionic Det calculations</h1>
                 </div>
-                    <input type="text" name="ionic_det_head" id="" value="WS-NH3-0.5ppm">
+                    <input type="text" name="ionic_det_head" id="" value="WS-AID-1ppm">
                     
                 
                     <div class="flex gap-2 items-center my-6">
@@ -5398,7 +5398,7 @@
                     const sInitial = parseFloat(document.getElementById(initialId).value) || 0;
                     const volume = parseFloat(document.getElementById(volumeId).value) || 50;
 
-                    const calc = (sFinal - sInitial) * 1000 / volume;
+                    const calc = (sFinal - sInitial) * rdsEdtaB(finalId) * 1000 / volume;   // EDTA factor B (QA RDS-23)
 
                     document.getElementById(ansId).value = calc.toFixed(2);
                     return calc;
@@ -6819,7 +6819,7 @@
                     const r1_multiply = getNumericValue('r1_multiply');
                     const r1_divi = getNumericValue('r1_divi');
                     
-                    const r1_total_hardness = r1_divi !== 0 ? ((r1_final - r1_initial) * r1_multiply) / r1_divi : 0;
+                    const r1_total_hardness = r1_divi !== 0 ? ((r1_final - r1_initial) * r1_multiply * rdsEdtaB('r1_final')) / r1_divi : 0;
                     const r1_ans = document.getElementById('r1_ans');
                     if (r1_ans) {
                         r1_ans.value = parseFloat(r1_total_hardness.toFixed(4));
@@ -6852,7 +6852,7 @@
                     const r1_1_multiply = getNumericValue('r1_1_multiply');
                     const r1_1_divi = getNumericValue('r1_1_divi');
                     
-                    const r1_calcium_hardness = r1_1_divi !== 0 ? ((r1_1_final - r1_1_initial) * r1_1_multiply) / r1_1_divi : 0;
+                    const r1_calcium_hardness = r1_1_divi !== 0 ? ((r1_1_final - r1_1_initial) * r1_1_multiply * rdsEdtaB('r1_1_final')) / r1_1_divi : 0;
                     const r1_1_ans = document.getElementById('r1_1_ans');
                     if (r1_1_ans) {
                         r1_1_ans.value = parseFloat(r1_calcium_hardness.toFixed(4));
@@ -6905,7 +6905,7 @@
                     const r2_multiply = getNumericValue('r2_multiply');
                     const r2_divi = getNumericValue('r2_divi');
                     
-                    const r2_total_hardness = r2_divi !== 0 ? ((r2_final - r2_initial) * r2_multiply) / r2_divi : 0;
+                    const r2_total_hardness = r2_divi !== 0 ? ((r2_final - r2_initial) * r2_multiply * rdsEdtaB('r2_final')) / r2_divi : 0;
                     const r2_ans = document.getElementById('r2_ans');
                     if (r2_ans) {
                         r2_ans.value = parseFloat(r2_total_hardness.toFixed(4));
@@ -6937,7 +6937,7 @@
                     const r2_1_multiply = getNumericValue('r2_1_multiply');
                     const r2_1_divi = getNumericValue('r2_1_divi');
                     
-                    const r2_calcium_hardness = r2_1_divi !== 0 ? ((r2_1_final - r2_1_initial) * r2_1_multiply) / r2_1_divi : 0;
+                    const r2_calcium_hardness = r2_1_divi !== 0 ? ((r2_1_final - r2_1_initial) * r2_1_multiply * rdsEdtaB('r2_1_final')) / r2_1_divi : 0;
                     const r2_1_ans = document.getElementById('r2_1_ans');
                     if (r2_1_ans) {
                         r2_1_ans.value = parseFloat(r2_calcium_hardness.toFixed(4));
@@ -6990,7 +6990,7 @@
                     const r3_multiply = getNumericValue('r3_multiply');
                     const r3_divi = getNumericValue('r3_divi');
                     
-                    const r3_total_hardness = r3_divi !== 0 ? ((r3_final - r3_initial) * r3_multiply) / r3_divi : 0;
+                    const r3_total_hardness = r3_divi !== 0 ? ((r3_final - r3_initial) * r3_multiply * rdsEdtaB('r3_final')) / r3_divi : 0;
                     const r3_ans = document.getElementById('r3_ans');
                     if (r3_ans) {
                         r3_ans.value = parseFloat(r3_total_hardness.toFixed(4));
@@ -7022,7 +7022,7 @@
                     const r3_1_multiply = getNumericValue('r3_1_multiply');
                     const r3_1_divi = getNumericValue('r3_1_divi');
                     
-                    const r3_calcium_hardness = r3_1_divi !== 0 ? ((r3_1_final - r3_1_initial) * r3_1_multiply) / r3_1_divi : 0;
+                    const r3_calcium_hardness = r3_1_divi !== 0 ? ((r3_1_final - r3_1_initial) * r3_1_multiply * rdsEdtaB('r3_1_final')) / r3_1_divi : 0;
                     const r3_1_ans = document.getElementById('r3_1_ans');
                     if (r3_1_ans) {
                         r3_1_ans.value = parseFloat(r3_calcium_hardness.toFixed(4));
@@ -7162,7 +7162,7 @@
                         const cal_r1_multiply = getNumericValue('cal_r1_multiply');
                         const cal_r1_divi = getNumericValue('cal_r1_divi');
                         
-                        const cal_r1_total_hardness = cal_r1_divi !== 0 ? ((cal_r1_final - cal_r1_initial) * cal_r1_multiply) / cal_r1_divi : 0;
+                        const cal_r1_total_hardness = cal_r1_divi !== 0 ? ((cal_r1_final - cal_r1_initial) * cal_r1_multiply * rdsEdtaB('cal_r1_final')) / cal_r1_divi : 0;
                         setNumericValue('cal_r1_ans', cal_r1_total_hardness);
                     });
                 }
@@ -7189,7 +7189,7 @@
                         const cal_r2_multiply = getNumericValue('cal_r2_multiply');
                         const cal_r2_divi = getNumericValue('cal_r2_divi');
                         
-                        const cal_r2_total_hardness = cal_r2_divi !== 0 ? ((cal_r2_final - cal_r2_initial) * cal_r2_multiply) / cal_r2_divi : 0;
+                        const cal_r2_total_hardness = cal_r2_divi !== 0 ? ((cal_r2_final - cal_r2_initial) * cal_r2_multiply * rdsEdtaB('cal_r2_final')) / cal_r2_divi : 0;
                         setNumericValue('cal_r2_ans', cal_r2_total_hardness);
                     });
                 }
@@ -7216,7 +7216,7 @@
                         const cal_r3_multiply = getNumericValue('cal_r3_multiply');
                         const cal_r3_divi = getNumericValue('cal_r3_divi');
                         
-                        const cal_r3_total_hardness = cal_r3_divi !== 0 ? ((cal_r3_final - cal_r3_initial) * cal_r3_multiply) / cal_r3_divi : 0;
+                        const cal_r3_total_hardness = cal_r3_divi !== 0 ? ((cal_r3_final - cal_r3_initial) * cal_r3_multiply * rdsEdtaB('cal_r3_final')) / cal_r3_divi : 0;
                         setNumericValue('cal_r3_ans', cal_r3_total_hardness);
                     });
                 }
@@ -7287,7 +7287,7 @@
                         const ch_r1_multiply = getNumericValue('ch_r1_multiply');
                         const ch_r1_divi = getNumericValue('ch_r1_divi');
                         
-                        const ch_r1_total_hardness = ch_r1_divi !== 0 ? ((ch_r1_final - ch_r1_initial) * ch_r1_multiply) / ch_r1_divi : 0;
+                        const ch_r1_total_hardness = ch_r1_divi !== 0 ? ((ch_r1_final - ch_r1_initial) * ch_r1_multiply * rdsEdtaB('ch_r1_final')) / ch_r1_divi : 0;
                         setNumericValue('ch_r1_ans', ch_r1_total_hardness);
                     });
                 }
@@ -7329,7 +7329,7 @@
                         const ch_r2_multiply = getNumericValue('ch_r2_multiply');
                         const ch_r2_divi = getNumericValue('ch_r2_divi');
                         
-                        const ch_r2_total_hardness = ch_r2_divi !== 0 ? ((ch_r2_final - ch_r2_initial) * ch_r2_multiply) / ch_r2_divi : 0;
+                        const ch_r2_total_hardness = ch_r2_divi !== 0 ? ((ch_r2_final - ch_r2_initial) * ch_r2_multiply * rdsEdtaB('ch_r2_final')) / ch_r2_divi : 0;
                         setNumericValue('ch_r2_ans', ch_r2_total_hardness);
                     });
                 }
@@ -7371,7 +7371,7 @@
                         const ch_r3_multiply = getNumericValue('ch_r3_multiply');
                         const ch_r3_divi = getNumericValue('ch_r3_divi');
                         
-                        const ch_r3_total_hardness = ch_r3_divi !== 0 ? ((ch_r3_final - ch_r3_initial) * ch_r3_multiply) / ch_r3_divi : 0;
+                        const ch_r3_total_hardness = ch_r3_divi !== 0 ? ((ch_r3_final - ch_r3_initial) * ch_r3_multiply * rdsEdtaB('ch_r3_final')) / ch_r3_divi : 0;
                         setNumericValue('ch_r3_ans', ch_r3_total_hardness);
                     });
                 }
@@ -8682,5 +8682,5 @@ document.addEventListener('DOMContentLoaded', function() {
         loadSample()
     </script> 
     
-<script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_page.js' %}?v=20261027d"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027d"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261027e"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027e"></script><script src="{% static 'js/rds_qc.js' %}?v=20261027e"></script>
 {% endblock %}

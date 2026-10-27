@@ -71,5 +71,15 @@
     return (P <= t / 2) ? 2 * P : 2 * (t - P);
   }
   window.rdsCarbonate = rdsCarbonate;
+  /* EDTA factor B (QA RDS-23, R5): mg CaCO3 equivalent to 1.00 mL EDTA, from the box at the top of the hardness,
+     calcium or magnesium section (rds_qc.js); the reading's own id names the section and the inlet / outlet side. */
+  function rdsEdtaB(id) {
+    id = String(id || '');
+    var sfx = /_inlet$/.test(id) ? '_inlet' : (/_outlet$/.test(id) ? '_outlet' : '');
+    var base = /^(cal|ch)_/.test(id) ? 'calcium' : (/^r\d/.test(id) ? 'magnesium' : 'hardness');
+    var e = el(base + '_edta_b' + sfx), v = e ? parseFloat(e.value) : NaN;
+    return v > 0 ? v : 1;
+  }
+  window.rdsEdtaB = rdsEdtaB;
   window.RDSAvg = { map: M, prepare: prepare };
 })();

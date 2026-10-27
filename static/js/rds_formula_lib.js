@@ -271,17 +271,17 @@
       }
     },
     bod: {
-      title: 'BOD5', method: 'APHA 5210 B / 4500-O C',
-      formula: 'BOD = [(D1 - D2) - (B1 - B2) / Vc x Vs] / P,  P = sample volume / bottle volume',
+      title: 'BOD5', method: 'APHA 5210 B / 4500-O C', reps: true,
+      formula: 'BOD = [(D1 - D2) - (B1 - B2) / Vc x Vs] / P,  P = sample volume / bottle volume  (replicate bottles averaged)',
       inputs: [['sv', 'Sample volume (mL)'], ['bv', 'Bottle volume (mL)', '300'], ['d1', 'D1 initial DO (mg/L)'], ['d2', 'D2 final DO (mg/L)'], ['b1', 'B1 seed-control initial DO (blank if not seeded)'], ['b2', 'B2 seed-control final DO'], ['vc', 'Vc seed in control bottle (mL)'], ['vs', 'Vs seed in sample bottle (mL)']],
-      run: function (x) {
-        if (!x.sv || !x.bv || x.d1 === null || x.d2 === null) return { err: 'enter the volumes and both DO values' };
+      one: function (x) {                                   // one bottle; incomplete (or a partial seed correction) -> null (R5)
+        if (!x.sv || !x.bv || x.d1 === null || x.d2 === null) return null;
         var P = x.sv / x.bv, corr = 0, w = [];
         var seed = [x.b1, x.b2, x.vc, x.vs].some(function (v) { return v !== null; });
-        if (seed) { if ([x.b1, x.b2, x.vc, x.vs].some(function (v) { return v === null; }) || !x.vc) return { err: 'seed correction needs B1, B2, Vc and Vs (or clear all four)' }; corr = (x.b1 - x.b2) / x.vc * x.vs; }
+        if (seed) { if ([x.b1, x.b2, x.vc, x.vs].some(function (v) { return v === null; }) || !x.vc) return null; corr = (x.b1 - x.b2) / x.vc * x.vs; }
         if (x.d1 - x.d2 < 2) w.push('DO depletion below 2.0 mg/L'); if (x.d2 < 1) w.push('residual DO below 1.0 mg/L');
         var b = (x.d1 - x.d2 - corr) / P;
-        return { out: { R: b }, warn: w, lines: ['P = ' + r(x.sv) + ' / ' + r(x.bv) + ' = ' + r(P, 5), 'BOD = [(' + r(x.d1) + ' - ' + r(x.d2) + ') - ' + r(corr, 4) + '] / ' + r(P, 5) + ' = ' + r(b, 2) + ' mg/L'] };
+        return { v: b, line: '[(' + r(x.d1) + ' - ' + r(x.d2) + ') - ' + r(corr, 4) + '] / (' + r(x.sv) + ' / ' + r(x.bv) + ')', w: w.join('; ') || null };
       }
     },
     obs: {
@@ -346,7 +346,7 @@
   }
   function clearCards() { var h = container(); if (h) h.querySelector('.rl-cards').innerHTML = ''; nCard = 0; }
 
-  function addCard(item, side, reported, forced) {
+  function addCard(item, side, reported, forced, target) {      // target: a place on the page instead of the library list (R5)
     var h = container(); if (!h) return;
     var cf = forced || cardFor(item.parameter, item.method);
     if (cf.calc === 'sub') return;
@@ -374,7 +374,7 @@
       '<input type="hidden" class="rl-print" name="lib_print_' + String(n).padStart(3, '0') + '">' +
       '<button type="button" class="rl-del" title="Remove this card">Remove</button>';
     card.innerHTML = html;
-    h.querySelector('.rl-cards').appendChild(card);
+    (target || h.querySelector('.rl-cards')).appendChild(card);
     card.querySelector('.rl-eq').addEventListener('click', function () { compute(card, item, side, rep, cf, C, method); });
     card.querySelector('.rl-del').addEventListener('click', function () { card.remove(); });
     if (C.obs) card.querySelector('input[data-k=val]').value = rep;
@@ -453,7 +453,7 @@
   function visibleHeads() {
     var form = $('qcForm') || document;
     var all = Array.prototype.filter.call(form.querySelectorAll('h1, p.text-3xl'), function (h) { return !h.closest('#rdsLib'); });
-    var buttons = Array.prototype.filter.call(form.querySelectorAll('button'), function (x) { return !x.closest('#rdsLib') && /=/.test(x.textContent) && x.offsetParent !== null; });
+    var buttons = Array.prototype.filter.call(form.querySelectorAll('button'), function (x) { return !x.closest('#rdsLib') && /=|final ans/i.test(x.textContent) && x.offsetParent !== null; });   // R5: also "Final Ans" (toxic metals)
     var out = [];
     all.forEach(function (h, i) {
       if (h.offsetParent === null) return;
@@ -467,9 +467,13 @@
     });
     return out;
   }
+  var HEADALIAS = {     // the page's heading for a section named otherwise (R5: no second card beside the page's own section)
+    'total hardness as caco3': ['hardness'], 'phenolic compounds': ['phenolic'],
+    'an ionic detergent as mbas': ['an ionic surfactants', 'anionic detergent', 'anionic surfactants']
+  };
   function shownOnPage(pn, heads) {
     if (!pn) return false;
-    var keys = [bare(pn)], par = norm(pn).match(/\(([^)]*)\)/);
+    var keys = [bare(pn)].concat(HEADALIAS[bare(pn)] || []), par = norm(pn).match(/\(([^)]*)\)/);
     if (par) keys.push(bare(par[1]));
     var w = bare(pn).split(' ').filter(function (x) { return x.length >= 4; });
     if (w.length === 1) keys.push(w[0]);
