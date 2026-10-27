@@ -3193,6 +3193,7 @@
                             <button type="button" id="for_carbonates_equal" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg " type="number" step="any">=</button>
                             <input id="for_carbonates_ans" name="for_carbonates_ans" class="p-2" type="number" step="any" placeholder="Final Ans">
                             <input id="for_carbonates_param" name="for_carbonates_param" class="p-2" type="text" placeholder="param" value="mg/L">
+<div class="w-full text-sm mt-3 flex flex-wrap gap-3 items-center" style="flex-basis:100%"><label>Phenolphthalein alkalinity P (mean) <input id="carbonates_P" name="carbonates_P" class="p-2" type="number" step="any" readonly style="width:120px"></label><label>Total alkalinity T <input id="carbonates_T" name="carbonates_T" class="p-2" type="number" step="any" placeholder="from Alkalinity" style="width:120px"></label><span class="text-gray-600">Carbonate (mg/L as CaCO3) = 2P when P &le; T/2, otherwise 2(T &minus; P) &mdash; APHA 2320 B</span></div>
                             
                         </div>
                     </div>
@@ -4655,7 +4656,7 @@
                             </div>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <button type="button" id="cal_avg_equal" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
+                            <p class="px-2 font-bold" title="Calcium hardness (mg/L as CaCO3) x 0.4008 = calcium (mg/L as Ca)">× 0.4008</p><button type="button" id="cal_avg_equal" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
                             <input id="cal_avg_final_ans" name="cal_avg_final_ans" class="p-2" type="number" step="any" placeholder="Ans">
                             <input id="cal_avg_param" name="cal_avg_param" class="p-2" type="text" placeholder="param" value="mg/L">
                         </div>
@@ -5727,9 +5728,9 @@
                                 <input style="width: 60px;" id="toxic_r11" name="toxic_r11" placeholder="R 11" class="text-center p-2" type="number" step="any" name="" id="" value="" >
                                 
                             </div>
-                            <hr class="my-2 border border-black">
+                            <hr style="display:none" class="my-2 border border-black">
                             <div class="text-center">
-                                <input id="toxic_divi" name="toxic_divi" placeholder="11" class="text-center p-2" type="number" step="any" name="" id="" value="11" >
+                                <input style="display:none" id="toxic_divi" name="toxic_divi" placeholder="1" class="text-center p-2" type="number" step="any" name="" id="" value="1" readonly >
                             </div>
                         </div>
                         <div class="flex gap-2 items-center">
@@ -7366,9 +7367,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 equals1.addEventListener('click', () => {
                     console.log('testing equal--->>',equals1)
                     // Get values from the main inputs
-                    const bw1 = parseFloat(document.getElementById("bw1").value) || 0;
-                    const aw05 = parseFloat(document.getElementById("AW05").value) || 0;
-                    const vs1  = parseFloat(document.getElementById("vs1").value) || 1; // avoid /0
+                    const bw1 = rdsRequired("bw1", "the empty dish (before) weight");
+                    const aw05 = rdsLastWeight("AW05");
+                    const vs1  = rdsRequired("vs1", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw1").value = bw1;
@@ -7390,9 +7391,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const equals2 = document.getElementById('equals2');
                 equals2.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw2 = parseFloat(document.getElementById("bw2").value) || 0;
-                    const aw10 = parseFloat(document.getElementById("AW10").value) || 0;
-                    const vs2  = parseFloat(document.getElementById("vs2").value) || 1; // avoid /0
+                    const bw2 = rdsRequired("bw2", "the empty dish (before) weight");
+                    const aw10 = rdsLastWeight("AW10");
+                    const vs2  = rdsRequired("vs2", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw2").value = bw2;
@@ -7415,9 +7416,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const equals3 = document.getElementById('equals3');
                 equals3.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw3 = parseFloat(document.getElementById("bw3").value) || 0;
-                    const aw15 = parseFloat(document.getElementById("AW15").value) || 0;
-                    const vs3  = parseFloat(document.getElementById("vs3").value) || 1; // avoid /0
+                    const bw3 = rdsRequired("bw3", "the empty dish (before) weight");
+                    const aw15 = rdsLastWeight("AW15");
+                    const vs3  = rdsRequired("vs3", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw3").value = bw3;
@@ -7440,9 +7441,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const equals4 = document.getElementById('equals4');
                 equals4.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw4 = parseFloat(document.getElementById("bw4").value) || 0;
-                    const aw20 = parseFloat(document.getElementById("AW20").value) || 0;
-                    const vs4  = parseFloat(document.getElementById("vs4").value) || 1; // avoid /0
+                    const bw4 = rdsRequired("bw4", "the empty dish (before) weight");
+                    const aw20 = rdsLastWeight("AW20");
+                    const vs4  = rdsRequired("vs4", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw4").value = bw4;
@@ -7485,9 +7486,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
     // Inlet reading 1
     const equals1_inlet = document.getElementById('equals1_inlet');
     equals1_inlet.addEventListener('click', () => {
-        const bw1 = parseFloat(document.getElementById("bw1_inlet").value) || 0;
-        const aw05 = parseFloat(document.getElementById("AW05_inlet").value) || 0;
-        const vs1  = parseFloat(document.getElementById("vs1_inlet").value) || 1;
+        const bw1 = rdsRequired("bw1_inlet", "the empty dish (before) weight");
+        const aw05 = rdsLastWeight("AW05_inlet");
+        const vs1  = rdsRequired("vs1_inlet", "the sample volume (mL)");
 
         document.getElementById("for_bw1_inlet").value = bw1;
         document.getElementById("for_aw1_inlet").value = aw05;
@@ -7501,9 +7502,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
     // Inlet reading 2
     const equals2_inlet = document.getElementById('equals2_inlet');
     equals2_inlet.addEventListener('click', () => {
-        const bw2 = parseFloat(document.getElementById("bw2_inlet").value) || 0;
-        const aw10 = parseFloat(document.getElementById("AW10_inlet").value) || 0;
-        const vs2  = parseFloat(document.getElementById("vs2_inlet").value) || 1;
+        const bw2 = rdsRequired("bw2_inlet", "the empty dish (before) weight");
+        const aw10 = rdsLastWeight("AW10_inlet");
+        const vs2  = rdsRequired("vs2_inlet", "the sample volume (mL)");
 
         document.getElementById("for_bw2_inlet").value = bw2;
         document.getElementById("for_aw2_inlet").value = aw10;
@@ -7517,9 +7518,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
     // Inlet reading 3
     const equals3_inlet = document.getElementById('equals3_inlet');
     equals3_inlet.addEventListener('click', () => {
-        const bw3 = parseFloat(document.getElementById("bw3_inlet").value) || 0;
-        const aw15 = parseFloat(document.getElementById("AW15_inlet").value) || 0;
-        const vs3  = parseFloat(document.getElementById("vs3_inlet").value) || 1;
+        const bw3 = rdsRequired("bw3_inlet", "the empty dish (before) weight");
+        const aw15 = rdsLastWeight("AW15_inlet");
+        const vs3  = rdsRequired("vs3_inlet", "the sample volume (mL)");
 
         document.getElementById("for_bw3_inlet").value = bw3;
         document.getElementById("for_aw3_inlet").value = aw15;
@@ -7533,9 +7534,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
     // Inlet reading 4
     const equals4_inlet = document.getElementById('equals4_inlet');
     equals4_inlet.addEventListener('click', () => {
-        const bw4 = parseFloat(document.getElementById("bw4_inlet").value) || 0;
-        const aw20 = parseFloat(document.getElementById("AW20_inlet").value) || 0;
-        const vs4  = parseFloat(document.getElementById("vs4_inlet").value) || 1;
+        const bw4 = rdsRequired("bw4_inlet", "the empty dish (before) weight");
+        const aw20 = rdsLastWeight("AW20_inlet");
+        const vs4  = rdsRequired("vs4_inlet", "the sample volume (mL)");
 
         document.getElementById("for_bw4_inlet").value = bw4;
         document.getElementById("for_aw4_inlet").value = aw20;
@@ -7569,9 +7570,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
         // Outlet reading 1
         // const equals1_outlet = document.getElementById('equals1_outlet');
         // equals1_outlet.addEventListener('click', () => {
-        //     const bw1 = parseFloat(document.getElementById("bw1_outlet").value) || 0;
-        //     const aw05 = parseFloat(document.getElementById("AW05_outlet").value) || 0;
-        //     const vs1  = parseFloat(document.getElementById("vs1_outlet").value) || 1;
+        //     const bw1 = rdsRequired("bw1_outlet", "the empty dish (before) weight");
+        //     const aw05 = rdsLastWeight("AW05_outlet");
+        //     const vs1  = rdsRequired("vs1_outlet", "the sample volume (mL)");
 
         //     document.getElementById("for_bw1_outlet").value = bw1;
         //     document.getElementById("for_aw1_outlet").value = aw05;
@@ -7585,9 +7586,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
         // Outlet reading 2
         const equals2_outlet = document.getElementById('equals2_outlet');
         equals2_outlet.addEventListener('click', () => {
-            const bw2 = parseFloat(document.getElementById("bw2_outlet").value) || 0;
-            const aw10 = parseFloat(document.getElementById("AW10_outlet").value) || 0;
-            const vs2  = parseFloat(document.getElementById("vs2_outlet").value) || 1;
+            const bw2 = rdsRequired("bw2_outlet", "the empty dish (before) weight");
+            const aw10 = rdsLastWeight("AW10_outlet");
+            const vs2  = rdsRequired("vs2_outlet", "the sample volume (mL)");
 
             document.getElementById("for_bw2_outlet").value = bw2;
             document.getElementById("for_aw2_outlet").value = aw10;
@@ -7601,9 +7602,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
         // Outlet reading 3
         const equals3_outlet = document.getElementById('equals3_outlet');
         equals3_outlet.addEventListener('click', () => {
-            const bw3 = parseFloat(document.getElementById("bw3_outlet").value) || 0;
-            const aw15 = parseFloat(document.getElementById("AW15_outlet").value) || 0;
-            const vs3  = parseFloat(document.getElementById("vs3_outlet").value) || 1;
+            const bw3 = rdsRequired("bw3_outlet", "the empty dish (before) weight");
+            const aw15 = rdsLastWeight("AW15_outlet");
+            const vs3  = rdsRequired("vs3_outlet", "the sample volume (mL)");
 
             document.getElementById("for_bw3_outlet").value = bw3;
             document.getElementById("for_aw3_outlet").value = aw15;
@@ -7617,9 +7618,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
         // Outlet reading 4
         const equals4_outlet = document.getElementById('equals4_outlet');
         equals4_outlet.addEventListener('click', () => {
-            const bw4 = parseFloat(document.getElementById("bw4_outlet").value) || 0;
-            const aw20 = parseFloat(document.getElementById("AW20_outlet").value) || 0;
-            const vs4  = parseFloat(document.getElementById("vs4_outlet").value) || 1;
+            const bw4 = rdsRequired("bw4_outlet", "the empty dish (before) weight");
+            const aw20 = rdsLastWeight("AW20_outlet");
+            const vs4  = rdsRequired("vs4_outlet", "the sample volume (mL)");
 
             document.getElementById("for_bw4_outlet").value = bw4;
             document.getElementById("for_aw4_outlet").value = aw20;
@@ -8070,9 +8071,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     const tss_equals1 = document.getElementById('tss_equals1');
                     tss_equals1.addEventListener('click', () => {
                         // Get values from the main inputs
-                        const iw1 = parseFloat(document.getElementById("iw1").value) || 0;
-                        const Fw05 = parseFloat(document.getElementById("FW05").value) || 0;
-                        const tss_vs1  = parseFloat(document.getElementById("tss_vs1").value) || 1; // avoid /0
+                        const iw1 = rdsRequired("iw1", "the initial (tare) weight");
+                        const Fw05 = rdsLastWeight("FW05");
+                        const tss_vs1  = rdsRequired("tss_vs1", "the sample volume (mL)"); // avoid /0
 
                         // Auto-fill formula fields
                         document.getElementById("for_iw1").value = iw1;
@@ -8094,9 +8095,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     const tss_equals2 = document.getElementById('tss_equals2');
                     tss_equals2.addEventListener('click', () => {
                         // Get values from the main inputs
-                        const iw2 = parseFloat(document.getElementById("iw2").value) || 0;
-                        const Fw10 = parseFloat(document.getElementById("FW10").value) || 0;
-                        const tss_vs2  = parseFloat(document.getElementById("tss_vs2").value) || 1; // avoid /0
+                        const iw2 = rdsRequired("iw2", "the initial (tare) weight");
+                        const Fw10 = rdsLastWeight("FW10");
+                        const tss_vs2  = rdsRequired("tss_vs2", "the sample volume (mL)"); // avoid /0
 
                         // Auto-fill formula fields
                         document.getElementById("for_iw2").value = iw2;
@@ -8119,9 +8120,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals3 = document.getElementById('tss_equals3');
                 tss_equals3.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const iw3 = parseFloat(document.getElementById("iw3").value) || 0;
-                    const Fw15 = parseFloat(document.getElementById("FW15").value) || 0;
-                    const tss_vs3  = parseFloat(document.getElementById("tss_vs3").value) || 1; // avoid /0
+                    const iw3 = rdsRequired("iw3", "the initial (tare) weight");
+                    const Fw15 = rdsLastWeight("FW15");
+                    const tss_vs3  = rdsRequired("tss_vs3", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_iw3").value = iw3;
@@ -8144,9 +8145,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals4 = document.getElementById('tss_equals4');
                 tss_equals4.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const iw4 = parseFloat(document.getElementById("iw4").value) || 0;
-                    const Fw20 = parseFloat(document.getElementById("FW20").value) || 0;
-                    const tss_vs4  = parseFloat(document.getElementById("tss_vs4").value) || 1; // avoid /0
+                    const iw4 = rdsRequired("iw4", "the initial (tare) weight");
+                    const Fw20 = rdsLastWeight("FW20");
+                    const tss_vs4  = rdsRequired("tss_vs4", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_iw4").value = iw4;
@@ -8189,9 +8190,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals1_inlet = document.getElementById('tss_equals1_inlet');
                 if (tss_equals1_inlet) {
                     tss_equals1_inlet.addEventListener('click', () => {
-                        const iw1 = parseFloat(document.getElementById("iw1_inlet").value) || 0;
-                        const Fw05 = parseFloat(document.getElementById("FW05_inlet").value) || 0;
-                        const tss_vs1 = parseFloat(document.getElementById("tss_vs1_inlet").value) || 1;
+                        const iw1 = rdsRequired("iw1_inlet", "the initial (tare) weight");
+                        const Fw05 = rdsLastWeight("FW05_inlet");
+                        const tss_vs1 = rdsRequired("tss_vs1_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw1_inlet").value = iw1;
                         document.getElementById("for_fw1_inlet").value = Fw05;
@@ -8207,9 +8208,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals2_inlet = document.getElementById('tss_equals2_inlet');
                 if (tss_equals2_inlet) {
                     tss_equals2_inlet.addEventListener('click', () => {
-                        const iw2 = parseFloat(document.getElementById("iw2_inlet").value) || 0;
-                        const Fw10 = parseFloat(document.getElementById("FW10_inlet").value) || 0;
-                        const tss_vs2 = parseFloat(document.getElementById("tss_vs2_inlet").value) || 1;
+                        const iw2 = rdsRequired("iw2_inlet", "the initial (tare) weight");
+                        const Fw10 = rdsLastWeight("FW10_inlet");
+                        const tss_vs2 = rdsRequired("tss_vs2_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw2_inlet").value = iw2;
                         document.getElementById("for_fw2_inlet").value = Fw10;
@@ -8225,9 +8226,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals3_inlet = document.getElementById('tss_equals3_inlet');
                 if (tss_equals3_inlet) {
                     tss_equals3_inlet.addEventListener('click', () => {
-                        const iw3 = parseFloat(document.getElementById("iw3_inlet").value) || 0;
-                        const Fw15 = parseFloat(document.getElementById("FW15_inlet").value) || 0;
-                        const tss_vs3 = parseFloat(document.getElementById("tss_vs3_inlet").value) || 1;
+                        const iw3 = rdsRequired("iw3_inlet", "the initial (tare) weight");
+                        const Fw15 = rdsLastWeight("FW15_inlet");
+                        const tss_vs3 = rdsRequired("tss_vs3_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw3_inlet").value = iw3;
                         document.getElementById("for_fw3_inlet").value = Fw15;
@@ -8243,9 +8244,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals4_inlet = document.getElementById('tss_equals4_inlet');
                 if (tss_equals4_inlet) {
                     tss_equals4_inlet.addEventListener('click', () => {
-                        const iw4 = parseFloat(document.getElementById("iw4_inlet").value) || 0;
-                        const Fw20 = parseFloat(document.getElementById("FW20_inlet").value) || 0;
-                        const tss_vs4 = parseFloat(document.getElementById("tss_vs4_inlet").value) || 1;
+                        const iw4 = rdsRequired("iw4_inlet", "the initial (tare) weight");
+                        const Fw20 = rdsLastWeight("FW20_inlet");
+                        const tss_vs4 = rdsRequired("tss_vs4_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw4_inlet").value = iw4;
                         document.getElementById("for_fw4_inlet").value = Fw20;
@@ -8284,9 +8285,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals1_outlet = document.getElementById('tss_equals1_outlet');
                 if (tss_equals1_outlet) {
                     tss_equals1_outlet.addEventListener('click', () => {
-                        const iw1 = parseFloat(document.getElementById("iw1_outlet").value) || 0;
-                        const Fw05 = parseFloat(document.getElementById("FW05_outlet").value) || 0;
-                        const tss_vs1 = parseFloat(document.getElementById("tss_vs1_outlet").value) || 1;
+                        const iw1 = rdsRequired("iw1_outlet", "the initial (tare) weight");
+                        const Fw05 = rdsLastWeight("FW05_outlet");
+                        const tss_vs1 = rdsRequired("tss_vs1_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw1_outlet").value = iw1;
                         document.getElementById("for_fw1_outlet").value = Fw05;
@@ -8302,9 +8303,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals2_outlet = document.getElementById('tss_equals2_outlet');
                 if (tss_equals2_outlet) {
                     tss_equals2_outlet.addEventListener('click', () => {
-                        const iw2 = parseFloat(document.getElementById("iw2_outlet").value) || 0;
-                        const Fw10 = parseFloat(document.getElementById("FW10_outlet").value) || 0;
-                        const tss_vs2 = parseFloat(document.getElementById("tss_vs2_outlet").value) || 1;
+                        const iw2 = rdsRequired("iw2_outlet", "the initial (tare) weight");
+                        const Fw10 = rdsLastWeight("FW10_outlet");
+                        const tss_vs2 = rdsRequired("tss_vs2_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw2_outlet").value = iw2;
                         document.getElementById("for_fw2_outlet").value = Fw10;
@@ -8320,9 +8321,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals3_outlet = document.getElementById('tss_equals3_outlet');
                 if (tss_equals3_outlet) {
                     tss_equals3_outlet.addEventListener('click', () => {
-                        const iw3 = parseFloat(document.getElementById("iw3_outlet").value) || 0;
-                        const Fw15 = parseFloat(document.getElementById("FW15_outlet").value) || 0;
-                        const tss_vs3 = parseFloat(document.getElementById("tss_vs3_outlet").value) || 1;
+                        const iw3 = rdsRequired("iw3_outlet", "the initial (tare) weight");
+                        const Fw15 = rdsLastWeight("FW15_outlet");
+                        const tss_vs3 = rdsRequired("tss_vs3_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw3_outlet").value = iw3;
                         document.getElementById("for_fw3_outlet").value = Fw15;
@@ -8338,9 +8339,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const tss_equals4_outlet = document.getElementById('tss_equals4_outlet');
                 if (tss_equals4_outlet) {
                     tss_equals4_outlet.addEventListener('click', () => {
-                        const iw4 = parseFloat(document.getElementById("iw4_outlet").value) || 0;
-                        const Fw20 = parseFloat(document.getElementById("FW20_outlet").value) || 0;
-                        const tss_vs4 = parseFloat(document.getElementById("tss_vs4_outlet").value) || 1;
+                        const iw4 = rdsRequired("iw4_outlet", "the initial (tare) weight");
+                        const Fw20 = rdsLastWeight("FW20_outlet");
+                        const tss_vs4 = rdsRequired("tss_vs4_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_iw4_outlet").value = iw4;
                         document.getElementById("for_fw4_outlet").value = Fw20;
@@ -8738,9 +8739,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     // Reading 1
                     const oil_equals1 = document.getElementById('oil_equals1');
                     oil_equals1.addEventListener('click', () => {
-                        const iw1 = parseFloat(document.getElementById("oil_iw1").value) || 0;
-                        const Fw05 = parseFloat(document.getElementById("oil_FW05").value) || 0;
-                        const oil_vs1 = parseFloat(document.getElementById("oil_vs1").value) || 1;
+                        const iw1 = rdsRequired("oil_iw1", "the initial (tare) weight");
+                        const Fw05 = rdsLastWeight("oil_FW05");
+                        const oil_vs1 = rdsRequired("oil_vs1", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw1").value = iw1;
                         document.getElementById("for_oil_fw1").value = Fw05;
@@ -8753,9 +8754,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     // Reading 2
                     const oil_equals2 = document.getElementById('oil_equals2');
                     oil_equals2.addEventListener('click', () => {
-                        const iw2 = parseFloat(document.getElementById("oil_iw2").value) || 0;
-                        const Fw10 = parseFloat(document.getElementById("oil_FW10").value) || 0;
-                        const oil_vs2 = parseFloat(document.getElementById("oil_vs2").value) || 1;
+                        const iw2 = rdsRequired("oil_iw2", "the initial (tare) weight");
+                        const Fw10 = rdsLastWeight("oil_FW10");
+                        const oil_vs2 = rdsRequired("oil_vs2", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw2").value = iw2;
                         document.getElementById("for_oil_fw2").value = Fw10;
@@ -8768,9 +8769,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     // Reading 3
                     const oil_equals3 = document.getElementById('oil_equals3');
                     oil_equals3.addEventListener('click', () => {
-                        const iw3 = parseFloat(document.getElementById("oil_iw3").value) || 0;
-                        const Fw15 = parseFloat(document.getElementById("oil_FW15").value) || 0;
-                        const oil_vs3 = parseFloat(document.getElementById("oil_vs3").value) || 1;
+                        const iw3 = rdsRequired("oil_iw3", "the initial (tare) weight");
+                        const Fw15 = rdsLastWeight("oil_FW15");
+                        const oil_vs3 = rdsRequired("oil_vs3", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw3").value = iw3;
                         document.getElementById("for_oil_fw3").value = Fw15;
@@ -8804,9 +8805,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const oilEquals1Inlet = document.getElementById('oil_equals1_inlet');
                 if (oilEquals1Inlet) {
                     oilEquals1Inlet.addEventListener('click', () => {
-                        const iw1 = parseFloat(document.getElementById("oil_iw1_inlet").value) || 0;
-                        const Fw05 = parseFloat(document.getElementById("oil_FW05_inlet").value) || 0;
-                        const oil_vs1 = parseFloat(document.getElementById("oil_vs1_inlet").value) || 1;
+                        const iw1 = rdsRequired("oil_iw1_inlet", "the initial (tare) weight");
+                        const Fw05 = rdsLastWeight("oil_FW05_inlet");
+                        const oil_vs1 = rdsRequired("oil_vs1_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw1_inlet").value = iw1;
                         document.getElementById("for_oil_fw1_inlet").value = Fw05;
@@ -8821,9 +8822,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const oilEquals2Inlet = document.getElementById('oil_equals2_inlet');
                 if (oilEquals2Inlet) {
                     oilEquals2Inlet.addEventListener('click', () => {
-                        const iw2 = parseFloat(document.getElementById("oil_iw2_inlet").value) || 0;
-                        const Fw10 = parseFloat(document.getElementById("oil_FW10_inlet").value) || 0;
-                        const oil_vs2 = parseFloat(document.getElementById("oil_vs2_inlet").value) || 1;
+                        const iw2 = rdsRequired("oil_iw2_inlet", "the initial (tare) weight");
+                        const Fw10 = rdsLastWeight("oil_FW10_inlet");
+                        const oil_vs2 = rdsRequired("oil_vs2_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw2_inlet").value = iw2;
                         document.getElementById("for_oil_fw2_inlet").value = Fw10;
@@ -8838,9 +8839,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const oilEquals3Inlet = document.getElementById('oil_equals3_inlet');
                 if (oilEquals3Inlet) {
                     oilEquals3Inlet.addEventListener('click', () => {
-                        const iw3 = parseFloat(document.getElementById("oil_iw3_inlet").value) || 0;
-                        const Fw15 = parseFloat(document.getElementById("oil_FW15_inlet").value) || 0;
-                        const oil_vs3 = parseFloat(document.getElementById("oil_vs3_inlet").value) || 1;
+                        const iw3 = rdsRequired("oil_iw3_inlet", "the initial (tare) weight");
+                        const Fw15 = rdsLastWeight("oil_FW15_inlet");
+                        const oil_vs3 = rdsRequired("oil_vs3_inlet", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw3_inlet").value = iw3;
                         document.getElementById("for_oil_fw3_inlet").value = Fw15;
@@ -8877,9 +8878,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const oilEquals1Outlet = document.getElementById('oil_equals1_outlet');
                 if (oilEquals1Outlet) {
                     oilEquals1Outlet.addEventListener('click', () => {
-                        const iw1 = parseFloat(document.getElementById("oil_iw1_outlet").value) || 0;
-                        const Fw05 = parseFloat(document.getElementById("oil_FW05_outlet").value) || 0;
-                        const oil_vs1 = parseFloat(document.getElementById("oil_vs1_outlet").value) || 1;
+                        const iw1 = rdsRequired("oil_iw1_outlet", "the initial (tare) weight");
+                        const Fw05 = rdsLastWeight("oil_FW05_outlet");
+                        const oil_vs1 = rdsRequired("oil_vs1_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw1_outlet").value = iw1;
                         document.getElementById("for_oil_fw1_outlet").value = Fw05;
@@ -8894,9 +8895,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const oilEquals2Outlet = document.getElementById('oil_equals2_outlet');
                 if (oilEquals2Outlet) {
                     oilEquals2Outlet.addEventListener('click', () => {
-                        const iw2 = parseFloat(document.getElementById("oil_iw2_outlet").value) || 0;
-                        const Fw10 = parseFloat(document.getElementById("oil_FW10_outlet").value) || 0;
-                        const oil_vs2 = parseFloat(document.getElementById("oil_vs2_outlet").value) || 1;
+                        const iw2 = rdsRequired("oil_iw2_outlet", "the initial (tare) weight");
+                        const Fw10 = rdsLastWeight("oil_FW10_outlet");
+                        const oil_vs2 = rdsRequired("oil_vs2_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw2_outlet").value = iw2;
                         document.getElementById("for_oil_fw2_outlet").value = Fw10;
@@ -8911,9 +8912,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 const oilEquals3Outlet = document.getElementById('oil_equals3_outlet');
                 if (oilEquals3Outlet) {
                     oilEquals3Outlet.addEventListener('click', () => {
-                        const iw3 = parseFloat(document.getElementById("oil_iw3_outlet").value) || 0;
-                        const Fw15 = parseFloat(document.getElementById("oil_FW15_outlet").value) || 0;
-                        const oil_vs3 = parseFloat(document.getElementById("oil_vs3_outlet").value) || 1;
+                        const iw3 = rdsRequired("oil_iw3_outlet", "the initial (tare) weight");
+                        const Fw15 = rdsLastWeight("oil_FW15_outlet");
+                        const oil_vs3 = rdsRequired("oil_vs3_outlet", "the sample volume (mL)");
 
                         document.getElementById("for_oil_iw3_outlet").value = iw3;
                         document.getElementById("for_oil_fw3_outlet").value = Fw15;
@@ -11947,7 +11948,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
 
                         const finalAns = ((ans1*for_chloride1_df) + (ans2*for_chloride2_df) + (ans3*for_chloride3_df)) / chloride_divi;
                         document.getElementById("for_chloride_ans").value = finalAns.toFixed(2);
-                        updateSimpleCalculationRow('Chloride', final_ans.toFixed(2));
+                        updateSimpleCalculationRow('Chloride', finalAns.toFixed(2));
                     });
                 }
             
@@ -12472,7 +12473,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     const color_sum = for_color1+for_color2+for_color3
 
-                    const cal = color_sum/3
+                    const cal = color_sum/(window.__rdsN || 3)
                     const color_ans = document.getElementById('color_ans')
                     color_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -12513,7 +12514,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     // Calculate: (color1 + color2 + color3) / 3
                     const color_sum = color1 + color2 + color3;
-                    const cal = color_sum / 3;
+                    const cal = color_sum /(window.__rdsN || 3);
                     
                     // Display result
                     document.getElementById('color_ans_inlet_simple').value = parseFloat(cal.toFixed(4));
@@ -12555,7 +12556,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     // Calculate: (color1 + color2 + color3) / 3
                     const color_sum = color1 + color2 + color3;
-                    const cal = color_sum / 3;
+                    const cal = color_sum /(window.__rdsN || 3);
                     
                     // Display result
                     document.getElementById('color_ans_outlet_simple').value = parseFloat(cal.toFixed(4));
@@ -12720,7 +12721,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         
                         const silver_ans = document.getElementById('silver_ans_1');
                         silver_ans.value = parseFloat(cal.toFixed(4));
-                        updateSimpleCalculationRow('Silver', final_ans.toFixed(2));
+                        updateSimpleCalculationRow('Silver', cal.toFixed(4));
                     });
                 }
             
@@ -13205,7 +13206,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         
                         // Calculate: (cyanide1 + cyanide2 + cyanide3) / 3
                         const cyanide_sum = cyanide1 + cyanide2 + cyanide3;
-                        const cal = cyanide_sum / 3;
+                        const cal = cyanide_sum /(window.__rdsN || 3);
                         
                         // Display result
                         document.getElementById('cyanide_ans_outlet_simple').value = parseFloat(cal.toFixed(4));
@@ -13478,7 +13479,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         
                         // Calculate: (fluoride1 + fluoride2 + fluoride3) / 3
                         const fluoride_sum = fluoride1 + fluoride2 + fluoride3;
-                        const cal = fluoride_sum / 3;
+                        const cal = fluoride_sum /(window.__rdsN || 3);
                         
                         // Display result
                         document.getElementById('fluoride_ans_outlet_simple').value = parseFloat(cal.toFixed(4));
@@ -13859,7 +13860,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         document.getElementById("for_hardness2").value = ans2;
                         document.getElementById("for_hardness3").value = ans3;
 
-                        const finalAns = ((ans1*for_hardness1_df) + (ans2*for_hardness2_df) + (ans3*for_hardness1_df)) / hardness_divi;
+                        const finalAns = ((ans1*for_hardness1_df) + (ans2*for_hardness2_df) + (ans3*for_hardness3_df)) / hardness_divi;
                         document.getElementById("for_hardness_ans").value = finalAns.toFixed(2);
                         updateSimpleCalculationRow('Total Hardness', finalAns.toFixed(2));
                     });
@@ -14990,7 +14991,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     // Calculate: (nitrate1 + nitrate2 + nitrate3) / 3
                     const nitrate_sum = nitrate1 + nitrate2 + nitrate3;
-                    const cal = nitrate_sum / 3;
+                    const cal = nitrate_sum /(window.__rdsN || 3);
                     
                     // Display result
                     document.getElementById('nitrate_ans_outlet_simple').value = parseFloat(cal.toFixed(4));
@@ -15205,7 +15206,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         
                         const nitrite_sum = for_nitrite1+for_nitrite2+for_nitrite3
 
-                        const cal = nitrite_sum/3
+                        const cal = nitrite_sum/(window.__rdsN || 3)
                         const nitrite_ans = document.getElementById('nitrite_ans')
                         nitrite_ans.value = parseFloat(cal.toFixed(4));
                     })
@@ -15243,7 +15244,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     // Calculate: (nitrite1 + nitrite2 + nitrite3) / 3
                     const nitrite_sum = nitrite1 + nitrite2 + nitrite3;
-                    const cal = nitrite_sum / 3;
+                    const cal = nitrite_sum /(window.__rdsN || 3);
                     
                     // Display result
                     document.getElementById('nitrite_ans_inlet_simple').value = parseFloat(cal.toFixed(4));
@@ -15285,7 +15286,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     // Calculate: (nitrite1 + nitrite2 + nitrite3) / 3
                     const nitrite_sum = nitrite1 + nitrite2 + nitrite3;
-                    const cal = nitrite_sum / 3;
+                    const cal = nitrite_sum /(window.__rdsN || 3);
                     
                     // Display result
                     document.getElementById('nitrite_ans_outlet_simple').value = parseFloat(cal.toFixed(4));
@@ -15758,7 +15759,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         
                         // Calculate: (residual1 + residual2 + residual3) / 3
                         const residual_sum = residual1 + residual2 + residual3;
-                        const cal = residual_sum / 3;
+                        const cal = residual_sum /(window.__rdsN || 3);
                         
                         // Display result
                         document.getElementById('residual_ans_outlet_simple').value = parseFloat(cal.toFixed(4));
@@ -17625,7 +17626,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         const for_ammonia3 = parseFloat(document.getElementById('for_ammonia3_outlet').value) || 0;
                         
                         const ammonia_sum = for_ammonia1 + for_ammonia2 + for_ammonia3;
-                        const cal = ammonia_sum / 3;
+                        const cal = ammonia_sum /(window.__rdsN || 3);
                         
                         document.getElementById('ammonia_ans_outlet').value = parseFloat(cal.toFixed(4));
                     });
@@ -18044,7 +18045,8 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     document.getElementById("for_carbonates2").value = ans2;
                     document.getElementById("for_carbonates3").value = ans3;
 
-                    const finalAns = ((ans1 * df1) + (ans2 * df2) + (ans3 * df3)) / divisor;
+                    const pAlk = ((ans1 * df1) + (ans2 * df2) + (ans3 * df3)) / divisor;   // phenolphthalein alkalinity P (mean)
+                    const finalAns = rdsCarbonate(pAlk);   // carbonate alkalinity per APHA 2320 B (QA RDS-09)
                     document.getElementById("for_carbonates_ans").value = finalAns.toFixed(2);
                 }); {% endcomment %}
             
@@ -18130,7 +18132,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                 
                     const chromium_IV_sum = for_chromium_IV1+for_chromium_IV2+for_chromium_IV3
                     
-                    const cal = chromium_IV_sum/3
+                    const cal = chromium_IV_sum/(window.__rdsN || 3)
                     const chromium_IV_ans = document.getElementById('chromium_IV_ans')
                     chromium_IV_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -18433,7 +18435,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         const for_cod3 = parseFloat(document.getElementById('for_cod3_outlet').value) || 0;
                         
                         const cod_sum = for_cod1 + for_cod2 + for_cod3;
-                        const cal = cod_sum / 3;
+                        const cal = cod_sum /(window.__rdsN || 3);
                         
                         document.getElementById('cod_ans_outlet').value = parseFloat(cal.toFixed(4));
                     });
@@ -18607,7 +18609,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     const ferrous_sum = for_ferrous1+for_ferrous2+for_ferrous3
 
-                    const cal = ferrous_sum/3
+                    const cal = ferrous_sum/(window.__rdsN || 3)
                     const ferrous_ans = document.getElementById('ferrous_ans')
                     ferrous_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -18681,7 +18683,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                     const freechlorine_sum = for_freechlorine1+for_freechlorine2+for_freechlorine3
 
-                    const cal = freechlorine_sum/3
+                    const cal = freechlorine_sum/(window.__rdsN || 3)
                     const freechlorine_ans = document.getElementById('freechlorine_ans')
                     freechlorine_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -19347,7 +19349,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                         const for_sulphate3 = parseFloat(document.getElementById('for_sulphate3_outlet').value) || 0;
                         
                         const sulphate_sum = for_sulphate1 + for_sulphate2 + for_sulphate3;
-                        const cal = sulphate_sum / 3;
+                        const cal = sulphate_sum /(window.__rdsN || 3);
                         
                         document.getElementById('sulphate_ans_outlet').value = parseFloat(cal.toFixed(4));
                     });
@@ -19894,7 +19896,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                                             </div>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <button type="button" id="cal_avg_equal_inlet" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
+                                            <p class="px-2 font-bold" title="Calcium hardness (mg/L as CaCO3) x 0.4008 = calcium (mg/L as Ca)">× 0.4008</p><button type="button" id="cal_avg_equal_inlet" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
                                             <input id="cal_avg_final_ans_inlet" name="cal_avg_final_ans_inlet" class="p-2" type="number" step="any" placeholder="Final Answer">
                                             <input id="cal_avg_param_inlet" name="cal_avg_param_inlet" class="p-2" type="text" value="mg/L">
                                         </div>
@@ -20082,7 +20084,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                                             </div>
                                         </div>
                                         <div class="flex gap-2 items-center">
-                                            <button type="button" id="cal_avg_equal_outlet" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
+                                            <p class="px-2 font-bold" title="Calcium hardness (mg/L as CaCO3) x 0.4008 = calcium (mg/L as Ca)">× 0.4008</p><button type="button" id="cal_avg_equal_outlet" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
                                             <input id="cal_avg_final_ans_outlet" name="cal_avg_final_ans_outlet" class="p-2" type="number" step="any" placeholder="Final Answer">
                                             <input id="cal_avg_param_outlet" name="cal_avg_param_outlet" class="p-2" type="text" value="mg/L">
                                         </div>
@@ -20247,7 +20249,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                             const cal_avg_sum = cal_avg_ans1 + cal_avg_ans2 + cal_avg_ans3;
                             console.log('cal avg',cal_avg_sum)
                             const cal = cal_avg_divi !== 0 ? cal_avg_sum / cal_avg_divi : 0;
-                            setNumericValue('cal_avg_final_ans', cal);
+                            setNumericValue('cal_avg_final_ans', cal * 0.4008);   // calcium hardness as CaCO3 -> calcium as Ca (QA RDS-08)
                             document.getElementById('cal_avg_ans1').value = cal_avg_ans1;
                             document.getElementById('cal_avg_ans2').value = cal_avg_ans2;
                             document.getElementById('cal_avg_ans3').value = cal_avg_ans3;
@@ -20400,7 +20402,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                         const cal_avg_sum = cal_avg_ans1 + cal_avg_ans2 + cal_avg_ans3;
                         const cal = cal_avg_divi !== 0 ? cal_avg_sum / cal_avg_divi : 0;
-                        setCalciumNumericValue('cal_avg_final_ans_inlet', cal);
+                        setCalciumNumericValue('cal_avg_final_ans_inlet', cal * 0.4008);   // calcium hardness as CaCO3 -> calcium as Ca (QA RDS-08)
                         document.getElementById('cal_avg_ans1_inlet').value = cal_avg_ans1;
                         document.getElementById('cal_avg_ans2_inlet').value = cal_avg_ans2;
                         document.getElementById('cal_avg_ans3_inlet').value = cal_avg_ans3;
@@ -20526,7 +20528,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                     
                         const cal_avg_sum = cal_avg_ans1 + cal_avg_ans2 + cal_avg_ans3;
                         const cal = cal_avg_divi !== 0 ? cal_avg_sum / cal_avg_divi : 0;
-                        setCalciumNumericValue('cal_avg_final_ans_outlet', cal);
+                        setCalciumNumericValue('cal_avg_final_ans_outlet', cal * 0.4008);   // calcium hardness as CaCO3 -> calcium as Ca (QA RDS-08)
                         document.getElementById('cal_avg_ans1_outlet').value = cal_avg_ans1;
                         document.getElementById('cal_avg_ans2_outlet').value = cal_avg_ans2;
                         document.getElementById('cal_avg_ans3_outlet').value = cal_avg_ans3;
@@ -20647,9 +20649,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                                             <p class="px-1">+</p>
                                             <input style="width: 60px;" id="toxic_r11_inlet" placeholder="R 11" step="any" name="toxic_r11_inlet" class="text-center p-2" type="number" step="any">
                                         </div>
-                                        <hr class="my-2 border border-black">
+                                        <hr style="display:none" class="my-2 border border-black">
                                         <div class="text-center">
-                                            <input id="toxic_divi_inlet" name="toxic_divi_inlet" step="any" placeholder="11" class="text-center p-2" type="number" step="any" value="11">
+                                            <input style="display:none" id="toxic_divi_inlet" name="toxic_divi_inlet" step="any" placeholder="1" class="text-center p-2" type="number" step="any" value="1" readonly>
                                         </div>
                                     </div>
                                     <div class="flex gap-2 items-center">
@@ -20746,9 +20748,9 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                                             <p class="px-1">+</p>
                                             <input style="width: 60px;" id="toxic_r11_outlet" placeholder="R 11" step="any" name="toxic_r11_outlet" class="text-center p-2" type="number" step="any">
                                         </div>
-                                        <hr class="my-2 border border-black">
+                                        <hr style="display:none" class="my-2 border border-black">
                                         <div class="text-center">
-                                            <input id="toxic_divi_outlet" name="toxic_divi_outlet" placeholder="11" class="text-center p-2" type="number" step="any" value="11">
+                                            <input style="display:none" id="toxic_divi_outlet" name="toxic_divi_outlet" placeholder="1" class="text-center p-2" type="number" step="any" value="1" readonly>
                                         </div>
                                     </div>
                                     <div class="flex gap-2 items-center">
@@ -20786,7 +20788,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                             sum += value;
                         }
 
-                        const divisor = parseFloat(document.getElementById("toxic_divi").value) || 1;
+                        const divisor = 1;   // total toxic metals is the SUM of the metals (NEQS / PEQS / SEQS), not their mean
                         document.getElementById("toxic_ans").value = (sum / divisor).toFixed(4);
                         updateSimpleCalculationRow('Toxic Metals', (sum / divisor).toFixed(2));
                     });
@@ -20808,7 +20810,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                             sum += value;
                         }
 
-                        const divisor = parseFloat(document.getElementById("toxic_divi_inlet").value) || 11;
+                        const divisor = 1;   // total toxic metals is the SUM of the metals (NEQS / PEQS / SEQS), not their mean
                         document.getElementById("toxic_ans_inlet").value = (sum / divisor).toFixed(4);
                         createRowFromCalculation("Toxic Metals", (sum / divisor).toFixed(2), "toxic_metals", true);
                         
@@ -20831,7 +20833,7 @@ function createSimpleRow(paramName, sno, reportType, resultValue) {
                             sum += value;
                         }
 
-                        const divisor = parseFloat(document.getElementById("toxic_divi_outlet").value) || 11;
+                        const divisor = 1;   // total toxic metals is the SUM of the metals (NEQS / PEQS / SEQS), not their mean
                         document.getElementById("toxic_ans_outlet").value = (sum / divisor).toFixed(4);
                         createRowFromCalculation("Toxic Metals", (sum / divisor).toFixed(2), "toxic_metals", false);
                         
@@ -22544,5 +22546,5 @@ function calculateSulphideCrm(prefix) {
     </script> 
     
 <script src="{% static 'js/rds_ww_calc.js' %}?v=20261027"></script>
-<script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
 {% endblock %}

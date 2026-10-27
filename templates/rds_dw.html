@@ -3031,6 +3031,7 @@
                             <button type="button" id="for_carbonates_equal" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg " type="number" step="any">=</button>
                             <input id="for_carbonates_ans" name="for_carbonates_ans" class="p-2" type="number" step="any" placeholder="Final Ans">
                             <input id="for_carbonates_param" name="for_carbonates_param" class="p-2" type="text" placeholder="param" value="mg/L">
+<div class="w-full text-sm mt-3 flex flex-wrap gap-3 items-center" style="flex-basis:100%"><label>Phenolphthalein alkalinity P (mean) <input id="carbonates_P" name="carbonates_P" class="p-2" type="number" step="any" readonly style="width:120px"></label><label>Total alkalinity T <input id="carbonates_T" name="carbonates_T" class="p-2" type="number" step="any" placeholder="from Alkalinity" style="width:120px"></label><span class="text-gray-600">Carbonate (mg/L as CaCO3) = 2P when P &le; T/2, otherwise 2(T &minus; P) &mdash; APHA 2320 B</span></div>
                             
                         </div>
                     </div>
@@ -4413,7 +4414,7 @@
                             </div>
                         </div>
                         <div class="flex gap-2 items-center">
-                            <button type="button" id="cal_avg_equal" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
+                            <p class="px-2 font-bold" title="Calcium hardness (mg/L as CaCO3) x 0.4008 = calcium (mg/L as Ca)">× 0.4008</p><button type="button" id="cal_avg_equal" class="bg-blue-600 px-4 py-2 text-gray-200 rounded-lg">=</button>
                             <input id="cal_avg_final_ans" name="cal_avg_final_ans" class="p-2" type="number" step="any" placeholder="Ans">
                             <input id="cal_avg_param" name="cal_avg_param" class="p-2" type="text" placeholder="param" value="mg/L">
                         </div>
@@ -4751,9 +4752,9 @@
                 const equals1 = document.getElementById('equals1');
                 equals1.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw1 = parseFloat(document.getElementById("bw1").value) || 0;
-                    const aw05 = parseFloat(document.getElementById("AW05").value) || 0;
-                    const vs1  = parseFloat(document.getElementById("vs1").value) || 1; // avoid /0
+                    const bw1 = rdsRequired("bw1", "the empty dish (before) weight");
+                    const aw05 = rdsLastWeight("AW05");
+                    const vs1  = rdsRequired("vs1", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw1").value = bw1;
@@ -4775,9 +4776,9 @@
                 const equals2 = document.getElementById('equals2');
                 equals2.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw2 = parseFloat(document.getElementById("bw2").value) || 0;
-                    const aw10 = parseFloat(document.getElementById("AW10").value) || 0;
-                    const vs2  = parseFloat(document.getElementById("vs2").value) || 1; // avoid /0
+                    const bw2 = rdsRequired("bw2", "the empty dish (before) weight");
+                    const aw10 = rdsLastWeight("AW10");
+                    const vs2  = rdsRequired("vs2", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw2").value = bw2;
@@ -4800,9 +4801,9 @@
                 const equals3 = document.getElementById('equals3');
                 equals3.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw3 = parseFloat(document.getElementById("bw3").value) || 0;
-                    const aw15 = parseFloat(document.getElementById("AW15").value) || 0;
-                    const vs3  = parseFloat(document.getElementById("vs3").value) || 1; // avoid /0
+                    const bw3 = rdsRequired("bw3", "the empty dish (before) weight");
+                    const aw15 = rdsLastWeight("AW15");
+                    const vs3  = rdsRequired("vs3", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw3").value = bw3;
@@ -4825,9 +4826,9 @@
                 const equals4 = document.getElementById('equals4');
                 equals4.addEventListener('click', () => {
                     // Get values from the main inputs
-                    const bw4 = parseFloat(document.getElementById("bw4").value) || 0;
-                    const aw20 = parseFloat(document.getElementById("AW20").value) || 0;
-                    const vs4  = parseFloat(document.getElementById("vs4").value) || 1; // avoid /0
+                    const bw4 = rdsRequired("bw4", "the empty dish (before) weight");
+                    const aw20 = rdsLastWeight("AW20");
+                    const vs4  = rdsRequired("vs4", "the sample volume (mL)"); // avoid /0
 
                     // Auto-fill formula fields
                     document.getElementById("for_bw4").value = bw4;
@@ -5258,7 +5259,7 @@
                     
                     const color_sum = for_color1+for_color2+for_color3
 
-                    const cal = color_sum/3
+                    const cal = color_sum/(window.__rdsN || 3)
                     const color_ans = document.getElementById('color_ans')
                     color_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -5334,7 +5335,7 @@
                     
                     const cyanide_sum = for_cyanide1+for_cyanide2+for_cyanide3
 
-                    const cal = cyanide_sum/3
+                    const cal = cyanide_sum/(window.__rdsN || 3)
                     const cyanide_ans = document.getElementById('cyanide_ans')
                     cyanide_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -5379,7 +5380,7 @@
                     
                     const fluoride_sum = for_fluoride1+for_fluoride2+for_fluoride3
 
-                    const cal = fluoride_sum/3
+                    const cal = fluoride_sum/(window.__rdsN || 3)
                     const fluoride_ans = document.getElementById('fluoride_ans')
                     fluoride_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -5455,7 +5456,7 @@
                     document.getElementById("for_hardness2").value = ans2;
                     document.getElementById("for_hardness3").value = ans3;
 
-                    const finalAns = ((ans1*for_hardness1_df) + (ans2*for_hardness2_df) + (ans3*for_hardness1_df)) / hardness_divi;
+                    const finalAns = ((ans1*for_hardness1_df) + (ans2*for_hardness2_df) + (ans3*for_hardness3_df)) / hardness_divi;
                     document.getElementById("for_hardness_ans").value = finalAns.toFixed(2);
                 });
             }
@@ -5575,7 +5576,7 @@
                     const nickel_sum = (for_nickel1*for_nickel1_df)+(for_nickel2*for_nickel2_df)+(for_nickel3*for_nickel3_df)
 
 
-                    const cal = nickel_sum/3
+                    const cal = nickel_sum/(window.__rdsN || 3)
                     const nickel_ans = document.getElementById('nickel_ans')
                     nickel_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -5600,7 +5601,7 @@
                     
                     const nitrate_sum = for_nitrate1+for_nitrate2+for_nitrate3
 
-                    const cal = nitrate_sum/3
+                    const cal = nitrate_sum/(window.__rdsN || 3)
                     const nitrate_ans = document.getElementById('nitrate_ans')
                     nitrate_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -5646,7 +5647,7 @@
                     
                     const nitrite_sum = for_nitrite1+for_nitrite2+for_nitrite3
 
-                    const cal = nitrite_sum/3
+                    const cal = nitrite_sum/(window.__rdsN || 3)
                     const nitrite_ans = document.getElementById('nitrite_ans')
                     nitrite_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -5727,7 +5728,7 @@
                     
                     
 
-                    const cal = residual_sum/3
+                    const cal = residual_sum/(window.__rdsN || 3)
                     const residual_ans = document.getElementById('residual_ans')
                     residual_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6008,7 +6009,7 @@
                     
                     const ammonia_sum = for_ammonia1+for_ammonia2+for_ammonia3
 
-                    const cal = ammonia_sum/3
+                    const cal = ammonia_sum/(window.__rdsN || 3)
                     const ammonia_ans = document.getElementById('ammonia_ans')
                     ammonia_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6090,7 +6091,7 @@
                     
                     const ionic_det_sum = for_ionic_det1+for_ionic_det2+for_ionic_det3
 
-                    const cal = ionic_det_sum/3
+                    const cal = ionic_det_sum/(window.__rdsN || 3)
                     const ionic_det_ans = document.getElementById('ionic_det_ans')
                     ionic_det_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6203,7 +6204,8 @@
                     document.getElementById("for_carbonates2").value = ans2;
                     document.getElementById("for_carbonates3").value = ans3;
 
-                    const finalAns = ((ans1 * df1) + (ans2 * df2) + (ans3 * df3)) / divisor;
+                    const pAlk = ((ans1 * df1) + (ans2 * df2) + (ans3 * df3)) / divisor;   // phenolphthalein alkalinity P (mean)
+            const finalAns = rdsCarbonate(pAlk);   // carbonate alkalinity per APHA 2320 B (QA RDS-09)
                     document.getElementById("for_carbonates_ans").value = finalAns.toFixed(2);
                 });
             }
@@ -6293,7 +6295,7 @@
                 
                     const chromium_IV_sum = for_chromium_IV1+for_chromium_IV2+for_chromium_IV3
                     
-                    const cal = chromium_IV_sum/3
+                    const cal = chromium_IV_sum/(window.__rdsN || 3)
                     const chromium_IV_ans = document.getElementById('chromium_IV_ans')
                     chromium_IV_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6375,7 +6377,7 @@
                 
                     const cod_sum = for_cod1+for_cod2+for_cod3
                     
-                    const cal = cod_sum/3
+                    const cal = cod_sum/(window.__rdsN || 3)
                     const cod_ans = document.getElementById('cod_ans')
                     cod_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6553,7 +6555,7 @@
                     
                     const ferrous_sum = for_ferrous1+for_ferrous2+for_ferrous3
 
-                    const cal = ferrous_sum/3
+                    const cal = ferrous_sum/(window.__rdsN || 3)
                     const ferrous_ans = document.getElementById('ferrous_ans')
                     ferrous_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6631,7 +6633,7 @@
                     
                     const freechlorine_sum = for_freechlorine1+for_freechlorine2+for_freechlorine3
 
-                    const cal = freechlorine_sum/3
+                    const cal = freechlorine_sum/(window.__rdsN || 3)
                     const freechlorine_ans = document.getElementById('freechlorine_ans')
                     freechlorine_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -6755,7 +6757,7 @@
                     
                     const sulphate_sum = for_sulphate1+for_sulphate2+for_sulphate3
 
-                    const cal = sulphate_sum/3
+                    const cal = sulphate_sum/(window.__rdsN || 3)
                     const sulphate_ans = document.getElementById('sulphate_ans')
                     sulphate_ans.value = parseFloat(cal.toFixed(4));
                 })
@@ -7268,7 +7270,7 @@
                         const cal_avg_sum = cal_avg_ans1 + cal_avg_ans2 + cal_avg_ans3;
                         console.log('cal avg',cal_avg_sum)
                         const cal = cal_avg_divi !== 0 ? cal_avg_sum / cal_avg_divi : 0;
-                        setNumericValue('cal_avg_final_ans', cal);
+                        setNumericValue('cal_avg_final_ans', cal * 0.4008);   // calcium hardness as CaCO3 -> calcium as Ca (QA RDS-08)
                         document.getElementById('cal_avg_ans1').value = cal_avg_ans1;
                         document.getElementById('cal_avg_ans2').value = cal_avg_ans2;
                         document.getElementById('cal_avg_ans3').value = cal_avg_ans3;
@@ -7750,7 +7752,7 @@ function crmTemplate4(param, label, unit, subSno) {
                     <input style="width:100px"
                         id="${key}_4"
                         name="${key}_4"
-                        value="2.50"
+                        value="20.04" title="Equivalent weight of calcium (mg per meq), APHA 3500-Ca B"
                         type="number" step="any">
                 </div>
                 <button type="button"
@@ -8474,7 +8476,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const r1 = parseFloat(document.getElementById(`${prefix}_1`)?.value) || 0;
         const r2 = parseFloat(document.getElementById(`${prefix}_2`)?.value) || 0;
         const r3 = parseFloat(document.getElementById(`${prefix}_3`)?.value) || 0.02;
-        const r4 = parseFloat(document.getElementById(`${prefix}_4`)?.value) || 0.02;
+        const r4 = parseFloat(document.getElementById(`${prefix}_4`)?.value) || 20.04;   // Ca equivalent weight: Ca (mg/L) = (A - B) x N x 1000 / V x 20.04 (APHA 3500-Ca B)
         const divi = parseFloat(document.getElementById(`${prefix}_divi`)?.value) || 1;
 
         let result = ((r1 - r2) * r3 * 1000) / divi;
@@ -8696,5 +8698,5 @@ document.addEventListener('DOMContentLoaded', function() {
         loadSample()
     </script> 
     
-<script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
 {% endblock %}

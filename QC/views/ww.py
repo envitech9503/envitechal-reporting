@@ -1,9 +1,42 @@
+import re
 # Auto-generated 18-07-2026: split of monolithic views.py (EnviTechAL rehab).
 # Do not add module-level state here without reading views/__init__.py linker notes.
 from .shared import *  # noqa: F401,F403
 
     
         
+
+
+
+
+def _pair_line(pdf, data, name_key, value_key):
+    """Print "name = value" only when both were saved (no "None = None" lines on the RDS)."""
+    a, b = data.get(name_key), data.get(value_key)
+    if a not in (None, '') and b not in (None, ''):
+        pdf.cell(0, 4, f"{a} = {b}", ln=2)
+
+def _carbonate_line(pdf, data):
+    """Print the APHA 2320 B carbonate step under the P-alkalinity average (QA RDS-09)."""
+    if not (data.get('carbonates_P') and data.get('carbonates_T')):
+        return
+    try:
+        _p, _t = float(data.get('carbonates_P', '')), float(data.get('carbonates_T', ''))
+        rule = f"2 X {_p:g}" if _p <= _t / 2 else f"2 X ({_t:g} - {_p:g})"
+    except ValueError:
+        rule = "2P or 2(T - P)"
+    pdf.set_x(30)
+    pdf.cell(0, 6, f"Carbonate (as CaCO3), APHA 2320 B: P = {data.get('carbonates_P', '')}, T = {data.get('carbonates_T', '')}; {rule} = "
+                   f"{data.get('for_carbonates_ans')} {data.get('for_carbonates_param') or ''}", ln=True)
+
+def _ca_from_cah_text(data, sfx=''):
+    """Average of calcium (ASTM D 1126 block): mean calcium hardness (as CaCO3) x 0.4008 = calcium as Ca (QA RDS-08)."""
+    try:
+        vals = [float(data.get(f'cal_avg_ans{i}{sfx}')) for i in (1, 2, 3) if str(data.get(f'cal_avg_ans{i}{sfx}') or '').strip() not in ('', 'None')]
+        mean = sum(vals) / len(vals)
+        mean_txt = f"{mean:.2f} X 0.4008 = "
+    except Exception:
+        mean_txt = "X 0.4008 = "
+    return f"{mean_txt}{data.get(f'cal_avg_final_ans{sfx}', '')} {data.get(f'cal_avg_param{sfx}', 'mg/L')}"
 
 def _bod_seed_term(data, sfx):
     """Seed correction as written on the RDS: {(B1 - B2) / Vc X Vs} when the seed volume in the seed-control bottle is
@@ -26,6 +59,13 @@ def _rds_note(pdf, note):
     pdf.multi_cell(0, 4, "Check: " + str(note))
     pdf.set_font("Calibri", '', 10)
 
+
+
+def _toxic_sum_text(data, sfx=''):
+    """Total toxic metals = the SUM of the individual toxic metals (NEQS / PEQS / SEQS), never their mean (QA RDS-06)."""
+    vals = [str(data.get(f'toxic_r{i}{sfx}')).strip() for i in range(1, 12)]
+    vals = [v for v in vals if v not in ('', 'None')]
+    return ' + '.join(vals) if vals else '-'
 
 def _rds_ww_lab(request):
     """The laboratory whose RDS WW records the user works with: the office on the user's e-signature profile; ''
@@ -635,8 +675,10 @@ def generate_ww_qc_pdf_response(report, pk):
                 elif 'ammonium' in check_key.lower():
                     param_name = 'ammonium'
                 else:
-                    # Extract from section_title
-                    param_name = section_title.lower().split()[0]
+                    # the key stem of check_key ("for_alum1_outlet" -> "alum"); the title may be empty or differ
+                    # from the keys (an empty title stopped the whole PDF; QA RDS-11)
+                    _m = re.match(r'^for_([a-z_]+?)1(?:_|$)', check_key.lower())
+                    param_name = _m.group(1) if _m else ((section_title or '').lower().split() or ['x'])[0]
                 
                 # Determine if this is inlet or outlet
                 is_inlet = '_inlet' in check_key.lower() or 'inlet' in section_title.lower()
@@ -1111,7 +1153,7 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", size=10)
             
             final_text = f"{data.get('tds_final_ans1_inlet', '')} + {data.get('tds_final_ans2_inlet', '')} + {data.get('tds_final_ans3_inlet', '')}"
-            result_text = f"{data['tds_final_ans_inlet']} {data.get('tds_final_param_inlet', '')}"
+            result_text = f"{data.get('tds_final_ans_inlet', '')} {data.get('tds_final_param_inlet', '')}"
             add_formula_with_line(final_text, result_text, data.get('tds_final_divi_inlet','3'), 40)
 
         # OUTLET TDS Calculations Block
@@ -1174,7 +1216,7 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", size=10)
             
             final_text = f"{data.get('tds_final_ans1_outlet', '')} + {data.get('tds_final_ans2_outlet', '')} + {data.get('tds_final_ans3_outlet', '')}"
-            result_text = f"{data['tds_final_ans_outlet']} {data.get('tds_final_param_outlet', '')}"
+            result_text = f"{data.get('tds_final_ans_outlet', '')} {data.get('tds_final_param_outlet', '')}"
             add_formula_with_line(final_text, result_text, data.get('tds_final_divi_outlet','3'), 40)
 
         for key in sorted(data.keys()):
@@ -1785,7 +1827,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_ph1_outlet_sample')} + {data.get('for_ph2_outlet_sample')} + {data.get('for_ph1_outlet_sample')}",
-                    f"{data['ph_ans_4_outlet']}",
+                    f"{data.get('ph_ans_4_outlet', '')}",
                     data.get('ph_divi_4_outlet')
                 )
         
@@ -1997,7 +2039,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     data.get('barium_head_outlet'),
                     f"({data.get('for_barium1_outlet')} X {data.get('for_barium1_df_outlet')}) + ({data.get('for_barium2_outlet')} X {data.get('for_barium2_df_outlet')}) + ({data.get('for_barium3_outlet')} X {data.get('for_barium3_df_outlet')})",
-                    f"{data['barium_ans_outlet']} {data.get('barium_param_outlet')}",
+                    f"{data.get('barium_ans_outlet', '')} {data.get('barium_param_outlet')}",
                     data.get('barium_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2053,7 +2095,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('boron_head_outlet'),
                     None,
                     f"({data.get('for_boron1_outlet')} X {data.get('for_boron1_df_outlet')}) + ({data.get('for_boron2_outlet')} X {data.get('for_boron2_df_outlet')}) + ({data.get('for_boron3_outlet')} X {data.get('for_boron3_df_outlet')})",
-                    f"{data['boron_ans_outlet']} {data.get('boron_param_outlet')}",
+                    f"{data.get('boron_ans_outlet', '')} {data.get('boron_param_outlet')}",
                     data.get('boron_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2109,7 +2151,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('cadmium_head_outlet'),
                     None,
                     f"({data.get('for_cadmium1_outlet')} X {data.get('for_cadmium1_df_outlet')}) + ({data.get('for_cadmium2_outlet')} X {data.get('for_cadmium2_df_outlet')}) + ({data.get('for_cadmium3_outlet')} X {data.get('for_cadmium3_df_outlet')})",
-                    f"{data['cadmium_ans_outlet']} {data.get('cadmium_param_outlet')}",
+                    f"{data.get('cadmium_ans_outlet', '')} {data.get('cadmium_param_outlet')}",
                     data.get('cadmium_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2165,7 +2207,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('chromium_head_outlet'),
                     None,
                     f"({data.get('for_chromium1_outlet')} X {data.get('for_chromium1_df_outlet')}) + ({data.get('for_chromium2_outlet')} X {data.get('for_chromium2_df_outlet')}) + ({data.get('for_chromium3_outlet')} X {data.get('for_chromium3_df_outlet')})",
-                    f"{data['chromium_ans_outlet']} {data.get('chromium_param_outlet')}",
+                    f"{data.get('chromium_ans_outlet', '')} {data.get('chromium_param_outlet')}",
                     data.get('chrom_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2221,7 +2263,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('copper_head_outlet'),
                     None,
                     f"({data.get('for_copper1_outlet')} X {data.get('for_copper1_df_outlet')}) + ({data.get('for_copper2_outlet')} X {data.get('for_copper2_df_outlet')}) + ({data.get('for_copper3_outlet')} X {data.get('for_copper3_df_outlet')})",
-                    f"{data['copper_ans_outlet']} {data.get('copper_param_outlet')}",
+                    f"{data.get('copper_ans_outlet', '')} {data.get('copper_param_outlet')}",
                     data.get('copper_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2277,7 +2319,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('lead_head_outlet'),
                     None,
                     f"({data.get('for_lead1_outlet')} X {data.get('for_lead1_df_outlet')}) + ({data.get('for_lead2_outlet')} X {data.get('for_lead2_df_outlet')}) + ({data.get('for_lead3_outlet')} X {data.get('for_lead3_df_outlet')})",
-                    f"{data['lead_ans_outlet']} {data.get('lead_param_outlet')}",
+                    f"{data.get('lead_ans_outlet', '')} {data.get('lead_param_outlet')}",
                     data.get('lead_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2333,7 +2375,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('manganese_head_outlet'),
                     None,
                     f"({data.get('for_manganese1_outlet')} X {data.get('for_manganese1_df_outlet')}) + ({data.get('for_manganese2_outlet')} X {data.get('for_manganese2_df_outlet')}) + ({data.get('for_manganese3_outlet')} X {data.get('for_manganese3_df_outlet')})",
-                    f"{data['manganese_ans_outlet']} {data.get('manganese_param_outlet')}",
+                    f"{data.get('manganese_ans_outlet', '')} {data.get('manganese_param_outlet')}",
                     data.get('manganese_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2389,7 +2431,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('mercury_head_outlet'),
                     None,
                     f"({data.get('for_mercury1_outlet')} X {data.get('for_mercury1_df_outlet')}) + ({data.get('for_mercury2_outlet')} X {data.get('for_mercury2_df_outlet')}) + ({data.get('for_mercury3_outlet')} X {data.get('for_mercury3_df_outlet')})",
-                    f"{data['mercury_ans_outlet']} {data.get('mercury_param_outlet')}",
+                    f"{data.get('mercury_ans_outlet', '')} {data.get('mercury_param_outlet')}",
                     data.get('mercury_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2445,7 +2487,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('nickel_head_outlet'),
                     None,
                     f"({data.get('for_nickel1_outlet')} X {data.get('for_nickel1_df_outlet')}) + ({data.get('for_nickel2_outlet')} X {data.get('for_nickel2_df_outlet')}) + ({data.get('for_nickel3_outlet')} X {data.get('for_nickel3_df_outlet')})",
-                    f"{data['nickel_ans_outlet']} {data.get('nickel_param_outlet')}",
+                    f"{data.get('nickel_ans_outlet', '')} {data.get('nickel_param_outlet')}",
                     data.get('nickel_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2501,7 +2543,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('phenolic_head_outlet'),
                     None,
                     f"({data.get('for_phenolic1_outlet')} X {data.get('for_phenolic1_df_outlet')}) + ({data.get('for_phenolic2_outlet')} X {data.get('for_phenolic2_df_outlet')}) + ({data.get('for_phenolic3_outlet')} X {data.get('for_phenolic3_df_outlet')})",
-                    f"{data['phenolic_ans_outlet']} {data.get('phenolic_param_outlet')}",
+                    f"{data.get('phenolic_ans_outlet', '')} {data.get('phenolic_param_outlet')}",
                     data.get('phenolic_divi_outlet')
                 )
         for key in data.keys():
@@ -2533,7 +2575,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('selenium_head_outlet'),
                     None,
                     f"({data.get('for_selenium1_outlet')} X {data.get('for_selenium1_df_outlet')}) + ({data.get('for_selenium2_outlet')} X {data.get('for_selenium2_df_outlet')}) + ({data.get('for_selenium3_outlet')} X {data.get('for_selenium3_df_outlet')})",
-                    f"{data['selenium_ans_outlet']} {data.get('selenium_param_outlet')}",
+                    f"{data.get('selenium_ans_outlet', '')} {data.get('selenium_param_outlet')}",
                     data.get('selenium_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2589,7 +2631,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('zinc_head_outlet'),
                     None,
                     f"({data.get('for_zinc1_outlet')} X {data.get('for_zinc1_df_outlet')}) + ({data.get('for_zinc2_outlet')} X {data.get('for_zinc2_df_outlet')}) + ({data.get('for_zinc3_outlet')} X {data.get('for_zinc3_df_outlet')})",
-                    f"{data['zinc_ans_outlet']} {data.get('zinc_param_outlet')}",
+                    f"{data.get('zinc_ans_outlet', '')} {data.get('zinc_param_outlet')}",
                     data.get('zinc_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2651,7 +2693,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('iron_head_outlet'),
                     None,
                     f"({data.get('for_iron1_outlet')} X {data.get('for_iron1_df_outlet')}) + ({data.get('for_iron2_outlet')} X {data.get('for_iron2_df_outlet')}) + ({data.get('for_iron3_outlet')} X {data.get('for_iron3_df_outlet')})",
-                    f"{data['iron_ans_outlet']} {data.get('iron_param_outlet')}",
+                    f"{data.get('iron_ans_outlet', '')} {data.get('iron_param_outlet')}",
                     data.get('iron_divi_outlet')
                 )
         for key in sorted(data.keys()):
@@ -2707,7 +2749,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('sodium_head_outlet'),
                     None,
                     f"({data.get('for_sodium1_outlet')} X {data.get('for_sodium1_df_outlet')}) + ({data.get('for_sodium2_outlet')} X {data.get('for_sodium2_df_outlet')}) + ({data.get('for_sodium3_outlet')} X {data.get('for_sodium3_df_outlet')})",
-                    f"{data['sodium_ans_outlet']} {data.get('sodium_param_outlet')}",
+                    f"{data.get('sodium_ans_outlet', '')} {data.get('sodium_param_outlet')}",
                     data.get('sodium_divi_outlet')
                 )
         
@@ -2811,7 +2853,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_cyanide1_inlet')} + {data.get('for_cyanide2_inlet')} + {data.get('for_cyanide3_inlet')}",
-                    f"{data['cyanide_ans_inlet_simple']} {data.get('cyanide_param_inlet_simple')}",
+                    f"{data.get('cyanide_ans_inlet_simple', '')} {data.get('cyanide_param_inlet_simple')}",
                     data.get('cyanide_divi1_inlet', "3")
                 )
             
@@ -2828,7 +2870,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_cyanide1_1_inlet')} X {data.get('for_cyanide1_1_df_inlet')}) + ({data.get('for_cyanide1_2_inlet')} X {data.get('for_cyanide1_2_df_inlet')}) + ({data.get('for_cyanide1_3_inlet')} X {data.get('for_cyanide1_3_df_inlet')})",
-                    f"{data['cyanide_ans_inlet_weighted']} {data.get('cyanide_param_inlet_weighted')}",
+                    f"{data.get('cyanide_ans_inlet_weighted', '')} {data.get('cyanide_param_inlet_weighted')}",
                     data.get('cyanide_divi1_inlet')
                 )
         
@@ -2842,7 +2884,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_cyanide1_1_outlet')} X {data.get('for_cyanide1_1_df_outlet')}) + ({data.get('for_cyanide1_2_outlet')} X {data.get('for_cyanide1_2_df_outlet')}) + ({data.get('for_cyanide1_3_outlet')} X {data.get('for_cyanide1_3_df_outlet')})",
-                    f"{data['cyanide_ans_outlet_weighted']} {data.get('cyanide_param_outlet_weighted')}",
+                    f"{data.get('cyanide_ans_outlet_weighted', '')} {data.get('cyanide_param_outlet_weighted')}",
                     data.get('cyanide_divi_outlet')
                 )
         
@@ -2880,7 +2922,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_fluoride1_inlet')} + {data.get('for_fluoride2_inlet')} + {data.get('for_fluoride3_inlet')}",
-                    f"{data['fluoride_ans_inlet_simple']} {data.get('fluoride_param_inlet_simple')}",
+                    f"{data.get('fluoride_ans_inlet_simple', '')} {data.get('fluoride_param_inlet_simple')}",
                     data.get('fluoride_divi1_inlet', "3")
                 )
             
@@ -2897,7 +2939,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_fluoride1_1_inlet')} X {data.get('for_fluoride1_1_df_inlet')}) + ({data.get('for_fluoride1_2_inlet')} X {data.get('for_fluoride1_2_df_inlet')}) + ({data.get('for_fluoride1_3_inlet')} X {data.get('for_fluoride1_3_df_inlet')})",
-                    f"{data['fluoride_ans_inlet_weighted']} {data.get('fluoride_param_inlet_weighted')}",
+                    f"{data.get('fluoride_ans_inlet_weighted', '')} {data.get('fluoride_param_inlet_weighted')}",
                     data.get('fluoride_divi1_inlet')
                 )
         
@@ -2910,7 +2952,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_fluoride1_1_outlet')} X {data.get('for_fluoride1_1_df_outlet')}) + ({data.get('for_fluoride1_2_outlet')} X {data.get('for_fluoride1_2_df_outlet')}) + ({data.get('for_fluoride1_3_outlet')} X {data.get('for_fluoride1_3_df_outlet')})",
-                    f"{data['fluoride_ans_outlet_weighted']} {data.get('fluoride_param_outlet_weighted')}",
+                    f"{data.get('fluoride_ans_outlet_weighted', '')} {data.get('fluoride_param_outlet_weighted')}",
                     data.get('fluoride_divi_outlet')
                 )
         
@@ -2950,7 +2992,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_nitrate1_inlet')} + {data.get('for_nitrate2_inlet')} + {data.get('for_nitrate3_inlet')}",
-                    f"{data['nitrate_ans_inlet_simple']} {data.get('nitrate_param_inlet_simple')}",
+                    f"{data.get('nitrate_ans_inlet_simple', '')} {data.get('nitrate_param_inlet_simple')}",
                     data.get('nitrate_divi1_inlet', "3")
                 )
         
@@ -2963,7 +3005,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_nitrate1_1_inlet')} X {data.get('for_nitrate1_1_df_inlet')}) + ({data.get('for_nitrate1_2_inlet')} X {data.get('for_nitrate1_2_df_inlet')}) + ({data.get('for_nitrate1_3_inlet')} X {data.get('for_nitrate1_3_df_inlet')})",
-                    f"{data['nitrate_ans_inlet_weighted']} {data.get('nitrate_param_inlet_weighted')}",
+                    f"{data.get('nitrate_ans_inlet_weighted', '')} {data.get('nitrate_param_inlet_weighted')}",
                     data.get('nitrate_divi1_inlet')
                 )
        
@@ -2976,7 +3018,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_nitrate1_1_outlet')} X {data.get('for_nitrate1_1_df_outlet')}) + ({data.get('for_nitrate1_2_outlet')} X {data.get('for_nitrate1_2_df_outlet')}) + ({data.get('for_nitrate1_3_outlet')} X {data.get('for_nitrate1_3_df_outlet')})",
-                    f"{data['nitrate_ans_outlet_weighted']} {data.get('nitrate_param_outlet_weighted')}",
+                    f"{data.get('nitrate_ans_outlet_weighted', '')} {data.get('nitrate_param_outlet_weighted')}",
                     data.get('nitrate_divi_outlet')
                 )
         
@@ -3039,7 +3081,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_residual1_inlet')} + {data.get('for_residual2_inlet')} + {data.get('for_residual3_inlet')}",
-                    f"{data['residual_ans_inlet_simple']} {data.get('residual_param_inlet_simple')}",
+                    f"{data.get('residual_ans_inlet_simple', '')} {data.get('residual_param_inlet_simple')}",
                     data.get('residual_divi1_inlet', "3")
                 )
             
@@ -3056,7 +3098,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_residual1_1_inlet')} X {data.get('for_residual1_1_df_inlet')}) + ({data.get('for_residual1_2_inlet')} X {data.get('for_residual1_2_df_inlet')}) + ({data.get('for_residual1_3_inlet')} X {data.get('for_residual1_3_df_inlet')})",
-                    f"{data['residual_ans_inlet_weighted']} {data.get('residual_param_inlet_weighted')}",
+                    f"{data.get('residual_ans_inlet_weighted', '')} {data.get('residual_param_inlet_weighted')}",
                     data.get('residual_divi1_inlet')
                 )
         
@@ -3071,7 +3113,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_residual1_1_outlet')} X {data.get('for_residual1_1_df_outlet')}) + ({data.get('for_residual1_2_outlet')} X {data.get('for_residual1_2_df_outlet')}) + ({data.get('for_residual1_3_outlet')} X {data.get('for_residual1_3_df_outlet')})",
-                    f"{data['residual_ans_outlet_weighted']} {data.get('residual_param_outlet_weighted')}",
+                    f"{data.get('residual_ans_outlet_weighted', '')} {data.get('residual_param_outlet_weighted')}",
                     data.get('residual_divi_outlet')
                 )
             
@@ -3106,7 +3148,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_turbidity1_1_outlet')} X {data.get('for_turbidity1_1_df_outlet')}) + ({data.get('for_turbidity1_2_outlet')} X {data.get('for_turbidity1_2_df_outlet')}) + ({data.get('for_turbidity1_3_outlet')} X {data.get('for_turbidity1_3_df_outlet')})",
-                    f"{data['turbidity_ans_outlet_weighted']} {data.get('turbidity_param_outlet_weighted')}",
+                    f"{data.get('turbidity_ans_outlet_weighted', '')} {data.get('turbidity_param_outlet_weighted')}",
                     data.get('turbidity_divi_outlet')
                 )
         
@@ -3145,7 +3187,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_ammonia1_inlet')} + {data.get('for_ammonia2_inlet')} + {data.get('for_ammonia3_inlet')}",
-                    f"{data['ammonia_ans_inlet']} {data.get('ammonia_param_inlet')}",
+                    f"{data.get('ammonia_ans_inlet', '')} {data.get('ammonia_param_inlet')}",
                     data.get('ammonia_divi1_inlet', "3")
                 )
             
@@ -3161,7 +3203,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_ammonia1_1_inlet')} X {data.get('for_ammonia1_1_df_inlet')}) + ({data.get('for_ammonia1_2_inlet')} X {data.get('for_ammonia1_2_df_inlet')}) + ({data.get('for_ammonia1_3_inlet')} X {data.get('for_ammonia1_3_df_inlet')})",
-                    f"{data['ammonia_ans_1_inlet']} {data.get('ammonia_param_1_inlet')}",
+                    f"{data.get('ammonia_ans_1_inlet', '')} {data.get('ammonia_param_1_inlet')}",
                     data.get('ammonia_divi1_inlet')
                 )
                     
@@ -3173,7 +3215,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_ammonia1_1_outlet')} X {data.get('for_ammonia1_1_df_outlet')}) + ({data.get('for_ammonia1_2_outlet')} X {data.get('for_ammonia1_2_df_outlet')}) + ({data.get('for_ammonia1_3_outlet')} X {data.get('for_ammonia1_3_df_outlet')})",
-                    f"{data['ammonia_ans_1_outlet']} {data.get('ammonia_param_1_outlet')}",
+                    f"{data.get('ammonia_ans_1_outlet', '')} {data.get('ammonia_param_1_outlet')}",
                     data.get('ammonia_divi_outlet')
                 )
         for key in data.keys():
@@ -3208,7 +3250,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_ionic_det1_inlet')} + {data.get('for_ionic_det2_inlet')} + {data.get('for_ionic_det3_inlet')}",
-                    f"{data['ionic_det_ans_inlet']} {data.get('ammonia_param_inlet')}",
+                    f"{data.get('ionic_det_ans_inlet', '')} {data.get('ammonia_param_inlet')}",
                     data.get('ammonia_divi1_inlet', "3")
                 )
             
@@ -3224,7 +3266,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_ionic_det1_1_inlet')} X {data.get('for_ionic_det1_1_df_inlet')}) + ({data.get('for_ionic_det1_2_inlet')} X {data.get('for_ionic_det1_2_df_inlet')}) + ({data.get('for_ionic_det1_3_inlet')} X {data.get('for_ionic_det1_3_df_inlet')})",
-                    f"{data['ionic_det_ans_1_inlet']} {data.get('ionic_det_param_1_inlet')}",
+                    f"{data.get('ionic_det_ans_1_inlet', '')} {data.get('ionic_det_param_1_inlet')}",
                     data.get('ionic_det_divi_inlet')
                 )
         
@@ -3236,7 +3278,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_ionic_det1_1_outlet')} X {data.get('for_ionic_det1_1_df_outlet')}) + ({data.get('for_ionic_det1_2_outlet')} X {data.get('for_ionic_det1_2_df_outlet')}) + ({data.get('for_ionic_det1_3_outlet')} X {data.get('for_ionic_det1_3_df_outlet')})",
-                    f"{data['ionic_det_ans_1_outlet']} {data.get('ionic_det_param_1_outlet')}",
+                    f"{data.get('ionic_det_ans_1_outlet', '')} {data.get('ionic_det_param_1_outlet')}",
                     data.get('ionic_det_divi_outlet')
                 )
         for key in data.keys():
@@ -3275,7 +3317,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"{data.get('for_sulphate1_inlet')} + {data.get('for_sulphate2_inlet')} + {data.get('for_sulphate3_inlet')}",
-                    f"{data['sulphate_ans_inlet']} {data.get('sulphate_param_inlet')}",
+                    f"{data.get('sulphate_ans_inlet', '')} {data.get('sulphate_param_inlet')}",
                     data.get('sulphate_divi1_inlet',"3")
                 )
             
@@ -3287,7 +3329,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_sulphate1_1_inlet')} X {data.get('for_sulphate1_1_df_inlet')}) + ({data.get('for_sulphate1_2_inlet')} X {data.get('for_sulphate1_2_df_inlet')}) + ({data.get('for_sulphate1_3_inlet')} X {data.get('for_sulphate1_3_df_inlet')})",
-                    f"{data['sulphate_ans_1_inlet']} {data.get('sulphate_param_1_inlet')}",
+                    f"{data.get('sulphate_ans_1_inlet', '')} {data.get('sulphate_param_1_inlet')}",
                     data.get('sulphate_divi1_inlet')
                 )
         
@@ -3302,7 +3344,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_sulphate1_1_outlet')} X {data.get('for_sulphate1_1_df_outlet')}) + ({data.get('for_sulphate1_2_outlet')} X {data.get('for_sulphate1_2_df_outlet')}) + ({data.get('for_sulphate1_3_outlet')} X {data.get('for_sulphate1_3_df_outlet')})",
-                    f"{data['sulphate_ans_1_outlet']} {data.get('sulphate_param_1_outlet')}",
+                    f"{data.get('sulphate_ans_1_outlet', '')} {data.get('sulphate_param_1_outlet')}",
                     data.get('sulphate_divi_outlet')
                 )
         
@@ -3346,7 +3388,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     " + ".join(str(data.get(k)) for k in ('for_cod1_inlet', 'for_cod2_inlet', 'for_cod3_inlet') if str(data.get(k) or '').strip()),
-                    f"{data['cod_ans_inlet']} {data.get('cod_param_inlet')}",
+                    f"{data.get('cod_ans_inlet', '')} {data.get('cod_param_inlet')}",
                     data.get('cod_divi1_inlet', "3")
                 )
             _rds_note(pdf, data.get('cod_ws_check_inlet'))
@@ -3363,7 +3405,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_cod1_1_inlet')} X {data.get('for_cod1_1_df_inlet')}) + ({data.get('for_cod1_2_inlet')} X {data.get('for_cod1_2_df_inlet')}) + ({data.get('for_cod1_3_inlet')} X {data.get('for_cod1_3_df_inlet')})",
-                    f"{data['cod_ans_1_inlet']} {data.get('cod_param_1_inlet')}",
+                    f"{data.get('cod_ans_1_inlet', '')} {data.get('cod_param_1_inlet')}",
                     data.get('cod_divi_inlet', "3")
                 )
             _rds_note(pdf, data.get('cod_check_inlet'))
@@ -3377,7 +3419,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     " + ".join(str(data.get(k)) for k in ('for_cod1_outlet', 'for_cod2_outlet', 'for_cod3_outlet') if str(data.get(k) or '').strip()),
-                    f"{data['cod_ans_outlet']} {data.get('cod_param_outlet') or 'mg/L'}",
+                    f"{data.get('cod_ans_outlet', '')} {data.get('cod_param_outlet') or 'mg/L'}",
                     data.get('cod_divi1_outlet', "3")
                 )
             _rds_note(pdf, data.get('cod_ws_check_outlet'))
@@ -3390,7 +3432,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_cod1_1_outlet')} X {data.get('for_cod1_1_df_outlet')}) + ({data.get('for_cod1_2_outlet')} X {data.get('for_cod1_2_df_outlet')}) + ({data.get('for_cod1_3_outlet')} X {data.get('for_cod1_3_df_outlet')})",
-                    f"{data['cod_ans_1_outlet']} {data.get('cod_param_1_outlet')}",
+                    f"{data.get('cod_ans_1_outlet', '')} {data.get('cod_param_1_outlet')}",
                     data.get('cod_divi_outlet')
                 )
             _rds_note(pdf, data.get('cod_check_outlet'))
@@ -3486,7 +3528,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_silver1_1_inlet')} X {data.get('for_silver1_1_df_inlet')}) + ({data.get('for_silver1_2_inlet')} X {data.get('for_silver1_2_df_inlet')}) + ({data.get('for_silver1_3_inlet')} X {data.get('for_silver1_3_df_inlet')})",
-                    f"{data['silver_ans_inlet']} {data.get('silver_param_inlet')}",
+                    f"{data.get('silver_ans_inlet', '')} {data.get('silver_param_inlet')}",
                     data.get('silver_divi_inlet')
                 )
             
@@ -3498,7 +3540,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     f"({data.get('for_silver1_1_outlet')} X {data.get('for_silver1_1_df_outlet')}) + ({data.get('for_silver1_2_outlet')} X {data.get('for_silver1_2_df_outlet')}) + ({data.get('for_silver1_3_outlet')} X {data.get('for_silver1_3_df_outlet')})",
-                    f"{data['silver_ans_outlet']} {data.get('silver_param_outlet')}",
+                    f"{data.get('silver_ans_outlet', '')} {data.get('silver_param_outlet')}",
                     data.get('silver_divi_outlet')
                 )
             
@@ -3560,7 +3602,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('hardness_head_inlet'),
                     data.get('hardness_reading_1_inlet'),
                     f"({data.get('hardness_2_1_inlet')} - {data.get('hardness_2_2_inlet')}) X 1000",
-                    f"{data['hardness_ans2_inlet']} {data.get('hardness_param2_inlet')}",
+                    f"{data.get('hardness_ans2_inlet', '')} {data.get('hardness_param2_inlet')}",
                     data.get('hardness_2_3_inlet')
                 )
             
@@ -3571,7 +3613,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,  # No head for subsequent readings
                     data.get('hardness_reading_2_inlet'),
                     f"({data.get('hardness_3_1_inlet')} - {data.get('hardness_3_2_inlet')}) X 1000",
-                    f"{data['hardness_ans3_inlet']} {data.get('hardness_param3_inlet')}",
+                    f"{data.get('hardness_ans3_inlet', '')} {data.get('hardness_param3_inlet')}",
                     data.get('hardness_3_3_inlet')
                 )
             
@@ -3582,7 +3624,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,  # No head for subsequent readings
                     data.get('hardness_reading_3_inlet'),
                     f"({data.get('hardness_4_1_inlet')} - {data.get('hardness_4_2_inlet')}) X 1000",
-                    f"{data['hardness_ans4_inlet']} {data.get('hardness_param4_inlet')}",
+                    f"{data.get('hardness_ans4_inlet', '')} {data.get('hardness_param4_inlet')}",
                     data.get('hardness_4_3_inlet')
                 )
                 
@@ -3610,7 +3652,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('hardness_avg_head_inlet'),
                     None,
                     average_formula,
-                    f"{data['for_hardness_ans_inlet']} {data.get('for_hardness_param_inlet')}",
+                    f"{data.get('for_hardness_ans_inlet', '')} {data.get('for_hardness_param_inlet')}",
                     data.get('hardness_divi_inlet')
                 )
                 
@@ -3625,7 +3667,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('hardness_head_outlet'),
                     data.get('hardness_reading_1_outlet'),
                     f"({data.get('hardness_2_1_outlet')} - {data.get('hardness_2_2_outlet')}) X 1000",
-                    f"{data['hardness_ans2_outlet']} {data.get('hardness_param2_outlet')}",
+                    f"{data.get('hardness_ans2_outlet', '')} {data.get('hardness_param2_outlet')}",
                     data.get('hardness_2_3_outlet')
                 )
             
@@ -3636,7 +3678,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,  # No head for subsequent readings
                     data.get('hardness_reading_2_outlet'),
                     f"({data.get('hardness_3_1_outlet')} - {data.get('hardness_3_2_outlet')}) X 1000",
-                    f"{data['hardness_ans3_outlet']} {data.get('hardness_param3_outlet')}",
+                    f"{data.get('hardness_ans3_outlet', '')} {data.get('hardness_param3_outlet')}",
                     data.get('hardness_3_3_outlet')
                 )
             
@@ -3647,7 +3689,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,  # No head for subsequent readings
                     data.get('hardness_reading_3_outlet'),
                     f"({data.get('hardness_4_1_outlet')} - {data.get('hardness_4_2_outlet')}) X 1000",
-                    f"{data['hardness_ans4_outlet']} {data.get('hardness_param4_outlet')}",
+                    f"{data.get('hardness_ans4_outlet', '')} {data.get('hardness_param4_outlet')}",
                     data.get('hardness_4_3_outlet')
                 )
                 
@@ -3675,7 +3717,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('hardness_avg_head_outlet'),
                     None,
                     average_formula,
-                    f"{data['for_hardness_ans_outlet']} {data.get('for_hardness_param_outlet')}",
+                    f"{data.get('for_hardness_ans_outlet', '')} {data.get('for_hardness_param_outlet')}",
                     data.get('hardness_divi_outlet')
                 )
 
@@ -3727,7 +3769,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 data.get('acidity_head_1_inlet'),
                 data.get('acidity_reading_1_inlet'),
                 f"({data.get('acidity_1_1_inlet')} - {data.get('acidity_1_2_inlet')}) "
-                f"X {data.get('acidity_1_3_inlet')} X 5000",
+                f"X {data.get('acidity_1_3_inlet')} X 50000",
                 f"{data.get('acidity_ans1_inlet')} {data.get('acidity_param1_inlet')}",
                 data.get('acidity_1_4_inlet')
             )
@@ -3737,7 +3779,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 data.get('acidity_reading_2_inlet'),
                 f"({data.get('acidity_2_1_inlet')} - {data.get('acidity_2_2_inlet')}) "
-                f"X {data.get('acidity_2_3_inlet')} X 5000",
+                f"X {data.get('acidity_2_3_inlet')} X 50000",
                 f"{data.get('acidity_ans2_inlet')} {data.get('acidity_param2_inlet')}",
                 data.get('acidity_2_4_inlet')
             )
@@ -3747,7 +3789,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 data.get('acidity_reading_3_inlet'),
                 f"({data.get('acidity_3_1_inlet')} - {data.get('acidity_3_2_inlet')}) "
-                f"X {data.get('acidity_3_3_inlet')} X 5000",
+                f"X {data.get('acidity_3_3_inlet')} X 50000",
                 f"{data.get('acidity_ans3_inlet')} {data.get('acidity_param3_inlet')}",
                 data.get('acidity_3_4_inlet')
             )
@@ -3775,7 +3817,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 data.get('acidity_head_1_outlet'),
                 data.get('acidity_reading_1_outlet'),
                 f"({data.get('acidity_1_1_outlet')} - {data.get('acidity_1_2_outlet')}) "
-                f"X {data.get('acidity_1_3_outlet')} X 5000",
+                f"X {data.get('acidity_1_3_outlet')} X 50000",
                 f"{data.get('acidity_ans1_outlet')} {data.get('acidity_param1_outlet')}",
                 data.get('acidity_1_4_outlet')
             )
@@ -3785,7 +3827,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 data.get('acidity_reading_2_outlet'),
                 f"({data.get('acidity_2_1_outlet')} - {data.get('acidity_2_2_outlet')}) "
-                f"X {data.get('acidity_2_3_outlet')} X 5000",
+                f"X {data.get('acidity_2_3_outlet')} X 50000",
                 f"{data.get('acidity_ans2_outlet')} {data.get('acidity_param2_outlet')}",
                 data.get('acidity_2_4_outlet')
             )
@@ -3795,7 +3837,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 data.get('acidity_reading_3_outlet'),
                 f"({data.get('acidity_3_1_outlet')} - {data.get('acidity_3_2_outlet')}) "
-                f"X {data.get('acidity_3_3_outlet')} X 5000",
+                f"X {data.get('acidity_3_3_outlet')} X 50000",
                 f"{data.get('acidity_ans3_outlet')} {data.get('acidity_param3_outlet')}",
                 data.get('acidity_3_4_outlet')
             )
@@ -3824,7 +3866,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 data.get('alkalinity_head_1_inlet'),
                 data.get('alkalinity_reading_1_inlet'),
                 f"({data.get('alkalinity_1_1_inlet')} - {data.get('alkalinity_1_2_inlet')}) "
-                f"X {data.get('alkalinity_1_3_inlet')} X 5000",
+                f"X {data.get('alkalinity_1_3_inlet')} X 50000",
                 f"{data.get('alkalinity_ans1_inlet')} {data.get('alkalinity_param1_inlet')}",
                 data.get('alkalinity_1_4_inlet')
             )
@@ -3834,7 +3876,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 data.get('alkalinity_reading_2_inlet'),
                 f"({data.get('alkalinity_2_1_inlet')} - {data.get('alkalinity_2_2_inlet')}) "
-                f"X {data.get('alkalinity_2_3_inlet')} X 5000",
+                f"X {data.get('alkalinity_2_3_inlet')} X 50000",
                 f"{data.get('alkalinity_ans2_inlet')} {data.get('alkalinity_param2_inlet')}",
                 data.get('alkalinity_2_4_inlet')
             )
@@ -3844,7 +3886,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 data.get('alkalinity_reading_3_inlet'),
                 f"({data.get('alkalinity_3_1_inlet')} - {data.get('alkalinity_3_2_inlet')}) "
-                f"X {data.get('alkalinity_3_3_inlet')} X 5000",
+                f"X {data.get('alkalinity_3_3_inlet')} X 50000",
                 f"{data.get('alkalinity_ans3_inlet')} {data.get('alkalinity_param3_inlet')}",
                 data.get('alkalinity_3_4_inlet')
             )
@@ -3872,7 +3914,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('alkalinity_head_1_outlet'),
                     data.get('alkalinity_reading_1_outlet'),
                     f"({data.get('alkalinity_1_1_outlet')} - {data.get('alkalinity_1_2_outlet')}) "
-                    f"X {data.get('alkalinity_1_3_outlet')} X 5000",
+                    f"X {data.get('alkalinity_1_3_outlet')} X 50000",
                     f"{data.get('alkalinity_ans1_outlet')} {data.get('alkalinity_param1_outlet')}",
                     data.get('alkalinity_1_4_outlet')
                 )
@@ -3882,7 +3924,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     data.get('alkalinity_reading_2_outlet'),
                     f"({data.get('alkalinity_2_1_outlet')} - {data.get('alkalinity_2_2_outlet')}) "
-                    f"X {data.get('alkalinity_2_3_outlet')} X 5000",
+                    f"X {data.get('alkalinity_2_3_outlet')} X 50000",
                     f"{data.get('alkalinity_ans2_outlet')} {data.get('alkalinity_param2_outlet')}",
                     data.get('alkalinity_2_4_outlet')
                 )
@@ -3892,7 +3934,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     data.get('alkalinity_reading_3_outlet'),
                     f"({data.get('alkalinity_3_1_outlet')} - {data.get('alkalinity_3_2_outlet')}) "
-                    f"X {data.get('alkalinity_3_3_outlet')} X 5000",
+                    f"X {data.get('alkalinity_3_3_outlet')} X 50000",
                     f"{data.get('alkalinity_ans3_outlet')} {data.get('alkalinity_param3_outlet')}",
                     data.get('alkalinity_3_4_outlet')
                 )
@@ -3941,7 +3983,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     head,
                     reading,
-                    f"({val_1} - {val_2}) X {val_3} X 5000",
+                    f"({val_1} - {val_2}) X {val_3} X 50000",
                     f"{ans} {param}",
                     divisor
                 )
@@ -4170,28 +4212,28 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "E.Coli Calculation:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['ecoli_ans']} {data.get('ecoli_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('ecoli_ans', '')} {data.get('ecoli_param', '')}", ln=True)
 
         if data.get('fecal_ans'):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Faecal Coliform Calculation:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['fecal_ans']} {data.get('fecal_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('fecal_ans', '')} {data.get('fecal_param', '')}", ln=True)
             
         if data.get('hetrobacteria_ans'):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Heterotrophic Bacteria calculations:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['hetrobacteria_ans']} {data.get('hetrobacteria_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('hetrobacteria_ans', '')} {data.get('hetrobacteria_param', '')}", ln=True)
             
         if data.get('total_coliform_ans'):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Coliform:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['total_coliform_ans']} {data.get('total_coliform_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('total_coliform_ans', '')} {data.get('total_coliform_param', '')}", ln=True)
             
         
         if data.get('bacteria_ans'):
@@ -4199,7 +4241,7 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Total Bacteria Count:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['bacteria_ans']} {data.get('bacteria_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('bacteria_ans', '')} {data.get('bacteria_param', '')}", ln=True)
             
         
         
@@ -4212,8 +4254,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('carbonates_head_1'),
                 data.get('carbonates_reading_1'),
-                f"({data.get('carbonates_1_1')} - {data.get('carbonates_1_2')}) X {data.get('carbonates_1_3')} X 5000",
-                f"{data['carbonates_ans1']} {data.get('carbonates_param1')}",
+                f"({data.get('carbonates_1_1')} - {data.get('carbonates_1_2')}) X {data.get('carbonates_1_3')} X 50000",
+                f"{data.get('carbonates_ans1', '')} {data.get('carbonates_param1')}",
                 data.get('carbonates_1_4')
             )
             
@@ -4221,8 +4263,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('carbonates_reading_2'),
-                f"({data.get('carbonates_2_1')} - {data.get('carbonates_2_2')}) X {data.get('carbonates_2_3')} X 5000",
-                f"{data['carbonates_ans2']} {data.get('carbonates_param2')}",
+                f"({data.get('carbonates_2_1')} - {data.get('carbonates_2_2')}) X {data.get('carbonates_2_3')} X 50000",
+                f"{data.get('carbonates_ans2', '')} {data.get('carbonates_param2')}",
                 data.get('carbonates_2_4')
             )
             
@@ -4230,8 +4272,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('carbonates_reading_3'),
-                f"({data.get('carbonates_3_1')} - {data.get('carbonates_3_2')}) X {data.get('carbonates_3_3')} X 5000",
-                f"{data['carbonates_ans3']} {data.get('carbonates_param3')}",
+                f"({data.get('carbonates_3_1')} - {data.get('carbonates_3_2')}) X {data.get('carbonates_3_3')} X 50000",
+                f"{data.get('carbonates_ans3', '')} {data.get('carbonates_param3')}",
                 data.get('carbonates_3_4')
             )
             
@@ -4241,9 +4283,10 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('carbonates_avg_head'),
                     None,
                     f"({data.get('for_carbonates1')} X {data.get('for_carbonates1_df')}) + ({data.get('for_carbonates2')} X {data.get('for_carbonates2_df')}) + ({data.get('for_carbonates3')} X {data.get('for_carbonates3_df')})",
-                    f"{data['for_carbonates_ans']} {data.get('for_carbonates_param')}",
+                    f"{data.get('carbonates_P') or data.get('for_carbonates_ans', '')} {data.get('for_carbonates_param')}",
                     data.get('carbonates_divi')
                 )
+                _carbonate_line(pdf, data)
         
 
             
@@ -4518,7 +4561,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, data.get('cal_avg_head_inlet', 'Average of Calcium (ASTM D 1126) (Inlet):'), border=False, align="L", ln=True)
 
                     formula_text = f"{data.get('cal_avg_ans1_inlet', '')} + {data.get('cal_avg_ans2_inlet', '')} + {data.get('cal_avg_ans3_inlet', '')}"
-                    result_text = f"{data.get('cal_avg_final_ans_inlet', '')} {data.get('cal_avg_param_inlet', 'mg/L')}"
+                    result_text = _ca_from_cah_text(data, '_inlet')
                     divisor = data.get('cal_avg_divi_inlet', '3')
 
                     add_formula_with_line(formula_text, result_text, divisor, 40)
@@ -4671,7 +4714,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, data.get('cal_avg_head_outlet', 'Average of Calcium (ASTM D 1126) (Outlet):'), border=False, align="L", ln=True)
 
                     formula_text = f"{data.get('cal_avg_ans1_outlet', '')} + {data.get('cal_avg_ans2_outlet', '')} + {data.get('cal_avg_ans3_outlet', '')}"
-                    result_text = f"{data.get('cal_avg_final_ans_outlet', '')} {data.get('cal_avg_param_outlet', 'mg/L')}"
+                    result_text = _ca_from_cah_text(data, '_outlet')
                     divisor = data.get('cal_avg_divi_outlet', '3')
 
                     add_formula_with_line(formula_text, result_text, divisor, 40)
@@ -4785,7 +4828,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('sulphide_1_final_a_inlet')} X {data.get('sulphide_1_final_b_inlet')}) - ({data.get('sulphide_1_final_c_inlet')} X {data.get('sulphide_1_final_d_inlet')}) X 16000",
                     
-                    f"{data['sulphide_1_final_ans_inlet']} {data.get('sulphide_1_param_inlet')}",
+                    f"{data.get('sulphide_1_final_ans_inlet', '')} {data.get('sulphide_1_param_inlet')}",
                     data.get('sulphide_1_divi_inlet')
                 )
             
@@ -4804,7 +4847,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('sulphide_2_final_a_inlet')} X {data.get('sulphide_2_final_b_inlet')}) - ({data.get('sulphide_2_final_c_inlet')} X {data.get('sulphide_2_final_d_inlet')}) X 16000",
                     
-                    f"{data['sulphide_2_final_ans_inlet']} {data.get('sulphide_2_param_inlet')}",
+                    f"{data.get('sulphide_2_final_ans_inlet', '')} {data.get('sulphide_2_param_inlet')}",
                     data.get('sulphide_2_divi_inlet')
                 )
             
@@ -4823,7 +4866,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('sulphide_3_final_a_inlet')} X {data.get('sulphide_3_final_b_inlet')}) - ({data.get('sulphide_3_final_c_inlet')} X {data.get('sulphide_3_final_d_inlet')}) X 16000",
                     
-                    f"{data['sulphide_3_final_ans_inlet']} {data.get('sulphide_3_param_inlet')}",
+                    f"{data.get('sulphide_3_final_ans_inlet', '')} {data.get('sulphide_3_param_inlet')}",
                     data.get('sulphide_3_divi_inlet')
                 )
                 
@@ -4877,7 +4920,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('sulphide_1_final_a_outlet')} X {data.get('sulphide_1_final_b_outlet')}) - ({data.get('sulphide_1_final_c_outlet')} X {data.get('sulphide_1_final_d_outlet')}) X 16000",
                         
-                    f"{data['sulphide_1_final_ans_outlet']} {data.get('sulphide_1_param_outlet')}",
+                    f"{data.get('sulphide_1_final_ans_outlet', '')} {data.get('sulphide_1_param_outlet')}",
                     data.get('sulphide_1_divi_outlet')
                 )
                 
@@ -4896,7 +4939,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('sulphide_2_final_a_outlet')} X {data.get('sulphide_2_final_b_outlet')}) - ({data.get('sulphide_2_final_c_outlet')} X {data.get('sulphide_2_final_d_outlet')}) X 16000",
                         
-                    f"{data['sulphide_2_final_ans_outlet']} {data.get('sulphide_2_param_outlet')}",
+                    f"{data.get('sulphide_2_final_ans_outlet', '')} {data.get('sulphide_2_param_outlet')}",
                     data.get('sulphide_2_divi_outlet')
                 )
                 
@@ -4915,7 +4958,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('sulphide_3_final_a_outlet')} X {data.get('sulphide_3_final_b_outlet')}) - ({data.get('sulphide_3_final_c_outlet')} X {data.get('sulphide_3_final_d_outlet')}) X 16000",
                         
-                    f"{data['sulphide_3_final_ans_outlet']} {data.get('sulphide_3_param_outlet')}",
+                    f"{data.get('sulphide_3_final_ans_outlet', '')} {data.get('sulphide_3_param_outlet')}",
                     data.get('sulphide_3_divi_outlet')
                 )
                     
@@ -5129,30 +5172,30 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(0,4,"Toxic Metals Inlet Calculations",ln=True)
             pdf.set_font("Calibri", '', 10)
             pdf.ln(3)
-            pdf.cell(0,4,f"{data.get('toxic_1_inlet')} = {data.get('toxic_1_1_inlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_2_inlet')} = {data.get('toxic_2_1_inlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_3_inlet')} = {data.get('toxic_3_1_inlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_4_inlet')} = {data.get('toxic_4_1_inlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_5_inlet')} = {data.get('toxic_5_1_inlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_6_inlet')} = {data.get('toxic_6_1_inlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_1_inlet', 'toxic_1_1_inlet')
+            _pair_line(pdf, data, 'toxic_2_inlet', 'toxic_2_1_inlet')
+            _pair_line(pdf, data, 'toxic_3_inlet', 'toxic_3_1_inlet')
+            _pair_line(pdf, data, 'toxic_4_inlet', 'toxic_4_1_inlet')
+            _pair_line(pdf, data, 'toxic_5_inlet', 'toxic_5_1_inlet')
+            _pair_line(pdf, data, 'toxic_6_inlet', 'toxic_6_1_inlet')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_7_inlet')} = {data.get('toxic_7_1_inlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_7_inlet', 'toxic_7_1_inlet')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_8_inlet')} = {data.get('toxic_8_1_inlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_8_inlet', 'toxic_8_1_inlet')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_9_inlet')} = {data.get('toxic_9_1_inlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_9_inlet', 'toxic_9_1_inlet')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_10_inlet')} = {data.get('toxic_10_1_inlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_10_inlet', 'toxic_10_1_inlet')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_11_inlet')} = {data.get('toxic_11_1_inlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_11_inlet', 'toxic_11_1_inlet')
             check_page_break(20)
             pdf.ln(3)
             add_formula_block(
                     None,
                     None,
-                    f"{data.get('toxic_r1_inlet')} + {data.get('toxic_r2_inlet')} + {data.get('toxic_r3_inlet')} + {data.get('toxic_r4_inlet')} + {data.get('toxic_r5_inlet')} + {data.get('toxic_r6_inlet')} + {data.get('toxic_r7_inlet')} + {data.get('toxic_r8_inlet')} + {data.get('toxic_r9_inlet')} + {data.get('toxic_r10_inlet')} + {data.get('toxic_r11_inlet')}",
+                    _toxic_sum_text(data, '_inlet'),
                     f"{data.get('toxic_ans_inlet')} {data.get('toxic_param_inlet')}",
-                    data.get('toxic_divi_inlet')
+                    None
                 )
             
             
@@ -5163,25 +5206,25 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(0,4,"Toxic Metals Outlet Calculations",ln=True)
             pdf.set_font("Calibri", '', 10)
             pdf.ln(3)
-            pdf.cell(0,4,f"{data.get('toxic_1_outlet')} = {data.get('toxic_1_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_2_outlet')} = {data.get('toxic_2_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_3_outlet')} = {data.get('toxic_3_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_4_outlet')} = {data.get('toxic_4_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_5_outlet')} = {data.get('toxic_5_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_6_outlet')} = {data.get('toxic_6_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_7_outlet')} = {data.get('toxic_7_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_8_outlet')} = {data.get('toxic_8_1_outlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_1_outlet', 'toxic_1_1_outlet')
+            _pair_line(pdf, data, 'toxic_2_outlet', 'toxic_2_1_outlet')
+            _pair_line(pdf, data, 'toxic_3_outlet', 'toxic_3_1_outlet')
+            _pair_line(pdf, data, 'toxic_4_outlet', 'toxic_4_1_outlet')
+            _pair_line(pdf, data, 'toxic_5_outlet', 'toxic_5_1_outlet')
+            _pair_line(pdf, data, 'toxic_6_outlet', 'toxic_6_1_outlet')
+            _pair_line(pdf, data, 'toxic_7_outlet', 'toxic_7_1_outlet')
+            _pair_line(pdf, data, 'toxic_8_outlet', 'toxic_8_1_outlet')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_9_outlet')} = {data.get('toxic_9_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_10_outlet')} = {data.get('toxic_10_1_outlet')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_11_outlet')} = {data.get('toxic_11_1_outlet')}",ln=2)
+            _pair_line(pdf, data, 'toxic_9_outlet', 'toxic_9_1_outlet')
+            _pair_line(pdf, data, 'toxic_10_outlet', 'toxic_10_1_outlet')
+            _pair_line(pdf, data, 'toxic_11_outlet', 'toxic_11_1_outlet')
             pdf.ln(3)
             add_formula_block(
                     None,
                     None,
-                    f"{data.get('toxic_r1_outlet')} + {data.get('toxic_r2_outlet')} + {data.get('toxic_r3_outlet')} + {data.get('toxic_r4_outlet')} + {data.get('toxic_r5_outlet')} + {data.get('toxic_r6_outlet')} + {data.get('toxic_r7_outlet')} + {data.get('toxic_r8_outlet')} + {data.get('toxic_r9_outlet')} + {data.get('toxic_r10_outlet')} + {data.get('toxic_r11_outlet')}",
+                    _toxic_sum_text(data, '_outlet'),
                     f"{data.get('toxic_ans_outlet')} {data.get('toxic_param_outlet')}",
-                    data.get('toxic_divi_outlet')
+                    None
                 )
                 
         
@@ -5675,7 +5718,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 pdf.set_font("Calibri", size=10)
                 
                 final_text = f"{data.get('tds_final_ans1', '')} + {data.get('tds_final_ans2', '')} + {data.get('tds_final_ans3', '')}"
-                result_text = f"{data['tds_final_ans']} {data.get('tds_final_param', '')}"
+                result_text = f"{data.get('tds_final_ans', '')} {data.get('tds_final_param', '')}"
                 add_formula_with_line(final_text, result_text, data.get('tds_final_divi','3'), 40)
 
         for key in sorted(data.keys()):
@@ -7007,7 +7050,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     final_formula,
-                    f"{data['cyanide_ans_1']} {data.get('cyanide_param_1')}",
+                    f"{data.get('cyanide_ans_1', '')} {data.get('cyanide_param_1')}",
                     data.get('cyanide_divi')
                 )
         
@@ -7096,7 +7139,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     final_formula,
-                    f"{data['fluoride_ans_1']} {data.get('fluoride_param_1')}",
+                    f"{data.get('fluoride_ans_1', '')} {data.get('fluoride_param_1')}",
                     data.get('fluoride_divi')
                 )
         
@@ -7185,7 +7228,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     final_formula,
-                    f"{data['nitrate_ans_1']} {data.get('nitrate_param_1')}",
+                    f"{data.get('nitrate_ans_1', '')} {data.get('nitrate_param_1')}",
                     data.get('nitrate_divi')
                 )
             
@@ -7295,7 +7338,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     final_formula,
-                    f"{data['residual_ans_1']} {data.get('residual_param_1')}",
+                    f"{data.get('residual_ans_1', '')} {data.get('residual_param_1')}",
                     data.get('residual_divi')
                 )
         
@@ -7381,7 +7424,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     final_formula,
-                    f"{data['trubidity_ans_1']} {data.get('trubidity_param_1')}",
+                    f"{data.get('trubidity_ans_1', '')} {data.get('trubidity_param_1')}",
                     data.get('trubidity_divi')
                 )
             
@@ -7513,7 +7556,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     None,
                     final_formula,
-                    f"{data['sulphate_ans_1']} {data.get('sulphate_param_1')}",
+                    f"{data.get('sulphate_ans_1', '')} {data.get('sulphate_param_1')}",
                     data.get('sulphate_divi')
                 )
         
@@ -7727,7 +7770,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('hardness_head_2'),
                     data.get('hardness_reading_1'),
                     f"({data.get('hardness_2_1')} - {data.get('hardness_2_2')}) X 1000",
-                    f"{data['hardness_ans2']} {data.get('hardness_param2')}",
+                    f"{data.get('hardness_ans2', '')} {data.get('hardness_param2')}",
                     data.get('hardness_2_3')
                 )
             
@@ -7738,7 +7781,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,  # No head for subsequent readings
                     data.get('hardness_reading_2'),
                     f"({data.get('hardness_3_1')} - {data.get('hardness_3_2')}) X 1000",
-                    f"{data['hardness_ans3']} {data.get('hardness_param3')}",
+                    f"{data.get('hardness_ans3', '')} {data.get('hardness_param3')}",
                     data.get('hardness_3_3')
                 )
             
@@ -7749,7 +7792,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,  # No head for subsequent readings
                     data.get('hardness_readinng_3'),
                     f"({data.get('hardness_4_1')} - {data.get('hardness_4_2')}) X 1000",
-                    f"{data['hardness_ans4']} {data.get('hardness_param4')}",
+                    f"{data.get('hardness_ans4', '')} {data.get('hardness_param4')}",
                     data.get('hardness_4_3')
                 )
                 
@@ -7777,7 +7820,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('hardness_avg_head'),
                     None,
                     average_formula,
-                    f"{data['for_hardness_ans']} {data.get('for_hardness_param')}",
+                    f"{data.get('for_hardness_ans', '')} {data.get('for_hardness_param')}",
                     data.get('hardness_divi')
                 )
 
@@ -7828,8 +7871,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('acidity_head_1'),
                 data.get('acidity_reading_1'),
-                f"({data.get('acidity_1_1')} - {data.get('acidity_1_2')}) X {data.get('acidity_1_3')} X 5000",
-                f"{data['acidity_ans1']} {data.get('acidity_param1')}",
+                f"({data.get('acidity_1_1')} - {data.get('acidity_1_2')}) X {data.get('acidity_1_3')} X 50000",
+                f"{data.get('acidity_ans1', '')} {data.get('acidity_param1')}",
                 data.get('acidity_1_4')
             )
             
@@ -7837,8 +7880,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('acidity_reading_2'),
-                f"({data.get('acidity_2_1')} - {data.get('acidity_2_2')}) X {data.get('acidity_2_3')} X 5000",
-                f"{data['acidity_ans2']} {data.get('acidity_param2')}",
+                f"({data.get('acidity_2_1')} - {data.get('acidity_2_2')}) X {data.get('acidity_2_3')} X 50000",
+                f"{data.get('acidity_ans2', '')} {data.get('acidity_param2')}",
                 data.get('acidity_2_4')
             )
             
@@ -7846,8 +7889,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('acidity_reading_3'),
-                f"({data.get('acidity_3_1')} - {data.get('acidity_3_2')}) X {data.get('acidity_3_3')} X 5000",
-                f"{data['acidity_ans3']} {data.get('acidity_param3')}",
+                f"({data.get('acidity_3_1')} - {data.get('acidity_3_2')}) X {data.get('acidity_3_3')} X 50000",
+                f"{data.get('acidity_ans3', '')} {data.get('acidity_param3')}",
                 data.get('acidity_3_4')
             )
             
@@ -7857,7 +7900,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('acidity_avg_head'),
                     None,
                     f"({data.get('for_acidity1')} X {data.get('for_acidity1_df')}) + ({data.get('for_acidity2')} X {data.get('for_acidity2_df')}) + ({data.get('for_acidity3')} X {data.get('for_acidity3_df')})",
-                    f"{data['for_acidity_ans']} {data.get('for_acidity_param')}",
+                    f"{data.get('for_acidity_ans', '')} {data.get('for_acidity_param')}",
                     data.get('acidity_divi')
                 )
 
@@ -7871,8 +7914,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('alkalinity_head_1'),
                 data.get('alkalinity_reading_1'),
-                f"({data.get('alkalinity_1_1')} - {data.get('alkalinity_1_2')}) X {data.get('alkalinity_1_3')} X 5000",
-                f"{data['alkalinity_ans1']} {data.get('alkalinity_param1')}",
+                f"({data.get('alkalinity_1_1')} - {data.get('alkalinity_1_2')}) X {data.get('alkalinity_1_3')} X 50000",
+                f"{data.get('alkalinity_ans1', '')} {data.get('alkalinity_param1')}",
                 data.get('alkalinity_1_4')
             )
             
@@ -7880,8 +7923,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('alkalinity_reading_2'),
-                f"({data.get('alkalinity_2_1')} - {data.get('alkalinity_2_2')}) X {data.get('alkalinity_2_3')} X 5000",
-                f"{data['alkalinity_ans2']} {data.get('alkalinity_param2')}",
+                f"({data.get('alkalinity_2_1')} - {data.get('alkalinity_2_2')}) X {data.get('alkalinity_2_3')} X 50000",
+                f"{data.get('alkalinity_ans2', '')} {data.get('alkalinity_param2')}",
                 data.get('alkalinity_2_4')
             )
             
@@ -7889,8 +7932,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('alkalinity_reading_3'),
-                f"({data.get('alkalinity_3_1')} - {data.get('alkalinity_3_2')}) X {data.get('alkalinity_3_3')} X 5000",
-                f"{data['alkalinity_ans3']} {data.get('alkalinity_param3')}",
+                f"({data.get('alkalinity_3_1')} - {data.get('alkalinity_3_2')}) X {data.get('alkalinity_3_3')} X 50000",
+                f"{data.get('alkalinity_ans3', '')} {data.get('alkalinity_param3')}",
                 data.get('alkalinity_3_4')
             )
             
@@ -7900,7 +7943,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('alkalinity_avg_head'),
                     None,
                     f"({data.get('for_alkalinity1')} X {data.get('for_alkalinity1_df')}) + ({data.get('for_alkalinity2')} X {data.get('for_alkalinity2_df')}) + ({data.get('for_alkalinity3')} X {data.get('for_alkalinity3_df')})",
-                    f"{data['for_alkalinity_ans']} {data.get('for_alkalinity_param')}",
+                    f"{data.get('for_alkalinity_ans', '')} {data.get('for_alkalinity_param')}",
                     data.get('alkalinity_divi')
                 )
             pdf.set_font("Calibri", 'B', size=10)
@@ -7934,7 +7977,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     head,
                     reading,
-                    f"({val_1} - {val_2}) X {val_3} X 5000",
+                    f"({val_1} - {val_2}) X {val_3} X 50000",
                     f"{ans} {param}",
                     divisor
                 )
@@ -7951,7 +7994,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 data.get('chloride_head_1'),
                 None,
                 f"({data.get('chloride_1_1')} - {data.get('chloride_1_2')}) - ({data.get('chloride_1_3')} - {data.get('chloride_1_4')}) X {data.get('chloride_1_5')} X 35450",
-                f"{data['chloride_ans1']} {data.get('chloride_param1')}",
+                f"{data.get('chloride_ans1', '')} {data.get('chloride_param1')}",
                 data.get('chloride_1_6')
             )
             
@@ -8059,28 +8102,28 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "E.Coli Calculation:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['ecoli_ans']} {data.get('ecoli_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('ecoli_ans', '')} {data.get('ecoli_param', '')}", ln=True)
 
         if data.get('fecal_ans'):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Faecal Coliform Calculation:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['fecal_ans']} {data.get('fecal_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('fecal_ans', '')} {data.get('fecal_param', '')}", ln=True)
             
         if data.get('hetrobacteria_ans'):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Heterotrophic Bacteria calculations:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['hetrobacteria_ans']} {data.get('hetrobacteria_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('hetrobacteria_ans', '')} {data.get('hetrobacteria_param', '')}", ln=True)
             
         if data.get('total_coliform_ans'):
             check_page_break(20)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Coliform:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['total_coliform_ans']} {data.get('total_coliform_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('total_coliform_ans', '')} {data.get('total_coliform_param', '')}", ln=True)
             
         
         if data.get('bacteria_ans'):
@@ -8088,7 +8131,7 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 8, "Total Bacteria Count:", 0, 1, 'L')
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(0, 6, f"Result: {data['bacteria_ans']} {data.get('bacteria_param', '')}", ln=True)
+            pdf.cell(0, 6, f"Result: {data.get('bacteria_ans', '')} {data.get('bacteria_param', '')}", ln=True)
             
         
         
@@ -8101,8 +8144,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('carbonates_head_1'),
                 data.get('carbonates_reading_1'),
-                f"({data.get('carbonates_1_1')} - {data.get('carbonates_1_2')}) X {data.get('carbonates_1_3')} X 5000",
-                f"{data['carbonates_ans1']} {data.get('carbonates_param1')}",
+                f"({data.get('carbonates_1_1')} - {data.get('carbonates_1_2')}) X {data.get('carbonates_1_3')} X 50000",
+                f"{data.get('carbonates_ans1', '')} {data.get('carbonates_param1')}",
                 data.get('carbonates_1_4')
             )
             
@@ -8110,8 +8153,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('carbonates_reading_2'),
-                f"({data.get('carbonates_2_1')} - {data.get('carbonates_2_2')}) X {data.get('carbonates_2_3')} X 5000",
-                f"{data['carbonates_ans2']} {data.get('carbonates_param2')}",
+                f"({data.get('carbonates_2_1')} - {data.get('carbonates_2_2')}) X {data.get('carbonates_2_3')} X 50000",
+                f"{data.get('carbonates_ans2', '')} {data.get('carbonates_param2')}",
                 data.get('carbonates_2_4')
             )
             
@@ -8119,8 +8162,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 data.get('carbonates_reading_3'),
-                f"({data.get('carbonates_3_1')} - {data.get('carbonates_3_2')}) X {data.get('carbonates_3_3')} X 5000",
-                f"{data['carbonates_ans3']} {data.get('carbonates_param3')}",
+                f"({data.get('carbonates_3_1')} - {data.get('carbonates_3_2')}) X {data.get('carbonates_3_3')} X 50000",
+                f"{data.get('carbonates_ans3', '')} {data.get('carbonates_param3')}",
                 data.get('carbonates_3_4')
             )
             
@@ -8130,9 +8173,10 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('carbonates_avg_head'),
                     None,
                     f"({data.get('for_carbonates1')} X {data.get('for_carbonates1_df')}) + ({data.get('for_carbonates2')} X {data.get('for_carbonates2_df')}) + ({data.get('for_carbonates3')} X {data.get('for_carbonates3_df')})",
-                    f"{data['for_carbonates_ans']} {data.get('for_carbonates_param')}",
+                    f"{data.get('carbonates_P') or data.get('for_carbonates_ans', '')} {data.get('for_carbonates_param')}",
                     data.get('carbonates_divi')
                 )
+                _carbonate_line(pdf, data)
         
 
             
@@ -8410,7 +8454,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.set_font("Calibri", size=10)
                     
                     formula_text = f"{data.get('cal_avg_ans1', '')} + {data.get('cal_avg_ans2', '')} + {data.get('cal_avg_ans3', '')}"
-                    result_text = f"{data.get('cal_avg_final_ans', '')} {data.get('cal_avg_param', 'mg/L')}"
+                    result_text = _ca_from_cah_text(data, '')
                     divisor = data.get('cal_avg_divi', '3')
                     add_formula_with_line(formula_text, result_text, divisor, 40)
             
@@ -8680,27 +8724,25 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(0,4,"Toxic Metals Calculations",ln=True)
             pdf.set_font("Calibri", '', 10)
             pdf.ln(3)
-            pdf.cell(0,4,f"{data.get('toxic_1')} = {data.get('toxic_1_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_2')} = {data.get('toxic_2_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_3')} = {data.get('toxic_3_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_4')} = {data.get('toxic_4_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_5')} = {data.get('toxic_5_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_6')} = {data.get('toxic_6_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_7')} = {data.get('toxic_7_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_8')} = {data.get('toxic_8_1')}",ln=2)
+            _pair_line(pdf, data, 'toxic_1', 'toxic_1_1')
+            _pair_line(pdf, data, 'toxic_2', 'toxic_2_1')
+            _pair_line(pdf, data, 'toxic_3', 'toxic_3_1')
+            _pair_line(pdf, data, 'toxic_4', 'toxic_4_1')
+            _pair_line(pdf, data, 'toxic_5', 'toxic_5_1')
+            _pair_line(pdf, data, 'toxic_6', 'toxic_6_1')
+            _pair_line(pdf, data, 'toxic_7', 'toxic_7_1')
+            _pair_line(pdf, data, 'toxic_8', 'toxic_8_1')
             check_page_break(20)
-            pdf.cell(0,4,f"{data.get('toxic_9')} = {data.get('toxic_9_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_10')} = {data.get('toxic_10_1')}",ln=2)
-            pdf.cell(0,4,f"{data.get('toxic_11')} = {data.get('toxic_11_1')}",ln=2)
+            _pair_line(pdf, data, 'toxic_9', 'toxic_9_1')
+            _pair_line(pdf, data, 'toxic_10', 'toxic_10_1')
+            _pair_line(pdf, data, 'toxic_11', 'toxic_11_1')
             pdf.ln(3)
             add_formula_block(
                 None,
                 None,
-                f"{data.get('toxic_r1')} + {data.get('toxic_r2')} + {data.get('toxic_r3')} + {data.get('toxic_r4')} + "
-                f"{data.get('toxic_r5')} + {data.get('toxic_r6')} + {data.get('toxic_r7')} + {data.get('toxic_r8')} + "
-                f"{data.get('toxic_r9')} + {data.get('toxic_r10')} + {data.get('toxic_r11')}",
+                _toxic_sum_text(data),
                 f"{data.get('toxic_ans')} {data.get('toxic_param')}",
-                data.get('toxic_divi')
+                None
             )
 
     try:

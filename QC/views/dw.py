@@ -4,6 +4,17 @@ from .shared import *  # noqa: F401,F403
 
 
 
+
+def _ca_from_cah_text(data, sfx=''):
+    """Average of calcium (ASTM D 1126 block): mean calcium hardness (as CaCO3) x 0.4008 = calcium as Ca (QA RDS-08)."""
+    try:
+        vals = [float(data.get(f'cal_avg_ans{i}{sfx}')) for i in (1, 2, 3) if str(data.get(f'cal_avg_ans{i}{sfx}') or '').strip() not in ('', 'None')]
+        mean = sum(vals) / len(vals)
+        mean_txt = f"{mean:.2f} X 0.4008 = "
+    except Exception:
+        mean_txt = "X 0.4008 = "
+    return f"{mean_txt}{data.get(f'cal_avg_final_ans{sfx}', '')} {data.get(f'cal_avg_param{sfx}', 'mg/L')}"
+
 def _rds_dw_samples(request):
     """Samples offered on Add RDS DW: drinking-water reports of the user's laboratory, newest first (both laboratories
     for a user without one); the page used to list every registered sample of every type (27-10-2026)."""
@@ -600,7 +611,7 @@ def generate_dw_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", size=10)
             
             final_text = f"{data.get('tds_final_ans1', '')} + {data.get('tds_final_ans2', '')} + {data.get('tds_final_ans3', '')}"
-            result_text = f"{data['tds_final_ans']} {data.get('tds_final_param', '')}"
+            result_text = f"{data.get('tds_final_ans', '')} {data.get('tds_final_param', '')}"
             add_formula_with_line(final_text, result_text, data.get('tds_final_divi','3'), 40)
 
     for key in sorted(data.keys()):
@@ -1549,7 +1560,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_color1')} + {data.get('for_color2')} + {data.get('for_color3')}",
-                f"{data['color_ans']} {data.get('color_param')}",
+                f"{data.get('color_ans', '')} {data.get('color_param')}",
                 data.get('color_divi1', "3")
             )
             
@@ -1562,7 +1573,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_color1_1')} X {data.get('for_color1_1_df')}) + ({data.get('for_color1_2')} X {data.get('for_color1_2_df')}) + ({data.get('for_color1_3')} X {data.get('for_color1_3_df')})",
-                f"{data['color_ans_1']} {data.get('color_param_1')}",
+                f"{data.get('color_ans_1', '')} {data.get('color_param_1')}",
                 data.get('color_divi')
             )
     
@@ -1599,7 +1610,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_cyanide1')} + {data.get('for_cyanide2')} + {data.get('for_cyanide3')}",
-                f"{data['cyanide_ans']} {data.get('cyanide_param')}",
+                f"{data.get('cyanide_ans', '')} {data.get('cyanide_param')}",
                 data.get('cyanide_divi1', "3")
             )
             
@@ -1612,7 +1623,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_cyanide1_1')} X {data.get('for_cyanide1_1_df')}) + ({data.get('for_cyanide1_2')} X {data.get('for_cyanide1_2_df')}) + ({data.get('for_cyanide1_3')} X {data.get('for_cyanide1_3_df')})",
-                f"{data['cyanide_ans_1']} {data.get('cyanide_param_1')}",
+                f"{data.get('cyanide_ans_1', '')} {data.get('cyanide_param_1')}",
                 data.get('cyanide_divi')
             )
     
@@ -1649,7 +1660,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_fluoride1')} + {data.get('for_fluoride2')} + {data.get('for_fluoride3')}",
-                f"{data['fluoride_ans']} {data.get('fluoride_param')}",
+                f"{data.get('fluoride_ans', '')} {data.get('fluoride_param')}",
                 data.get('fluoride_divi1', "3")
             )
             
@@ -1662,7 +1673,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_fluoride1_1')} X {data.get('for_fluoride1_1_df')}) + ({data.get('for_fluoride1_2')} X {data.get('for_fluoride1_2_df')}) + ({data.get('for_fluoride1_3')} X {data.get('for_fluoride1_3_df')})",
-                f"{data['fluoride_ans_1']} {data.get('fluoride_param_1')}",
+                f"{data.get('fluoride_ans_1', '')} {data.get('fluoride_param_1')}",
                 data.get('fluoride_divi')
             )
     
@@ -1700,7 +1711,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_nitrate1')} + {data.get('for_nitrate2')} + {data.get('for_nitrate3')}",
-                f"{data['nitrate_ans']} {data.get('nitrate_param')}",
+                f"{data.get('nitrate_ans', '')} {data.get('nitrate_param')}",
                 data.get('nitrate_divi1', "3")
             )
             
@@ -1713,7 +1724,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_nitrate1_1')} X {data.get('for_nitrate1_1_df')}) + ({data.get('for_nitrate1_2')} X {data.get('for_nitrate1_2_df')}) + ({data.get('for_nitrate1_3')} X {data.get('for_nitrate1_3_df')})",
-                f"{data['nitrate_ans_1']} {data.get('nitrate_param_1')}",
+                f"{data.get('nitrate_ans_1', '')} {data.get('nitrate_param_1')}",
                 data.get('nitrate_divi')
             )
     
@@ -1752,7 +1763,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_nitrite1')} + {data.get('for_nitrite2')} + {data.get('for_nitrite3')}",
-                f"{data['nitrite_ans']} {data.get('nitrite_param')}",
+                f"{data.get('nitrite_ans', '')} {data.get('nitrite_param')}",
                 data.get('nitrite_divi1', "3")
             )
             
@@ -1765,7 +1776,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_nitrite1_1')} X {data.get('for_nitrite1_1_df')}) + ({data.get('for_nitrite1_2')} X {data.get('for_nitrite1_2_df')}) + ({data.get('for_nitrite1_3')} X {data.get('for_nitrite1_3_df')})",
-                f"{data['nitrite_ans_1']} {data.get('nitrite_param_1')}",
+                f"{data.get('nitrite_ans_1', '')} {data.get('nitrite_param_1')}",
                 data.get('nitrite_divi')
             )
     
@@ -1803,7 +1814,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_residual1')} + {data.get('for_residual2')} + {data.get('for_residual3')}",
-                f"{data['residual_ans']} {data.get('residual_param')}",
+                f"{data.get('residual_ans', '')} {data.get('residual_param')}",
                 data.get('residual_divi1', "3")
             )
             
@@ -1816,7 +1827,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_residual1_1')} X {data.get('for_residual1_1_df')}) + ({data.get('for_residual1_2')} X {data.get('for_residual1_2_df')}) + ({data.get('for_residual1_3')} X {data.get('for_residual1_3_df')})",
-                f"{data['residual_ans_1']} {data.get('residual_param_1')}",
+                f"{data.get('residual_ans_1', '')} {data.get('residual_param_1')}",
                 data.get('residual_divi')
             )
     
@@ -1853,7 +1864,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_trubidity1')} + {data.get('for_trubidity2')} + {data.get('for_trubidity3')}",
-                f"{data['trubidity_ans']} {data.get('trubidity_param')}",
+                f"{data.get('trubidity_ans', '')} {data.get('trubidity_param')}",
                 data.get('trubidity_divi1', "3")
             )
             
@@ -1866,7 +1877,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_trubidity1_1')} X {data.get('for_trubidity1_1_df')}) + ({data.get('for_trubidity1_2')} X {data.get('for_trubidity1_2_df')}) + ({data.get('for_trubidity1_3')} X {data.get('for_trubidity1_3_df')})",
-                f"{data['trubidity_ans_1']} {data.get('trubidity_param_1')}",
+                f"{data.get('trubidity_ans_1', '')} {data.get('trubidity_param_1')}",
                 data.get('trubidity_divi')
             )
         
@@ -1906,7 +1917,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"{data.get('for_sulphate1')} + {data.get('for_sulphate2')} + {data.get('for_sulphate3')}",
-                f"{data['sulphate_ans']} {data.get('sulphate_param')}",
+                f"{data.get('sulphate_ans', '')} {data.get('sulphate_param')}",
                 data.get('sulphate_divi1', "3")
             )
             
@@ -1919,7 +1930,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,
                 None,
                 f"({data.get('for_sulphate1_1')} X {data.get('for_sulphate1_1_df')}) + ({data.get('for_sulphate1_2')} X {data.get('for_sulphate1_2_df')}) + ({data.get('for_sulphate1_3')} X {data.get('for_sulphate1_3_df')})",
-                f"{data['sulphate_ans_1']} {data.get('sulphate_param_1')}",
+                f"{data.get('sulphate_ans_1', '')} {data.get('sulphate_param_1')}",
                 data.get('sulphate_divi')
             )
     
@@ -2005,7 +2016,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 data.get('hardness_head_2'),
                 data.get('hardness_reading_1'),
                 f"({data.get('hardness_2_1')} - {data.get('hardness_2_2')}) X 1000",
-                f"{data['hardness_ans2']} {data.get('hardness_param2')}",
+                f"{data.get('hardness_ans2', '')} {data.get('hardness_param2')}",
                 data.get('hardness_2_3')
             )
         
@@ -2016,7 +2027,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,  # No head for subsequent readings
                 data.get('hardness_reading_2'),
                 f"({data.get('hardness_3_1')} - {data.get('hardness_3_2')}) X 1000",
-                f"{data['hardness_ans3']} {data.get('hardness_param3')}",
+                f"{data.get('hardness_ans3', '')} {data.get('hardness_param3')}",
                 data.get('hardness_3_3')
             )
         
@@ -2027,7 +2038,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 None,  # No head for subsequent readings
                 data.get('hardness_readinng_3'),
                 f"({data.get('hardness_4_1')} - {data.get('hardness_4_2')}) X 1000",
-                f"{data['hardness_ans4']} {data.get('hardness_param4')}",
+                f"{data.get('hardness_ans4', '')} {data.get('hardness_param4')}",
                 data.get('hardness_4_3')
             )
             
@@ -2055,7 +2066,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 data.get('hardness_avg_head'),
                 None,
                 average_formula,
-                f"{data['for_hardness_ans']} {data.get('for_hardness_param')}",
+                f"{data.get('for_hardness_ans', '')} {data.get('for_hardness_param')}",
                 data.get('hardness_divi')
             )
 
@@ -2106,8 +2117,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             data.get('acidity_head_1'),
             data.get('acidity_reading_1'),
-            f"({data.get('acidity_1_1')} - {data.get('acidity_1_2')}) X {data.get('acidity_1_3')} X 5000",
-            f"{data['acidity_ans1']} {data.get('acidity_param1')}",
+            f"({data.get('acidity_1_1')} - {data.get('acidity_1_2')}) X {data.get('acidity_1_3')} X 50000",
+            f"{data.get('acidity_ans1', '')} {data.get('acidity_param1')}",
             data.get('acidity_1_4')
         )
         
@@ -2115,8 +2126,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             None,
             data.get('acidity_reading_2'),
-            f"({data.get('acidity_2_1')} - {data.get('acidity_2_2')}) X {data.get('acidity_2_3')} X 5000",
-            f"{data['acidity_ans2']} {data.get('acidity_param2')}",
+            f"({data.get('acidity_2_1')} - {data.get('acidity_2_2')}) X {data.get('acidity_2_3')} X 50000",
+            f"{data.get('acidity_ans2', '')} {data.get('acidity_param2')}",
             data.get('acidity_2_4')
         )
         
@@ -2124,8 +2135,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             None,
             data.get('acidity_reading_3'),
-            f"({data.get('acidity_3_1')} - {data.get('acidity_3_2')}) X {data.get('acidity_3_3')} X 5000",
-            f"{data['acidity_ans3']} {data.get('acidity_param3')}",
+            f"({data.get('acidity_3_1')} - {data.get('acidity_3_2')}) X {data.get('acidity_3_3')} X 50000",
+            f"{data.get('acidity_ans3', '')} {data.get('acidity_param3')}",
             data.get('acidity_3_4')
         )
         
@@ -2135,7 +2146,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 data.get('acidity_avg_head'),
                 None,
                 f"({data.get('for_acidity1')} X {data.get('for_acidity1_df')}) + ({data.get('for_acidity2')} X {data.get('for_acidity2_df')}) + ({data.get('for_acidity3')} X {data.get('for_acidity3_df')})",
-                f"{data['for_acidity_ans']} {data.get('for_acidity_param')}",
+                f"{data.get('for_acidity_ans', '')} {data.get('for_acidity_param')}",
                 data.get('acidity_divi')
             )
 
@@ -2149,8 +2160,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             data.get('alkalinity_head_1'),
             data.get('alkalinity_reading_1'),
-            f"({data.get('alkalinity_1_1')} - {data.get('alkalinity_1_2')}) X {data.get('alkalinity_1_3')} X 5000",
-            f"{data['alkalinity_ans1']} {data.get('alkalinity_param1')}",
+            f"({data.get('alkalinity_1_1')} - {data.get('alkalinity_1_2')}) X {data.get('alkalinity_1_3')} X 50000",
+            f"{data.get('alkalinity_ans1', '')} {data.get('alkalinity_param1')}",
             data.get('alkalinity_1_4')
         )
         
@@ -2158,8 +2169,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             None,
             data.get('alkalinity_reading_2'),
-            f"({data.get('alkalinity_2_1')} - {data.get('alkalinity_2_2')}) X {data.get('alkalinity_2_3')} X 5000",
-            f"{data['alkalinity_ans2']} {data.get('alkalinity_param2')}",
+            f"({data.get('alkalinity_2_1')} - {data.get('alkalinity_2_2')}) X {data.get('alkalinity_2_3')} X 50000",
+            f"{data.get('alkalinity_ans2', '')} {data.get('alkalinity_param2')}",
             data.get('alkalinity_2_4')
         )
         
@@ -2167,8 +2178,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             None,
             data.get('alkalinity_reading_3'),
-            f"({data.get('alkalinity_3_1')} - {data.get('alkalinity_3_2')}) X {data.get('alkalinity_3_3')} X 5000",
-            f"{data['alkalinity_ans3']} {data.get('alkalinity_param3')}",
+            f"({data.get('alkalinity_3_1')} - {data.get('alkalinity_3_2')}) X {data.get('alkalinity_3_3')} X 50000",
+            f"{data.get('alkalinity_ans3', '')} {data.get('alkalinity_param3')}",
             data.get('alkalinity_3_4')
         )
         
@@ -2178,11 +2189,12 @@ def generate_dw_qc_pdf_response(report, pk):
                 data.get('alkalinity_avg_head'),
                 None,
                 f"({data.get('for_alkalinity1')} X {data.get('for_alkalinity1_df')}) + ({data.get('for_alkalinity2')} X {data.get('for_alkalinity2_df')}) + ({data.get('for_alkalinity3')} X {data.get('for_alkalinity3_df')})",
-                f"{data['for_alkalinity_ans']} {data.get('for_alkalinity_param')}",
+                f"{data.get('for_alkalinity_ans', '')} {data.get('for_alkalinity_param')}",
                 data.get('alkalinity_divi')
             )
-        pdf.set_font("Calibri", 'B', size=10)
-        pdf.cell(0,5,"Alkalinity CRM Calculations",ln=True)
+        if any(re.match(r'alkalinity_crm_\d+_\d+_1$', k) and data.get(k) for k in data):
+            pdf.set_font("Calibri", 'B', size=10)
+            pdf.cell(0,5,"Alkalinity CRM Calculations",ln=True)
         pdf.set_font("Calibri", '', size=10)
         for key in sorted(data.keys()):
             # Match keys like 'alkalinity_crm_36_1_1'
@@ -2212,7 +2224,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 head,
                 reading,
-                f"({val_1} - {val_2}) X {val_3} X 5000",
+                f"({val_1} - {val_2}) X {val_3} X 50000",
                 f"{ans} {param}",
                 divisor
             )
@@ -2229,7 +2241,7 @@ def generate_dw_qc_pdf_response(report, pk):
             data.get('chloride_head_1'),
             None,
             f"({data.get('chloride_1_1')} - {data.get('chloride_1_2')}) - ({data.get('chloride_1_3')} - {data.get('chloride_1_4')}) X {data.get('chloride_1_5')} X 35450",
-            f"{data['chloride_ans1']} {data.get('chloride_param1')}",
+            f"{data.get('chloride_ans1', '')} {data.get('chloride_param1')}",
             data.get('chloride_1_6')
         )
         
@@ -2337,28 +2349,28 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "E.Coli Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data['ecoli_ans']} {data.get('ecoli_param', '')}", ln=True)
+        pdf.cell(0, 6, f"Result: {data.get('ecoli_ans', '')} {data.get('ecoli_param', '')}", ln=True)
 
     if data.get('fecal_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Faecal Coliform Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data['fecal_ans']} {data.get('fecal_param', '')}", ln=True)
+        pdf.cell(0, 6, f"Result: {data.get('fecal_ans', '')} {data.get('fecal_param', '')}", ln=True)
         
     if data.get('hetrobacteria_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Heterotrophic Bacteria calculations:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data['hetrobacteria_ans']} {data.get('hetrobacteria_param', '')}", ln=True)
+        pdf.cell(0, 6, f"Result: {data.get('hetrobacteria_ans', '')} {data.get('hetrobacteria_param', '')}", ln=True)
         
     if data.get('total_coliform_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Coliform:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data['total_coliform_ans']} {data.get('total_coliform_param', '')}", ln=True)
+        pdf.cell(0, 6, f"Result: {data.get('total_coliform_ans', '')} {data.get('total_coliform_param', '')}", ln=True)
         
     
     if data.get('bacteria_ans'):
@@ -2366,7 +2378,7 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Total Bacteria Count:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data['bacteria_ans']} {data.get('bacteria_param', '')}", ln=True)
+        pdf.cell(0, 6, f"Result: {data.get('bacteria_ans', '')} {data.get('bacteria_param', '')}", ln=True)
         
     
     
@@ -2379,8 +2391,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             data.get('carbonates_head_1'),
             data.get('carbonates_reading_1'),
-            f"({data.get('carbonates_1_1')} - {data.get('carbonates_1_2')}) X {data.get('carbonates_1_3')} X 5000",
-            f"{data['carbonates_ans1']} {data.get('carbonates_param1')}",
+            f"({data.get('carbonates_1_1')} - {data.get('carbonates_1_2')}) X {data.get('carbonates_1_3')} X 50000",
+            f"{data.get('carbonates_ans1', '')} {data.get('carbonates_param1')}",
             data.get('carbonates_1_4')
         )
         
@@ -2388,8 +2400,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             None,
             data.get('carbonates_reading_2'),
-            f"({data.get('carbonates_2_1')} - {data.get('carbonates_2_2')}) X {data.get('carbonates_2_3')} X 5000",
-            f"{data['carbonates_ans2']} {data.get('carbonates_param2')}",
+            f"({data.get('carbonates_2_1')} - {data.get('carbonates_2_2')}) X {data.get('carbonates_2_3')} X 50000",
+            f"{data.get('carbonates_ans2', '')} {data.get('carbonates_param2')}",
             data.get('carbonates_2_4')
         )
         
@@ -2397,8 +2409,8 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             None,
             data.get('carbonates_reading_3'),
-            f"({data.get('carbonates_3_1')} - {data.get('carbonates_3_2')}) X {data.get('carbonates_3_3')} X 5000",
-            f"{data['carbonates_ans3']} {data.get('carbonates_param3')}",
+            f"({data.get('carbonates_3_1')} - {data.get('carbonates_3_2')}) X {data.get('carbonates_3_3')} X 50000",
+            f"{data.get('carbonates_ans3', '')} {data.get('carbonates_param3')}",
             data.get('carbonates_3_4')
         )
         
@@ -2408,9 +2420,17 @@ def generate_dw_qc_pdf_response(report, pk):
                 data.get('carbonates_avg_head'),
                 None,
                 f"({data.get('for_carbonates1')} X {data.get('for_carbonates1_df')}) + ({data.get('for_carbonates2')} X {data.get('for_carbonates2_df')}) + ({data.get('for_carbonates3')} X {data.get('for_carbonates3_df')})",
-                f"{data['for_carbonates_ans']} {data.get('for_carbonates_param')}",
+                f"{data.get('carbonates_P') or data.get('for_carbonates_ans', '')} {data.get('for_carbonates_param')}",
                 data.get('carbonates_divi')
             )
+            if data.get('carbonates_P') and data.get('carbonates_T'):           # APHA 2320 B (QA RDS-09)
+                try:
+                    _p, _t = float(data.get('carbonates_P', '')), float(data.get('carbonates_T', ''))
+                    _rule = f"2 X {_p:g}" if _p <= _t / 2 else f"2 X ({_t:g} - {_p:g})"
+                except ValueError:
+                    _rule = "2P or 2(T - P)"
+                pdf.set_x(30)
+                pdf.cell(0, 6, f"Carbonate (as CaCO3), APHA 2320 B: P = {data.get('carbonates_P', '')}, T = {data.get('carbonates_T', '')}; {_rule} = {data.get('for_carbonates_ans')} {data.get('for_carbonates_param') or ''}", ln=True)
     
 
         
@@ -2688,7 +2708,7 @@ def generate_dw_qc_pdf_response(report, pk):
                 pdf.set_font("Calibri", size=10)
                 
                 formula_text = f"{data.get('cal_avg_ans1', '')} + {data.get('cal_avg_ans2', '')} + {data.get('cal_avg_ans3', '')}"
-                result_text = f"{data.get('cal_avg_final_ans', '')} {data.get('cal_avg_param', 'mg/L')}"
+                result_text = _ca_from_cah_text(data, '')
                 divisor = data.get('cal_avg_divi', '3')
                 add_formula_with_line(formula_text, result_text, divisor, 40)
         
@@ -2794,9 +2814,13 @@ def generate_dw_qc_pdf_response(report, pk):
             
     
     
+    if any(re.match(r'calcium_crm_\d+_\d+_1$', k) and data.get(k) for k in data):
+        check_page_break(20)
+        pdf.set_font("Calibri", 'B', size=10)
+        pdf.cell(0, 5, "Calcium CRM Calculations (APHA 3500-Ca B)", ln=True)
     pdf.set_font("Calibri", '', size=10)
     for key in sorted(data.keys()):
-        # Match keys like 'alkalinity_crm_36_1_1'
+        # Match keys like 'calcium_crm_36_1_1'
         match = re.match(r'(calcium_crm_\d+_\d+)_1$', key)
         if not match:
             continue
