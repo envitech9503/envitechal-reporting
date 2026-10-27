@@ -74,9 +74,28 @@
         return;
       }
       loaded = true; prevValue = sel ? sel.value : null;
+      var args = Array.prototype.slice.call(arguments), rt = args[3];
+      var na = function (v) { return /^\s*(n\/?a|-|)\s*$/i.test(String(v === undefined || v === null ? '' : v)); };
+      if (Array.isArray(args[0])) args[0] = args[0].filter(function (it) {          // parameters not reported (N/A) are not RDS rows (QA RDS-33)
+        return rt === 'in-out' ? !(na(it.inlet_result) && na(it.outlet_result)) : !na(it.test_result !== undefined ? it.test_result : it.result);
+      });
       window.__rdsStartDate = arguments[2] || '';          // analysis date for the row dates (QA RDS-16)
-      return orig.apply(this, arguments);
+      var res = orig.apply(this, args);
+      if (rt === 'in-out') hideSingleOnly();
+      return res;
     };
+  }
+  /* in-out reports: a section that exists only for a single result (its heading ends "undefined") is hidden, so the
+     formula library gives the parameter an inlet card and an outlet card instead (QA RDS-20) */
+  function hideSingleOnly() {
+    Array.prototype.forEach.call(document.querySelectorAll('h1, h2'), function (h) {
+      if (!h.offsetParent || !/undefined\s*$/.test(h.textContent || '')) return;
+      var box = h.parentElement;
+      while (box && box !== document.body && box.style.display !== 'block') box = box.parentElement;
+      if (!box || box === document.body) return;
+      var cls = (box.className || '').split(/\s+/).filter(function (c) { return c && !/^(space|my|mt|mb|p|px|py|flex|gap|grid|text|w|h)-/.test(c) && !/^(flex|grid|hidden|block)$/.test(c); })[0];
+      (cls ? document.querySelectorAll('.' + CSS.escape(cls)) : [box]).forEach(function (d) { d.style.display = 'none'; });
+    });
   }
   function preselect() {
     var want = new URLSearchParams(location.search).get('sample');

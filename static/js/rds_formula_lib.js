@@ -381,6 +381,7 @@
   }
   function defaultUnit(calc, name) {
     var b = bare(name);
+    if (calc === 'obs') return /temperature/.test(b) ? '°C' : (/flow/.test(b) ? 'm³/h' : (/colou?r/.test(b) ? 'TCU' : (/turbid/.test(b) ? 'NTU' : '')));   // QA RDS-28
     return { mf: 'CFU/100 mL', plate: 'CFU/mL', sar: '-', rsc: 'meq/L', lsi: '-', salinity: 'PSU', resist: 'Ω·cm', sdi: '-' }[calc] ||
       (/temperature/.test(b) ? '°C' : (/flow/.test(b) ? 'm³/h' : 'mg/L'));
   }
@@ -427,7 +428,8 @@
     var rn = reportedNum(rep), num = typeof result === 'number' ? result : null;
     if (rn !== null && num !== null) {
       var d = Math.abs(num - rn), base = Math.max(Math.abs(rn), 1e-9);
-      if (d / base > TOL_REPORT && d > 0.05) {
+      var dpRep = ((String(rep).match(/\.(\d+)/) || [0, ''])[1]).length, floor = 0.5 * Math.pow(10, -dpRep);   // QA RDS-28: tied to the reported decimals
+      if (d / base > TOL_REPORT && d > floor) {
         var alt = /phosph/.test(bare(item.parameter)) ? [num * 3.066, num / 3.066] : [];
         var altOk = alt.some(function (a) { return Math.abs(a - rn) / base <= TOL_REPORT; });
         warn.push('calculated ' + r(num, 3) + ' differs from the reported ' + rep + ' by ' + r(100 * d / base, 1) + ' %' + (altOk ? ' (matches after the P/PO4 conversion)' : ''));
@@ -478,7 +480,7 @@
       if (reportType === 'in-out') {
         unitSide.push(['Inlet', it.inlet_result]); unitSide.push(['Outlet', it.outlet_result]);
       } else unitSide.push(['', it.test_result !== undefined ? it.test_result : (it.result !== undefined ? it.result : '')]);
-      unitSide.forEach(function (s) { addCard(it, s[0], s[1]); });
+      unitSide.forEach(function (s) { if (/^\s*(n\/?a|-|)\s*$/i.test(String(s[1] === undefined || s[1] === null ? '' : s[1]))) return; addCard(it, s[0], s[1]); });   // no card for a result not reported (QA RDS-28)
     });
   }
   var orig = window.populateQCTable;

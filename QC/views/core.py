@@ -118,6 +118,12 @@ class CustomPDF(FPDF):
         self.add_font("Calibri","B",font_path_bold,uni=True)
         self.set_font("Calibri","", 9)
 
+    def footer(self):
+        # the standard Envi Tech AL footer band on every RDS page (QA RDS-32)
+        from EnviTechAlApp.pdf_common import etal_footer
+        etal_footer(self)
+        self.set_text_color(0, 0, 0)
+
 __all__ = [
     'filter_sign',
     'qc_main',

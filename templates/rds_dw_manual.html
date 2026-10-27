@@ -1076,7 +1076,7 @@
                                         <p class="px-3"> ) </p>
                                         <p class="px-3"> X </p>
                                         <input style="width: 100px;" id="chloride_1_5" name="chloride_1_5"
-                                            placeholder="0.0141" class="text-center p-2" type="number" step="any">
+                                            placeholder="0.0141" value="0.0141" class="text-center p-2" type="number" step="any">
                                         <p class="px-3"> X </p>
                                         <p class="px-3">35450</p>
                                     </div>
@@ -1129,7 +1129,7 @@
                                         <p class="px-3"> ) </p>
                                         <p class="px-3"> X </p>
                                         <input style="width: 100px;" id="chloride_2_5" name="chloride_2_5"
-                                            placeholder="0.0141" class="text-center p-2" type="number" step="any">
+                                            placeholder="0.0141" value="0.0141" class="text-center p-2" type="number" step="any">
                                         <p class="px-3"> X </p>
                                         <p class="px-3">35450</p>
                                     </div>
@@ -1181,7 +1181,7 @@
                                         <p class="px-3"> ) </p>
                                         <p class="px-3"> X </p>
                                         <input style="width: 100px;" id="chloride_3_5" name="chloride_3_5"
-                                            placeholder="0.0141" class="text-center p-2" type="number" step="any">
+                                            placeholder="0.0141" value="0.0141" class="text-center p-2" type="number" step="any">
                                         <p class="px-3"> X </p>
                                         <p class="px-3">35450</p>
                                     </div>
@@ -1233,7 +1233,7 @@
                                         <p class="px-3"> ) </p>
                                         <p class="px-3"> X </p>
                                         <input style="width: 100px;" id="chloride_4_5" name="chloride_4_5"
-                                            placeholder="0.0141" class="text-center p-2" type="number" step="any">
+                                            placeholder="0.0141" value="0.0141" class="text-center p-2" type="number" step="any">
                                         <p class="px-3"> X </p>
                                         <p class="px-3">35450</p>
                                     </div>
@@ -2963,7 +2963,7 @@
                         <p class="text-center text-3xl my-10">E.coli calculations</p>
                         <div id="ecoli" class="flex gap-3">
                             <input type="text" name="ecoli_ans" id="ecoli_ans">
-                            <input type="text" name="ecoli_param" value="CFU/100 ml" id="ecoli_param">
+                            <input type="text" name="ecoli_param" value="CFU/100 mL" id="ecoli_param">
                         </div>
                         <hr class="my-20 border">
                     </div>
@@ -2973,7 +2973,7 @@
                         <p class="text-center text-3xl my-10">Faecal coliform calculations</p>
                         <div id="fecal" class="flex gap-3">
                             <input type="text" name="fecal_ans" id="fecal_ans">
-                            <input type="text" name="fecal_param" value="CFU/100 ml" id="fecal_param">
+                            <input type="text" name="fecal_param" value="CFU/100 mL" id="fecal_param">
                         </div>
                         <hr class="my-20 border">
                     </div>
@@ -2983,7 +2983,7 @@
                         <p class="text-center text-3xl my-10">Total Bacterial Count calculations</p>
                         <div id="bacteria" class="flex gap-3">
                             <input type="text" name="bacteria_ans" id="bacteria_ans">
-                            <input type="text" name="bacteria_param" value="CFU/100 ml" id="bacteria_param">
+                            <input type="text" name="bacteria_param" value="CFU/mL" id="bacteria_param">
                         </div>
                         <hr class="my-20 border">
                     </div>
@@ -5260,7 +5260,7 @@
                             <p class="text-center text-3xl my-10">Total Coliform calculations</p>
                             <div id="total_coliform" class="flex gap-3">
                                 <input type="text" name="total_coliform_ans" id="total_coliform_ans">
-                                <input type="text" name="total_coliform_param" value="CFU/100 ml" id="ecoli_param">
+                                <input type="text" name="total_coliform_param" value="CFU/100 mL" id="total_coliform_param">
                             </div>
                             <hr class="my-20 border">
                         </div>
@@ -5352,6 +5352,12 @@
         function createRowFromCalculation(paramName, resultValue, parameterType) {
             const tableBody = document.querySelector('#table tbody');
             if (!tableBody) return;
+            // a recalculation updates the parameter's row instead of adding another one (QA RDS-26)
+            const _ex = Array.from(tableBody.querySelectorAll('tr')).find(r => {
+                const pi = r.querySelector('input[name^="parameter_"]'); const sn = (r.querySelector('.main-sno') || {}).textContent;
+                return pi && sn && !sn.trim().includes('.') && pi.value === paramName;
+            });
+            if (_ex) { const ri = _ex.querySelector('input[name^="result_"]'); if (ri) ri.value = resultValue; return; }
 
             // Get the next main row number
             const allRows = Array.from(tableBody.querySelectorAll('tr'));
@@ -7981,7 +7987,7 @@
 
                 const ch_c3_calcium = ch_c3_divi !== 0 ? (ch_c3_ans1 / ch_c3_divi) * ch_c3_multiply : 0;
                 setNumericValue('ch_c3_ans', ch_c3_calcium);
-                ElementById('ch_c3_ans1').value = ch_c3_ans1;
+                document.getElementById('ch_c3_ans1').value = ch_c3_ans1;
             });
         }
 
@@ -8965,7 +8971,7 @@ function generateCRMCalculation(param, label, unit, type) {
 
 
                     // 🔥 append calculation block
-                    const rawParam = currentRow.querySelector('input[name^="parameter_"]').value;
+                    const rawParam = (function (v) { var p = window.RDSLib && window.RDSLib.pageName(v); return p || v; })(currentRow.querySelector('input[name^="parameter_"]').value);   // reported name -> section name (QA RDS-25)
                     console.log('raw param--->', rawParam)
                     // sanitize parameter for selector use
                     const paramKey = rawParam
@@ -8974,7 +8980,7 @@ function generateCRMCalculation(param, label, unit, type) {
                         .replace(/\s+/g, '_')
                         .trim();
                     console.log('param--->', paramKey)
-                    const container = document.querySelector(`.dynamic-${paramKey}-calcs`);
+                    const container = (function () { try { return document.querySelector('.dynamic-' + CSS.escape(paramKey) + '-calcs'); } catch (e) { return null; } })();
                     console.log(container)
                     if (container) {
                         const calcId = subSno.replace('.', '_');
@@ -9510,5 +9516,5 @@ function performCRM7Calculation(prefix) {
 
 {% endblock %}{% block w2_tail %}</body>
 
-</html><script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_page.js' %}?v=20261027"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027b"></script>
+</html><script src="{% static 'js/rds_avg.js' %}?v=20261027"></script><script src="{% static 'js/rds_page.js' %}?v=20261027c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261027c"></script>
 {% endblock %}

@@ -102,7 +102,7 @@ def generate_dw_qc_pdf_response(report, pk):
     pdf.add_font("Calibri", "", font_path, uni=True)
     pdf.add_font("Calibri", "B", font_path_bold, uni=True)
 
-    data = report.rds or {}
+    data = __import__('QC.rds_pdf_extras', fromlist=['fill_last_weights']).fill_last_weights(report.rds or {})   # QA RDS-05
     
 
     # Margins
@@ -134,7 +134,8 @@ def generate_dw_qc_pdf_response(report, pk):
     # Header
     pdf.set_y(CONTENT_START_Y)
     pdf.set_font("Calibri", 'B', 10)
-    pdf.cell(0, 5, f"Sample ID: {sample_id}", ln=True)
+    from QC.rds_pdf_extras import particulars as _rds_part
+    _rds_part(pdf, 'dw', sample_id, data, report)   # QA RDS-32
     add_table_header()
 
     row_height = 8
@@ -150,7 +151,7 @@ def generate_dw_qc_pdf_response(report, pk):
     # Sort rows by date
     sorted_rows = sorted(
         rows.keys(),
-        key=lambda rk: data.get(f"date_{rk}") or ""
+        key=__import__("QC.rds_pdf_extras", fromlist=["row_order"]).row_order   # QA RDS-16
     )
 
     if not sorted_rows:
@@ -171,7 +172,7 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.cell(
             col_widths[1],
             row_height,
-            str(data.get(f'date_{row_key}', '')),
+            __import__('QC.rds_pdf_extras', fromlist=['fmt_date']).fmt_date(data.get(f'date_{row_key}', '')),
             1, 0, 'C'
         )
 
@@ -245,6 +246,10 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.ln(2)
 
     def add_formula_with_line(formula_content, result_text, divisor_text=None, start_x=30):
+        _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+        if _t is None:
+            return
+        formula_content, result_text, divisor_text = _t
         """Helper function to add formula with line and optional divisor"""
         old_y = pdf.get_y()
         text_width = pdf.get_string_width(formula_content)
@@ -417,100 +422,23 @@ def generate_dw_qc_pdf_response(report, pk):
     
     
     
-    def add_average_formula_section(check_key, section_title, head_key, ans_key, param_key, 
+    def add_average_formula_section(check_key, section_title, head_key, ans_key, param_key,
                                div_key=None, start_x=30):
-        """Add formula section with average calculation"""
-        if data.get(check_key):
-            check_page_break(30)
-            pdf.set_font("Calibri", 'B', 11)
-            pdf.cell(0, 8, f"{section_title}", 0, 1, 'L')
-            pdf.set_font("Calibri", 'B', 10)
-            
-            if data.get(head_key):
-                pdf.cell(0, 6, f"{data.get(head_key)}", ln=True)
-            
-
-            # ---------- FIRST PART (Simple Average Formula) ----------
-            pdf.cell(0, 6, "Formula:", ln=True)
-            pdf.set_font("Calibri", '', 10)
-
-            # Save current Y
-            old_y = pdf.get_y()
-
-            # Build formula content like: a + b + c
-            avg_values = []
-            for i in range(1, 4):
-                val_key = f"{check_key[:-1]}{i}"  # for_color1, for_color2, for_color3
-                if data.get(val_key):
-                    avg_values.append(str(data[val_key]))
-
-            if avg_values:
-                formula_content = " + ".join(avg_values)
-                color_text_width = pdf.get_string_width(formula_content)
-                color_line_start_x = start_x
-                color_line_end_x = start_x + color_text_width
-
-                # Draw formula
-                pdf.set_x(start_x)
-                pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key)} {data.get(param_key)}", align='L', ln=True)
-
-                # Draw underline
-                pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                # Draw divisor centered below line
-                divisor_text = data.get(div_key) if div_key else None
-                divisor_width = pdf.get_string_width(divisor_text)
-                center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                pdf.set_x(center_divisor_x)
-                pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
-
-            # Spacing before next section
-            pdf.ln(3)
-
-            # ---------- SECOND PART (Weighted Average Formula) ----------
-            head_key_1 = head_key + "_1"
-            pdf.set_font("Calibri", 'B', 10)
-            if data.get(head_key_1):
-                pdf.cell(0, 6, f"{data.get(head_key_1)}", ln=True)
-
-                pdf.cell(0, 6, "Formula:", ln=True)
-            pdf.set_font("Calibri", '', 10)
-
-            # Save current Y
-            old_y = pdf.get_y()
-
-            # Build weighted formula like: (a × a_df) + (b × b_df) + (c × c_df)
-            formula_parts = []
-            for i in range(1, 4):
-                val_key = f"{check_key[:-1]}1_{1}"
-                df_key = f"{check_key[:-1]}1_{i}_df"
-                if data.get(val_key) and data.get(df_key):
-                    formula_parts.append(f"({data[val_key]} X {data[df_key]})")
-                # formula_parts.append(f"()")
-
-            if formula_parts:
-                formula_content = " + ".join(formula_parts)
-                color_text_width = pdf.get_string_width(formula_content)
-                color_line_start_x = start_x
-                color_line_end_x = start_x + color_text_width
-
-                # Draw formula
-                pdf.set_x(start_x)
-                pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key + '_1')} {data.get(param_key + '_1')}", align='L', ln=True)
-
-                # Draw underline
-                pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                # Center divisor below line
-                divisor_text = str(data.get(div_key)) if data.get(div_key) else ""
-                divisor_width = pdf.get_string_width(divisor_text)
-                center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                pdf.set_x(center_divisor_x)
-                pdf.cell(divisor_width, 6, divisor_text, align="C")
-
-            pdf.ln(4)
+        """Working-standard average and the sample weighted average (rewritten for QA RDS-12/13/14: the weighted part
+        printed replicate 1 three times, the WS part printed the sample divisor)."""
+        from QC.rds_pdf_extras import _avg_group
+        stem = check_key[:-1]
+        done = _avg_group(pdf, data, section_title, head_key, [(f"{stem}{i}", None) for i in (1, 2, 3)], None,
+                          ans_key, param_key, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)
+        _avg_group(pdf, data, '' if done else section_title, head_key + '_1',
+                   [(f"{stem}1_{i}", f"{stem}1_{i}_df") for i in (1, 2, 3)], div_key, ans_key + '_1', param_key + '_1',
+                   PAGE_BREAK_THRESHOLD, CONTENT_START_Y)
 
     def add_formula_block(head_text, reading_text, formula_content, result_text, divisor_text=None, start_x=30):
+        _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+        if _t is None:
+            return
+        formula_content, result_text, divisor_text = _t
         """Add a formula block with automatic page break check"""
         # Check page break before each formula (estimate 25px needed)
         check_page_break(25)
@@ -557,7 +485,7 @@ def generate_dw_qc_pdf_response(report, pk):
     add_calculation_header()
 
     # TDS Calculation Section
-    if data.get('tds_final_ans'):
+    if data.get('tds_final_ans') or data.get('ans1'):   # the WS working too (QA RDS-13)
         check_page_break(100)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 4, "Total Dissolved Solids (TDS) Calculation:", 0, 1, 'L')
@@ -1971,6 +1899,10 @@ def generate_dw_qc_pdf_response(report, pk):
     # Helper function for formula blocks
     
     def add_formula_block_2(head_text, reading_text, formula_content, result_text, divisor_text=None, start_x=30):
+        _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+        if _t is None:
+            return
+        formula_content, result_text, divisor_text = _t
         """Add a formula block with automatic page break check"""
         # Check page break before each formula (estimate 25px needed)
         check_page_break(25)
@@ -2235,7 +2167,7 @@ def generate_dw_qc_pdf_response(report, pk):
             )
 
     # CHLORIDE CALCULATION (if you have this data)
-    if data.get('chloride_ans1'):
+    if data.get('chloride_ans1') or data.get('chloride_ans2') or data.get('for_chloride_ans'):   # not only when the WS was calculated (QA RDS-13)
     
         check_page_break(120)  # Reserve space for entire chloride section
         pdf.set_font("Calibri", 'B', 11)
@@ -2859,10 +2791,20 @@ def generate_dw_qc_pdf_response(report, pk):
         )
 
     try:
+        from QC.rds_pdf_extras import print_groups
+        print_groups(pdf, data, 'dw', PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # sections without a printer (QA RDS-12)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS extra sections print')
+    try:
         from QC.rds_lib_pdf import print_lib_cards
         print_lib_cards(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # formula library cards (27-10-2026)
     except Exception:
         logging.getLogger(__name__).exception('RDS formula library print')
+    try:
+        from QC.rds_pdf_extras import closing
+        closing(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # analysts, checkers, end line (QA RDS-32)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS closing block')
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={sample_id}.pdf'

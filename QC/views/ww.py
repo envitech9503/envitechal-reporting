@@ -327,6 +327,7 @@ def get_ww(request):
                         "Boron", "Barium", "Silver"
                     ]
                     
+                    report_type = {'inlet_customlimits': 'in', 'outlet_customLimits': 'out'}.get(report_type, report_type)   # QA RDS-31
                     # First, get standard parameters from database fields
                     for i in range(1, 33):
                         param_name = default_names[i-1] if i-1 < len(default_names) else f"Parameter {i}"
@@ -461,7 +462,7 @@ def generate_ww_qc_pdf_response(report, pk):
     pdf.add_font("Calibri", "", font_path, uni=True)
     pdf.add_font("Calibri", "B", font_path_bold, uni=True)
 
-    data = report.rds or {}
+    data = __import__('QC.rds_pdf_extras', fromlist=['fill_last_weights']).fill_last_weights(report.rds or {})   # QA RDS-05
     
 
     # Margins
@@ -497,7 +498,8 @@ def generate_ww_qc_pdf_response(report, pk):
         # Header
         pdf.set_y(CONTENT_START_Y)
         pdf.set_font("Calibri", 'B', 10)
-        pdf.cell(0, 5, f"Sample ID: {sample_id}", ln=True)
+        from QC.rds_pdf_extras import particulars as _rds_part
+        _rds_part(pdf, 'ww', sample_id, data, report)   # QA RDS-32
         add_table_header()
 
         row_height = 8
@@ -513,7 +515,7 @@ def generate_ww_qc_pdf_response(report, pk):
         # Sort rows by date
         sorted_rows = sorted(
             rows.keys(),
-            key=lambda rk: data.get(f"date_{rk}") or ""
+            key=__import__("QC.rds_pdf_extras", fromlist=["row_order"]).row_order   # QA RDS-16
         )
 
         if not sorted_rows:
@@ -534,7 +536,7 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(
                 col_widths[1],
                 row_height,
-                str(data.get(f'date_{row_key}', '')),
+                __import__('QC.rds_pdf_extras', fromlist=['fmt_date']).fmt_date(data.get(f'date_{row_key}', '')),
                 1, 0, 'C'
             )
 
@@ -634,6 +636,10 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(2)
 
         def add_formula_with_line(formula_content, result_text, divisor_text=None, start_x=30):
+            _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+            if _t is None:
+                return
+            formula_content, result_text, divisor_text = _t
             """Helper function to add formula with line and optional divisor"""
             old_y = pdf.get_y()
             text_width = pdf.get_string_width(formula_content)
@@ -1053,6 +1059,10 @@ def generate_ww_qc_pdf_response(report, pk):
         
         
         def add_formula_block(head_text, reading_text, formula_content, result_text, divisor_text=None, start_x=30):
+            _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+            if _t is None:
+                return
+            formula_content, result_text, divisor_text = _t
             """Add a formula block with automatic page break check"""
             # Check page break before each formula (estimate 25px needed)
             check_page_break(25)
@@ -1940,8 +1950,8 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(-4)
             
             
-        add_simple_formula_section('for_anitomny1_inlet', 'Antimony Inlet Calculations', 'anitomny_head_inlet', 'anitomny_ans_inlet', 'anitomny_param_inlet', '', '_df_inlet', 'anitm_divi_inlet'),
-        add_simple_formula_section('for_anitomny1_outlet', 'Antimony Outlet Calculations', 'anitomny_head_outlet', 'anitomny_ans_outlet', 'anitomny_param_outlet', '', '_df_outlet', 'anitm_divi_outlet'),
+        add_simple_formula_section('for_antimony1_inlet', 'Antimony Inlet Calculations', 'antimony_head_inlet', 'antimony_ans_inlet', 'antimony_param_inlet', '', '_df_inlet', 'antimony_divi_inlet'),
+        add_simple_formula_section('for_antimony1_outlet', 'Antimony Outlet Calculations', 'antimony_head_outlet', 'antimony_ans_outlet', 'antimony_param_outlet', '', '_df_outlet', 'antimony_divi_outlet'),
         
         for key in sorted(data.keys()):
             
@@ -2823,7 +2833,7 @@ def generate_ww_qc_pdf_response(report, pk):
         # for calc_params in average_calculations:
         #     add_average_formula_section(*calc_params)
         
-        add_average_formula_section('for_color1_inlet', 'Color Calculation', 'color_hea_inletd', 'color_ans_inlet', 'color_param_inlet', 'color_divi_inlet')
+        add_average_formula_section('for_color1_inlet', 'Color Calculation', 'color_head_inlet_1', 'color_ans_inlet', 'color_param_inlet', 'color_divi_inlet')
         add_average_formula_section('for_color1_outlet', '', 'color_head_outlet', 'color_ans_outlet', 'color_param_outlet', 'color_divi_outlet')
         for key in data.keys():
             match = re.match(r'(color_crm_\d+_\d+)_1$', key)
@@ -3154,7 +3164,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     None,
                     f"({data.get('for_turbidity1_1_outlet')} X {data.get('for_turbidity1_1_df_outlet')}) + ({data.get('for_turbidity1_2_outlet')} X {data.get('for_turbidity1_2_df_outlet')}) + ({data.get('for_turbidity1_3_outlet')} X {data.get('for_turbidity1_3_df_outlet')})",
                     f"{data.get('turbidity_ans_outlet_weighted', '')} {data.get('turbidity_param_outlet_weighted')}",
-                    data.get('turbidity_divi_outlet')
+                    data.get('turbidity_divi_outlet_weighted')
                 )
         
         pdf.ln(2)
@@ -3482,6 +3492,10 @@ def generate_ww_qc_pdf_response(report, pk):
         
                 
         def add_formula_block_2(head_text, reading_text, formula_content, result_text, divisor_text=None, start_x=30):
+            _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+            if _t is None:
+                return
+            formula_content, result_text, divisor_text = _t
             """Add a formula block with automatic page break check"""
             # Check page break before each formula (estimate 25px needed)
             check_page_break(25)
@@ -5249,7 +5263,8 @@ def generate_ww_qc_pdf_response(report, pk):
         # Header
         pdf.set_y(CONTENT_START_Y)
         pdf.set_font("Calibri", 'B', 10)
-        pdf.cell(0, 5, f"Sample ID: {sample_id}", ln=True)
+        from QC.rds_pdf_extras import particulars as _rds_part
+        _rds_part(pdf, 'ww', sample_id, data, report)   # QA RDS-32
         add_table_header()
 
         row_height = 8
@@ -5265,7 +5280,7 @@ def generate_ww_qc_pdf_response(report, pk):
         # Sort rows by date
         sorted_rows = sorted(
             rows.keys(),
-            key=lambda rk: data.get(f"date_{rk}") or ""
+            key=__import__("QC.rds_pdf_extras", fromlist=["row_order"]).row_order   # QA RDS-16
         )
 
         if not sorted_rows:
@@ -5286,7 +5301,7 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(
                 col_widths[1],
                 row_height,
-                str(data.get(f'date_{row_key}', '')),
+                __import__('QC.rds_pdf_extras', fromlist=['fmt_date']).fmt_date(data.get(f'date_{row_key}', '')),
                 1, 0, 'C'
             )
 
@@ -5359,6 +5374,10 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(2)
 
         def add_formula_with_line(formula_content, result_text, divisor_text=None, start_x=30):
+            _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+            if _t is None:
+                return
+            formula_content, result_text, divisor_text = _t
             """Helper function to add formula with line and optional divisor"""
             old_y = pdf.get_y()
             text_width = pdf.get_string_width(formula_content)
@@ -5378,6 +5397,10 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(3)  # Consistent spacing after formula
 
         def add_formula_block(head_text, reading_text, formula_content, result_text, divisor_text=None, start_x=30):
+            _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+            if _t is None:
+                return
+            formula_content, result_text, divisor_text = _t
             """Add a formula block with automatic page break check"""
             # Check page break before each formula (estimate 25px needed)
             check_page_break(25)
@@ -7391,7 +7414,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 None,
                 final_formula,
                 f"{data.get('trubidity_ans')} {data.get('trubidity_param')}",
-                data.get('trubidity_divi1', "3")
+                (data.get('trubi_divi') or "3")
             )
             
        
@@ -7658,6 +7681,10 @@ def generate_ww_qc_pdf_response(report, pk):
         #         pdf.cell(divisor_width, 3, divisor_text, align="C", ln=True)
                 
         def add_formula_block_2(head_text, reading_text, formula_content, result_text, divisor_text=None, start_x=30):
+            _t = __import__("QC.rds_pdf_extras", fromlist=["tidy"]).tidy(formula_content, result_text, divisor_text)   # QA RDS-13/35
+            if _t is None:
+                return
+            formula_content, result_text, divisor_text = _t
             """Add a formula block with automatic page break check"""
             # Check page break before each formula (estimate 25px needed)
             check_page_break(25)
@@ -8751,10 +8778,20 @@ def generate_ww_qc_pdf_response(report, pk):
             )
 
     try:
+        from QC.rds_pdf_extras import print_groups
+        print_groups(pdf, data, 'ww', PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # sections without a printer (QA RDS-12)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS extra sections print')
+    try:
         from QC.rds_lib_pdf import print_lib_cards
         print_lib_cards(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # formula library cards (27-10-2026)
     except Exception:
         logging.getLogger(__name__).exception('RDS formula library print')
+    try:
+        from QC.rds_pdf_extras import closing
+        closing(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # analysts, checkers, end line (QA RDS-32)
+    except Exception:
+        logging.getLogger(__name__).exception('RDS closing block')
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={sample_id}.pdf'
