@@ -42,6 +42,13 @@ class SocTests(TestCase):
                                          sample_collection_date='21-Oct-2026', select='SEQS', city_location='Karachi', water_sr1='7.0', method_1='*APHA 4500 H-B',
                                          water_sr2='264', method_2='*APHA 2540-C', water_sr13='<0.0080', water_sr10='143.95',
                                          extra_field=json.dumps([{'sr': '33', 'parameters': 'Alkalinity', 'methods': 'APHA 2320 B', 'unit': 'mg/L', 'result': '120', 'limit': '-'}]))
+        # QA 28-10-2026: records are made once the FF-17 is authorised and the test report approved
+        from EnviTechAlApp.models import ApprovalStatus
+        for m, k in ((WasteWaterForm2, 'ww2'), (DrinkingWaterForm, 'dw')):
+            for o in m.objects.all():
+                ApprovalStatus.objects.create(model_key=k, record_id=o.pk)
+        SocRequest.objects.create(location='Karachi', sample_id='WW-202610001', analysis='ww', req_mou=True, req_soc=True, decision='approved',
+                                  authorised_by=cls.mgr, authorised_at=timezone.now())
         MouStudy.objects.create(location='Karachi', parameter='pH', level='7', unit='-', sample_kind='SAMPLE', status='approved', u_abs=0.197, u_exp=0.028, approved_at=timezone.now())
         MouStudy.objects.create(location='Karachi', parameter='COD', level='100 ppm', unit='mg/L', sample_kind='CRM', status='approved', u_abs=2.441, approved_at=timezone.now())
         MouStudy.objects.create(location='Karachi', parameter='TDS', level='1000 ppm', unit='mg/L', sample_kind='CRM', status='draft', u_abs=9.9)   # not approved: not used
@@ -231,7 +238,10 @@ class SocTests(TestCase):
         ww.in_out, ww.outlet_result, ww.select = 'out', '<0.0032', 'PEQS'
         for n in range(1, 33):                                           # a long table: the report runs over pages
             setattr(ww, 'result_%d_%d' % (n, n), getattr(ww, 'result_%d_%d' % (n, n), None) or '1.5')
+        from EnviTechAlApp.models import ApprovalStatus
+        ApprovalStatus.objects.filter(model_key='ww2', record_id=ww.pk).delete()      # an approved report is locked: unapprove, edit, approve
         ww.save()
+        ApprovalStatus.objects.create(model_key='ww2', record_id=ww.pk)
         chem = C(self.chem)
         d = chem.get('/qc/soc/api/sample/', {'sample_id': 'WW-202610001', 'location': 'Karachi'}).json()
         P = {'sample_id': 'WW-202610001', 'report_type': d['report_type'], 'report_pk': d['report_pk'], 'standard': d['header']['standard']}

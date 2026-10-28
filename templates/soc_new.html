@@ -9,16 +9,17 @@
   <div class="hd"><div class="title"><i class="fa-solid fa-scale-balanced"></i> Statement of conformity from a test report - {{ loc }} <span class="muted">{{ ctrl.doc_no }}</span></div>
     <div style="display:flex;gap:8px"><a class="btn" href="{% url 'soc_list' %}?location={{ loc }}">Cancel</a><button class="btn btn-p" type="submit" id="savebtn" disabled><i class="fa-solid fa-floppy-disk"></i> Create records</button></div></div>
   <div class="frm">
-    <label>Sample ID (requisitions asking for MOU / statement of conformity)
+    <label>Sample ID (requisition or customer request form asking for MOU / statement of conformity)
       <select id="sample">
         <option value="">- choose -</option>
-        {% for s in samples %}<option value="{{ s.sample_id }}" {% if s.sample_id == preset %}selected{% endif %} data-rt="{{ s.report }}" data-pk="{{ s.report_pk|default:'' }}">{{ s.sample_id }} - {{ s.customer|default:"(no report yet)"|truncatechars:50 }}{% if s.sample_id in done %} [has records]{% endif %}{% if not s.report %} [no report]{% endif %}</option>{% endfor %}
+        {% for s in samples %}<option value="{{ s.sample_id }}" {% if s.sample_id == preset %}selected{% endif %} data-rt="{{ s.report }}" data-pk="{{ s.report_pk|default:'' }}">{{ s.sample_id }} - {{ s.customer|default:"(no report yet)"|truncatechars:50 }}{% if s.sample_id in done %} [has records]{% endif %}{% if not s.request %} [no FF-17]{% elif not s.request_ok %} [FF-17 not authorised]{% endif %}{% if not s.report %} [no report yet]{% elif not s.report_approved %} [report not approved]{% endif %}</option>{% endfor %}
       </select></label>
     <label>Other sample ID (if not listed) <input type="text" id="sample_other" placeholder="e.g. WW-202405120" style="min-width:200px"></label>
     <button class="btn" type="button" id="loadbtn"><i class="fa-solid fa-magnifying-glass"></i> Load report</button>
     <input type="hidden" name="sample_id" id="sample_id"><input type="hidden" name="report_type" id="report_type"><input type="hidden" name="report_pk" id="report_pk">
   </div>
   <div id="info" class="msg" style="display:none;background:#f8fafc;color:#334155"></div>
+  <div id="gate" class="msg" style="display:none;background:#fff7ed;color:#7c2d12"></div>
   <div id="err" class="msg error" style="display:none"></div>
 </div>
 <div class="card" id="pcard" style="display:none">
@@ -39,17 +40,34 @@ $(function(){
   function load(){
     var sid=$('#sample_other').val().trim()||$('#sample').val(); if(!sid){alert('Choose a sample ID.');return;}
     var opt=$('#sample option:selected'); var rt=$('#sample_other').val().trim()?'':(opt.data('rt')||''); var pk=$('#sample_other').val().trim()?'':(opt.data('pk')||'');
-    $('#err').hide(); $('#info').hide(); $('#pcard').hide(); $('#savebtn').prop('disabled',true); $('#sample_id').val('');
+    $('#err').hide(); $('#info').hide(); $('#gate').hide(); $('#pcard').hide(); $('#savebtn').prop('disabled',true); $('#sample_id').val('');
+    // the customer request form (FF-17) is what the customer asked for; the requisition is shown beside it (QA 28-10-2026)
+    function reqline(d,sid){
+      var f=d.request_form, q=d.requisition, t;
+      if(f){ t='<b>Customer request form (FF-17)</b>: MOU '+(f.mou?'<b>required</b>':'not required')+', statement of conformity '+(f.soc?'<b>required</b>':'not required')+
+               ' &middot; <a href="/qc/soc/request/'+f.id+'/">'+(f.decision==='approved'?'approved':f.decision==='denied'?'denied':'awaiting follow-up')+(f.authorised?' and authorised'+(f.authorised_by?' by '+esc(f.authorised_by):'')+(f.authorised_on?' on '+esc(f.authorised_on):''):'')+'</a>';
+             if(q.found&&(q.mou!==f.mou||q.soc!==f.soc)) t+='<br><span class="pill warn">the sample requisition reads MOU '+(q.mou?'required':'not required')+', SOC '+(q.soc?'required':'not required')+' - the FF-17 governs; correct the requisition if it is wrong</span>'; }
+      else { t='<span class="pill warn">no customer request form (FF-17) yet</span> <a class="btn" href="/qc/soc/request/new/?location={{ loc }}&sample='+encodeURIComponent(sid)+'"><i class="fa-solid fa-plus"></i> raise the FF-17</a>'+
+               (q.found?' &middot; requisition: MOU '+(q.mou?'<b>required</b>':'not required')+', SOC '+(q.soc?'<b>required</b>':'not required')+(q.soc_text?' ('+esc(q.soc_text)+')':''):' &middot; <span class="pill warn">no sample requisition found for this ID</span>'); }
+      return t;
+    }
+    function gate(d){
+      if(!d.gate) return true;
+      if(d.gate.ok){ $('#gate').hide(); return true; }
+      var h='<b>Before the records can be created:</b><ol style="margin:6px 0 0 18px">';
+      $.each(d.gate.steps,function(i,s){ h+='<li>'+(s.done?'&#10003; ':'&#10007; ')+esc(s.label)+(s.note?' <span class="muted">- '+esc(s.note)+'</span>':'')+'</li>'; });
+      $('#gate').html(h+'</ol>').show(); return false;
+    }
     $.getJSON("{% url 'soc_api_sample' %}",{sample_id:sid,location:'{{ loc }}',report_type:rt,report_pk:pk}).done(function(d){
       $('#sample_id').val(d.sample_id); $('#report_type').val(d.report_type); $('#report_pk').val(d.report_pk); $('#standard').val(d.header.standard||'Sindh Environmental Quality Standard 2016');
-      var req=d.requisition; var rq=req.found?('Requisition: MOU '+(req.mou?'<b>required</b>':'not required')+', statement of conformity '+(req.soc?'<b>required</b>':'not required')+(req.soc_text?' ('+esc(req.soc_text)+')':'')):'<span class="pill warn">no sample requisition found for this ID</span>';
-      var rf=d.request_form?('Customer request form: <a href="/qc/soc/request/'+d.request_form.id+'/">'+esc(d.request_form.decision||'open')+'</a>'):('<a href="/qc/soc/request/new/?location={{ loc }}&sample='+encodeURIComponent(sid)+'">+ customer request form (FF-17)</a>');
-      $('#info').html('<b>'+esc(d.report_label)+' report</b> '+esc(d.header.lab_report_no)+' &middot; '+esc(d.header.customer)+' &middot; collected '+esc(d.header.collection_date)+' &middot; analysis '+esc(d.header.analysis.trim()==='to'?'-':d.header.analysis)+'<br>'+rq+' &middot; '+rf+(d.existing.length?'<br><span class="pill warn">records exist for: '+esc(d.existing.join(', '))+'</span>':'')).show();
+      $('#info').html('<b>'+esc(d.report_label)+' report</b> '+esc(d.header.lab_report_no)+(d.side?' ('+esc(d.side)+' results)':'')+' &middot; '+esc(d.header.customer)+' &middot; collected '+esc(d.header.collection_date)+' &middot; analysis '+esc(d.header.analysis.trim()==='to'?'-':d.header.analysis)+'<br>'+reqline(d,sid)+(d.existing.length?'<br><span class="pill warn">records exist for: '+esc(d.existing.join(', '))+'</span>':'')).show();
+      var ready=gate(d), mou=!!(d.request_form&&d.request_form.mou);
       var tb=$('#prows').empty();
       if(!d.parameters.length){$('#err').text('The report has no results.').show();return;}
       $.each(d.parameters,function(i,p){
         var has=d.existing.map(function(x){return x.toLowerCase()}).indexOf(p.parameter.toLowerCase())>=0;
-        var on=p.accredited&&!has&&p.value!==null;
+        var nolim=(p.lower===null&&p.upper===null);
+        var on=p.accredited&&!has&&p.value!==null&&(!nolim||mou);
         var tr=$('<tr>').toggleClass('off',!on);
         tr.append('<td><input type="checkbox" name="p'+i+'_on" value="1" '+(on?'checked':'')+' '+(has?'disabled title="record exists"':(!p.accredited?'disabled title="not in the accreditation scope"':''))+'></td>');
         tr.append('<td><input class="pn" type="text" name="p'+i+'_parameter" value="'+esc(p.parameter)+'">'+(p.accredited?' <span class="pill ok" title="accredited">***</span>':'')+'</td>');
@@ -57,7 +75,7 @@ $(function(){
         tr.append('<td class="num"><b>'+esc(p.result)+'</b><input type="hidden" name="p'+i+'_result" value="'+esc(p.result)+'"></td>');
         for(var j=0;j<3;j++){tr.append('<td><input class="rep" type="text" name="p'+i+'_v'+j+'" value="'+(j==0&&p.value!==null?esc(p.value_text||p.value):'')+'"></td><td><input class="dt" type="text" name="p'+i+'_d'+j+'" value="'+(j==0?esc(d.header.collection_dmy||''):'')+'" placeholder="dd-mm-yyyy"></td>');}
         tr.append('<td><input class="rep" type="text" name="p'+i+'_lower" value="'+(p.lower!==null?p.lower:'')+'"></td><td><input class="rep" type="text" name="p'+i+'_upper" value="'+(p.upper!==null?p.upper:'')+'"></td>');
-        tr.append('<td><input type="text" name="p'+i+'_limit" value="'+esc(p.limit)+'" style="width:90px"></td>');
+        tr.append('<td><input type="text" name="p'+i+'_limit" value="'+esc(p.limit)+'" style="width:90px">'+(nolim&&p.accredited?'<div class="muted" style="font-size:11px">no limit: '+(mou?'U only, no statement':'no statement possible')+'</div>':'')+'</td>');
         tr.append('<td><input class="rep" type="text" name="p'+i+'_u" value="'+(p.u!==null?p.u:'')+'"></td><td><input type="text" name="p'+i+'_usrc" value="'+esc(p.u_label||(p.u===null?'':''))+'" placeholder="MOU register / typed" style="width:130px"><input type="hidden" name="p'+i+'_mou" value="'+(p.mou_study||'')+'"></td>');
         tb.append(tr);
       });
@@ -66,8 +84,9 @@ $(function(){
       try { var dr=JSON.parse(localStorage.getItem('ccdraft:{{ request.user.pk|default:"anon" }}:soc_new_{{ loc }}')||'null');
         if(dr&&dr.v&&dr.v.sample_id===d.sample_id){ $.each(dr.v,function(n,v){ if(!/^p\d+_/.test(n)) return; var el=$('#socform [name="'+n+'"]'); if(!el.length||el.is(':disabled')) return;
           if(el.is(':checkbox')){ el.prop('checked',!!v); el.closest('tr').toggleClass('off',!v); } else { el.val(v); } }); } } catch(e){}
-      $('#pcard').show(); $('#savebtn').prop('disabled',false);
-    }).fail(function(x){var m=(x.responseJSON&&x.responseJSON.error)||'Could not load the report.';$('#err').text(m).show();});
+      $('#pcard').show(); $('#savebtn').prop('disabled',!ready);
+    }).fail(function(x){var d=x.responseJSON||{}; var m=d.error||'Could not load the report.';$('#err').text(m).show();
+      if(d.no_report){ $('#info').html('<b>Sample '+esc(d.sample_id)+'</b> - test report not prepared yet<br>'+reqline(d,d.sample_id)).show(); gate(d); }});
   }
   $('#loadbtn').on('click',load);
   $('#sample').on('change',function(){$('#sample_other').val('');load();});

@@ -270,29 +270,41 @@ def soc_api_sample(request):
     if not sid:
         return JsonResponse({'error': 'sample_id is required'}, status=400)
     kind, rep = _R.report_for(sid, request.GET.get('report_type') or '', int(request.GET['report_pk']) if (request.GET.get('report_pk') or '').isdigit() else None)
-    if not rep:
-        return JsonResponse({'error': 'No drinking-water or waste-water report with sample ID %s.' % sid}, status=404)
-    other = _other_lab(rep, loc)
-    if other:
-        return JsonResponse({'error': 'Sample %s belongs to the %s laboratory; its statement is prepared there.' % (sid, other)}, status=403)
     mou, soc, reg = _R.requisition_flags(sid)
+    requisition = {'found': bool(reg), 'mou': mou, 'soc': soc, 'mou_text': (reg.inp109 if reg else '') or '', 'soc_text': (reg.inp112 if reg else '') or ''}
+    if rep:
+        other = _other_lab(rep, loc)
+        if other:
+            return JsonResponse({'error': 'Sample %s belongs to the %s laboratory; its statement is prepared there.' % (sid, other)}, status=403)
+    ready = _R.readiness(loc, sid, kind, rep)
+    req = ready['req']
+    rf = _req_json(req)
+    gate = {'ok': ready['ok'], 'steps': [{'label': l, 'done': d, 'note': n} for l, d, n in ready['steps']]}
+    if not rep:
+        # a new customer demand: the FF-17 is raised and authorised first; the records follow once the report is approved
+        return JsonResponse({'error': 'The test report of sample %s is not prepared yet. Raise and authorise the customer request form (FF-17) now; '
+                                      'the statement is prepared from the report once its results are entered and approved.' % sid,
+                             'no_report': True, 'sample_id': sid, 'requisition': requisition, 'request_form': rf, 'gate': gate}, status=404)
     hdr = _R.report_header(kind, rep)
     rows = _with_printed_limits(request, kind, rep, _R.report_parameters(kind, rep, loc))
-    req = SocRequest.objects.filter(location=loc, sample_id=sid).first()
     existing = list(SocRecord.objects.filter(location=loc, sample_id=sid).values_list('parameter', flat=True))
     _cd = _pdate(hdr.get('collection_date')); hdr['collection_dmy'] = _cd.strftime('%d-%m-%Y') if _cd else ''
-    return JsonResponse({'sample_id': sid, 'report_type': kind, 'report_label': _REPORT_LABEL.get(kind, kind), 'report_pk': rep.pk, 'header': hdr,
-                         'requisition': {'found': bool(reg), 'mou': mou, 'soc': soc, 'mou_text': (reg.inp109 if reg else '') or '', 'soc_text': (reg.inp112 if reg else '') or ''},
-                         'request_form': {'id': req.pk, 'decision': req.decision} if req else None, 'existing': existing, 'parameters': rows})
+    side = ('inlet' if _R.ww_inlet_only(rep) else 'outlet') if kind == 'ww2' else ''
+    return JsonResponse({'sample_id': sid, 'report_type': kind, 'report_label': _REPORT_LABEL.get(kind, kind), 'report_pk': rep.pk, 'header': hdr, 'side': side,
+                         'requisition': requisition, 'request_form': rf, 'gate': gate, 'existing': existing, 'parameters': rows})
+
+
+def _req_json(req):
+    if not req:
+        return None
+    return {'id': req.pk, 'decision': req.decision, 'mou': req.req_mou, 'soc': req.req_soc, 'authorised': bool(req.authorised_at or req.inducted),
+            'authorised_by': _uname(req.authorised_by) if req.authorised_by_id else '', 'authorised_on': _tz.localtime(req.authorised_at).strftime('%d-%m-%Y') if req.authorised_at else ''}
 
 
 def _other_lab(rep, loc):
     """The other laboratory a report belongs to ('' when it is this laboratory's, or not recorded)."""
-    c = (getattr(rep, 'city_location', '') or '').strip().lower()
-    for l in _CC_LOCS:
-        if c == l.lower() and l != loc:
-            return l
-    return ''
+    lab = _R.lab_of(getattr(rep, 'city_location', ''))
+    return lab if lab and lab != loc else ''
 
 
 def _with_printed_limits(request, kind, rep, rows):
@@ -340,7 +352,14 @@ def soc_new(request):
             _msg.error(request, 'Sample %s belongs to the %s laboratory; its statement is prepared there.' % (sid, other))
             return _redirect('/qc/soc/new/?location=%s' % loc)
         hdr = _R.report_header(kind, rep)
-        req = SocRequest.objects.filter(location=loc, sample_id=sid).first()
+        ready = _R.readiness(loc, sid, kind, rep)
+        req = ready['req']
+        if not ready['ok']:
+            for l, d, n in ready['steps']:
+                if not d:
+                    _msg.error(request, 'Records cannot be created yet - %s: not done%s.' % (l, (' (%s)' % n) if n else ''))
+            return _redirect('/qc/soc/new/?location=%s&sample=%s' % (loc, sid))
+        printed = {x['parameter'].lower(): x for x in _with_printed_limits(request, kind, rep, _R.report_parameters(kind, rep, loc))}
         idx = sorted({int(m.group(1)) for k in P for m in [_re.match(r'^p(\d+)_on$', k)] if m})
         made, errors = [], []
         for i in idx:
@@ -362,7 +381,11 @@ def soc_new(request):
             if lo is None and hi is None:
                 lo, hi = _R.parse_limit(lim)
             if lo is None and hi is None:
-                perr.append('%s: enter the specification limit (upper and / or lower).' % par)
+                pr = printed.get(par.lower())
+                if pr and (pr['lower'] is not None or pr['upper'] is not None):
+                    perr.append('%s: the report prints the limit %s - enter the specification limit.' % (par, pr['limit']))
+                elif not ready['mou']:
+                    perr.append('%s: the standard gives no specification limit - a statement of conformity cannot be made (the FF-17 does not ask for the uncertainty either).' % par)
             if lo is not None and hi is not None and lo > hi:
                 perr.append('%s: the lower specification is above the upper.' % par)
             uval = _num_field(P.get('p%d_u' % i), par + ' uncertainty', perr)
@@ -382,7 +405,7 @@ def soc_new(request):
                             standard=(P.get('standard') or hdr['standard'] or 'Sindh Environmental Quality Standard 2016')[:120],
                             limit_text=lim, lower=lo, upper=hi, uncertainty=uval, u_source=usrc,
                             mou_study=study, results=vals,
-                            created_by=user, legacy={'report_result': (P.get('p%d_result' % i) or '').strip()[:40]})
+                            created_by=user, legacy=dict({'report_result': (P.get('p%d_result' % i) or '').strip()[:40]}, **({'no_limit': True} if lo is None and hi is None else {})))
             rec.save(); made.append(rec)
         for e in errors:
             _msg.error(request, e)
@@ -447,7 +470,7 @@ def soc_edit(request, pk):
         rec.lower, rec.upper = _num_field(P.get('lower'), 'Lower specification', errors), _num_field(P.get('upper'), 'Upper specification', errors)
         if rec.lower is None and rec.upper is None:
             rec.lower, rec.upper = _R.parse_limit(rec.limit_text)
-        if rec.lower is None and rec.upper is None:
+        if rec.lower is None and rec.upper is None and not (rec.legacy or {}).get('no_limit'):
             errors.append('Enter the specification limit (upper and / or lower).')
         elif rec.lower is not None and rec.upper is not None and rec.lower > rec.upper:
             errors.append('The lower specification is above the upper.')
@@ -480,7 +503,7 @@ def _apply_action(user, rec, act, reason=''):
             return 'forbidden', 'Performed-by signing is reserved to the %s laboratory\'s own staff.' % rec.location
         if not rec.values:
             return 'error', 'Enter the results first.'
-        if rec.lower is None and rec.upper is None:
+        if rec.lower is None and rec.upper is None and not (rec.legacy or {}).get('no_limit'):
             return 'error', 'Enter the specification limit first.'
         if rec.uncertainty is None:
             return 'error', 'Enter the expanded uncertainty first (it is printed with the statement).'
@@ -652,6 +675,12 @@ def soc_request_edit(request, pk=None):
             f.reason = 'To ensure the %s sample parameters results are within limits according to %s' % ('drinking water' if kind == 'dw' else 'wastewater', h['standard'] or 'SEQS-2016')
         mou, soc, reg = _R.requisition_flags(f.sample_id)
         f.req_mou, f.req_soc = mou or not reg, soc or not reg
+        if not rep:                                                 # a new customer demand, before the report: from the requisition (QA 28-10-2026)
+            sid_u = f.sample_id.upper()
+            f.analysis = 'dw' if sid_u.startswith('DW') else 'ww' if sid_u.startswith('WW') else f.analysis
+            if reg is not None:
+                f.reporting = f.reporting or (reg.inp112 or '').strip()[:4000]
+                f.reason = f.reason or 'To ensure the %s sample parameters results are within limits' % ('drinking water' if f.analysis == 'dw' else 'wastewater')
     return render(request, 'soc_request_edit.html', {'f': f, 'loc': loc, 'analyses': SocRequest.ANALYSES, 'ctrl': _docctrl('soc_request', loc), 'manager': manager})
 
 
@@ -772,10 +801,11 @@ def _chart_svg(rec):
         u = rec.uncertainty or 0
         if u:
             out.append('<line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="#16a34a" stroke-width="1"/>' % (x, x, y(min(v + u, hi)), y(max(v - u, lo))))
-        ok = rec.verdict(v) == 'Pass'
-        out.append('<rect x="%.1f" y="%.1f" width="8" height="8" transform="rotate(45 %.1f %.1f)" fill="%s"/>' % (x - 4, y(v) - 4, x, y(v), '#16a34a' if ok else '#dc2626'))
+        vd = rec.verdict(v)
+        col = '#16a34a' if vd == 'Pass' else '#64748b' if vd == 'N.A' else '#dc2626'
+        out.append('<rect x="%.1f" y="%.1f" width="8" height="8" transform="rotate(45 %.1f %.1f)" fill="%s"/>' % (x - 4, y(v) - 4, x, y(v), col))
         out.append('<text x="%.1f" y="%d" text-anchor="middle" fill="#334155">%d</text><text x="%.1f" y="%d" text-anchor="middle" font-weight="700" fill="%s">%s</text>'
-                   % (x, H - B + 14, i + 1, x, H - B + 28, '#16a34a' if ok else '#dc2626', rec.verdict(v)))
+                   % (x, H - B + 14, i + 1, x, H - B + 28, col, vd))
     out.append('<text x="%d" y="%d" text-anchor="middle" fill="#0f5132" font-weight="700" font-size="12">Graphical Representation of Binary Statement - Simple Acceptance</text>' % ((L + W - R) / 2, 12))
     out.append('</svg>')
     return ''.join(out)
@@ -812,8 +842,8 @@ def _draw_chart(pdf, rec, x0, y0, w, h):
             pdf.set_draw_color(*col); pdf.set_line_width(0.5); pdf.line(L, y(lim), R, y(lim)); pdf.set_line_width(0.2)
             pdf.set_text_color(*col); pdf.set_xy(L + 2, y(lim) - 3.6); pdf.cell(60, 3, '%s %s' % (lbl, _fmt(lim)), 0, 0, 'L'); pdf.set_text_color(0, 0, 0)
     for i, (x, v) in enumerate(zip(xs, vals)):
-        ok = rec.verdict(v) == 'Pass'
-        col = (22, 163, 74) if ok else (220, 38, 38)
+        vd = rec.verdict(v)
+        col = (22, 163, 74) if vd == 'Pass' else (100, 116, 139) if vd == 'N.A' else (220, 38, 38)
         u = rec.uncertainty or 0
         if u:
             ut, ub = min(v + u, hi), max(v - u, lo)                     # the bar is kept inside the plot
@@ -894,15 +924,17 @@ def _record_page(pdf, rec, ctrl):
     pdf.set_y(yc + 66)
     pdf.set_font(f, 'B', 8); pdf.cell(40, 6, 'Statement of Conformity:', 0, 0)
     for i, vd in enumerate(rec.verdicts):
-        col = (22, 163, 74) if vd == 'Pass' else (220, 38, 38)
+        col = (22, 163, 74) if vd == 'Pass' else (100, 116, 139) if vd == 'N.A' else (220, 38, 38)
         pdf.set_text_color(*col); pdf.cell(28, 6, '%d: %s' % (i + 1, vd), 0, 0, 'C')
     pdf.set_text_color(0, 0, 0)
-    pdf.set_font(f, 'B', 8.5); pdf.cell(0, 6, 'Overall: %s' % (rec.overall or '-'), 0, 1, 'R')
+    pdf.set_font(f, 'B', 8.5); pdf.cell(0, 6, 'Overall: %s' % (rec.overall or ('N.A - no specification limit' if rec.no_limit else '-')), 0, 1, 'R')
     notes = []
     if rec.uncertainty is not None:
         notes.append('Expanded uncertainty ± %s %s (%s).' % (_fmt(rec.uncertainty, 4), rec.unit, rec.u_source or 'as recorded'))
     if rec.report_pk:
         notes.append('Results of the test report (sample %s); result 1 as reported%s.' % (rec.sample_id, (': %s' % rec.legacy.get('report_result')) if (rec.legacy or {}).get('report_result') else ''))
+    if rec.no_limit:
+        notes.append('The standard gives no specification limit for %s: the expanded uncertainty is reported (MOU requested); no statement of conformity is made.' % rec.parameter)
     if rec.censored:
         notes.append('Results written "<x" are below the limit of quantification (LOQ = x); the decision is taken at the LOQ%s.' % (', and the mean (*) takes them at the LOQ' if len(rec.censored) < len(rec.results or []) else ''))
     if rec.inducted:

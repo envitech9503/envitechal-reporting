@@ -60,8 +60,12 @@ def soc_context(recs):
     passes = [r.parameter for r in recs if r.overall == 'Pass']
     fails = [r.parameter for r in recs if r.overall == 'Fail']
     band_out = [r.parameter for r in recs if r.overall == 'Pass' and not r.band_within]
-    return {'recs': recs, 'draft': any(r.status != 'approved' for r in recs), 'passes': passes, 'fails': fails, 'band_out': band_out,
-            'result': 'Fail' if fails else ('Pass' if passes else '-'), 'rule': recs[0].decision_rule if recs else ''}
+    na = [r.parameter for r in recs if r.no_limit]
+    req = next((r.request for r in recs if r.request_id), None)
+    soc_asked = True if req is None else bool(req.req_soc)                  # MOU only: the uncertainty column, no statement (QA 28-10-2026)
+    return {'recs': recs, 'draft': any(r.status != 'approved' for r in recs), 'passes': passes, 'fails': fails, 'band_out': band_out, 'na': na,
+            'result': 'Fail' if fails else ('Pass' if passes else '-'), 'rule': recs[0].decision_rule if recs else '',
+            'no_statement': not soc_asked or not (passes or fails)}
 
 
 def _join(names):
@@ -88,6 +92,10 @@ def statement_text(soc):
         f = soc['fails']
         t += ('The measured value of %s %s outside the acceptance limit, therefore %s considered as Fail (rejected based on guard band). '
               % (_join(f), 'was' if len(f) == 1 else 'were', 'this parameter is' if len(f) == 1 else 'these parameters are'))
+    if soc.get('na'):
+        n = soc['na']
+        t += ('The standard gives no specification limit for %s; %s reported and no statement of conformity is made for %s. '
+              % (_join(n), 'its expanded uncertainty is' if len(n) == 1 else 'their expanded uncertainties are', 'it' if len(n) == 1 else 'them'))
     if soc['rule']:
         t += 'Decision rule: %s.' % soc['rule'].rstrip('.')
     return t

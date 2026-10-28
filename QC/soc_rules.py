@@ -132,11 +132,24 @@ def aliases_for(name):
 
 
 def is_accredited(name, acc_set):
-    """A report parameter name against the laboratory's accredited set ('Alkalinity as CaCO3' -> Alkalinity)."""
+    """A report parameter name against the laboratory's accredited set ('Alkalinity as CaCO3' -> Alkalinity,
+    'Total Dissolved Solids (TDS)' -> TDS, 'pH @ 25 C' -> pH). A hardness ('Calcium Hardness', 'Total Hardness as
+    CaCO3') is judged as a hardness only, never as the cation it is expressed as (QA 28-10-2026)."""
     if not acc_set:
         return False
-    n = (name or '').split('(')[0].strip().lower()
-    return any(n == a.lower() or n.startswith(a.lower() + ' ') for a in acc_set)
+    raw = re.sub(r'\*+', '', name or '').strip().lower()          # 'pH***', 'Total Hardness as CaCO3**' as typed on reports
+    n = re.sub(r'\s+', ' ', raw.split('(')[0]).strip()
+    inner = re.findall(r'\(([^)]*)\)', raw)
+    hard = 'hardness' in n
+    for a in acc_set:
+        al = a.lower()
+        if hard and al != 'hardness':
+            continue
+        names = [al] + ([x for x in aliases_for(a) if x != al] if not hard else ['total hardness'])
+        for x in names:
+            if n == x or n.startswith(x + ' ') or any(i.strip() == x for i in inner):
+                return True
+    return False
 
 
 def to_float(text):
@@ -197,17 +210,29 @@ def eligible_samples(location):
     qs = Sample_registration.objects.filter(checkinp110=True) | Sample_registration.objects.filter(checkinp107=True)
     if location:
         qs = qs.filter(city_location__iexact=location) | qs.filter(city_location__isnull=True) | qs.filter(city_location='')
+    from QC.models import SocRequest
     out, seen = [], set()
-    for s in qs.order_by('-id')[:400]:
-        sid = (s.sample_id or '').strip()
+    items = [(s.sample_id, s) for s in qs.order_by('-id')[:400]]
+    # samples with a customer request form (FF-17) are listed too, whatever the requisition says (QA 28-10-2026)
+    reqs = SocRequest.objects.filter(location=location) if location else SocRequest.objects.all()
+    items += [(q.sample_id, None) for q in reqs.order_by('-id')[:400]]
+    for raw, s in items:
+        sid = (raw or '').strip()
         if not sid or sid in seen:
             continue
         seen.add(sid)
+        if s is None:
+            s = Sample_registration.objects.filter(sample_id=sid).order_by('-id').first()
+        q = reqs.filter(sample_id=sid).first()
         dw = DrinkingWaterForm.objects.filter(sample_id=sid).order_by('-id').first()
         ww = WasteWaterForm2.objects.filter(sample_id=sid).order_by('-id').first()
-        out.append({'sample_id': sid, 'mou': bool(s.checkinp107), 'soc': bool(s.checkinp110), 'reg': s,
-                    'report': ('dw' if dw else 'ww2' if ww else ''), 'report_pk': (dw or ww).pk if (dw or ww) else None,
-                    'customer': (dw or ww).report_to if (dw or ww) else '', 'date': s.inp7 or s.inp3 or ''})
+        rep, kind = (dw, 'dw') if dw else (ww, 'ww2') if ww else (None, '')
+        if rep is not None and location and lab_of(rep.city_location) not in ('', location):
+            continue                                              # the other laboratory's report
+        out.append({'sample_id': sid, 'mou': bool(q.req_mou) if q else bool(s and s.checkinp107), 'soc': bool(q.req_soc) if q else bool(s and s.checkinp110), 'reg': s,
+                    'request': q, 'request_ok': bool(q and q.decision == 'approved' and (q.authorised_at or q.inducted)),
+                    'report': kind, 'report_pk': rep.pk if rep else None, 'report_approved': report_approved(kind, rep) if rep else False,
+                    'customer': (rep.report_to if rep else (q.organization if q else '')) or '', 'date': (s.inp7 or s.inp3 or '') if s else (q.date.strftime('%d-%m-%Y') if q and q.date else '')})
     return out
 
 
@@ -248,9 +273,12 @@ def report_parameters(kind, r, location):
     rows = []
     table = DW_PARAMS if kind == 'dw' else WW_PARAMS
     acc_set = ACCREDITED.get((location, kind))
+    inlet = kind == 'ww2' and ww_inlet_only(r)
     for field, name, unit, limit, acc, names in table:
         if acc_set is not None:
             acc = is_accredited(name, acc_set)
+        if inlet:                                  # an inlet report keeps its results in result_N (QA 28-10-2026)
+            field = field.rsplit('_', 1)[0]
         res = getattr(r, field, None)
         if res in (None, '') or str(res).strip() in ('-', 'N/A', 'NA'):
             continue
@@ -275,6 +303,53 @@ def report_parameters(kind, r, location):
                      'unit': str(x.get('unit') or 'mg/L').strip(), 'limit': lim, 'lower': lo, 'upper': hi,
                      'accredited': is_accredited(name, acc_set) if acc_set is not None else False, 'u': u, 'u_label': ulabel, 'mou_study': sid})
     return rows
+
+
+def lab_of(city):
+    """The laboratory a city_location names: 'karachi.', ' Karachi ' -> Karachi; '' when none (QA 28-10-2026: production
+    has 'karachi.' on older reports)."""
+    c = re.sub(r'[^a-z]', '', (city or '').lower())
+    for l in ('Karachi', 'Lahore'):
+        if c.startswith(l.lower()):
+            return l
+    return ''
+
+
+def ww_inlet_only(r):
+    """A waste-water report printing the inlet results only ('in', 'inlet_customlimits')."""
+    return (getattr(r, 'in_out', '') or '').strip() in ('in', 'inlet_customlimits')
+
+
+def report_approved(kind, r):
+    """The test report is approved (Phase 1 approval: ApprovalStatus) - its results are final and locked."""
+    from EnviTechAlApp.models import ApprovalStatus
+    return bool(r) and ApprovalStatus.objects.filter(model_key=kind, record_id=r.pk).exists()
+
+
+def request_form(location, sample_id):
+    from QC.models import SocRequest
+    return SocRequest.objects.filter(location=location, sample_id=sample_id).first()
+
+
+def readiness(location, sample_id, kind='', rep=None):
+    """What must be in place before statement-of-conformity records are created (QA 28-10-2026, Lab Manager review):
+    the customer request form (FF-17) raised, asking for MOU and / or SOC, approved and authorised by the QC / Lab
+    Manager; the test report prepared and approved. Returns {'ok', 'steps': [(label, done, note)], 'mou', 'soc', 'req'}."""
+    req = request_form(location, sample_id)
+    mou_r, soc_r, reg = requisition_flags(sample_id)
+    steps = []
+    steps.append(('Customer request form (FF-17) raised', bool(req), '' if req else 'raise it from the requisition / customer request'))
+    asks = bool(req and (req.req_mou or req.req_soc))
+    steps.append(('FF-17 asks for MOU and / or statement of conformity', asks,
+                  ('MOU %s, SOC %s' % ('required' if req.req_mou else 'not required', 'required' if req.req_soc else 'not required')) if req else ''))
+    auth = bool(req and req.decision == 'approved' and (req.authorised_at or req.inducted))
+    steps.append(('FF-17 approved and authorised by the QC / Lab Manager', auth,
+                  ('denied' if req and req.decision == 'denied' else 'awaiting the follow-up decision' if req and not auth else '')))
+    steps.append(('Test report prepared', bool(rep), '' if rep else 'enter the results in the drinking-water / waste-water report'))
+    appr = report_approved(kind, rep) if rep else False
+    steps.append(('Test report approved', appr, '' if appr or not rep else 'the report is approved (locked) before its results are judged'))
+    return {'ok': all(d for _l, d, _n in steps), 'steps': steps, 'req': req, 'mou': bool(req.req_mou) if req else False,
+            'soc': bool(req.req_soc) if req else False, 'requisition': {'found': bool(reg), 'mou': mou_r, 'soc': soc_r}}
 
 
 def extra_parameters(kind, r):

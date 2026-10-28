@@ -1751,6 +1751,8 @@ class SocRecord(models.Model):
         """Pass / Fail of one measured value under the simple-acceptance rule (guard band 0)."""
         if value is None:
             return ''
+        if self.lower is None and self.upper is None:      # no specification limit: uncertainty reported, no statement (QA 28-10-2026)
+            return 'N.A'
         ls, us = self.strict
         if self.lower is not None and (value < self.lower or (ls and value == self.lower)):
             return 'Fail'
@@ -1763,8 +1765,14 @@ class SocRecord(models.Model):
         return [self.verdict(r.get('value')) for r in (self.results or [])]
 
     @property
+    def no_limit(self):
+        """No specification limit in the standard (e.g. Calcium under PEQS): the record reports the expanded
+        uncertainty only; no statement of conformity is made."""
+        return self.lower is None and self.upper is None
+
+    @property
     def overall(self):
-        v = [x for x in self.verdicts if x]
+        v = [x for x in self.verdicts if x in ('Pass', 'Fail')]
         if not v:
             return ''
         return 'Fail' if 'Fail' in v else 'Pass'

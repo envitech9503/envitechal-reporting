@@ -23,7 +23,7 @@
       <a class="btn {% if show == 'pending' %}btn-p{% endif %}" href="?location={{ loc }}&show=pending">Awaiting statement{% if counts.pending is not None %} <span class="pill warn">{{ counts.pending }}</span>{% endif %}</a>
     </span>
   </form>
-  <div class="msg" style="background:#f8fafc;color:#475569">A statement of conformity is prepared for a drinking-water or waste-water report when the customer asked for <b>measurement of uncertainty / statement of conformity</b> on the sample requisition form. The test results come from the report, the specification limits from the standard printed on it and the expanded uncertainty from the MOU register. Decision rule: binary statement, simple acceptance (guard band 0). Forms {{ ctrl_req.doc_no }} (request) and {{ ctrl.doc_no }} (record).</div>
+  <div class="msg" style="background:#f8fafc;color:#475569">A statement of conformity is prepared for a drinking-water or waste-water report when the customer asked for <b>measurement of uncertainty / statement of conformity</b> (sample requisition, confirmed on the customer request form FF-17). Steps: requisition &rarr; FF-17 raised and authorised by the QC / Lab Manager &rarr; analysis and test report &rarr; report approved &rarr; records (performed, reviewed, approved) &rarr; lab test report with decision rule. The test results come from the report, the specification limits from the standard printed on it and the expanded uncertainty from the MOU register. Decision rule: binary statement, simple acceptance (guard band 0). Forms {{ ctrl_req.doc_no }} (request) and {{ ctrl.doc_no }} (record).</div>
   {% if show != 'pending' %}
   <table>
     <thead><tr><th>Sample ID</th><th>Customer</th><th>Report</th><th>Parameters</th><th>Statement</th><th>Stage</th><th>Request form</th><th></th></tr></thead>
@@ -49,15 +49,20 @@
   </table>
   {% endif %}
   {% if pending %}
-  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-hourglass-half"></i> Samples whose requisition asks for MOU / statement of conformity - no statement yet</div></div>
+  <div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-hourglass-half"></i> Samples asking for MOU / statement of conformity - no statement yet</div></div>
   <table>
-    <thead><tr><th>Sample ID</th><th>Customer</th><th>Requested</th><th>Report</th><th>Date</th><th></th></tr></thead>
+    <thead><tr><th>Sample ID</th><th>Customer</th><th>Requested</th><th>Request form (FF-17)</th><th>Report</th><th>Date</th><th>Next step</th></tr></thead>
     <tbody>{% for s in pending %}<tr>
       <td class="nw"><b>{{ s.sample_id }}</b></td><td>{{ s.customer|default:"-" }}</td>
       <td class="nw">{% if s.mou %}<span class="pill info">MOU</span>{% endif %} {% if s.soc %}<span class="pill info">SOC</span>{% endif %}</td>
-      <td class="nw">{% if s.report %}{{ s.report_label }}{% else %}<span class="pill warn">no report yet</span>{% endif %}</td>
+      <td class="nw">{% if s.request %}<a href="{% url 'soc_request_detail' s.request.id %}">{% if s.request_ok %}<span class="pill ok">approved</span>{% elif s.request.decision == 'denied' %}<span class="pill bad">denied</span>{% else %}<span class="pill warn">awaiting follow-up</span>{% endif %}</a>{% else %}<span class="pill none">not raised</span>{% endif %}</td>
+      <td class="nw">{% if s.report %}{{ s.report_label }} {% if s.report_approved %}<span class="pill ok">approved</span>{% else %}<span class="pill warn">not approved</span>{% endif %}{% else %}<span class="pill warn">no report yet</span>{% endif %}</td>
       <td class="nw">{{ s.date|default:"-" }}</td>
-      <td class="nw">{% if s.report %}<a class="btn btn-p" href="{% url 'soc_new' %}?location={{ loc }}&sample={{ s.sample_id|urlencode }}"><i class="fa-solid fa-plus"></i> Prepare statement</a>{% endif %}</td></tr>{% endfor %}</tbody>
+      <td class="nw">{% if not s.request %}<a class="btn" href="{% url 'soc_request_new' %}?location={{ loc }}&sample={{ s.sample_id|urlencode }}"><i class="fa-solid fa-file-signature"></i> Raise FF-17</a>
+        {% elif not s.request_ok %}<a class="btn" href="{% url 'soc_request_detail' s.request.id %}"><i class="fa-solid fa-file-signature"></i> FF-17 follow-up</a>
+        {% elif not s.report %}<span class="muted">awaiting the test report</span>
+        {% elif not s.report_approved %}<span class="muted">awaiting report approval</span>
+        {% else %}<a class="btn btn-p" href="{% url 'soc_new' %}?location={{ loc }}&sample={{ s.sample_id|urlencode }}"><i class="fa-solid fa-plus"></i> Prepare statement</a>{% endif %}</td></tr>{% endfor %}</tbody>
   </table>
   {% elif show == 'pending' %}<div class="empty">Every sample whose requisition asks for MOU / statement of conformity has a statement.</div>{% endif %}
   {% if show == 'all' and requests %}
