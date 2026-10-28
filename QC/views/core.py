@@ -100,7 +100,7 @@ class CustomPDF(FPDF):
         self.ln(-3.5)
         self.cell(self.w - 29, 0, f'{self.page_no()} of {{nb}}',border=False, align='R')
         self.set_x(old_x)
-        self.set_y(old_y)
+        self.set_y(max(old_y, 35))     # R7: content after an automatic page break starts below the header (it printed over it)
 
 
         # self.image('static/assets/report water mark.png',0,35,self.w,self.h)

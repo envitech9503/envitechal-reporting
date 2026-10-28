@@ -434,6 +434,19 @@
       var pr = b.querySelector('.rq-print'); if (data && pr) data[pr.name] = pr.value;
     });
     Array.prototype.forEach.call(document.querySelectorAll('.rds-edta input'), function (i) { if (data) data[i.name] = i.value; });
+    var incomplete = [];                                          // R7: a check printed with "WS-Hardness-" or no true value
+    Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) {
+      if (![1, 2, 3].some(function (i) { return String(val(b, 'r' + i)).trim() !== ''; })) return;
+      var id = String(val(b, 'ident')).trim(), what = b.dataset.type + ' - ' + val(b, 'param') + (val(b, 'side') ? ' (' + val(b, 'side') + ')' : '');
+      if (!id || /-$/.test(id)) incomplete.push(what + ': identification "' + id + '" is incomplete');
+      if (String(val(b, 'true')).trim() === '') incomplete.push(what + ': no ' + (b.dataset.type === 'CRM' ? 'certified' : 'true') + ' value');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm input'), function (i) {   // R7: a negative result is a reading error
+      if (i.disabled || i.closest('table') || !/ans|result/i.test((i.name || '') + ' ' + (i.id || ''))) return;
+      if (/lsi|langel|orp|redox|saturation|temp|index|rec|diff/i.test((i.name || '') + ' ' + (i.id || ''))) return;
+      var v = parseFloat(i.value); if (isFinite(v) && v < 0) incomplete.push((i.name || i.id) + ' = ' + i.value + ' (negative result - check the readings)');
+    });
+    if (incomplete.length && !confirm('Please check before saving:\n- ' + incomplete.join('\n- ') + '\n\nPress OK to save as it is, or Cancel to complete them.')) return false;
     return typeof origSave === 'function' ? origSave(data) : true;
   };
 
@@ -463,7 +476,39 @@
     '#rqJump.open .rq-jlist{display:block}#rqJump a{display:block;padding:6px 10px;border-radius:6px;color:#0f172a}#rqJump a:hover{background:#f1f5f9}#rqJump p{padding:6px 10px;color:#64748b}';
   (document.head || document.documentElement).appendChild(css);
 
+  /* R7 (owner 28-10-2026): the old microbiology boxes hold only a result (no calculation); the formula-library card of
+     the same parameter carries the count calculation, so the old box is hidden and left out of the save */
+  var MICRO = [['ecoli', /\be\s*\.?\s*-?\s*coli\b/], ['fecal', /^f(a)?ecal coliform/], ['bacteria', /bacterial count|\btbc\b/],
+    ['enterobacteria', /enterobacter/], ['total_coliform', /^(total )?coliforms?\b/], ['fecalentero', /enterococc/], ['hetrobacteria', /heterotroph/]];
+  function legacyMicro() {
+    var f = form(); if (!f) return;
+    var cards = Array.prototype.map.call(document.querySelectorAll('.rl-card .rl-title b'), function (b) {
+      return String(b.textContent || '').toLowerCase().replace(/\*/g, '').replace(/\((inlet|outlet)\)\s*$/, '').replace(/\s+/g, ' ').trim();
+    });
+    if (!cards.length) return;
+    MICRO.forEach(function (m) {
+      Array.prototype.forEach.call(f.querySelectorAll('div.my-6.' + m[0]), function (box) {
+        if (box.dataset.rqHid || box.style.display === 'none') return;
+        if (box.querySelector('button')) return;                  // a box with its own calculation stays
+        if (!cards.some(function (c) { return m[1].test(c); })) return;
+        box.style.display = 'none'; box.dataset.rqHid = '1';
+        Array.prototype.forEach.call(box.querySelectorAll('input, select'), function (i) { i.disabled = true; });
+      });
+    });
+  }
+  /* R7: an empty dilution factor counted as 0 (result 0); it starts at 1 and stays editable */
+  function dfDefault() {
+    var f = form(); if (!f) return;
+    Array.prototype.forEach.call(f.querySelectorAll('input[placeholder]'), function (i) {
+      if (i.dataset.rqDf || i.closest('#rdsLib') || i.closest('table')) return;
+      if (!/^\s*d\.?\s*f\.?\s*$/i.test(i.placeholder)) return;
+      i.dataset.rqDf = '1';
+      if (String(i.value).trim() === '') i.value = '1';
+    });
+  }
   function refresh() {
+    try { legacyMicro(); } catch (e) { if (window.console) console.error('RDS micro', e); }
+    try { dfDefault(); } catch (e) { if (window.console) console.error('RDS DF', e); }
     try { edtaBoxes(); } catch (e) { if (window.console) console.error('RDS EDTA', e); }
     try { bodTriplicate(); } catch (e) { if (window.console) console.error('RDS BOD', e); }
     try { qcBars(); } catch (e) { if (window.console) console.error('RDS QC', e); }

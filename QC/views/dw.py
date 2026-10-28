@@ -202,8 +202,11 @@ def generate_dw_qc_pdf_response(report, pk):
                 x, y = pdf.get_x(), pdf.get_y()
                 pdf.cell(col_widths[4], row_height, '', 1, 0)
                 if sign.signature:
-                    pdf.image(sign.signature.path, x + 1, y + 1,
-                              w=col_widths[4] - 2, h=row_height - 2)
+                    try:                                   # R7: a missing signature file must not add a second cell
+                        pdf.image(sign.signature.path, x + 1, y + 1,
+                                  w=col_widths[4] - 2, h=row_height - 2)
+                    except Exception:
+                        pass
             except:
                 pdf.cell(col_widths[4], row_height, 'N/A', 1, 0)
         else:
@@ -221,8 +224,11 @@ def generate_dw_qc_pdf_response(report, pk):
                 x, y = pdf.get_x(), pdf.get_y()
                 pdf.cell(col_widths[5], row_height, '', 1, 0)
                 if sign.signature:
-                    pdf.image(sign.signature.path, x + 1, y + 1,
-                              w=col_widths[5] - 2, h=row_height - 2)
+                    try:                                   # R7: a missing signature file must not add a second cell
+                        pdf.image(sign.signature.path, x + 1, y + 1,
+                                  w=col_widths[5] - 2, h=row_height - 2)
+                    except Exception:
+                        pass
             except:
                 pdf.cell(col_widths[5], row_height, 'N/A', 1, 0)
         else:
@@ -290,6 +296,8 @@ def generate_dw_qc_pdf_response(report, pk):
             for i in range(1, 4):
                 # Try ALL possible patterns
                 possible_patterns = []
+                # R7: replicate keys "for_<name>1_<i>" (ammonium) - only the first replicate was printed, over a divisor of 3
+                _bk = check_key.rstrip('0123456789_'); possible_patterns.append((f"{_bk}1_{i}", f"{_bk}1_{i}_df", "R7 replicate keys"))
                 
                 # Pattern 1: Original pattern
                 possible_patterns.append((
@@ -626,7 +634,7 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.ln(-4)
     
     # pH Calculation Section
-    if data.get('for_ph1'):
+    if data.get('for_ph1') or data.get('for4_ph1'):   # R7: sample pH without the buffers
         check_page_break(80)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 4, "pH Calculation:", 0, 1, 'L')
@@ -2177,7 +2185,7 @@ def generate_dw_qc_pdf_response(report, pk):
         add_formula_block(
             data.get('chloride_head_1'),
             None,
-            f"({data.get('chloride_1_1')} - {data.get('chloride_1_2')}) - ({data.get('chloride_1_3')} - {data.get('chloride_1_4')}) X {data.get('chloride_1_5')} X 35450",
+            f"[({data.get('chloride_1_1')} - {data.get('chloride_1_2')}) - ({data.get('chloride_1_3')} - {data.get('chloride_1_4')})] X {data.get('chloride_1_5')} X 35450",
             f"{data.get('chloride_ans1', '')} {data.get('chloride_param1')}",
             data.get('chloride_1_6')
         )
@@ -2188,7 +2196,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_2'),
                 data.get('chloride_reading_1'),
-                f"({data.get('chloride_2_1')} - {data.get('chloride_2_2')}) - ({data.get('chloride_2_3')} - {data.get('chloride_2_4')}) X {data.get('chloride_2_5')} X 35450",
+                f"[({data.get('chloride_2_1')} - {data.get('chloride_2_2')}) - ({data.get('chloride_2_3')} - {data.get('chloride_2_4')})] X {data.get('chloride_2_5')} X 35450",
                 f"{data.get('chloride_ans2', data.get('chloride_ans1', ''))} {data.get('chloride_param2', data.get('chloride_param1', ''))}",
                 data.get('chloride_2_6')
             )
@@ -2199,7 +2207,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_3'),
                 data.get('chloride_reading_2'),
-                f"({data.get('chloride_3_1')} - {data.get('chloride_3_2')}) - ({data.get('chloride_3_3')} - {data.get('chloride_3_4')}) X {data.get('chloride_3_5')} X 35450",
+                f"[({data.get('chloride_3_1')} - {data.get('chloride_3_2')}) - ({data.get('chloride_3_3')} - {data.get('chloride_3_4')})] X {data.get('chloride_3_5')} X 35450",
                 f"{data.get('chloride_ans3', data.get('chloride_ans1', ''))} {data.get('chloride_param3', data.get('chloride_param1', ''))}",
                 data.get('chloride_3_6')
             )
@@ -2210,7 +2218,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_4'),
                 data.get('chloride_reading_3'),
-                f"({data.get('chloride_4_1')} - {data.get('chloride_4_2')}) - ({data.get('chloride_4_3')} - {data.get('chloride_4_4')}) X {data.get('chloride_4_5')} X 35450",
+                f"[({data.get('chloride_4_1')} - {data.get('chloride_4_2')}) - ({data.get('chloride_4_3')} - {data.get('chloride_4_4')})] X {data.get('chloride_4_5')} X 35450",
                 f"{data.get('chloride_ans4', data.get('chloride_ans1', ''))} {data.get('chloride_param4', data.get('chloride_param1', ''))}",
                 data.get('chloride_4_6')
             )
@@ -2275,7 +2283,7 @@ def generate_dw_qc_pdf_response(report, pk):
             add_formula_block(
                 head,
                 None,
-                f"({val_1} - {val_2}) - ({val_3} - {val_4}) X {val_5} X 35450",
+                f"[({val_1} - {val_2}) - ({val_3} - {val_4})] X {val_5} X 35450",
                 f"{ans} {param}",
                 divisor
             )
@@ -2694,45 +2702,22 @@ def generate_dw_qc_pdf_response(report, pk):
                     divisor = data.get(divi_key, '50')
                     add_formula_with_line(formula_text, result_text, divisor, 45)
                     
-                    # CaH Calculation
+                    # CaH Calculation   (R7: laid out with the common formula helper; the hand-drawn fraction overprinted itself)
                     if data.get(cah_key) and data.get(df_key):
-                        pdf.ln(-3)
-                        pdf.set_x(40)
+                        pdf.set_x(45)
                         pdf.set_font("Calibri", '', 10)
                         pdf.cell(0, 6, f"{data.get(cah_key, '')} X {data.get(df_key, '')} = {data.get(cah1_key, '')} {data.get(cah_param_key, 'mg/L')}", align="L", ln=True)
-                    pdf.ln(3)
-                    # Calcium
+                    pdf.ln(2)
                     # Calcium
                     pdf.set_x(10)
                     pdf.set_font("Calibri", '', 10)
-                    pdf.cell(40, 6, f"{data.get(f'cal_{reading_key[-1]}', 'Calcium')} = ", border=False, align="L")
-
-                    # Get values
-                    answer_value = data.get(cal_ans1_key, 'Answer')
-                    divisor_value = data.get(cal_divi_key, '1000')
-                    multiply_value = data.get(cal_multiply_key, '400.8')
-                    result_value = data.get(cal_ans_key, 'Ca1')
-                    param_unit = data.get(cal_param_key, 'mg/L')
-
-                    # Create the fraction with horizontal line
-                    pdf.set_x(30)
-                    pdf.cell(10, 6, f"{answer_value}", align="C")
-                    pdf.ln(-4)  # Move to next line for the fraction line
-
-                    # Draw the horizontal line (vinculum)
-                    pdf.set_x(30)  # Adjust X position based on where the fraction should be
-                    old_x=pdf.get_x()
-                    line_y = pdf.get_y()
-                    pdf.line(30, line_y, 40, line_y)  # Adjust coordinates as needed
-                    pdf.ln(2)  # Small space after the line
-
-                    # Continue with the rest of the formula
-                    pdf.set_x(30)
-                    
-                    pdf.cell(10, 2, f"{divisor_value}", align="C")
-                    pdf.set_y(line_y-5)
-                    pdf.set_x(old_x+10)
-                    pdf.cell(5, 6, f" × {multiply_value} = {result_value} {param_unit}", align="L", ln=True)
+                    pdf.cell(35, 6, f"{data.get(f'cal_{reading_key[-1]}', 'Calcium')} = ", border=False, align="L")
+                    answer_value = data.get(cal_ans1_key, '')
+                    divisor_value = data.get(cal_divi_key) or '1000'
+                    multiply_value = data.get(cal_multiply_key) or '400.8'
+                    result_value = data.get(cal_ans_key, '')
+                    param_unit = data.get(cal_param_key) or 'mg/L'
+                    add_formula_with_line(f"{answer_value} X {multiply_value}", f"{result_value} {param_unit}", divisor_value, 45)
 
                     pdf.ln(4)
             pdf.ln(4)
@@ -2974,7 +2959,13 @@ def create_dw_qc_manual(request):
     sample = _rds_dw_samples(request)
     dw = sample
     signs_list = []
-    for sign in signs:
+    # R7: read now, active staff of the user's laboratory (the module-level list was read once per worker and listed both laboratories)
+    from QC.views.ww import _rds_ww_lab
+    _lab = _rds_ww_lab(request)
+    _signs = Signatures.objects.filter(user__is_active=True).select_related('user').order_by('user__username')
+    if _lab:
+        _signs = _signs.filter(office__iexact=_lab)
+    for sign in _signs:
         signs_list.append({
             'id': sign.id,
             'name': sign.user.get_full_name() or sign.user.username,
@@ -2982,7 +2973,7 @@ def create_dw_qc_manual(request):
             
         })
 
-    user_signs = json.dumps(signs_list)
+    user_signs = json.dumps(signs_list).replace("'", "\\u0027")   # R7: the page reads it inside a quoted script string
     context={'sample':sample,'dw':dw,'signs':user_signs}
     return render(request,'rds_dw_manual.html',context)
 

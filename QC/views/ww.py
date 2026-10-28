@@ -592,8 +592,11 @@ def generate_ww_qc_pdf_response(report, pk):
                         x, y = pdf.get_x(), pdf.get_y()
                         pdf.cell(col_widths[5], row_height, '', 1, 0, 'C')
                         if sign.signature:
-                            pdf.image(sign.signature.path, x + 1, y + 1,
-                                    w=col_widths[5] - 2, h=row_height - 2)
+                            try:                                   # R7: a missing signature file must not add a second cell
+                                pdf.image(sign.signature.path, x + 1, y + 1,
+                                        w=col_widths[5] - 2, h=row_height - 2)
+                            except Exception:
+                                pass
                     except:
                         pdf.cell(col_widths[5], row_height, 'N/A', 1, 0, 'C')
                 else:
@@ -611,8 +614,11 @@ def generate_ww_qc_pdf_response(report, pk):
                         x, y = pdf.get_x(), pdf.get_y()
                         pdf.cell(col_widths[6], row_height, '', 1, 0, 'C')
                         if sign.signature:
-                            pdf.image(sign.signature.path, x + 1, y + 1,
-                                    w=col_widths[6] - 2, h=row_height - 2)
+                            try:                                   # R7: a missing signature file must not add a second cell
+                                pdf.image(sign.signature.path, x + 1, y + 1,
+                                        w=col_widths[6] - 2, h=row_height - 2)
+                            except Exception:
+                                pass
                     except:
                         pdf.cell(col_widths[6], row_height, 'N/A', 1, 0, 'C')
                 else:
@@ -698,6 +704,9 @@ def generate_ww_qc_pdf_response(report, pk):
                 for i in range(1, 4):
                     # Try ALL possible patterns
                     possible_patterns = []
+                    # R7: replicate keys "for_<name>1_<i>" (ammonium) - only the first replicate was printed, over a divisor of 3
+                    _side = '_outlet' if is_outlet else ('_inlet' if is_inlet else '')
+                    possible_patterns.append((f"for_{param_name}1_{i}{_side}", f"for_{param_name}1_{i}_df{_side}", "R7 replicate keys"))
                     
                     # Pattern that should work based on debug output: for_arsenic1 + for_arsenic1_df_outlet
                     if is_outlet:
@@ -1778,11 +1787,11 @@ def generate_ww_qc_pdf_response(report, pk):
         
         # pH Calculation Section
         # Check for pH calculations
-        if data.get('for_ph1_inlet_4') or data.get('for_ph1_outlet_4'):
+        if data.get('for_ph1_inlet_4') or data.get('for_ph1_outlet_4') or data.get('for_ph1_inlet_sample') or data.get('for_ph1_outlet_sample'):   # R7: sample pH without the buffers
             check_page_break(80)
             
             # INLET pH Calculations
-            if data.get('for_ph1_inlet_4'):
+            if data.get('for_ph1_inlet_4') or data.get('for_ph1_inlet_sample'):
                 pdf.set_font("Calibri", 'B', 11)
                 pdf.cell(0, 4, "pH Calculations:", 0, 1, 'L')
                 
@@ -1841,7 +1850,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"{data.get('for_ph1_outlet_sample')} + {data.get('for_ph2_outlet_sample')} + {data.get('for_ph1_outlet_sample')}",
+                    f"{data.get('for_ph1_outlet_sample')} + {data.get('for_ph2_outlet_sample')} + {data.get('for_ph3_outlet_sample')}",
                     f"{data.get('ph_ans_4_outlet', '')}",
                     data.get('ph_divi_4_outlet')
                 )
@@ -4018,8 +4027,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_1_inlet'),
                 None,
-                f"({data.get('chloride_1_1_inlet')} - {data.get('chloride_1_2_inlet')}) - "
-                f"({data.get('chloride_1_3_inlet')} - {data.get('chloride_1_4_inlet')}) "
+                f"[({data.get('chloride_1_1_inlet')} - {data.get('chloride_1_2_inlet')}) - "
+                f"({data.get('chloride_1_3_inlet')} - {data.get('chloride_1_4_inlet')})] "
                 f"X {data.get('chloride_1_5_inlet')} X 35450",
                 f"{data.get('chloride_ans1_inlet')} {data.get('chloride_param1_inlet')}",
                 data.get('chloride_1_6_inlet')
@@ -4031,8 +4040,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     data.get('chloride_head_2_inlet'),
                     data.get('chloride_reading_1_inlet'),
-                    f"({data.get('chloride_2_1_inlet')} - {data.get('chloride_2_2_inlet')}) - "
-                    f"({data.get('chloride_2_3_inlet')} - {data.get('chloride_2_4_inlet')}) "
+                    f"[({data.get('chloride_2_1_inlet')} - {data.get('chloride_2_2_inlet')}) - "
+                    f"({data.get('chloride_2_3_inlet')} - {data.get('chloride_2_4_inlet')})] "
                     f"X {data.get('chloride_2_5_inlet')} X 35450",
                     f"{data.get('chloride_ans2_inlet', data.get('chloride_ans1_inlet', ''))} "
                     f"{data.get('chloride_param2_inlet', data.get('chloride_param1_inlet', ''))}",
@@ -4045,8 +4054,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     data.get('chloride_head_3_inlet'),
                     data.get('chloride_reading_2_inlet'),
-                    f"({data.get('chloride_3_1_inlet')} - {data.get('chloride_3_2_inlet')}) - "
-                    f"({data.get('chloride_3_3_inlet')} - {data.get('chloride_3_4_inlet')}) "
+                    f"[({data.get('chloride_3_1_inlet')} - {data.get('chloride_3_2_inlet')}) - "
+                    f"({data.get('chloride_3_3_inlet')} - {data.get('chloride_3_4_inlet')})] "
                     f"X {data.get('chloride_3_5_inlet')} X 35450",
                     f"{data.get('chloride_ans3_inlet', data.get('chloride_ans1_inlet', ''))} "
                     f"{data.get('chloride_param3_inlet', data.get('chloride_param1_inlet', ''))}",
@@ -4059,8 +4068,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     data.get('chloride_head_4_inlet'),
                     data.get('chloride_reading_3_inlet'),
-                    f"({data.get('chloride_4_1_inlet')} - {data.get('chloride_4_2_inlet')}) - "
-                    f"({data.get('chloride_4_3_inlet')} - {data.get('chloride_4_4_inlet')}) "
+                    f"[({data.get('chloride_4_1_inlet')} - {data.get('chloride_4_2_inlet')}) - "
+                    f"({data.get('chloride_4_3_inlet')} - {data.get('chloride_4_4_inlet')})] "
                     f"X {data.get('chloride_4_5_inlet')} X 35450",
                     f"{data.get('chloride_ans4_inlet', data.get('chloride_ans1_inlet', ''))} "
                     f"{data.get('chloride_param4_inlet', data.get('chloride_param1_inlet', ''))}",
@@ -4120,8 +4129,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     data.get('chloride_head_2_outlet'),
                     data.get('chloride_reading_1_outlet'),
-                    f"({data.get('chloride_2_1_outlet')} - {data.get('chloride_2_2_outlet')}) - "
-                    f"({data.get('chloride_2_3_outlet')} - {data.get('chloride_2_4_outlet')}) "
+                    f"[({data.get('chloride_2_1_outlet')} - {data.get('chloride_2_2_outlet')}) - "
+                    f"({data.get('chloride_2_3_outlet')} - {data.get('chloride_2_4_outlet')})] "
                     f"X {data.get('chloride_2_5_outlet')} X 35450",
                     f"{data.get('chloride_ans2_outlet', data.get('chloride_ans1_outlet', ''))} "
                     f"{data.get('chloride_param2_outlet', data.get('chloride_param1_outlet', ''))}",
@@ -4134,8 +4143,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     data.get('chloride_head_3_outlet'),
                     data.get('chloride_reading_2_outlet'),
-                    f"({data.get('chloride_3_1_outlet')} - {data.get('chloride_3_2_outlet')}) - "
-                    f"({data.get('chloride_3_3_outlet')} - {data.get('chloride_3_4_outlet')}) "
+                    f"[({data.get('chloride_3_1_outlet')} - {data.get('chloride_3_2_outlet')}) - "
+                    f"({data.get('chloride_3_3_outlet')} - {data.get('chloride_3_4_outlet')})] "
                     f"X {data.get('chloride_3_5_outlet')} X 35450",
                     f"{data.get('chloride_ans3_outlet', data.get('chloride_ans1_outlet', ''))} "
                     f"{data.get('chloride_param3_outlet', data.get('chloride_param1_outlet', ''))}",
@@ -4148,8 +4157,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     data.get('chloride_head_4_outlet'),
                     data.get('chloride_reading_3_outlet'),
-                    f"({data.get('chloride_4_1_outlet')} - {data.get('chloride_4_2_outlet')}) - "
-                    f"({data.get('chloride_4_3_outlet')} - {data.get('chloride_4_4_outlet')}) "
+                    f"[({data.get('chloride_4_1_outlet')} - {data.get('chloride_4_2_outlet')}) - "
+                    f"({data.get('chloride_4_3_outlet')} - {data.get('chloride_4_4_outlet')})] "
                     f"X {data.get('chloride_4_5_outlet')} X 35450",
                     f"{data.get('chloride_ans4_outlet', data.get('chloride_ans1_outlet', ''))} "
                     f"{data.get('chloride_param4_outlet', data.get('chloride_param1_outlet', ''))}",
@@ -4220,7 +4229,7 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 head,
                 None,
-                f"({val_1} - {val_2}) - ({val_3} - {val_4}) X {val_5} X 35450",
+                f"[({val_1} - {val_2}) - ({val_3} - {val_4})] X {val_5} X 35450",
                 f"{ans} {param}",
                 divisor
             )
@@ -4845,7 +4854,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"({data.get('sulphide_1_final_a_inlet')} X {data.get('sulphide_1_final_b_inlet')}) - ({data.get('sulphide_1_final_c_inlet')} X {data.get('sulphide_1_final_d_inlet')}) X 16000",
+                    f"[({data.get('sulphide_1_final_a_inlet')} X {data.get('sulphide_1_final_b_inlet')}) - ({data.get('sulphide_1_final_c_inlet')} X {data.get('sulphide_1_final_d_inlet')})] X 16000",
                     
                     f"{data.get('sulphide_1_final_ans_inlet', '')} {data.get('sulphide_1_param_inlet')}",
                     data.get('sulphide_1_divi_inlet')
@@ -4864,7 +4873,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"({data.get('sulphide_2_final_a_inlet')} X {data.get('sulphide_2_final_b_inlet')}) - ({data.get('sulphide_2_final_c_inlet')} X {data.get('sulphide_2_final_d_inlet')}) X 16000",
+                    f"[({data.get('sulphide_2_final_a_inlet')} X {data.get('sulphide_2_final_b_inlet')}) - ({data.get('sulphide_2_final_c_inlet')} X {data.get('sulphide_2_final_d_inlet')})] X 16000",
                     
                     f"{data.get('sulphide_2_final_ans_inlet', '')} {data.get('sulphide_2_param_inlet')}",
                     data.get('sulphide_2_divi_inlet')
@@ -4883,7 +4892,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"({data.get('sulphide_3_final_a_inlet')} X {data.get('sulphide_3_final_b_inlet')}) - ({data.get('sulphide_3_final_c_inlet')} X {data.get('sulphide_3_final_d_inlet')}) X 16000",
+                    f"[({data.get('sulphide_3_final_a_inlet')} X {data.get('sulphide_3_final_b_inlet')}) - ({data.get('sulphide_3_final_c_inlet')} X {data.get('sulphide_3_final_d_inlet')})] X 16000",
                     
                     f"{data.get('sulphide_3_final_ans_inlet', '')} {data.get('sulphide_3_param_inlet')}",
                     data.get('sulphide_3_divi_inlet')
@@ -4937,7 +4946,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"({data.get('sulphide_1_final_a_outlet')} X {data.get('sulphide_1_final_b_outlet')}) - ({data.get('sulphide_1_final_c_outlet')} X {data.get('sulphide_1_final_d_outlet')}) X 16000",
+                    f"[({data.get('sulphide_1_final_a_outlet')} X {data.get('sulphide_1_final_b_outlet')}) - ({data.get('sulphide_1_final_c_outlet')} X {data.get('sulphide_1_final_d_outlet')})] X 16000",
                         
                     f"{data.get('sulphide_1_final_ans_outlet', '')} {data.get('sulphide_1_param_outlet')}",
                     data.get('sulphide_1_divi_outlet')
@@ -4956,7 +4965,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"({data.get('sulphide_2_final_a_outlet')} X {data.get('sulphide_2_final_b_outlet')}) - ({data.get('sulphide_2_final_c_outlet')} X {data.get('sulphide_2_final_d_outlet')}) X 16000",
+                    f"[({data.get('sulphide_2_final_a_outlet')} X {data.get('sulphide_2_final_b_outlet')}) - ({data.get('sulphide_2_final_c_outlet')} X {data.get('sulphide_2_final_d_outlet')})] X 16000",
                         
                     f"{data.get('sulphide_2_final_ans_outlet', '')} {data.get('sulphide_2_param_outlet')}",
                     data.get('sulphide_2_divi_outlet')
@@ -4975,7 +4984,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 add_formula_block(
                     None,
                     None,
-                    f"({data.get('sulphide_3_final_a_outlet')} X {data.get('sulphide_3_final_b_outlet')}) - ({data.get('sulphide_3_final_c_outlet')} X {data.get('sulphide_3_final_d_outlet')}) X 16000",
+                    f"[({data.get('sulphide_3_final_a_outlet')} X {data.get('sulphide_3_final_b_outlet')}) - ({data.get('sulphide_3_final_c_outlet')} X {data.get('sulphide_3_final_d_outlet')})] X 16000",
                         
                     f"{data.get('sulphide_3_final_ans_outlet', '')} {data.get('sulphide_3_param_outlet')}",
                     data.get('sulphide_3_divi_outlet')
@@ -5042,8 +5051,8 @@ def generate_ww_qc_pdf_response(report, pk):
 
             # ---------- FORMULA ----------
             formula_text = (
-                f"({data.get(f'{base}-final-a')} X {data.get(f'{base}-final-b')}) - "
-                f"({data.get(f'{base}-final-c')} X {data.get(f'{base}-final-d')}) X 16000"
+                f"[({data.get(f'{base}-final-a')} X {data.get(f'{base}-final-b')}) - "
+                f"({data.get(f'{base}-final-c')} X {data.get(f'{base}-final-d')})] X 16000"
             )
 
             result_text = (
@@ -5061,6 +5070,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     
             
         if data.get('bod_1_ans_inlet'):
+            check_page_break(40)                                  # R7
             pdf.ln(5)
             pdf.set_font("Calibri", 'B', 10)
             pdf.cell(0,8,f"BOD Calculations",ln=True)
@@ -5069,13 +5079,14 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(3)
             pdf.cell(0,4,f"{data.get('bod_1_inlet')} X {data.get('bod_1_df_inlet')} = {data.get('bod_1_ans_inlet')} {data.get('bod_1_param_inlet')}",ln=True)
         if data.get('bod_ans_inlet'):
+            check_page_break(40)                                  # R7
             pdf.ln(5)
             pdf.set_font("Calibri", 'B', 10)
             pdf.cell(0,4,f"{data.get('bod_head_2_inlet')}",ln=True)
             pdf.set_font("Calibri", '', 10)
             add_formula_block(
                 None,
-                None,
+                'P = sample volume / bottle volume',
                 data.get('bod_sv_inlet'),
                 data.get('bod_1_p_inlet'),
                 data.get('bod_tv_inlet'),
@@ -5095,6 +5106,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 
                 
         if data.get('bod_1_ans_outlet'):
+            check_page_break(40)                                  # R7
             pdf.ln(5)
             pdf.set_font("Calibri", 'B', 10)
             pdf.cell(0,4,f"BOD Calculations (Outlet)",ln=True)
@@ -5103,13 +5115,14 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(3)
             pdf.cell(0,4,f"{data.get('bod_1_outlet')} X {data.get('bod_1_df_outlet')} = {data.get('bod_1_ans_outlet')} {data.get('bod_1_param_outlet')}",ln=True)
         if data.get('bod_ans_outlet'):
+            check_page_break(40)                                  # R7
             pdf.ln(5)
             pdf.set_font("Calibri", 'B', 10)
             pdf.cell(0,4,f"{data.get('bod_head_2_outlet')}",ln=True)
             pdf.set_font("Calibri", '', 10)
             add_formula_block(
                 None,
-                None,
+                'P = sample volume / bottle volume',
                 data.get('bod_sv_outlet'),
                 data.get('bod_1_p_outlet'),
                 data.get('bod_tv_outlet'),
@@ -5330,8 +5343,11 @@ def generate_ww_qc_pdf_response(report, pk):
                     x, y = pdf.get_x(), pdf.get_y()
                     pdf.cell(col_widths[4], row_height, '', 1, 0)
                     if sign.signature:
-                        pdf.image(sign.signature.path, x + 1, y + 1,
-                                w=col_widths[4] - 2, h=row_height - 2)
+                        try:                                   # R7: a missing signature file must not add a second cell
+                            pdf.image(sign.signature.path, x + 1, y + 1,
+                                    w=col_widths[4] - 2, h=row_height - 2)
+                        except Exception:
+                            pass
                 except:
                     pdf.cell(col_widths[4], row_height, 'N/A', 1, 0)
             else:
@@ -5349,8 +5365,11 @@ def generate_ww_qc_pdf_response(report, pk):
                     x, y = pdf.get_x(), pdf.get_y()
                     pdf.cell(col_widths[5], row_height, '', 1, 0)
                     if sign.signature:
-                        pdf.image(sign.signature.path, x + 1, y + 1,
-                                w=col_widths[5] - 2, h=row_height - 2)
+                        try:                                   # R7: a missing signature file must not add a second cell
+                            pdf.image(sign.signature.path, x + 1, y + 1,
+                                    w=col_widths[5] - 2, h=row_height - 2)
+                        except Exception:
+                            pass
                 except:
                     pdf.cell(col_widths[5], row_height, 'N/A', 1, 0)
             else:
@@ -5462,6 +5481,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 for i in range(1, 4):
                     # Try ALL possible patterns
                     possible_patterns = []
+                    # R7: replicate keys "for_<name>1_<i>" (ammonium) - only the first replicate was printed, over a divisor of 3
+                    _bk = check_key.rstrip('0123456789_'); possible_patterns.append((f"{_bk}1_{i}", f"{_bk}1_{i}_df", "R7 replicate keys"))
                     
                     # Pattern 1: Original pattern
                     possible_patterns.append((
@@ -6140,7 +6161,7 @@ def generate_ww_qc_pdf_response(report, pk):
         
         
         # pH Calculation Section
-        if data.get('for_ph1'):
+        if data.get('for_ph1') or data.get('for4_ph1'):   # R7: sample pH without the buffers
             check_page_break(80)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 4, "pH Calculation:", 0, 1, 'L')
@@ -8025,7 +8046,7 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_1'),
                 None,
-                f"({data.get('chloride_1_1')} - {data.get('chloride_1_2')}) - ({data.get('chloride_1_3')} - {data.get('chloride_1_4')}) X {data.get('chloride_1_5')} X 35450",
+                f"[({data.get('chloride_1_1')} - {data.get('chloride_1_2')}) - ({data.get('chloride_1_3')} - {data.get('chloride_1_4')})] X {data.get('chloride_1_5')} X 35450",
                 f"{data.get('chloride_ans1', '')} {data.get('chloride_param1')}",
                 data.get('chloride_1_6')
             )
@@ -8036,7 +8057,7 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_2'),
                 data.get('chloride_reading_1'),
-                f"({data.get('chloride_2_1')} - {data.get('chloride_2_2')}) - ({data.get('chloride_2_3')} - {data.get('chloride_2_4')}) X {data.get('chloride_2_5')} X 35450",
+                f"[({data.get('chloride_2_1')} - {data.get('chloride_2_2')}) - ({data.get('chloride_2_3')} - {data.get('chloride_2_4')})] X {data.get('chloride_2_5')} X 35450",
                 f"{data.get('chloride_ans2', data.get('chloride_ans1', ''))} {data.get('chloride_param2', data.get('chloride_param1', ''))}",
                 data.get('chloride_2_6')
             )
@@ -8047,7 +8068,7 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_3'),
                 data.get('chloride_reading_2'),
-                f"({data.get('chloride_3_1')} - {data.get('chloride_3_2')}) - ({data.get('chloride_3_3')} - {data.get('chloride_3_4')}) X {data.get('chloride_3_5')} X 35450",
+                f"[({data.get('chloride_3_1')} - {data.get('chloride_3_2')}) - ({data.get('chloride_3_3')} - {data.get('chloride_3_4')})] X {data.get('chloride_3_5')} X 35450",
                 f"{data.get('chloride_ans3', data.get('chloride_ans1', ''))} {data.get('chloride_param3', data.get('chloride_param1', ''))}",
                 data.get('chloride_3_6')
             )
@@ -8058,7 +8079,7 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 data.get('chloride_head_4'),
                 data.get('chloride_reading_3'),
-                f"({data.get('chloride_4_1')} - {data.get('chloride_4_2')}) - ({data.get('chloride_4_3')} - {data.get('chloride_4_4')}) X {data.get('chloride_4_5')} X 35450",
+                f"[({data.get('chloride_4_1')} - {data.get('chloride_4_2')}) - ({data.get('chloride_4_3')} - {data.get('chloride_4_4')})] X {data.get('chloride_4_5')} X 35450",
                 f"{data.get('chloride_ans4', data.get('chloride_ans1', ''))} {data.get('chloride_param4', data.get('chloride_param1', ''))}",
                 data.get('chloride_4_6')
             )
@@ -8123,7 +8144,7 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 head,
                 None,
-                f"({val_1} - {val_2}) - ({val_3} - {val_4}) X {val_5} X 35450",
+                f"[({val_1} - {val_2}) - ({val_3} - {val_4})] X {val_5} X 35450",
                 f"{ans} {param}",
                 divisor
             )
@@ -8535,45 +8556,22 @@ def generate_ww_qc_pdf_response(report, pk):
                         divisor = data.get(divi_key, '50')
                         add_formula_with_line(formula_text, result_text, divisor, 45)
                         
-                        # CaH Calculation
+                        # CaH Calculation   (R7: laid out with the common formula helper; the hand-drawn fraction overprinted itself)
                         if data.get(cah_key) and data.get(df_key):
-                            pdf.ln(-3)
-                            pdf.set_x(40)
+                            pdf.set_x(45)
                             pdf.set_font("Calibri", '', 10)
                             pdf.cell(0, 6, f"{data.get(cah_key, '')} X {data.get(df_key, '')} = {data.get(cah1_key, '')} {data.get(cah_param_key, 'mg/L')}", align="L", ln=True)
-                        pdf.ln(3)
-                        # Calcium
+                        pdf.ln(2)
                         # Calcium
                         pdf.set_x(10)
                         pdf.set_font("Calibri", '', 10)
-                        pdf.cell(40, 6, f"{data.get(f'cal_{reading_key[-1]}', 'Calcium')} = ", border=False, align="L")
-
-                        # Get values
-                        answer_value = data.get(cal_ans1_key, 'Answer')
-                        divisor_value = data.get(cal_divi_key, '1000')
-                        multiply_value = data.get(cal_multiply_key, '400.8')
-                        result_value = data.get(cal_ans_key, 'Ca1')
-                        param_unit = data.get(cal_param_key, 'mg/L')
-
-                        # Create the fraction with horizontal line
-                        pdf.set_x(30)
-                        pdf.cell(10, 6, f"{answer_value}", align="C")
-                        pdf.ln(-4)  # Move to next line for the fraction line
-
-                        # Draw the horizontal line (vinculum)
-                        pdf.set_x(30)  # Adjust X position based on where the fraction should be
-                        old_x=pdf.get_x()
-                        line_y = pdf.get_y()
-                        pdf.line(30, line_y, 40, line_y)  # Adjust coordinates as needed
-                        pdf.ln(2)  # Small space after the line
-
-                        # Continue with the rest of the formula
-                        pdf.set_x(30)
-                        
-                        pdf.cell(10, 2, f"{divisor_value}", align="C")
-                        pdf.set_y(line_y-5)
-                        pdf.set_x(old_x+10)
-                        pdf.cell(5, 6, f" × {multiply_value} = {result_value} {param_unit}", align="L", ln=True)
+                        pdf.cell(35, 6, f"{data.get(f'cal_{reading_key[-1]}', 'Calcium')} = ", border=False, align="L")
+                        answer_value = data.get(cal_ans1_key, '')
+                        divisor_value = data.get(cal_divi_key) or '1000'
+                        multiply_value = data.get(cal_multiply_key) or '400.8'
+                        result_value = data.get(cal_ans_key, '')
+                        param_unit = data.get(cal_param_key) or 'mg/L'
+                        add_formula_with_line(f"{answer_value} X {multiply_value}", f"{result_value} {param_unit}", divisor_value, 45)
 
                         pdf.ln(4)
                 pdf.ln(4)
@@ -8643,8 +8641,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 None,
-                f"({data.get('sulphide-1-final-a')} X {data.get('sulphide-1-final-b')}) - "
-                f"({data.get('sulphide-1-final-c')} X {data.get('sulphide-1-final-d')}) X 16000",
+                f"[({data.get('sulphide-1-final-a')} X {data.get('sulphide-1-final-b')}) - "
+                f"({data.get('sulphide-1-final-c')} X {data.get('sulphide-1-final-d')})] X 16000",
                 f"{data.get('sulphide-1_final_ans')} {data.get('sulphide-1_param')}",
                 data.get('sulphide-1-divi')
             )
@@ -8661,8 +8659,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 None,
-                f"({data.get('sulphide-2-final-a')} X {data.get('sulphide-2-final-b')}) - "
-                f"({data.get('sulphide-2-final-c')} X {data.get('sulphide-2-final-d')}) X 16000",
+                f"[({data.get('sulphide-2-final-a')} X {data.get('sulphide-2-final-b')}) - "
+                f"({data.get('sulphide-2-final-c')} X {data.get('sulphide-2-final-d')})] X 16000",
                 f"{data.get('sulphide-2_final_ans')} {data.get('sulphide-2_param')}",
                 data.get('sulphide-2-divi')
             )
@@ -8679,8 +8677,8 @@ def generate_ww_qc_pdf_response(report, pk):
             add_formula_block(
                 None,
                 None,
-                f"({data.get('sulphide-3-final-a')} X {data.get('sulphide-3-final-b')}) - "
-                f"({data.get('sulphide-3-final-c')} X {data.get('sulphide-3-final-d')}) X 16000",
+                f"[({data.get('sulphide-3-final-a')} X {data.get('sulphide-3-final-b')}) - "
+                f"({data.get('sulphide-3-final-c')} X {data.get('sulphide-3-final-d')})] X 16000",
                 f"{data.get('sulphide-3_final_ans')} {data.get('sulphide-3_param')}",
                 data.get('sulphide-3-divi')
             )
@@ -8712,6 +8710,7 @@ def generate_ww_qc_pdf_response(report, pk):
         
         
         if data.get('bod_1_ans'):
+            check_page_break(40)                                  # R7
             pdf.ln(5)
             pdf.set_font("Calibri", 'B', 10)
             pdf.cell(0,4,f"BOD Calculations",ln=True)
@@ -8726,6 +8725,7 @@ def generate_ww_qc_pdf_response(report, pk):
             )
 
         if data.get('bod_ans'):
+            check_page_break(40)                                  # R7
             pdf.ln(5)
             pdf.set_font("Calibri", 'B', 10)
             pdf.cell(0,4,f"{data.get('bod_head_2')}",ln=True)
@@ -8733,7 +8733,7 @@ def generate_ww_qc_pdf_response(report, pk):
 
             add_formula_block(
                 None,
-                None,
+                'P = sample volume / bottle volume',
                 data.get('bod_sv'),
                 data.get('bod_1_p'),
                 data.get('bod_tv'),
@@ -8863,7 +8863,12 @@ def create_ww_qc_manual(request):
     sample = _rds_ww_samples(request)
     ww = sample
     signs_list = []
-    for sign in signs:
+    # R7: read now, active staff of the user's laboratory (the module-level list was read once per worker and listed both laboratories)
+    _lab = _rds_ww_lab(request)
+    _signs = Signatures.objects.filter(user__is_active=True).select_related('user').order_by('user__username')
+    if _lab:
+        _signs = _signs.filter(office__iexact=_lab)
+    for sign in _signs:
         signs_list.append({
             'id': sign.id,
             'name': sign.user.get_full_name() or sign.user.username,
@@ -8871,7 +8876,7 @@ def create_ww_qc_manual(request):
             
         })
 
-    user_signs = json.dumps(signs_list)
+    user_signs = json.dumps(signs_list).replace("'", "\\u0027")   # R7: the page reads it inside a quoted script string
     context={'sample':sample,'ww':ww,'signs':user_signs}
     return render(request,"rds_ww_manual.html",context)
 

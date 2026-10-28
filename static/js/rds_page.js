@@ -118,7 +118,12 @@
     '#qcForm button.bg-blue-600{background:#0f5132!important;border-radius:8px;font-weight:600}' +
     '#qcForm button.bg-blue-600:hover{background:#0b3d26!important}' +
     '#qcForm hr.my-20{margin:28px 0!important;border-color:#e2e8f0}' +
-    '#qcForm .rds-rep{font-weight:500;color:#1e40af;font-size:.9rem;margin-left:8px}';
+    '#qcForm .rds-rep{font-weight:500;color:#1e40af;font-size:.9rem;margin-left:8px}' +
+    /* R7 (owner 28-10-2026): every calculation stays in view - formula rows wrap instead of running off the right edge */
+    '#qcForm .flex{flex-wrap:wrap}#qcForm{max-width:100%}#qcForm .w-min{width:auto!important;max-width:100%}' +
+    '#qcForm input[type=number]:not([style*="width"]){width:130px;max-width:100%}' +
+    '#qcForm input[type=text]{max-width:100%}#qcForm input[id$="_param"],#qcForm input[name$="_param"],#qcForm input[id*="_param_"],#qcForm input[name*="_param_"]{width:120px}' +
+    '#qcForm p.font-bold{white-space:nowrap}';
   (document.head || document.documentElement).appendChild(css);
   function polish() {
     Array.prototype.forEach.call(document.querySelectorAll('#qcForm input[placeholder]'), function (i) { if (!i.title) i.title = i.placeholder; });

@@ -281,7 +281,7 @@
         if (seed) { if ([x.b1, x.b2, x.vc, x.vs].some(function (v) { return v === null; }) || !x.vc) return null; corr = (x.b1 - x.b2) / x.vc * x.vs; }
         if (x.d1 - x.d2 < 2) w.push('DO depletion below 2.0 mg/L'); if (x.d2 < 1) w.push('residual DO below 1.0 mg/L');
         var b = (x.d1 - x.d2 - corr) / P;
-        return { v: b, line: '[(' + r(x.d1) + ' - ' + r(x.d2) + ') - ' + r(corr, 4) + '] / (' + r(x.sv) + ' / ' + r(x.bv) + ')', w: w.join('; ') || null };
+        return { v: b, line: '[(' + r(x.d1) + ' - ' + r(x.d2) + ') - ' + (corr < 0 ? '(' + r(corr, 6) + ')' : r(corr, 6)) + '] / (' + r(x.sv) + ' / ' + r(x.bv) + ')', w: w.join('; ') || null };
       }
     },
     obs: {
@@ -313,9 +313,11 @@
   var OUTLABEL = { HCO3ion: 'bicarbonate as HCO3 (mg/L)', CO3ion: 'carbonate as CO3 (mg/L)', OH: 'hydroxide alkalinity (mg/L as CaCO3)', T: 'total alkalinity (mg/L as CaCO3)',
     P: 'phenolphthalein alkalinity (mg/L as CaCO3)', CH: 'carbonate hardness (mg/L as CaCO3)', NCH: 'non-carbonate hardness (mg/L as CaCO3)', H: 'hardness (mg/L as CaCO3)',
     total: 'total chlorine (mg/L)', combined: 'combined chlorine (mg/L)' };
-  function cardFor(name, method) {
+  function cardFor(name, method, unit) {
     var b = bare(name), m = String(method || '').toLowerCase(), cf = { calc: 'reading' };   // default: reading x DF
     for (var i = 0; i < MAP.length; i++) if (MAP[i][0].test(b)) { cf = { calc: MAP[i][1], out: MAP[i][2], note: MAP[i][3] }; break; }
+    // R7: a count reported per 100 mL, or by a membrane-filtration method, is worked per 100 mL (x 100 / V)
+    if (cf.calc === 'plate' && !/enterobacter/.test(b) && (/9222|9213|9230|1604|16266|membrane/.test(m) || /100\s*ml/i.test(String(unit || '')))) cf = { calc: 'mf' };
     // the method on the report decides between a titration and an instrument read-out
     if (cf.calc === 'tkn' && /hach|10242|spectro|vial/.test(m)) cf = { calc: 'reading' };
     if (cf.calc === 'phosphate' && /hach|8048|phosver/.test(m)) cf.defaults = { cf: '1' };       // HACH PhosVer reads PO4
@@ -348,7 +350,7 @@
 
   function addCard(item, side, reported, forced, target) {      // target: a place on the page instead of the library list (R5)
     var h = container(); if (!h) return;
-    var cf = forced || cardFor(item.parameter, item.method);
+    var cf = forced || cardFor(item.parameter, item.method, item.unit);
     if (cf.calc === 'sub') return;
     var C = CALC[cf.calc]; if (!C) return;
     var n = ++nCard, id = 'rl' + n, reps = C.reps ? 3 : 1;
@@ -439,6 +441,13 @@
         warn.push('calculated ' + r(num, 3) + ' differs from the reported ' + rep + ' by ' + r(100 * d / base, 1) + ' %' + (altOk ? ' (matches after the P/PO4 conversion)' : ''));
       }
     }
+    var sRep = String(rep || '').trim(), bm = sRep.match(/^([<>])\s*=?\s*(-?\d+(?:\.\d+)?)/);   // R7: "<" / ">" / N.D. are checked too
+    if (num !== null && bm) {
+      var bnd = parseFloat(bm[2]);
+      if (bm[1] === '>' && num <= bnd) warn.push('calculated ' + r(num, 3) + ' is not above the reported ' + sRep);
+      if (bm[1] === '<' && num >= bnd) warn.push('calculated ' + r(num, 3) + ' is not below the reported ' + sRep);
+    }
+    if (num !== null && num > 0 && (cf.calc === 'mf' || cf.calc === 'plate') && /^(n\.?\s*d\.?|nil|absent|not detected)/i.test(sRep)) warn.push('calculated ' + r(num, 3) + ' but reported ' + sRep);
     var chk = card.querySelector('.rl-chk');
     chk.value = warn.length ? warn.join('; ') : 'OK'; chk.classList.toggle('rl-warn', warn.length > 0); chk.classList.toggle('rl-ok', !warn.length);
     card.querySelector('.rl-print').value = JSON.stringify({
