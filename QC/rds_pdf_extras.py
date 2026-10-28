@@ -71,17 +71,37 @@ def particulars(pdf, kind, sample_id, data, rec=None):
             ('Analysis', (a_from + (' to ' + a_to if a_to and a_to != a_from else '')) if a_from else ''),
             ('RDS saved', rec.created_at.strftime('%d-%m-%Y %H:%M') if rec is not None and getattr(rec, 'created_at', None) else '')]
     x0, w = 12, 186
+    vw = w / 2 - 30                                             # width of a value
     y = pdf.get_y()
+    pdf.set_font('Calibri', '', 9)
+
+    def wrap(v):                                                # R8 (chemist feedback, point 4): long names wrap, no overprint
+        words, lines, cur = str(v).split(), [], ''
+        for wd in words:
+            t = (cur + ' ' + wd).strip()
+            if pdf.get_string_width(t) <= vw - 1 or not cur:
+                cur = t
+            else:
+                lines.append(cur); cur = wd
+        if cur:
+            lines.append(cur)
+        return lines[:3] or ['']
+    pairs = [rows[i:i + 2] for i in range(0, len(rows), 2)]
+    heights = [max(len(wrap(v)) for _, v in pr) * 4.4 + 0.8 for pr in pairs]
     pdf.set_draw_color(150, 150, 150); pdf.set_line_width(0.2)
-    pdf.rect(x0, y, w, 4 * 5.2 + 2)
-    for i, (k, v) in enumerate(rows):
-        col, line = i % 2, i // 2
-        x = x0 + 2 + col * (w / 2)
-        pdf.set_xy(x, y + 1 + line * 5.2)
-        pdf.set_font('Calibri', 'B', 9); pdf.cell(26, 5, k + ':', 0, 0, 'L')
-        pdf.set_font('Calibri', '', 9); pdf.cell(w / 2 - 30, 5, str(v)[:60], 0, 0, 'L')
+    pdf.rect(x0, y, w, sum(heights) + 2)
+    yy = y + 1
+    for pr, h in zip(pairs, heights):
+        for col, (k, v) in enumerate(pr):
+            x = x0 + 2 + col * (w / 2)
+            pdf.set_xy(x, yy)
+            pdf.set_font('Calibri', 'B', 9); pdf.cell(26, 5, k + ':', 0, 0, 'L')
+            pdf.set_font('Calibri', '', 9)
+            for j, ln in enumerate(wrap(v)):
+                pdf.set_xy(x + 26, yy + j * 4.4); pdf.cell(vw, 5, ln, 0, 0, 'L')
+        yy += h
     pdf.set_draw_color(0, 0, 0)
-    pdf.set_xy(x0, y + 4 * 5.2 + 4)
+    pdf.set_xy(x0, y + sum(heights) + 4)
 
 
 def closing(pdf, data, page_break=255, top=35):
@@ -229,3 +249,15 @@ def edta_b(data, key):
     except ValueError:
         return ''
     return ' X ' + b
+
+
+def fit_cell(pdf, w, h, txt, border=1, ln=0, align='L', min_size=6.0):
+    """A table cell whose text is narrowed to its width (R8: "Biological Oxygen Demand(BOD)5 CRM" ran into the next column)."""
+    txt = str(txt)
+    size = pdf.font_size_pt
+    cur = size
+    while cur > min_size and pdf.get_string_width(txt) > w - 2:
+        cur -= 0.5
+        pdf.set_font_size(cur)
+    pdf.cell(w, h, txt, border, ln, align)
+    pdf.set_font_size(size)

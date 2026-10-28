@@ -37,7 +37,7 @@ class RdsR7Pages(TestCase):
             self.assertIsNone(re.search(r'<input[^>]*>\s*<p class="px-1">\s*\+\s*</p>\s*<p class="px-1">\s*X\s*</p>', s), page)
             self.assertIsNone(re.search(r'<p class="px-\d">\s*\)\s*</p>\s*<p class="px-\d">\s*\(\s*</p>', s), page)
             self.assertIsNone(re.search(r'id="(ferrous|freechlorine)_param"[^>]*value="TCU"', s), page)
-            self.assertIn("rds_qc.js' %}?v=20261028b", s)
+            self.assertRegex(s, r"rds_qc.js' %}\?v=2026102[89]\w")
         m = src('templates', 'rds_ww_manual.html')
         self.assertIn('<option value="">Performed By</option>${sigOpts}', m)
 

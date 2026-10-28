@@ -176,12 +176,7 @@ def generate_dw_qc_pdf_response(report, pk):
             1, 0, 'C'
         )
 
-        pdf.cell(
-            col_widths[2],
-            row_height,
-            str(data.get(f'parameter_{row_key}', '')),
-            1, 0, 'L'
-        )
+        __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[2], row_height, str(data.get(f'parameter_{row_key}', '')), 1, 0, 'L')   # R8: long names fit
 
         pdf.cell(
             col_widths[3],
@@ -509,7 +504,7 @@ def generate_dw_qc_pdf_response(report, pk):
         ]
         
         for head_key, bw_key, aw_key, vs_key, ans_key, param_key, read_key in tds_sections:
-            if data.get(head_key):
+            if data.get(head_key) and (str(data.get(bw_key) or '').strip() or str(data.get(ans_key) or '').strip()):   # R8: readings entered only
                 check_page_break(25)
                 
                 pdf.set_font("Calibri", 'B', 10)
@@ -2819,7 +2814,7 @@ def get_dw(request):
                 return JsonResponse({'error': 'sample_id is required'}, status=400)
 
             sample = Sample_registration.objects.filter(sample_id=sample_id).first()
-            dw_report = DrinkingWaterForm.objects.filter(sample_id=sample_id).first()
+            dw_report = DrinkingWaterForm.objects.filter(sample_id=sample_id).order_by('-id').first()   # R8: the latest report (was the oldest)
             
             if not sample or not dw_report:
                 return JsonResponse({'error': 'Data not found'}, status=404)

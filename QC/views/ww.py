@@ -185,7 +185,7 @@ def get_ww(request):
             if not sample_id:
                 return JsonResponse({'error': 'sample_id is required'}, status=400)
 
-            ww_report = WasteWaterForm2.objects.filter(sample_id=sample_id).first()
+            ww_report = WasteWaterForm2.objects.filter(sample_id=sample_id).order_by('-id').first()   # R8: the latest report of the sample (was the oldest)
             
             if not ww_report:
                 return JsonResponse({'error': 'Report not found for this sample'}, status=404)
@@ -194,15 +194,10 @@ def get_ww(request):
             qc_data = []  # Changed from qc_results to qc_data
             
             # STEP 1: Try to get data from structured_data field FIRST
-            structured_data = {}
-            if ww_report.structured_data and ww_report.structured_data != '[]':
-                try:
-                    structured_data = json.loads(ww_report.structured_data)
-                except:
-                    try:
-                        structured_data = ast.literal_eval(ww_report.structured_data)
-                    except:
-                        structured_data = {}
+            # R8 (chemist feedback 28-10-2026, point 5): structured_data is written only when the report is created; the
+            # report's current results (after edits) are taken from its result fields and extra_field
+            from QC.ww_live import live_structured
+            structured_data = live_structured(ww_report) or {}
             
             if isinstance(structured_data, dict) and 'standard_parameters' in structured_data:
                 
@@ -545,14 +540,9 @@ def generate_ww_qc_pdf_response(report, pk):
                 # Check if this is a CRM parameter (contains "CRM")
                 is_crm = "CRM" in parameter.upper()
                 
-                pdf.cell(
-                    col_widths[2],
-                    row_height,
-                    parameter,
-                    1, 0, 'L'
-                )
+                __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[2], row_height, parameter, 1, 0, 'L')   # R8: long names fit
                 
-                if is_crm:
+                if is_crm and not str(data.get(f'outlet_{row_key}', '') or '').strip():   # R8: a CRM row with an outlet result keeps both columns
                     # For CRM: colspan=2 for inlet column, leave outlet empty
                     inlet_value = str(data.get(f'inlet_{row_key}', ''))
                     # Draw a single cell spanning both inlet and outlet columns
@@ -1133,7 +1123,7 @@ def generate_ww_qc_pdf_response(report, pk):
             ]
             
             for head_key, bw_key, aw_key, vs_key, ans_key, param_key, read_key in inlet_tds_sections:
-                if data.get(head_key):
+                if data.get(head_key) and (str(data.get(bw_key) or '').strip() or str(data.get(ans_key) or '').strip()):   # R8: readings entered only
                     check_page_break(25)
                     
                     pdf.set_font("Calibri", 'B', 10)
@@ -1195,7 +1185,7 @@ def generate_ww_qc_pdf_response(report, pk):
             ]
             
             for head_key, bw_key, aw_key, vs_key, ans_key, param_key, read_key in outlet_tds_sections:
-                if data.get(head_key):
+                if data.get(head_key) and (str(data.get(bw_key) or '').strip() or str(data.get(ans_key) or '').strip()):   # R8: readings entered only
                     check_page_break(25)
                     
                     pdf.set_font("Calibri", 'B', 10)
@@ -1342,7 +1332,7 @@ def generate_ww_qc_pdf_response(report, pk):
             ]
 
             for head, iw, fw, vs, ans, param, read in inlet_tss_sections:
-                if data.get(head):
+                if data.get(head) and (str(data.get(iw) or '').strip() or str(data.get(ans) or '').strip()):   # R8: readings entered only
                     check_page_break(25)
 
                     pdf.set_font("Calibri", 'B', 10)
@@ -1418,7 +1408,7 @@ def generate_ww_qc_pdf_response(report, pk):
             ]
 
             for head, iw, fw, vs, ans, param, read in outlet_tss_sections:
-                if data.get(head):
+                if data.get(head) and (str(data.get(iw) or '').strip() or str(data.get(ans) or '').strip()):   # R8: readings entered only
                     check_page_break(40)
 
                     pdf.set_font("Calibri", 'B', 10)
@@ -5318,12 +5308,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 1, 0, 'C'
             )
 
-            pdf.cell(
-                col_widths[2],
-                row_height,
-                str(data.get(f'parameter_{row_key}', '')),
-                1, 0, 'L'
-            )
+            __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[2], row_height, str(data.get(f'parameter_{row_key}', '')), 1, 0, 'L')   # R8: long names fit
             pdf.cell(
                 col_widths[3],
                 row_height,
@@ -5724,7 +5709,7 @@ def generate_ww_qc_pdf_response(report, pk):
             ]
             
             for head_key, bw_key, aw_key, vs_key, ans_key, param_key, read_key in tds_sections:
-                if data.get(head_key):
+                if data.get(head_key) and (str(data.get(bw_key) or '').strip() or str(data.get(ans_key) or '').strip()):   # R8: readings entered only
                     check_page_break(25)
                     
                     pdf.set_font("Calibri", 'B', 10)
@@ -5863,7 +5848,7 @@ def generate_ww_qc_pdf_response(report, pk):
             ]
 
             for head, iw, fw, vs, ans, param, read in tss_sections:
-                if data.get(head):
+                if data.get(head) and (str(data.get(iw) or '').strip() or str(data.get(ans) or '').strip()):   # R8: readings entered only
                     check_page_break(25)
 
                     pdf.set_font("Calibri", 'B', 10)

@@ -167,7 +167,7 @@
     d.className = 'rq-bar';
     d.innerHTML = '<span class="rq-lbl">Quality control:</span>' + Object.keys(TYPES).map(function (k) { return '<button type="button" class="rq-add" data-t="' + k + '">+ ' + esc(TYPES[k]) + '</button>'; }).join('') + '<div class="rq-list"></div>';
     d.dataset.param = name; d.dataset.side = side || '';
-    Array.prototype.forEach.call(d.querySelectorAll('.rq-add'), function (b) { b.addEventListener('click', function () { addCheck(d, b.dataset.t); }); });
+    Array.prototype.forEach.call(d.querySelectorAll('.rq-add'), function (b) { b.addEventListener('click', function () { var c = addCheck(d, b.dataset.t); try { linkRow(c); } catch (e) { if (window.console) console.error('RDS QC row', e); } }); });
     return d;
   }
   function addCheck(barEl, type, opts) {
@@ -194,10 +194,22 @@
       '<label>Mean<input type="text" readonly name="' + p + '_mean"></label>' +
       '<label>' + (isPh ? 'Difference' : 'Recovery (%)') + '<input type="text" readonly name="' + p + '_rec"></label>' +
       '<label>Verdict<input type="text" readonly class="rq-verdict" name="' + p + '_verdict"></label></div>' +
+      '<div class="rq-work"></div>' +
       '<input type="hidden" name="' + p + '_type" value="' + type + '"><input type="hidden" name="' + p + '_param" value="' + esc(param) + '"><input type="hidden" name="' + p + '_side" value="' + esc(side) + '">' +
       '<input type="hidden" class="rq-print" name="qc_print_' + String(n).padStart(3, '0') + '">';
     barEl.querySelector('.rq-list').appendChild(blk);
-    blk.querySelector('.rq-del').addEventListener('click', function () { blk.remove(); });
+    blk.querySelector('.rq-del').addEventListener('click', function () {
+      var tr = rowOf(blk), sd = (blk.querySelector('[name$="_side"]') || {}).value || '';
+      if (tr && tr.dataset.rqLinked) {
+        var left = (tr.dataset.rqSides || '').replace(sd, '');
+        if (sd && left) {                                         // the other side's check keeps the row
+          tr.dataset.rqSides = left; var k = snoOf(tr).replace('.', '_'), f = tr.querySelector('[name="' + (sd === 'Inlet' ? 'inlet_' : 'outlet_') + k + '"]'); if (f) f.value = '';
+          var other = Array.prototype.filter.call(document.querySelectorAll('.rq-block'), function (b) { return b !== blk && rowOf(b) === tr; })[0];
+          if (other && blk.id && !other.id) { other.id = blk.id; blk.id = ''; }
+        } else tr.remove();
+      }
+      blk.remove();
+    });
     blk.querySelector('.rq-eq').addEventListener('click', function () { compute(blk, true); });
     blk.addEventListener('input', function () { compute(blk, false); });
     return blk;
@@ -206,30 +218,108 @@
   function setv(blk, f, v) { var e = blk.querySelector('[name$="_' + f + '"]'); if (e) e.value = v; }
   function compute(blk, loud) {
     var type = blk.dataset.type, tv = num(val(blk, 'true')), reads = [1, 2, 3].map(function (i) { return num(val(blk, 'r' + i)); }).filter(function (x) { return x !== null; });
-    var out = { mean: '', rec: '', verdict: '' }, abs = blk.querySelector('[name$="_abs"]');
+    var out = { mean: '', rec: '', verdict: '' }, abs = blk.querySelector('[name$="_abs"]'), work = [];
     if (reads.length) {
       var m = reads.reduce(function (a, b) { return a + b; }, 0) / reads.length;
       out.mean = rd(m, 4) + ' (n = ' + reads.length + ')';
+      // R8 (chemist feedback, point 10): the working is shown and printed, not only the outcome
+      work.push('Mean = ' + (reads.length > 1 ? '(' + reads.map(function (x) { return rd(x); }).join(' + ') + ') / ' + reads.length : rd(reads[0])) + ' = ' + rd(m, 4) + (val(blk, 'unit') ? ' ' + val(blk, 'unit') : ''));
       if (tv !== null && tv !== 0) {
         if (abs) {
           var d = m - tv, lim = num(abs.value);
           out.rec = (d >= 0 ? '+' : '') + rd(d, 3);
+          work.push('Difference = ' + rd(m, 4) + ' - ' + rd(tv) + ' = ' + out.rec);
           if (lim !== null) out.verdict = Math.abs(d) <= lim + 1e-12 ? 'Within acceptance' : 'Outside acceptance';
         } else {
           var rec = 100 * m / tv, lo = num(val(blk, 'lo')), hi = num(val(blk, 'hi'));
           out.rec = rd(rec, 1);
+          work.push('Recovery = ' + rd(m, 4) + ' / ' + rd(tv) + ' X 100 = ' + out.rec + ' %');
           if (lo !== null && hi !== null) out.verdict = (rec >= lo - 1e-9 && rec <= hi + 1e-9) ? 'Within acceptance' : 'Outside acceptance';
         }
       } else if (loud) alert('Enter the ' + (type === 'CRM' ? 'certified' : 'true') + ' value of the ' + type + '.');
     } else if (loud) alert('Enter at least one reading of the ' + type + '.');
     setv(blk, 'mean', out.mean); setv(blk, 'rec', out.rec); setv(blk, 'verdict', out.verdict);
+    var wk = blk.querySelector('.rq-work'); if (wk) wk.innerHTML = work.map(esc).join('<br>');
+    if (reads.length) { try { fillRow(blk, rd(m, 4), out.verdict); } catch (e) { if (window.console) console.error('RDS QC row', e); } }
     var ve = blk.querySelector('.rq-verdict');
     ve.classList.toggle('rq-ok', /^Within/.test(out.verdict)); ve.classList.toggle('rq-bad', /^Outside/.test(out.verdict));
     blk.querySelector('.rq-print').value = reads.length ? JSON.stringify({
       type: type, type_label: TYPES[type], parameter: val(blk, 'param'), side: val(blk, 'side'), ident: val(blk, 'ident'),
       true_value: val(blk, 'true'), u: val(blk, 'u'), unit: val(blk, 'unit'), readings: [1, 2, 3].map(function (i) { return val(blk, 'r' + i); }),
-      mean: out.mean, result: out.rec, mode: abs ? 'abs' : 'rec', lo: val(blk, 'lo'), hi: val(blk, 'hi'), abs: abs ? abs.value : '', verdict: out.verdict
+      mean: out.mean, result: out.rec, mode: abs ? 'abs' : 'rec', work: work, lo: val(blk, 'lo'), hi: val(blk, 'hi'), abs: abs ? abs.value : '', verdict: out.verdict
     }) : '';
+  }
+  /* R8 (owner request 28-10-2026): a WS / RM / CRM check gets its row in the results table, as the table's "+" gives a
+     CRM row its calculation. The row is the check's: S.no N.k, parameter "<name> WS|RM|CRM", result = the check's mean,
+     remarks = its verdict; its id links them (calc_N_k, the page's own convention), so removing either removes both. */
+  function tbody() { return document.querySelector('#qcForm tbody'); }
+  function snoOf(tr) { return ((tr.querySelector('.main-sno') || {}).textContent || '').trim(); }
+  window.rdsMaxSub = function (base) {
+    var mx = 0;
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm tbody tr'), function (tr) {
+      var s = snoOf(tr); if (s.indexOf(base + '.') === 0) { var k = parseInt(s.slice(base.length + 1), 10); if (k > mx) mx = k; }
+    });
+    return mx;
+  };
+  function rowOf(blk) {
+    var m = /^calc_(\d+)_(\d+)$/.exec(blk.id || ''), want = blk.dataset.rqRow || (m ? m[1] + '.' + m[2] : '');
+    if (!want) return null;
+    return Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (tr) { return snoOf(tr) === want; })[0] || null;
+  }
+  function mainRowFor(param) {
+    return Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (tr) {
+      var s = snoOf(tr), pi = tr.querySelector('input[name^="parameter_"]');
+      return s && s.indexOf('.') < 0 && pi && (bareName(pi.value) === bareName(param) || sameParam(param, pi.value));
+    })[0] || null;
+  }
+  function linkRow(blk) {
+    if (!blk || rowOf(blk)) return rowOf(blk);
+    var bar = blk.closest('.rq-bar'), param = bar ? bar.dataset.param : '';
+    var main = mainRowFor(param), body = tbody(); if (!main || !body) return null;
+    var base = snoOf(main), side = bar ? bar.dataset.side : '';
+    if (side) {                                                   // in-out: the inlet and the outlet check of a kind share a row
+      var twin = Array.prototype.filter.call(body.querySelectorAll('tr'), function (r) {
+        return r.dataset.rqLinked && r.dataset.rqType === blk.dataset.type && snoOf(r).indexOf(base + '.') === 0 && (r.dataset.rqSides || '').indexOf(side) < 0;
+      })[0];
+      if (twin) { twin.dataset.rqSides = (twin.dataset.rqSides || '') + side; blk.dataset.rqRow = snoOf(twin); return twin; }
+    }
+    var sub = base + '.' + (window.rdsMaxSub(base) + 1), key = sub.replace('.', '_');
+    var tr = main.cloneNode(true);
+    Array.prototype.forEach.call(tr.querySelectorAll('.select2-container'), function (x) { x.remove(); });
+    var mainSel = Array.prototype.slice.call(main.querySelectorAll('select'));
+    Array.prototype.forEach.call(tr.querySelectorAll('select'), function (sl, i) {
+      sl.classList.remove('select2-hidden-accessible'); ['data-select2-id', 'aria-hidden', 'tabindex'].forEach(function (a) { sl.removeAttribute(a); });
+      Array.prototype.forEach.call(sl.querySelectorAll('option'), function (o) { o.removeAttribute('data-select2-id'); });
+      sl.style.display = ''; sl.value = mainSel[i] ? mainSel[i].value : '';            // same staff as the parameter's row
+    });
+    var sc = tr.querySelector('.main-sno'); if (sc) sc.textContent = sub;
+    var pname = (main.querySelector('input[name^="parameter_"]') || {}).value || param;
+    Array.prototype.forEach.call(tr.querySelectorAll('input, select'), function (el) {
+      var nm = el.getAttribute('name'); if (!nm) return;
+      var b0 = nm.split('_')[0]; el.setAttribute('name', b0 + '_' + key);
+      if (el.tagName === 'INPUT') {
+        if (b0 === 'parameter') el.value = String(pname).replace(/\s*\*+\s*$/, '') + ' ' + blk.dataset.type;
+        else if (b0 === 'remarks') el.value = '';
+        else if (b0 === 'result' || b0 === 'inlet' || b0 === 'outlet') { el.value = ''; el.readOnly = true; el.title = 'From the ' + blk.dataset.type + ' check of the calculation section'; }
+      }
+    });
+    var add = tr.querySelector('.add-row-btn'); if (add) { add.classList.remove('add-row-btn', 'bg-blue-500', 'hover:bg-blue-600'); add.textContent = ''; add.disabled = true; add.style.visibility = 'hidden'; }
+    tr.dataset.rqLinked = '1'; tr.dataset.rqType = blk.dataset.type; tr.dataset.rqSides = side || '';
+    var after = main;
+    Array.prototype.forEach.call(body.querySelectorAll('tr'), function (r) { if (snoOf(r).indexOf(base + '.') === 0) after = r; });
+    after.insertAdjacentElement('afterend', tr);
+    blk.id = 'calc_' + key;
+    if (typeof window.initializeSelect2 === 'function') setTimeout(function () { try { window.initializeSelect2(); } catch (e) { /* page without select2 */ } }, 10);
+    return tr;
+  }
+  function fillRow(blk, mean, verdict) {
+    var tr = rowOf(blk) || linkRow(blk); if (!tr) return;
+    var side = (blk.querySelector('[name$="_side"]') || {}).value || '';
+    var key = snoOf(tr).replace('.', '_');
+    var target = side === 'Inlet' ? tr.querySelector('[name="inlet_' + key + '"]') : side === 'Outlet' ? tr.querySelector('[name="outlet_' + key + '"]') : null;
+    target = target || tr.querySelector('[name="result_' + key + '"]') || tr.querySelector('[name="inlet_' + key + '"]') || tr.querySelector('[name="outlet_' + key + '"]');
+    if (target) target.value = mean;
+    var rm = tr.querySelector('[name="remarks_' + key + '"]'); if (rm && verdict) rm.value = verdict;
   }
   function qcBars() {
     var f = form(); if (!f) return;
@@ -434,6 +524,15 @@
       var pr = b.querySelector('.rq-print'); if (data && pr) data[pr.name] = pr.value;
     });
     Array.prototype.forEach.call(document.querySelectorAll('.rds-edta input'), function (i) { if (data) data[i.name] = i.value; });
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm tbody tr'), function (tr) {   // R8: the checks' rows
+      if (!tr.dataset.rqLinked || !data) return;
+      var base = snoOf(tr).split('.')[0], main = Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (r) { return snoOf(r) === base; })[0];
+      var ms = main ? Array.prototype.slice.call(main.querySelectorAll('select')) : [];
+      Array.prototype.forEach.call(tr.querySelectorAll('select'), function (sl, i) {      // staff of the parameter's row when not chosen
+        if (!sl.value && ms[i] && ms[i].value) { sl.value = ms[i].value; if (window.jQuery) window.jQuery(sl).trigger('change'); }
+      });
+      Array.prototype.forEach.call(tr.querySelectorAll('input[name], select[name]'), function (i) { data[i.name] = i.value; });
+    });
     var incomplete = [];                                          // R7: a check printed with "WS-Hardness-" or no true value
     Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) {
       if (![1, 2, 3].some(function (i) { return String(val(b, 'r' + i)).trim() !== ''; })) return;
@@ -465,6 +564,7 @@
     '.rq-grid,.rq-res{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:8px}' +
     '.rq-grid label,.rq-res label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px}' +
     '.rq-grid input,.rq-res input{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:150px!important;font-size:13px;min-height:34px}' +
+    '.rq-work{margin-top:8px;font-size:13px;color:#1e293b;font-family:ui-monospace,Consolas,monospace;line-height:1.6}' +
     '.rq-res input[readonly]{background:#f1f5f9;font-weight:700}.rq-eq{background:#1e40af;color:#fff;border-radius:7px;padding:6px 16px}' +
     '.rq-ok{background:#f0fdf4!important;border-color:#22c55e!important;color:#166534}.rq-bad{background:#fef2f2!important;border-color:#ef4444!important;color:#991b1b}' +
     '.rq-other{margin:30px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.rq-other h2{font-size:20px;font-weight:700;color:#0f5132}' +

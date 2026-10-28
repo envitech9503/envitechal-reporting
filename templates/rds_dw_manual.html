@@ -8879,7 +8879,7 @@ function generateCRMCalculation(param, label, unit, type) {
                     if (!subRowCounter[mainSnoBase]) {
                         subRowCounter[mainSnoBase] = 0;
                     }
-                    subRowCounter[mainSnoBase]++;
+                    subRowCounter[mainSnoBase] = Math.max(subRowCounter[mainSnoBase], window.rdsMaxSub ? window.rdsMaxSub(mainSnoBase) : 0) + 1;   // R8: after the QC checks' rows
 
                     const subSno = `${mainSnoBase}.${subRowCounter[mainSnoBase]}`;
 
@@ -9523,6 +9523,6 @@ function performCRM7Calculation(prefix) {
 
 {% endblock %}{% block w2_tail %}</body>
 
-<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028b"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028b"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028b"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028c"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028c"></script>
 </html>
 {% endblock %}

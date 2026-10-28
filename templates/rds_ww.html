@@ -6771,6 +6771,7 @@
                     tss_divs.forEach(div => {
                         div.style.display = "block";
                     });
+                    document.querySelectorAll('.tss_div > .cal_div').forEach(div => { div.style.display = "block"; });   // R8: heading and WS reading
                     //reading 1
                     const tss_equals1 = document.getElementById('tss_equals1');
                     tss_equals1.addEventListener('click', () => {
@@ -7436,6 +7437,7 @@
                     oil_divs.forEach(div => {
                         div.style.display = "block";
                     });
+                    document.querySelectorAll('.oil_div > .cal_div').forEach(div => { div.style.display = "block"; });   // R8: Reading 01 (with 02, 03 and the average)
                     
                     // Reading 1
                     const oil_equals1 = document.getElementById('oil_equals1');
@@ -20641,7 +20643,7 @@ if (tableBody) {
             if (!subRowCounter[mainSnoBase]) {
                 subRowCounter[mainSnoBase] = 0;
             }
-            subRowCounter[mainSnoBase]++;
+            subRowCounter[mainSnoBase] = Math.max(subRowCounter[mainSnoBase], window.rdsMaxSub ? window.rdsMaxSub(mainSnoBase) : 0) + 1;   // R8: after the QC checks' rows
 
             const subSno = `${mainSnoBase}.${subRowCounter[mainSnoBase]}`;
 
@@ -21346,5 +21348,5 @@ function calculateSulphideCrm(prefix) {
     </script> 
     
 <script src="{% static 'js/rds_ww_calc.js' %}?v=20261027"></script>
-<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028b"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028b"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028b"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028c"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028c"></script>
 {% endblock %}

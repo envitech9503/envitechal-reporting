@@ -263,7 +263,7 @@ def report_parameters(kind, r, location):
                      'limit': limit, 'lower': lo, 'upper': hi, 'accredited': acc, 'u': u, 'u_label': ulabel, 'mou_study': sid})
     for x in extra_parameters(kind, r):                     # parameters added to the report beyond the printed list (Alkalinity, Calcium ...)
         name = (x.get('parameters') or x.get('parameter') or '').strip()
-        res = x.get('result') or x.get('outlet_result') or ''
+        res = x.get('result') or x.get('outlet') or x.get('outlet_result') or ''
         if not name or str(res).strip() in ('', '-', 'N/A'):
             continue
         short = name.split('(')[0].strip()
@@ -289,6 +289,10 @@ def extra_parameters(kind, r):
             except ValueError:
                 data = ast.literal_eval(raw)
             return [x for x in data if isinstance(x, dict)] if isinstance(data, list) else []
+        from QC.ww_live import extra_rows                      # R8: the report's current extra rows (structured_data is never updated)
+        rows = extra_rows(r)
+        if rows:
+            return rows
         raw = (r.structured_data or '').strip()
         if not raw:
             return []

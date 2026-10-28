@@ -55,6 +55,8 @@ def print_qc_checks(pdf, data, page_break=255, top=35):
         mean = '%s %s%s' % (mm.group(1), unit, (' ' + mm.group(2)) if mm.group(2) else '') if mm else mean
         line += ';   readings: %s;   mean: %s' % (', '.join(reads), mean)
         pdf.multi_cell(0, 4.6, line)
+        for w in (c.get('work') or [])[:3]:                     # R8 (chemist feedback, point 10): the working
+            pdf.set_x(pdf.l_margin + 8); pdf.multi_cell(0, 4.6, str(w))
         pdf.set_x(pdf.l_margin + 4)
         if c.get('mode') == 'abs':
             acc = 'difference from the true value: %s (acceptance +/- %s)' % (c.get('result') or '-', c.get('abs') or '-')

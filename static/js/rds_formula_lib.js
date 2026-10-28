@@ -95,7 +95,7 @@
   var CALC = {
     alk: {
       title: 'Alkalinity titration', method: 'APHA 2320 B / ASTM D1067',
-      formula: 'P or T (mg/L as CaCO3) = A x N x 50 000 / V;  OH, CO3, HCO3 from P and T (APHA 2320 B, table 2320:I)',
+      formula: 'P or T (mg/L as CaCO3) = A x N x 50 000 / V;  OH, CO3, HCO3 from P and T (APHA 2320 B, Table 2320:II alkalinity relationships)',
       inputs: [['v', 'Sample volume V (mL)'], ['n', 'Acid normality N'], ['ap', 'Titrant to pH 8.3, A (mL) - phenolphthalein'], ['at', 'Titrant to pH 4.5, A (mL) - total']],
       run: function (x) {
         if (!x.v || x.n === null || x.at === null) return { err: 'enter V, N and the titrant to pH 4.5' };
@@ -109,13 +109,13 @@
       }
     },
     edta: {
-      title: 'EDTA titration', method: 'APHA 2340 C / 3500-Ca B / ASTM D1126',
+      title: 'EDTA titration', method: 'APHA 2340 C / 3500-Ca B / ASTM D1126', reps: true,   // R8 (owner 28-10-2026): triplicate
       formula: 'Hardness (mg/L as CaCO3) = A x B x 1000 / V;  Ca (mg/L) = A x B x 400.8 / V  (B = mg CaCO3 per mL EDTA)',
       inputs: [['v', 'Sample volume V (mL)'], ['a', 'EDTA titrant A (mL)'], ['b', 'B, mg CaCO3 per mL EDTA', '1.0']],
-      run: function (x) {
-        if (!x.v || x.a === null || x.b === null) return { err: 'enter V, A and B' };
-        var H = x.a * x.b * 1000 / x.v, Ca = x.a * x.b * 400.8 / x.v;
-        return { out: { H: H, Ca: Ca }, lines: ['Hardness = ' + r(x.a) + ' x ' + r(x.b) + ' x 1000 / ' + r(x.v) + ' = ' + r(H, 2) + ' mg/L as CaCO3', '(as calcium: ' + r(x.a) + ' x ' + r(x.b) + ' x 400.8 / ' + r(x.v) + ' = ' + r(Ca, 2) + ' mg/L Ca)'] };
+      one: function (x, cf) {
+        if (!x.v || x.a === null || x.b === null) return null;
+        if (cf && cf.out === 'Ca') return { v: x.a * x.b * 400.8 / x.v, line: r(x.a) + ' x ' + r(x.b) + ' x 400.8 / ' + r(x.v) };
+        return { v: x.a * x.b * 1000 / x.v, line: r(x.a) + ' x ' + r(x.b) + ' x 1000 / ' + r(x.v) };
       }
     },
     mghard: {
@@ -249,13 +249,13 @@
       run: function (x) { if (!x.ec) return { err: 'enter conductivity' }; var v = 1e6 / x.ec; return { out: { R: v }, lines: ['1000000 / ' + r(x.ec) + ' = ' + r(v, 1) + ' Ω·cm (' + r(v / 1000, 3) + ' kΩ·cm)'] }; }
     },
     mf: {
-      title: 'Membrane filtration count', method: 'APHA 9222 B/D, 9230 C, USEPA 1604, ISO 16266', reps: true,
+      title: 'Membrane filtration count', method: 'APHA 9222 B/D, 9230 C, USEPA 1604, ISO 16266', reps: true, nrep: 1,   // R8: one plate per sample
       formula: 'CFU/100 mL = colonies counted x 100 x DF / volume filtered (mL)',
       inputs: [['col', 'Colonies counted'], ['v', 'Volume filtered (mL)', '100'], ['df', 'Dilution factor', '1']],
       one: function (x) { if (x.col === null || !x.v) return null; var df = x.df || 1; return { v: x.col * 100 * df / x.v, line: r(x.col) + ' x 100 x ' + r(df) + ' / ' + r(x.v), w: x.col > 200 ? 'more than 200 colonies (TNTC range)' : null, zero: x.col === 0 ? 100 * df / x.v : null }; }
     },
     plate: {
-      title: 'Plate count', method: 'APHA 9215 B / ISO 6222', reps: true,
+      title: 'Plate count', method: 'APHA 9215 B / ISO 6222', reps: true, nrep: 1,   // R8: one plate per sample
       formula: 'CFU/mL = colonies counted x DF / volume plated (mL)',
       inputs: [['col', 'Colonies counted'], ['v', 'Volume plated (mL)', '1'], ['df', 'Dilution factor', '1']],
       one: function (x) { if (x.col === null || !x.v) return null; var df = x.df || 1; return { v: x.col * df / x.v, line: r(x.col) + ' x ' + r(df) + ' / ' + r(x.v), w: (x.col > 300 || (x.col > 0 && x.col < 30)) ? 'colony count outside 30-300' : null, zero: x.col === 0 ? df / x.v : null }; }
@@ -311,11 +311,19 @@
     [/^temperature|^odou?r|^taste|^appearance|^flow ?rate|particle size|particulate|corrosivity|settleable|^colou?r|^ph\b/, 'obs']
   ];
   var OUTLABEL = { HCO3ion: 'bicarbonate as HCO3 (mg/L)', CO3ion: 'carbonate as CO3 (mg/L)', OH: 'hydroxide alkalinity (mg/L as CaCO3)', T: 'total alkalinity (mg/L as CaCO3)',
+    HCO3: 'bicarbonate alkalinity (mg/L as CaCO3)', CO3: 'carbonate alkalinity (mg/L as CaCO3)', OHion: 'hydroxide as OH (mg/L)',
     P: 'phenolphthalein alkalinity (mg/L as CaCO3)', CH: 'carbonate hardness (mg/L as CaCO3)', NCH: 'non-carbonate hardness (mg/L as CaCO3)', H: 'hardness (mg/L as CaCO3)',
     total: 'total chlorine (mg/L)', combined: 'combined chlorine (mg/L)' };
   function cardFor(name, method, unit) {
     var b = bare(name), m = String(method || '').toLowerCase(), cf = { calc: 'reading' };   // default: reading x DF
     for (var i = 0; i < MAP.length; i++) if (MAP[i][0].test(b)) { cf = { calc: MAP[i][1], out: MAP[i][2], note: MAP[i][3] }; break; }
+    // R8 (owner decision 28-10-2026): carbonate / bicarbonate / hydroxide as CaCO3 when the name or unit says so, as the
+    // ion when the name names it (CO3, HCO3, OH); a plain name keeps the ion as before
+    if (cf.calc === 'alk' && /^(CO3ion|HCO3ion|OH)$/.test(cf.out || '')) {
+      var nm = String(name || '').toLowerCase() + ' ' + String(unit || '').toLowerCase(), base = { CO3ion: 'CO3', HCO3ion: 'HCO3', OH: 'OH' }[cf.out];
+      if (/caco\s*3|caco₃/.test(nm)) cf.out = base;
+      else if (base === 'OH' && /\(\s*oh\s*[-⁻]?\s*\)|\boh ion/.test(nm)) cf.out = 'OHion';
+    }
     // R7: a count reported per 100 mL, or by a membrane-filtration method, is worked per 100 mL (x 100 / V)
     if (cf.calc === 'plate' && !/enterobacter/.test(b) && (/9222|9213|9230|1604|16266|membrane/.test(m) || /100\s*ml/i.test(String(unit || '')))) cf = { calc: 'mf' };
     // the method on the report decides between a titration and an instrument read-out
@@ -353,7 +361,7 @@
     var cf = forced || cardFor(item.parameter, item.method, item.unit);
     if (cf.calc === 'sub') return;
     var C = CALC[cf.calc]; if (!C) return;
-    var n = ++nCard, id = 'rl' + n, reps = C.reps ? 3 : 1;
+    var n = ++nCard, id = 'rl' + n, reps = C.reps ? (C.nrep || 3) : 1;
     var method = (item.method || '').trim().replace(/^[-–\s]+$/, '') || C.method;
     var card = document.createElement('div'); card.className = 'rl-card'; card.id = id;
     var head = item.parameter + (side ? ' (' + side + ')' : '');
@@ -372,6 +380,7 @@
       if (C.std) html += '<div class="rl-grid"><span class="rl-repl">Check standard (optional)</span><label>True value<input type="number" step="any" data-std="t" name="' + id + '_std_true"></label><label>Measured<input type="number" step="any" data-std="m" name="' + id + '_std_meas"></label></div>';
     }
     html += '<div class="rl-res"><button type="button" class="rl-eq">=</button><input type="text" readonly class="rl-ans" name="' + id + '_ans" placeholder="result"><input type="text" class="rl-unit" name="' + id + '_unit" value="' + esc(item.unit || defaultUnit(cf.calc, item.parameter)) + '"></div>' +
+      '<div class="rl-work"></div>' +
       '<div class="rl-check"><label>Check</label><input type="text" readonly class="rl-chk" name="' + id + '_check"></div>' +
       '<input type="hidden" class="rl-print" name="lib_print_' + String(n).padStart(3, '0') + '">' +
       '<button type="button" class="rl-del" title="Remove this card">Remove</button>';
@@ -402,13 +411,13 @@
       card.querySelector('.rl-ans').value = result;
     } else if (C.reps) {
       var vals = [];
-      for (var i = 1; i <= 3; i++) {
+      for (var i = 1; i <= (C.nrep || 3); i++) {
         var x = {}; C.inputs.forEach(function (p) { var e = card.querySelector('input[data-k=' + p[0] + '][data-r="' + i + '"]'); x[p[0]] = e ? f(e.value) : null; });
         var filled = C.inputs.some(function (p) { return p[2] === undefined && x[p[0]] !== null; });
         if (!filled) continue;
-        var o = C.one(x);
+        var o = C.one(x, cf);
         if (!o) { warn.push('replicate ' + i + ' incomplete'); continue; }
-        vals.push(o.v); lines.push('Replicate ' + i + ': ' + o.line + ' = ' + r(o.v, 4));
+        vals.push(o.v); lines.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + o.line + ' = ' + r(o.v, 4));
         if (o.w) warn.push('replicate ' + i + ': ' + o.w);
         if (o.v < 0) warn.push('replicate ' + i + ' negative - check the weights/readings');
         if (o.zero !== null && o.zero !== undefined) warn.push('replicate ' + i + ': no colonies - report as < ' + r(o.zero, 2));
@@ -448,6 +457,8 @@
       if (bm[1] === '<' && num >= bnd) warn.push('calculated ' + r(num, 3) + ' is not below the reported ' + sRep);
     }
     if (num !== null && num > 0 && (cf.calc === 'mf' || cf.calc === 'plate') && /^(n\.?\s*d\.?|nil|absent|not detected)/i.test(sRep)) warn.push('calculated ' + r(num, 3) + ' but reported ' + sRep);
+    var wk = card.querySelector('.rl-work');                // R8 (chemist feedback, points 2 and 7): each replicate's working shown
+    if (wk) wk.innerHTML = lines.map(esc).join('<br>');
     var chk = card.querySelector('.rl-chk');
     chk.value = warn.length ? warn.join('; ') : 'OK'; chk.classList.toggle('rl-warn', warn.length > 0); chk.classList.toggle('rl-ok', !warn.length);
     card.querySelector('.rl-print').value = JSON.stringify({
@@ -491,13 +502,20 @@
   function build(qcData, reportType) {
     clearCards();
     var heads = visibleHeads();
+    var pt = false;
     (qcData || []).forEach(function (it) {
-      if (shownOnPage(pageName(it.parameter), heads)) return;   // the page shows its own section
+      var cpt = cardFor(it.parameter, it.method, it.unit), isPT = cpt.calc === 'alk' && /^(CO3|HCO3|OH)/.test(cpt.out || '');   // R8: APHA 2320 B relationships
+      if (isPT) pt = true;
+      else if (shownOnPage(pageName(it.parameter), heads)) return;   // the page shows its own section
       var unitSide = [];
       if (reportType === 'in-out') {
         unitSide.push(['Inlet', it.inlet_result]); unitSide.push(['Outlet', it.outlet_result]);
       } else unitSide.push(['', it.test_result !== undefined ? it.test_result : (it.result !== undefined ? it.result : '')]);
       unitSide.forEach(function (s) { if (/^\s*(n\/?a|-|)\s*$/i.test(String(s[1] === undefined || s[1] === null ? '' : s[1]))) return; addCard(it, s[0], s[1]); });   // no card for a result not reported (QA RDS-28)
+    });
+    if (pt) Array.prototype.forEach.call(document.querySelectorAll('#qcForm div.carbonates'), function (d) {   // the page's plain titration
+      d.style.display = 'none'; d.dataset.rlHid = '1';
+      Array.prototype.forEach.call(d.querySelectorAll('input, select'), function (i) { i.disabled = true; });
     });
   }
   var orig = window.populateQCTable;
@@ -545,6 +563,7 @@
     '.rl-formula{font-size:12.5px;color:#475569;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:6px;padding:6px 9px;margin:8px 0}' +
     '.rl-grid{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:6px 0}.rl-grid label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px}' +
     '.rl-grid input{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:150px;font-size:13px}.rl-repl{font-size:12px;font-weight:700;color:#0f5132;min-width:120px;align-self:center}' +
+    '.rl-work{margin-top:8px;font-size:13px;color:#1e293b;font-family:ui-monospace,Consolas,monospace;line-height:1.6}' +
     '.rl-res{display:flex;gap:8px;align-items:center;margin-top:8px}.rl-eq{background:#2563eb;color:#fff;border-radius:7px;padding:6px 16px}' +
     '.rl-ans{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:170px;background:#f1f5f9;font-weight:700}.rl-unit{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:110px}' +
     '.rl-check{display:flex;gap:8px;align-items:center;margin-top:8px}.rl-check label{font-weight:700;font-size:13px}.rl-chk{flex:1;border:1px solid #cbd5e1;border-radius:6px;padding:6px 9px;font-size:13px;background:#f8fafc}' +
