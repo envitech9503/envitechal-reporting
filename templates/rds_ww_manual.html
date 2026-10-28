@@ -6420,6 +6420,7 @@ function setupGenerateCRMButtons() {
 
 // Add row button handler
 function setupAddRowButtons() {
+    return;   // R9: the table's "+" is handled once, by the handler that also adds the calculation block (two rows were added per click)
     const tableBody = document.querySelector('#table tbody');
     if (!tableBody) return;
     
@@ -22691,5 +22692,5 @@ function calculateSulphideCrm(prefix) {
     </script> 
     
 <script src="{% static 'js/rds_ww_calc.js' %}?v=20261027"></script>
-<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028c"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028c"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028d"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028d"></script>
 {% endblock %}

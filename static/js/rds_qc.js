@@ -200,7 +200,7 @@
     barEl.querySelector('.rq-list').appendChild(blk);
     blk.querySelector('.rq-del').addEventListener('click', function () {
       var tr = rowOf(blk), sd = (blk.querySelector('[name$="_side"]') || {}).value || '';
-      if (tr && tr.dataset.rqLinked) {
+      if (tr && snoOf(tr).indexOf('.') > 0) {                  // R8.1: the check's own row (also a row made by the table's "+")
         var left = (tr.dataset.rqSides || '').replace(sd, '');
         if (sd && left) {                                         // the other side's check keeps the row
           tr.dataset.rqSides = left; var k = snoOf(tr).replace('.', '_'), f = tr.querySelector('[name="' + (sd === 'Inlet' ? 'inlet_' : 'outlet_') + k + '"]'); if (f) f.value = '';
@@ -312,6 +312,14 @@
     if (typeof window.initializeSelect2 === 'function') setTimeout(function () { try { window.initializeSelect2(); } catch (e) { /* page without select2 */ } }, 10);
     return tr;
   }
+  /* R8.1: removing a row in the results table removes every check that writes to it (the pages removed at most one, and the
+     DW manual page none, so an orphaned check could bring the row back) */
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest('.remove-row-btn, button.bg-red-500') : null;
+    var tr = btn ? btn.closest('#qcForm tbody tr') : null;
+    if (!tr || snoOf(tr).indexOf('.') < 0) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) { if (rowOf(b) === tr) b.remove(); });
+  }, true);
   function fillRow(blk, mean, verdict) {
     var tr = rowOf(blk) || linkRow(blk); if (!tr) return;
     var side = (blk.querySelector('[name$="_side"]') || {}).value || '';
@@ -580,6 +588,7 @@
      the same parameter carries the count calculation, so the old box is hidden and left out of the save */
   var MICRO = [['ecoli', /\be\s*\.?\s*-?\s*coli\b/], ['fecal', /^f(a)?ecal coliform/], ['bacteria', /bacterial count|\btbc\b/],
     ['enterobacteria', /enterobacter/], ['total_coliform', /^(total )?coliforms?\b/], ['fecalentero', /enterococc/], ['hetrobacteria', /heterotroph/]];
+  function MANUALPAGE() { return /manual/.test(location.pathname); }
   function legacyMicro() {
     var f = form(); if (!f) return;
     var cards = Array.prototype.map.call(document.querySelectorAll('.rl-card .rl-title b'), function (b) {
@@ -590,6 +599,7 @@
       Array.prototype.forEach.call(f.querySelectorAll('div.my-6.' + m[0]), function (box) {
         if (box.dataset.rqHid || box.style.display === 'none') return;
         if (box.querySelector('button')) return;                  // a box with its own calculation stays
+        if (Array.prototype.some.call(box.querySelectorAll('input[name$="_ans"]'), function (i) { return String(i.value).trim() !== ''; }) && !/^(n\.?d\.?|)$/i.test(String((box.querySelector('input[name$="_ans"]') || {}).value || '').trim()) && MANUALPAGE()) return;   // R9: a result typed on a manual page stays
         if (!cards.some(function (c) { return m[1].test(c); })) return;
         box.style.display = 'none'; box.dataset.rqHid = '1';
         Array.prototype.forEach.call(box.querySelectorAll('input, select'), function (i) { i.disabled = true; });

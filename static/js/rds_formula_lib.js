@@ -461,6 +461,7 @@
     if (wk) wk.innerHTML = lines.map(esc).join('<br>');
     var chk = card.querySelector('.rl-chk');
     chk.value = warn.length ? warn.join('; ') : 'OK'; chk.classList.toggle('rl-warn', warn.length > 0); chk.classList.toggle('rl-ok', !warn.length);
+    if (card.closest('#rdsLib')) { try { toTable(item, side, card.querySelector('.rl-ans').value); } catch (e) { if (window.console) console.error('RDS library row', e); } }   // cards inside a page section leave the row to it
     card.querySelector('.rl-print').value = JSON.stringify({
       parameter: item.parameter, side: side || '', method: method, calc: C.title, formula: C.formula + (cf.out && OUTLABEL[cf.out] ? '  Result shown: ' + OUTLABEL[cf.out] + '.' : ''), lines: lines,
       result: card.querySelector('.rl-ans').value, unit: card.querySelector('.rl-unit').value, reported: rep, check: chk.value
@@ -571,6 +572,61 @@
     '.rl-del{position:absolute;top:8px;right:10px;font-size:12px;color:#b91c1c;background:none;border:none;cursor:pointer}' +
     '.rl-add{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;font-size:13px}.rl-add select,.rl-add input{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px}.rl-addbtn{background:#0f5132;color:#fff;border-radius:7px;padding:6px 14px}';
   document.head.appendChild(css);
-  function ready() { container(); }
+  /* ------------------------------------------------------------------ R9: manual pages (owner 28-10-2026)
+     The manual pages have no populateQCTable, so no cards were made: the same calculations are now offered there. The
+     page's plain carbonate titration and its result-only microbiology boxes are replaced by the library cards (APHA 2320 B,
+     one plate), and a card's result goes to the results table (the row is made or updated, as the page's own sections do). */
+  var MANUAL = false;
+  function manualSide() {
+    var r = document.querySelector('input.report-type-radio:checked'); var v = r ? r.value : '';
+    try { v = v || localStorage.getItem('selectedReportType') || ''; } catch (e) { /* storage blocked */ }
+    return v;
+  }
+  function toTable(item, side, val) {
+    if (!MANUAL || val === '' || val === null || val === undefined) return;
+    var body = document.querySelector('#qcForm tbody') || document.querySelector('#table tbody'); if (!body) return;
+    var row = Array.prototype.filter.call(body.querySelectorAll('tr'), function (tr) {
+      var s = ((tr.querySelector('.main-sno') || {}).textContent || '').trim(), pi = tr.querySelector('input[name^="parameter_"]');
+      return s && s.indexOf('.') < 0 && pi && bare(pi.value) === bare(item.parameter);
+    })[0];
+    if (row) {
+      var f = side === 'Inlet' ? row.querySelector('input[name^="inlet_"]') : side === 'Outlet' ? row.querySelector('input[name^="outlet_"]') : null;
+      f = f || row.querySelector('input[name^="result_"]') || row.querySelector('input[name^="outlet_"]') || row.querySelector('input[name^="inlet_"]');
+      if (f) f.value = val;
+    } else if (typeof window.createRowFromCalculation === 'function') {
+      window.createRowFromCalculation(item.parameter, val, 'library', side !== 'Outlet');
+    }
+  }
+  var MICROBOX = ['ecoli', 'fecal', 'bacteria', 'enterobacteria', 'total_coliform', 'fecalentero', 'hetrobacteria'];
+  function manualDefaults() {
+    var vis = function (e) { return e && e.offsetParent !== null; };
+    var sides = manualSide() === 'in-out' ? ['Inlet', 'Outlet'] : [''];
+    var off = function (d) { d.style.display = 'none'; d.dataset.rlHid = '1'; Array.prototype.forEach.call(d.querySelectorAll('input, select'), function (i) { i.disabled = true; }); };
+    var empty = function (d) { return !Array.prototype.some.call(d.querySelectorAll('input[type=number]'), function (i) { return !i.dataset.rqDf && String(i.value).trim() !== '' && i.value !== i.defaultValue; }); };   // nothing typed (fixed factors and D.F aside)
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm div.carbonates'), function (d) {
+      if (!vis(d) || d.dataset.rlHid || !empty(d)) return;
+      off(d);
+      sides.forEach(function (sd) {
+        addCard({ parameter: 'Carbonates', method: 'APHA 2320 B' }, sd, null, { calc: 'alk', out: 'CO3ion' });
+        addCard({ parameter: 'Bicarbonates', method: 'APHA 2320 B' }, sd, null, { calc: 'alk', out: 'HCO3ion' });
+      });
+    });
+    MICROBOX.forEach(function (cls) {
+      Array.prototype.forEach.call(document.querySelectorAll('#qcForm div.my-6.' + cls), function (d) {
+        if (!vis(d) || d.dataset.rlHid || d.querySelector('button')) return;
+        var filled = Array.prototype.some.call(d.querySelectorAll('input[name$="_ans"]'), function (i) { return String(i.value).trim() !== ''; });
+        if (filled) return;
+        var hd = d.querySelector('input[name$="_head"]'), p = d.querySelector('p.text-3xl');
+        var nm = (hd && hd.value.trim()) || (p ? p.textContent.replace(/calculations?/i, '').trim() : cls);
+        off(d);
+        sides.forEach(function (sd) { addCard({ parameter: nm, method: '' }, sd, null); });
+      });
+    });
+  }
+  function ready() {
+    container();
+    MANUAL = typeof window.populateQCTable !== 'function';
+    if (MANUAL) setTimeout(function () { try { manualDefaults(); } catch (e) { if (window.console) console.error('RDS manual library', e); } }, 900);
+  }
   if (document.readyState !== 'loading') ready(); else document.addEventListener('DOMContentLoaded', ready);
 })();

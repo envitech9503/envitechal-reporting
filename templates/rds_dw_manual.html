@@ -8994,10 +8994,11 @@ function generateCRMCalculation(param, label, unit, type) {
                         const block = document.createElement("div");
                         block.id = `calc_${calcId}`;
 
-                        let html = getCalculationBlock(rawParam, subSno);
+                        // R9: this page has no getCalculationBlock (the "+" stopped with an error); the QC check is added instead
+                        let html = typeof getCalculationBlock === 'function' ? getCalculationBlock(rawParam, subSno) : 'Parameter not supported';
 
                         // If CRM1 did not find the parameter → check CRM2
-                        if (html.includes("Parameter not supported")) {
+                        if (html.includes("Parameter not supported") && typeof getCalculationBlock2 === 'function') {
                             html = getCalculationBlock2(rawParam, subSno);
                         }
 
@@ -9523,6 +9524,6 @@ function performCRM7Calculation(prefix) {
 
 {% endblock %}{% block w2_tail %}</body>
 
-<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028c"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028c"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261028d"></script><script src="{% static 'js/rds_qc.js' %}?v=20261028d"></script>
 </html>
 {% endblock %}

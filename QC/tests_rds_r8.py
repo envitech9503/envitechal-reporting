@@ -108,6 +108,6 @@ class RdsR8Pages(TestCase):
         self.assertIn('Table 2320:II', lib); self.assertIn("div.carbonates", lib); self.assertIn('rl-work', lib)
         for page in ('rds_dw', 'rds_dw_manual', 'rds_ww', 'rds_ww_manual'):
             s = src('templates', page + '.html')
-            self.assertIn('window.rdsMaxSub(mainSnoBase)', s); self.assertIn("rds_qc.js' %}?v=20261028c", s)
+            self.assertIn('window.rdsMaxSub(mainSnoBase)', s); self.assertRegex(s, r"rds_qc.js' %}\?v=2026102[89]\w")
         ww = src('templates', 'rds_ww.html')
         self.assertIn("document.querySelectorAll('.oil_div > .cal_div')", ww); self.assertIn("document.querySelectorAll('.tss_div > .cal_div')", ww)
