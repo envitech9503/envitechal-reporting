@@ -17,7 +17,7 @@ from django.test import TestCase, Client
 from django.utils import timezone
 
 from EnviTechAlApp.models import Sample_registration, DrinkingWaterForm, WasteWaterForm2, Signatures, ApprovalStatus
-from QC.models import SocRecord, SocRequest, MouStudy, ControlChartReviewer
+from QC.models import SocRecord, SocRequest, MouStudy, ControlChartReviewer, SocLegendSet
 from QC import soc_rules as R
 from QC import soc_report as SR
 
@@ -290,3 +290,124 @@ class SocQA(TestCase):
         # Lahore staff see nothing of it
         self.assertEqual(C(self.lchem).get('/qc/soc/api/sample/', {'sample_id': sid, 'location': 'Karachi'}).status_code, 403)
         self.assertNotIn(sid, [s['sample_id'] for s in R.eligible_samples('Lahore')])
+
+
+class ScopeRegisterTests(TestCase):
+    """Accreditation scope register (owner approval 29-10-2026)."""
+    @classmethod
+    def setUpTestData(cls):
+        cls.lchem = User.objects.create_user('sr_lchem', password='x'); cls.lmgr = User.objects.create_user('sr_lmgr', password='x')
+        cls.kmgr = User.objects.create_user('sr_kmgr', password='x'); cls.ceo = User.objects.create_superuser('sr_ceo', 'c@x.c', 'x')
+        ControlChartReviewer.objects.create(user=cls.lmgr, location='Lahore'); ControlChartReviewer.objects.create(user=cls.kmgr, location='Karachi')
+        for u, o in ((cls.lchem, 'Lahore'), (cls.lmgr, 'Lahore'), (cls.kmgr, 'Karachi')):
+            Signatures.objects.create(user=u, office=o)
+
+    def test_seeded_from_the_fixed_list(self):
+        from QC.models import AccreditationScope, AccreditationCertificate
+        self.assertEqual(AccreditationScope.objects.count(), 23); self.assertEqual(AccreditationCertificate.objects.count(), 2)
+        for key, names in R.ACCREDITED.items():
+            self.assertEqual(R.accredited_set(*key), set(names), key)
+
+    def test_manage_view_withdraw_alias_pdf(self):
+        from QC.models import AccreditationScope
+        from datetime import date, timedelta
+        chem, mgr, kmgr = C(self.lchem), C(self.lmgr), C(self.kmgr)
+        r = chem.get('/qc/soc/scope/?location=Lahore'); self.assertEqual(r.status_code, 200); self.assertContains(r, 'to be entered'); self.assertNotContains(r, 'Add to drinking water scope')
+        self.assertEqual(chem.post('/qc/soc/scope/?location=Lahore', {'act': 'cert', 'certificate_no': 'X'}).status_code, 403)
+        r = kmgr.get('/qc/soc/scope/?location=Lahore'); self.assertEqual((r.status_code, r['Location']), (302, '/qc/soc/scope/?location=Karachi'))
+        self.assertContains(mgr.get('/qc/soc/scope/?location=Lahore'), 'Add to drinking water scope')
+        mgr.post('/qc/soc/scope/?location=Lahore', {'act': 'cert', 'body': 'PNAC', 'standard': 'ISO/IEC 17025:2017', 'certificate_no': 'LAB-000 (TEST)', 'issue_date': '01-01-2025', 'valid_until': '31-12-2028'})
+        # add with an alias; a duplicate in force is refused
+        mgr.post('/qc/soc/scope/?location=Lahore', {'act': 'add', 'matrix': 'ww2', 'parameter': 'COD', 'aliases': 'Chemical Oxygen Demand', 'method': 'HACH 8000', 'pnac_ref': 'Scope item 12 (TEST)'})
+        self.assertIn('COD', R.accredited_set('Lahore', 'ww2')); self.assertTrue(R.is_accredited('Chemical Oxygen Demand(COD)', R.accredited_set('Lahore', 'ww2')))
+        r = mgr.post('/qc/soc/scope/?location=Lahore', {'act': 'add', 'matrix': 'ww2', 'parameter': 'cod'}, follow=True); self.assertContains(r, 'in the register already')
+        # withdraw Chloride (WW): not accredited from that date; a reason is required
+        cl = AccreditationScope.objects.get(location='Lahore', matrix='ww2', parameter='Chloride')
+        r = mgr.post('/qc/soc/scope/?location=Lahore', {'act': 'withdraw', 'id': cl.pk, 'reason': 'x'}, follow=True); self.assertContains(r, 'at least 5'); cl.refresh_from_db(); self.assertIsNone(cl.withdrawn_on)
+        mgr.post('/qc/soc/scope/?location=Lahore', {'act': 'withdraw', 'id': cl.pk, 'reason': 'removed at PNAC re-assessment (TEST)'})
+        cl.refresh_from_db(); self.assertEqual(cl.withdrawn_on, timezone.localdate())
+        self.assertNotIn('Chloride', R.accredited_set('Lahore', 'ww2')); self.assertIn('Chloride', R.accredited_set('Lahore', 'ww2', timezone.localdate() - timedelta(days=1)))
+        # a record made before the withdrawal keeps its *** / statement; one made today is out of scope
+        old = SocRecord.objects.create(location='Lahore', report_type='ww2', sample_id='WW-SR-1', parameter='Chloride', upper=1000, results=[{'value': 300}])
+        SocRecord.objects.filter(pk=old.pk).update(created_at=timezone.now() - timedelta(days=3)); old.refresh_from_db()
+        new = SocRecord.objects.create(location='Lahore', report_type='ww2', sample_id='WW-SR-2', parameter='Chloride', upper=1000, results=[{'value': 300}])
+        self.assertTrue(SR._acc(old)); self.assertFalse(SR._acc(new))
+        # reinstate, history, PDF
+        mgr.post('/qc/soc/scope/?location=Lahore', {'act': 'reinstate', 'id': cl.pk, 'reason': 'withdrawn in error (TEST)'})
+        cl.refresh_from_db(); self.assertIsNone(cl.withdrawn_on); self.assertIn('Reinstated', cl.remarks)
+        r = mgr.get('/qc/soc/scope/?location=Lahore'); self.assertContains(r, 'Change history'); self.assertContains(r, 'Scope item 12 (TEST)')
+        r = chem.get('/qc/soc/scope/pdf/?location=Lahore'); self.assertEqual(r.status_code, 200)
+        t = text(r.content)
+        if t is not None:
+            self.assertIn('ACCREDITATION SCOPE REGISTER', t); self.assertIn('LAB-000 (TEST)', t); self.assertIn('COD', t)
+        self.assertEqual(C(self.ceo).get('/qc/soc/scope/?location=Karachi').status_code, 200)
+        self.assertEqual(C(self.ceo).get('/qc/soc/manual/').status_code, 200)
+
+
+class LegendTests(TestCase):
+    """Legends of the lab test report with decision rule (owner request 29-10-2026)."""
+    @classmethod
+    def setUpTestData(cls):
+        cls.lchem = User.objects.create_user('lg_lchem', password='x'); cls.lmgr = User.objects.create_user('lg_lmgr', password='x')
+        cls.ceo = User.objects.create_superuser('lg_ceo', 'c@x.c', 'x')
+        ControlChartReviewer.objects.create(user=cls.lmgr, location='Lahore')
+        Signatures.objects.create(user=cls.lchem, office='Lahore'); Signatures.objects.create(user=cls.lmgr, office='Lahore')
+        cls.dw = DrinkingWaterForm.objects.create(sample_id='DW-LG-1', **D8, report_to='QA Water (TEST)', address='L', attention='A', lab_report_no='LG-1', sample_collection_date='28-Oct-2026',
+                                                  select='PEQS', city_location='Lahore', water_sr1='7.6', method_1='*APHA 4500 H-B',
+                                                  edit_note='Measurement of uncertainty will be provided on customer demand.',
+                                                  legend_1='*** Indicates that the parameter is in our accreditation scope.', legend_2='PEQS Limits = Punjab Environmental Quality Standards (TEST LEGEND B)')
+        cls.rec = SocRecord.objects.create(location='Lahore', report_type='dw', report_pk=cls.dw.pk, sample_id='DW-LG-1', parameter='pH', lower=6.5, upper=8.5,
+                                           uncertainty=0.098, results=[{'value': 7.6}], customer='QA Water (TEST)')
+
+    def test_starting_set_edit_reset_lock(self):
+        chem, mgr, ceo = C(self.lchem), C(self.lmgr), C(self.ceo)
+        from QC.soc_report import default_legends
+        items = default_legends('Lahore', 'dw', self.dw)
+        texts = [i['text'] for i in items]
+        self.assertEqual(texts[0], 'Note: Measurement of uncertainty will be provided on customer demand.')
+        self.assertEqual([i['src'] for i in items[:3]], ['report', 'report', 'report'])
+        self.assertEqual(len([t for t in texts if t.startswith('***')]), 1)                 # the report's *** line; the standard one not repeated
+        self.assertTrue(any(t.startswith('Uncertainty') for t in texts))
+        url = '/qc/soc/sample/DW-LG-1/legends/?location=Lahore'
+        r = chem.get(url); self.assertEqual(r.status_code, 200); self.assertContains(r, 'not edited yet'); self.assertContains(r, 'TEST LEGEND B')
+        t0 = text(chem.get('/qc/soc/sample/DW-LG-1/pdf/?location=Lahore').content)
+        if t0 is not None:
+            self.assertIn('TEST LEGEND B', t0); self.assertIn('k = 2', t0)
+        # remove the PEQS line, reword the note, move the Uncertainty line first, add a new line
+        P = {}
+        for n, i in enumerate(items, 1):
+            P['text_%d' % n], P['src_%d' % n], P['pos_%d' % n] = i['text'], i['src'], str(n + 1)
+            if i['text'].startswith('PEQS'):
+                P['del_%d' % n] = '1'
+            if i['text'].startswith('Note:'):
+                P['text_%d' % n] = 'Note: Uncertainty is reported as requested on the FF-17 (EDITED).'
+            if i['text'].startswith('Uncertainty'):
+                P['pos_%d' % n] = '0'
+        P.update({'text_99': 'Sampling was carried out by the customer (ADDED LINE).', 'src_99': 'user', 'pos_99': '50'})
+        chem.post(url, P)
+        s = SocLegendSet.objects.get(location='Lahore', matrix='dw', sample_id='DW-LG-1')
+        got = [i['text'] for i in s.items]
+        self.assertTrue(got[0].startswith('Uncertainty')); self.assertNotIn('TEST LEGEND B', ' '.join(got)); self.assertIn('(EDITED)', ' '.join(got))
+        self.assertEqual(s.items[-1], {'text': 'Sampling was carried out by the customer (ADDED LINE).', 'src': 'user'})
+        t1 = text(chem.get('/qc/soc/sample/DW-LG-1/pdf/?location=Lahore').content)
+        if t1 is not None:
+            self.assertNotIn('TEST LEGEND B', t1); self.assertIn('(ADDED LINE)', t1); self.assertIn('(EDITED)', t1)
+            self.assertLess(t1.index('k = 2'), t1.index('(ADDED LINE)'))
+        self.dw.refresh_from_db(); self.assertIn('TEST LEGEND B', self.dw.legend_2)            # the normal test report is not changed
+        # reset; lock after approval
+        chem.post(url, {'act': 'reset'}); self.assertFalse(SocLegendSet.objects.filter(sample_id='DW-LG-1').exists())
+        SocRecord.objects.filter(pk=self.rec.pk).update(status='approved')
+        self.assertEqual(chem.post(url, P).status_code, 403); self.assertContains(chem.get(url), 'Locked')
+
+    def test_standard_legends(self):
+        chem, mgr = C(self.lchem), C(self.lmgr)
+        self.assertEqual(SocLegendSet.objects.filter(sample_id='').count(), 4)
+        self.assertEqual(chem.get('/qc/soc/legends/?location=Lahore&matrix=ww2').status_code, 200)
+        self.assertEqual(chem.post('/qc/soc/legends/?location=Lahore', {'matrix': 'dw', 'text_1': 'X'}).status_code, 403)
+        mgr.post('/qc/soc/legends/?location=Lahore', {'matrix': 'dw', 'text_1': 'STANDARD LINE ONE (TEST)', 'pos_1': '1', 'text_2': 'removed', 'pos_2': '2', 'del_2': '1'})
+        s = SocLegendSet.objects.get(location='Lahore', matrix='dw', sample_id='')
+        self.assertEqual(s.items, [{'text': 'STANDARD LINE ONE (TEST)', 'src': 'standard'}])
+        from QC.soc_report import default_legends
+        self.assertEqual(default_legends('Lahore', 'dw', self.dw)[-1]['text'], 'STANDARD LINE ONE (TEST)')
+        self.assertEqual(SocLegendSet.objects.get(location='Karachi', matrix='dw', sample_id='').items[0]['src'], 'standard')   # the other laboratory untouched
+        self.assertContains(mgr.get('/qc/soc/legends/?location=Lahore&matrix=dw'), 'Change history')

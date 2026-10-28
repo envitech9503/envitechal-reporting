@@ -8235,7 +8235,7 @@ def wasteWater2Pdf1(request,pk,return_bytes=False,soc=None):
      Table_Data1 = [
           
      ]
-     if ww.editNote:
+     if ww.editNote and not (soc and soc.get('legends') is not None):     # decision-rule report: its own legend set
           a=["Note: "+ww.editNote] 
           Table_Data1.append(a)
           
@@ -8280,6 +8280,10 @@ def wasteWater2Pdf1(request,pk,return_bytes=False,soc=None):
           Table_data_legend.append([ww.legend_11])
      if ww.customlegend:
           Table_data_legend.append([ww.customlegend])
+     if soc and soc.get('legends') is not None:         # decision-rule report: the sample's legend set (QC, editable)
+          Table_data_legend = []
+          from QC.soc_report import draw_legends
+          draw_legends(pdf, soc['legends'])
 
      # Set bottom margin (space to leave before page break)
      bottom_margin = 50  # Adjust as needed

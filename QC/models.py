@@ -1795,3 +1795,88 @@ class SocRecord(models.Model):
 
 for _m in (SocRequest, SocRecord):
     _sh_register(_m)
+
+
+# --- Accreditation scope register (owner approval 29-10-2026) -------------------------------------------------------
+# The parameters each laboratory is accredited for (PNAC, ISO/IEC 17025:2017), per matrix, kept by the laboratory's
+# QC / Lab Manager. Replaces the fixed list in QC/soc_rules.py: a statement of conformity is made, and *** printed,
+# for the parameters in force in the register on the date of the record. Entries are withdrawn, never deleted.
+class AccreditationCertificate(models.Model):
+    """The laboratory's accreditation: body, certificate and scope references printed on the register."""
+    location = models.CharField(max_length=20, unique=True)
+    body = models.CharField(max_length=60, blank=True, default='PNAC')
+    standard = models.CharField(max_length=60, blank=True, default='ISO/IEC 17025:2017')
+    certificate_no = models.CharField(max_length=80, blank=True, default='')
+    scope_ref = models.CharField(max_length=120, blank=True, default='')          # scope document / issue / revision
+    issue_date = models.DateField(null=True, blank=True)
+    valid_until = models.DateField(null=True, blank=True)
+    remarks = models.TextField(blank=True, default='')
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return 'Accreditation %s %s' % (self.location, self.certificate_no)
+
+
+class AccreditationScope(models.Model):
+    MATRICES = (('dw', 'Drinking water'), ('ww2', 'Waste water'))
+    location = models.CharField(max_length=20, db_index=True)
+    matrix = models.CharField(max_length=4, choices=MATRICES, default='dw')
+    parameter = models.CharField(max_length=80)                                   # as the module names it: pH, TDS, Hardness ...
+    aliases = models.CharField(max_length=300, blank=True, default='')            # other names on reports, comma separated
+    method = models.CharField(max_length=160, blank=True, default='')
+    range_text = models.CharField(max_length=120, blank=True, default='')         # accredited range, as on the scope
+    pnac_ref = models.CharField(max_length=160, blank=True, default='')           # scope reference (certificate / scope item)
+    effective_from = models.DateField(null=True, blank=True)                      # blank = in force (date not recorded)
+    withdrawn_on = models.DateField(null=True, blank=True)
+    withdrawn_reason = models.CharField(max_length=300, blank=True, default='')
+    remarks = models.TextField(blank=True, default='')
+    created_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['location', 'matrix', 'parameter', 'id']
+
+    def in_force(self, on=None):
+        from django.utils import timezone
+        on = on or timezone.localdate()
+        if self.effective_from and self.effective_from > on:
+            return False
+        return not (self.withdrawn_on and self.withdrawn_on <= on)
+
+    @property
+    def alias_list(self):
+        return [a.strip() for a in (self.aliases or '').split(',') if a.strip()]
+
+    def __str__(self):
+        return '%s %s %s' % (self.location, self.matrix, self.parameter)
+
+
+for _m in (AccreditationCertificate, AccreditationScope):
+    _sh_register(_m)
+
+
+# --- Legends of the lab test report with decision rule (owner request 29-10-2026) ------------------------------------
+class SocLegendSet(models.Model):
+    """The legend lines printed under the analytical table of the lab test report with decision rule (FF-18 / FF-19).
+    sample_id '' = the laboratory's standard legends for the matrix (kept by the QC / Lab Manager); a sample ID = that
+    report's own set, which starts from the report's note and legends plus the standard legends and is then edited
+    (reworded, reordered, removed, added). items: [{'text': str, 'src': 'report' | 'standard' | 'user'}]."""
+    MATRICES = (('dw', 'Drinking water'), ('ww2', 'Waste water'))
+    location = models.CharField(max_length=20, db_index=True)
+    matrix = models.CharField(max_length=4, choices=MATRICES, default='dw')
+    sample_id = models.CharField(max_length=60, blank=True, default='', db_index=True)
+    items = models.JSONField(default=list, blank=True)
+    updated_by = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('location', 'matrix', 'sample_id')
+
+    def __str__(self):
+        return 'Legends %s %s %s' % (self.location, self.matrix, self.sample_id or '(standard)')
+
+
+_sh_register(SocLegendSet)

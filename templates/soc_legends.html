@@ -1,0 +1,64 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Legends - {% if mode == 'sample' %}{{ sample_id }}{% else %}standard legends{% endif %} - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'soc_list' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">{{ loc }}</a> &rsaquo; <span>{% if mode == 'sample' %}Legends of {{ sample_id }}{% else %}Standard legends{% endif %}</span>{% endblock %}
+{% block cc_body %}
+<style>.lg td{vertical-align:top}.lg textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;font-family:inherit;font-size:13px;min-height:38px;resize:vertical}
+.lg tr.gone td{opacity:.35;text-decoration:line-through}.lg .mv{padding:2px 7px}.src{font-size:11px;white-space:nowrap}</style>
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-list-ul"></i>
+    {% if mode == 'sample' %}Legends - lab test report with decision rule - {{ sample_id }} <span class="muted">{{ kind_label }}</span>
+    {% else %}Standard legends - {{ loc }} laboratory - {{ kind_label }}{% endif %}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if mode == 'sample' %}
+        <a class="btn" href="{% url 'soc_sample_pdf' sample_id %}?location={{ loc }}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> Preview report</a>
+        <a class="btn" href="{{ standard_url }}">Standard legends</a>
+        <a class="btn" href="{% url 'soc_list' %}?location={{ loc }}&q={{ sample_id|urlencode }}">Back to the register</a>
+      {% else %}
+        <form method="get" style="display:inline-flex;gap:6px"><select name="location" class="btn" onchange="this.form.submit()">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+          <select name="matrix" class="btn" onchange="this.form.submit()">{% for k, v in matrices %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></form>
+      {% endif %}
+    </div></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">
+    {% if mode == 'sample' %}These lines print under the analytical table of this sample's lab test report with decision rule, in this order. They start from the test report's own note and legends and the laboratory's standard legends{% if not saved %} - <b>not edited yet</b>: the report prints this starting set{% else %} - <b>edited</b> ({{ saved.updated_at|date:"d-m-Y H:i" }}{% if saved.updated_by %}, {{ saved.updated_by.get_full_name|default:saved.updated_by.username }}{% endif %}){% endif %}. Reword any line, move it up or down, remove it, or add a new one; the normal test report itself is not changed. {% if locked %}<b>Locked:</b> every record of the sample is approved (the CEO unapproves a record to change the legends).{% endif %}
+    {% else %}The lines every new decision-rule report of this matrix starts with, after the test report's own note and legends (a standard line the report already gives is not repeated). Kept by the laboratory's QC / Lab Manager{% if not can_edit %} - view only for you{% endif %}. A report whose legends were already edited keeps its own set.{% endif %}
+  </div>
+  <form method="post" id="lgform">{% csrf_token %}{% if mode == 'standard' %}<input type="hidden" name="matrix" value="{{ kind }}">{% endif %}
+    <table class="lg"><thead><tr><th style="width:36px">#</th><th>Legend line</th><th style="width:130px">Source</th>{% if can_edit %}<th style="width:150px"></th>{% endif %}</tr></thead>
+      <tbody id="rows">
+      {% for i in items %}<tr>
+        <td class="n">{{ forloop.counter }}</td>
+        <td><textarea name="text_{{ forloop.counter }}" {% if not can_edit %}readonly{% endif %}>{{ i.text }}</textarea>
+          <input type="hidden" name="src_{{ forloop.counter }}" value="{{ i.src }}"><input type="hidden" class="pos" name="pos_{{ forloop.counter }}" value="{{ forloop.counter }}">
+          <input type="hidden" class="del" name="del_{{ forloop.counter }}" value=""></td>
+        <td class="src">{% for k, v in src_label.items %}{% if k == i.src %}{{ v }}{% endif %}{% endfor %}</td>
+        {% if can_edit %}<td class="nw"><button type="button" class="btn mv up" title="Move up">&uarr;</button> <button type="button" class="btn mv dn" title="Move down">&darr;</button> <button type="button" class="btn mv rm" title="Remove">Remove</button></td>{% endif %}
+      </tr>{% empty %}<tr class="none"><td colspan="4" class="empty">No legend line{% if can_edit %} - add one below{% endif %}.</td></tr>{% endfor %}
+      </tbody></table>
+    {% if can_edit %}<div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px">
+      <button type="button" class="btn" id="addbtn"><i class="fa-solid fa-plus"></i> Add a legend line</button>
+      <button type="submit" class="btn btn-p"><i class="fa-solid fa-floppy-disk"></i> Save legends</button>
+    </div>{% endif %}
+  </form>
+  {% if mode == 'sample' and can_edit and saved %}<form method="post" style="padding:0 18px 14px">{% csrf_token %}<input type="hidden" name="act" value="reset">
+    <button class="btn" type="submit" onclick="return confirm('Discard the edits and go back to the starting set (the test report\'s note and legends and the standard legends)?')"><i class="fa-solid fa-rotate-left"></i> Reset to the starting set</button></form>{% endif %}
+</div>
+{% if mode == 'sample' and saved %}<div class="card"><div class="hd"><div class="title" style="font-size:15px">Starting set (for comparison)</div></div>
+  <ol style="margin:8px 18px 14px 36px;font-size:13px;color:#475569">{% for d in defaults %}<li>{{ d.text }} <span class="muted">({% for k, v in src_label.items %}{% if k == d.src %}{{ v }}{% endif %}{% endfor %})</span></li>{% empty %}<li>none</li>{% endfor %}</ol></div>{% endif %}
+<div class="card"><div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-clock-rotate-left"></i> Change history</div></div>
+  <table><thead><tr><th>Date</th><th>By</th><th>Change</th><th>Lines</th></tr></thead><tbody>
+  {% for h in hist %}<tr><td class="nw">{{ h.history_date|date:"d-m-Y H:i" }}</td><td>{{ h.history_user.get_full_name|default:h.history_user.username|default:"system" }}</td>
+    <td>{% if h.history_type == '+' %}created{% elif h.history_type == '-' %}reset to the starting set{% else %}edited{% endif %}</td><td>{{ h.items|length }}</td></tr>
+  {% empty %}<tr><td colspan="4" class="empty">No change yet.</td></tr>{% endfor %}</tbody></table></div>
+{% if can_edit %}<script>
+$(function(){
+  var n = {{ items|length }};
+  function renum(){ $('#rows tr').not('.gone,.none').each(function(i){ $(this).find('.n').text(i+1); }); $('#rows tr').each(function(i){ $(this).find('.pos').val(i+1); }); }
+  $('#rows').on('click','.up',function(){ var tr=$(this).closest('tr'); tr.prev().before(tr); renum(); })
+            .on('click','.dn',function(){ var tr=$(this).closest('tr'); tr.next().after(tr); renum(); })
+            .on('click','.rm',function(){ var tr=$(this).closest('tr'); var on=!tr.hasClass('gone'); tr.toggleClass('gone',on); tr.find('.del').val(on?'1':''); $(this).text(on?'Undo':'Remove'); renum(); });
+  $('#addbtn').on('click',function(){ n++; $('#rows tr.none').remove();
+    $('#rows').append('<tr><td class="n"></td><td><textarea name="text_'+n+'" placeholder="New legend line"></textarea><input type="hidden" name="src_'+n+'" value="user"><input type="hidden" class="pos" name="pos_'+n+'" value=""><input type="hidden" class="del" name="del_'+n+'" value=""></td><td class="src">added</td><td class="nw"><button type="button" class="btn mv up">&uarr;</button> <button type="button" class="btn mv dn">&darr;</button> <button type="button" class="btn mv rm">Remove</button></td></tr>');
+    renum(); $('#rows tr:last textarea').focus(); });
+});
+</script>{% endif %}
+{% endblock %}

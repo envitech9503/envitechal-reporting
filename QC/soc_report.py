@@ -49,8 +49,12 @@ def result_column(kind, report):
 
 
 def _acc(rec):
-    from QC.soc_rules import ACCREDITED, is_accredited
-    return is_accredited(rec.parameter, ACCREDITED.get((rec.location, rec.report_type)))
+    """In the accreditation scope register on the date the record was made (a later withdrawal does not change an issued
+    statement)."""
+    from QC.soc_rules import accredited_set, is_accredited
+    from django.utils import timezone
+    on = timezone.localtime(rec.created_at).date() if getattr(rec, 'created_at', None) else None
+    return is_accredited(rec.parameter, accredited_set(rec.location, rec.report_type, on))
 
 
 def soc_context(recs):
@@ -257,3 +261,70 @@ def printed_rows(request, kind, report):
     except Exception:
         return []
     return soc['capture']
+
+
+# ---------------------------------------------------------------- legends (owner request 29-10-2026)
+def _norm_leg(t):
+    return re.sub(r'\s+', ' ', str(t or '')).strip().lower()
+
+
+def report_legends(kind, rep):
+    """The note and legend lines of the normal test report, as it prints them."""
+    out = []
+    if rep is None:
+        return out
+    note = (getattr(rep, 'edit_note', None) if kind == 'dw' else getattr(rep, 'editNote', None)) or ''
+    if str(note).strip():
+        out.append('Note: ' + str(note).strip())
+    for i in range(1, 12):
+        t = getattr(rep, 'legend_%d' % i, None)
+        if t and str(t).strip():
+            out.append(str(t).strip())
+    if kind != 'dw':
+        t = getattr(rep, 'customlegend', None)
+        if t and str(t).strip():
+            out.append(str(t).strip())
+    return out
+
+
+def standard_legends(location, kind):
+    from QC.models import SocLegendSet
+    s = SocLegendSet.objects.filter(location=location, matrix=kind, sample_id='').first()
+    return [i for i in (s.items if s else []) if str(i.get('text') or '').strip()]
+
+
+def default_legends(location, kind, rep):
+    """A report's starting legend set: the test report's note and legends, then the laboratory's standard legends not
+    already given by the report (the same text, or a *** line when the report has one)."""
+    items = [{'text': t, 'src': 'report'} for t in report_legends(kind, rep)]
+    have = {_norm_leg(i['text']) for i in items}
+    stars = any(i['text'].lstrip().startswith('***') for i in items)
+    for s in standard_legends(location, kind):
+        t = str(s['text']).strip()
+        if _norm_leg(t) in have or (stars and t.startswith('***')):
+            continue
+        items.append({'text': t, 'src': 'standard'})
+    return items
+
+
+def legend_items(location, kind, sample_id, rep):
+    """(items, saved): the sample's saved legend set, else its starting set (not saved until edited)."""
+    from QC.models import SocLegendSet
+    s = SocLegendSet.objects.filter(location=location, matrix=kind, sample_id=sample_id).first()
+    if s is not None:
+        return list(s.items or []), s
+    return default_legends(location, kind, rep), None
+
+
+def draw_legends(pdf, lines, bottom=50):
+    """The legend lines, wrapped to the page width (a long legend is never cut off), a new page when needed."""
+    pdf.set_font('Calibri', '', 8)
+    for t in lines:
+        t = str(t or '').strip()
+        if not t:
+            continue
+        n = len(pdf.multi_cell(190, 4, t, dry_run=True, output='LINES'))
+        if pdf.get_y() + n * 4 > pdf.h - bottom:
+            pdf.add_page()
+        pdf.set_x(10)
+        pdf.multi_cell(190, 4, t, border=0, align='L', new_x='LMARGIN', new_y='NEXT')

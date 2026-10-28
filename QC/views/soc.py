@@ -23,7 +23,7 @@ from django.shortcuts import redirect as _redirect
 from django.db.models import Q as _Q
 from django.contrib import messages as _msg
 
-from QC.models import SocRequest, SocRecord, MouStudy, ControlChartDeletion
+from QC.models import SocRequest, SocRecord, MouStudy, ControlChartDeletion, AccreditationScope, AccreditationCertificate, SocLegendSet
 from QC import soc_rules as _R
 from QC.views.control_chart import (_CC_LOCS, _CC_OFFICE, _uname, _user_labs, _is_admin, _can_review, _can_approve,
                                     _default_loc, _user_office, _sig_image, _sig_panels, _SIG_MIN, _FOOT_TOP, _SIG_W)
@@ -33,7 +33,8 @@ from QC.views.ia_pdf import _pdf, _resp
 _FORMS = {'soc_request': ('ETAL-LAB-708-FF-17', 'CUSTOMER REQUEST FORM FOR MOU & SOC', {'Karachi': ('03-10-2022', '01', '01'), 'Lahore': ('09-03-2026', '02', '01')}),
           'soc_record': ('ETAL-LAB-708-FF-20', 'STATEMENT OF CONFORMITY RECORD', {'Karachi': ('03-10-2022', '01', '00')}),
           'soc_report_ww': ('ETAL-LAB-708-FF-18', 'LAB TEST REPORT WW - WASTEWATER WITH DECISION RULE', {'Lahore': ('25-03-2025', '02', '01')}),
-          'soc_report_dw': ('ETAL-LAB-708-FF-19', 'LAB TEST REPORT DW - DRINKING WATER WITH DECISION RULE', {'Lahore': ('25-03-2025', '02', '01')})}
+          'soc_report_dw': ('ETAL-LAB-708-FF-19', 'LAB TEST REPORT DW - DRINKING WATER WITH DECISION RULE', {'Lahore': ('25-03-2025', '02', '01')}),
+          'soc_scope': ('TBA', 'ACCREDITATION SCOPE REGISTER', {})}
 _ROLES = {'Karachi': ('(Chemist)', '(QC Manager)', '(CEO)'), 'Lahore': ('(Assistant Manager)', '(Lab Manager)', '(CEO)')}
 _DENIED = 'This action is reserved to the %s laboratory\'s QC / Lab Manager and the CEO / administrator.'
 _REPORT_LABEL = dict(SocRecord.REPORTS)
@@ -370,8 +371,8 @@ def soc_new(request):
             dup = next((x for x in SocRecord.objects.filter(location=loc, sample_id=sid) if x.parameter.lower() == par.lower() or _pm(par, x.parameter) or _pm(x.parameter, par)), None)
             if dup:
                 errors.append('%s: a record for this parameter and sample exists already (%s).' % (par, dup.parameter)); continue
-            if not _R.is_accredited(par, _R.ACCREDITED.get((loc, kind))):
-                errors.append('%s: not in the %s laboratory\'s accreditation scope - a statement of conformity applies to accredited parameters only.' % (par, loc)); continue
+            if not _R.is_accredited(par, _R.accredited_set(loc, kind)):
+                errors.append('%s: not in the %s laboratory\'s accreditation scope (Accreditation scope register) - a statement of conformity applies to accredited parameters only.' % (par, loc)); continue
             perr = []
             vals = _results(P, 'p%d_' % i, par, perr)
             if not vals and not perr:
@@ -995,6 +996,8 @@ def soc_sample_pdf(request, sample_id):
         from QC.soc_report import result_column
         soc['result_col'] = result_column(kind, rep)
         soc['kind'] = kind
+        from QC.soc_report import legend_items
+        soc['legends'] = [str(i.get('text') or '') for i in legend_items(loc, kind, sample_id, rep)[0]]
         c = ctrl
         dno = c['doc_no'] if c.get('doc_no') not in (None, '', 'TBA') else _FORMS[form][0]
         idate = (c.get('issue_date') or '').strip()
@@ -1106,3 +1109,227 @@ def soc_request_pdf(request, pk):
         signer = 'Signed on the paper form'
     pdf = build_ff17(q, ctrl, signer, img, watermark='' if (q.decision and (q.authorised_at or q.inducted)) else 'DRAFT')
     return _resp(pdf, 'SOC_request_%s_%s' % (q.location, q.sample_id))
+
+
+# ---------------------------------------------------------------- accreditation scope register (owner approval 29-10-2026)
+def _scope_manager(user, location):
+    """The laboratory's QC / Lab Manager (Laboratory Reviewers page) or an administrator not assigned to one laboratory."""
+    if not (user and user.is_authenticated and user.is_active):
+        return False
+    labs = _user_labs(user)
+    return location in labs or (_is_admin(user) and not labs)
+
+
+def _scope_fields(obj, P, errors):
+    obj.parameter = (P.get('parameter') or '').strip()[:80]
+    if not obj.parameter:
+        errors.append('Parameter is required.')
+    obj.aliases = ', '.join(a.strip() for a in (P.get('aliases') or '').split(',') if a.strip())[:300]
+    obj.method = (P.get('method') or '').strip()[:160]
+    obj.range_text = (P.get('range_text') or '').strip()[:120]
+    obj.pnac_ref = (P.get('pnac_ref') or '').strip()[:160]
+    obj.effective_from = _date_field(P.get('effective_from'), 'Effective from', errors)
+    obj.remarks = (P.get('remarks') or '').strip()[:2000]
+    if obj.matrix not in dict(AccreditationScope.MATRICES):
+        errors.append('Choose the matrix (drinking water / waste water).')
+
+
+def soc_scope(request):
+    loc = _loc_of(request)
+    user = request.user
+    if not _can_view(user, loc):
+        own = _own_lab(user)
+        if own and own != loc and _can_view(user, own):
+            request.session['soc_loc'] = own
+            return _redirect('/qc/soc/scope/?location=%s' % own)
+        return _denied_view(request, loc)
+    manage = _scope_manager(user, loc)
+    cert, _ = AccreditationCertificate.objects.get_or_create(location=loc)
+    if request.method == 'POST':
+        if not manage:
+            return HttpResponse('The accreditation scope of the %s laboratory is kept by its QC / Lab Manager and the administrator.' % loc, status=403)
+        P, act, errors = request.POST, request.POST.get('act'), []
+        if act == 'cert':
+            for f, n in (('body', 60), ('standard', 60), ('certificate_no', 80), ('scope_ref', 120)):
+                setattr(cert, f, (P.get(f) or '').strip()[:n])
+            cert.issue_date = _date_field(P.get('issue_date'), 'Issue date', errors)
+            cert.valid_until = _date_field(P.get('valid_until'), 'Valid until', errors)
+            cert.remarks = (P.get('remarks') or '').strip()[:2000]
+            cert.updated_by = user
+            if not errors:
+                cert.save(); _msg.success(request, 'Accreditation details saved.')
+        elif act in ('add', 'edit'):
+            obj = AccreditationScope(location=loc, created_by=user) if act == 'add' else get_object_or_404(AccreditationScope, pk=P.get('id'), location=loc)
+            if act == 'add':
+                obj.matrix = P.get('matrix') or ''
+            _scope_fields(obj, P, errors)
+            if not errors and AccreditationScope.objects.filter(location=loc, matrix=obj.matrix, parameter__iexact=obj.parameter, withdrawn_on__isnull=True).exclude(pk=obj.pk).exists():
+                errors.append('%s is in the register already for %s (withdraw it first to replace it).' % (obj.parameter, dict(AccreditationScope.MATRICES)[obj.matrix].lower()))
+            if not errors:
+                obj.updated_by = user; obj.save()
+                _msg.success(request, '%s %s.' % (obj.parameter, 'added to the scope' if act == 'add' else 'saved'))
+        elif act == 'withdraw':
+            obj = get_object_or_404(AccreditationScope, pk=P.get('id'), location=loc)
+            d = _date_field(P.get('withdrawn_on'), 'Withdrawn on', errors) or (_tz.localdate() if not errors else None)
+            reason = (P.get('reason') or '').strip()
+            if len(reason) < 5:
+                errors.append('Give the reason for the withdrawal (at least 5 characters).')
+            if obj.withdrawn_on:
+                errors.append('%s is withdrawn already.' % obj.parameter)
+            if not errors:
+                obj.withdrawn_on, obj.withdrawn_reason, obj.updated_by = d, reason[:300], user; obj.save()
+                _msg.success(request, '%s withdrawn from %s. Statements made before that date are unchanged.' % (obj.parameter, d.strftime('%d-%m-%Y')))
+        elif act == 'reinstate':
+            obj = get_object_or_404(AccreditationScope, pk=P.get('id'), location=loc)
+            reason = (P.get('reason') or '').strip()
+            if len(reason) < 5:
+                errors.append('Give the reason for reinstating (at least 5 characters).')
+            elif AccreditationScope.objects.filter(location=loc, matrix=obj.matrix, parameter__iexact=obj.parameter, withdrawn_on__isnull=True).exclude(pk=obj.pk).exists():
+                errors.append('%s is in force already in another entry.' % obj.parameter)
+            if not errors:
+                obj.remarks = (obj.remarks + '\n' if obj.remarks else '') + 'Reinstated %s by %s (withdrawn %s: %s): %s' % (
+                    _d(_tz.localdate()), _uname(user), _d(obj.withdrawn_on), obj.withdrawn_reason, reason[:300])
+                obj.withdrawn_on, obj.withdrawn_reason, obj.updated_by = None, '', user; obj.save()
+                _msg.success(request, '%s reinstated.' % obj.parameter)
+        for e in errors:
+            _msg.error(request, e)
+        return _redirect('/qc/soc/scope/?location=%s' % loc)
+    today = _tz.localdate()
+    rows = sorted(AccreditationScope.objects.filter(location=loc).select_related('updated_by'), key=lambda e: (e.parameter.lower(), e.pk))
+    groups = [{'matrix': k, 'label': v, 'rows': [r for r in rows if r.matrix == k]} for k, v in AccreditationScope.MATRICES]
+    for g in groups:
+        for r in g['rows']:
+            r.live = r.in_force(today)
+    hist = list(AccreditationScope.history.filter(location=loc).select_related('history_user').order_by('-history_date')[:40])
+    return render(request, 'soc_scope.html', {'loc': loc, 'locs': _CC_LOCS, 'groups': groups, 'cert': cert, 'manage': manage, 'hist': hist,
+                                              'matrices': AccreditationScope.MATRICES, 'ctrl': _docctrl('soc_scope', loc),
+                                              'incomplete': sum(1 for r in rows if r.withdrawn_on is None and not r.pnac_ref)})
+
+
+def soc_scope_pdf(request):
+    loc = _loc_of(request)
+    if not _can_view(request.user, loc):
+        return _denied_view(request, loc)
+    cert = AccreditationCertificate.objects.filter(location=loc).first()
+    ctrl = _docctrl('soc_scope', loc)
+    pdf = _pdf(_FORMS['soc_scope'][1], '%s LABORATORY' % loc.upper(), ctrl, loc)
+    pdf.alias_nb_pages(); pdf.set_auto_page_break(True, 30)
+    f = pdf.fam
+    GREEN, GREY = (15, 81, 50), (242, 245, 243)
+    pdf.set_draw_color(120, 120, 120)
+    def kv(lbl, val, wl=40, wv=150):
+        pdf.set_font(f, 'B', 8); pdf.set_fill_color(*GREY); pdf.cell(wl, 5.6, lbl, 1, 0, 'L', fill=True)
+        pdf.set_font(f, '', 8); pdf.cell(wv, 5.6, str(val or '-')[:110], 1, 1, 'L')
+    kv('Accreditation body', cert.body if cert else 'PNAC'); kv('Standard', cert.standard if cert else 'ISO/IEC 17025:2017')
+    kv('Certificate No.', cert.certificate_no if cert else ''); kv('Scope reference', cert.scope_ref if cert else '')
+    kv('Issue date / valid until', '%s / %s' % (_d(cert.issue_date) if cert else '-', _d(cert.valid_until) if cert else '-'))
+    pdf.ln(3)
+    cols = [('#', 8), ('Parameter', 30), ('Other names on reports', 34), ('Method', 36), ('Range', 22), ('Scope reference', 30), ('In force from', 16), ('Status', 14)]
+    for key, label in AccreditationScope.MATRICES:
+        rows = sorted(AccreditationScope.objects.filter(location=loc, matrix=key), key=lambda e: (e.parameter.lower(), e.pk))
+        pdf.set_font(f, 'B', 9); pdf.set_text_color(*GREEN); pdf.cell(190, 6, label.upper(), 0, 1); pdf.set_text_color(0, 0, 0)
+        pdf.set_font(f, 'B', 7); pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255)
+        for lbl, w in cols:
+            pdf.cell(w, 6, lbl, 1, 0, 'C', fill=True)
+        pdf.ln(6); pdf.set_text_color(0, 0, 0); pdf.set_font(f, '', 7)
+        if not rows:
+            pdf.cell(190, 5.4, 'No entry.', 1, 1, 'C')
+        for i, r in enumerate(rows):
+            st = 'In force' if r.in_force() else ('Withdrawn %s' % _d(r.withdrawn_on) if r.withdrawn_on else 'Not yet')
+            vals = [str(i + 1), r.parameter, r.aliases or '-', r.method or '-', r.range_text or '-', r.pnac_ref or 'to be entered', _d(r.effective_from) if r.effective_from else '-', st]
+            for (lbl, w), t in zip(cols, vals):
+                fs = 7.0; pdf.set_font(f, '', fs)
+                while pdf.get_string_width(t) > w - 1.5 and fs > 5.2:
+                    fs -= 0.3; pdf.set_font(f, '', fs)
+                while pdf.get_string_width(t) > w - 1.5 and len(t) > 3:
+                    t = t[:-1]
+                pdf.cell(w, 5.4, t, 1, 0, 'L' if lbl not in ('#', 'In force from') else 'C')
+            pdf.ln(5.4)
+        pdf.ln(3)
+    pdf.set_font(f, '', 7); pdf.set_text_color(70, 70, 70)
+    pdf.multi_cell(190, 3.6, 'A statement of conformity is made, and *** printed on the lab test report with decision rule, for the parameters in force in this register on the date of the record. '
+                   'Entries are withdrawn with a date and reason, never deleted; the change history is kept. Printed %s.' % _d(_tz.localdate()), new_x='LMARGIN', new_y='NEXT')
+    return _resp(pdf, 'Accreditation_scope_%s' % loc)
+
+
+# ---------------------------------------------------------------- legends of the decision-rule report (owner request 29-10-2026)
+_SRC = {'report': 'from the test report', 'standard': 'standard legend', 'user': 'added'}
+
+
+def _legend_post(P):
+    """Rows of the legend editor in their order: text_<n>, src_<n>, pos_<n>, del_<n>; blank and removed rows dropped."""
+    keys = sorted({int(m.group(1)) for k in P for m in [_re.match(r'^text_(\d+)$', k)] if m}, key=lambda n: (_num(P.get('pos_%d' % n)) or 0, n))
+    out = []
+    for n in keys:
+        t = _re.sub(r'\s+', ' ', (P.get('text_%d' % n) or '')).strip()[:600]
+        if not t or P.get('del_%d' % n):
+            continue
+        src = P.get('src_%d' % n) if P.get('src_%d' % n) in _SRC else 'user'
+        out.append({'text': t, 'src': src})
+    return out[:40]
+
+
+def soc_legends(request, sample_id):
+    """The legend lines of one sample's lab test report with decision rule: start from the report's note and legends
+    and the laboratory's standard legends; reword, reorder, remove or add; reset to the starting set. Locked once every
+    record of the sample is approved (the CEO unapproves to change it)."""
+    loc = _loc_of(request)
+    user = request.user
+    if not _can_view(user, loc):
+        return _denied_view(request, loc)
+    recs = list(SocRecord.objects.filter(location=loc, sample_id=sample_id).order_by('id'))
+    if not recs:
+        return HttpResponse('No statement of conformity for sample %s.' % sample_id, status=404)
+    kind, rep = _R.report_for(sample_id, recs[0].report_type, recs[0].report_pk)
+    kind = kind or recs[0].report_type
+    from QC.soc_report import legend_items, default_legends
+    locked = all(r.status == 'approved' for r in recs)
+    can_edit = _is_staff_of(user, loc) and not locked
+    if request.method == 'POST':
+        if not can_edit:
+            return HttpResponse('The legends are locked: every record of sample %s is approved (the CEO unapproves a record to change them).' % sample_id if locked
+                                else 'The legends are edited by the %s laboratory\'s staff.' % loc, status=403)
+        if request.POST.get('act') == 'reset':
+            SocLegendSet.objects.filter(location=loc, matrix=kind, sample_id=sample_id).delete()
+            _msg.success(request, 'Legends reset to the starting set (the test report\'s note and legends and the standard legends).')
+        else:
+            obj, _ = SocLegendSet.objects.get_or_create(location=loc, matrix=kind, sample_id=sample_id)
+            obj.items, obj.updated_by = _legend_post(request.POST), user
+            obj.save()
+            _msg.success(request, 'Legends saved: %d line%s. They print on the lab test report with decision rule.' % (len(obj.items), '' if len(obj.items) == 1 else 's'), extra_tags='ccsaved:soc_leg_%s' % sample_id)
+        return _redirect('/qc/soc/sample/%s/legends/?location=%s' % (sample_id, loc))
+    items, saved = legend_items(loc, kind, sample_id, rep)
+    hist = list(SocLegendSet.history.filter(location=loc, matrix=kind, sample_id=sample_id).select_related('history_user').order_by('-history_date')[:20])
+    return render(request, 'soc_legends.html', {'loc': loc, 'sample_id': sample_id, 'kind': kind, 'kind_label': _REPORT_LABEL.get(kind, kind), 'items': items, 'saved': saved,
+                                                'can_edit': can_edit, 'locked': locked, 'src_label': _SRC, 'hist': hist, 'mode': 'sample',
+                                                'defaults': default_legends(loc, kind, rep), 'standard_url': '/qc/soc/legends/?location=%s' % loc})
+
+
+def soc_legend_defaults(request):
+    """The laboratory's standard legends per matrix (QC / Lab Manager, administrator): the lines a new decision-rule
+    report starts with, after the test report's own note and legends."""
+    loc = _loc_of(request)
+    user = request.user
+    if not _can_view(user, loc):
+        own = _own_lab(user)
+        if own and own != loc and _can_view(user, own):
+            request.session['soc_loc'] = own
+            return _redirect('/qc/soc/legends/?location=%s' % own)
+        return _denied_view(request, loc)
+    manage = _scope_manager(user, loc)
+    kind = request.GET.get('matrix') or request.POST.get('matrix') or 'dw'
+    kind = kind if kind in dict(SocLegendSet.MATRICES) else 'dw'
+    obj, _ = SocLegendSet.objects.get_or_create(location=loc, matrix=kind, sample_id='')
+    if request.method == 'POST':
+        if not manage:
+            return HttpResponse('The standard legends of the %s laboratory are kept by its QC / Lab Manager and the administrator.' % loc, status=403)
+        items = _legend_post(request.POST)
+        for i in items:
+            i['src'] = 'standard'
+        obj.items, obj.updated_by = items, user
+        obj.save()
+        _msg.success(request, 'Standard legends saved (%s). Reports whose legends were already edited keep their own set.' % dict(SocLegendSet.MATRICES)[kind].lower())
+        return _redirect('/qc/soc/legends/?location=%s&matrix=%s' % (loc, kind))
+    hist = list(SocLegendSet.history.filter(location=loc, matrix=kind, sample_id='').select_related('history_user').order_by('-history_date')[:20])
+    return render(request, 'soc_legends.html', {'loc': loc, 'locs': _CC_LOCS, 'kind': kind, 'kind_label': dict(SocLegendSet.MATRICES)[kind], 'items': obj.items or [], 'saved': obj,
+                                                'can_edit': manage, 'locked': False, 'src_label': _SRC, 'hist': hist, 'mode': 'standard', 'matrices': SocLegendSet.MATRICES})

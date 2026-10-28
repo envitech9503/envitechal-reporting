@@ -70,7 +70,9 @@ WW_PARAMS = [
     ('result_30_30', 'Boron', 'mg/L', '6', False, ['boron']),
     ('result_31_31', 'Barium', 'mg/L', '1.5', False, ['barium']),
 ]
-# parameters in the accreditation scope (***) per laboratory and report, as printed on the reports / decision-rule formats
+# The accreditation scope is kept in the Accreditation Scope register (QC > Decision Rule > Accreditation scope, owner
+# approval 29-10-2026). This list is the register's starting content (migration 0024) and is used only when the
+# register holds no entry at all for a laboratory and matrix.
 ACCREDITED = {('Karachi', 'dw'): {'pH', 'TDS', 'Hardness', 'Nitrate', 'Chloride', 'Fluoride', 'Nickel'},
               ('Karachi', 'ww2'): {'pH', 'COD', 'TDS'},
               ('Lahore', 'dw'): {'pH', 'Turbidity', 'TDS', 'Chloride', 'Hardness', 'Nitrate', 'Alkalinity', 'Sulphate', 'Calcium'},
@@ -129,6 +131,39 @@ def aliases_for(name):
             if nm.lower() == n or name_matches(name, nm.lower()):
                 out += [x for x in [nm.lower()] + list(names) if x not in out]
     return out
+
+
+def scope_entries(location, kind, on=None):
+    """Register entries in force for a laboratory and matrix on a date (today by default)."""
+    from QC.models import AccreditationScope
+    try:
+        rows = list(AccreditationScope.objects.filter(location=location, matrix=kind))
+    except Exception:
+        return None
+    if not rows:
+        return None
+    return [e for e in rows if e.in_force(on)]
+
+
+def accredited_set(location, kind, on=None):
+    """Names (with their aliases) of the parameters in the accreditation scope of the laboratory for the matrix on the
+    date: from the register; the fixed starting list only when the register has no entry for that laboratory and matrix."""
+    rows = scope_entries(location, kind, on)
+    if rows is None:
+        return ACCREDITED.get((location, kind))
+    out = set()
+    for e in rows:
+        out.add(e.parameter)
+        out.update(e.alias_list)
+    return out
+
+
+def scope_entry(location, kind, name, on=None):
+    """The register entry a report parameter falls under (for its PNAC reference), or None."""
+    for e in scope_entries(location, kind, on) or []:
+        if is_accredited(name, {e.parameter} | set(e.alias_list)):
+            return e
+    return None
 
 
 def is_accredited(name, acc_set):
@@ -272,7 +307,7 @@ def report_parameters(kind, r, location):
     """Every parameter of the report with a result: name, result text / number, method, unit, limit, accredited, U from the MOU register."""
     rows = []
     table = DW_PARAMS if kind == 'dw' else WW_PARAMS
-    acc_set = ACCREDITED.get((location, kind))
+    acc_set = accredited_set(location, kind)
     inlet = kind == 'ww2' and ww_inlet_only(r)
     for field, name, unit, limit, acc, names in table:
         if acc_set is not None:
@@ -302,6 +337,9 @@ def report_parameters(kind, r, location):
         rows.append({'field': 'extra', 'parameter': name[:80], 'result': str(res).strip(), 'value': val, 'value_text': vtxt, 'method': str(x.get('methods') or x.get('method') or '').strip(),
                      'unit': str(x.get('unit') or 'mg/L').strip(), 'limit': lim, 'lower': lo, 'upper': hi,
                      'accredited': is_accredited(name, acc_set) if acc_set is not None else False, 'u': u, 'u_label': ulabel, 'mou_study': sid})
+    for row in rows:                                        # the register entry each accredited parameter falls under
+        e = scope_entry(location, kind, row['parameter']) if row['accredited'] else None
+        row['scope_ref'] = (e.pnac_ref or 'scope reference to be entered') if e else ''
     return rows
 
 

@@ -22,6 +22,8 @@ Usage: {% include "_module_nav.html" with mod="soc" home=<url> %}{% endcomment %
     <a class="mn-t" data-p="{% url 'soc_list' %}" data-exact="1" href="{% url 'soc_list' %}">Records</a>
     <a class="mn-t" data-p="{% url 'soc_new' %}" href="{% url 'soc_new' %}">New statement</a>
     <a class="mn-t" data-p="/qc/soc/request/" href="{% url 'soc_request_new' %}">Request form (FF-17)</a>
+    <a class="mn-t" data-p="{% url 'soc_scope' %}" href="{% url 'soc_scope' %}">Accreditation scope</a>
+    <a class="mn-t" data-p="{% url 'soc_legend_defaults' %}" href="{% url 'soc_legend_defaults' %}">Standard legends</a>
     <a class="mn-t" data-p="{% url 'soc_doccontrol' %}" href="{% url 'soc_doccontrol' %}">Form numbers</a>
     <a class="mn-t" data-p="{% url 'soc_deletions' %}" href="{% url 'soc_deletions' %}">Deleted</a>
     <a class="mn-t" data-p="{% url 'soc_manual' %}" href="{% url 'soc_manual' %}">Manual</a>

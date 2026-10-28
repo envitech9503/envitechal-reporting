@@ -1454,7 +1454,7 @@ def generatePDF_report(request,pk,return_bytes=False,soc=None):
      Table_Data1 = [
           
      ]
-     if waterForm.edit_note:
+     if waterForm.edit_note and not (soc and soc.get('legends') is not None):     # decision-rule report: its own legend set
           a=["Note: "+ waterForm.edit_note] 
           Table_Data1.append(a)
           
@@ -1517,6 +1517,10 @@ def generatePDF_report(request,pk,return_bytes=False,soc=None):
      if waterForm.legend_11:
           a = [waterForm.legend_11]
           Table_data_legend.append(a)
+     if soc and soc.get('legends') is not None:         # decision-rule report: the sample's legend set (QC, editable)
+          Table_data_legend = []
+          from QC.soc_report import draw_legends
+          draw_legends(pdf, soc['legends'])
           
      pdf.set_auto_page_break(auto=True, margin=15)
      

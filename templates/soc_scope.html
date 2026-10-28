@@ -1,0 +1,75 @@
+{% extends "_soc_base.html" %}
+{% block cc_title %}Accreditation scope - {{ loc }}{% endblock %}
+{% block crumb %} &rsaquo; <a href="{% url 'soc_list' %}?location={{ loc }}" style="color:#0f5132;text-decoration:none">{{ loc }}</a> &rsaquo; <span>Accreditation scope</span>{% endblock %}
+{% block cc_body %}
+<style>.sc td input,.sc td select{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;font-size:12.5px;font-family:inherit}
+.sc tr.off td{opacity:.5}.sc td{vertical-align:top}.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;padding:12px 18px}
+.kv label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px}.kv input,.kv textarea{border:1px solid #cbd5e1;border-radius:6px;padding:5px 7px;font-family:inherit;font-size:13px}
+details.ed summary{cursor:pointer;color:#0f5132;font-size:12.5px}</style>
+<div class="card">
+  <div class="hd"><div class="title"><i class="fa-solid fa-certificate"></i> Accreditation scope register - {{ loc }} laboratory <span class="muted">{{ ctrl.doc_no }}</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <form method="get" style="display:inline"><select name="location" onchange="this.form.submit()" class="btn">{% for l in locs %}<option value="{{ l }}" {% if l == loc %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></form>
+      <a class="btn" href="{% url 'soc_scope_pdf' %}?location={{ loc }}" target="_blank" rel="noopener"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+    </div></div>
+  <div class="msg" style="background:#f8fafc;color:#475569">The parameters the laboratory is accredited for, per matrix, as on its accreditation scope. The decision-rule module makes a statement of conformity, and prints ***, only for the parameters <b>in force</b> here on the date of the record. Kept by the laboratory's QC / Lab Manager{% if not manage %} (view only for you){% endif %}. Entries are withdrawn with a date and reason, never deleted; every change is kept in the history below.</div>
+  {% if incomplete %}<div class="msg" style="background:#fffbeb;color:#92400e">{{ incomplete }} entr{{ incomplete|pluralize:"y,ies" }} in force without the scope reference: confirm each against the PNAC scope and enter the reference, method and range.</div>{% endif %}
+  <form method="post">{% csrf_token %}<input type="hidden" name="act" value="cert">
+    <div class="kv">
+      <label>Accreditation body <input name="body" value="{{ cert.body }}" {% if not manage %}disabled{% endif %}></label>
+      <label>Standard <input name="standard" value="{{ cert.standard }}" {% if not manage %}disabled{% endif %}></label>
+      <label>Certificate No. <input name="certificate_no" value="{{ cert.certificate_no }}" {% if not manage %}disabled{% endif %}></label>
+      <label>Scope reference (document / issue / revision) <input name="scope_ref" value="{{ cert.scope_ref }}" {% if not manage %}disabled{% endif %}></label>
+      <label>Issue date <input name="issue_date" value="{{ cert.issue_date|date:'d-m-Y' }}" placeholder="dd-mm-yyyy" {% if not manage %}disabled{% endif %}></label>
+      <label>Valid until <input name="valid_until" value="{{ cert.valid_until|date:'d-m-Y' }}" placeholder="dd-mm-yyyy" {% if not manage %}disabled{% endif %}></label>
+    </div>
+    {% if manage %}<div style="padding:0 18px 12px"><button class="btn" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save accreditation details</button></div>{% endif %}
+  </form>
+</div>
+{% for g in groups %}
+<div class="card">
+  <div class="hd"><div class="title" style="font-size:16px"><i class="fa-solid fa-droplet"></i> {{ g.label }}</div></div>
+  <div style="overflow-x:auto"><table class="sc">
+    <thead><tr><th>Parameter</th><th>Other names on reports</th><th>Method</th><th>Range</th><th>Scope reference</th><th>In force from</th><th>Status</th><th>Last change</th>{% if manage %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for r in g.rows %}
+      <tr class="{% if not r.live %}off{% endif %}">
+        <td><b>{{ r.parameter }}</b></td><td>{{ r.aliases|default:"-" }}</td><td>{{ r.method|default:"-" }}</td><td>{{ r.range_text|default:"-" }}</td>
+        <td>{% if r.pnac_ref %}{{ r.pnac_ref }}{% else %}<span class="pill warn">to be entered</span>{% endif %}</td>
+        <td class="nw">{{ r.effective_from|date:"d-m-Y"|default:"-" }}</td>
+        <td class="nw">{% if r.live %}<span class="pill ok">In force</span>{% elif r.withdrawn_on %}<span class="pill bad" title="{{ r.withdrawn_reason }}">Withdrawn {{ r.withdrawn_on|date:"d-m-Y" }}</span>{% else %}<span class="pill none">From {{ r.effective_from|date:"d-m-Y" }}</span>{% endif %}</td>
+        <td class="nw muted">{{ r.updated_at|date:"d-m-Y" }}{% if r.updated_by %} &middot; {{ r.updated_by.get_full_name|default:r.updated_by.username }}{% endif %}</td>
+        {% if manage %}<td style="min-width:260px">
+          <details class="ed"><summary>Edit</summary>
+            <form method="post">{% csrf_token %}<input type="hidden" name="act" value="edit"><input type="hidden" name="id" value="{{ r.id }}">
+              <div class="kv" style="padding:6px 0">
+                <label>Parameter <input name="parameter" value="{{ r.parameter }}"></label><label>Other names (comma separated) <input name="aliases" value="{{ r.aliases }}"></label>
+                <label>Method <input name="method" value="{{ r.method }}"></label><label>Range <input name="range_text" value="{{ r.range_text }}"></label>
+                <label>Scope reference <input name="pnac_ref" value="{{ r.pnac_ref }}"></label><label>In force from <input name="effective_from" value="{{ r.effective_from|date:'d-m-Y' }}" placeholder="dd-mm-yyyy"></label>
+                <label>Remarks <textarea name="remarks" rows="2">{{ r.remarks }}</textarea></label>
+              </div><button class="btn" type="submit">Save</button></form>
+          </details>
+          {% if not r.withdrawn_on %}<details class="ed"><summary>Withdraw</summary>
+            <form method="post">{% csrf_token %}<input type="hidden" name="act" value="withdraw"><input type="hidden" name="id" value="{{ r.id }}">
+              <div class="kv" style="padding:6px 0"><label>Withdrawn on <input name="withdrawn_on" placeholder="dd-mm-yyyy (blank = today)"></label><label>Reason <input name="reason" required minlength="5"></label></div>
+              <button class="btn" type="submit" onclick="return confirm('Withdraw {{ r.parameter|escapejs }} from the {{ g.label|lower }} scope?')">Withdraw</button></form></details>
+          {% else %}<details class="ed"><summary>Reinstate</summary>
+            <form method="post">{% csrf_token %}<input type="hidden" name="act" value="reinstate"><input type="hidden" name="id" value="{{ r.id }}">
+              <div class="kv" style="padding:6px 0"><label>Reason <input name="reason" required minlength="5"></label></div><button class="btn" type="submit">Reinstate</button></form></details>{% endif %}
+        </td>{% endif %}
+      </tr>
+    {% empty %}<tr><td colspan="9" class="empty">No {{ g.label|lower }} parameter in the scope.</td></tr>{% endfor %}
+    </tbody></table></div>
+  {% if manage %}<form method="post" style="padding:10px 18px">{% csrf_token %}<input type="hidden" name="act" value="add"><input type="hidden" name="matrix" value="{{ g.matrix }}">
+    <div class="kv" style="padding:0"><label>Add parameter <input name="parameter" required placeholder="e.g. Fluoride"></label><label>Other names on reports <input name="aliases" placeholder="e.g. F, Fluoride (F)"></label>
+      <label>Method <input name="method"></label><label>Range <input name="range_text"></label><label>Scope reference <input name="pnac_ref"></label><label>In force from <input name="effective_from" placeholder="dd-mm-yyyy"></label></div>
+    <button class="btn btn-p" type="submit" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add to {{ g.label|lower }} scope</button></form>{% endif %}
+</div>
+{% endfor %}
+<div class="card"><div class="hd"><div class="title" style="font-size:15px"><i class="fa-solid fa-clock-rotate-left"></i> Change history</div></div>
+  <table><thead><tr><th>Date</th><th>By</th><th>Change</th><th>Matrix</th><th>Parameter</th><th>Scope reference</th><th>Status</th></tr></thead><tbody>
+  {% for h in hist %}<tr><td class="nw">{{ h.history_date|date:"d-m-Y H:i" }}</td><td>{{ h.history_user.get_full_name|default:h.history_user.username|default:"system" }}</td>
+    <td>{% if h.history_type == '+' %}added{% elif h.history_type == '-' %}removed{% else %}changed{% endif %}</td><td>{{ h.get_matrix_display }}</td><td>{{ h.parameter }}</td><td>{{ h.pnac_ref|default:"-" }}</td>
+    <td>{% if h.withdrawn_on %}withdrawn {{ h.withdrawn_on|date:"d-m-Y" }}{% else %}in force{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="empty">No change yet.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}
