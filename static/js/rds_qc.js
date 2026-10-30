@@ -174,19 +174,28 @@
      is calculated from its titration, as the chloride working standard is: each reading = (final - initial burette)
      x factor / sample volume; the readings, their working and the average are saved and printed. */
   var TITR = [
-    { re: /hardness/i, label: 'EDTA factor B (mg CaCO3 per mL EDTA)', k: 'B', mult: 1000, edta: 'hardness',
+    { re: /hardness/i, label: 'EDTA factor B (mg CaCO3 per mL EDTA)', k: 'B', mult: 1000, page: ['hardness_edta_b'], key: 'B_hardness', what: 'total hardness', eg: 'e.g. 1.000',
       text: function (f) { return '(Final - Initial) X ' + f + ' X 1000 / Volume of sample'; } },
-    { re: /^calcium\b/i, label: 'EDTA factor B (mg CaCO3 per mL EDTA)', k: 'B', mult: 400.8, edta: 'calcium',
+    { re: /^calcium\b/i, label: 'EDTA factor B (mg CaCO3 per mL EDTA)', k: 'B', mult: 400.8, page: ['calcium_edta_b'], key: 'B_calcium', what: 'calcium', eg: 'e.g. 1.000',
       text: function (f) { return '(Final - Initial) X ' + f + ' X 400.8 / Volume of sample'; } },
-    { re: /alkalinity/i, label: 'Normality of the acid (N)', k: 'N', mult: 50000, def: 0.1,
+    { re: /alkalinity/i, label: 'Normality of the acid N (any strength: 0.02, 0.1, 0.2 ...)', k: 'N', mult: 50000, page: ['alkalinity_1_3', 'alkalinity_2_3', 'alkalinity_3_3'], key: 'N_alkalinity', what: 'alkalinity', eg: 'e.g. 0.02',
       text: function (f) { return '(Final - Initial) X ' + f + ' X 50000 / Volume of sample'; } }
   ];
+  /* The factor is not fixed (owner 30-10-2026: "dynamic, for any scenario"). It is taken, in this order, from the page's
+     own titration section (alkalinity normality, EDTA factor B) for the same side - kept in step while the analyst has
+     not typed one in the check - else the value last used in this browser, else it must be entered. */
   function titrFor(param) { return TITR.filter(function (t) { return t.re.test(String(param || '').replace(/\*+/g, '').trim()); })[0] || null; }
+  function titrPage(t, side) {
+    var sfx = side === 'Inlet' ? '_inlet' : (side === 'Outlet' ? '_outlet' : ''), hit = null;
+    (t.page || []).some(function (id) { var e = $(id + sfx) || (sfx ? null : $(id)); if (e && String(e.value).trim() !== '') { hit = e; return true; } return false; });
+    return hit;
+  }
+  function lastUsed(t) { try { return localStorage.getItem('rds_titr_' + t.key) || ''; } catch (e) { return ''; } }
+  function remember(t, v) { try { if (v !== '' && v !== null && v !== undefined) localStorage.setItem('rds_titr_' + t.key, String(v)); } catch (e) { } }
   function titrHtml(p, t, side) {
-    var sfx = side === 'Inlet' ? '_inlet' : (side === 'Outlet' ? '_outlet' : ''), pageB = t.edta ? ($(t.edta + '_edta_b' + sfx) || $(t.edta + '_edta_b')) : null;
-    var dflt = pageB && String(pageB.value).trim() ? pageB.value : (t.def !== undefined ? t.def : 1);
     return '<details class="rq-titr" open><summary>Readings from the titration</summary><div class="rq-grid">' +
-      '<label>' + esc(t.label) + '<input type="number" step="any" class="rq-tf" name="' + p + '_tf" value="' + esc(dflt) + '"></label></div>' +
+      '<label>' + esc(t.label) + '<input type="number" step="any" min="0" class="rq-tf" name="' + p + '_tf" placeholder="' + esc(t.eg) + '"></label>' +
+      '<span class="rq-tsrc"></span><input type="hidden" name="' + p + '_tfsrc"></div>' +
       [1, 2, 3].map(function (i) {
         return '<div class="rq-grid"><span class="rq-tl">Reading ' + i + '</span>' +
           '<label>Burette initial (mL)<input type="number" step="any" class="rq-ti" data-i="' + i + '" name="' + p + '_ti' + i + '"></label>' +
@@ -194,17 +203,42 @@
           '<label>Volume of sample (mL)<input type="number" step="any" class="rq-tv" data-i="' + i + '" name="' + p + '_tv' + i + '"></label></div>';
       }).join('') + '<p class="rq-tnote">Formula: ' + esc(t.text(t.k)) + '. The readings below are calculated from these entries.</p></details>';
   }
+  function titrSetup(blk, t, side) {          // fills the factor and keeps it in step with the page until the analyst types one
+    var box = blk.querySelector('.rq-tf'); if (!box) return;
+    var src = blk.querySelector('.rq-tsrc'), srcH = blk.querySelector('[name$="_tfsrc"]');
+    function show(txt) { if (src) src.textContent = txt; if (srcH) srcH.value = txt; }
+    function fill() {
+      if (box.dataset.own) return;
+      var pg = titrPage(t, side), lu = lastUsed(t);
+      if (pg) { box.value = pg.value; show('taken from the ' + t.what + ' section of this RDS'); }
+      else if (lu) { box.value = lu; show('as last used - confirm it'); }
+      else { box.value = ''; show(t.k === 'N' ? 'enter the normality of the acid used' : 'enter factor B of today\'s standardisation'); }
+    }
+    fill();
+    box.addEventListener('input', function () { box.dataset.own = '1'; show('entered for this check'); remember(t, box.value); });
+    (t.page || []).forEach(function (id) {
+      [id, id + '_inlet', id + '_outlet'].forEach(function (x) {
+        var e = $(x); if (!e || e.dataset.rqTitr) return; e.dataset.rqTitr = '1';
+        e.addEventListener('change', function () { Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) { if (b._titrFill) { b._titrFill(); compute(b, false); } }); });
+      });
+    });
+    blk._titrFill = fill;
+  }
   function titrLines(blk) {                   // fills Reading 1-3 from the titration entries; returns the working lines
     var t = titrFor(val(blk, 'param')); if (!t || !blk.querySelector('.rq-titr')) return [];
-    var fct = num(val(blk, 'tf')), lines = [];
+    var fct = num(val(blk, 'tf')), lines = [], any = false;
     [1, 2, 3].forEach(function (i) {
       var a = num(val(blk, 'ti' + i)), b = num(val(blk, 'tz' + i)), v = num(val(blk, 'tv' + i));
       if (a === null && b === null && v === null) return;
+      any = true;
       if (a === null || b === null || !v || fct === null) return;
       var r = (b - a) * fct * t.mult / v;
       setv(blk, 'r' + i, rd(r, 4));
       lines.push('Reading ' + i + ' = (' + rd(b) + ' - ' + rd(a) + ') X ' + rd(fct) + ' X ' + t.mult + ' / ' + rd(v) + ' = ' + rd(r, 4));
     });
+    if (lines.length) { lines.unshift((t.k === 'N' ? 'Normality of the acid N = ' + rd(fct) + ' N' : 'EDTA factor B = ' + rd(fct) + ' mg CaCO3 / mL')); remember(t, fct); }
+    var src = blk.querySelector('.rq-tsrc');
+    if (any && fct === null && src) src.textContent = 'enter the ' + (t.k === 'N' ? 'normality' : 'factor B') + ' - the readings are not calculated without it';
     return lines;
   }
   function addCheck(barEl, type, opts) {
@@ -247,6 +281,7 @@
       }
       blk.remove();
     });
+    if (titrFor(param) && !isPh) titrSetup(blk, titrFor(param), side);
     blk.querySelector('.rq-eq').addEventListener('click', function () { compute(blk, true); });
     blk.addEventListener('input', function () { compute(blk, false); });
     return blk;
@@ -612,7 +647,7 @@
     '.rq-grid label,.rq-res label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px}' +
     '.rq-grid input,.rq-res input{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:150px!important;font-size:13px;min-height:34px}' +
     '.rq-work{margin-top:8px;font-size:13px;color:#1e293b;font-family:ui-monospace,Consolas,monospace;line-height:1.6}' +
-    '.rq-titr{margin:6px 0;border:1px dashed #cbd5e1;border-radius:8px;padding:6px 10px}.rq-titr summary{cursor:pointer;font-weight:700;color:#1e3a8a;font-size:13px}.rq-tl{font-weight:700;font-size:12.5px;align-self:center;min-width:80px}.rq-tnote{font-size:12px;color:#475569;margin:4px 0}' +
+    '.rq-titr{margin:6px 0;border:1px dashed #cbd5e1;border-radius:8px;padding:6px 10px}.rq-titr summary{cursor:pointer;font-weight:700;color:#1e3a8a;font-size:13px}.rq-tl{font-weight:700;font-size:12.5px;align-self:center;min-width:80px}.rq-tnote{font-size:12px;color:#475569;margin:4px 0}.rq-tsrc{font-size:12px;color:#92400e;align-self:end;padding-bottom:6px}' +
     '.rq-res input[readonly]{background:#f1f5f9;font-weight:700}.rq-eq{background:#1e40af;color:#fff;border-radius:7px;padding:6px 16px}' +
     '.rq-ok{background:#f0fdf4!important;border-color:#22c55e!important;color:#166534}.rq-bad{background:#fef2f2!important;border-color:#ef4444!important;color:#991b1b}' +
     '.rq-other{margin:30px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.rq-other h2{font-size:20px;font-weight:700;color:#0f5132}' +

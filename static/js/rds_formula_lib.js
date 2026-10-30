@@ -286,7 +286,7 @@
     },
     obs: {
       title: 'Direct observation / reading', method: '', obs: true,
-      formula: 'Recorded as observed (no calculation)',
+      formula: 'Result = value observed / read on the instrument (no calculation step)',
       inputs: [['val', 'Observed value'], ['inst', 'Instrument / remarks']]
     }
   };
@@ -407,10 +407,13 @@
     var m = String(rep || '').match(/\d(?:\.(\d+))?/); return m ? Math.min(4, (m[1] || '').length + 1) : 4;
   }
   function compute(card, item, side, rep, cf, C, method) {
-    var warn = [], lines = [], result = null, dp = 4;
+    var warn = [], lines = [], ins = [], result = null, dp = 4;   // ins: the labelled readings, printed before the working (owner 30-10-2026)
     if (C.obs) {
       result = card.querySelector('input[data-k=val]').value.trim();
-      lines.push('Observed: ' + result + ' ' + card.querySelector('.rl-unit').value + (card.querySelector('input[data-k=inst]').value ? '  (' + card.querySelector('input[data-k=inst]').value + ')' : ''));
+      var ou = /^\s*[<>]?\s*=?\s*-?\d/.test(result) ? card.querySelector('.rl-unit').value : '';   // a result in words carries no unit (owner 30-10-2026)
+      ins.push('Observed value = ' + result + (ou ? ' ' + ou : ''));
+      if (card.querySelector('input[data-k=inst]').value.trim()) ins.push('Instrument / remarks = ' + card.querySelector('input[data-k=inst]').value.trim());
+      lines.push('Result = ' + result + (ou ? ' ' + ou : ''));
       card.querySelector('.rl-ans').value = result;
     } else if (C.reps) {
       var vals = [];
@@ -421,6 +424,7 @@
         if (!filled) continue;
         var o = C.one(x, cf);
         if (!o) { warn.push('replicate ' + i + ' incomplete'); continue; }
+        ins.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + C.inputs.filter(function (p) { return x[p[0]] !== null; }).map(function (p) { return p[1] + ' = ' + r(x[p[0]], 6); }).join(';  '));
         vals.push(o.v); lines.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + o.line + ' = ' + r(o.v, 4));
         var rr = card.querySelector('.rl-rres[data-rr="' + i + '"]'); if (rr) rr.value = r(o.v, rdp(rep, cf.calc)) + ' ' + (card.querySelector('.rl-unit').value || '');
         if (o.w) warn.push('replicate ' + i + ': ' + o.w);
@@ -438,6 +442,7 @@
     } else {
       var y = {}; C.inputs.forEach(function (p) { var e = card.querySelector('input[data-k=' + p[0] + ']'); y[p[0]] = e ? f(e.value) : null; });
       var o2 = C.run(y);
+      ins = C.inputs.filter(function (p) { return y[p[0]] !== null; }).map(function (p) { return p[1] + ' = ' + r(y[p[0]], 6); });
       if (o2.err) { alert(item.parameter + ': ' + o2.err + '.'); return; }
       lines = lines.concat(o2.lines); warn = warn.concat(o2.warn || []);
       var key = cf.out || 'R';
@@ -475,7 +480,7 @@
     chk.value = warn.length ? warn.join('; ') : 'OK'; chk.classList.toggle('rl-warn', warn.length > 0); chk.classList.toggle('rl-ok', !warn.length);
     if (card.closest('#rdsLib')) { try { toTable(item, side, card.querySelector('.rl-ans').value); } catch (e) { if (window.console) console.error('RDS library row', e); } }   // cards inside a page section leave the row to it
     card.querySelector('.rl-print').value = JSON.stringify({
-      parameter: item.parameter, side: side || '', method: method, calc: C.title, formula: C.formula + (cf.out && OUTLABEL[cf.out] ? '  Result shown: ' + OUTLABEL[cf.out] + '.' : ''), lines: lines,
+      parameter: item.parameter, side: side || '', method: method, calc: C.title, formula: C.formula + (cf.out && OUTLABEL[cf.out] ? '  Result shown: ' + OUTLABEL[cf.out] + '.' : ''), lines: lines, inputs: ins,
       result: card.querySelector('.rl-ans').value, unit: card.querySelector('.rl-unit').value, check: chk.value
     });
   }
@@ -565,7 +570,7 @@
       return res;
     };
   }
-  window.RDSLib = { norm: norm, bare: bare, pageName: pageName, cardFor: cardFor, CALC: CALC, addCard: addCard, build: build };
+  window.RDSLib = { norm: norm, bare: bare, pageName: pageName, cardFor: cardFor, CALC: CALC, addCard: addCard, build: build, SYN: SYN };
 
   var css = document.createElement('style');
   css.textContent =

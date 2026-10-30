@@ -54,12 +54,9 @@ def _rds_note(pdf, note):
     note = method_checks(note)
     if not note:
         return
-    try:
-        pdf.set_font("Calibri", 'I', 8.5)
-    except Exception:
-        pdf.set_font("Calibri", '', 8.5)
+    pdf.set_font("Calibri", '', 10)                       # the size and colour of the working (owner 30-10-2026)
     pdf.set_x(pdf.l_margin)
-    pdf.multi_cell(0, 4, "Check: " + str(note))
+    pdf.multi_cell(0, 6, "Check: " + str(note))
     pdf.set_font("Calibri", '', 10)
 
 
@@ -473,6 +470,7 @@ def generate_ww_qc_pdf_response(report, pk):
     pdf.add_font("Calibri", "B", font_path_bold, uni=True)
 
     data = __import__('QC.rds_pdf_extras', fromlist=['fill_last_weights']).fill_last_weights(report.rds or {})   # QA RDS-05
+    data = __import__('QC.rds_print_filter', fromlist=['prune']).prune(data, 'ww')   # only the results and their own calculations (owner 30-10-2026)
     
 
     # Margins
@@ -1115,10 +1113,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 pdf.set_x(center_divisor_x)
                 pdf.cell(divisor_width, 3, divisor_text, align="C", ln=True)
 
-        # Start calculations section
-        pdf.add_page()
-        pdf.set_y(35)
-        add_calculation_header()
+        # Start calculations section (no page and no heading when nothing is calculated, 30-10-2026)
+        __import__('QC.rds_pdf_extras', fromlist=['calc_open']).calc_open(pdf, add_calculation_header)
 
         # TDS Calculation Section
         # INLET TDS Calculations Block
@@ -5702,10 +5698,8 @@ def generate_ww_qc_pdf_response(report, pk):
                     _rds_note(pdf, data.get('cod_ws_check'))
                     _rds_note(pdf, data.get('cod_check'))
 
-        # Start calculations section
-        pdf.add_page()
-        pdf.set_y(35)
-        add_calculation_header()
+        # Start calculations section (no page and no heading when nothing is calculated, 30-10-2026)
+        __import__('QC.rds_pdf_extras', fromlist=['calc_open']).calc_open(pdf, add_calculation_header)
 
         # TDS Calculation Section
         if data.get('tds_final_ans'):
@@ -8797,6 +8791,9 @@ def generate_ww_qc_pdf_response(report, pk):
         closing(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # analysts, checkers, end line (QA RDS-32)
     except Exception:
         logging.getLogger(__name__).exception('RDS closing block')
+
+    if getattr(pdf, '_etal_calc_empty', False) and not __import__('QC.rds_pdf_extras', fromlist=['SKIP_CALC']).SKIP_CALC.get():
+        return __import__('QC.rds_pdf_extras', fromlist=['without_empty_calc']).without_empty_calc(generate_ww_qc_pdf_response, report, pk)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename={sample_id}.pdf'

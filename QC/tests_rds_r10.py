@@ -52,6 +52,7 @@ class RdsR10(TestCase):
                'check': 'replicate 1: DO depletion below 2.0 mg/L; calculated 18 differs from the reported 32 by 43.8 %'}
         d = {'sample_id': 'WW-R10', 'report_type': 'out', 'date_1': '17-08-2026', 'parameter_1': 'Chromium', 'result_1': '0.1',
              'date_2': '15-08-2026', 'parameter_2': 'Colour', 'result_2': '5', 'date_3': '16-08-2026', 'parameter_3': 'Turbidity', 'result_3': '1',
+             'date_4': '16-08-2026', 'parameter_4': 'Biological Oxygen Demand(BOD)5', 'result_4': '18',   # R11: the card prints with its row
              'lib_print_001': json.dumps(lib)}
         rec = Ww_rds.objects.create(sample_id='WW-R10', rds=d)
         r = c.get('/qc/generate_ww_qc_pdf_response/%d/' % rec.pk); self.assertEqual(r.status_code, 200)
@@ -80,5 +81,9 @@ class RdsR10(TestCase):
         qc = src('static', 'js', 'rds_qc.js')
         for t in ('Readings from the titration', 'function titrLines', 'X 50000 / Volume of sample', 'X 1000 / Volume of sample'):
             self.assertIn(t, qc)
+        # any normality / factor B: taken from the page's own section, else the last used, else entered - never fixed (owner 30-10-2026)
+        for t in ('function titrSetup', 'function titrPage', "'alkalinity_1_3'", 'enter the normality of the acid used', 'Normality of the acid N = '):
+            self.assertIn(t, qc)
+        self.assertNotIn('def: 0.1', qc)
         self.assertIn('For information (not printed)', src('static', 'js', 'rds_ww_calc.js'))
         self.assertNotIn("('RDS saved'", src('QC', 'rds_pdf_extras.py'))

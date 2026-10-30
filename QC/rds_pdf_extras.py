@@ -7,8 +7,11 @@ closing()       analysts, checkers and the end line after the working (RDS-32)
 print_groups()  sections that were calculated and saved but had no printer (RDS-12)
 fmt_date()      one date format on the RDS (dd-mm-yyyy) (RDS-16)
 """
+import contextvars
 import re
 from datetime import datetime
+
+SKIP_CALC = contextvars.ContextVar('rds_skip_calc', default=False)
 
 NONE_RX = re.compile(r'\bNone\b')
 
@@ -131,8 +134,39 @@ def particulars(pdf, kind, sample_id, data, rec=None):
     pdf.set_xy(x0, y + sum(heights) + 4)
 
 
+def calc_open(pdf, header):
+    """The CALCULATION page and heading; on the second drawing of a sheet with no calculation, neither (owner
+    30-10-2026: no blank calculation on the RDS). Marks where the calculations start."""
+    if SKIP_CALC.get():
+        pdf._etal_calc_mark = None
+        return
+    pdf.add_page()
+    pdf.set_y(35)
+    header()
+    pdf._etal_calc_mark = (pdf.page, len(pdf.pages[pdf.page].contents))
+
+
+def calc_empty(pdf):
+    """True when nothing was drawn after the CALCULATION heading (checked before the closing block)."""
+    m = getattr(pdf, '_etal_calc_mark', None)
+    if not m or pdf.page != m[0]:
+        return False
+    drawn = bytes(pdf.pages[pdf.page].contents[m[1]:])            # a font switch or a cursor move draws nothing
+    return not re.search(rb'T[jJ]\b|\bl S\b|\bre\b|\bDo\b|\bS\b|\bf\b', drawn)
+
+
+def without_empty_calc(gen, report, pk):
+    """Draw again without the CALCULATION page when it would stay empty."""
+    tok = SKIP_CALC.set(True)
+    try:
+        return gen(report, pk)
+    finally:
+        SKIP_CALC.reset(tok)
+
+
 def closing(pdf, data, page_break=255, top=35):
     """Analysed by / checked by with their e-signatures, then the end line."""
+    pdf._etal_calc_empty = calc_empty(pdf)
     from EnviTechAlApp.models import Signatures
     def ids(prefix):
         out = []

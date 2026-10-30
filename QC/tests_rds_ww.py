@@ -60,6 +60,7 @@ class RdsWwTests(TestCase):
     def test_list_by_laboratory_and_pdf(self):
         lc = C(self.lhr)
         base = {'sample_id': 'WW-T1-LHR', 'date_1': '25-10-2026', 'parameter_1': 'Biological Oxygen Demand(BOD)5', 'result_1': '40',
+                'date_2': '25-10-2026', 'parameter_2': 'Chemical Oxygen Demand(COD)', 'result_2': '75',   # R11: the COD working prints with its row
                 'bod_head_2': 'BOD5: (APHA 4500 O-C, 5210 B)', 'bod_sv': '30', 'bod_tv': '300', 'bod_1_p': '0.1',
                 'bod_initial': '8.2', 'bod_final': '4.0', 'bod_seed_1': '8.0', 'bod_seed_2': '2.0', 'bod_seed_ctrl': '15', 'bod_seed_vol': '2',
                 'bod_ans': '34', 'bod_param': 'mg/L', 'bod_divi': '0.1', 'bod_check': 'DO depletion 1.80 mg/L is below 2.0 (APHA 5210 B); calculated 34 differs from the reported 40 by 15.0 %',
@@ -78,7 +79,7 @@ class RdsWwTests(TestCase):
             self.assertIn('Check: DO depletion 1.80', t); self.assertNotIn('differs from the reported', t)   # analyst 30-10-2026: no comparison with the report on the RDS
             self.assertIn('recovery 99.5', t)
             self.assertIn('(74 X 1) + (76 X 1)', t)                           # replicates 1 and 2 (was replicate 1 twice)
-        io = {'sample_id': 'WW-T2-LHR', 'report_type': 'in-out', 'date_1': '25-10-2026', 'parameter_1': 'COD', 'for_cod1_outlet': '99', 'for_cod2_outlet': '100', 'cod_divi1_outlet': '2', 'cod_ans_outlet': '99.5',
+        io = {'sample_id': 'WW-T2-LHR', 'report_type': 'in-out', 'date_1': '25-10-2026', 'parameter_1': 'COD', 'outlet_1': '99.5', 'date_2': '25-10-2026', 'parameter_2': 'Biological Oxygen Demand(BOD)5', 'outlet_2': '34', 'for_cod1_outlet': '99', 'for_cod2_outlet': '100', 'cod_divi1_outlet': '2', 'cod_ans_outlet': '99.5',
               'cod_head_outlet': 'WS-COD-100ppm (Outlet):', 'cod_ws_check_outlet': 'recovery 99.5 % of 100 mg/L - acceptable',
               'bod_initial_outlet': '8.2', 'bod_final_outlet': '4.0', 'bod_seed_1_outlet': '8', 'bod_seed_2_outlet': '2', 'bod_seed_ctrl_outlet': '15',
               'bod_seed_vol_outlet': '2', 'bod_ans_outlet': '34', 'bod_param_outlet': 'mg/L', 'bod_divi_outlet': '0.1', 'bod_1_p_outlet': '0.1',

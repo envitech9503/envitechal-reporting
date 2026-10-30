@@ -118,7 +118,8 @@ class RdsR5Pdf(TestCase):
             self.assertIn('(10.2 - 2.2) X 1000', t); self.assertNotIn('Quality control checks', t)
 
     def test_ww_in_out_b(self):
-        d = {'sample_id': 'WW-R5', 'report_type': 'in-out', 'date_1': '20-Oct-2026', 'parameter_1': 'Total Hardness as CaCO3',
+        d = {'sample_id': 'WW-R5', 'report_type': 'in-out', 'date_1': '20-Oct-2026', 'parameter_1': 'Total Hardness as CaCO3', 'inlet_1': '244.8',
+             'date_2': '20-Oct-2026', 'parameter_2': 'pH', 'inlet_2': '7.02',   # R11: rows with a result for the working and the check
              'hardness_head_2_inlet': 'Hardness (Inlet):', 'hardness_reading_1_inlet': 'Reading 01', 'hardness_2_1_inlet': '12.5',
              'hardness_2_2_inlet': '0.5', 'hardness_2_3_inlet': '50', 'hardness_ans2_inlet': '244.8', 'hardness_param2_inlet': 'mg/L',
              'hardness_edta_b_inlet': '1.02',

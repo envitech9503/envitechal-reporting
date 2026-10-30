@@ -71,6 +71,7 @@ class RdsR7Pdf(TestCase):
         d = {'sample_id': 'DW-R7', 'date_1': '20-Oct-2026', 'parameter_1': 'Ammonium', 'result_1': '5.1',
              'for_ammonium1_1': '5.0', 'for_ammonium1_1_df': '1', 'for_ammonium1_2': '5.1', 'for_ammonium1_2_df': '1',
              'for_ammonium1_3': '5.2', 'for_ammonium1_3_df': '1', 'ammonium_ans_1': '5.1', 'ammonium_param_1': 'mg/L', 'ammonium_divi': '3',
+             'date_2': '20-Oct-2026', 'parameter_2': 'Chloride', 'result_2': '40.99',   # R11: a calculation prints with its row
              'chloride_reading_1': 'Reading 01', 'chloride_1_1': '9.9', 'chloride_1_2': '1.2', 'chloride_1_3': '0.6', 'chloride_1_4': '0.1',
              'chloride_1_5': '0.0141', 'chloride_1_6': '100', 'chloride_ans1': '40.99', 'chloride_param1': 'mg/L', 'chloride_head': 'Chloride:'}
         t = self.pdf(Dw_rds, 'dw', d)
