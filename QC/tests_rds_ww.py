@@ -62,7 +62,7 @@ class RdsWwTests(TestCase):
         base = {'sample_id': 'WW-T1-LHR', 'date_1': '25-10-2026', 'parameter_1': 'Biological Oxygen Demand(BOD)5', 'result_1': '40',
                 'bod_head_2': 'BOD5: (APHA 4500 O-C, 5210 B)', 'bod_sv': '30', 'bod_tv': '300', 'bod_1_p': '0.1',
                 'bod_initial': '8.2', 'bod_final': '4.0', 'bod_seed_1': '8.0', 'bod_seed_2': '2.0', 'bod_seed_ctrl': '15', 'bod_seed_vol': '2',
-                'bod_ans': '34', 'bod_param': 'mg/L', 'bod_divi': '0.1', 'bod_check': 'calculated 34 differs from the reported 40 by 15.0 %',
+                'bod_ans': '34', 'bod_param': 'mg/L', 'bod_divi': '0.1', 'bod_check': 'DO depletion 1.80 mg/L is below 2.0 (APHA 5210 B); calculated 34 differs from the reported 40 by 15.0 %',
                 'cod_head': 'WS-COD-100ppm:', 'for_cod1': '98', 'for_cod2': '101', 'cod_divi1': '2', 'cod_ans': '99.5', 'cod_param': 'mg/L',
                 'cod_ws_check': 'recovery 99.5 % of 100 mg/L - acceptable',
                 'cod_head_1': 'Chemical Oxygen Demand (COD):', 'for_cod1_1': '74', 'for_cod1_1_df': '1', 'for_cod1_2': '76', 'for_cod1_2_df': '1',
@@ -75,7 +75,7 @@ class RdsWwTests(TestCase):
         t = pdf_text(p.content)
         if t is not None:
             self.assertIn('/ 15 X 2', t)                                      # seed-control volume in the BOD working
-            self.assertIn('Check: calculated 34 differs', t)
+            self.assertIn('Check: DO depletion 1.80', t); self.assertNotIn('differs from the reported', t)   # analyst 30-10-2026: no comparison with the report on the RDS
             self.assertIn('recovery 99.5', t)
             self.assertIn('(74 X 1) + (76 X 1)', t)                           # replicates 1 and 2 (was replicate 1 twice)
         io = {'sample_id': 'WW-T2-LHR', 'report_type': 'in-out', 'date_1': '25-10-2026', 'parameter_1': 'COD', 'for_cod1_outlet': '99', 'for_cod2_outlet': '100', 'cod_divi1_outlet': '2', 'cod_ans_outlet': '99.5',

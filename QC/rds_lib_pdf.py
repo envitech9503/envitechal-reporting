@@ -1,7 +1,7 @@
 """RDS PDF - the cards of the RDS formula library (static/js/rds_formula_lib.js), owner request 27-10-2026.
 
 Each card saved its working as JSON in the field lib_print_<nnn>; it is printed under the page's own calculations:
-parameter (side), formula, method, the lines of the working, result, reported value and the check note.
+parameter (side), formula, method, the lines of the working, result and the check note (validity of the working).
 """
 import json
 
@@ -43,8 +43,8 @@ def print_lib_cards(pdf, data, page_break=255, top=35):
             pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 4.2, ln)
         font('B', 9.5); pdf.set_x(pdf.l_margin + 4)
         res = 'Result: %s %s' % (c.get('result') or '-', c.get('unit') or '')
-        if str(c.get('reported') or '').strip():
-            res += '     (reported: %s)' % c.get('reported')
-        pdf.multi_cell(0, 4.6, res)
-        if c.get('check'):
-            font('', 8.5); pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 4, 'Check: ' + str(c.get('check')))
+        pdf.multi_cell(0, 4.6, res)                        # the test report's value is not printed on the raw data (analyst 30-10-2026)
+        from QC.rds_pdf_extras import method_checks
+        chk = method_checks(c.get('check'))
+        if chk:
+            font('', 8.5); pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 4, 'Check: ' + chk)

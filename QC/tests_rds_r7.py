@@ -37,7 +37,7 @@ class RdsR7Pages(TestCase):
             self.assertIsNone(re.search(r'<input[^>]*>\s*<p class="px-1">\s*\+\s*</p>\s*<p class="px-1">\s*X\s*</p>', s), page)
             self.assertIsNone(re.search(r'<p class="px-\d">\s*\)\s*</p>\s*<p class="px-\d">\s*\(\s*</p>', s), page)
             self.assertIsNone(re.search(r'id="(ferrous|freechlorine)_param"[^>]*value="TCU"', s), page)
-            self.assertRegex(s, r"rds_qc.js' %}\?v=2026102[89]\w")
+            self.assertRegex(s, r"rds_qc.js' %}\?v=20261(02[89]|03[01])\w")
         m = src('templates', 'rds_ww_manual.html')
         self.assertIn('<option value="">Performed By</option>${sigOpts}', m)
 
@@ -48,7 +48,7 @@ class RdsR7Pages(TestCase):
         for t in ('function legacyMicro()', 'function dfDefault()', 'negative result', 'is incomplete'):
             self.assertIn(t, qc)
         lib = src('static', 'js', 'rds_formula_lib.js')
-        self.assertIn('cardFor(item.parameter, item.method, item.unit)', lib); self.assertIn('is not above the reported', lib)
+        self.assertIn('cardFor(item.parameter, item.method, item.unit)', lib); self.assertIn('is not above the test report value', lib)   # wording 30-10-2026 (on screen only)
 
 
 class RdsR7Pdf(TestCase):

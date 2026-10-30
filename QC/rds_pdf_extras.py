@@ -50,6 +50,32 @@ def row_order(row_key):
     return tuple(int(x) for x in re.findall(r'\d+', str(row_key))) or (10 ** 6,)
 
 
+def method_checks(note):
+    """A saved check note without its comparison with the test report's value ("differs from the reported ...",
+    "... below the reported ..."): the RDS is the raw record the report is made from, so only the checks of the working
+    itself are printed (analyst feedback 30-10-2026). '' when nothing is left."""
+    parts = [p.strip() for p in str(note or '').split(';')]
+    kept = [p for p in parts if p and not re.search(r'\breported\b', p, re.I)]
+    return '; '.join(kept)
+
+
+def _day(v):
+    s = fmt_date(v)
+    try:
+        return datetime.strptime(s, '%d-%m-%Y').toordinal()
+    except (TypeError, ValueError):
+        return 10 ** 7                                   # no readable date: after the dated rows, in table order
+
+
+def chrono_key(data):
+    """Order of the RDS table on the PDF: by the date of analysis (oldest first), then the order on the page; a row's
+    own sub-rows (WS / RM / CRM checks, N.k) stay right after it (analyst feedback 30-10-2026)."""
+    def key(row_key):
+        main = str(row_key).split('_')[0]
+        return (_day(data.get('date_' + main) or data.get('date_' + str(row_key))), row_order(main), row_order(row_key))
+    return key
+
+
 def _report(kind, sample_id):
     from EnviTechAlApp.models import DrinkingWaterForm, WasteWaterForm2
     model = WasteWaterForm2 if kind == 'ww' else DrinkingWaterForm
@@ -68,8 +94,9 @@ def particulars(pdf, kind, sample_id, data, rec=None):
     rows = [('Sample ID', sample_id), ('Laboratory', g('city_location')),
             ('Client', g('report_to')), ('Lab report no.', g('lab_report_no')),
             ('Matrix', matrix), ('Sampling date', fmt_date(g('sample_Col_date', 'sample_collection_date'))),
-            ('Analysis', (a_from + (' to ' + a_to if a_to and a_to != a_from else '')) if a_from else ''),
-            ('RDS saved', rec.created_at.strftime('%d-%m-%Y %H:%M') if rec is not None and getattr(rec, 'created_at', None) else '')]
+            ('Analysis', (a_from + (' to ' + a_to if a_to and a_to != a_from else '')) if a_from else '')]
+    # "RDS saved" (the date the record was stored in the software) is not printed: it is not a date of the analysis and
+    # could be read by an assessor as one (analyst feedback 30-10-2026)
     x0, w = 12, 186
     vw = w / 2 - 30                                             # width of a value
     y = pdf.get_y()

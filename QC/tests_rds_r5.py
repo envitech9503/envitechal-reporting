@@ -64,7 +64,7 @@ class RdsR5Pages(TestCase):
     def test_templates(self):
         for page in ('rds_dw', 'rds_dw_manual', 'rds_ww', 'rds_ww_manual'):
             s = src('templates', page + '.html')
-            self.assertRegex(s, r"rds_qc.js' %}\?v=2026102\d\w")
+            self.assertRegex(s, r"rds_qc.js' %}\?v=20261(02\d|03[01])\w")
             self.assertNotIn('const calc = (sFinal - sInitial) * 1000 / volume;', s)
             self.assertIsNone(re.search(r'\(\((\w+)_final - \1_initial\) \* \1_multiply\)', s))     # every EDTA reading takes B
             self.assertGreaterEqual(s.count("rdsEdtaB('"), 12)

@@ -151,7 +151,7 @@ def generate_dw_qc_pdf_response(report, pk):
     # Sort rows by date
     sorted_rows = sorted(
         rows.keys(),
-        key=__import__("QC.rds_pdf_extras", fromlist=["row_order"]).row_order   # QA RDS-16
+        key=__import__("QC.rds_pdf_extras", fromlist=["chrono_key"]).chrono_key(data)   # by date of analysis (analyst 30-10-2026)
     )
 
     if not sorted_rows:

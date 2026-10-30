@@ -367,7 +367,7 @@
     var head = item.parameter + (side ? ' (' + side + ')' : '');
     var rep = reported === null || reported === undefined ? '' : String(reported);
     var html = '<div class="rl-title"><b>' + esc(head) + '</b><span class="rl-meth">' + esc(C.title + (method ? ' - ' + method : '')) + '</span>' +
-      (rep ? '<span class="rl-rep">reported: ' + esc(rep) + '</span>' : '') + '</div>' +
+      (rep ? '<span class="rl-rep" title="for information on screen only - not printed on the RDS">test report: ' + esc(rep) + '</span>' : '') + '</div>' +
       '<div class="rl-formula">' + esc(cf.note ? cf.note + '.  ' : '') + esc(C.formula) + (cf.out && OUTLABEL[cf.out] ? '<br><b>Result shown: ' + esc(OUTLABEL[cf.out]) + '</b>' : '') + (phosphateNote(item.parameter) ? '<br><i>' + esc(phosphateNote(item.parameter)) + '</i>' : '') + '</div>';
     if (C.obs) {
       html += '<div class="rl-grid">' + C.inputs.map(function (p) { return '<label>' + esc(p[1]) + '<input type="text" data-k="' + p[0] + '" name="' + id + '_' + p[0] + '"></label>'; }).join('') + '</div>';
@@ -375,13 +375,16 @@
       for (var rI = 1; rI <= reps; rI++) {
         html += '<div class="rl-grid">' + (reps > 1 ? '<span class="rl-repl">Replicate ' + rI + '</span>' : '') + C.inputs.map(function (p) {
           return '<label>' + esc(p[1]) + '<input type="number" step="any" data-k="' + p[0] + '" data-r="' + rI + '" name="' + id + '_' + p[0] + (reps > 1 ? '_' + rI : '') + '"' + ((cf.defaults && cf.defaults[p[0]] !== undefined) ? ' value="' + cf.defaults[p[0]] + '"' : (p[2] !== undefined ? ' value="' + p[2] + '"' : '')) + '></label>';
-        }).join('') + '</div>';
+        }).join('') +
+        // analyst feedback 30-10-2026: each replicate shows its own result (BOD and every replicate card), then the average
+        (reps > 1 ? '<label class="rl-rres-l">Result, replicate ' + rI + '<input type="text" readonly class="rl-rres" data-rr="' + rI + '" name="' + id + '_res_' + rI + '"></label>' : '') + '</div>';
       }
       if (C.std) html += '<div class="rl-grid"><span class="rl-repl">Check standard (optional)</span><label>True value<input type="number" step="any" data-std="t" name="' + id + '_std_true"></label><label>Measured<input type="number" step="any" data-std="m" name="' + id + '_std_meas"></label></div>';
     }
     html += '<div class="rl-res"><button type="button" class="rl-eq">=</button><input type="text" readonly class="rl-ans" name="' + id + '_ans" placeholder="result"><input type="text" class="rl-unit" name="' + id + '_unit" value="' + esc(item.unit || defaultUnit(cf.calc, item.parameter)) + '"></div>' +
       '<div class="rl-work"></div>' +
       '<div class="rl-check"><label>Check</label><input type="text" readonly class="rl-chk" name="' + id + '_check"></div>' +
+      '<div class="rl-info"></div>' +
       '<input type="hidden" class="rl-print" name="lib_print_' + String(n).padStart(3, '0') + '">' +
       '<button type="button" class="rl-del" title="Remove this card">Remove</button>';
     card.innerHTML = html;
@@ -411,6 +414,7 @@
       card.querySelector('.rl-ans').value = result;
     } else if (C.reps) {
       var vals = [];
+      Array.prototype.forEach.call(card.querySelectorAll('.rl-rres'), function (e) { e.value = ''; });
       for (var i = 1; i <= (C.nrep || 3); i++) {
         var x = {}; C.inputs.forEach(function (p) { var e = card.querySelector('input[data-k=' + p[0] + '][data-r="' + i + '"]'); x[p[0]] = e ? f(e.value) : null; });
         var filled = C.inputs.some(function (p) { return p[2] === undefined && x[p[0]] !== null; });
@@ -418,13 +422,14 @@
         var o = C.one(x, cf);
         if (!o) { warn.push('replicate ' + i + ' incomplete'); continue; }
         vals.push(o.v); lines.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + o.line + ' = ' + r(o.v, 4));
+        var rr = card.querySelector('.rl-rres[data-rr="' + i + '"]'); if (rr) rr.value = r(o.v, rdp(rep, cf.calc)) + ' ' + (card.querySelector('.rl-unit').value || '');
         if (o.w) warn.push('replicate ' + i + ': ' + o.w);
         if (o.v < 0) warn.push('replicate ' + i + ' negative - check the weights/readings');
         if (o.zero !== null && o.zero !== undefined) warn.push('replicate ' + i + ': no colonies - report as < ' + r(o.zero, 2));
       }
       if (!vals.length) { alert('Enter at least one complete replicate.'); return; }
       result = avg(vals);
-      if (vals.length > 1) { lines.push('Average of ' + vals.length + ' = ' + r(result, 4)); var sp = spread(vals); if (sp !== null && sp > TOL_REP) warn.push('replicate spread ' + r(sp, 1) + ' % above ' + TOL_REP + ' %'); }
+      if (vals.length > 1) { lines.push('Average = (' + vals.map(function (v) { return r(v, 4); }).join(' + ') + ') / ' + vals.length + ' = ' + r(result, 4)); var sp = spread(vals); if (sp !== null && sp > TOL_REP) warn.push('replicate spread ' + r(sp, 1) + ' % above ' + TOL_REP + ' %'); }
       if (C.std) {
         var t = f(card.querySelector('[data-std=t]').value), m = f(card.querySelector('[data-std=m]').value);
         if (t && m !== null) { var rc = 100 * m / t; lines.push('Check standard: ' + r(m) + ' / ' + r(t) + ' = ' + r(rc, 1) + ' % recovery'); if (rc < REC_LO || rc > REC_HI) warn.push('check standard recovery ' + r(rc, 1) + ' % outside ' + REC_LO + '-' + REC_HI + ' %'); }
@@ -440,6 +445,10 @@
       if (result === undefined) result = o2.out[Object.keys(o2.out)[0]];
       card.querySelector('.rl-ans').value = r(result, rdp(rep, cf.calc));
     }
+    // analyst feedback 30-10-2026: the RDS is the raw record the report is made from. A difference from the value
+    // currently on the test report is shown on screen for information only; it is not a check of the working and is
+    // neither saved in the Check nor printed.
+    var methodWarn = warn; warn = [];
     var rn = reportedNum(rep), num = typeof result === 'number' ? result : null;
     if (rn !== null && num !== null) {
       var d = Math.abs(num - rn), base = Math.max(Math.abs(rn), 1e-9);
@@ -447,16 +456,19 @@
       if (d / base > TOL_REPORT && d > floor) {
         var alt = /phosph/.test(bare(item.parameter)) ? [num * 3.066, num / 3.066] : [];
         var altOk = alt.some(function (a) { return Math.abs(a - rn) / base <= TOL_REPORT; });
-        warn.push('calculated ' + r(num, 3) + ' differs from the reported ' + rep + ' by ' + r(100 * d / base, 1) + ' %' + (altOk ? ' (matches after the P/PO4 conversion)' : ''));
+        warn.push('calculated ' + r(num, 3) + ' differs from the test report (' + rep + ') by ' + r(100 * d / base, 1) + ' %' + (altOk ? ' (matches after the P/PO4 conversion)' : ''));
       }
     }
     var sRep = String(rep || '').trim(), bm = sRep.match(/^([<>])\s*=?\s*(-?\d+(?:\.\d+)?)/);   // R7: "<" / ">" / N.D. are checked too
     if (num !== null && bm) {
       var bnd = parseFloat(bm[2]);
-      if (bm[1] === '>' && num <= bnd) warn.push('calculated ' + r(num, 3) + ' is not above the reported ' + sRep);
-      if (bm[1] === '<' && num >= bnd) warn.push('calculated ' + r(num, 3) + ' is not below the reported ' + sRep);
+      if (bm[1] === '>' && num <= bnd) warn.push('calculated ' + r(num, 3) + ' is not above the test report value ' + sRep);
+      if (bm[1] === '<' && num >= bnd) warn.push('calculated ' + r(num, 3) + ' is not below the test report value ' + sRep);
     }
-    if (num !== null && num > 0 && (cf.calc === 'mf' || cf.calc === 'plate') && /^(n\.?\s*d\.?|nil|absent|not detected)/i.test(sRep)) warn.push('calculated ' + r(num, 3) + ' but reported ' + sRep);
+    if (num !== null && num > 0 && (cf.calc === 'mf' || cf.calc === 'plate') && /^(n\.?\s*d\.?|nil|absent|not detected)/i.test(sRep)) warn.push('calculated ' + r(num, 3) + ' but the test report reads ' + sRep);
+    var info = card.querySelector('.rl-info');
+    if (info) { info.textContent = warn.length ? 'For information (not printed): ' + warn.join('; ') + '. The calculated result is written to the results table.' : ''; info.style.display = warn.length ? '' : 'none'; }
+    warn = methodWarn;
     var wk = card.querySelector('.rl-work');                // R8 (chemist feedback, points 2 and 7): each replicate's working shown
     if (wk) wk.innerHTML = lines.map(esc).join('<br>');
     var chk = card.querySelector('.rl-chk');
@@ -464,7 +476,7 @@
     if (card.closest('#rdsLib')) { try { toTable(item, side, card.querySelector('.rl-ans').value); } catch (e) { if (window.console) console.error('RDS library row', e); } }   // cards inside a page section leave the row to it
     card.querySelector('.rl-print').value = JSON.stringify({
       parameter: item.parameter, side: side || '', method: method, calc: C.title, formula: C.formula + (cf.out && OUTLABEL[cf.out] ? '  Result shown: ' + OUTLABEL[cf.out] + '.' : ''), lines: lines,
-      result: card.querySelector('.rl-ans').value, unit: card.querySelector('.rl-unit').value, reported: rep, check: chk.value
+      result: card.querySelector('.rl-ans').value, unit: card.querySelector('.rl-unit').value, check: chk.value
     });
   }
 
@@ -567,6 +579,7 @@
     '.rl-work{margin-top:8px;font-size:13px;color:#1e293b;font-family:ui-monospace,Consolas,monospace;line-height:1.6}' +
     '.rl-res{display:flex;gap:8px;align-items:center;margin-top:8px}.rl-eq{background:#2563eb;color:#fff;border-radius:7px;padding:6px 16px}' +
     '.rl-ans{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:170px;background:#f1f5f9;font-weight:700}.rl-unit{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:110px}' +
+    '.rl-info{margin-top:4px;font-size:12px;color:#92400e;display:none}.rl-rres{background:#ecfdf5!important;font-weight:700}' +
     '.rl-check{display:flex;gap:8px;align-items:center;margin-top:8px}.rl-check label{font-weight:700;font-size:13px}.rl-chk{flex:1;border:1px solid #cbd5e1;border-radius:6px;padding:6px 9px;font-size:13px;background:#f8fafc}' +
     '.rl-chk.rl-warn{background:#fff7ed;border-color:#f59e0b;color:#92400e}.rl-chk.rl-ok{background:#f0fdf4;border-color:#22c55e;color:#166534}' +
     '.rl-del{position:absolute;top:8px;right:10px;font-size:12px;color:#b91c1c;background:none;border:none;cursor:pointer}' +

@@ -170,6 +170,43 @@
     Array.prototype.forEach.call(d.querySelectorAll('.rq-add'), function (b) { b.addEventListener('click', function () { var c = addCheck(d, b.dataset.t); try { linkRow(c); } catch (e) { if (window.console) console.error('RDS QC row', e); } }); });
     return d;
   }
+  /* analyst feedback 30-10-2026 (Formulas.docx): a titrimetric check (total / calcium hardness, calcium, alkalinity)
+     is calculated from its titration, as the chloride working standard is: each reading = (final - initial burette)
+     x factor / sample volume; the readings, their working and the average are saved and printed. */
+  var TITR = [
+    { re: /hardness/i, label: 'EDTA factor B (mg CaCO3 per mL EDTA)', k: 'B', mult: 1000, edta: 'hardness',
+      text: function (f) { return '(Final - Initial) X ' + f + ' X 1000 / Volume of sample'; } },
+    { re: /^calcium\b/i, label: 'EDTA factor B (mg CaCO3 per mL EDTA)', k: 'B', mult: 400.8, edta: 'calcium',
+      text: function (f) { return '(Final - Initial) X ' + f + ' X 400.8 / Volume of sample'; } },
+    { re: /alkalinity/i, label: 'Normality of the acid (N)', k: 'N', mult: 50000, def: 0.1,
+      text: function (f) { return '(Final - Initial) X ' + f + ' X 50000 / Volume of sample'; } }
+  ];
+  function titrFor(param) { return TITR.filter(function (t) { return t.re.test(String(param || '').replace(/\*+/g, '').trim()); })[0] || null; }
+  function titrHtml(p, t, side) {
+    var sfx = side === 'Inlet' ? '_inlet' : (side === 'Outlet' ? '_outlet' : ''), pageB = t.edta ? ($(t.edta + '_edta_b' + sfx) || $(t.edta + '_edta_b')) : null;
+    var dflt = pageB && String(pageB.value).trim() ? pageB.value : (t.def !== undefined ? t.def : 1);
+    return '<details class="rq-titr" open><summary>Readings from the titration</summary><div class="rq-grid">' +
+      '<label>' + esc(t.label) + '<input type="number" step="any" class="rq-tf" name="' + p + '_tf" value="' + esc(dflt) + '"></label></div>' +
+      [1, 2, 3].map(function (i) {
+        return '<div class="rq-grid"><span class="rq-tl">Reading ' + i + '</span>' +
+          '<label>Burette initial (mL)<input type="number" step="any" class="rq-ti" data-i="' + i + '" name="' + p + '_ti' + i + '"></label>' +
+          '<label>Burette final (mL)<input type="number" step="any" class="rq-tz" data-i="' + i + '" name="' + p + '_tz' + i + '"></label>' +
+          '<label>Volume of sample (mL)<input type="number" step="any" class="rq-tv" data-i="' + i + '" name="' + p + '_tv' + i + '"></label></div>';
+      }).join('') + '<p class="rq-tnote">Formula: ' + esc(t.text(t.k)) + '. The readings below are calculated from these entries.</p></details>';
+  }
+  function titrLines(blk) {                   // fills Reading 1-3 from the titration entries; returns the working lines
+    var t = titrFor(val(blk, 'param')); if (!t || !blk.querySelector('.rq-titr')) return [];
+    var fct = num(val(blk, 'tf')), lines = [];
+    [1, 2, 3].forEach(function (i) {
+      var a = num(val(blk, 'ti' + i)), b = num(val(blk, 'tz' + i)), v = num(val(blk, 'tv' + i));
+      if (a === null && b === null && v === null) return;
+      if (a === null || b === null || !v || fct === null) return;
+      var r = (b - a) * fct * t.mult / v;
+      setv(blk, 'r' + i, rd(r, 4));
+      lines.push('Reading ' + i + ' = (' + rd(b) + ' - ' + rd(a) + ') X ' + rd(fct) + ' X ' + t.mult + ' / ' + rd(v) + ' = ' + rd(r, 4));
+    });
+    return lines;
+  }
   function addCheck(barEl, type, opts) {
     opts = opts || {};
     var n = ++nQc, p = 'qc_' + n, param = barEl.dataset.param, side = barEl.dataset.side;
@@ -185,7 +222,7 @@
       '<label>' + (type === 'CRM' ? 'Certified value' : 'True value') + '<input type="number" step="any" name="' + p + '_true"></label>' +
       (type !== 'WS' ? '<label>Uncertainty ± (optional)<input type="number" step="any" name="' + p + '_u"></label>' : '') +
       '<label>Unit<input type="text" name="' + p + '_unit" value="' + esc(isPh ? 'pH units' : (opts.unit || 'mg/L')) + '"></label>' +
-      '</div><div class="rq-grid">' +
+      '</div>' + (titrFor(param) && !isPh ? titrHtml(p, titrFor(param), side) : '') + '<div class="rq-grid">' +
       [1, 2, 3].map(function (i) { return '<label>Reading ' + i + '<input type="number" step="any" class="rq-r" name="' + p + '_r' + i + '"></label>'; }).join('') +
       (isPh
         ? '<label>Acceptance ± (pH units)<input type="number" step="any" name="' + p + '_abs" value="0.05"></label>'
@@ -217,12 +254,14 @@
   function val(blk, f) { var e = blk.querySelector('[name$="_' + f + '"]'); return e ? e.value : ''; }
   function setv(blk, f, v) { var e = blk.querySelector('[name$="_' + f + '"]'); if (e) e.value = v; }
   function compute(blk, loud) {
+    var tlines = titrLines(blk);
     var type = blk.dataset.type, tv = num(val(blk, 'true')), reads = [1, 2, 3].map(function (i) { return num(val(blk, 'r' + i)); }).filter(function (x) { return x !== null; });
     var out = { mean: '', rec: '', verdict: '' }, abs = blk.querySelector('[name$="_abs"]'), work = [];
     if (reads.length) {
       var m = reads.reduce(function (a, b) { return a + b; }, 0) / reads.length;
       out.mean = rd(m, 4) + ' (n = ' + reads.length + ')';
       // R8 (chemist feedback, point 10): the working is shown and printed, not only the outcome
+      work = work.concat(tlines);
       work.push('Mean = ' + (reads.length > 1 ? '(' + reads.map(function (x) { return rd(x); }).join(' + ') + ') / ' + reads.length : rd(reads[0])) + ' = ' + rd(m, 4) + (val(blk, 'unit') ? ' ' + val(blk, 'unit') : ''));
       if (tv !== null && tv !== 0) {
         if (abs) {
@@ -573,6 +612,7 @@
     '.rq-grid label,.rq-res label{display:flex;flex-direction:column;font-size:12px;color:#475569;gap:3px}' +
     '.rq-grid input,.rq-res input{border:1px solid #cbd5e1;border-radius:6px;padding:6px 8px;width:150px!important;font-size:13px;min-height:34px}' +
     '.rq-work{margin-top:8px;font-size:13px;color:#1e293b;font-family:ui-monospace,Consolas,monospace;line-height:1.6}' +
+    '.rq-titr{margin:6px 0;border:1px dashed #cbd5e1;border-radius:8px;padding:6px 10px}.rq-titr summary{cursor:pointer;font-weight:700;color:#1e3a8a;font-size:13px}.rq-tl{font-weight:700;font-size:12.5px;align-self:center;min-width:80px}.rq-tnote{font-size:12px;color:#475569;margin:4px 0}' +
     '.rq-res input[readonly]{background:#f1f5f9;font-weight:700}.rq-eq{background:#1e40af;color:#fff;border-radius:7px;padding:6px 16px}' +
     '.rq-ok{background:#f0fdf4!important;border-color:#22c55e!important;color:#166534}.rq-bad{background:#fef2f2!important;border-color:#ef4444!important;color:#991b1b}' +
     '.rq-other{margin:30px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.rq-other h2{font-size:20px;font-weight:700;color:#0f5132}' +

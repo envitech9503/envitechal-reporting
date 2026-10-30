@@ -48,7 +48,10 @@ def _bod_seed_term(data, sfx):
 
 
 def _rds_note(pdf, note):
-    """A check note of the calculation (validity / difference from the reported result), printed under its formula."""
+    """A check note of the calculation (validity of the working), printed under its formula; a comparison with the test
+    report's value is not printed (analyst feedback 30-10-2026)."""
+    from QC.rds_pdf_extras import method_checks
+    note = method_checks(note)
     if not note:
         return
     try:
@@ -176,6 +179,14 @@ def create_ww_qc(request):
 
 
 @csrf_exempt
+def _ww_reported(v):
+    """A result the report gives: not blank, "N/A" or "-" (a parameter not tested). A parameter not reported gets no
+    row and no calculation section on the RDS (analyst feedback 30-10-2026: Oil & Grease shown on in-out reports
+    202608088 / 202608086, where it is not a reporting parameter)."""
+    t = str(v if v is not None else '').strip().lower()
+    return bool(t) and t not in ('n/a', 'na', '-', '--', 'none', 'null')
+
+
 def get_ww(request):
     if request.method == 'POST':
         try:
@@ -219,13 +230,13 @@ def get_ww(request):
                     
                     if report_type == 'in':
                         result = param.get('inlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             qc_data.append(data_obj)
                     
                     elif report_type == 'out':
                         result = param.get('outlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             qc_data.append(data_obj)
                     
@@ -234,18 +245,19 @@ def get_ww(request):
                         outlet_val = param.get('outlet_result', 'N/A')
                         data_obj['inlet_result'] = str(inlet_val)
                         data_obj['outlet_result'] = str(outlet_val)
-                        qc_data.append(data_obj)
+                        if _ww_reported(inlet_val) or _ww_reported(outlet_val):   # not reported on either side: no row, no section (analyst 30-10-2026)
+                            qc_data.append(data_obj)
                     
                     elif report_type == 'inlet_customlimits':
                         result = param.get('inlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             data_obj['custom_limit'] = str(param.get('custom_limit', 'N/A'))
                             qc_data.append(data_obj)
                     
                     elif report_type == 'outlet_customLimits':
                         result = param.get('outlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             data_obj['custom_limit'] = str(param.get('custom_limit', 'N/A'))
                             qc_data.append(data_obj)
@@ -266,13 +278,13 @@ def get_ww(request):
                     
                     if report_type == 'in':
                         result = extra_param.get('inlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             qc_data.append(data_obj)
                     
                     elif report_type == 'out':
                         result = extra_param.get('outlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             qc_data.append(data_obj)
                     
@@ -281,18 +293,19 @@ def get_ww(request):
                         outlet_val = extra_param.get('outlet_result', 'N/A')
                         data_obj['inlet_result'] = str(inlet_val)
                         data_obj['outlet_result'] = str(outlet_val)
-                        qc_data.append(data_obj)
+                        if _ww_reported(inlet_val) or _ww_reported(outlet_val):
+                            qc_data.append(data_obj)
                     
                     elif report_type == 'inlet_customlimits':
                         result = extra_param.get('inlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             data_obj['custom_limit'] = str(extra_param.get('custom_limit', 'N/A'))
                             qc_data.append(data_obj)
                     
                     elif report_type == 'outlet_customLimits':
                         result = extra_param.get('outlet_result')
-                        if result and str(result).strip() and str(result).lower() != 'n/a':
+                        if _ww_reported(result):
                             data_obj['test_result'] = str(result)
                             data_obj['custom_limit'] = str(extra_param.get('custom_limit', 'N/A'))
                             qc_data.append(data_obj)
@@ -336,18 +349,19 @@ def get_ww(request):
                             'date': ww_report.reporting_date or '',  # Add this for consistency
                         }
                         
-                        if report_type == 'in' and inlet_val and str(inlet_val).strip() and str(inlet_val).lower() != 'n/a':
+                        if report_type == 'in' and _ww_reported(inlet_val):
                             data_obj['test_result'] = str(inlet_val)
                             qc_data.append(data_obj)
                         
-                        elif report_type == 'out' and outlet_val and str(outlet_val).strip() and str(outlet_val).lower() != 'n/a':
+                        elif report_type == 'out' and _ww_reported(outlet_val):
                             data_obj['test_result'] = str(outlet_val)
                             qc_data.append(data_obj)
                         
                         elif report_type == 'in-out':
                             data_obj['inlet_result'] = str(inlet_val) if inlet_val and str(inlet_val).strip() else 'N/A'
                             data_obj['outlet_result'] = str(outlet_val) if outlet_val and str(outlet_val).strip() else 'N/A'
-                            qc_data.append(data_obj)
+                            if _ww_reported(inlet_val) or _ww_reported(outlet_val):   # analyst 30-10-2026
+                                qc_data.append(data_obj)
                     
                     # Then, process extra parameters from extra_field
                     sr_counter = 33
@@ -366,14 +380,14 @@ def get_ww(request):
                             
                             if report_type == 'in':
                                 result = item.get('result')
-                                if result and str(result).strip() and str(result).lower() != 'n/a':
+                                if _ww_reported(result):
                                     data_obj['test_result'] = str(result)
                                     qc_data.append(data_obj)
                                     sr_counter += 1
                             
                             elif report_type == 'out':
                                 result = item.get('outlet')
-                                if result and str(result).strip() and str(result).lower() != 'n/a':
+                                if _ww_reported(result):
                                     data_obj['test_result'] = str(result)
                                     qc_data.append(data_obj)
                                     sr_counter += 1
@@ -381,8 +395,9 @@ def get_ww(request):
                             elif report_type == 'in-out':
                                 data_obj['inlet_result'] = str(item.get('result', 'N/A'))
                                 data_obj['outlet_result'] = str(item.get('outlet', 'N/A'))
-                                qc_data.append(data_obj)
-                                sr_counter += 1
+                                if _ww_reported(item.get('result')) or _ww_reported(item.get('outlet')):
+                                    qc_data.append(data_obj)
+                                    sr_counter += 1
             
             # Sort by sr_no
             qc_data.sort(key=lambda x: x['sr_no'])
@@ -510,7 +525,7 @@ def generate_ww_qc_pdf_response(report, pk):
         # Sort rows by date
         sorted_rows = sorted(
             rows.keys(),
-            key=__import__("QC.rds_pdf_extras", fromlist=["row_order"]).row_order   # QA RDS-16
+            key=__import__("QC.rds_pdf_extras", fromlist=["chrono_key"]).chrono_key(data)   # by date of analysis (analyst 30-10-2026)
         )
 
         if not sorted_rows:
@@ -5283,7 +5298,7 @@ def generate_ww_qc_pdf_response(report, pk):
         # Sort rows by date
         sorted_rows = sorted(
             rows.keys(),
-            key=__import__("QC.rds_pdf_extras", fromlist=["row_order"]).row_order   # QA RDS-16
+            key=__import__("QC.rds_pdf_extras", fromlist=["chrono_key"]).chrono_key(data)   # by date of analysis (analyst 30-10-2026)
         )
 
         if not sorted_rows:

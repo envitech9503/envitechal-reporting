@@ -9,7 +9,7 @@
  *   COD: blank D.F counts as 1 (it counted as 0); the average is over the replicates entered (the divisor was fixed at
  *       3); the working standard WS-COD-100 ppm shows its recovery (acceptance 90-110 %); an outlet working-standard
  *       block is added for inlet/outlet reports.
- *   Both: the calculated value is compared with the result on the test report (difference > 5 % is flagged).
+ *   Both: a difference from the value on the test report is shown on screen for information only (not saved, not printed).
  * The checks are written to read-only "Check" fields (bod_check*, cod_check*, cod_ws_check*) that are saved with the
  * RDS and printed on its PDF under the formula. Nothing is blocked: the analyst decides, the check is on record.
  */
@@ -52,10 +52,16 @@
     var m = String(h.textContent || '').match(/(-?\d+(?:\.\d+)?)\s*$/);
     return m ? parseFloat(m[1]) : null;
   }
-  function vsReported(calc, rep, msgs) {
+  /* analyst feedback 30-10-2026: a difference from the value on the test report is shown next to the Check for
+     information only - it is not saved in the Check and not printed (the RDS is the raw record the report follows) */
+  function vsReported(calc, rep, msgs, box) {
+    var note = box ? box.parentNode.querySelector('.rdsw-info') : null;
+    if (box && !note) { note = document.createElement('span'); note.className = 'rdsw-info'; note.style.cssText = 'margin-left:8px;font-size:12px;color:#92400e'; box.parentNode.appendChild(note); }
+    if (!note) return;
+    note.textContent = '';
     if (rep === null || calc === null) return;
     var d = Math.abs(calc - rep), base = Math.max(Math.abs(rep), 1e-9);
-    if (d / base > REPORT_TOL && d > 0.5) msgs.push('calculated ' + fmt(calc, 2) + ' differs from the reported ' + rep + ' by ' + fmt(100 * d / base, 1) + ' %');
+    if (d / base > REPORT_TOL && d > 0.5) note.textContent = 'For information (not printed): calculated ' + fmt(calc, 2) + ' differs from the test report (' + rep + ') by ' + fmt(100 * d / base, 1) + ' %';
   }
 
   /* ---------------- BOD ---------------- */
@@ -100,7 +106,7 @@
     if (bod < 0) msgs.push('negative result - check the entries');
     put('bod_ans' + s, bod, 3);
     put('bod_divi' + s, P, 5); put('bod_1_p' + s, P, 5);
-    vsReported(bod, reported('bod_cal_head' + s), msgs);
+    vsReported(bod, reported('bod_cal_head' + s), msgs, box);
     report(box, msgs);
   }
 
@@ -132,7 +138,7 @@
     var avg = sum / n;
     put('cod_divi' + s, n, 0); put('cod_ans_1' + s, avg, 4);
     var msgs = [];
-    vsReported(avg, reported('COD_cal_head' + s), msgs);
+    vsReported(avg, reported('COD_cal_head' + s), msgs, box);
     report(box, msgs);
   }
 
