@@ -134,6 +134,22 @@ def particulars(pdf, kind, sample_id, data, rec=None):
     pdf.set_xy(x0, y + sum(heights) + 4)
 
 
+def micro_steps(pdf, ans, unit):
+    """A microbiology section of the page that records the count only (E. coli, faecal coliform, coliform, total /
+    heterotrophic bacteria): the rule, the count read and the result (owner 30-10-2026: every calculation with its
+    steps), Calibri 10 like the working."""
+    ans, unit = str(ans or '').strip(), str(unit or '').strip()
+    per = '100 mL' if '100' in unit else ('mL' if re.search(r'/\s*m[lL]', unit) else '')
+    pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, 'Formula:', ln=True)
+    pdf.set_font('Calibri', '', 10)
+    pdf.set_x(pdf.l_margin + 4)
+    pdf.multi_cell(0, 6, 'Result = colonies counted on the membrane / plate%s (direct count; no calculation step)' % ((' per ' + per) if per else ''))
+    pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, 'Colonies counted = %s' % (ans or '-'))
+    pdf.set_font('Calibri', 'B', 10); pdf.set_x(pdf.l_margin)
+    pdf.cell(0, 6, ('Result: %s %s' % (ans, unit)).strip(), ln=True)
+    pdf.set_font('Calibri', '', 10)
+
+
 def calc_open(pdf, header):
     """The CALCULATION page and heading; on the second drawing of a sheet with no calculation, neither (owner
     30-10-2026: no blank calculation on the RDS). Marks where the calculations start."""

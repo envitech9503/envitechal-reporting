@@ -66,6 +66,34 @@ class RdsR11Filter(TestCase):
         self.assertEqual(d['iron_ans'], '0.3')                       # the saved record is not changed
 
 
+class RdsR11Unknown(TestCase):
+    """R11.1 (production check 30-10-2026): fields the Add-page map does not hold."""
+    def test_infer(self):
+        from QC.rds_print_filter import infer_owners
+        self.assertEqual(infer_owners('dw', 'ecoli_ans'), ('E.coli',))
+        self.assertEqual(infer_owners('dw', 'fecal_ans'), ('Faecal coliform',))
+        self.assertEqual(infer_owners('dw', 'fecalentero_ans'), ('Fecal Enterococci',))
+        self.assertEqual(infer_owners('dw', 'total_coliform_ans'), ('Coliform',))
+        self.assertEqual(infer_owners('dw', 'for_berylium1_1'), ('Beryllium',))          # older spelling
+        self.assertEqual(infer_owners('dw', 'for_chloride9'), ())                          # chloride / chlorine: unclear, kept
+        self.assertEqual(infer_owners('dw', 'sample_id'), ())
+
+    def test_prune_unknown(self):
+        d = {'date_1': '15-08-2026', 'parameter_1': 'Coliform', 'result_1': '0',
+             'fecal_ans': '0', 'fecal_param': 'CFU/100 mL', 'ecoli_ans': '0', 'total_coliform_ans': '0', 'for_berylium1_1': '0.1',
+             'for_chloride9': '5'}
+        out = prune(d, 'dw')
+        for k in ('fecal_ans', 'fecal_param', 'ecoli_ans', 'for_berylium1_1'):
+            self.assertNotIn(k, out)
+        self.assertIn('total_coliform_ans', out); self.assertIn('for_chloride9', out)
+        out2 = prune({'date_1': 'x', 'parameter_1': 'TBC', 'result_1': '5', 'bacteria_ans': '5', 'fecal_ans': '1'}, 'dw')
+        self.assertIn('bacteria_ans', out2); self.assertNotIn('fecal_ans', out2)   # an abbreviation keeps its own working
+        out3 = prune({'date_1': 'x', 'parameter_1': 'Colony counts at 22 °C', 'result_1': '5', 'hetrobacteria_ans': '5', 'bacteria_ans': '3',
+                      'carbonates_1_1': '2', 'date_2': 'x', 'parameter_2': 'Bicarbonate', 'result_2': '9'}, 'dw')
+        for k in ('hetrobacteria_ans', 'bacteria_ans', 'carbonates_1_1'):
+            self.assertIn(k, out3)                                                           # plate counts one family; carbonates kept
+
+
 class RdsR11Pdf(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -103,6 +131,14 @@ class RdsR11Pdf(TestCase):
         self.assertNotIn('Recorded as observed', t); self.assertNotIn('Odourless mg/L', t)
         self.assertIn('Formula:', t); self.assertIn('Observed value = Odourless', t); self.assertIn('Result: Odourless', t)
         self.assertIn('Reading 3 = c', t)                                                   # every line of the QC working
+
+    def test_micro_steps_and_unknown_fields(self):
+        t = self.dw('DW-R11C', {'date_1': '15-08-2026', 'parameter_1': 'Total Bacterial Count', 'result_1': '06',
+                                'bacteria_ans': '06', 'bacteria_param': 'CFU/100 ml', 'fecal_ans': '40', 'fecal_param': 'CFU/100 ml'})
+        if t is None:
+            return
+        self.assertIn('Total Bacterial Count:', t); self.assertIn('Colonies counted = 06', t); self.assertIn('direct count', t)
+        self.assertNotIn('Faecal Coliform', t)                                              # no Faecal coliform row
 
     def test_ww_blank_row(self):
         WasteWaterForm2.objects.create(sample_id='WW-R11', lab_report_no='LR-WW-R11', in_out='out', city_location='Lahore', **KW)

@@ -2288,28 +2288,28 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "E. coli Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data.get('ecoli_ans', '')} {data.get('ecoli_param', '')}", ln=True)
+        __import__('QC.rds_pdf_extras', fromlist=['micro_steps']).micro_steps(pdf, data.get('ecoli_ans', ''), data.get('ecoli_param', ''))   # the steps (owner 30-10-2026)
 
     if data.get('fecal_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Faecal Coliform Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data.get('fecal_ans', '')} {data.get('fecal_param', '')}", ln=True)
+        __import__('QC.rds_pdf_extras', fromlist=['micro_steps']).micro_steps(pdf, data.get('fecal_ans', ''), data.get('fecal_param', ''))   # the steps (owner 30-10-2026)
         
     if data.get('hetrobacteria_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Heterotrophic Plate Count Calculation:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data.get('hetrobacteria_ans', '')} {data.get('hetrobacteria_param', '')}", ln=True)
+        __import__('QC.rds_pdf_extras', fromlist=['micro_steps']).micro_steps(pdf, data.get('hetrobacteria_ans', ''), data.get('hetrobacteria_param', ''))   # the steps (owner 30-10-2026)
         
     if data.get('total_coliform_ans'):
         check_page_break(20)
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Coliform:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data.get('total_coliform_ans', '')} {data.get('total_coliform_param', '')}", ln=True)
+        __import__('QC.rds_pdf_extras', fromlist=['micro_steps']).micro_steps(pdf, data.get('total_coliform_ans', ''), data.get('total_coliform_param', ''))   # the steps (owner 30-10-2026)
         
     
     if data.get('bacteria_ans'):
@@ -2317,7 +2317,7 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.set_font("Calibri", 'B', 11)
         pdf.cell(0, 8, "Total Bacterial Count:", 0, 1, 'L')
         pdf.set_font("Calibri", '', 10)
-        pdf.cell(0, 6, f"Result: {data.get('bacteria_ans', '')} {data.get('bacteria_param', '')}", ln=True)
+        __import__('QC.rds_pdf_extras', fromlist=['micro_steps']).micro_steps(pdf, data.get('bacteria_ans', ''), data.get('bacteria_param', ''))   # the steps (owner 30-10-2026)
         
     
     
