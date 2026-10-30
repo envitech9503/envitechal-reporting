@@ -10,21 +10,36 @@
   if (!OWN || !L) return;
   var GENERIC = { total: 1, dissolved: 1, solids: 1, free: 1, caco3: 1, compounds: 1, residual: 1, count: 1, water: 1, calculation: 1, calculations: 1, reading: 1, readings: 1, average: 1, standard: 1, working: 1 };
   function words(s) { var o = {}; (L.bare(s) + ' ' + L.norm(s)).split(/[^a-z0-9]+/).forEach(function (w) { if (w.length >= 4 && !GENERIC[w]) o[w] = 1; }); return o; }
+  /* sections the Add-page map holds no field of (R11.1, same rules as QC/rds_print_filter.py): by the field's stem */
+  var STEMS = [
+    [/^(for_)?total_?coliform/, ['Coliform']], [/^(for_)?fecalentero/, ['Fecal Enterococci']],
+    [/^(for_)?hetro|^(for_)?hetero/, ['Heterotrophic Bacteria', 'Total Bacterial Count']], [/^(for_)?enterobact/, ['Enterobacteriaceae']],
+    [/^(for_)?ecoli|^(for_)?e_coli/, ['E.coli']], [/^(for_)?fa?ecal/, ['Faecal coliform']],
+    [/^(for_)?bacteria/, ['Total Bacterial Count', 'Heterotrophic Bacteria']], [/^(for_)?coliform/, ['Coliform']],
+    [/^(for_)?carbonate/, ['Carbonates', 'Bicarbonate', 'Carbonate', 'Carbonate Hardness']]
+  ];
+  var EXTRA_SYN = { 'tbc': 'total bacterial count', 'tpc': 'total bacterial count', 'total plate count': 'total bacterial count', 'total viable count': 'total bacterial count',
+    'total coliforms': 'coliform', 'faecal coliform': 'faecal coliform', 'fecal coliforms': 'faecal coliform', 'hpc': 'heterotrophic bacteria', 'heterotrophic plate count': 'heterotrophic bacteria' };
+  function stemOwners(name) { var k = String(name || '').toLowerCase(); for (var i = 0; i < STEMS.length; i++) if (STEMS[i][0].test(k)) return STEMS[i][1]; return null; }
   var K = {};
-  Object.keys(OWN).forEach(function (f) { OWN[f].forEach(function (n) {
+  var ALLNAMES = []; Object.keys(OWN).forEach(function (f) { OWN[f].forEach(function (n) { if (ALLNAMES.indexOf(n) < 0) ALLNAMES.push(n); }); });
+  STEMS.forEach(function (st) { st[1].forEach(function (n) { if (ALLNAMES.indexOf(n) < 0) ALLNAMES.push(n); }); });
+  ALLNAMES.forEach(function (n) {
     [L.norm(n), L.bare(n)].forEach(function (k) { if (k && !(k in K)) K[k] = n; });
     var m = L.norm(n).match(/\(([^)]*)\)/); if (m && !(m[1].trim() in K)) K[m[1].trim()] = n;
-  }); });
+  });
   function pageName(rep) {
     var n = L.norm(rep), b = L.bare(rep); if (n in K) return K[n]; if (b in K) return K[b];
-    var syn = (L.SYN || {})[b] || (L.SYN || {})[n], list = syn ? (Array.isArray(syn) ? syn : [syn]) : [];
+    var syn = (L.SYN || {})[b] || (L.SYN || {})[n] || EXTRA_SYN[b] || EXTRA_SYN[n], list = syn ? (Array.isArray(syn) ? syn : [syn]) : [];
     for (var i = 0; i < list.length; i++) { if (list[i] in K) return K[list[i]]; if (L.bare(list[i]) in K) return K[L.bare(list[i])]; }
-    var b2 = b.replace(/ as caco3$/, '').replace(/ as phenols?$/, ''); return K[b2] || null;
+    var b2 = b.replace(/ as caco3$/, '').replace(/ as phenols?$/, ''); if (K[b2]) return K[b2];
+    if (/colony counts?|viable count|plate count|bacterial count|\bcfu\b/.test(b)) return K['heterotrophic bacteria'] || K['total bacterial count'] || null;   // plate counts (22 / 37 °C)
+    return null;
   }
   var form = document.getElementById('qcForm'), table = document.getElementById('table');
   if (!form || !table) return;
   var st = document.createElement('style'); st.textContent = '.rds-gated{display:none !important}.rds-gate-note{margin:12px 0;padding:8px 12px;border-radius:6px;background:#f1f5f9;color:#475569;font-size:14px}'; document.head.appendChild(st);
-  function ownersOf(e) { return OWN[e.name] || null; }
+  function ownersOf(e) { return OWN[e.name] || stemOwners(e.name); }
   function meets(a, b) { return a.some(function (x) { return b.indexOf(x) >= 0; }); }
   var blocks = [];
   function findBlocks() {
@@ -72,7 +87,12 @@
     if (!blocks.length) findBlocks();
     picker();
     var has = present(), shown = 0;
-    blocks.forEach(function (b) { var on = has(b.own); b.el.classList.toggle('rds-gated', !on); if (on) shown++; });
+    blocks.forEach(function (b) {
+      var on = has(b.own); b.el.classList.toggle('rds-gated', !on); if (on) shown++;
+      // a section the page itself left hidden (WW manual: the microbiology sections' reveal is commented out) opens like on the Add page
+      if (on && b.el.style.display === 'none') { b.el.dataset.rdsInline = 'none'; b.el.style.display = ''; }
+      else if (!on && b.el.dataset.rdsInline) { b.el.style.display = 'none'; delete b.el.dataset.rdsInline; }
+    });
     note.querySelector('.rds-gate-msg').textContent = shown ? 'Calculation sections shown: the parameters of the results table and those opened here; only the parameters of the results table are printed.' : 'No calculation section is open: open one here; its "=" adds the parameter to the results table.';
     note.querySelector('.rds-gate-open').innerHTML = Object.keys(picked).filter(function (n) { return n in same; }).map(function (n) { return '<button type="button" data-close="' + esc(n) + '" title="Close" style="margin:2px;padding:1px 8px;border:1px solid #94a3b8;border-radius:10px;background:#fff">' + esc(n.replace(/\*/g, '').trim()) + ' &times;</button>'; }).join('');
   }

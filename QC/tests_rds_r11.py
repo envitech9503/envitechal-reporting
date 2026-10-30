@@ -181,6 +181,9 @@ class RdsR11Style(TestCase):
             self.assertIn('rds_field_owners.js', s); self.assertIn('rds_manual_gate.js', s)
         g = src('static', 'js', 'rds_manual_gate.js')
         self.assertIn('rds-gated', g); self.assertIn("input[name^=\"parameter_\"]", g)
+        self.assertIn('fecalentero', g); self.assertIn('rdsInline', g)                       # R11.2: unmapped sections gated, page hide lifted
+        for t in ('rds_dw_manual.html', 'rds_ww_manual.html'):
+            self.assertIn('rds_manual_gate.js\' %}?v=20261031a', src('templates', t))
         lib = src('static', 'js', 'rds_formula_lib.js')
         self.assertNotIn('Recorded as observed', lib); self.assertIn('inputs: ins', lib); self.assertIn('SYN: SYN', lib)
         self.assertIn("div.closest('.tss_div, .oil_div')", src('templates', 'rds_ww.html'))
