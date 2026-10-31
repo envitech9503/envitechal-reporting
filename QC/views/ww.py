@@ -175,7 +175,6 @@ def create_ww_qc(request):
 
 
 
-@csrf_exempt
 def _ww_reported(v):
     """A result the report gives: not blank, "N/A" or "-" (a parameter not tested). A parameter not reported gets no
     row and no calculation section on the RDS (analyst feedback 30-10-2026: Oil & Grease shown on in-out reports
@@ -184,7 +183,8 @@ def _ww_reported(v):
     return bool(t) and t not in ('n/a', 'na', '-', '--', 'none', 'null')
 
 
-def get_ww(request):
+@csrf_exempt
+def get_ww(request):                                        # R11.3: the decorator had slipped onto _ww_reported in R10 (403 on the WW Add page)
     if request.method == 'POST':
         try:
             data = json.loads(request.body)

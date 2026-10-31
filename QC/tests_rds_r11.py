@@ -151,6 +151,17 @@ class RdsR11Pdf(TestCase):
         self.assertIn('Chromium', t); self.assertNotIn('Zinc', t); self.assertNotIn('CALCULATION', t)
 
 
+class RdsR11Csrf(TestCase):
+    """R11.3: the RDS pages post to get_dw / get_ww without a CSRF token (the browser showed "network error" on the WW
+    Add page after R10, when the exemption slipped onto a helper). Checked with CSRF enforced, as a browser is."""
+    def test_get_views_exempt(self):
+        u = User.objects.create_superuser('r113_ceo', 'c@x.c', 'x')
+        c = Client(REMOTE_ADDR='127.0.0.1', enforce_csrf_checks=True); c.force_login(u)
+        for url in ('/qc/get_ww/', '/qc/get_dw/'):
+            r = c.post(url, json.dumps({'sample_id': 'NONE-R113'}), content_type='application/json')
+            self.assertNotEqual(r.status_code, 403, url)
+
+
 class RdsR11Style(TestCase):
     def test_fonts(self):
         from fpdf import FPDF
