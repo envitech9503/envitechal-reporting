@@ -210,10 +210,15 @@ def prune(data, kind):
     owners = _owners(kind)
     if owners:
         for key in list(out):
-            o = owners.get(key) or (infer_owners(kind, key) if not re.match(r'^(date|parameter|result|inlet|outlet|performed_by|checked_by|performed|checked|remarks)_|^(lib_print|qc_print)_|^(sample_id|report_type)$', key) else ())
+            o = owners.get(key) or (infer_owners(kind, key) if not re.match(r'^(date|parameter|result|inlet|outlet|performed_by|checked_by|performed|checked|remarks)_|^(lib_print|qc_print|df)_|^(sample_id|report_type)$', key) else ())
             if o and not present.owns(o):
                 out.pop(key, None)
     for key in list(out):
+        m = re.match(r'^df_(\d+)$', key)
+        if m and not present(out.get('df_param_' + m.group(1)) or out.get('df_sec_' + m.group(1))):
+            for pre in ('df_', 'df_base_', 'df_result_', 'df_sec_', 'df_side_', 'df_param_', 'df_row_'):
+                out.pop(pre + m.group(1), None)              # R12: a dilution factor of a section not in the table
+            continue
         if key.startswith('lib_print_') or key.startswith('qc_print_'):
             try:
                 c = json.loads(out[key] or '{}')

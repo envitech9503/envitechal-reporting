@@ -71,7 +71,7 @@ def print_lib_cards(pdf, data, page_break=255, top=35):
     for c in cs:
         lines = [str(x) for x in (c.get('lines') or []) if str(x).strip()]
         inputs = [str(x) for x in (c.get('inputs') or []) if str(x).strip()]
-        room(24 + 6 * (len(lines) + len(inputs)))
+        room(30 + 9 * (len(lines) + len(inputs)))
         pdf.ln(2); font('B', 11); pdf.set_x(pdf.l_margin)
         head = str(c.get('parameter')) + (' (%s)' % c['side'] if c.get('side') else '')
         pdf.multi_cell(0, 6, head + ' Calculation:')
@@ -79,21 +79,59 @@ def print_lib_cards(pdf, data, page_break=255, top=35):
         font('', 10)                                       # one size and colour for every line of a calculation (owner 30-10-2026)
         if meth:
             pdf.set_x(pdf.l_margin); pdf.multi_cell(0, 6, 'Method: ' + meth)
-        font('B', 10); pdf.set_x(pdf.l_margin); pdf.cell(0, 6, 'Formula:', ln=True)
-        font('', 10); pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, str(c.get('formula') or ''))
         if inputs:
-            font('B', 10); pdf.set_x(pdf.l_margin); pdf.cell(0, 6, 'Readings:', ln=True)
-            font('', 10)
             for ln in inputs:
-                pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, ln)
-        if lines:
-            font('B', 10); pdf.set_x(pdf.l_margin); pdf.cell(0, 6, 'Calculation:', ln=True)
-            font('', 10)
-            for ln in lines:
-                pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, ln)
+                pdf.set_x(pdf.l_margin); pdf.multi_cell(0, 6, ln)
+        # R12 (owner 31-10-2026, point 4): the working in the sheet's own style - "Reading 01", "Formula:", the figures as a
+        # fraction over the divisor, "= result"; the one-line symbolic formula is not printed
+        print_lines(pdf, lines, str(c.get('parameter') or ''), font)
         font('B', 10); pdf.set_x(pdf.l_margin)
         pdf.multi_cell(0, 6, 'Result: %s' % result_text(c))  # the test report's value is not printed on the raw data (analyst 30-10-2026)
         from QC.rds_pdf_extras import method_checks
         chk = method_checks(c.get('check'))
         if chk:
             font('', 10); pdf.set_x(pdf.l_margin); pdf.multi_cell(0, 6, 'Check: ' + chk)
+
+
+LINE_RX = re.compile(r'^(?:Replicate (\d+): )?(.+?) = ([^=]+)$')
+
+
+def split_fraction(expr):
+    """'num / den' -> (num, den) at the last top-level ' / '; (expr, None) when there is no division."""
+    depth, pos = 0, -1
+    for i, ch in enumerate(expr):
+        if ch in '([':
+            depth += 1
+        elif ch in ')]':
+            depth -= 1
+        elif depth == 0 and expr.startswith(' / ', i):
+            pos = i
+    if pos < 0:
+        return expr, None
+    return expr[:pos], expr[pos + 3:]
+
+
+def print_lines(pdf, lines, param, font):
+    """Each working line as the native sections print it: a heading line ("Reading 01" / "Average of <parameter>"),
+    "Formula:" in bold, then the figures as a fraction with the result (QC/rds_pdf_extras._fraction)."""
+    from QC.rds_pdf_extras import _fraction
+    for ln in lines:
+        m = LINE_RX.match(ln.strip())
+        if not m:
+            font('', 10); pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, ln); continue
+        rep, expr, res = m.group(1), m.group(2).strip(), m.group(3).strip()
+        label = None
+        if rep:
+            label = 'Reading %02d' % int(rep)
+        elif expr.startswith('Average'):
+            label = 'Average of ' + param; expr = expr[len('Average'):].lstrip(' =').strip()
+        elif expr.startswith('Result x DF'):
+            label = 'Dilution factor'; expr = expr[len('Result x DF'):].lstrip(' =').strip()
+        elif expr.startswith('Check standard'):
+            font('', 10); pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, ln); continue
+        if label:
+            font('', 10); pdf.set_x(pdf.l_margin); pdf.cell(0, 6, label, ln=True)
+        font('B', 10); pdf.set_x(pdf.l_margin); pdf.cell(0, 6, 'Formula:', ln=True)
+        font('', 10)
+        num, den = split_fraction(expr)
+        _fraction(pdf, num.replace(' x ', ' X '), res, den.strip('()') if den and den.count('(') == 1 and den.startswith('(') and den.endswith(')') else den, pdf.l_margin + 20)

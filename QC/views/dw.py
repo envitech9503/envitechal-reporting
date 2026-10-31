@@ -104,6 +104,7 @@ def generate_dw_qc_pdf_response(report, pk):
 
     data = __import__('QC.rds_pdf_extras', fromlist=['fill_last_weights']).fill_last_weights(report.rds or {})   # QA RDS-05
     data = __import__('QC.rds_print_filter', fromlist=['prune']).prune(data, 'dw')   # only the results and their own calculations (owner 30-10-2026)
+    __import__('QC.rds_pdf_extras', fromlist=['install_df']).install_df(pdf, data)   # R12: the dilution-factor step under each section
     
 
     # Margins
@@ -2775,15 +2776,14 @@ def generate_dw_qc_pdf_response(report, pk):
     except Exception:
         logging.getLogger(__name__).exception('RDS extra sections print')
     try:
+        from QC.rds_pdf_extras import flush_df
+        flush_df(pdf)                                          # R12: the last section's dilution-factor step
         from QC.rds_lib_pdf import print_lib_cards
         print_lib_cards(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # formula library cards (27-10-2026)
     except Exception:
         logging.getLogger(__name__).exception('RDS formula library print')
-    try:
-        from QC.rds_qc_pdf import print_qc_checks
-        print_qc_checks(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # WS / RM / CRM checks (R5)
-    except Exception:
-        logging.getLogger(__name__).exception('RDS quality-control checks print')
+    # R12 (owner 31-10-2026, point 1): the quality-control checks block (WS / RM / CRM) is not printed on the RDS in any
+    # form; the checks stay on the page and in the saved record (qc_print_<n>)
     try:
         from QC.rds_pdf_extras import closing
         closing(pdf, data, PAGE_BREAK_THRESHOLD, CONTENT_START_Y)   # analysts, checkers, end line (QA RDS-32)
@@ -2905,16 +2905,12 @@ def get_dw(request):
 
 
 def dw_rds_list(request):
-    """RDS DW records of the user's laboratory (both for a user without one; ?lab= narrows it) - 27-10-2026."""
+    """RDS DW records: blank until a search (sample ID, saved-on date range, laboratory); a user with a laboratory
+    sees that laboratory only (R12, owner 31-10-2026)."""
     from QC.views.ww import _rds_ww_lab
-    own = _rds_ww_lab(request)
-    lab = own or (request.GET.get('lab') or '').strip().title()
-    dw_list = Dw_rds.objects.all().order_by('-created_at')
-    if lab in ('Karachi', 'Lahore'):
-        ids = DrinkingWaterForm.objects.filter(city_location__iexact=lab).values_list('sample_id', flat=True)
-        dw_list = dw_list.filter(sample_id__in=list(ids))
-    from QC.rds_guard import with_revisions
-    return render(request,'dw_rds_list.html',context={'list':with_revisions(dw_list), 'lab': lab, 'own_lab': own})
+    from QC.rds_guard import list_filter
+    rows, f, searched, err = list_filter(request, Dw_rds, 'dw')
+    return render(request, 'dw_rds_list.html', context={'list': rows, 'f': f, 'searched': searched, 'err': err, 'lab': f['lab'], 'own_lab': _rds_ww_lab(request)})
 
 
 

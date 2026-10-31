@@ -379,6 +379,7 @@
         // analyst feedback 30-10-2026: each replicate shows its own result (BOD and every replicate card), then the average
         (reps > 1 ? '<label class="rl-rres-l">Result, replicate ' + rI + '<input type="text" readonly class="rl-rres" data-rr="' + rI + '" name="' + id + '_res_' + rI + '"></label>' : '') + '</div>';
       }
+      if (!C.inputs.some(function (p) { return p[0] === 'df'; })) html += '<div class="rl-grid rl-dfrow"><span class="rl-repl">Dilution</span><label>Dilution factor (DF), 1 = undiluted<input type="number" step="any" min="0" data-k="gdf" name="' + id + '_gdf" value="1"></label></div>';   // R12: a DF on every calculation (owner 31-10-2026)
       if (C.std) html += '<div class="rl-grid"><span class="rl-repl">Check standard (optional)</span><label>True value<input type="number" step="any" data-std="t" name="' + id + '_std_true"></label><label>Measured<input type="number" step="any" data-std="m" name="' + id + '_std_meas"></label></div>';
     }
     html += '<div class="rl-res"><button type="button" class="rl-eq">=</button><input type="text" readonly class="rl-ans" name="' + id + '_ans" placeholder="result"><input type="text" class="rl-unit" name="' + id + '_unit" value="' + esc(item.unit || defaultUnit(cf.calc, item.parameter)) + '"></div>' +
@@ -408,6 +409,14 @@
   }
   function compute(card, item, side, rep, cf, C, method) {
     var warn = [], lines = [], ins = [], result = null, dp = 4;   // ins: the labelled readings, printed before the working (owner 30-10-2026)
+    var gdfE = card.querySelector('input[data-k=gdf]'), gdf = gdfE ? f(gdfE.value) : null;
+    if (gdfE && (gdf === null || gdf <= 0)) { alert(item.parameter + ': enter a dilution factor (1 = undiluted).'); return; }
+    if (gdfE && gdf !== 1) ins.push('Dilution factor DF = ' + r(gdf, 4));
+    var withDf = function (line) {                           // "num / den" -> "num x DF d / den" (the PDF draws it as a fraction)
+      if (!gdfE || gdf === 1) return line;
+      var i = line.lastIndexOf(' / ');
+      return i < 0 ? line + ' x DF ' + r(gdf, 4) : line.slice(0, i) + ' x DF ' + r(gdf, 4) + line.slice(i);
+    };
     if (C.obs) {
       result = card.querySelector('input[data-k=val]').value.trim();
       var ou = /^\s*[<>]?\s*=?\s*-?\d/.test(result) ? card.querySelector('.rl-unit').value : '';   // a result in words carries no unit (owner 30-10-2026)
@@ -425,7 +434,8 @@
         var o = C.one(x, cf);
         if (!o) { warn.push('replicate ' + i + ' incomplete'); continue; }
         ins.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + C.inputs.filter(function (p) { return x[p[0]] !== null; }).map(function (p) { return p[1] + ' = ' + r(x[p[0]], 6); }).join(';  '));
-        vals.push(o.v); lines.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + o.line + ' = ' + r(o.v, 4));
+        if (gdfE && gdf !== 1) { o.v = o.v * gdf; if (o.zero !== null && o.zero !== undefined) o.zero = o.zero * gdf; }
+        vals.push(o.v); lines.push(((C.nrep || 3) === 1 ? '' : 'Replicate ' + i + ': ') + withDf(o.line) + ' = ' + r(o.v, 4));
         var rr = card.querySelector('.rl-rres[data-rr="' + i + '"]'); if (rr) rr.value = r(o.v, rdp(rep, cf.calc)) + ' ' + (card.querySelector('.rl-unit').value || '');
         if (o.w) warn.push('replicate ' + i + ': ' + o.w);
         if (o.v < 0) warn.push('replicate ' + i + ' negative - check the weights/readings');
@@ -448,6 +458,7 @@
       var key = cf.out || 'R';
       result = o2.out[key] !== undefined ? o2.out[key] : o2.out.R;
       if (result === undefined) result = o2.out[Object.keys(o2.out)[0]];
+      if (gdfE && gdf !== 1 && typeof result === 'number') { var und = result; result = result * gdf; lines.push('Result x DF = ' + r(und, 4) + ' x ' + r(gdf, 4) + ' = ' + r(result, 4)); }
       card.querySelector('.rl-ans').value = r(result, rdp(rep, cf.calc));
     }
     // analyst feedback 30-10-2026: the RDS is the raw record the report is made from. A difference from the value

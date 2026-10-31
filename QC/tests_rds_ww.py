@@ -92,9 +92,9 @@ class RdsWwTests(TestCase):
             self.assertIn('WS-COD-100ppm (Outlet)', t2)
             self.assertIn('/ 15 X 2', t2)
         Ww_rds.objects.create(sample_id='WW-T3-KHI', rds={})
-        own = [x.sample_id for x in C(self.lhr).get('/qc/ww_rds_list/').context['list']]
+        own = [x.sample_id for x in C(self.lhr).get('/qc/ww_rds_list/?go=1').context['list']]
         self.assertNotIn('WW-T3-KHI', own); self.assertIn('WW-T1-LHR', own)
-        allr = [x.sample_id for x in C(self.ceo).get('/qc/ww_rds_list/').context['list']]
+        allr = [x.sample_id for x in C(self.ceo).get('/qc/ww_rds_list/?go=1').context['list']]
         self.assertIn('WW-T3-KHI', allr)
         only = [x.sample_id for x in C(self.ceo).get('/qc/ww_rds_list/?lab=Karachi').context['list']]
         self.assertEqual(only, ['WW-T3-KHI'])

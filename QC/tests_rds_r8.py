@@ -95,7 +95,7 @@ class RdsR8Pdf(TestCase):
             return
         self.assertIn('The Aga Khan Hospital & Medical College', t); self.assertIn('Lab report no.:', t)
         self.assertIn('Reading 01', t); self.assertNotIn('Reading 02', t); self.assertNotIn('Reading 03', t)
-        self.assertIn('Mean = (19.6 + 20.2) / 2 = 19.9 mg/L', t); self.assertIn('Recovery = 19.9 / 20 X 100 = 99.5 %', t)
+        self.assertNotIn('Recovery = 19.9 / 20 X 100 = 99.5 %', t)                          # R12 point 1: no QC block on the PDF
 
 
 class RdsR8Pages(TestCase):

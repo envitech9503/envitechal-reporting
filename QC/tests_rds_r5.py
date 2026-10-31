@@ -108,8 +108,8 @@ class RdsR5Pdf(TestCase):
         if t is None:
             return
         self.assertIn('(10.2 - 2.2) X 1.02 X 1000', t)
-        self.assertIn('Quality control checks', t); self.assertIn('WS-Hardness-100ppm', t)
-        self.assertIn('recovery: 98.5 % (acceptance 90 - 110 %)', t); self.assertIn('Within acceptance', t)
+        self.assertNotIn('Quality control checks', t); self.assertNotIn('WS-Hardness-100ppm', t)   # R12 point 1: the QC block is not printed
+        self.assertNotIn('recovery: 98.5 %', t); self.assertNotIn('Within acceptance', t)
         self.assertIn('END OF THE DOCUMENT', t); self.assertNotIn('None', t)
 
     def test_dw_before_r5(self):
@@ -128,4 +128,4 @@ class RdsR5Pdf(TestCase):
         t = self.pdf(Ww_rds, 'ww', d)
         if t is not None:
             self.assertIn('(12.5 - 0.5) X 1.02 X 1000', t)
-            self.assertIn('Certified reference material (CRM) - pH', t); self.assertIn('acceptance +/- 0.05', t)
+            self.assertNotIn('Certified reference material (CRM) - pH', t); self.assertNotIn('acceptance +/- 0.05', t)   # R12 point 1

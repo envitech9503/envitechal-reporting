@@ -64,7 +64,7 @@ class RdsR2Tests(TestCase):
         Dw_rds.objects.create(sample_id='DW-R2-LHR', rds=dict(ROW, result_1='471'))
         r = C(self.lhr).post('/qc/dw_testing_results_sample/', {'sample_id': 'DW-R2-LHR'})
         self.assertEqual(r.status_code, 200); self.assertEqual(r.json()['dw_data']['rds']['result_1'], '471')   # latest
-        rows = C(self.lhr).get('/qc/dw_rds_list/').context['list']
+        rows = C(self.lhr).get('/qc/dw_rds_list/?go=1').context['list']
         self.assertEqual(sorted((x.rev, x.is_latest) for x in rows), [(1, False), (2, True)])
         page = C(self.lhr).get('/qc/dw_testing_results_sample/')
         self.assertEqual(list(page.context['all_sample_ids']), ['DW-R2-LHR'])                  # own laboratory, once

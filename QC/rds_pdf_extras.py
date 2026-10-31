@@ -20,8 +20,10 @@ def tidy(formula, result, divisor):
     f = '' if formula is None else str(formula)
     if not re.search(r'\d', NONE_RX.sub('', f)):
         return None                                       # no figures entered: nothing to print
+    if re.search(r'[(\[]\s*-\s*[)\]]', NONE_RX.sub('', f)):
+        return None                                       # a replicate with no readings ("( - ) X ...", R12 owner 31-10-2026)
     terms = [t.strip() for t in f.split(' + ')]
-    empty = lambda t: re.sub(r'[\s()\[\]X×\-]|None', '', t) == ''
+    empty = lambda t: re.sub(r'[\s()\[\]X×\-]|None', '', t) == '' or re.search(r'X\s*\)$|\(\s*X', t) is not None   # "(0 X )": a reading without its factor
     kept = [t for t in terms if not empty(t)]
     n_all, n = len(terms), len(kept)
     if 1 < n_all and n < n_all:
@@ -140,11 +142,12 @@ def micro_steps(pdf, ans, unit):
     steps), Calibri 10 like the working."""
     ans, unit = str(ans or '').strip(), str(unit or '').strip()
     per = '100 mL' if '100' in unit else ('mL' if re.search(r'/\s*m[lL]', unit) else '')
-    pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, 'Formula:', ln=True)
+    pdf.set_font('Calibri', '', 10); pdf.set_x(pdf.l_margin)
+    pdf.cell(0, 6, 'Colonies counted = %s (direct count on the membrane / plate)' % (ans or '-'), ln=True)
+    pdf.set_font('Calibri', 'B', 10); pdf.set_x(pdf.l_margin); pdf.cell(0, 6, 'Formula:', ln=True)
     pdf.set_font('Calibri', '', 10)
-    pdf.set_x(pdf.l_margin + 4)
-    pdf.multi_cell(0, 6, 'Result = colonies counted on the membrane / plate%s (direct count; no calculation step)' % ((' per ' + per) if per else ''))
-    pdf.set_x(pdf.l_margin + 4); pdf.multi_cell(0, 6, 'Colonies counted = %s' % (ans or '-'))
+    vol = '100' if per == '100 mL' else '1'
+    _fraction(pdf, '%s X %s X 1' % (ans or '-', vol), ('%s %s' % (ans, unit)).strip(), vol, pdf.l_margin + 20)   # R12: the sheet's fraction style
     pdf.set_font('Calibri', 'B', 10); pdf.set_x(pdf.l_margin)
     pdf.cell(0, 6, ('Result: %s %s' % (ans, unit)).strip(), ln=True)
     pdf.set_font('Calibri', '', 10)
@@ -180,8 +183,95 @@ def without_empty_calc(gen, report, pk):
         SKIP_CALC.reset(tok)
 
 
+DF_LINE = re.compile(r'^df_(\d+)$')
+
+
+def df_records(data):
+    """The dilution factors applied on the page (static/js/rds_df.js): [{n, df, base, result, sec, side, param}] for DF != 1."""
+    out = []
+    for k, v in (data or {}).items():
+        m = DF_LINE.match(k)
+        if not m:
+            continue
+        n = m.group(1)
+        try:
+            df = float(str(v).strip())
+        except (TypeError, ValueError):
+            continue
+        base = str(data.get('df_base_' + n) or '').strip()
+        if df == 1 or not base:
+            continue
+        out.append({'n': n, 'df': df, 'base': base, 'result': str(data.get('df_result_' + n) or '').strip(),
+                    'sec': str(data.get('df_sec_' + n) or '').strip(), 'side': str(data.get('df_side_' + n) or '').strip(),
+                    'param': str(data.get('df_param_' + n) or '').strip(), 'done': False})
+    return out
+
+
+def _words(s):
+    return {w for w in re.split(r'[^a-z0-9]+', str(s or '').lower().replace('*', '')) if len(w) >= 3 and w not in ('calculation', 'calculations', 'the', 'and', 'inlet', 'outlet')}
+
+
+def install_df(pdf, data):
+    """Prints the dilution-factor step under the section it belongs to (R12, owner 31-10-2026). The generators print a
+    section heading as a bold 11 pt cell ending in ":" or "Calculation(s)"; before the next heading, the closing block or
+    the library cards, the step of the heading just printed is flushed: "Dilution factor (DF = x): result = base x DF = final"."""
+    recs = df_records(data)
+    pdf._etal_df = {'recs': recs, 'cur': None}
+    if not recs:
+        return
+    orig_cell = pdf.cell
+
+    def cell(w=0, h=0, txt='', *a, **kw):
+        if 'text' in kw:
+            txt = kw.pop('text')
+        txt = '' if txt is None else txt
+        t = str(txt)
+        if (pdf.font_style == 'B' and abs(pdf.font_size_pt - 11) < 0.01 and len(t) < 90
+                and re.search(r':\s*$|\bcalculations?\s*:?\s*$', t, re.I)
+                and not re.match(r'\s*(average|reading|ws[-\s]|crm|rm[-\s]|sample|blank)', t, re.I)):   # sub-headings stay in their section
+            flush_df(pdf)
+            pdf._etal_df['cur'] = t
+        return orig_cell(w, h, txt, *a, **kw)
+    pdf.cell = cell
+
+
+def flush_df(pdf):
+    st = getattr(pdf, '_etal_df', None)
+    if not st or not st['cur']:
+        return
+    hw = _words(st['cur']); side = 'Inlet' if re.search(r'\binlet\b', st['cur'], re.I) else ('Outlet' if re.search(r'\boutlet\b', st['cur'], re.I) else '')
+    best, score = None, 0
+    for r in st['recs']:
+        if r['done'] or (r['side'] or side) and r['side'] != side:
+            continue
+        sc = len(hw & (_words(r['sec']) | _words(r['param'])))
+        if sc > score:
+            best, score = r, sc
+    st['cur'] = None
+    if not best:
+        return
+    best['done'] = True
+    pdf.set_font('Calibri', 'B', 10); pdf.set_x(pdf.l_margin)
+    pdf.cell(0, 6, 'Dilution factor (DF = %s):' % _num(best['df']), ln=True)
+    pdf.set_font('Calibri', '', 10); pdf.set_x(pdf.l_margin + 4)
+    try:
+        fin = best['result'] or _num(float(best['base']) * best['df'])
+    except (TypeError, ValueError):
+        fin = best['result'] or '-'
+    pdf.cell(0, 6, 'Result = calculated result X DF = %s X %s = %s' % (best['base'], _num(best['df']), fin), ln=True)
+    pdf.ln(1)
+
+
+def _num(v):
+    try:
+        return ('%.6f' % float(v)).rstrip('0').rstrip('.')
+    except (TypeError, ValueError):
+        return str(v)
+
+
 def closing(pdf, data, page_break=255, top=35):
     """Analysed by / checked by with their e-signatures, then the end line."""
+    flush_df(pdf)
     pdf._etal_calc_empty = calc_empty(pdf)
     from EnviTechAlApp.models import Signatures
     def ids(prefix):

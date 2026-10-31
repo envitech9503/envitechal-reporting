@@ -130,7 +130,7 @@ class RdsR11Pdf(TestCase):
         self.assertNotIn('Taste', t); self.assertNotIn('Unobjectionable', t)               # blank row and its card
         self.assertNotIn('Recorded as observed', t); self.assertNotIn('Odourless mg/L', t)
         self.assertIn('Formula:', t); self.assertIn('Observed value = Odourless', t); self.assertIn('Result: Odourless', t)
-        self.assertIn('Reading 3 = c', t)                                                   # every line of the QC working
+        self.assertNotIn('Reading 3 = c', t); self.assertNotIn('Quality control checks', t)   # R12 point 1: the QC block is not printed
 
     def test_micro_steps_and_unknown_fields(self):
         t = self.dw('DW-R11C', {'date_1': '15-08-2026', 'parameter_1': 'Total Bacterial Count', 'result_1': '06',
@@ -198,3 +198,76 @@ class RdsR11Style(TestCase):
         lib = src('static', 'js', 'rds_formula_lib.js')
         self.assertNotIn('Recorded as observed', lib); self.assertIn('inputs: ins', lib); self.assertIn('SYN: SYN', lib)
         self.assertIn("div.closest('.tss_div, .oil_div')", src('templates', 'rds_ww.html'))
+
+
+class RdsR12(TestCase):
+    """R12 (owner 31-10-2026): 1 no QC block on any PDF; 2 dilution factor on every section (page layer rds_df.js, library
+    cards, PDF step); 3 lists blank until a search; 4 harmonised fraction presentation; blank replicates not printed."""
+    @classmethod
+    def setUpTestData(cls):
+        cls.u = User.objects.create_superuser('r12_ceo', 'c@x.c', 'x')
+
+    def setUp(self):
+        self.c = Client(REMOTE_ADDR='127.0.0.1'); self.c.force_login(self.u)
+
+    def pdf(self, model, kind, sid, d):
+        if kind == 'dw':
+            DrinkingWaterForm.objects.create(sample_id=sid, lab_report_no='LR-' + sid, city_location='Lahore', **KW)
+        else:
+            WasteWaterForm2.objects.create(sample_id=sid, lab_report_no='LR-' + sid, in_out='out', city_location='Lahore', **KW)
+        rec = model.objects.create(sample_id=sid, rds=dict(d, sample_id=sid))
+        r = self.c.get('/qc/generate_%s_qc_pdf_response/%d/' % (kind, rec.pk)); self.assertEqual(r.status_code, 200)
+        return text(r.content)
+
+    def test_df_step_under_its_section(self):
+        d = {'date_1': '15-08-2026', 'parameter_1': 'Chloride', 'result_1': '87.98', 'date_2': '15-08-2026', 'parameter_2': 'Fluoride', 'result_2': '0.5',
+             'chloride_reading_1': 'Reading 01', 'chloride_1_1': '9.8', 'chloride_1_2': '1.0', 'chloride_1_3': '5', 'chloride_1_4': '5', 'chloride_1_5': '0.0141',
+             'chloride_1_6': '100', 'chloride_ans1': '43.99', 'chloride_param1': 'mg/L', 'chloride_head': 'Chloride:',
+             'df_1': '2', 'df_base_1': '43.99', 'df_result_1': '87.98', 'df_sec_1': 'Chloride', 'df_side_1': '', 'df_param_1': 'Chloride', 'df_row_1': 'result_1',
+             'df_2': '3', 'df_base_2': '1', 'df_result_2': '3', 'df_sec_2': 'Zinc', 'df_side_2': '', 'df_param_2': 'Zinc', 'df_row_2': 'result_9'}
+        t = self.pdf(Dw_rds, 'dw', 'DW-R12A', d)
+        if t is None:
+            return
+        self.assertIn('Dilution factor (DF = 2):', t); self.assertIn('43.99 X 2 = 87.98', t)
+        self.assertLess(t.index('Chloride Calculation'), t.index('Dilution factor (DF = 2)'))
+        self.assertNotIn('DF = 3', t)                                                        # Zinc is not in the table
+        self.assertNotIn('Quality control checks', t)
+
+    def test_library_card_fraction_style_and_df(self):
+        lib = {'parameter': 'Pseudomonas Aeruginosa', 'side': '', 'method': 'APHA 9213-E', 'calc': 'Membrane filtration count',
+               'formula': 'CFU/100 mL = colonies counted x 100 x DF / volume filtered (mL)', 'inputs': ['Colonies counted = 20;  Volume filtered (mL) = 100;  Dilution factor = 2'],
+               'lines': ['Replicate 1: 20 x 100 x 2 / 100 = 40', 'Replicate 2: 18 x 100 x 2 / 100 = 36', 'Average = (40 + 36) / 2 = 38'], 'result': '38', 'unit': 'CFU/100 mL', 'check': 'OK'}
+        t = self.pdf(Ww_rds, 'ww', 'WW-R12B', {'report_type': 'out', 'date_1': '15-08-2026', 'parameter_1': 'Pseudomonas Aeruginosa', 'result_1': '38', 'lib_print_001': json.dumps(lib)})
+        if t is None:
+            return
+        self.assertNotIn('CFU/100 mL = colonies counted', t)                                  # no one-line symbolic formula
+        self.assertIn('Reading 01', t); self.assertIn('Reading 02', t); self.assertIn('Average of Pseudomonas Aeruginosa', t)
+        self.assertRegex(t, r'20 X 100 X 2 = 40')                                           # numerator = result on one line, the divisor under it
+        self.assertRegex(t, r'\n\s+100\n')
+        self.assertIn('Result: 38 CFU/100 mL', t)
+
+    def test_blank_replicate_not_printed(self):
+        from QC.rds_pdf_extras import tidy
+        self.assertIsNone(tidy('( - ) X 0.02 X 50000', ' mg/L', '100'))
+        self.assertEqual(tidy('(0 X 1) + (0 X 1) + (0 X )', '0.00 mg/L', '2'), ('(0 X 1) + (0 X 1)', '0.00 mg/L', '2'))
+        self.assertEqual(tidy('(5 X 1) + (5 X 1) + (5 X 1)', '5 mg/L', '3'), ('(5 X 1) + (5 X 1) + (5 X 1)', '5 mg/L', '3'))
+
+    def test_lists_blank_until_searched(self):
+        DrinkingWaterForm.objects.create(sample_id='DW-R12L', lab_report_no='LR-R12L', city_location='Lahore', **KW)
+        Dw_rds.objects.create(sample_id='DW-R12L', rds={'parameter_1': 'TDS'})
+        r = self.c.get('/qc/dw_rds_list/'); self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(r.context['list']), 0); self.assertFalse(r.context['searched']); self.assertContains(r, 'press Search')
+        self.assertEqual([x.sample_id for x in self.c.get('/qc/dw_rds_list/?q=R12L').context['list']], ['DW-R12L'])
+        self.assertEqual(len(self.c.get('/qc/dw_rds_list/?q=R12L&lab=Karachi').context['list']), 0)
+        self.assertEqual(len(self.c.get('/qc/dw_rds_list/?from=01-01-2030').context['list']), 0)
+        self.assertEqual(len(self.c.get('/qc/dw_rds_list/?from=01-01-2020&to=31-12-2030').context['list']), 1)
+        r = self.c.get('/qc/dw_rds_list/?from=2020'); self.assertTrue(r.context['err'])
+        self.assertEqual(self.c.get('/qc/ww_rds_list/').status_code, 200)
+
+    def test_pages_and_assets(self):
+        for t in ('rds_dw.html', 'rds_ww.html', 'rds_dw_manual.html', 'rds_ww_manual.html'):
+            self.assertIn('rds_df.js', src('templates', t))
+        lib = src('static', 'js', 'rds_formula_lib.js')
+        self.assertIn('data-k="gdf"', lib); self.assertIn("' x DF '", lib)
+        for f in ('QC/views/dw.py', 'QC/views/ww.py'):
+            self.assertNotIn('print_qc_checks(pdf', src(*f.split('/')))

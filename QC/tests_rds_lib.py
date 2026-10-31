@@ -62,8 +62,8 @@ class RdsLibTests(TestCase):
         for u in ('/qc/create_dw_qc_manual/', '/qc/create_ww_qc/', '/qc/create_ww_qc_manual/'):
             self.assertContains(lc.get(u), 'rds_formula_lib.js')
         Dw_rds.objects.create(sample_id='DW-L3-KHI', rds={}); Dw_rds.objects.create(sample_id='DW-L2-LHR', rds={})
-        self.assertEqual([x.sample_id for x in lc.get('/qc/dw_rds_list/').context['list']], ['DW-L2-LHR'])
-        self.assertEqual(len(C(self.ceo).get('/qc/dw_rds_list/').context['list']), 2)
+        self.assertEqual([x.sample_id for x in lc.get('/qc/dw_rds_list/?go=1').context['list']], ['DW-L2-LHR'])
+        self.assertEqual(len(C(self.ceo).get('/qc/dw_rds_list/?go=1').context['list']), 2)
 
     def test_cards_print_on_both_pdfs(self):
         lc = C(self.lhr)
@@ -76,7 +76,7 @@ class RdsLibTests(TestCase):
             t = text(p.content)
             if t is not None:
                 self.assertIn('Calculations - formula library', t)
-                self.assertIn('T = 12 x 0.02 x 50000 / 100 = 120', t)
+                self.assertIn('T = 12 X 0.02 X 50000 = 120', t); self.assertRegex(t, r'= 120 mg/L as CaCO3\n\s+100\n')   # R12: fraction style
                 self.assertIn('Result: 97.6 mg/L', t)
 
     def test_printer_ignores_bad_entries(self):

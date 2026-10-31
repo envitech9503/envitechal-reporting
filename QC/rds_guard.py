@@ -81,3 +81,55 @@ def sample_ids_for_lab(model, kind, request):
     form = WasteWaterForm2 if kind == 'ww' else DrinkingWaterForm
     own = set(form.objects.filter(city_location__iexact=lab).values_list('sample_id', flat=True))
     return [s for s in ids if s in own]
+
+
+def list_filter(request, model, kind):
+    """R12 (owner 31-10-2026, point 3): the RDS lists open blank and show records only for a search - sample ID (part of
+    it), saved-on date range (dd-mm-yyyy), laboratory. A user with a laboratory sees that laboratory only.
+    Returns (rows, filters, searched, error)."""
+    from datetime import datetime, timedelta
+    g = request.GET
+    own = user_lab(request)
+    f = {'q': (g.get('q') or '').strip(), 'from': (g.get('from') or '').strip(), 'to': (g.get('to') or '').strip(),
+         'lab': own or (g.get('lab') or '').strip().title()}
+    searched = g.get('go') == '1' or any((f['q'], f['from'], f['to'], (g.get('lab') or '').strip()))
+    if not searched:
+        return [], f, False, ''
+    def day(v):
+        for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d/%m/%Y'):
+            try:
+                return datetime.strptime(v, fmt)
+            except ValueError:
+                pass
+        return None
+    qs = model.objects.all().order_by('-created_at')
+    err = ''
+    if f['q']:
+        qs = qs.filter(sample_id__icontains=f['q'])
+    if f['from']:
+        d = day(f['from'])
+        if d is None:
+            err = 'The "from" date must be dd-mm-yyyy.'
+        else:
+            qs = qs.filter(created_at__gte=d)
+    if f['to']:
+        d = day(f['to'])
+        if d is None:
+            err = 'The "to" date must be dd-mm-yyyy.'
+        else:
+            qs = qs.filter(created_at__lt=d + timedelta(days=1))
+    if f['lab'] in ('Karachi', 'Lahore'):
+        form = WasteWaterForm2 if kind == 'ww' else DrinkingWaterForm
+        ids = form.objects.filter(city_location__iexact=f['lab']).values_list('sample_id', flat=True)
+        qs = qs.filter(sample_id__in=list(ids))
+    if err:
+        return [], f, True, err
+    rows = list(qs[:500])
+    # revision numbers over the sample's whole history, not only the rows matched
+    sids = {r.sample_id for r in rows}
+    hist = {}
+    for sid, rid in model.objects.filter(sample_id__in=sids).order_by('id').values_list('sample_id', 'id'):
+        hist.setdefault(sid, []).append(rid)
+    for r in rows:
+        ids = hist.get(r.sample_id, [r.id]); r.rev = ids.index(r.id) + 1; r.is_latest = r.id == ids[-1]
+    return rows, f, True, ''

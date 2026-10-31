@@ -34,9 +34,9 @@ class RdsR4Tests(TestCase):
         u = User.objects.create_superuser('r4_ceo', 'c@x.c', 'x')
         Dw_rds.objects.create(sample_id='DW-R4', rds={'parameter_1': 'TDS'}); Dw_rds.objects.create(sample_id='DW-R4', rds={'parameter_1': 'TDS'})
         c = Client(REMOTE_ADDR='127.0.0.1'); c.force_login(u)
-        for url in ('/qc/dw_rds_list/', '/qc/ww_rds_list/'):
+        for url in ('/qc/dw_rds_list/?go=1', '/qc/ww_rds_list/?go=1'):
             r = c.get(url)
             self.assertEqual(r.status_code, 200)
             self.assertContains(r, '_unified_nav') if False else self.assertNotContains(r, 'logo-light.png')
-        r = c.get('/qc/dw_rds_list/')
+        r = c.get('/qc/dw_rds_list/?go=1')
         self.assertContains(r, 'Rev. 2'); self.assertContains(r, 'latest'); self.assertContains(r, 'Add RDS')
