@@ -43,8 +43,8 @@
       <form method="get" class="rdsl-filter mt-4" id="rdsFilter">
         <input type="hidden" name="go" value="1">
         <label>Sample ID<input type="text" name="q" value="{{ f.q }}" placeholder="e.g. 202610003"></label>
-        <label>Saved from<input type="text" name="from" value="{{ f.from }}" placeholder="dd-mm-yyyy"></label>
-        <label>Saved to<input type="text" name="to" value="{{ f.to }}" placeholder="dd-mm-yyyy"></label>
+        <label>Saved from<input type="date" name="from" value="{{ f.from_iso }}" max="{{ f.today }}" title="Pick the first day (calendar)"></label>
+        <label>Saved to<input type="date" name="to" value="{{ f.to_iso }}" max="{{ f.today }}" title="Pick the last day (calendar)"></label>
         {% if not own_lab %}<label>Laboratory<select name="lab"><option value="" {% if not f.lab %}selected{% endif %}>Both</option><option value="Karachi" {% if f.lab == 'Karachi' %}selected{% endif %}>Karachi</option><option value="Lahore" {% if f.lab == 'Lahore' %}selected{% endif %}>Lahore</option></select></label>
         {% else %}<label>Laboratory<input type="text" value="{{ own_lab }}" disabled></label>{% endif %}
         <button type="submit" class="rdsl-go"><i class="fa-solid fa-magnifying-glass"></i> Search</button>

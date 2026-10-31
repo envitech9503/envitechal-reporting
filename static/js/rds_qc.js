@@ -127,16 +127,38 @@
       });
     });
   }
+  /* R12.1 (analyst 31-10-2026): the factor B entered in a WS / RM / CRM check of the same titration serves the section
+     when its own box is empty - the page took B = 1 for the readings, so the section box is filled and the readings
+     redone; when a reading changes the analyst is told to press = on the averages and submit again. */
+  function checkFactor(g, s) {
+    var page = (g.base === 'calcium' ? 'calcium' : 'hardness') + '_edta_b', side = s === '_inlet' ? 'Inlet' : (s === '_outlet' ? 'Outlet' : '');
+    var hit = null;
+    Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) {
+      if (hit !== null || !vis(b)) return;
+      var t = titrFor(val(b, 'param')); if (!t || (t.page || []).indexOf(page) < 0) return;
+      if (String(val(b, 'side') || '') !== side) return;
+      var box = b.querySelector('.rq-tf'), v = box ? num(box.value) : null;
+      if (v !== null && v > 0 && (box.dataset.own || [1, 2, 3].some(function (i) { return String(val(b, 'r' + i)).trim() !== ''; }))) hit = box.value;   // entered, or in force for its readings
+    });
+    return hit;
+  }
   function edtaMissing() {
-    var miss = [];
+    var miss = [], redone = [];
     EDTA.forEach(function (g) {
       SFX.forEach(function (s) {
         var b = $(g.base + '_edta_b' + s); if (!b || !vis(b)) return;
         var used = g.finals.some(function (fId) { var fe = $(fId + s); return fe && vis(fe) && String(fe.value).trim() !== ''; });
-        if (used && !(num(b.value) > 0)) miss.push(g.title + (s ? ' (' + s.slice(1) + ')' : ''));
+        if (!used || num(b.value) > 0) return;
+        var alt = checkFactor(g, s);
+        if (alt === null) { miss.push(g.title + (s ? ' (' + s.slice(1) + ')' : '')); return; }
+        var before = {};
+        Array.prototype.forEach.call(form().querySelectorAll('input'), function (i) { if (i.id && !i.closest('table')) before[i.id] = String(i.value); });
+        b.value = alt; b.dispatchEvent(new Event('change', { bubbles: true }));
+        var changed = Array.prototype.filter.call(form().querySelectorAll('input'), function (i) { return i.id && i.id !== b.id && before.hasOwnProperty(i.id) && before[i.id] !== String(i.value); });
+        if (changed.length) redone.push(g.title + (s ? ' (' + s.slice(1) + ')' : '') + ': B = ' + alt + ' taken from its check, ' + changed.length + ' reading(s) recalculated');
       });
     });
-    return miss;
+    return { miss: miss, redone: redone };
   }
 
   /* ------------------------------------------------------------------ 2. QC checks (WS / RM / CRM) */
@@ -323,7 +345,7 @@
       mean: out.mean, result: out.rec, mode: abs ? 'abs' : 'rec', work: work, lo: val(blk, 'lo'), hi: val(blk, 'hi'), abs: abs ? abs.value : '', verdict: out.verdict
     }) : '';
   }
-  /* R8 (owner request 28-10-2026): a WS / RM / CRM check gets its row in the results table, as the table's "+" gives a
+  /* R8 (owner request 28-10-2026): a check gets its row in the results table, as the table's "+" gives a
      CRM row its calculation. The row is the check's: S.no N.k, parameter "<name> WS|RM|CRM", result = the check's mean,
      remarks = its verdict; its id links them (calc_N_k, the page's own convention), so removing either removes both. */
   function tbody() { return document.querySelector('#qcForm tbody'); }
@@ -346,8 +368,11 @@
       return s && s.indexOf('.') < 0 && pi && (bareName(pi.value) === bareName(param) || sameParam(param, pi.value));
     })[0] || null;
   }
+  /* R12.1 (analyst 31-10-2026): only a CRM check takes a row in the results table (as the table's "+" CRM row does);
+     a WS / RM check keeps its mean and verdict in the check itself. */
   function linkRow(blk) {
     if (!blk || rowOf(blk)) return rowOf(blk);
+    if (blk.dataset.type !== 'CRM') return null;
     var bar = blk.closest('.rq-bar'), param = bar ? bar.dataset.param : '';
     var main = mainRowFor(param), body = tbody(); if (!main || !body) return null;
     var base = snoOf(main), side = bar ? bar.dataset.side : '';
@@ -599,8 +624,9 @@
   /* ------------------------------------------------------------------ save check, styles, hooks */
   var origSave = window.rdsBeforeSave;
   window.rdsBeforeSave = function (data) {
-    var miss = edtaMissing();
-    if (miss.length) { alert('Enter the EDTA factor B for ' + miss.join(', ') + ' (QA RDS-23): the readings depend on it.'); return false; }
+    var em = edtaMissing();
+    if (em.miss.length) { alert('Enter the EDTA factor B for ' + em.miss.join(', ') + ' (QA RDS-23) in the "EDTA factor B" box at the top of the section: the readings depend on it.'); return false; }
+    if (em.redone.length) { alert('EDTA factor B was taken from the check:\n- ' + em.redone.join('\n- ') + '\n\nPress = on the averages that use these readings, then submit again.'); return false; }
     Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) {
       compute(b, false);
       var pr = b.querySelector('.rq-print'); if (data && pr) data[pr.name] = pr.value;

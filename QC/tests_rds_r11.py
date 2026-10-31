@@ -263,6 +263,20 @@ class RdsR12(TestCase):
         self.assertEqual(len(self.c.get('/qc/dw_rds_list/?from=01-01-2020&to=31-12-2030').context['list']), 1)
         r = self.c.get('/qc/dw_rds_list/?from=2020'); self.assertTrue(r.context['err'])
         self.assertEqual(self.c.get('/qc/ww_rds_list/').status_code, 200)
+        # R12.1: calendar pickers (type="date", yyyy-mm-dd) - the picked dates come back into the boxes; from > to is refused
+        r = self.c.get('/qc/dw_rds_list/?from=2020-01-01&to=2030-12-31'); self.assertEqual(len(r.context['list']), 1)
+        self.assertContains(r, 'type="date" name="from" value="2020-01-01"'); self.assertContains(r, 'type="date" name="to" value="2030-12-31"')
+        r = self.c.get('/qc/dw_rds_list/?from=02-01-2030&to=01-01-2030'); self.assertIn('after', r.context['err'])
+        self.assertContains(self.c.get('/qc/ww_rds_list/'), 'type="date" name="from"')
+
+    def test_r12_1_analyst_edta_and_crm_rows_only(self):
+        """Analyst 31-10-2026: (1) the submit gate takes factor B from the check of the same titration when the section's
+        box is empty; (2) only a CRM check gets a results-table row (WS / RM do not)."""
+        qc = src('static', 'js', 'rds_qc.js')
+        self.assertIn('function checkFactor(g, s)', qc); self.assertIn('var alt = checkFactor(g, s);', qc)
+        self.assertIn("if (blk.dataset.type !== 'CRM') return null;", qc)
+        for t in ('rds_dw.html', 'rds_ww.html', 'rds_dw_manual.html', 'rds_ww_manual.html'):
+            self.assertRegex(src('templates', t), r'rds_qc\.js[^>]*v=20261031c')
 
     def test_pages_and_assets(self):
         for t in ('rds_dw.html', 'rds_ww.html', 'rds_dw_manual.html', 'rds_ww_manual.html'):
@@ -271,3 +285,12 @@ class RdsR12(TestCase):
         self.assertIn('data-k="gdf"', lib); self.assertIn("' x DF '", lib)
         for f in ('QC/views/dw.py', 'QC/views/ww.py'):
             self.assertNotIn('print_qc_checks(pdf', src(*f.split('/')))
+
+
+class RdsR121Magnesium(TestCase):
+    def test_blank_magnesium_line_not_printed(self):
+        """Production check 31-10-2026 (dw147): "Magnesium = ( - ) X 0.243 = mg/L" printed from blank inputs."""
+        for f in ('QC/views/dw.py', 'QC/views/ww.py'):
+            s = src(*f.split('/'))
+            self.assertNotIn("\n                    pdf.cell(40, 6, f\"{data.get(mg_head, 'Magnesium')}", s)
+            self.assertIn("if str(data.get(mg_th_final_key) or '').strip() and str(data.get(mg_cah_final_key) or '').strip():", s)

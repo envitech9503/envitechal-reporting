@@ -4436,7 +4436,8 @@ def generate_ww_qc_pdf_response(report, pk):
                         # Final Magnesium Calculation
                         pdf.set_x(10)
                         pdf.set_font("Calibri", '', 10)
-                        pdf.cell(40, 6, f"{data.get(mg_head, 'Magnesium')} = ({data.get(mg_th_final_key, '')} - {data.get(mg_cah_final_key, '')}) X {data.get(mg_multiply_key, '0.243')} = {data.get(mg_ans_key, '')} {data.get(mg_param_key, 'mg/L')}", border=False, align="L")
+                        if str(data.get(mg_th_final_key) or '').strip() and str(data.get(mg_cah_final_key) or '').strip():   # R12.1: no blank "( - )" line (production check dw147)
+                            pdf.cell(40, 6, f"{data.get(mg_head, 'Magnesium')} = ({data.get(mg_th_final_key, '')} - {data.get(mg_cah_final_key, '')}) X {data.get(mg_multiply_key, '0.243')} = {data.get(mg_ans_key, '')} {data.get(mg_param_key, 'mg/L')}", border=False, align="L")
                         
                         # formula_text = f""
                         # result_text = f"{data.get(mg_ans_key, '')} {data.get(mg_param_key, 'mg/L')}"
@@ -8344,7 +8345,8 @@ def generate_ww_qc_pdf_response(report, pk):
                         # Final Magnesium Calculation
                         pdf.set_x(10)
                         pdf.set_font("Calibri", '', 10)
-                        pdf.cell(40, 6, f"{data.get(mg_head, 'Magnesium')} = ({data.get(mg_th_final_key, '')} - {data.get(mg_cah_final_key, '')}) X {data.get(mg_multiply_key, '0.243')} = {data.get(mg_ans_key, '')} {data.get(mg_param_key, 'mg/L')}", border=False, align="L")
+                        if str(data.get(mg_th_final_key) or '').strip() and str(data.get(mg_cah_final_key) or '').strip():   # R12.1: no blank "( - )" line (production check dw147)
+                            pdf.cell(40, 6, f"{data.get(mg_head, 'Magnesium')} = ({data.get(mg_th_final_key, '')} - {data.get(mg_cah_final_key, '')}) X {data.get(mg_multiply_key, '0.243')} = {data.get(mg_ans_key, '')} {data.get(mg_param_key, 'mg/L')}", border=False, align="L")
                         
                         # formula_text = f""
                         # result_text = f"{data.get(mg_ans_key, '')} {data.get(mg_param_key, 'mg/L')}"

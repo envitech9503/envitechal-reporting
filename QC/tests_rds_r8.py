@@ -1,7 +1,7 @@
 """RDS release R8 (chemist feedback 28-10-2026, Tayyaba): WW RDS loads the report's current results (structured_data is
 written only at creation), the latest report of a sample, long client names wrap, empty gravimetric readings are not
 printed, oil & grease and TSS first readings shown, carbonate / bicarbonate by APHA 2320 B, EDTA card in triplicate, one
-plate for counts, working of every check shown, and every WS / RM / CRM check gets its row in the results table."""
+plate for counts, working of every check shown, and every WS / RM / CRM check gets its row in the results table (R12.1, analyst 31-10-2026: CRM only)."""
 import json
 import os
 import shutil

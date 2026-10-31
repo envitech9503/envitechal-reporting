@@ -91,7 +91,9 @@ def list_filter(request, model, kind):
     g = request.GET
     own = user_lab(request)
     f = {'q': (g.get('q') or '').strip(), 'from': (g.get('from') or '').strip(), 'to': (g.get('to') or '').strip(),
-         'lab': own or (g.get('lab') or '').strip().title()}
+         'lab': own or (g.get('lab') or '').strip().title(), 'from_iso': '', 'to_iso': ''}
+    from django.utils import timezone
+    f['today'] = timezone.localdate().strftime('%Y-%m-%d')      # R12.1: the calendar pickers stop at today
     searched = g.get('go') == '1' or any((f['q'], f['from'], f['to'], (g.get('lab') or '').strip()))
     if not searched:
         return [], f, False, ''
@@ -112,12 +114,16 @@ def list_filter(request, model, kind):
             err = 'The "from" date must be dd-mm-yyyy.'
         else:
             qs = qs.filter(created_at__gte=d)
+            f['from_iso'] = d.strftime('%Y-%m-%d')
     if f['to']:
         d = day(f['to'])
         if d is None:
             err = 'The "to" date must be dd-mm-yyyy.'
         else:
             qs = qs.filter(created_at__lt=d + timedelta(days=1))
+            f['to_iso'] = d.strftime('%Y-%m-%d')
+    if not err and f['from_iso'] and f['to_iso'] and f['from_iso'] > f['to_iso']:
+        err = 'The "from" date is after the "to" date.'
     if f['lab'] in ('Karachi', 'Lahore'):
         form = WasteWaterForm2 if kind == 'ww' else DrinkingWaterForm
         ids = form.objects.filter(city_location__iexact=f['lab']).values_list('sample_id', flat=True)
