@@ -16,8 +16,24 @@ SKIP_CALC = contextvars.ContextVar('rds_skip_calc', default=False)
 NONE_RX = re.compile(r'\bNone\b')
 
 
+_FACTORLESS = re.compile(r'\(\s*(-?[\d.]+)\s*X\s*\)')
+_UNIT_ONLY = re.compile(r'^\s*(mg/L|µg/L|ug/L|mg N/L|TCU|NTU|Hazen|CFU/\s*\d*\s*mL|MPN/\s*\d*\s*mL|µS/cm|uS/cm|mS/cm|%|pH units|°C)?\s*$', re.I)
+
+
+def bare_factorless(text):
+    """R13 (production check 02-11-2026, dw72): readings saved without their factor print "(10 X ) + (10 X ) + (10 X )";
+    when no term carries a factor the readings are printed bare ("10 + 10 + 10")."""
+    t = str(text)
+    terms = [x.strip() for x in t.split(' + ')]
+    if len(terms) > 1 and all(_FACTORLESS.fullmatch(x) for x in terms):
+        return ' + '.join(_FACTORLESS.fullmatch(x).group(1) for x in terms)
+    if len(terms) == 1 and _FACTORLESS.fullmatch(terms[0]):
+        return _FACTORLESS.fullmatch(terms[0]).group(1)
+    return t
+
+
 def tidy(formula, result, divisor):
-    f = '' if formula is None else str(formula)
+    f = bare_factorless('' if formula is None else str(formula))
     if not re.search(r'\d', NONE_RX.sub('', f)):
         return None                                       # no figures entered: nothing to print
     if re.search(r'[(\[]\s*-\s*[)\]]', NONE_RX.sub('', f)):
@@ -30,6 +46,8 @@ def tidy(formula, result, divisor):
         f = ' + '.join(kept)
     f = NONE_RX.sub('', f)
     r = NONE_RX.sub('', '' if result is None else str(result)).strip()
+    if _UNIT_ONLY.match(r):                               # R13: a reading whose "=" was never pressed ("= mg/L")
+        r = 'not calculated'
     d = None if divisor in (None, '') else str(divisor)
     if d is not None and n_all == 3 and 0 < n < 3 and d.strip() == '3':
         d = str(n)                                        # averaged over the readings entered (R1 rule)
@@ -232,6 +250,9 @@ def install_typo(pdf):
             txt = kw.pop('text')
         t = '' if txt is None else str(txt)
         try:
+            if ' X )' in t or 'X )' in t:
+                head, sep, rest = t.partition(' = ')
+                t = bare_factorless(head) + sep + rest
             if (t and pdf.font_style == 'B' and pdf.font_size_pt > 10.01 and len(t) < 90
                     and (_SUBHEAD.match(t) or (re.search(r':\s*$', t) and not re.search(r'calculations?\s*:?\s*$|^\s*CALCULATION', t, re.I)))):
                 pdf.set_font(pdf.font_family, 'B', 10)          # a sub-heading ("Reading 02 (Inlet):", "WS-COD-100ppm (Outlet):")

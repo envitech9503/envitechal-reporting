@@ -134,3 +134,36 @@ class RdsR13PairLine(SimpleTestCase):
         pdf = new_pdf(); t = texts(pdf)
         _pair_line(pdf, {'toxic_1': 'Cadmium=', 'toxic_1_1': '0.01'}, 'toxic_1', 'toxic_1_1')
         self.assertEqual(t, ['Cadmium = 0.01'])
+
+
+class RdsR13Production(SimpleTestCase):
+    """Production check after R13 (02-11-2026): old records with readings saved without their factor (dw72), a reading
+    whose "=" was never pressed (dw440, dw542, dw611) and a result saved as "[object HTMLInputElement]" (dw424)."""
+    def test_factorless_readings_and_uncalculated(self):
+        from QC.rds_pdf_extras import tidy, bare_factorless
+        self.assertEqual(tidy('(10 X ) + (10 X ) + (10 X )', '10 TCU', '3'), ('10 + 10 + 10', '10 TCU', '3'))
+        self.assertEqual(tidy('(0 X 1) + (0 X 1) + (0 X )', '0.00 mg/L', '2'), ('(0 X 1) + (0 X 1)', '0.00 mg/L', '2'))   # R12 rule kept
+        self.assertEqual(tidy('(49.3275 - 49.2854) X 1000000', ' mg/L', '100')[1], 'not calculated')
+        self.assertEqual(tidy('(5 X 1) + (5 X 1)', '5 mg/L', '2')[1], '5 mg/L')
+        self.assertEqual(bare_factorless('(-0.9 X )'), '-0.9')
+
+    def test_typo_wrapper_bares_factorless_text(self):
+        from QC.rds_pdf_extras import install_typo
+        pdf = new_pdf(); seen = []
+        oc = pdf.cell
+        pdf.cell = lambda w=0, h=0, txt='', *a, **k: (seen.append(txt), oc(w, h, txt, *a, **k))[1]
+        install_typo(pdf)
+        pdf.cell(0, 6, '(10 X ) + (10 X ) + (10 X ) = 10 TCU', ln=True)
+        self.assertEqual(seen, ['10 + 10 + 10 = 10 TCU'])
+
+    def test_object_value_is_blank(self):
+        from QC.rds_print_filter import printed_row
+        self.assertFalse(printed_row({'parameter_9': 'Chromium III', 'result_9': '[object HTMLInputElement]'}, '9'))
+
+
+class RdsR13WsBlank(SimpleTestCase):
+    def test_ph_buffer_heading_needs_readings(self):
+        for f in ('QC/views/dw.py', 'QC/views/ww.py'):
+            s = src(*f.split('/'))
+            self.assertNotIn('in enumerate(ph_sections, start=1):\n                if data.get(head):\n', s)
+            self.assertIn("R13.2: a buffer left blank prints no heading", s)

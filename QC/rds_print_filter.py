@@ -148,7 +148,8 @@ def infer_owners(kind, key):
 
 
 def _blank(v):
-    return str(v if v is not None else '').strip().lower() in EMPTY
+    s = str(v if v is not None else '').strip().lower()
+    return s in EMPTY or s.startswith('[object')          # R13: "[object HTMLInputElement]" saved by an old page (dw424)
 
 
 def row_keys(data):

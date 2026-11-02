@@ -637,7 +637,7 @@ def generate_dw_qc_pdf_response(report, pk):
         ]
         
         for i, (head, val1, val2, val3, ans) in enumerate(ph_sections, start=1):
-            if data.get(head):
+            if data.get(head) and any(re.search(r'\d', str(data.get(k) or '')) for k in (val1, val2, val3, ans)):   # R13.2: a buffer left blank prints no heading
                 check_page_break(15)
                 pdf.set_font("Calibri", 'B', 10)
                 pdf.cell(0, 6, data[head], border=False, align="L", ln=True)
