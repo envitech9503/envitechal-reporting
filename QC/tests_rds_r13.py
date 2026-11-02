@@ -167,3 +167,19 @@ class RdsR13WsBlank(SimpleTestCase):
             s = src(*f.split('/'))
             self.assertNotIn('in enumerate(ph_sections, start=1):\n                if data.get(head):\n', s)
             self.assertIn("R13.2: a buffer left blank prints no heading", s)
+
+
+class RdsR133(SimpleTestCase):
+    def test_none_factor_and_blank_factor(self):
+        from QC.rds_pdf_extras import tidy
+        self.assertEqual(tidy('(10 X None) + (10 X None) + (10 X None)', '10 mg/L', '3')[0], '10 + 10 + 10')
+        self.assertEqual(tidy('[(23 - 10) - (0.7 - 0.4)] X  X 35450', '63.48 mg/L', '100')[0],
+                         '[(23 - 10) - (0.7 - 0.4)] X (not entered) X 35450')
+        self.assertEqual(tidy('(5 X 1) + (5 X 1)', '5 mg/L', '2')[0], '(5 X 1) + (5 X 1)')
+
+    def test_simple_sections_defer_formula_and_value_only(self):
+        for f in ('QC/views/dw.py', 'QC/views/ww.py'):
+            s = src(*f.split('/'))
+            self.assertIn('R13.3: "Formula:" is printed with its working only', s)
+            self.assertIn('R13.3: a reading saved without its factor key', s)
+            self.assertIn('R13.3: an average without its saved divisor', s)

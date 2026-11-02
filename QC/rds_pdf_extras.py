@@ -20,6 +20,9 @@ _FACTORLESS = re.compile(r'\(\s*(-?[\d.]+)\s*X\s*\)')
 _UNIT_ONLY = re.compile(r'^\s*(mg/L|µg/L|ug/L|mg N/L|TCU|NTU|Hazen|CFU/\s*\d*\s*mL|MPN/\s*\d*\s*mL|µS/cm|uS/cm|mS/cm|%|pH units|°C)?\s*$', re.I)
 
 
+_GAP = re.compile(r'\bX\s+X\b')
+
+
 def bare_factorless(text):
     """R13 (production check 02-11-2026, dw72): readings saved without their factor print "(10 X ) + (10 X ) + (10 X )";
     when no term carries a factor the readings are printed bare ("10 + 10 + 10")."""
@@ -33,7 +36,8 @@ def bare_factorless(text):
 
 
 def tidy(formula, result, divisor):
-    f = bare_factorless('' if formula is None else str(formula))
+    f = bare_factorless(NONE_RX.sub('', '' if formula is None else str(formula)))   # R13.3: "(10 X None)" is factor-less too (dw72)
+    f = _GAP.sub('X (not entered) X', f)                  # R13.3: a factor left blank between two others (dw292, ww11 chloride)
     if not re.search(r'\d', NONE_RX.sub('', f)):
         return None                                       # no figures entered: nothing to print
     if re.search(r'[(\[]\s*-\s*[)\]]', NONE_RX.sub('', f)):
@@ -250,9 +254,9 @@ def install_typo(pdf):
             txt = kw.pop('text')
         t = '' if txt is None else str(txt)
         try:
-            if ' X )' in t or 'X )' in t:
+            if 'X )' in t or 'X None' in t or _GAP.search(t):
                 head, sep, rest = t.partition(' = ')
-                t = bare_factorless(head) + sep + rest
+                t = _GAP.sub('X (not entered) X', bare_factorless(NONE_RX.sub('', head))) + sep + rest
             if (t and pdf.font_style == 'B' and pdf.font_size_pt > 10.01 and len(t) < 90
                     and (_SUBHEAD.match(t) or (re.search(r':\s*$', t) and not re.search(r'calculations?\s*:?\s*$|^\s*CALCULATION', t, re.I)))):
                 pdf.set_font(pdf.font_family, 'B', 10)          # a sub-heading ("Reading 02 (Inlet):", "WS-COD-100ppm (Outlet):")

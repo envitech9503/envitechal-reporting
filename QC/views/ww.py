@@ -671,7 +671,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.set_font("Calibri", 'B', 10)
                     pdf.cell(0, 6, data[head_key], ln=True)
                 
-                pdf.cell(0, 6, "Formula:", ln=True)
+                # R13.3: "Formula:" is printed with its working only (dw72: a heading with nothing under it)
                 pdf.set_font("Calibri", '', 10)
                 
                 # Build formula content
@@ -764,6 +764,14 @@ def generate_ww_qc_pdf_response(report, pk):
                             # Even if empty, let's see what's there
                             pass
                     
+                    if found_val is None:                                  # R13.3: a reading saved without its factor key (dw72)
+                        for val_pattern, df_pattern, pattern_name in possible_patterns:
+                            if str(data.get(val_pattern) or '').strip():
+                                found_val, found_df = data[val_pattern], (data.get(df_pattern) or '')
+                                break
+                        if found_val is not None and not str(found_df or '').strip():
+                            formula_parts.append(str(found_val)); found_val = found_df = None
+
                     if found_val is not None and found_df is not None:
                         formula_parts.append(f"({found_val} X {found_df})")
                     else:
@@ -784,7 +792,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 if formula_parts:
                     formula_content = " + ".join(formula_parts)
                     result_text = f"{data.get(ans_key, '')} {data.get(param_key, '')}"
-                    divisor = data.get(div_key) if div_key else None
+                    divisor = (data.get(div_key) if div_key else None) or (str(len(formula_parts)) if len(formula_parts) > 1 else None)   # R13.3: an average without its saved divisor (dw72)
+                    pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", ln=True); pdf.set_font("Calibri", '', 10)
                     add_formula_with_line(formula_content, result_text, divisor, start_x)
                 else:
                     # Show all keys that might be relevant
@@ -5456,7 +5465,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.set_font("Calibri", 'B', 10)
                     pdf.cell(0, 6, data[head_key], ln=True)
                 
-                pdf.cell(0, 6, "Formula:", ln=True)
+                # R13.3: "Formula:" is printed with its working only (dw72: a heading with nothing under it)
                 pdf.set_font("Calibri", '', 10)
                 
                 # Build formula content
@@ -5522,6 +5531,14 @@ def generate_ww_qc_pdf_response(report, pk):
                             found_pattern = pattern_name
                             break
                     
+                    if found_val is None:                                  # R13.3: a reading saved without its factor key (dw72)
+                        for val_pattern, df_pattern, pattern_name in possible_patterns:
+                            if str(data.get(val_pattern) or '').strip():
+                                found_val, found_df = data[val_pattern], (data.get(df_pattern) or '')
+                                break
+                        if found_val is not None and not str(found_df or '').strip():
+                            formula_parts.append(str(found_val)); found_val = found_df = None
+
                     if found_val and found_df:
                         formula_parts.append(f"({found_val} X {found_df})")
                     else:
@@ -5530,7 +5547,8 @@ def generate_ww_qc_pdf_response(report, pk):
                 if formula_parts:
                     formula_content = " + ".join(formula_parts)
                     result_text = f"{data.get(ans_key, '')} {data.get(param_key, '')}"
-                    divisor = data.get(div_key) if div_key else None
+                    divisor = (data.get(div_key) if div_key else None) or (str(len(formula_parts)) if len(formula_parts) > 1 else None)   # R13.3: an average without its saved divisor (dw72)
+                    pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", ln=True); pdf.set_font("Calibri", '', 10)
                     add_formula_with_line(formula_content, result_text, divisor, start_x)
                 else:
                     # Show all keys that might be relevant
