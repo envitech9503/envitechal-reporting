@@ -76,8 +76,8 @@ class RdsWwTests(TestCase):
         t = pdf_text(p.content)
         if t is not None:
             self.assertIn('/ 15 X 2', t)                                      # seed-control volume in the BOD working
-            self.assertIn('Check: DO depletion 1.80', t); self.assertNotIn('differs from the reported', t)   # analyst 30-10-2026: no comparison with the report on the RDS
-            self.assertIn('recovery 99.5', t)
+            self.assertNotIn('Check:', t); self.assertNotIn('differs from the reported', t)   # R13 (owner 02-11-2026): no check note on the RDS PDF
+            self.assertNotIn('recovery 99.5', t)
             self.assertIn('(74 X 1) + (76 X 1)', t)                           # replicates 1 and 2 (was replicate 1 twice)
         io = {'sample_id': 'WW-T2-LHR', 'report_type': 'in-out', 'date_1': '25-10-2026', 'parameter_1': 'COD', 'outlet_1': '99.5', 'date_2': '25-10-2026', 'parameter_2': 'Biological Oxygen Demand(BOD)5', 'outlet_2': '34', 'for_cod1_outlet': '99', 'for_cod2_outlet': '100', 'cod_divi1_outlet': '2', 'cod_ans_outlet': '99.5',
               'cod_head_outlet': 'WS-COD-100ppm (Outlet):', 'cod_ws_check_outlet': 'recovery 99.5 % of 100 mg/L - acceptable',

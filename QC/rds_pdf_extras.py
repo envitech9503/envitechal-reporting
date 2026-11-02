@@ -211,10 +211,47 @@ def _words(s):
     return {w for w in re.split(r'[^a-z0-9]+', str(s or '').lower().replace('*', '')) if len(w) >= 3 and w not in ('calculation', 'calculations', 'the', 'and', 'inlet', 'outlet')}
 
 
+_SUBHEAD = re.compile(r'^\s*(reading\s*0?\d+(\s*\((inlet|outlet)\))?\s*:?|formula\s*:?|average of\b.*|dilution factor\b.*)\s*$', re.I)
+
+
+_HEAD_NAMES = {'ionic_det': 'Anionic surfactants (MBAS)', 'trubidity': 'Turbidity', 'berylium': 'Beryllium', 'desolve_oxygen': 'Dissolved oxygen', 'freechlorine': 'Free chlorine'}
+
+
+def install_typo(pdf):
+    """One typography for the working on every RDS PDF (R13, owner strict QA 02-11-2026, point 4): the generators set the
+    font of a "Reading 02" or "Formula:" line from whatever the previous section left (bold 11 after the first reading),
+    and printed a saved heading as typed ("hardness:"). A sub-heading of the working is printed bold 10, a typed heading
+    starts with a capital letter; nothing else is changed."""
+    if getattr(pdf, '_etal_typo', False):
+        return
+    pdf._etal_typo = True
+    orig_cell = pdf.cell
+
+    def cell(w=0, h=0, txt='', *a, **kw):
+        if 'text' in kw:
+            txt = kw.pop('text')
+        t = '' if txt is None else str(txt)
+        try:
+            if (t and pdf.font_style == 'B' and pdf.font_size_pt > 10.01 and len(t) < 90
+                    and (_SUBHEAD.match(t) or (re.search(r':\s*$', t) and not re.search(r'calculations?\s*:?\s*$|^\s*CALCULATION', t, re.I)))):
+                pdf.set_font(pdf.font_family, 'B', 10)          # a sub-heading ("Reading 02 (Inlet):", "WS-COD-100ppm (Outlet):")
+            if pdf.font_style == 'B' and len(t) < 60 and re.match(r'^[A-Za-z][^=]*\S\s*=$', t.strip()):   # "Total Chromium =" as a heading
+                t = t.strip()[:-1].rstrip() + ':'
+            if pdf.font_style == 'B' and re.match(r'^[a-z][a-z_]{2,30}:?$', t.strip()):   # a saved heading typed as a key ("arsenic", "ionic_det")
+                t = _HEAD_NAMES.get(t.strip().rstrip(':'), t.strip().replace('_', ' '))
+            if t[:1].islower() and not t[1:2].isupper() and pdf.font_style == 'B' and (re.search(r':\s*$', t) or ' ' not in t.strip()) and len(t) < 90:
+                t = t[0].upper() + t[1:]
+        except Exception:
+            pass
+        return orig_cell(w, h, t, *a, **kw)
+    pdf.cell = cell
+
+
 def install_df(pdf, data):
     """Prints the dilution-factor step under the section it belongs to (R12, owner 31-10-2026). The generators print a
     section heading as a bold 11 pt cell ending in ":" or "Calculation(s)"; before the next heading, the closing block or
     the library cards, the step of the heading just printed is flushed: "Dilution factor (DF = x): result = base x DF = final"."""
+    install_typo(pdf)
     recs = df_records(data)
     pdf._etal_df = {'recs': recs, 'cur': None}
     if not recs:

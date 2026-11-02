@@ -13,6 +13,7 @@ def _pair_line(pdf, data, name_key, value_key):
     """Print "name = value" only when both were saved (no "None = None" lines on the RDS)."""
     a, b = data.get(name_key), data.get(value_key)
     if a not in (None, '') and b not in (None, ''):
+        a = str(a).strip().rstrip('=:').strip()            # R13: the page's label is "Cadmium=" ("Cadmium= = 5" on the PDF)
         pdf.cell(0, 4, f"{a} = {b}", ln=2)
 
 def _carbonate_line(pdf, data):
@@ -50,14 +51,9 @@ def _bod_seed_term(data, sfx):
 def _rds_note(pdf, note):
     """A check note of the calculation (validity of the working), printed under its formula; a comparison with the test
     report's value is not printed (analyst feedback 30-10-2026)."""
-    from QC.rds_pdf_extras import method_checks
-    note = method_checks(note)
-    if not note:
-        return
-    pdf.set_font("Calibri", '', 10)                       # the size and colour of the working (owner 30-10-2026)
-    pdf.set_x(pdf.l_margin)
-    pdf.multi_cell(0, 6, "Check: " + str(note))
-    pdf.set_font("Calibri", '', 10)
+    # R13 (owner strict QA 02-11-2026, point 1): no "Check: ..." line on any RDS PDF - the check notes stay on the page
+    # and in the saved record only (like the WS / RM / CRM checks, R12 point 1)
+    return
 
 
 
@@ -628,12 +624,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 else:
                     pdf.cell(col_widths[6], row_height, '', 1, 0, 'C')
 
-                pdf.cell(
-                    col_widths[7],
-                    row_height,
-                    str(data.get(f'remarks_{row_key}', '')),
-                    1, 1, 'C'
-                )
+                __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[7], row_height, str(data.get(f'remarks_{row_key}', '')), 1, 1, 'C')   # R13: a long remark ("Within acceptance") stays in its cell
 
                 s_no += 1
 
@@ -1370,7 +1361,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, ", ".join(fw_values), ln=True)
 
                     pdf.set_x(30)
-                    pdf.cell(35, 6, "Value of Sample = ")
+                    pdf.cell(35, 6, "Volume of Sample = ")
                     pdf.cell(0, 6, data.get(vs, ''), ln=True)
 
                     pdf.set_x(30)
@@ -1447,7 +1438,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, ", ".join(fw_values), ln=True)
 
                     pdf.set_x(30)
-                    pdf.cell(35, 6, "Value of Sample = ")
+                    pdf.cell(35, 6, "Volume of Sample = ")
                     pdf.cell(0, 6, data.get(vs, ''), ln=True)
 
                     pdf.set_x(30)
@@ -1602,7 +1593,7 @@ def generate_ww_qc_pdf_response(report, pk):
                         pdf.cell(0, 6, ", ".join(fw_values), ln=True)
 
                         pdf.set_x(30)
-                        pdf.cell(35, 6, "Value of Sample = ")
+                        pdf.cell(35, 6, "Volume of Sample = ")
                         pdf.cell(0, 6, data.get(vs, ''), ln=True)
 
                         pdf.set_x(30)
@@ -1676,7 +1667,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, ", ".join(fw_values), ln=True)
 
                     pdf.set_x(30)
-                    pdf.cell(35, 6, "Value of Sample = ")
+                    pdf.cell(35, 6, "Volume of Sample = ")
                     pdf.cell(0, 6, data.get(vs, ''), ln=True)
 
                     pdf.set_x(30)
@@ -3982,8 +3973,9 @@ def generate_ww_qc_pdf_response(report, pk):
                     )
                 
             
-            pdf.set_font("Calibri", 'B', size=10)
-            pdf.cell(0,5,"Alkalinity CRM Calculations",ln=True)
+            if any(re.match(r'alkalinity_crm_\d+_\d+_1$', k) and data.get(k) for k in data):   # R13: no empty CRM heading
+                pdf.set_font("Calibri", 'B', size=10)
+                pdf.cell(0,5,"Alkalinity CRM Calculations",ln=True)
             pdf.set_font("Calibri", '', size=10)
             for key in sorted(data.keys()):
                 # Match keys like 'alkalinity_crm_36_1_1'
@@ -4337,7 +4329,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 
                 pdf.set_x(10)
                 pdf.set_font("Calibri", '', 10)
-                pdf.cell(30, 6, "Formula = ", border=False, align="L")
+                pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
                 
                 # Build formula content
                 formula_parts = []
@@ -4518,7 +4510,7 @@ def generate_ww_qc_pdf_response(report, pk):
 
                 pdf.set_x(10)
                 pdf.set_font("Calibri", '', 10)
-                pdf.cell(30, 6, "Formula = ", border=False, align="L")
+                pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
 
                 formula_parts = []
                 for i in range(1, 4):
@@ -4671,7 +4663,7 @@ def generate_ww_qc_pdf_response(report, pk):
 
                 pdf.set_x(10)
                 pdf.set_font("Calibri", '', 10)
-                pdf.cell(30, 6, "Formula = ", border=False, align="L")
+                pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
 
                 formula_parts = []
                 for i in range(1, 4):
@@ -5373,12 +5365,7 @@ def generate_ww_qc_pdf_response(report, pk):
             else:
                 pdf.cell(col_widths[5], row_height, '', 1, 0)
 
-            pdf.cell(
-                col_widths[6],
-                row_height,
-                str(data.get(f'remarks_{row_key}', '')),
-                1, 1, 'C'
-            )
+            __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[6], row_height, str(data.get(f'remarks_{row_key}', '')), 1, 1, 'C')   # R13: a long remark ("Within acceptance") stays in its cell
 
             s_no += 1
 
@@ -5885,7 +5872,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, ", ".join(fw_values), ln=True)
 
                     pdf.set_x(30)
-                    pdf.cell(35, 6, "Value of Sample = ")
+                    pdf.cell(35, 6, "Volume of Sample = ")
                     pdf.cell(0, 6, data.get(vs, ''), ln=True)
 
                     pdf.set_x(30)
@@ -6043,7 +6030,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(0, 6, ", ".join(fw_values), ln=True)
 
                     pdf.set_x(30)
-                    pdf.cell(35, 6, "Value of Sample = ")
+                    pdf.cell(35, 6, "Volume of Sample = ")
                     pdf.cell(0, 6, data.get(vs, ''), ln=True)
 
                     pdf.set_x(30)
@@ -7995,8 +7982,9 @@ def generate_ww_qc_pdf_response(report, pk):
                     f"{data.get('for_alkalinity_ans', '')} {data.get('for_alkalinity_param')}",
                     data.get('alkalinity_divi')
                 )
-            pdf.set_font("Calibri", 'B', size=10)
-            pdf.cell(0,5,"Alkalinity CRM Calculations",ln=True)
+            if any(re.match(r'alkalinity_crm_\d+_\d+_1$', k) and data.get(k) for k in data):   # R13: no empty CRM heading
+                pdf.set_font("Calibri", 'B', size=10)
+                pdf.cell(0,5,"Alkalinity CRM Calculations",ln=True)
             pdf.set_font("Calibri", '', size=10)
             for key in sorted(data.keys()):
                 # Match keys like 'alkalinity_crm_36_1_1'
@@ -8246,7 +8234,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 
                 pdf.set_x(10)
                 pdf.set_font("Calibri", '', 10)
-                pdf.cell(30, 6, "Formula = ", border=False, align="L")
+                pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
                 
                 # Build formula content
                 formula_parts = []
@@ -8427,7 +8415,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 
                 pdf.set_x(10)
                 pdf.set_font("Calibri", '', 10)
-                pdf.cell(30, 6, "Formula = ", border=False, align="L")
+                pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
                 
                 # Build formula content
                 formula_parts = []

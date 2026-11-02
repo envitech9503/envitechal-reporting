@@ -231,12 +231,7 @@ def generate_dw_qc_pdf_response(report, pk):
         else:
             pdf.cell(col_widths[5], row_height, '', 1, 0)
 
-        pdf.cell(
-            col_widths[6],
-            row_height,
-            str(data.get(f'remarks_{row_key}', '')),
-            1, 1, 'C'
-        )
+        __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[6], row_height, str(data.get(f'remarks_{row_key}', '')), 1, 1, 'C')   # R13: a long remark ("Within acceptance") stays in its cell
 
         s_no += 1
 
@@ -2391,7 +2386,7 @@ def generate_dw_qc_pdf_response(report, pk):
             
             pdf.set_x(10)
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(30, 6, "Formula = ", border=False, align="L")
+            pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
             
             # Build formula content
             formula_parts = []
@@ -2572,7 +2567,7 @@ def generate_dw_qc_pdf_response(report, pk):
             
             pdf.set_x(10)
             pdf.set_font("Calibri", '', 10)
-            pdf.cell(30, 6, "Formula = ", border=False, align="L")
+            pdf.set_font("Calibri", 'B', 10); pdf.cell(0, 6, "Formula:", border=False, align="L", ln=True); pdf.set_font("Calibri", '', 10)   # R13: "Formula:" on its own line as every other section (it overlapped the fraction)
             
             # Build formula content
             formula_parts = []

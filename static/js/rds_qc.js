@@ -337,6 +337,7 @@
     setv(blk, 'mean', out.mean); setv(blk, 'rec', out.rec); setv(blk, 'verdict', out.verdict);
     var wk = blk.querySelector('.rq-work'); if (wk) wk.innerHTML = work.map(esc).join('<br>');
     if (reads.length) { try { fillRow(blk, rd(m, 4), out.verdict); } catch (e) { if (window.console) console.error('RDS QC row', e); } }
+    else if (rowOf(blk)) { try { fillRow(blk, '', ''); var rr = rowOf(blk), rk = snoOf(rr).replace('.', '_'), rmk = rr.querySelector('[name="remarks_' + rk + '"]'); if (rmk) rmk.value = ''; } catch (e) { } }   // R13: readings cleared - the row is cleared too
     var ve = blk.querySelector('.rq-verdict');
     ve.classList.toggle('rq-ok', /^Within/.test(out.verdict)); ve.classList.toggle('rq-bad', /^Outside/.test(out.verdict));
     blk.querySelector('.rq-print').value = reads.length ? JSON.stringify({
@@ -413,12 +414,75 @@
   }
   /* R8.1: removing a row in the results table removes every check that writes to it (the pages removed at most one, and the
      DW manual page none, so an orphaned check could bring the row back) */
+  /* R13 (owner strict QA 02-11-2026, point 2): one removal for every page. A CRM row takes its calculation block with it
+     (the page's own CRM block or the CRM check); a parameter row takes its CRM rows and their blocks with it. No row is
+     renumbered any more - the pages renumbered the CRM rows after a removal, so the rows and their blocks (linked by the
+     number, calc_N_k) fell apart; the PDF numbers its rows itself. */
+  function dropRow(tr) {
+    var k = snoOf(tr);
+    if (k.indexOf('.') > 0) {
+      Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) { if (rowOf(b) === tr) b.remove(); });
+      var nb = $('calc_' + k.replace('.', '_')); if (nb) nb.remove();
+    } else if (k) {
+      Array.prototype.forEach.call(document.querySelectorAll('#qcForm tbody tr'), function (r) { if (snoOf(r).indexOf(k + '.') === 0) dropRow(r); });
+    }
+    tr.remove();
+  }
+  window.rdsDropRow = dropRow;
   document.addEventListener('click', function (e) {
     var btn = e.target && e.target.closest ? e.target.closest('.remove-row-btn, button.bg-red-500') : null;
     var tr = btn ? btn.closest('#qcForm tbody tr') : null;
-    if (!tr || snoOf(tr).indexOf('.') < 0) return;
-    Array.prototype.forEach.call(document.querySelectorAll('.rq-block'), function (b) { if (rowOf(b) === tr) b.remove(); });
+    if (!tr || !snoOf(tr)) return;
+    e.stopImmediatePropagation(); e.preventDefault();          // the page's own handler (renumbering) does not run
+    dropRow(tr);
   }, true);
+  /* the page's own CRM block (table "+") gets a Remove button that removes its row too */
+  function nativeRemove(blk, tr) {
+    if (!blk || blk.querySelector('.rq-nat-del')) return;
+    var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'rq-del rq-nat-del'; bt.textContent = 'Remove'; bt.title = 'Remove this CRM and its row in the results table';
+    blk.style.position = 'relative'; blk.insertBefore(bt, blk.firstChild);
+    bt.addEventListener('click', function () { var r = Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (x) { return snoOf(x) === snoOf(tr); })[0]; if (r) dropRow(r); else blk.remove(); });
+  }
+  /* manual pages: "Generate CRM Calculation for ..." made a CRM row with a number of its own counter (it could repeat a
+     row's number) and a block without an id (the row's "-" left it behind). The counters start after the rows present,
+     and the new block is wrapped as calc_N_k with a Remove button, so it is linked to its row like the others. */
+  function syncCounters() {
+    Array.prototype.forEach.call(document.querySelectorAll('#qcForm tbody tr, #table tbody tr'), function (r) {
+      var s = snoOf(r); if (!s || s.indexOf('.') >= 0) return;
+      var mx = window.rdsMaxSub(s);
+      try { if (window.subRowCounter) window.subRowCounter[s] = Math.max(window.subRowCounter[s] || 0, mx); } catch (e) { }
+      try { if (typeof subRowCounter === 'object' && subRowCounter) subRowCounter[s] = Math.max(subRowCounter[s] || 0, mx); } catch (e) { }   // eslint-disable-line no-undef
+    });
+  }
+  function calcHosts() { return Array.prototype.filter.call(document.querySelectorAll('div[class*="dynamic-"]'), function (d) { return /(^|\s)dynamic-\S+-calcs(\s|$)/.test(d.className); }); }
+  document.addEventListener('click', function (e) {
+    var g = e.target && e.target.closest ? e.target.closest('.generate-crm-btn') : null; if (!g) return;
+    syncCounters();
+    var rows0 = Array.prototype.slice.call(document.querySelectorAll('#qcForm tbody tr')), kids0 = new Set();
+    calcHosts().forEach(function (h) { Array.prototype.forEach.call(h.childNodes, function (c) { kids0.add(c); }); });
+    var tries = 0;
+    (function look() {
+      var nr = Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr'), function (r) { return rows0.indexOf(r) < 0 && snoOf(r).indexOf('.') > 0; })[0];
+      if (!nr) { if (++tries < 30) setTimeout(look, 60); return; }
+      var k = snoOf(nr), id = 'calc_' + k.replace('.', '_');
+      calcHosts().forEach(function (h) {
+        var fresh = Array.prototype.filter.call(h.childNodes, function (c) { return !kids0.has(c) && !(c.nodeType === 3 && !c.textContent.trim()); });
+        if (!fresh.length || $(id)) return;
+        var w = document.createElement('div'); w.id = id; w.className = 'rq-native-crm';
+        fresh[0].parentNode.insertBefore(w, fresh[0]); fresh.forEach(function (c) { w.appendChild(c); });
+        nativeRemove(w, nr);
+      });
+      tidyCrmRow(nr);
+    })();
+  }, true);
+  document.addEventListener('click', function (e) {     // the table "+" also starts after the rows present
+    if (e.target && e.target.classList && e.target.classList.contains('add-row-btn')) syncCounters();
+  }, true);
+  function tidyCrmRow(tr) {                 // the cloned "+" became a dead "−" (no handler); one remove button only
+    Array.prototype.forEach.call(tr.querySelectorAll('button'), function (b) {
+      if (!b.classList.contains('remove-row-btn') && !b.classList.contains('add-row-btn') && /^[\s−-]*$/.test(b.textContent)) { b.disabled = true; b.style.visibility = 'hidden'; }
+    });
+  }
   function fillRow(blk, mean, verdict) {
     var tr = rowOf(blk) || linkRow(blk); if (!tr) return;
     var side = (blk.querySelector('[name$="_side"]') || {}).value || '';
@@ -435,7 +499,12 @@
       if (!vis(h) || h.dataset.rq) return;
       var ins = SM.get(h) || [];
       if (!ins.some(function (e) { return e.type === 'number' && vis(e); })) return;      // a wrapper heading without a calculation
-      var sn = sectionName(h); if (!sn.name) return;
+      var sn = sectionName(h);
+      if (!sn.name) {                       // R13: an empty heading (manual TDS) - the parameter its fields belong to
+        var OWN = (window.RDS_OWNERS || {})[PAGE === 'ww' ? 'ww' : 'dw'] || {};
+        ins.some(function (e) { var o = OWN[e.name]; if (o && o.length) { sn = { name: String(o[0]).replace(/\*/g, '').trim(), side: /_inlet$/.test(e.name) ? 'Inlet' : (/_outlet$/.test(e.name) ? 'Outlet' : '') }; return true; } return false; });
+      }
+      if (!sn.name) return;
       h.dataset.rq = '1';
       var b = bar(sn.name, sn.side);
       var edta = (function () { var n = h.parentElement && h.parentElement.nextElementSibling; return n && n.classList && n.classList.contains('rds-edta') ? n : null; })() ||
@@ -462,7 +531,8 @@
     var bars = Array.prototype.filter.call(document.querySelectorAll('.rq-bar'), function (b) { return vis(b); });
     var key = function (s) { return lib ? lib.bare(s) : s; };
     return bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p === key(want) || p === key(pn); })[0] ||
-           bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p && (key(pn).indexOf(p) === 0 || p.indexOf(key(pn)) === 0); })[0] || null;
+           bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p && (key(pn).indexOf(p) === 0 || p.indexOf(key(pn)) === 0); })[0] ||
+           bars.filter(function (b) { return sameParam(b.dataset.param, want); })[0] || null;      // R13: "TDS" -> "Total Dissolved Solids (TDS)"
   }
   /* the table's "+" adds a CRM row; where the page has no CRM block for the parameter the row gets a CRM check */
   var rowsBefore = null;
@@ -476,7 +546,8 @@
     if (!added) return;
     var sno = ((added.querySelector('.main-sno') || {}).textContent || '').trim(); if (!sno) return;
     var cid = 'calc_' + sno.replace('.', '_'), blk = $(cid);
-    if (blk && !/not supported/i.test(blk.textContent)) return;          // the page's own CRM block
+    if (sno.indexOf('.') > 0) tidyCrmRow(added);
+    if (blk && !/not supported/i.test(blk.textContent)) { nativeRemove(blk, added); return; }          // the page's own CRM block
     if (blk) blk.remove();
     var pi = added.querySelector('input[name^="parameter_"]'), param = pi ? pi.value : '';
     var b = barFor(param);
@@ -561,6 +632,8 @@
     var ab = String(row || '').match(/\(([^)]+)\)/);                  // "Biological Oxygen Demand(BOD)5" -> BOD
     if (ab && !/^as\b/i.test(ab[1].trim())) keys.push(bareName(ab[1]));
     if (/\bmbas\b/.test(h) && /\bmbas\b/i.test(row)) return true;
+    var hab = String(head || '').match(/\(([^)]+)\)/);                // R13: "Total Dissolved Solids (TDS)" and a row "TDS" (manual WW)
+    if (hab && !/^as\b/i.test(hab[1].trim()) && bareName(hab[1]) && bareName(hab[1]) === bareName(row)) return true;
     return keys.some(function (k) {
       if (!k || !h) return false;
       if (h === k || h.indexOf(k + ' ') === 0 || k.indexOf(h + ' ') === 0) return true;

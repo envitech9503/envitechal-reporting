@@ -61,7 +61,7 @@ class RdsR10(TestCase):
             return
         self.assertNotIn('RDS saved', t)
         self.assertLess(t.index('Colour'), t.index('Turbidity')); self.assertLess(t.index('Turbidity'), t.index('Chromium'))
-        self.assertNotIn('reported: 32', t); self.assertNotIn('differs from the reported', t); self.assertIn('DO depletion below 2.0', t)
+        self.assertNotIn('reported: 32', t); self.assertNotIn('differs from the reported', t); self.assertNotIn('DO depletion below 2.0', t)   # R13: no check note on the PDF
 
     def test_in_out_parameter_not_reported_has_no_row(self):
         c = Client(REMOTE_ADDR='127.0.0.1'); c.force_login(self.u)

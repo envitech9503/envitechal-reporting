@@ -24,5 +24,5 @@ class RdsR6(SimpleTestCase):
         self.assertIn("try { orderSections(); }", js)
         for page in ('rds_dw', 'rds_dw_manual', 'rds_ww', 'rds_ww_manual'):
             s = src('templates', page + '.html')
-            self.assertRegex(s, r"rds_qc.js' %}\?v=20261(02[89]|03[01])\w")
-            self.assertRegex(s, r"rds_formula_lib.js' %}\?v=20261(02[89]|03[01])\w")
+            self.assertRegex(s, r"rds_qc.js' %}\?v=20261(02[89]|03[01]|1\d\d)\w")
+            self.assertRegex(s, r"rds_formula_lib.js' %}\?v=20261(02[89]|03[01]|1\d\d)\w")
