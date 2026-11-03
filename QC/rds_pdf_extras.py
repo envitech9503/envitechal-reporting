@@ -686,3 +686,17 @@ def fit_cell(pdf, w, h, txt, border=1, ln=0, align='L', min_size=6.0):
         pdf.set_font_size(cur)
     pdf.cell(w, h, txt, border, ln, align)
     pdf.set_font_size(size)
+
+
+# R14.1 (owner 03-11-2026, point 3): no QC verdict on any RDS PDF - "Within acceptance", "Check: OK",
+# "Within acceptable limit(s)", "Satisfactory" and the like stay on the page. A remark that is only such a
+# verdict (the page wrote it, or an old record kept it) prints as a blank cell; an analyst's own remark prints.
+_VERDICT = re.compile(r'^\s*(?:check\s*[:\-]?\s*)?(?:(?:with\s*in|outside|out\s+of|not\s+within)\s+(?:the\s+)?'
+                      r'(?:acceptance|acceptable|accepted|control|specified|qc)?\s*(?:range|limits?|criteria)?'
+                      r'|(?:un)?satisfactory|ok(?:ay)?|pass(?:ed)?|fail(?:ed)?|in\s+control|accepted|acceptable)\s*[.!]?\s*$', re.I)
+
+
+def remark(data, key):
+    """The remark printed in an RDS results table (R14.1: a bare QC verdict is not printed)."""
+    v = str((data or {}).get('remarks_%s' % key, '') or '')
+    return '' if _VERDICT.match(v) else v

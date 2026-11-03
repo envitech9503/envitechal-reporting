@@ -246,6 +246,23 @@ window.rdsCrmDp = function (prefix) {
       one: function (x) { if (x.rd === null) return null; var d = x.df === null ? 1 : x.df; return { v: x.rd * d, line: rd(x.rd, 6) + ' X ' + rd(d) }; } }
   ];
   function frmFor(param) { var t = String(param || '').replace(/\*+/g, '').trim(); return titrFor(t) ? null : (FORMS.filter(function (f) { return f.re.test(t); })[0] || null); }
+  /* R14.1 (owner 03-11-2026, point 2 - "offer both"): a calcium check offers both formulas - the section's
+     (instrument reading X dilution factor, the default) and the EDTA titration. The analyst picks one; the other's
+     entries are hidden and not used. */
+  function isCal(param) { var t = String(param || '').replace(/\*+/g, '').trim(); var T = titrFor(t); return !!(T && T.key === 'B_calcium'); }
+  function DFF() { return FORMS.filter(function (f) { return f.key === 'df'; })[0]; }
+  function camOf(blk) { var e = blk.querySelector('.rq-cam'); return e ? e.value : ''; }
+  function camHtml(p) {
+    return '<div class="rq-grid"><label>Formula used<select class="rq-cam" name="' + p + '_cam">' +
+      '<option value="df">Instrument reading X Dilution factor (as the section)</option>' +
+      '<option value="edta">EDTA titration: (Final - Initial) X B X 400.8 / Volume of sample</option></select></label></div>';
+  }
+  function camShow(blk) {
+    var m = camOf(blk); if (!m) return;
+    var t = blk.querySelector('.rq-titr:not(.rq-frm)'), f = blk.querySelector('.rq-frm');
+    if (t) t.style.display = m === 'edta' ? '' : 'none';
+    if (f) f.style.display = m === 'edta' ? 'none' : '';
+  }
   function frmHtml(p, F) {
     return '<details class="rq-titr rq-frm" open><summary>Raw data (' + esc(F.title) + ')</summary>' +
       (F.shared.length ? '<div class="rq-grid">' + F.shared.map(function (q) { return '<label>' + esc(q[1]) + '<input type="number" step="any" class="rq-fs" data-k="' + q[0] + '" name="' + p + '_fs_' + q[0] + '" placeholder="' + esc(q[2] || '') + '"></label>'; }).join('') + '</div>' : '') +
@@ -256,7 +273,9 @@ window.rdsCrmDp = function (prefix) {
       }).join('') + '<p class="rq-tnote">Formula: ' + esc(F.text) + '. Readings 1 - 3 below are calculated from these entries.</p></details>';
   }
   function frmLines(blk) {
-    var F = frmFor(val(blk, 'param')); if (!F || !blk.querySelector('.rq-frm')) return [];
+    var F = frmFor(val(blk, 'param'));
+    if (!F && isCal(val(blk, 'param')) && camOf(blk) && camOf(blk) !== 'edta') F = DFF();   // R14.1: calcium by the section's formula
+    if (!F || !blk.querySelector('.rq-frm')) return [];
     var sh = {}; F.shared.forEach(function (q) { var e = blk.querySelector('.rq-fs[data-k="' + q[0] + '"]'); sh[q[0]] = e ? num(e.value) : null; });
     var lines = [];
     [1, 2, 3].forEach(function (i) {
@@ -313,6 +332,7 @@ window.rdsCrmDp = function (prefix) {
   }
   function titrLines(blk) {                   // fills Reading 1-3 from the titration entries; returns the working lines
     var t = titrFor(val(blk, 'param')); if (!t || !blk.querySelector('.rq-titr')) return [];
+    if (camOf(blk) && camOf(blk) !== 'edta') return [];                                    // R14.1: calcium by reading X DF
     var fct = num(val(blk, 'tf')), lines = [], any = false;
     [1, 2, 3].forEach(function (i) {
       var a = num(val(blk, 'ti' + i)), b = num(val(blk, 'tz' + i)), v = num(val(blk, 'tv' + i));
@@ -343,7 +363,8 @@ window.rdsCrmDp = function (prefix) {
       '<label>' + (type === 'CRM' ? 'Certified value' : 'True value') + '<input type="number" step="any" name="' + p + '_true"></label>' +
       (type !== 'WS' ? '<label>Uncertainty ± (optional)<input type="number" step="any" name="' + p + '_u"></label>' : '') +
       '<label>Unit<input type="text" name="' + p + '_unit" value="' + esc(isPh ? 'pH units' : (opts.unit || 'mg/L')) + '"></label>' +
-      '</div>' + (titrFor(param) && !isPh ? titrHtml(p, titrFor(param), side) : (frmFor(param) && !isPh ? frmHtml(p, frmFor(param)) : '')) + '<div class="rq-grid">' +
+      '</div>' + (isCal(param) && !isPh ? camHtml(p) + frmHtml(p, DFF()) + titrHtml(p, titrFor(param), side)
+        : titrFor(param) && !isPh ? titrHtml(p, titrFor(param), side) : (frmFor(param) && !isPh ? frmHtml(p, frmFor(param)) : '')) + '<div class="rq-grid">' +
       [1, 2, 3].map(function (i) { return '<label>Reading ' + i + '<input type="number" step="any" class="rq-r" name="' + p + '_r' + i + '"></label>'; }).join('') +
       (isPh
         ? '<label>Acceptance ± (pH units)<input type="number" step="any" name="' + p + '_abs" value="0.05"></label>'
@@ -369,6 +390,7 @@ window.rdsCrmDp = function (prefix) {
       blk.remove();
     });
     if (titrFor(param) && !isPh) titrSetup(blk, titrFor(param), side);
+    if (blk.querySelector('.rq-cam')) { camShow(blk); blk.querySelector('.rq-cam').addEventListener('change', function () { camShow(blk); [1, 2, 3].forEach(function (i) { setv(blk, 'r' + i, ''); }); compute(blk, false); }); }
     blk.querySelector('.rq-eq').addEventListener('click', function () { compute(blk, true); });
     blk.addEventListener('input', function () { compute(blk, false); });
     return blk;
@@ -376,6 +398,7 @@ window.rdsCrmDp = function (prefix) {
   function val(blk, f) { var e = blk.querySelector('[name$="_' + f + '"]'); return e ? e.value : ''; }
   function setv(blk, f, v) { var e = blk.querySelector('[name$="_' + f + '"]'); if (e) e.value = v; }
   function compute(blk, loud) {
+    if (blk.querySelector('.rq-cam')) camShow(blk);   // R14.1: also after a draft is restored
     var tlines = titrLines(blk);
     if (!tlines.length) tlines = frmLines(blk);   // R14 point 7
     var type = blk.dataset.type, tv = num(val(blk, 'true')), reads = [1, 2, 3].map(function (i) { return num(val(blk, 'r' + i)); }).filter(function (x) { return x !== null; });
@@ -563,7 +586,9 @@ window.rdsCrmDp = function (prefix) {
     var target = side === 'Inlet' ? tr.querySelector('[name="inlet_' + key + '"]') : side === 'Outlet' ? tr.querySelector('[name="outlet_' + key + '"]') : null;
     target = target || tr.querySelector('[name="result_' + key + '"]') || tr.querySelector('[name="inlet_' + key + '"]') || tr.querySelector('[name="outlet_' + key + '"]');
     if (target) target.value = mean;
-    var rm = tr.querySelector('[name="remarks_' + key + '"]'); if (rm && verdict) rm.value = verdict;
+    // R14.1 (owner 03-11-2026, point 3): the verdict stays in the check on the page - it is not written into the
+    // row's remarks, so no "Within / Outside acceptance" reaches any PDF. A remark the page wrote earlier is cleared.
+    var rm = tr.querySelector('[name="remarks_' + key + '"]'); if (rm && /^\s*(Within|Outside) acceptance\s*$/.test(rm.value)) rm.value = '';
   }
   function qcBars() {
     var f = form(); if (!f) return;

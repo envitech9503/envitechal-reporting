@@ -232,7 +232,7 @@ def generate_dw_qc_pdf_response(report, pk):
         else:
             pdf.cell(col_widths[5], row_height, '', 1, 0)
 
-        __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[6], row_height, str(data.get(f'remarks_{row_key}', '')), 1, 1, 'C')   # R13: a long remark ("Within acceptance") stays in its cell
+        __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[6], row_height, __import__('QC.rds_pdf_extras', fromlist=['remark']).remark(data, row_key), 1, 1, 'C')   # R13: a long remark stays in its cell; R14.1: a bare QC verdict is not printed
 
         s_no += 1
 
@@ -2833,26 +2833,28 @@ def get_dw(request):
             # registration or not, so the RDS loads it too (WS-202610041-KHI: seven reported results, none loaded);
             # a ticked parameter with no result on the report keeps its "N/A" row (not printed on the RDS PDF).
             _nr = lambda v: str(v if v is not None else '').strip().upper() in ('', 'N/A', 'NA', '-', 'NONE', 'NULL')
-            _alias = ('other_param_26', 'other_param_27')   # Chromium III / VI boxes: mapped to total chromium and selenium
+            _nz = lambda n: re.sub(r'[^a-z0-9]', '', str(n or '').lower().replace('*', ''))   # R14.1: "Chromium (III)" = "Chromium III"
+            _extra = {}
+            for _it in (extra_field_data if isinstance(extra_field_data, list) else []):
+                if isinstance(_it, dict) and _it.get('parameters') and _nz(_it['parameters']) not in _extra:
+                    _extra[_nz(_it['parameters'])] = _it.get('result', 'N/A')
             for checkinp_field, param_data in PARAMETER_MAPPING.items():
                 _f = param_data["field"]
                 _on_report = _f.startswith('water_sr') and not _nr(getattr(dw_report, _f, None))
-                _ticked = getattr(sample, checkinp_field, False) is True and checkinp_field not in _alias
+                _ticked = getattr(sample, checkinp_field, False) is True
                 if _ticked or _on_report:
                     parameter_name = param_data["name"]
-                    normalized_name = parameter_name.rstrip('*').strip().lower()
+                    normalized_name = _nz(parameter_name)
 
                     # Only process if not already added
                     if normalized_name not in processed_parameters:
                         # Check if this parameter maps to a direct database field (water_sr1 to water_sr32)
                         if _f.startswith('water_sr') and hasattr(dw_report, _f):
-                            # Get result from direct database field
                             test_result = getattr(dw_report, _f, "N/A")
                         else:
-                            # Get result from extra_field JSON
-                            test_result = extra_field_dict.get(normalized_name, "N/A")
+                            test_result = _extra.get(normalized_name, "N/A")
                         if _nr(test_result):   # R13.5: entered on the report under "Other parameters" (" Faecal Coliform", "Barium")
-                            test_result = extra_field_dict.get(normalized_name, test_result)
+                            test_result = _extra.get(normalized_name, test_result)
 
                         qc_results.append({
                             'parameter': parameter_name,
@@ -2863,11 +2865,11 @@ def get_dw(request):
                         processed_parameters.add(normalized_name)
 
             # STEP 3: Add any remaining parameters from extra_field that weren't in the standard mapping
-            for param in extra_field_data:
+            for param in (extra_field_data if isinstance(extra_field_data, list) else []):
                 parameter_name = param.get('parameters', 'Unknown')
                 result_value = param.get('result', 'N/A')
-                normalized_name = parameter_name.strip().lower()
-                
+                normalized_name = _nz(parameter_name)
+
                 if normalized_name not in processed_parameters:
                     qc_results.append({
                         'parameter': parameter_name,

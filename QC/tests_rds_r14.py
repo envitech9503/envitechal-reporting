@@ -74,7 +74,7 @@ class RdsR14Drafts(TestCase):
 class RdsR14Pages(SimpleTestCase):
     def test_pages_and_scripts(self):
         for page in ('rds_dw', 'rds_ww', 'rds_dw_manual', 'rds_ww_manual'):
-            self.assertIn("rds_draft.js' %}?v=20261103a", src('templates', page + '.html'))
+            self.assertIn("rds_draft.js' %}?v=20261103b", src('templates', page + '.html'))
         js = src('static', 'js', 'rds_qc.js')
         for key in ("key: 'cl'", "key: 'grav'", "key: 'sulphide'", "key: 'bod'", "key: 'df'", "key: 'acid'"):
             self.assertIn(key, js)

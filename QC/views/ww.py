@@ -625,7 +625,7 @@ def generate_ww_qc_pdf_response(report, pk):
                 else:
                     pdf.cell(col_widths[6], row_height, '', 1, 0, 'C')
 
-                __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[7], row_height, str(data.get(f'remarks_{row_key}', '')), 1, 1, 'C')   # R13: a long remark ("Within acceptance") stays in its cell
+                __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[7], row_height, __import__('QC.rds_pdf_extras', fromlist=['remark']).remark(data, row_key), 1, 1, 'C')   # R13: a long remark stays in its cell; R14.1: a bare QC verdict is not printed
 
                 s_no += 1
 
@@ -5364,7 +5364,7 @@ def generate_ww_qc_pdf_response(report, pk):
             else:
                 pdf.cell(col_widths[5], row_height, '', 1, 0)
 
-            __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[6], row_height, str(data.get(f'remarks_{row_key}', '')), 1, 1, 'C')   # R13: a long remark ("Within acceptance") stays in its cell
+            __import__('QC.rds_pdf_extras', fromlist=['fit_cell']).fit_cell(pdf, col_widths[6], row_height, __import__('QC.rds_pdf_extras', fromlist=['remark']).remark(data, row_key), 1, 1, 'C')   # R13: a long remark stays in its cell; R14.1: a bare QC verdict is not printed
 
             s_no += 1
 

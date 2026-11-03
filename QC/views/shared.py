@@ -405,8 +405,8 @@ PARAMETER_MAPPING = {
     "other_param_2": {"name": "Manganese", "field": "water_sr25"},
     "other_param_3": {"name": "Cadmium", "field": "water_sr19"},
     "other_param_11": {"name": "Pesticides", "field": "water_sr32"},
-    "other_param_26": {"name": "Chromium", "field": "water_sr20"},  # Same as Chromium
-    "other_param_27": {"name": "Selenium", "field": "water_sr21"},  # Same as Selenium - CONFLICT!
+    "other_param_26": {"name": "Chromium III", "field": "extra"},   # R14.1: its own result (under "Other parameters"); was total chromium
+    "other_param_27": {"name": "Chromium VI", "field": "extra"},    # R14.1: its own result; was selenium (water_sr21)
     
     
 }

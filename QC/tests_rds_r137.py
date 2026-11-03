@@ -29,7 +29,7 @@ class RdsR137Pages(SimpleTestCase):
             body = body[:body.index('function performCRM', 40)]
             self.assertNotIn('result.toFixed(3)', body, page)
             self.assertIn('rdsCrmDp(prefix)', body)
-            self.assertIn("rds_qc.js' %}?v=20261103a", s); self.assertIn("rds_formula_lib.js' %}?v=20261103a", s)
+            self.assertIn("rds_qc.js' %}?v=20261103b", s); self.assertIn("rds_formula_lib.js' %}?v=20261103b", s)
 
     def test_library_bicarbonate_choice_and_free_co2(self):
         js = src('static', 'js', 'rds_formula_lib.js')

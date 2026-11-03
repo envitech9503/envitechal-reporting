@@ -28,4 +28,4 @@ class RdsR9(SimpleTestCase):
         self.assertIn("return;   // R9: the table's \"+\" is handled once", src('templates', 'rds_ww_manual.html'))
         self.assertIn("typeof getCalculationBlock === 'function'", src('templates', 'rds_dw_manual.html'))
         for page in ('rds_dw', 'rds_dw_manual', 'rds_ww', 'rds_ww_manual'):
-            self.assertRegex(src('templates', page + '.html'), r"rds_qc\.js' %\}\?v=2026110[23]a")
+            self.assertRegex(src('templates', page + '.html'), r"rds_qc\.js' %\}\?v=2026110[23][a-z]")

@@ -283,6 +283,26 @@
       if (pl) setTimeout(function () { restore(pl, pend.when); }, 1500);
     }
   }
+  /* R14.1: once the RDS is saved (its PDF comes back), this browser's copy of the draft is removed as well - the server
+     removes its own copy in the same request - and no further draft is written until the sheet is changed again. */
+  (function () {
+    var F = window.fetch; if (!F || F._rdsDraft) return;
+    var RE = /\/qc\/create_(dw|ww)_qc(_manual)?\/?(\?|$)/;
+    var wrapped = function (url, opt) {
+      var u = typeof url === 'string' ? url : (url && url.url) || '', sid = '';
+      if (RE.test(u)) { try { sid = (JSON.parse((opt && opt.body) || '{}') || {}).sample_id || ''; } catch (e) { } }
+      var pr = F.apply(this, arguments);
+      if (sid) pr.then(function (r) {
+        if (r && r.ok && /pdf/i.test((r.headers && r.headers.get('Content-Type')) || '')) {
+          try { localStorage.removeItem(LS + sid); } catch (e) { }
+          dirty = false; clearTimeout(timer); lastSaved = '';
+          try { setStatus('RDS of ' + sid + ' saved - its draft is removed'); refresh(); } catch (e) { }
+        }
+      }, function () { });
+      return pr;
+    };
+    wrapped._rdsDraft = true; window.fetch = wrapped;
+  })();
   window.rdsDraft = { snapshot: snapshot, save: save, restore: restore, refresh: refresh, open: open };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
