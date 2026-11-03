@@ -432,6 +432,9 @@ def _crm_lines(c):
         if re.match(r'^(recovery|difference)\b', w, re.I):
             continue                                          # a QC outcome: not printed (R12 point 1)
         w = re.sub(r'^Reading (\d+) = ', r'Replicate \1: ', w)
+        one = re.match(r'^Mean = ([^=+()]+?) = (.+)$', w)
+        if one:                                               # R13.6: one reading - its result, not an average of one
+            lines.append('\x00' + one.group(2).strip()); continue
         w = re.sub(r'^Mean = ', 'Average = ', w)
         lines.append(w)
     return lines
@@ -451,7 +454,9 @@ def print_crm(pdf, rec):
     pdf.ln(1); font('B', 10); pdf.set_x(pdf.l_margin)
     param = rec.get('name') or re.sub(r'\s*\*\s*$', '', str(c.get('parameter') or '').strip())
     pdf.cell(0, 6, '%s CRM Calculations%s' % (param, ' (%s)' % rec['side'] if rec['side'] else ''), ln=True)
-    print_lines(pdf, lines, param + ' CRM', font)
+    print_lines(pdf, [x for x in lines if not x.startswith('\x00')], param + ' CRM', font)
+    for x in [x[1:] for x in lines if x.startswith('\x00')]:   # R13.6: "Result = 0.998 mg/L" (dw717, dw718, ww342)
+        font('', 10); pdf.set_x(pdf.l_margin + 20); pdf.cell(0, 6, 'Result = %s' % x, ln=True); pdf.ln(2)
 
 
 def flush_crm(pdf, heading=None):

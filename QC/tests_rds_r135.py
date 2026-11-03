@@ -72,3 +72,22 @@ class RdsR135Crm(SimpleTestCase):
         self.assertIn('99 + 100 + 101 = 100 mg/L', t); self.assertIn('Reading 01', t); self.assertIn('EDTA factor B', t)
         for qc in ('Recovery', 'Within acceptance', 'Certified', 'Chloride CRM'):
             self.assertNotIn(qc, t)
+
+
+class RdsR136(SimpleTestCase):
+    """R13.6: a bar CRM with one reading prints "Result = 0.998 mg/L", not "Average of ... CRM / 0.998 = 0.998 mg/L"."""
+    def test_single_reading(self):
+        from QC.rds_pdf_extras import install_df, flush_df
+        crm = {'type': 'CRM', 'parameter': 'Fluoride', 'side': '', 'unit': 'mg/L', 'readings': ['0.998', '', ''], 'true_value': '1',
+               'mean': '0.998 (n = 1)', 'result': '99.8', 'verdict': 'Within acceptance',
+               'work': ['Mean = 0.998 = 0.998 mg/L', 'Recovery = 0.998 / 1 X 100 = 99.8 %']}
+        d = {'parameter_1': 'Fluoride*', 'parameter_1_1': 'Fluoride CRM', 'qc_print_001': json.dumps(crm)}
+        pdf = new_pdf(); install_df(pdf, d)
+        pdf.set_font('Calibri', 'B', 11); pdf.cell(0, 6, 'Fluoride Calculation:', ln=True)
+        pdf.set_font('Calibri', '', 10); pdf.cell(0, 6, '0.5 X 1 = 0.5 mg/L', ln=True)
+        pdf.set_font('Calibri', 'B', 11); pdf.cell(0, 6, 'Chloride Calculation:', ln=True)
+        flush_df(pdf)
+        t = pdf_text(pdf)
+        self.assertIn('Fluoride CRM Calculations', t); self.assertIn('Result = 0.998 mg/L', t)
+        self.assertNotIn('Average of Fluoride CRM', t); self.assertNotIn('0.998 = 0.998', t); self.assertNotIn('Recovery', t)
+        self.assertLess(t.index('Result = 0.998 mg/L'), t.index('Chloride Calculation:'))
