@@ -355,8 +355,9 @@ def install_df(pdf, data):
     the library cards, the step of the heading just printed is flushed: "Dilution factor (DF = x): result = base x DF = final"."""
     install_typo(pdf)
     recs = df_records(data)
-    pdf._etal_df = {'recs': recs, 'cur': None}
-    if not recs:
+    crm = crm_records(data)
+    pdf._etal_df = {'recs': recs, 'cur': None, 'crm': crm}
+    if not recs and not crm:
         return
     orig_cell = pdf.cell
 
@@ -368,16 +369,116 @@ def install_df(pdf, data):
         if (pdf.font_style == 'B' and abs(pdf.font_size_pt - 11) < 0.01 and len(t) < 90
                 and re.search(r':\s*$|\bcalculations?\s*:?\s*$', t, re.I)
                 and not re.match(r'\s*(average|reading|ws[-\s]|crm|rm[-\s]|sample|blank)', t, re.I)):   # sub-headings stay in their section
+            pdf._etal_df['next'] = t
             flush_df(pdf)
-            pdf._etal_df['cur'] = t
+            pdf._etal_df['cur'] = t; pdf._etal_df['next'] = None
         return orig_cell(w, h, txt, *a, **kw)
     pdf.cell = cell
+
+
+def crm_records(data):
+    """R13.5 (owner 03-11-2026): a CRM check made from the WS / RM / CRM bar gives its row in the results table; its
+    working (readings and their average) is printed as the table's "+" CRM blocks are - not its certified value,
+    recovery or verdict (R12 point 1). Only a check whose "<parameter> CRM" row is in the printed table."""
+    try:
+        from QC.rds_qc_pdf import checks
+        cs = [c for c in checks(data) if c.get('type') == 'CRM']
+    except Exception:
+        return []
+    rows = [str(v) for k, v in (data or {}).items() if k.startswith('parameter_') and re.search(r'\bCRM\s*$', str(v or ''))]
+    out = []
+    for c in cs:
+        w = _cw(c.get('parameter'))
+        row = next((r for r in rows if _names(w, r)), None)
+        if w and row:
+            out.append({'c': c, 'w': w, 'side': str(c.get('side') or '').strip(), 'done': False, 'abbr': _abbr(c.get('parameter')),
+                        'name': re.sub(r'\s*\bCRM\s*$', '', row).replace('*', '').strip()})   # the row's name ("TDS" check, "Total Dissolved Solids" row)
+    return out
+
+
+_QUAL = {'calcium', 'magnesium', 'carbonate', 'carbonates', 'bicarbonate', 'bicarbonates', 'phenolphthalein', 'free', 'combined',
+         'residual', 'temporary', 'permanent', 'non', 'ferrous', 'ferric', 'hexavalent', 'trivalent', 'vi', 'iii', 'methyl', 'orange'}
+_CW_SKIP = {'total', 'as', 'caco3', 'crm', 'calculation', 'calculations', 'the', 'and', 'of', 'inlet', 'outlet', 'average'}
+
+
+def _cw(s):
+    """the words naming a parameter ("pH" kept; "total", "as CaCO3", "CRM" left out)"""
+    return {x for x in re.split(r'[^a-z0-9]+', str(s or '').lower().replace('*', '')) if len(x) >= 2 and x not in _CW_SKIP and not x.isdigit()}
+
+
+def _abbr(s):
+    """the abbreviations a parameter is also named by: "Chemical Oxygen Demand (COD)" -> {"cod"}"""
+    seq = [x for x in re.split(r'[^a-z0-9]+', str(s or '').lower()) if x]
+    acr = {''.join(x[0] for x in seq[i:j]) for i in range(len(seq)) for j in range(i + 2, min(len(seq), i + 5) + 1)}
+    return {x for x in seq if len(x) >= 2 and x in acr}
+
+
+def _hit(r, text):
+    words = set(x for x in re.split(r'[^a-z0-9]+', str(text or '').lower()) if x)
+    return _names(r['w'], text) or bool(r.get('abbr') and r['abbr'] & words)
+
+
+def _names(w, text):
+    """every word of w is in text, or is the initials of words in text ("TDS" - Total Dissolved Solids)"""
+    seq = [x for x in re.split(r'[^a-z0-9]+', str(text or '').lower()) if x]
+    have = set(seq)
+    acr = {''.join(x[0] for x in seq[i:j]) for i in range(len(seq)) for j in range(i + 2, min(len(seq), i + 5) + 1)}
+    return all(x in have or x in acr for x in w)
+
+
+def _crm_lines(c):
+    lines = []
+    for w in [str(x).strip() for x in (c.get('work') or []) if str(x).strip()]:
+        if re.match(r'^(recovery|difference)\b', w, re.I):
+            continue                                          # a QC outcome: not printed (R12 point 1)
+        w = re.sub(r'^Reading (\d+) = ', r'Replicate \1: ', w)
+        w = re.sub(r'^Mean = ', 'Average = ', w)
+        lines.append(w)
+    return lines
+
+
+def print_crm(pdf, rec):
+    """One CRM check's working under the heading "<parameter> CRM Calculations" (bold 10, as the table's CRM blocks)."""
+    from QC.rds_lib_pdf import print_lines
+    rec['done'] = True
+    c = rec['c']; lines = _crm_lines(c)
+    if not lines:
+        return
+    def font(style='', size=10):
+        pdf.set_font('Calibri', style, size)
+    if pdf.get_y() + 14 + 12 * len(lines) > pdf.page_break_trigger:
+        pdf.add_page(); pdf.set_y(35)
+    pdf.ln(1); font('B', 10); pdf.set_x(pdf.l_margin)
+    param = rec.get('name') or re.sub(r'\s*\*\s*$', '', str(c.get('parameter') or '').strip())
+    pdf.cell(0, 6, '%s CRM Calculations%s' % (param, ' (%s)' % rec['side'] if rec['side'] else ''), ln=True)
+    print_lines(pdf, lines, param + ' CRM', font)
+
+
+def flush_crm(pdf, heading=None):
+    """The CRM working of the section just printed (heading given), or every one not yet printed (heading None)."""
+    st = getattr(pdf, '_etal_df', None)
+    if not st or not st.get('crm'):
+        return
+    if heading is None:
+        todo = [r for r in st['crm'] if not r['done']]
+    else:
+        hq = _cw(heading) & _QUAL
+        nxt = st.get('next') or ''
+        nq = _cw(nxt) & _QUAL
+        todo = [r for r in st['crm'] if not r['done'] and _hit(r, heading) and hq <= r['w']   # "Calcium Hardness" is not "Total Hardness"
+                and not (_hit(r, nxt) and nq <= r['w'])]   # the next heading is still this parameter's ("Ammonia (Outlet):"): at its end
+    for r in todo:
+        print_crm(pdf, r)
 
 
 def flush_df(pdf):
     st = getattr(pdf, '_etal_df', None)
     if not st or not st['cur']:
         return
+    try:
+        flush_crm(pdf, st['cur'])                             # R13.5: the section's CRM working, then its DF step
+    except Exception:
+        pass
     hw = _words(st['cur']); side = 'Inlet' if re.search(r'\binlet\b', st['cur'], re.I) else ('Outlet' if re.search(r'\boutlet\b', st['cur'], re.I) else '')
     best, score = None, 0
     for r in st['recs']:
@@ -412,6 +513,10 @@ def closing(pdf, data, page_break=255, top=35):
     """Analysed by / checked by with their e-signatures, then the end line."""
     fdrop(pdf)                                            # R13.4: a "Formula:" left with no working (ww263)
     flush_df(pdf)
+    try:
+        flush_crm(pdf)                                        # R13.5: a CRM working not matched to a section
+    except Exception:
+        pass
     pdf._etal_calc_empty = calc_empty(pdf)
     from EnviTechAlApp.models import Signatures
     def ids(prefix):

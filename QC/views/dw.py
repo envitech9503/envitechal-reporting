@@ -2828,21 +2828,31 @@ def get_dw(request):
                 extra_field_dict = {}
 
             # STEP 2: Process checked parameters from sample registration
+            # R13.5 (03-11-2026): the test report prints every parameter whose result is entered, ticked on the
+            # registration or not, so the RDS loads it too (WS-202610041-KHI: seven reported results, none loaded);
+            # a ticked parameter with no result on the report keeps its "N/A" row (not printed on the RDS PDF).
+            _nr = lambda v: str(v if v is not None else '').strip().upper() in ('', 'N/A', 'NA', '-', 'NONE', 'NULL')
+            _alias = ('other_param_26', 'other_param_27')   # Chromium III / VI boxes: mapped to total chromium and selenium
             for checkinp_field, param_data in PARAMETER_MAPPING.items():
-                if getattr(sample, checkinp_field, False) is True:
+                _f = param_data["field"]
+                _on_report = _f.startswith('water_sr') and not _nr(getattr(dw_report, _f, None))
+                _ticked = getattr(sample, checkinp_field, False) is True and checkinp_field not in _alias
+                if _ticked or _on_report:
                     parameter_name = param_data["name"]
                     normalized_name = parameter_name.rstrip('*').strip().lower()
-                    
+
                     # Only process if not already added
                     if normalized_name not in processed_parameters:
                         # Check if this parameter maps to a direct database field (water_sr1 to water_sr32)
-                        if param_data["field"].startswith('water_sr') and hasattr(dw_report, param_data["field"]):
+                        if _f.startswith('water_sr') and hasattr(dw_report, _f):
                             # Get result from direct database field
-                            test_result = getattr(dw_report, param_data["field"], "N/A")
+                            test_result = getattr(dw_report, _f, "N/A")
                         else:
                             # Get result from extra_field JSON
                             test_result = extra_field_dict.get(normalized_name, "N/A")
-                        
+                        if _nr(test_result):   # R13.5: entered on the report under "Other parameters" (" Faecal Coliform", "Barium")
+                            test_result = extra_field_dict.get(normalized_name, test_result)
+
                         qc_results.append({
                             'parameter': parameter_name,
                             'test_result': test_result if test_result not in [None, ""] else "N/A",
