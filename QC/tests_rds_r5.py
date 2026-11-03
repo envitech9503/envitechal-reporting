@@ -69,7 +69,7 @@ class RdsR5Pages(TestCase):
             self.assertIsNone(re.search(r'\(\((\w+)_final - \1_initial\) \* \1_multiply\)', s))     # every EDTA reading takes B
             self.assertGreaterEqual(s.count("rdsEdtaB('"), 12)
         for page in ('rds_dw', 'rds_dw_manual'):
-            self.assertIn('name="ionic_det_head" id="" value="WS-AID-1ppm"', src('templates', page + '.html'))
+            self.assertIn('name="ionic_det_head" id="" value="WS-AID-1ppm:"', src('templates', page + '.html'))
         m = src('templates', 'rds_ww_manual.html')
         self.assertIn('QA RDS-45', m)
         self.assertNotIn("{% comment %} if (currentReportType == 'in-out') {\n                \n                    const cal_div = document.querySelector('.acidity_cal_div');", m)

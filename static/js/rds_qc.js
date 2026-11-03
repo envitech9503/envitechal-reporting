@@ -239,13 +239,41 @@ window.rdsCrmDp = function (prefix) {
       one: function (x, s) { if (x.d1 === null || x.d2 === null || !x.vs || !x.vb) return null; var P = x.vs / x.vb;
         var seed = (s.sb1 !== null && s.sb2 !== null && s.svc) ? (s.sb1 - s.sb2) * (s.svs || 0) / s.svc : 0;
         return { v: ((x.d1 - x.d2) - seed) / P, line: '[(' + rd(x.d1) + ' - ' + rd(x.d2) + ')' + (seed ? ' - ' + rd(seed, 4) : '') + '] / ' + rd(P, 4) }; } },
-    { key: 'df', re: /^(aluminium|aluminum|antimony|arsenic|barium|boron|cadmium|chromium(?! *vi)|cobalt|copper|iron|lead|manganese|mercury|nickel|selenium|silver|sodium|potassium|zinc|beryllium|magnesium|phenol|ammonium|formaldehyde|strontium|tin)/i,
+    { key: 'df', re: /^(aluminium|aluminum|antimony|arsenic|barium|boron|cadmium|chromium|hexavalent chromium|cobalt|copper|iron|total iron|dissolved iron|ferrous|ferric|lead|manganese|mercury|nickel|selenium|silver|sodium|potassium|zinc|beryllium|magnesium|phenol|ammoni|formaldehyde|strontium|tin|thallium|lithium|molybdenum|vanadium|sulphate|sulfate|colou?r|true colou?r|apparent colou?r|cyanide|fluoride|fluride|nitrate|nitrite|(residual |free |total |combined )?chlorine|chloramine|turbidity|an-?\s?ionic|anionic|surfactant|mbas|detergent|cod\b|chemical oxygen|phosph|silica|reactive silica|silicon|bromide|bromine|iodide|toc\b|total organic carbon|total nitrogen|nitrogen)/i,   // R14.2: every section worked as reading x DF
       title: 'instrument reading x dilution factor', shared: [],
       per: [['rd', 'Instrument reading'], ['df', 'Dilution factor (1 = undiluted)']],
       text: 'Instrument reading X Dilution factor',
       one: function (x) { if (x.rd === null) return null; var d = x.df === null ? 1 : x.df; return { v: x.rd * d, line: rd(x.rd, 6) + ' X ' + rd(d) }; } }
   ];
-  function frmFor(param) { var t = String(param || '').replace(/\*+/g, '').trim(); return titrFor(t) ? null : (FORMS.filter(function (f) { return f.re.test(t); })[0] || null); }
+  /* R14.2 (owner 04-11-2026, "zero tolerance"): a check is worked as its parameter's sample is. A parameter read directly
+     (pH, conductivity, DO, temperature, a total of other results) keeps its readings; any other parameter without a form
+     above takes the formula-library card of its name (micro counts, EDTA, gravimetric, BOD, ...), and an instrument
+     parameter reading x DF. */
+  var DIRECT = /^(ph|electrical conductivity|conductivity|conductvity|ec|do|dissolved oxygen|temperature|salinity|resistivity|total toxic metals|odou?r|taste|appearance)\b/i;
+  var LIBF = {};
+  function libFor(t) {
+    var L = window.RDSLib; if (!L || !L.cardFor || !L.CALC) return null;
+    if (t in LIBF) return LIBF[t];
+    var cf = L.cardFor(t, '', ''), C = L.CALC[cf.calc], F = null;
+    if (C && cf.calc !== 'reading' && cf.calc !== 'obs' && cf.calc !== 'sub' && (C.one || C.run)) {
+      F = { key: 'lib_' + cf.calc, re: /$^/, title: C.title + (C.method ? ' - ' + C.method : ''), shared: [], text: C.formula,
+        per: C.inputs.map(function (q) { return [q[0], q[1], q[2] || '']; }),
+        one: function (x) {
+          try {
+            if (C.one) { var o = C.one(x, cf); return o && isFinite(o.v) ? { v: o.v, line: o.line } : null; }
+            var rr = C.run(x); if (!rr || rr.err || !rr.out) return null;
+            var v = rr.out[cf.out || 'R']; if (v === undefined || !isFinite(v)) return null;
+            return { v: v, line: (rr.lines || []).join('; ') };
+          } catch (e) { return null; }
+        } };
+    } else if (!DIRECT.test(t)) F = FORMS.filter(function (f) { return f.key === 'df'; })[0];
+    LIBF[t] = F; return F;
+  }
+  function frmFor(param) {
+    var t = String(param || '').replace(/\*+/g, '').trim();
+    if (titrFor(t) || DIRECT.test(t)) return null;
+    return FORMS.filter(function (f) { return f.re.test(t); })[0] || libFor(t);
+  }
   /* R14.1 (owner 03-11-2026, point 2 - "offer both"): a calcium check offers both formulas - the section's
      (instrument reading X dilution factor, the default) and the EDTA titration. The analyst picks one; the other's
      entries are hidden and not used. */
@@ -268,7 +296,7 @@ window.rdsCrmDp = function (prefix) {
       (F.shared.length ? '<div class="rq-grid">' + F.shared.map(function (q) { return '<label>' + esc(q[1]) + '<input type="number" step="any" class="rq-fs" data-k="' + q[0] + '" name="' + p + '_fs_' + q[0] + '" placeholder="' + esc(q[2] || '') + '"></label>'; }).join('') + '</div>' : '') +
       [1, 2, 3].map(function (i) {
         return '<div class="rq-grid"><span class="rq-tl">Reading ' + i + '</span>' + F.per.map(function (q) {
-          return '<label>' + esc(q[1]) + '<input type="number" step="any" class="rq-fp" data-k="' + q[0] + '" data-i="' + i + '" name="' + p + '_f' + i + '_' + q[0] + '"' + (q[0] === 'df' ? ' value="1"' : '') + '></label>';
+          return '<label>' + esc(q[1]) + '<input type="number" step="any" class="rq-fp" data-k="' + q[0] + '" data-i="' + i + '" name="' + p + '_f' + i + '_' + q[0] + '"' + (q[0] === 'df' ? ' value="1"' : (q[2] ? ' value="' + esc(q[2]) + '"' : '')) + '></label>';
         }).join('') + '</div>';
       }).join('') + '<p class="rq-tnote">Formula: ' + esc(F.text) + '. Readings 1 - 3 below are calculated from these entries.</p></details>';
   }
@@ -549,6 +577,16 @@ window.rdsCrmDp = function (prefix) {
     var top = mains.length ? Math.max.apply(null, mains) : 0;
     try { if (typeof rowCounter === 'number' && rowCounter < top) rowCounter = top; } catch (e) { }   // eslint-disable-line no-undef
   }
+  /* R14.2 (owner 04-11-2026: "WS & CRM of Sulphate doesn't have the formula the sulphate sample has"): the page's own CRM
+     block that holds only three bare readings and their average is replaced by the CRM check, which works each reading
+     with the parameter's formula (reading x DF, the titration, the gravimetric weights, the plate count ...) */
+  function bareNative(blk, param) {
+    var p = String(param || '').replace(/\s+crm$/i, '').trim(); if (!p || !(frmFor(p) || titrFor(p))) return false;
+    var nums = Array.prototype.filter.call(blk.querySelectorAll('input'), function (e) { return e.type === 'number'; });
+    if (!nums.length) return false;
+    return nums.every(function (e) { return /_(1|2|3|divi|ans)$/.test(e.name || e.id || '') && !/d\.?f/i.test(e.placeholder || ''); });
+  }
+  window.rdsBareNative = bareNative;
   function calcHosts() { return Array.prototype.filter.call(document.querySelectorAll('div[class*="dynamic-"]'), function (d) { return /(^|\s)dynamic-\S+-calcs(\s|$)/.test(d.className); }); }
   document.addEventListener('click', function (e) {
     var g = e.target && e.target.closest ? e.target.closest('.generate-crm-btn') : null; if (!g) return;
@@ -566,6 +604,8 @@ window.rdsCrmDp = function (prefix) {
         var w = document.createElement('div'); w.id = id; w.className = 'rq-native-crm';
         w.dataset.gen = String(Array.prototype.indexOf.call(document.querySelectorAll('.generate-crm-btn'), g));   // R14: a draft clicks the same button
         fresh[0].parentNode.insertBefore(w, fresh[0]); fresh.forEach(function (c) { w.appendChild(c); });
+        var pin = nr.querySelector('input[name^="parameter_"]'), pn = pin ? pin.value : '', bb = bareNative(w, pn) ? barFor(pn) : null;
+        if (bb) { w.remove(); var cc = addCheck(bb, 'CRM', { id: id, ident: '' }); cc.dataset.gen = w.dataset.gen; return; }   // R14.2: the CRM check instead
         nativeRemove(w, nr);
       });
       tidyCrmRow(nr);
@@ -645,7 +685,8 @@ window.rdsCrmDp = function (prefix) {
     var sno = ((added.querySelector('.main-sno') || {}).textContent || '').trim(); if (!sno) return;
     var cid = 'calc_' + sno.replace('.', '_'), blk = $(cid);
     if (sno.indexOf('.') > 0) tidyCrmRow(added);
-    if (blk && !/not supported/i.test(blk.textContent)) { nativeRemove(blk, added); return; }          // the page's own CRM block
+    var pi0 = added.querySelector('input[name^="parameter_"]');
+    if (blk && !/not supported/i.test(blk.textContent) && !bareNative(blk, pi0 ? pi0.value : '')) { nativeRemove(blk, added); return; }          // the page's own CRM block
     if (blk) blk.remove();
     var pi = added.querySelector('input[name^="parameter_"]'), param = pi ? pi.value : '';
     var b = barFor(param);
@@ -888,7 +929,39 @@ window.rdsCrmDp = function (prefix) {
       if (String(i.value).trim() === '') i.value = '1';
     });
   }
+  /* R14.2 (owner 04-11-2026): a section's working standard is worked as its sample is - where the sample's readings take a
+     dilution factor (sulphate, nitrate, fluoride, COD, colour ...), so do the WS readings: each WS reading gets its D.F
+     (default 1), the "=" averages reading x D.F, and the PDF prints the working as the sample's: (r X DF) + ... / n. */
+  function wsDf() {
+    var f = form(); if (!f) return;
+    Array.prototype.forEach.call(f.querySelectorAll('input[type="text"]'), function (h) {
+      if (!/^\s*WS-/i.test(h.value || '') || h.closest('table') || h.closest('.rq-bar') || h.closest('#rdsLib')) return;
+      var box = h.closest('.space-y-2') || h.parentNode; if (!box || box.dataset.rqWsdf) return;
+      var cls = Array.prototype.filter.call(box.classList, function (c) { return c !== 'space-y-2'; })[0];
+      var nums = Array.prototype.filter.call(box.querySelectorAll('input'), function (e) { return e.type === 'number' && !e.readOnly && !/_(ans|param)(_|$)|divi/i.test(e.name || '') && !/^(ans|param|average)$/i.test(e.placeholder || ''); });
+      if (!nums.length || nums.some(function (e) { return /d\.?f/i.test(e.placeholder || '') || /_df$/.test(e.name || ''); })) return;
+      var sib = cls ? Array.prototype.filter.call(f.querySelectorAll('.space-y-2.' + (window.CSS && CSS.escape ? CSS.escape(cls) : cls)), function (d) { return d !== box; }) : [];
+      for (var nx = box.nextElementSibling, k = 0; nx && k < 3; nx = nx.nextElementSibling, k++) sib.push(nx);   // the sample block that follows
+      if (!sib.some(function (d) { return Array.prototype.some.call(d.querySelectorAll('input'), function (e) { return /^\s*d\.?\s*f\b/i.test(e.placeholder || ''); }); })) return;
+      box.dataset.rqWsdf = '1';
+      nums.forEach(function (e) {
+        if (!e.name || f.querySelector('[name="' + e.name + '_wsdf"]')) return;
+        var d = document.createElement('input'); d.type = 'number'; d.step = 'any'; d.name = e.name + '_wsdf'; d.placeholder = 'D.F'; d.value = '1';
+        d.className = 'text-center p-2 rq-wsdf'; d.style.width = '70px'; d.title = 'Dilution factor of this WS reading';
+        e.insertAdjacentElement('afterend', d);
+      });
+      var ans = box.querySelector('input[name$="_ans"], input[id$="_ans"]'), eq = Array.prototype.filter.call(box.querySelectorAll('button'), function (b) { return /^\s*=\s*$/.test(b.textContent); })[0];
+      var calc = function () {
+        var sum = 0, n = 0;
+        nums.forEach(function (e) { var v = num(e.value); if (v === null) return; var d = f.querySelector('[name="' + e.name + '_wsdf"]'), k = d ? num(d.value) : 1; sum += v * (k === null ? 1 : k); n++; });
+        if (ans && n) ans.value = String(+(sum / n).toFixed(4));
+      };
+      if (eq) eq.addEventListener('click', function () { setTimeout(calc, 0); });
+    });
+  }
+  window.rdsWsDf = wsDf;
   function refresh() {
+    try { wsDf(); } catch (e) { if (window.console) console.error('RDS WS DF', e); }
     try { legacyMicro(); } catch (e) { if (window.console) console.error('RDS micro', e); }
     try { dfDefault(); } catch (e) { if (window.console) console.error('RDS DF', e); }
     try { edtaBoxes(); } catch (e) { if (window.console) console.error('RDS EDTA', e); }

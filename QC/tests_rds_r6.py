@@ -16,7 +16,7 @@ class RdsR6(SimpleTestCase):
         lib = src('static', 'js', 'rds_formula_lib.js')
         self.assertNotIn("document.querySelector('[name=\"parameter_' + (i + 1) + '\"]')", lib)   # row by place in the full list
         self.assertIn('kept.forEach', lib)
-        self.assertIn("enterobacteriaceae/, 'plate']", lib)
+        self.assertIn("enterobacteriaceae|yeast|mou?lds?\\b|fung/, 'plate']", lib)
 
     def test_order(self):
         js = src('static', 'js', 'rds_qc.js')

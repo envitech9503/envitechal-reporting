@@ -1087,7 +1087,8 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(text_width, 6, f"{formula_content} = {result_text}", align='L', ln=True)
             
             # Draw the line below the formula
-            pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
+            if divisor_text:   # R14.2: a single reading is not drawn as a fraction
+                pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
             
             if divisor_text:
                 # Center the divisor below the line
@@ -3526,7 +3527,8 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(text_width, 6, f"{formula_content} X {result_text}", align='L', ln=True)
             
             # Draw the line below the formula
-            pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
+            if divisor_text:   # R14.2: a single reading is not drawn as a fraction
+                pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
             
             if divisor_text:
                 # Center the divisor below the line
@@ -5433,7 +5435,8 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(text_width, 6, f"{formula_content} = {result_text}", align='L', ln=True)
             
             # Draw the line below the formula
-            pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
+            if divisor_text:   # R14.2: a single reading is not drawn as a fraction
+                pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
             
             if divisor_text:
                 # Center the divisor below the line
@@ -7651,7 +7654,8 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(text_width, 6, f"{formula_content} X {result_text}", align='L', ln=True)
             
             # Draw the line below the formula
-            pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
+            if divisor_text:   # R14.2: a single reading is not drawn as a fraction
+                pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
             
             if divisor_text:
                 # Center the divisor below the line

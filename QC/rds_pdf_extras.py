@@ -57,6 +57,11 @@ def tidy(formula, result, divisor):
     d = None if divisor in (None, '') else str(divisor)
     if d is not None and n_all == 3 and 0 < n < 3 and d.strip() == '3':
         d = str(n)                                        # averaged over the readings entered (R1 rule)
+    if n == 1 and d is not None and d.strip() in ('1', '1.0'):
+        d = None                                          # R14.2: one reading is not "averaged over 1" (owner 04-11-2026)
+        one = f.strip()
+        if one.startswith('(') and one.endswith(')') and one.count('(') == 1:
+            f = one[1:-1].strip()
     return f, r, d
 
 
@@ -598,12 +603,14 @@ def _avg_group(pdf, data, title, head, reps, divi, ans, param, page_break, top):
         pdf.set_font('Calibri', 'B', 11); pdf.cell(0, 7, title, 0, 1, 'L')
     if head and str(data.get(head) or '').strip():
         pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, str(data.get(head)), 0, 1, 'L')
+    pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, 'Formula:', 0, 1, 'L')   # R14.2: every working under its "Formula:" (as the other sections)
     pdf.set_font('Calibri', '', 10)
     div = str(data.get(divi) or '').strip() if divi else ''
     if len(terms) > 1:
         _fraction(pdf, ' + '.join(terms), '%s %s' % (data.get(ans), data.get(param) or ''), div or str(len(terms)))
     else:
-        _fraction(pdf, terms[0], '%s %s' % (data.get(ans), data.get(param) or ''), None)
+        one = terms[0][1:-1] if terms[0].startswith('(') and terms[0].endswith(')') else terms[0]
+        _fraction(pdf, one, '%s %s' % (data.get(ans), data.get(param) or ''), None)
     return True
 
 

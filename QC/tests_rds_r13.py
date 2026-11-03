@@ -125,7 +125,7 @@ class RdsR13Sync(SimpleTestCase):
                   "if (blk.dataset.type !== 'CRM') return null;", 'sameParam(b.dataset.param, want)'):
             self.assertIn(s, qc)
         for t in ('rds_dw.html', 'rds_ww.html', 'rds_dw_manual.html', 'rds_ww_manual.html'):
-            self.assertRegex(src('templates', t), r"rds_qc\.js' %\}\?v=2026110[23][a-z]")
+            self.assertRegex(src('templates', t), r"rds_qc\.js' %\}\?v=2026110[2-9][a-z]")
 
 
 class RdsR13PairLine(SimpleTestCase):

@@ -35,6 +35,10 @@
   function bare(s) { return norm(s).replace(/\([^)]*\)/g, '').replace(/[^a-z0-9.+&]+/g, ' ').trim(); }
   var SYN = {          // reported name (bare) -> page name (bare)
     'electrical conductivity': 'conductivity', 'ec': 'conductivity', 'dissolved oxygen': 'do', 'oxygen dissolved': 'do',
+    'conductvity': 'conductivity', 'conductivity': 'conductivity', 'fluride': 'fluoride', 'fluride f': 'fluoride', 'total iron': 'iron', 'dissolved iron': 'iron',
+    'phenolic compound as phenol': ['phenolic compounds', 'phenol'], 'phenolic compound as phenols': ['phenolic compounds', 'phenol'], 'phenolic compounds as phenol': ['phenolic compounds', 'phenol'],
+    'phenoliccompounds as phenols': ['phenolic compounds', 'phenol'], 'hydrogensulphide': 'sulphide', 'hydrogen sulphide': 'sulphide', 'hydrogen sulfide': 'sulphide', 'sulfide': 'sulphide',
+    'suspended solids': 'total suspended solids', 'total suspended solid': 'total suspended solids', 'biochemical oxygen demand': 'biological oxygen demand', 'entero cocci': 'fecal enterococci',
     'e.coli': 'e.coli', 'e. coli': 'e.coli', 'e coli': 'e.coli', 'e-coli': 'e.coli', 'e - coli': 'e.coli', 'escherichia coli': 'e.coli',
     'total coliform': 'coliform', 'total coliforms': 'coliform', 'coliforms': 'coliform', 'fecal coliform': 'faecal coliform',
     'faecal coliforms': 'faecal coliform', 'feacal coliform': 'faecal coliform', 'sulfate': 'sulphate', 'tss': 'total suspended solids',
@@ -82,6 +86,8 @@
     for (var i = 0; i < list.length; i++) { var t = list[i]; if (t in K) return K[t]; var tb = bare(t); if (tb in K) return K[tb]; }
     var b2 = b.replace(/ as caco3$/, '').replace(/ as phenols?$/, '');
     if (b2 in K) return K[b2];
+    var b3 = bare(String(reported || '').replace(/\s*@.*$/, ''));   // R14.2: "Conductivity @ 25°C" -> "conductivity"
+    if (b3 !== b) { if (b3 in K) return K[b3]; var s3 = SYN[b3]; if (s3 && !Array.isArray(s3) && s3 in K) return K[s3]; }
     return null;
   }
 
@@ -284,6 +290,61 @@
         return { v: b, line: '[(' + r(x.d1) + ' - ' + r(x.d2) + ') - ' + (corr < 0 ? '(' + r(corr, 6) + ')' : r(corr, 6)) + '] / (' + r(x.sv) + ' / ' + r(x.bv) + ')', w: w.join('; ') || null };
       }
     },
+    /* R14.2 (owner 04-11-2026): cards of the parameters reported on DW and WW reports that were worked with the default
+       "reading x DF" - each now with its own method and formula */
+    sulphide: {
+      title: 'Sulphide, iodometric titration', method: 'APHA 4500-S2- F', reps: true,
+      formula: 'Sulphide (mg/L) = [(A x B) - (C x D)] x 16 000 / V  (A mL iodine of normality B; C mL Na2S2O3 of normality D)',
+      inputs: [['a', 'Iodine A (mL)'], ['b', 'Iodine normality B'], ['c', 'Na2S2O3 C (mL)'], ['d', 'Na2S2O3 normality D'], ['v', 'Sample volume V (mL)']],
+      one: function (x) { if ([x.a, x.b, x.c, x.d].some(function (z) { return z === null; }) || !x.v) return null; return { v: ((x.a * x.b) - (x.c * x.d)) * 16000 / x.v, line: '[(' + r(x.a) + ' x ' + r(x.b) + ') - (' + r(x.c) + ' x ' + r(x.d) + ')] x 16000 / ' + r(x.v) }; }
+    },
+    chlorinity: {
+      title: 'Chlorinity, argentometric titration', method: 'APHA 4500-Cl- B', reps: true,
+      formula: 'Chloride (mg/L) = (A - B) x N x 35 450 / V;  chlorinity (g/kg) = chloride (mg/L) / (1000 x density)',
+      inputs: [['a', 'AgNO3 for sample A (mL)'], ['b', 'AgNO3 for blank B (mL)', '0'], ['n', 'AgNO3 normality N'], ['v', 'Sample volume V (mL)'], ['rho', 'Sample density (g/mL)', '1']],
+      one: function (x) { if (x.a === null || x.n === null || !x.v) return null; var rho = x.rho || 1, cl = (x.a - (x.b || 0)) * x.n * 35450 / x.v; return { v: cl / (1000 * rho), line: '(' + r(x.a) + ' - ' + r(x.b || 0) + ') x ' + r(x.n) + ' x 35450 / ' + r(x.v) + ' / (1000 x ' + r(rho) + ')' }; }
+    },
+    leg: {
+      title: 'Legionella, membrane filtration', method: 'ISO 11731', reps: true, nrep: 1,
+      formula: 'CFU/L = colonies confirmed x 1000 x DF / volume filtered (mL)',
+      inputs: [['col', 'Colonies confirmed'], ['v', 'Volume filtered (mL)', '1000'], ['df', 'Dilution / concentration factor', '1']],
+      one: function (x) { if (x.col === null || !x.v) return null; var df = x.df || 1; return { v: x.col * 1000 * df / x.v, line: r(x.col) + ' x 1000 x ' + r(df) + ' / ' + r(x.v) }; }
+    },
+    pa: {
+      title: 'Presence / absence', method: 'ISO 19250 (Salmonella) / ISO 11290-1 (Listeria)', obs: true,
+      formula: 'Result = detected / not detected in the volume examined (confirmed colonies)',
+      inputs: [['val', 'Detected / not detected'], ['vol', 'Volume examined (mL)'], ['inst', 'Confirmation / remarks']]
+    },
+    algae: {
+      title: 'Algae count (counting chamber)', method: 'APHA 10200 F', reps: true,
+      formula: 'Cells/mL = cells counted x DF / volume examined (mL)',
+      inputs: [['c', 'Cells counted'], ['v', 'Volume examined (mL)', '1'], ['df', 'Dilution / concentration factor', '1']],
+      one: function (x) { if (x.c === null || !x.v) return null; var df = x.df || 1; return { v: x.c * df / x.v, line: r(x.c) + ' x ' + r(df) + ' / ' + r(x.v) }; }
+    },
+    moist: {
+      title: 'Moisture, oven drying', method: 'APHA 2540 G / ASTM D2216', reps: true,
+      formula: 'Moisture (%) = (W1 - W2) / (W1 - W0) x 100  (W0 dish, W1 dish + wet sample, W2 dish + dried sample, g)',
+      inputs: [['w0', 'Dish W0 (g)'], ['w1', 'Dish + wet sample W1 (g)'], ['w2', 'Dish + dried sample W2 (g)']],
+      one: function (x) { if (x.w0 === null || x.w1 === null || x.w2 === null || x.w1 === x.w0) return null; return { v: (x.w1 - x.w2) / (x.w1 - x.w0) * 100, line: '(' + r(x.w1, 5) + ' - ' + r(x.w2, 5) + ') / (' + r(x.w1, 5) + ' - ' + r(x.w0, 5) + ') x 100' }; }
+    },
+    dsg: {
+      title: 'Dry solids (g/L)', method: 'APHA 2540 B / G', reps: true,
+      formula: 'Dry solids (g/L) = (dish + dried residue - dish) g x 1000 / sample volume (mL)',
+      inputs: [['w1', 'Dish (g)'], ['w2', 'Dish + dried residue (g)'], ['v', 'Sample volume (mL)']],
+      one: function (x) { if (x.w1 === null || x.w2 === null || !x.v) return null; return { v: (x.w2 - x.w1) * 1000 / x.v, line: '(' + r(x.w2, 5) + ' - ' + r(x.w1, 5) + ') x 1000 / ' + r(x.v) }; }
+    },
+    fixed: {
+      title: 'Residue on ignition', method: 'APHA 2540 E', reps: true,
+      formula: 'Residue on ignition (mg/L) = (dish + residue after ignition - dish) g x 1 000 000 / sample volume (mL)',
+      inputs: [['w1', 'Dish (g)'], ['w2', 'Dish + residue after ignition (g)'], ['v', 'Sample volume (mL)']],
+      one: function (x) { if (x.w1 === null || x.w2 === null || !x.v) return null; return { v: (x.w2 - x.w1) * 1e6 / x.v, line: '(' + r(x.w2, 5) + ' - ' + r(x.w1, 5) + ') x 1000000 / ' + r(x.v) }; }
+    },
+    tan: {
+      title: 'Acid number, titration', method: 'ASTM D664 / D974', reps: true,
+      formula: 'Acid number (mg KOH/g) = (A - B) x N x 56.1 / W  (A, B mL KOH for sample and blank; W sample mass, g)',
+      inputs: [['a', 'KOH for sample A (mL)'], ['b', 'KOH for blank B (mL)', '0'], ['n', 'KOH normality N'], ['w', 'Sample mass W (g)']],
+      one: function (x) { if (x.a === null || x.n === null || !x.w) return null; return { v: (x.a - (x.b || 0)) * x.n * 56.1 / x.w, line: '(' + r(x.a) + ' - ' + r(x.b || 0) + ') x ' + r(x.n) + ' x 56.1 / ' + r(x.w) }; }
+    },
     obs: {
       title: 'Direct observation / reading', method: '', obs: true,
       formula: 'Result = value observed / read on the instrument (no calculation step)',
@@ -293,22 +354,26 @@
 
   /* parameter (bare reported name) -> card; first match wins. out: the output compared with the reported result */
   var MAP = [
-    [/pesticide|polyaromatic|\bpah\b|\bvoc\b|volatile organic comp|alpha emit|beta emit|radio/, 'sub'],
-    [/^bicarbonates?\b|^hco3/, 'alk', 'HCO3ion'], [/^carbonate hardness|^temporary hardness/, 'carbhard', 'CH'],
+    [/pesticide|polyaromatic|\bpah\b|\bvoc\b|volatile organic comp|alpha emit|beta emit|radio|trihalomethane|\bthms?\b|haloacetic|\bhaas?\b|\bvox\b|volatile organic halogen|bromoform|\baox\b|adsorbable organic halogen/, 'sub'],   // R14.2: GC / AOX work subcontracted
+    [/^bi\s*-?\s*carbonate alkalinity/, 'alk', 'HCO3'], [/^bi\s*-?\s*carbonate hardness/, 'carbhard', 'CH'],   // R14.2 spellings
+    [/^bi\s*-?\s*carbonates?\b|^hco3/, 'alk', 'HCO3ion'], [/^carbonate hardness|^temporary hardness/, 'carbhard', 'CH'],
     [/^non.?carbonate hardness/, 'carbhard', 'NCH'], [/^carbonates?\b/, 'alk', 'CO3ion'], [/hydroxide alk/, 'alk', 'OH'],
-    [/methyl orange alk|^total alkalinity|^alkalinity as caco3|^alkalinity end point|^alkalinity/, 'alk', 'T'], [/phenolphthalein alk/, 'alk', 'P'],
+    [/methyl orange alk|^total alkalinity|^alkalinity as caco3|^alkalinity end point|^alkalinity|^akalinity/, 'alk', 'T'], [/phenolphthalein alk/, 'alk', 'P'],
     [/^calcium hardness/, 'edta', 'H'], [/^total hardness|^hardness/, 'edta', 'H'], [/^magnesium hardness/, 'mghard', 'H'],
-    [/free (co2|co₂|carbon\s*-?\s*di\s*-?\s*oxide)|^(co2|co₂|carbon\s*di\s*oxide)\b.*\bfree/, 'co2', 'R']   /* R13.7: "Free Carbon Di oxide" (Lab Manager Karachi 03-11-2026, point 4) */, [/^total chlorine/, 'dpd', 'total'], [/^combined chlorine/, 'dpd', 'combined'],
-    [/^mlvss|^vss|^volatile suspended/, 'vss'], [/^mlss|^total suspended solids|^tss|^total solids?\b|^oil.*grease|^settleable solids? \(grav/, 'grav'],
+    [/free (co2|co₂|carbon\s*-?\s*di\s*-?\s*oxide)|^(co2|co₂|carbon\s*di\s*oxide)\b.*\bfree|^carbon\s*-?\s*di\s*-?\s*oxide$|^co2$/, 'co2', 'R']   /* R13.7: "Free Carbon Di oxide" (Lab Manager Karachi 03-11-2026, point 4) */, [/^total chlorine/, 'dpd', 'total'], [/^combined chlorine/, 'dpd', 'combined'],
+    [/^mlvss|^vss|^volatile suspended/, 'vss'], [/^mlss|^total suspended solids?\b|^suspended solids?\b|^tss|^total solids?\b|^oil.*grease|^settleable solids? \(grav|^solid residue (from|on) evaporation|^residue on evaporation|^mineral oil/, 'grav'],
+    [/^moisture/, 'moist', 'R'], [/^oven.?dry solids|^dry solids/, 'dsg', 'R'], [/^solid residue (from|on) (glowing|ignition)|^residue on ignition|^fixed solids/, 'fixed', 'R'],
+    [/^sulphide|^sulfide|^hydrogen\s*sulphide|^hydrogen\s*sulfide|^h2s\b/, 'sulphide', 'R'], [/^chlorinity/, 'chlorinity', 'R'],
+    [/legionella/, 'leg', 'R'], [/salmonella|listeria|shigella|vibrio/, 'pa'], [/algae/, 'algae', 'R'], [/acid value|acid number|\btan\b/, 'tan', 'R'],
     [/^phosphates?\b|^ortho.?phosphate/, 'phosphate'],
     [/^tkn\b|kjeldahl/, 'tkn', 'R'],
-    [/^colloidal silica/, 'diff', 'R', 'Colloidal silica = total silica - reactive silica'], [/^ferric/, 'diff', 'R', 'Ferric iron = total iron - ferrous iron'],
+    [/^colloidal silica/, 'diff', 'R', 'Colloidal silica = total silica - reactive silica'], [/^ferric|^fe\s*\+\s*3\b/, 'diff', 'R', 'Ferric iron = total iron - ferrous iron'],
     [/sodium adsorption|^sar\b/, 'sar', 'R'], [/residual sodium carbonate|^rsc\b/, 'rsc', 'R'], [/langel?l?ier|^lsi\b|saturation index/, 'lsi', 'R'],
-    [/^salinity/, 'salinity', 'R'], [/^resistivity/, 'resist', 'R'], [/silt density|^sdi\b/, 'sdi', 'R'],
-    [/coliform|coli\b|enterococc|streptococ|pseudomonas|psudomonas|clostridium/, 'mf'],
-    [/plate count|colony count|heterotrophic|microbial content|aerobic microbe|bacterial count|viable count|\btpc\b|\bhpc\b|\btbc\b|enterobacteriaceae/, 'plate'],   // Enterobacteriaceae: plate count (owner 28-10-2026)
-    [/^bod\b|biological oxygen/, 'bod', 'R'],
-    [/^temperature|^odou?r|^taste|^appearance|^flow ?rate|particle size|particulate|corrosivity|settleable|^colou?r|^ph\b/, 'obs']
+    [/^salinity/, 'salinity', 'R'], [/^resistivity/, 'resist', 'R'], [/silt density|slit density|^sdi\b/, 'sdi', 'R'],
+    [/coliform|coli\b|entero\s*-?\s*cocc|streptococ|pseudomonas|psudomonas|c(o)?lostridium|perfring/, 'mf'],
+    [/plate count|colony count|heterotrophic|microbial content|aerobic microbe|bacteria(l)?\s+(count|cont)|viable count|\btpc\b|\bhpc\b|\btbc\b|enterobacteriaceae|yeast|mou?lds?\b|fung/, 'plate'],   // Enterobacteriaceae: plate count (owner 28-10-2026)
+    [/^bod\b|biological oxygen|biochemical oxygen/, 'bod', 'R'],
+    [/^temperature|^odou?r|^taste|^appearance|^flow ?rate|particle size|particulate|corrosivity|settleable|imhoff|sludge volume|^colou?r|^ph\b|^orp\b|oxidation.?reduction|^redox|^e.?value|visible|^density|flash point|viscosity|pour point|demulsibility|foam|air release|auto.?ignition|thermal degradation/, 'obs']   // R14.2: read directly, no dilution factor
   ];
   var OUTLABEL = { HCO3ion: 'bicarbonate as HCO3 (mg/L)', CO3ion: 'carbonate as CO3 (mg/L)', OH: 'hydroxide alkalinity (mg/L as CaCO3)', T: 'total alkalinity (mg/L as CaCO3)',
     HCO3: 'bicarbonate alkalinity (mg/L as CaCO3)', CO3: 'carbonate alkalinity (mg/L as CaCO3)', OHion: 'hydroxide as OH (mg/L)',
@@ -437,6 +502,7 @@
       var ou = /^\s*[<>]?\s*=?\s*-?\d/.test(result) ? card.querySelector('.rl-unit').value : '';   // a result in words carries no unit (owner 30-10-2026)
       ins.push('Observed value = ' + result + (ou ? ' ' + ou : ''));
       if (card.querySelector('input[data-k=inst]').value.trim()) ins.push('Instrument / remarks = ' + card.querySelector('input[data-k=inst]').value.trim());
+      C.inputs.forEach(function (q) { if (q[0] === 'val' || q[0] === 'inst') return; var e = card.querySelector('input[data-k="' + q[0] + '"]'); if (e && e.value.trim()) ins.push(q[1] + ' = ' + e.value.trim()); });   // R14.2: e.g. the volume examined
       lines.push('Result = ' + result + (ou ? ' ' + ou : ''));
       card.querySelector('.rl-ans').value = result;
     } else if (C.reps) {

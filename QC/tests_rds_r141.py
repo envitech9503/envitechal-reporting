@@ -62,4 +62,4 @@ class R141Js(SimpleTestCase):
         for page in ('rds_dw', 'rds_ww', 'rds_dw_manual', 'rds_ww_manual'):
             t = src('templates', page + '.html')
             for js in ('rds_qc.js', 'rds_draft.js', 'rds_formula_lib.js'):
-                self.assertIn("%s' %%}?v=20261103b" % js, t)
+                self.assertRegex(t, r"%s' %%\}\?v=2026110\d[a-z]" % js.replace('.', r'\.'))

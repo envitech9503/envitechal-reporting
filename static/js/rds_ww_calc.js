@@ -112,7 +112,8 @@
 
   /* ---------------- COD ---------------- */
   function codWS(s) {
-    var vals = ['for_cod1' + s, 'for_cod2' + s, 'for_cod3' + s].map(num).filter(function (x) { return x !== null; });
+    // R14.2: each WS reading x its D.F (the sample's readings take one; default 1)
+    var vals = ['for_cod1' + s, 'for_cod2' + s, 'for_cod3' + s].map(function (id) { var v = num(id); if (v === null) return null; var e = document.querySelector('[name="' + id + '_wsdf"]'), d = e ? parseFloat(e.value) : 1; return v * (isFinite(d) ? d : 1); }).filter(function (x) { return x !== null; });
     var box = checkBox($('cod_param' + s) || $('cod_ans' + s), 'cod_ws_check' + s);
     if (!vals.length) { alert('Enter at least one working-standard reading.'); return; }
     var avg = vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;

@@ -83,7 +83,7 @@ class RdsR3Pdf(TestCase):
              'antimony_param_inlet': 'mg/L', 'antimony_divi_inlet': '1', 'antimony_head_inlet': 'Antimony (Inlet):'}
         t = self.pdf(Ww_rds, 'ww', d)
         if t is not None:
-            self.assertIn('Antimony Inlet Calculations', t); self.assertIn('(0.01 X 1)', t)
+            self.assertIn('Antimony Inlet Calculations', t); self.assertIn('0.01 X 1', t)   # R14.2: one reading, no fraction
             self.assertIn('inlet and outlet', t); self.assertIn('END OF THE DOCUMENT', t)
         c = Client(REMOTE_ADDR='127.0.0.1'); c.force_login(self.u)
         g = c.post('/qc/get_ww/', json.dumps({'sample_id': 'WW-R3-CL'}), content_type='application/json').json()

@@ -405,7 +405,8 @@ def generate_dw_qc_pdf_response(report, pk):
                     color_text_width = pdf.get_string_width(formula_content)
                     pdf.set_x(start_x)
                     pdf.cell(color_text_width, 6, f"{formula_content} = {_res}", align='L', ln=True)
-                    pdf.line(start_x, old_y + 5.5, start_x + color_text_width, old_y + 5.5)
+                    if divisor_text:   # R14.2: no fraction line under a single reading
+                        pdf.line(start_x, old_y + 5.5, start_x + color_text_width, old_y + 5.5)
                     if divisor_text:
                         divisor_width = pdf.get_string_width(divisor_text)
                         pdf.set_x(start_x + (color_text_width / 2) - (divisor_width / 2))
@@ -463,7 +464,8 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.cell(text_width, 6, f"{formula_content} = {result_text}", align='L', ln=True)
         
         # Draw the line below the formula
-        pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
+        if divisor_text:   # R14.2: a single reading is not drawn as a fraction
+            pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
         
         if divisor_text:
             # Center the divisor below the line
@@ -1925,7 +1927,8 @@ def generate_dw_qc_pdf_response(report, pk):
         pdf.cell(text_width, 6, f"{formula_content} X {result_text}", align='L', ln=True)
         
         # Draw the line below the formula
-        pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
+        if divisor_text:   # R14.2: a single reading is not drawn as a fraction
+            pdf.line(line_start_x, old_y+5.5, line_end_x, old_y+5.5)
         
         if divisor_text:
             # Center the divisor below the line

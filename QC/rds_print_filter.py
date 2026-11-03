@@ -200,6 +200,12 @@ class Present:
 def prune(data, kind):
     """A copy of the saved RDS holding only the printed rows and the calculations of their parameters."""
     out = dict(data or {})
+    # R14.2: a WS reading saved with its dilution factor prints as the sample's readings do: (reading X DF)
+    for key in [k for k in out if k.endswith('_wsdf')]:
+        df, base = out.pop(key), key[:-5]
+        v = str(out.get(base) if out.get(base) is not None else '').strip()
+        if v and v not in ('None', 'undefined') and not v.startswith('('):
+            out[base] = '(%s X %s)' % (v, str(df).strip() if str(df or '').strip() not in ('', 'None') else '1')
     rows = row_keys(out)
     kept = []
     for rk in rows:
