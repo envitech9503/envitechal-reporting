@@ -108,6 +108,7 @@ def create_ww_qc(request):
                 sample_id=sample_id,
                 rds=data
             )
+            __import__('QC.views.rds_draft', fromlist=['clear_drafts']).clear_drafts(request, 'ww', sample_id)   # R14: the RDS is saved - its drafts go
             return redirect(f"/qc/generate_ww_qc_pdf_response/{report.id}/")
             # return generate_dw_qc_pdf_response(report, data, sample_id)
             # return JsonResponse({
@@ -1359,7 +1360,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(35, 6, "Formula :", ln=True)
 
                     pdf.set_font("Calibri", '', 10)
-                    formula_text = f"({data.get(fw)} - {data.get(iw)}) X 1000000"
+                    formula_text = f"({fw_values[-1] if fw_values else data.get(fw)} - {data.get(iw)}) X 1000000"   # R13.7: the last final weight entered (was always the fifth)
                     result_text = f"{data.get(ans, '')} {data.get(param, '')}"
 
                     add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
@@ -1436,7 +1437,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(35, 6, "Formula :", ln=True)
 
                     pdf.set_font("Calibri", '', 10)
-                    formula_text = f"({data.get(fw)} - {data.get(iw)}) X 1000000"
+                    formula_text = f"({fw_values[-1] if fw_values else data.get(fw)} - {data.get(iw)}) X 1000000"   # R13.7: the last final weight entered (was always the fifth)
                     result_text = f"{data.get(ans, '')} {data.get(param, '')}"
 
                     add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
@@ -1541,61 +1542,63 @@ def generate_ww_qc_pdf_response(report, pk):
             
             
             
-            if data.get('oil_final_ans_inlet'):
-                check_page_break(100)
-                pdf.set_font("Calibri", 'B', 11)
-                pdf.cell(0, 4, "Oil & Grease Calculation:", 0, 1, 'L')
-                pdf.set_font("Calibri", size=10)
-                pdf.ln(3)
+        _og_in = [k for k in ('oil_ans1_inlet', 'oil_ans2_inlet', 'oil_ans3_inlet') if str(data.get(k) or '').strip()]
+        if data.get('oil_final_ans_inlet') or _og_in:   # R13.7: was inside the TSS CRM loop (printed only with a TSS CRM); a reading without the final average prints too (WW-202610077-KHI)
+            check_page_break(100)
+            pdf.set_font("Calibri", 'B', 11)
+            pdf.cell(0, 4, "Oil & Grease Calculation:", 0, 1, 'L')
+            pdf.set_font("Calibri", size=10)
+            pdf.ln(3)
 
-                inlet_oil_sections = [
-                    ('oil_head_1_inlet', 'oil_iw1_inlet', 'oil_FW05_inlet', 'oil_vs1_inlet', 'oil_ans1_inlet', 'oil_ans_param_inlet', 'oil_read_1_inlet'),
-                    ('',                 'oil_iw2_inlet', 'oil_FW10_inlet', 'oil_vs2_inlet', 'oil_ans2_inlet', 'oil_ans_param_2_inlet', 'oil_read_2_inlet'),
-                    ('',                 'oil_iw3_inlet', 'oil_FW15_inlet', 'oil_vs3_inlet', 'oil_ans3_inlet', 'oil_ans_param_3_inlet', 'oil_read_3_inlet'),
-                ]
+            inlet_oil_sections = [
+                ('oil_head_1_inlet', 'oil_iw1_inlet', 'oil_FW05_inlet', 'oil_vs1_inlet', 'oil_ans1_inlet', 'oil_ans_param_inlet', 'oil_read_1_inlet'),
+                ('',                 'oil_iw2_inlet', 'oil_FW10_inlet', 'oil_vs2_inlet', 'oil_ans2_inlet', 'oil_ans_param_2_inlet', 'oil_read_2_inlet'),
+                ('',                 'oil_iw3_inlet', 'oil_FW15_inlet', 'oil_vs3_inlet', 'oil_ans3_inlet', 'oil_ans_param_3_inlet', 'oil_read_3_inlet'),
+            ]
 
-                for head, iw, fw, vs, ans, param, read in inlet_oil_sections:
-                    if data.get(iw):
-                        check_page_break(25)
+            for head, iw, fw, vs, ans, param, read in inlet_oil_sections:
+                if data.get(iw):
+                    check_page_break(25)
 
-                        if head and data.get(head):
-                            pdf.set_font("Calibri", 'B', 10)
-                            pdf.cell(0, 6, f"{data[head]}", ln=True)
-
-                        if read and data.get(read):
-                            pdf.set_font("Calibri", 'B', 10)
-                            pdf.cell(0, 6, data[read], ln=True)
-                            pdf.set_font("Calibri", '', 10)
-
-                        pdf.set_x(30)
-                        pdf.cell(35, 6, "Initial Weight  = ")
-                        pdf.cell(0, 6, data.get(iw, ''), ln=True)
-
-                        fw_num = int(fw[6:8])
-                        fw_values = [
-                            data.get(f'oil_FW{i:02d}_inlet', '')
-                            for i in range(fw_num - 4, fw_num + 1)
-                            if data.get(f'oil_FW{i:02d}_inlet')
-                        ]
-
-                        pdf.set_x(30)
-                        pdf.cell(35, 6, "Final Weight   = ")
-                        pdf.cell(0, 6, ", ".join(fw_values), ln=True)
-
-                        pdf.set_x(30)
-                        pdf.cell(35, 6, "Volume of Sample = ")
-                        pdf.cell(0, 6, data.get(vs, ''), ln=True)
-
-                        pdf.set_x(30)
+                    if head and data.get(head):
                         pdf.set_font("Calibri", 'B', 10)
-                        pdf.cell(35, 6, "Formula :", ln=True)
+                        pdf.cell(0, 6, f"{data[head]}", ln=True)
 
+                    if read and data.get(read):
+                        pdf.set_font("Calibri", 'B', 10)
+                        pdf.cell(0, 6, data[read], ln=True)
                         pdf.set_font("Calibri", '', 10)
-                        formula_text = f"({data.get(fw)} - {data.get(iw)}) X 1000000"
-                        result_text = f"{data.get(ans, '')} {data.get(param, '')}"
 
-                        add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
+                    pdf.set_x(30)
+                    pdf.cell(35, 6, "Initial Weight  = ")
+                    pdf.cell(0, 6, data.get(iw, ''), ln=True)
 
+                    fw_num = int(fw[6:8])
+                    fw_values = [
+                        data.get(f'oil_FW{i:02d}_inlet', '')
+                        for i in range(fw_num - 4, fw_num + 1)
+                        if data.get(f'oil_FW{i:02d}_inlet')
+                    ]
+
+                    pdf.set_x(30)
+                    pdf.cell(35, 6, "Final Weight   = ")
+                    pdf.cell(0, 6, ", ".join(fw_values), ln=True)
+
+                    pdf.set_x(30)
+                    pdf.cell(35, 6, "Volume of Sample = ")
+                    pdf.cell(0, 6, data.get(vs, ''), ln=True)
+
+                    pdf.set_x(30)
+                    pdf.set_font("Calibri", 'B', 10)
+                    pdf.cell(35, 6, "Formula :", ln=True)
+
+                    pdf.set_font("Calibri", '', 10)
+                    formula_text = f"({fw_values[-1] if fw_values else data.get(fw)} - {data.get(iw)}) X 1000000"   # R13.7: the last final weight entered (was always the fifth)
+                    result_text = f"{data.get(ans, '')} {data.get(param, '')}"
+
+                    add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
+
+            if data.get('oil_final_ans_inlet'):
                 # ---------- FINAL AVERAGE ----------
                 check_page_break(20)
                 pdf.set_font("Calibri", 'B', 11)
@@ -1615,9 +1618,13 @@ def generate_ww_qc_pdf_response(report, pk):
                     data.get('oil_final_divi_inlet', '3'),
                     40
                 )
-                
-        if data.get('oil_final_ans_outlet'):
+            
+        _og_out = [k for k in ('oil_ans1_outlet', 'oil_ans2_outlet', 'oil_ans3_outlet') if str(data.get(k) or '').strip()]
+        if data.get('oil_final_ans_outlet') or _og_out:   # R13.7: a reading without the final average prints too
             check_page_break(100)
+            if not (data.get('oil_final_ans_inlet') or _og_in):
+                pdf.set_font("Calibri", 'B', 11)
+                pdf.cell(0, 4, "Oil & Grease Calculation:", 0, 1, 'L')
             pdf.set_font("Calibri", size=10)
             pdf.ln(3)
 
@@ -1665,32 +1672,34 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(35, 6, "Formula :", ln=True)
 
                     pdf.set_font("Calibri", '', 10)
-                    formula_text = f"({data.get(fw)} - {data.get(iw)}) X 1000000"
+                    formula_text = f"({fw_values[-1] if fw_values else data.get(fw)} - {data.get(iw)}) X 1000000"   # R13.7: the last final weight entered (was always the fifth)
                     result_text = f"{data.get(ans, '')} {data.get(param, '')}"
 
                     add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
 
-            # ---------- FINAL AVERAGE ----------
-            check_page_break(10)
-            pdf.set_font("Calibri", 'B', 10)
-            pdf.cell(0,6,"Average of Oil & Grease (Outlet):",ln=True)
-            pdf.set_font("Calibri", '', 10)
+            if data.get('oil_final_ans_outlet'):
+                # ---------- FINAL AVERAGE ----------
+                check_page_break(10)
+                pdf.set_font("Calibri", 'B', 10)
+                pdf.cell(0,6,"Average of Oil & Grease (Outlet):",ln=True)
+                pdf.set_font("Calibri", '', 10)
 
-            final_text = (
-                f"{data.get('oil_final_ans1_outlet','')} + "
-                f"{data.get('oil_final_ans2_outlet','')} + "
-                f"{data.get('oil_final_ans3_outlet','')}"
-            )
-            result_text = f"{data.get('oil_final_ans_outlet')} {data.get('oil_final_param_outlet','')}"
+                final_text = (
+                    f"{data.get('oil_final_ans1_outlet','')} + "
+                    f"{data.get('oil_final_ans2_outlet','')} + "
+                    f"{data.get('oil_final_ans3_outlet','')}"
+                )
+                result_text = f"{data.get('oil_final_ans_outlet')} {data.get('oil_final_param_outlet','')}"
 
-            add_formula_with_line(
-                final_text,
-                result_text,
-                data.get('oil_final_divi_outlet', '3'),
-                40
-            )
+                add_formula_with_line(
+                    final_text,
+                    result_text,
+                    data.get('oil_final_divi_outlet', '3'),
+                    40
+                )
 
         
+
         for key in sorted(data.keys()):
 
             # Match keys like: tds_crm_36_1_bw
@@ -5802,7 +5811,7 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(35, 6, "Formula :", ln=True)
 
                     pdf.set_font("Calibri", '', 10)
-                    formula_text = f"({data.get(fw)} - {data.get(iw)}) X 1000000"
+                    formula_text = f"({fw_values[-1] if fw_values else data.get(fw)} - {data.get(iw)}) X 1000000"   # R13.7: the last final weight entered (was always the fifth)
                     result_text = f"{data.get(ans, '')} {data.get(param, '')}"
 
                     add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
@@ -5911,7 +5920,7 @@ def generate_ww_qc_pdf_response(report, pk):
         
         
         
-        if data.get('oil_final_ans'):
+        if data.get('oil_final_ans') or any(str(data.get(k) or '').strip() for k in ('oil_ans1', 'oil_ans2', 'oil_ans3')):   # R13.7: a reading without the final average prints too
             check_page_break(100)
             pdf.set_font("Calibri", 'B', 11)
             pdf.cell(0, 4, "Oil & Grease Calculation:", 0, 1, 'L')
@@ -5960,32 +5969,34 @@ def generate_ww_qc_pdf_response(report, pk):
                     pdf.cell(35, 6, "Formula :", ln=True)
 
                     pdf.set_font("Calibri", '', 10)
-                    formula_text = f"({data.get(fw)} - {data.get(iw)}) X 1000000"
+                    formula_text = f"({fw_values[-1] if fw_values else data.get(fw)} - {data.get(iw)}) X 1000000"   # R13.7: the last final weight entered (was always the fifth)
                     result_text = f"{data.get(ans, '')} {data.get(param, '')}"
 
                     add_formula_with_line(formula_text, result_text, data.get(vs, ''), 40)
 
-            # ---------- FINAL AVERAGE ----------
-            check_page_break(20)
-            pdf.set_font("Calibri", 'B', 11)
-            pdf.cell(0, 6, "Average of Oil & Grease:", ln=True)
-            pdf.set_font("Calibri", '', 10)
+            if data.get('oil_final_ans'):
+                # ---------- FINAL AVERAGE ----------
+                check_page_break(20)
+                pdf.set_font("Calibri", 'B', 11)
+                pdf.cell(0, 6, "Average of Oil & Grease:", ln=True)
+                pdf.set_font("Calibri", '', 10)
 
-            final_text = (
-                f"{data.get('oil_final_ans1','')} + "
-                f"{data.get('oil_final_ans2','')} + "
-                f"{data.get('oil_final_ans3','')}"
-            )
-            result_text = f"{data.get('oil_final_ans')} {data.get('oil_final_param','')}"
+                final_text = (
+                    f"{data.get('oil_final_ans1','')} + "
+                    f"{data.get('oil_final_ans2','')} + "
+                    f"{data.get('oil_final_ans3','')}"
+                )
+                result_text = f"{data.get('oil_final_ans')} {data.get('oil_final_param','')}"
 
-            add_formula_with_line(
-                final_text,
-                result_text,
-                data.get('oil_final_divi', '3'),
-                40
-            )
+                add_formula_with_line(
+                    final_text,
+                    result_text,
+                    data.get('oil_final_divi', '3'),
+                    40
+                )
 
         
+
         for key in sorted(data.keys()):
 
             # Match keys like: tds_crm_36_1_bw
@@ -8753,6 +8764,7 @@ def create_ww_qc_manual(request):
                 sample_id=sample_id,
                 rds=data
             )
+            __import__('QC.views.rds_draft', fromlist=['clear_drafts']).clear_drafts(request, 'ww', sample_id)   # R14: the RDS is saved - its drafts go
             return redirect(f"/qc/generate_ww_qc_pdf_response/{report.id}/")
             # return generate_dw_qc_pdf_response(report, data, sample_id)
             # return JsonResponse({

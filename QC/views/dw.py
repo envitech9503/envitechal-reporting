@@ -55,6 +55,7 @@ def create_dw_qc(request):
                 sample_id=sample_id,
                 rds=data
             )
+            __import__('QC.views.rds_draft', fromlist=['clear_drafts']).clear_drafts(request, 'dw', sample_id)   # R14: the RDS is saved - its drafts go
             return redirect(f"/qc/generate_dw_qc_pdf_response/{report.id}/")
             # return generate_dw_qc_pdf_response(report, data, sample_id)
             # return JsonResponse({
@@ -2936,6 +2937,7 @@ def create_dw_qc_manual(request):
                 sample_id=sample_id,
                 rds=data
             )
+            __import__('QC.views.rds_draft', fromlist=['clear_drafts']).clear_drafts(request, 'dw', sample_id)   # R14: the RDS is saved - its drafts go
             return redirect(f"/qc/generate_dw_qc_pdf_response/{report.id}/")
             # return generate_dw_qc_pdf_response(report, data, sample_id)
             # return JsonResponse({

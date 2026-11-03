@@ -17,6 +17,7 @@ from .ia import *  # noqa: F401,F403
 from .doc_register import doc_register  # noqa: F401
 from .ia_pdf import *  # noqa: F401,F403
 from .soc import *  # noqa: F401,F403
+from .rds_draft import rds_draft_save, rds_draft_list, rds_draft_get, rds_draft_delete  # noqa: F401   R14 point 8
 
 _FAMILY_MODULES = ['dw', 'ww', 'core', 'reagent_prep', 'control_chart', 'mou', 'ia', 'ia_pdf', 'soc']
 

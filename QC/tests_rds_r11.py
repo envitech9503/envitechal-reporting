@@ -276,7 +276,7 @@ class RdsR12(TestCase):
         self.assertIn('function checkFactor(g, s)', qc); self.assertIn('var alt = checkFactor(g, s);', qc)
         self.assertIn("if (blk.dataset.type !== 'CRM') return null;", qc)
         for t in ('rds_dw.html', 'rds_ww.html', 'rds_dw_manual.html', 'rds_ww_manual.html'):
-            self.assertRegex(src('templates', t), r'rds_qc\.js[^>]*v=20261102a')
+            self.assertRegex(src('templates', t), r'rds_qc\.js[^>]*v=2026110[23]a')
 
     def test_pages_and_assets(self):
         for t in ('rds_dw.html', 'rds_ww.html', 'rds_dw_manual.html', 'rds_ww_manual.html'):

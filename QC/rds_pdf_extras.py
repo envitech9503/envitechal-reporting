@@ -126,9 +126,17 @@ def particulars(pdf, kind, sample_id, data, rec=None):
     r = _report(kind, sample_id)
     g = lambda *names: next((str(getattr(r, n)) for n in names if r is not None and getattr(r, n, None) not in (None, '')), '')
     matrix = 'Drinking water' if kind == 'dw' else 'Waste water'
-    io = {'in': 'inlet', 'out': 'outlet', 'in-out': 'inlet and outlet'}.get(str(data.get('report_type') or g('in_out')).strip(), '')
-    if io and kind == 'ww':
-        matrix += ' (%s)' % io
+    rt = str(data.get('report_type') or g('in_out')).strip()
+    if kind == 'ww':
+        # R13.7 (Lab Manager Karachi 03-11-2026, point 5): the designation of the report's result column heading
+        # verbatim ("Test Results", "Inlet Results"), not "inlet" for every single-column report (WW-202610077-KHI)
+        def col(name, dflt):
+            return re.sub(r'\s+', ' ', g(name)).strip() or dflt          # verbatim ("Test Results"); blank: as before
+        cin, cout = col('inlet_result', 'inlet'), col('outlet_result', 'outlet')
+        io = {'in': cin, 'inlet_customlimits': cin, 'out': cout, 'outlet_customLimits': cout,
+              'in-out': '%s and %s' % (cin, cout)}.get(rt, '')
+        if io:
+            matrix += ' (%s)' % io
     a_from, a_to = fmt_date(g('date_of_analysis_from')), fmt_date(g('date_of_analysis_to'))
     rows = [('Sample ID', sample_id), ('Laboratory', g('city_location')),
             ('Client', g('report_to')), ('Lab report no.', g('lab_report_no')),

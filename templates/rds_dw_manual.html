@@ -9117,16 +9117,16 @@ function generateCRMCalculation(param, label, unit, type) {
 
 
         // Helper function to extract subSno from prefix and update table row
-        function updateTableRowWithResult(subSno, result, prefix = null) {
+        function updateTableRowWithResult(subSno, result, prefix = null, dp) {
             if (!subSno) return false;
             
-            console.log(`Attempting to update result for subSno: ${subSno}, result: ${result.toFixed(3)}`);
+            console.log(`Attempting to update result for subSno: ${subSno}, result: ${result.toFixed(dp || 3)}`);
             
             // Method 1: Find by data-sub-sno attribute on the result field
             const resultFieldByAttr = document.querySelector(`input.result-field[data-sub-sno="${subSno}"]`);
             if (resultFieldByAttr) {
-                resultFieldByAttr.value = result.toFixed(3);
-                console.log(`Updated via data-sub-sno: ${subSno} = ${result.toFixed(3)}`);
+                resultFieldByAttr.value = result.toFixed(dp || 3);
+                console.log(`Updated via data-sub-sno: ${subSno} = ${result.toFixed(dp || 3)}`);
                 return true;
             }
             
@@ -9135,8 +9135,8 @@ function generateCRMCalculation(param, label, unit, type) {
             let resultInput = document.querySelector(`input[name="${resultName}"]`);
             
             if (resultInput) {
-                resultInput.value = result.toFixed(3);
-                console.log(`Updated via name match: ${resultName} = ${result.toFixed(3)}`);
+                resultInput.value = result.toFixed(dp || 3);
+                console.log(`Updated via name match: ${resultName} = ${result.toFixed(dp || 3)}`);
                 return true;
             }
             
@@ -9152,8 +9152,8 @@ function generateCRMCalculation(param, label, unit, type) {
                     resultInput = resultCell.querySelector('input');
                     
                     if (resultInput) {
-                        resultInput.value = result.toFixed(3);
-                        console.log(`Updated via row search: Row ${i}, subSno ${subSno} = ${result.toFixed(3)}`);
+                        resultInput.value = result.toFixed(dp || 3);
+                        console.log(`Updated via row search: Row ${i}, subSno ${subSno} = ${result.toFixed(dp || 3)}`);
                         return true;
                     }
                 }
@@ -9163,8 +9163,8 @@ function generateCRMCalculation(param, label, unit, type) {
             if (!window.pendingResults) {
                 window.pendingResults = {};
             }
-            window.pendingResults[subSno] = result.toFixed(3);
-            console.log(`Row not found yet. Stored pending result for subSno ${subSno}: ${result.toFixed(3)}`);
+            window.pendingResults[subSno] = result.toFixed(dp || 3);
+            console.log(`Row not found yet. Stored pending result for subSno ${subSno}: ${result.toFixed(dp || 3)}`);
             
             return false;
         }
@@ -9175,8 +9175,8 @@ function generateCRMCalculation(param, label, unit, type) {
             // Find the result field with matching data-crm-id
             const resultField = document.querySelector(`input.result-field[data-crm-id="${crmId}"]`);
             if (resultField) {
-                resultField.value = result.toFixed(3);
-                console.log(`Updated via CRM ID: ${crmId} = ${result.toFixed(3)}`);
+                resultField.value = result.toFixed(dp || 3);
+                console.log(`Updated via CRM ID: ${crmId} = ${result.toFixed(dp || 3)}`);
                 return true;
             }
             
@@ -9185,8 +9185,8 @@ function generateCRMCalculation(param, label, unit, type) {
             if (subSno) {
                 const resultByName = document.querySelector(`input[name="result_${subSno.replace(/\./g, '_')}"]`);
                 if (resultByName) {
-                    resultByName.value = result.toFixed(3);
-                    console.log(`Updated via subSno: ${subSno} = ${result.toFixed(3)}`);
+                    resultByName.value = result.toFixed(dp || 3);
+                    console.log(`Updated via subSno: ${subSno} = ${result.toFixed(dp || 3)}`);
                     return true;
                 }
             }
@@ -9203,7 +9203,7 @@ function generateCRMCalculation(param, label, unit, type) {
 
     const result = (v1 + v2 + v3) / divi;
     const ansField = document.getElementById(`${prefix}_ans`);
-    if (ansField) ansField.value = result.toFixed(3);
+    if (ansField) ansField.value = result.toFixed(window.rdsCrmDp ? rdsCrmDp(prefix) : 3);
 
     // Extract subSno from the prefix - THIS IS THE BLOCK NUMBER
     // The pattern is like: param_crm_1_1 or crm_param_crm_1_1
@@ -9232,7 +9232,7 @@ function generateCRMCalculation(param, label, unit, type) {
         console.log(`Found mapping: block ${blockSubSno} -> table row ${tableSubSno}`);
     }
     
-    updateTableRowWithResult(tableSubSno, result);
+    updateTableRowWithResult(tableSubSno, result, null, window.rdsCrmDp ? rdsCrmDp(prefix) : 3);
 }
 
 // Metal CRM calculation (for Aluminium, Antimony, Arsenic, etc.)
@@ -9247,7 +9247,7 @@ function performCRM2Calculation(prefix) {
 
     const result = ((v1 * df1) + (v2 * df2) + (v3 * df3)) / divi;
     const ansField = document.getElementById(`${prefix}_ans`);
-    if (ansField) ansField.value = result.toFixed(3);
+    if (ansField) ansField.value = result.toFixed(window.rdsCrmDp ? rdsCrmDp(prefix) : 3);
 
     // Extract subSno from prefix
     let blockSubSno = '';
@@ -9263,7 +9263,7 @@ function performCRM2Calculation(prefix) {
         tableSubSno = window.crmByBlockSno[blockSubSno].tableRowSno;
     }
     
-    updateTableRowWithResult(tableSubSno, result);
+    updateTableRowWithResult(tableSubSno, result, null, window.rdsCrmDp ? rdsCrmDp(prefix) : 3);
 }
 
 // Alkalinity & Acidity CRM calculation
@@ -9524,6 +9524,6 @@ function performCRM7Calculation(prefix) {
 
 {% endblock %}{% block w2_tail %}</body>
 
-<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261031b"></script><script src="{% static 'js/rds_qc.js' %}?v=20261102a"></script><script src="{% static 'js/rds_df.js' %}?v=20261031b"></script><script src="{% static 'js/rds_field_owners.js' %}?v=20261030c"></script><script src="{% static 'js/rds_manual_gate.js' %}?v=20261031a"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261103a"></script><script src="{% static 'js/rds_qc.js' %}?v=20261103a"></script><script src="{% static 'js/rds_df.js' %}?v=20261031b"></script><script src="{% static 'js/rds_draft.js' %}?v=20261103a"></script><script src="{% static 'js/rds_field_owners.js' %}?v=20261030c"></script><script src="{% static 'js/rds_manual_gate.js' %}?v=20261031a"></script>
 </html>
 {% endblock %}

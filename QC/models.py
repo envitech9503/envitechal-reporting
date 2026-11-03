@@ -1880,3 +1880,23 @@ class SocLegendSet(models.Model):
 
 
 _sh_register(SocLegendSet)
+
+
+class RdsDraft(models.Model):
+    """R14 (Lab Manager Karachi 03-11-2026, point 8): the Raw Data Sheet being entered, saved as a draft every few seconds
+    so an emergency, a shutdown or an expired session loses nothing; reopened from the same page. A draft is not an RDS
+    record: it is never printed, listed or reported, and it is removed when the RDS is saved."""
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='rds_drafts')
+    kind = models.CharField(max_length=2)                 # dw / ww
+    page = models.CharField(max_length=10)                # add / manual
+    sample_id = models.CharField(max_length=200)
+    payload = models.TextField()                          # JSON: the form's fields and how its rows, checks and cards were made
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'kind', 'page', 'sample_id')
+        ordering = ('-updated_at',)
+
+    def __str__(self):
+        return '%s %s %s %s' % (self.user_id, self.kind, self.page, self.sample_id)

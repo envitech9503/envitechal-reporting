@@ -16,6 +16,11 @@
  * 4. A sample whose report carries no reported result says so instead of showing an empty page; a "Sections" list
  *    jumps to any calculation on the page.
  */
+/* R13.7 (Lab Manager Karachi 03-11-2026, point 1): a metal's CRM average to 4 decimal places, as the metal's own
+   working (Zn, Pb, Mn, Na, K, Fe, Ni, Cd, Cr, Al, Sb, Se, As, Hg, Ba, B, Cu, Ag); other CRMs keep 3 */
+window.rdsCrmDp = function (prefix) {
+  return /(^|_)(zinc|lead|manganese|sodium|potassium|iron|nickel|cadmium|chromium(_vi|_iii|_iv)?|aluminium|aluminum|antimony|selenium|arsenic|mercury|barium|boron|copper|silver)_crm_\d+_\d+$/i.test(String(prefix || '')) ? 4 : 3;
+};
 (function () {
   'use strict';
   var PAGE = /create_ww_qc/.test(location.pathname) ? 'ww' : 'dw';
@@ -206,6 +211,66 @@
   /* The factor is not fixed (owner 30-10-2026: "dynamic, for any scenario"). It is taken, in this order, from the page's
      own titration section (alkalinity normality, EDTA factor B) for the same side - kept in step while the analyst has
      not typed one in the check - else the value last used in this browser, else it must be entered. */
+  /* R14 (Lab Manager Karachi 03-11-2026, point 7): the WS / RM / CRM checks take the raw data of their parameter's own
+     section and work each reading with the section's formula - as the titrations above (hardness, calcium, alkalinity).
+     The reading is calculated, the working printed with the CRM ("Reading 1 = ... = x"). */
+  var FORMS = [
+    { key: 'acid', re: /acidity/i, title: 'titration', shared: [['n', 'Normality of the base N', 'e.g. 0.02']],
+      per: [['ti', 'Burette initial (mL)'], ['tz', 'Burette final (mL)'], ['tv', 'Volume of sample (mL)']],
+      text: '(Final - Initial) X N X 50000 / Volume of sample',
+      one: function (x, s) { if (x.ti === null || x.tz === null || !x.tv || s.n === null) return null; return { v: (x.tz - x.ti) * s.n * 50000 / x.tv, line: '(' + rd(x.tz) + ' - ' + rd(x.ti) + ') X ' + rd(s.n) + ' X 50000 / ' + rd(x.tv) }; } },
+    { key: 'cl', re: /^chloride/i, title: 'titration (argentometric)', shared: [['n', 'Normality of AgNO3 N', 'e.g. 0.0141']],
+      per: [['si', 'Sample burette initial (mL)'], ['sf', 'Sample burette final (mL)'], ['bi', 'Blank initial (mL)'], ['bf', 'Blank final (mL)'], ['v', 'Volume of sample (mL)']],
+      text: '[(Sample final - Sample initial) - (Blank final - Blank initial)] X N X 35450 / Volume of sample',
+      one: function (x, s) { if (x.si === null || x.sf === null || !x.v || s.n === null) return null; var bi = x.bi || 0, bf = x.bf || 0;
+        return { v: ((x.sf - x.si) - (bf - bi)) * s.n * 35450 / x.v, line: '[(' + rd(x.sf) + ' - ' + rd(x.si) + ') - (' + rd(bf) + ' - ' + rd(bi) + ')] X ' + rd(s.n) + ' X 35450 / ' + rd(x.v) }; } },
+    { key: 'grav', re: /total dissolved solids|^tds\b|total suspended solids|^tss\b|^total solids|oil\s*(&|and)\s*grease/i, title: 'gravimetric', shared: [],
+      per: [['iw', 'Initial weight (g)'], ['fw', 'Final weight (g)'], ['v', 'Volume of sample (mL)']],
+      text: '(Final weight - Initial weight) X 1000000 / Volume of sample',
+      one: function (x) { if (x.iw === null || x.fw === null || !x.v) return null; return { v: (x.fw - x.iw) * 1000000 / x.v, line: '(' + rd(x.fw) + ' - ' + rd(x.iw) + ') X 1000000 / ' + rd(x.v) }; } },
+    { key: 'sulphide', re: /^sulphide|^sulfide/i, title: 'iodometric titration', shared: [],
+      per: [['a', 'A, mL iodine'], ['b', 'B, normality of iodine'], ['c', 'C, mL Na2S2O3'], ['d', 'D, normality of Na2S2O3'], ['v', 'Volume of sample (mL)']],
+      text: '[(A X B) - (C X D)] X 16000 / Volume of sample',
+      one: function (x) { if ([x.a, x.b, x.c, x.d].some(function (z) { return z === null; }) || !x.v) return null;
+        return { v: ((x.a * x.b) - (x.c * x.d)) * 16000 / x.v, line: '[(' + rd(x.a) + ' X ' + rd(x.b) + ') - (' + rd(x.c) + ' X ' + rd(x.d) + ')] X 16000 / ' + rd(x.v) }; } },
+    { key: 'bod', re: /biological oxygen|^bod/i, title: 'dissolved oxygen depletion (APHA 5210 B)', shared: [['sb1', 'Seed control B1 (optional)', ''], ['sb2', 'Seed control B2', ''], ['svc', 'Seed in control Vc (mL)', ''], ['svs', 'Seed in sample Vs (mL)', '']],
+      per: [['d1', 'D1 initial DO (mg/L)'], ['d2', 'D2 final DO (mg/L)'], ['vs', 'Volume of sample (mL)'], ['vb', 'Bottle volume (mL)']],
+      text: '[(D1 - D2) - (B1 - B2) X Vs / Vc] / P,  P = volume of sample / bottle volume',
+      one: function (x, s) { if (x.d1 === null || x.d2 === null || !x.vs || !x.vb) return null; var P = x.vs / x.vb;
+        var seed = (s.sb1 !== null && s.sb2 !== null && s.svc) ? (s.sb1 - s.sb2) * (s.svs || 0) / s.svc : 0;
+        return { v: ((x.d1 - x.d2) - seed) / P, line: '[(' + rd(x.d1) + ' - ' + rd(x.d2) + ')' + (seed ? ' - ' + rd(seed, 4) : '') + '] / ' + rd(P, 4) }; } },
+    { key: 'df', re: /^(aluminium|aluminum|antimony|arsenic|barium|boron|cadmium|chromium(?! *vi)|cobalt|copper|iron|lead|manganese|mercury|nickel|selenium|silver|sodium|potassium|zinc|beryllium|magnesium|phenol|ammonium|formaldehyde|strontium|tin)/i,
+      title: 'instrument reading x dilution factor', shared: [],
+      per: [['rd', 'Instrument reading'], ['df', 'Dilution factor (1 = undiluted)']],
+      text: 'Instrument reading X Dilution factor',
+      one: function (x) { if (x.rd === null) return null; var d = x.df === null ? 1 : x.df; return { v: x.rd * d, line: rd(x.rd, 6) + ' X ' + rd(d) }; } }
+  ];
+  function frmFor(param) { var t = String(param || '').replace(/\*+/g, '').trim(); return titrFor(t) ? null : (FORMS.filter(function (f) { return f.re.test(t); })[0] || null); }
+  function frmHtml(p, F) {
+    return '<details class="rq-titr rq-frm" open><summary>Raw data (' + esc(F.title) + ')</summary>' +
+      (F.shared.length ? '<div class="rq-grid">' + F.shared.map(function (q) { return '<label>' + esc(q[1]) + '<input type="number" step="any" class="rq-fs" data-k="' + q[0] + '" name="' + p + '_fs_' + q[0] + '" placeholder="' + esc(q[2] || '') + '"></label>'; }).join('') + '</div>' : '') +
+      [1, 2, 3].map(function (i) {
+        return '<div class="rq-grid"><span class="rq-tl">Reading ' + i + '</span>' + F.per.map(function (q) {
+          return '<label>' + esc(q[1]) + '<input type="number" step="any" class="rq-fp" data-k="' + q[0] + '" data-i="' + i + '" name="' + p + '_f' + i + '_' + q[0] + '"' + (q[0] === 'df' ? ' value="1"' : '') + '></label>';
+        }).join('') + '</div>';
+      }).join('') + '<p class="rq-tnote">Formula: ' + esc(F.text) + '. Readings 1 - 3 below are calculated from these entries.</p></details>';
+  }
+  function frmLines(blk) {
+    var F = frmFor(val(blk, 'param')); if (!F || !blk.querySelector('.rq-frm')) return [];
+    var sh = {}; F.shared.forEach(function (q) { var e = blk.querySelector('.rq-fs[data-k="' + q[0] + '"]'); sh[q[0]] = e ? num(e.value) : null; });
+    var lines = [];
+    [1, 2, 3].forEach(function (i) {
+      var x = {}, any = false;
+      F.per.forEach(function (q) { var e = blk.querySelector('.rq-fp[data-k="' + q[0] + '"][data-i="' + i + '"]'); x[q[0]] = e ? num(e.value) : null; if (x[q[0]] !== null && q[0] !== 'df') any = true; });
+      if (!any) return;
+      var o = F.one(x, sh); if (!o) return;
+      setv(blk, 'r' + i, rd(o.v, 4));
+      lines.push('Reading ' + i + ' = ' + o.line + ' = ' + rd(o.v, 4));
+    });
+    var shl = F.shared.filter(function (q) { return sh[q[0]] !== null; }).map(function (q) { return q[1].replace(/\s*\(.*\)$/, '') + ' = ' + rd(sh[q[0]]); });
+    if (lines.length && shl.length) lines.unshift(shl.join(';  '));
+    return lines;
+  }
   function titrFor(param) { return TITR.filter(function (t) { return t.re.test(String(param || '').replace(/\*+/g, '').trim()); })[0] || null; }
   function titrPage(t, side) {
     var sfx = side === 'Inlet' ? '_inlet' : (side === 'Outlet' ? '_outlet' : ''), hit = null;
@@ -278,7 +343,7 @@
       '<label>' + (type === 'CRM' ? 'Certified value' : 'True value') + '<input type="number" step="any" name="' + p + '_true"></label>' +
       (type !== 'WS' ? '<label>Uncertainty ± (optional)<input type="number" step="any" name="' + p + '_u"></label>' : '') +
       '<label>Unit<input type="text" name="' + p + '_unit" value="' + esc(isPh ? 'pH units' : (opts.unit || 'mg/L')) + '"></label>' +
-      '</div>' + (titrFor(param) && !isPh ? titrHtml(p, titrFor(param), side) : '') + '<div class="rq-grid">' +
+      '</div>' + (titrFor(param) && !isPh ? titrHtml(p, titrFor(param), side) : (frmFor(param) && !isPh ? frmHtml(p, frmFor(param)) : '')) + '<div class="rq-grid">' +
       [1, 2, 3].map(function (i) { return '<label>Reading ' + i + '<input type="number" step="any" class="rq-r" name="' + p + '_r' + i + '"></label>'; }).join('') +
       (isPh
         ? '<label>Acceptance ± (pH units)<input type="number" step="any" name="' + p + '_abs" value="0.05"></label>'
@@ -312,6 +377,7 @@
   function setv(blk, f, v) { var e = blk.querySelector('[name$="_' + f + '"]'); if (e) e.value = v; }
   function compute(blk, loud) {
     var tlines = titrLines(blk);
+    if (!tlines.length) tlines = frmLines(blk);   // R14 point 7
     var type = blk.dataset.type, tv = num(val(blk, 'true')), reads = [1, 2, 3].map(function (i) { return num(val(blk, 'r' + i)); }).filter(function (x) { return x !== null; });
     var out = { mean: '', rec: '', verdict: '' }, abs = blk.querySelector('[name$="_abs"]'), work = [];
     if (reads.length) {
@@ -453,6 +519,12 @@
       try { if (window.subRowCounter) window.subRowCounter[s] = Math.max(window.subRowCounter[s] || 0, mx); } catch (e) { }
       try { if (typeof subRowCounter === 'object' && subRowCounter) subRowCounter[s] = Math.max(subRowCounter[s] || 0, mx); } catch (e) { }   // eslint-disable-line no-undef
     });
+    // R14: the manual WW page numbers a parameter row made by "Generate CRM" from its own counter, which the rows made
+    // from a calculation do not advance - two rows "1" (seen in the draft tests); the counter starts after the rows present
+    var mains = Array.prototype.filter.call(document.querySelectorAll('#qcForm tbody tr, #table tbody tr'), function (r) { var s = snoOf(r); return s && s.indexOf('.') < 0; })
+      .map(function (r) { return parseInt(snoOf(r), 10) || 0; });
+    var top = mains.length ? Math.max.apply(null, mains) : 0;
+    try { if (typeof rowCounter === 'number' && rowCounter < top) rowCounter = top; } catch (e) { }   // eslint-disable-line no-undef
   }
   function calcHosts() { return Array.prototype.filter.call(document.querySelectorAll('div[class*="dynamic-"]'), function (d) { return /(^|\s)dynamic-\S+-calcs(\s|$)/.test(d.className); }); }
   document.addEventListener('click', function (e) {
@@ -469,6 +541,7 @@
         var fresh = Array.prototype.filter.call(h.childNodes, function (c) { return !kids0.has(c) && !(c.nodeType === 3 && !c.textContent.trim()); });
         if (!fresh.length || $(id)) return;
         var w = document.createElement('div'); w.id = id; w.className = 'rq-native-crm';
+        w.dataset.gen = String(Array.prototype.indexOf.call(document.querySelectorAll('.generate-crm-btn'), g));   // R14: a draft clicks the same button
         fresh[0].parentNode.insertBefore(w, fresh[0]); fresh.forEach(function (c) { w.appendChild(c); });
         nativeRemove(w, nr);
       });

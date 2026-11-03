@@ -22208,7 +22208,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const result = (v1 + v2 + v3) / divi;
     const ansField = document.getElementById(`${prefix}_ans`);
-    if (ansField) ansField.value = result.toFixed(3);
+    if (ansField) ansField.value = result.toFixed(window.rdsCrmDp ? rdsCrmDp(prefix) : 3);
 
     // Universal solution for both patterns:
     // Pattern 1: crm_aluminium_crm_1_1
@@ -22240,8 +22240,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (resultInput) {
-            resultInput.value = result.toFixed(3);
-            console.log(`Updated result for ${subSno}: ${result.toFixed(3)}`);
+            resultInput.value = result.toFixed(window.rdsCrmDp ? rdsCrmDp(prefix) : 3);
+            console.log(`Updated result for ${subSno}: ${result.toFixed(window.rdsCrmDp ? rdsCrmDp(prefix) : 3)}`);
         } else {
             console.log(`Could not find input with name="${resultName}" or "${resultName2}"`);
         }
@@ -22692,5 +22692,5 @@ function calculateSulphideCrm(prefix) {
     </script> 
     
 <script src="{% static 'js/rds_ww_calc.js' %}?v=20261030a"></script>
-<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261031b"></script><script src="{% static 'js/rds_qc.js' %}?v=20261102a"></script><script src="{% static 'js/rds_df.js' %}?v=20261031b"></script><script src="{% static 'js/rds_field_owners.js' %}?v=20261030c"></script><script src="{% static 'js/rds_manual_gate.js' %}?v=20261031a"></script>
+<script src="{% static 'js/rds_avg.js' %}?v=20261027e"></script><script src="{% static 'js/rds_page.js' %}?v=20261028c"></script><script src="{% static 'js/rds_formula_lib.js' %}?v=20261103a"></script><script src="{% static 'js/rds_qc.js' %}?v=20261103a"></script><script src="{% static 'js/rds_df.js' %}?v=20261031b"></script><script src="{% static 'js/rds_draft.js' %}?v=20261103a"></script><script src="{% static 'js/rds_field_owners.js' %}?v=20261030c"></script><script src="{% static 'js/rds_manual_gate.js' %}?v=20261031a"></script>
 {% endblock %}

@@ -14,6 +14,10 @@ urlpatterns = [
     path('ww_rds_list/',views.ww_rds_list,name='ww_rds_list'),
     
     
+    path('rds_draft/save/', views.rds_draft_save, name='rds_draft_save'),   # R14 point 8: drafts of the RDS being entered
+    path('rds_draft/list/', views.rds_draft_list, name='rds_draft_list'),
+    path('rds_draft/get/', views.rds_draft_get, name='rds_draft_get'),
+    path('rds_draft/delete/', views.rds_draft_delete, name='rds_draft_delete'),
     path('create_dw_qc_manual/',views.create_dw_qc_manual,name="create_dw_qc_manual"),
     path('create_ww_qc_manual/',views.create_ww_qc_manual,name="create_ww_qc_manual"),
     

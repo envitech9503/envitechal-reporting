@@ -298,7 +298,7 @@
     [/^non.?carbonate hardness/, 'carbhard', 'NCH'], [/^carbonates?\b/, 'alk', 'CO3ion'], [/hydroxide alk/, 'alk', 'OH'],
     [/methyl orange alk|^total alkalinity|^alkalinity as caco3|^alkalinity end point|^alkalinity/, 'alk', 'T'], [/phenolphthalein alk/, 'alk', 'P'],
     [/^calcium hardness/, 'edta', 'H'], [/^total hardness|^hardness/, 'edta', 'H'], [/^magnesium hardness/, 'mghard', 'H'],
-    [/free (co2|carbon dioxide)/, 'co2', 'R'], [/^total chlorine/, 'dpd', 'total'], [/^combined chlorine/, 'dpd', 'combined'],
+    [/free (co2|co₂|carbon\s*-?\s*di\s*-?\s*oxide)|^(co2|co₂|carbon\s*di\s*oxide)\b.*\bfree/, 'co2', 'R']   /* R13.7: "Free Carbon Di oxide" (Lab Manager Karachi 03-11-2026, point 4) */, [/^total chlorine/, 'dpd', 'total'], [/^combined chlorine/, 'dpd', 'combined'],
     [/^mlvss|^vss|^volatile suspended/, 'vss'], [/^mlss|^total suspended solids|^tss|^total solids?\b|^oil.*grease|^settleable solids? \(grav/, 'grav'],
     [/^phosphates?\b|^ortho.?phosphate/, 'phosphate'],
     [/^tkn\b|kjeldahl/, 'tkn', 'R'],
@@ -351,6 +351,7 @@
     host.querySelector('.rl-addbtn').addEventListener('click', function () {
       var nm = host.querySelector('.rl-pname').value.trim() || CALC[pick.value].title;
       addCard({ parameter: nm, method: '' }, '', null, { calc: pick.value });
+      var last = host.querySelector('.rl-cards .rl-card:last-child'); if (last) last.dataset.manual = '1';   // R14: added by the analyst
     });
     return host;
   }
@@ -364,6 +365,7 @@
     var n = ++nCard, id = 'rl' + n, reps = C.reps ? (C.nrep || 3) : 1;
     var method = (item.method || '').trim().replace(/^[-–\s]+$/, '') || C.method;
     var card = document.createElement('div'); card.className = 'rl-card'; card.id = id;
+    card.dataset.calc = cf.calc; card.dataset.param = item.parameter || ''; card.dataset.side = side || '';   // R14: a draft rebuilds the card
     var head = item.parameter + (side ? ' (' + side + ')' : '');
     var rep = reported === null || reported === undefined ? '' : String(reported);
     var html = '<div class="rl-title"><b>' + esc(head) + '</b><span class="rl-meth">' + esc(C.title + (method ? ' - ' + method : '')) + '</span>' +
@@ -382,6 +384,12 @@
       if (!C.inputs.some(function (p) { return p[0] === 'df'; })) html += '<div class="rl-grid rl-dfrow"><span class="rl-repl">Dilution</span><label>Dilution factor (DF), 1 = undiluted<input type="number" step="any" min="0" data-k="gdf" name="' + id + '_gdf" value="1"></label></div>';   // R12: a DF on every calculation (owner 31-10-2026)
       if (C.std) html += '<div class="rl-grid"><span class="rl-repl">Check standard (optional)</span><label>True value<input type="number" step="any" data-std="t" name="' + id + '_std_true"></label><label>Measured<input type="number" step="any" data-std="m" name="' + id + '_std_meas"></label></div>';
     }
+    // R13.7 (Lab Manager Karachi 03-11-2026, point 3): carbonate / bicarbonate / hydroxide expressed as the ion or as CaCO3,
+    // chosen on the card (the name or unit still sets the first choice, R8)
+    var ASB = { CO3ion: 'CO3', HCO3ion: 'HCO3', OHion: 'OH', CO3: 'CO3', HCO3: 'HCO3', OH: 'OH' }[cf.calc === 'alk' ? cf.out : ''];
+    if (ASB) html += '<div class="rl-grid rl-asrow"><span class="rl-repl">Express result as</span><label>' + esc(ASB) + ' as<select class="rl-as" name="' + id + '_as">' +
+      '<option value="ion"' + (/ion$/.test(cf.out) ? ' selected' : '') + '>' + esc(ASB) + ' (mg/L as ' + esc(ASB) + ')</option>' +
+      '<option value="caco3"' + (/ion$/.test(cf.out) ? '' : ' selected') + '>CaCO3 (mg/L as CaCO3)</option></select></label></div>';
     html += '<div class="rl-res"><button type="button" class="rl-eq">=</button><input type="text" readonly class="rl-ans" name="' + id + '_ans" placeholder="result"><input type="text" class="rl-unit" name="' + id + '_unit" value="' + esc(item.unit || defaultUnit(cf.calc, item.parameter)) + '"></div>' +
       '<div class="rl-work"></div>' +
       '<div class="rl-check"><label>Check</label><input type="text" readonly class="rl-chk" name="' + id + '_check"></div>' +
@@ -392,6 +400,13 @@
     (target || h.querySelector('.rl-cards')).appendChild(card);
     card.querySelector('.rl-eq').addEventListener('click', function () { compute(card, item, side, rep, cf, C, method); });
     card.querySelector('.rl-del').addEventListener('click', function () { card.remove(); });
+    var asSel = card.querySelector('.rl-as');
+    if (asSel) asSel.addEventListener('change', function () {      // R13.7: switch the expression; the result is worked again
+      cf = Object.assign({}, cf, { out: asSel.value === 'ion' ? (ASB === 'OH' ? 'OHion' : ASB + 'ion') : ASB });
+      var fb = card.querySelector('.rl-formula b'); if (fb) fb.textContent = 'Result shown: ' + OUTLABEL[cf.out];
+      var u = card.querySelector('.rl-unit'); if (u && /^mg\/L( as caco3)?$/i.test(u.value.trim())) u.value = asSel.value === 'ion' ? 'mg/L' : 'mg/L as CaCO3';
+      if (card.querySelector('.rl-ans').value) compute(card, item, side, rep, cf, C, method);
+    });
     if (C.obs) card.querySelector('input[data-k=val]').value = rep;
   }
   function defaultUnit(calc, name) {
@@ -458,6 +473,7 @@
       var key = cf.out || 'R';
       result = o2.out[key] !== undefined ? o2.out[key] : o2.out.R;
       if (result === undefined) result = o2.out[Object.keys(o2.out)[0]];
+      if (cf.calc === 'alk' && OUTLABEL[key] && typeof result === 'number' && /CO3|OH/.test(key)) lines.push({ CO3: 'Carbonate', HCO3: 'Bicarbonate', OH: 'Hydroxide' }[key.replace('ion', '')] + ' as ' + (/ion$/.test(key) ? key.replace('ion', '') : 'CaCO3') + ' = ' + r(result, 2) + ' mg/L');   // R13.7: the expression chosen
       if (gdfE && gdf !== 1 && typeof result === 'number') { var und = result; result = result * gdf; lines.push('Result x DF = ' + r(und, 4) + ' x ' + r(gdf, 4) + ' = ' + r(result, 4)); }
       card.querySelector('.rl-ans').value = r(result, rdp(rep, cf.calc));
     }
