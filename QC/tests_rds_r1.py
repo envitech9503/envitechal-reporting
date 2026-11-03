@@ -51,6 +51,8 @@ class RdsR1Tests(TestCase):
              'toxic_ans_inlet': '1.1', 'toxic_param_inlet': 'mg/L', 'toxic_divi_inlet': '1'}
         for i in range(1, 12):
             d['toxic_r%d_inlet' % i] = '0.1'
+        d.update({'date_1': '20-Oct-2026', 'parameter_1': 'Aluminium', 'inlet_1': '0.3', 'outlet_1': '0.2',
+                  'date_2': '20-Oct-2026', 'parameter_2': 'Total Toxic Metals', 'inlet_2': '1.1', 'outlet_2': '1.0'})   # R13.4: table rows (R11 rule)
         t = self.pdf(Ww_rds, 'ww', d)                                   # was a server error (RDS-11)
         if t is not None:
             self.assertIn('0.1 + 0.1 + 0.1', t)
@@ -62,7 +64,9 @@ class RdsR1Tests(TestCase):
              'carbonates_1_1': '5', 'carbonates_1_2': '1', 'carbonates_1_3': '0.02', 'carbonates_1_4': '100',
              'for_carbonates1': '20', 'for_carbonates1_df': '1', 'for_carbonates2': '20', 'for_carbonates2_df': '1',
              'for_carbonates3': '', 'for_carbonates3_df': '1', 'carbonates_divi': '2', 'carbonates_P': '20', 'carbonates_T': '100',
-             'for_carbonates_ans': '40.00', 'for_carbonates_param': 'mg/L'}
+             'for_carbonates_ans': '40.00', 'for_carbonates_param': 'mg/L',
+             'date_1': '20-Oct-2026', 'parameter_1': 'Total Toxic Metals', 'result_1': '0.3',
+             'date_2': '20-Oct-2026', 'parameter_2': 'Alkalinity', 'result_2': '100'}   # R13.4: table rows (R11 rule)
         t = self.pdf(Ww_rds, 'ww', d)
         if t is not None:
             self.assertIn('0.1 + 0.2', t)
@@ -77,7 +81,9 @@ class RdsR1Tests(TestCase):
              'cal_avg_final_ans': '40.48', 'cal_avg_param': 'mg/L',
              'alkalinity_1_1': '10', 'alkalinity_1_2': '0', 'alkalinity_1_3': '0.02', 'alkalinity_1_4': '100', 'alkalinity_ans1': '100',
              'calcium_crm_1_1_1': '10', 'calcium_crm_1_1_2': '0', 'calcium_crm_1_1_3': '0.02', 'calcium_crm_1_1_4': '20.04',
-             'calcium_crm_1_1_divi': '50', 'calcium_crm_1_1_ans': '80.160', 'calcium_crm_1_1_param': 'mg/L'}
+             'calcium_crm_1_1_divi': '50', 'calcium_crm_1_1_ans': '80.160', 'calcium_crm_1_1_param': 'mg/L',
+             'date_1': '20-Oct-2026', 'parameter_1': 'Calcium', 'result_1': '40.48',
+             'date_2': '20-Oct-2026', 'parameter_2': 'Alkalinity', 'result_2': '100'}   # R13.4: table rows (R11 rule)
         t = self.pdf(Dw_rds, 'dw', d)
         if t is not None:
             self.assertIn('101.00 X 0.4008 = 40.48', t)

@@ -392,38 +392,23 @@ def generate_dw_qc_pdf_response(report, pk):
                 
 
                 # ---------- FIRST PART (Simple Average Formula) ----------
-                pdf.cell(0, 6, "Formula:", ln=True)
-                pdf.set_font("Calibri", '', 10)
-
-                # Save current Y
-                old_y = pdf.get_y()
-
-                # Build formula content like: a + b + c
-                avg_values = []
-                for i in range(1, 4):
-                    val_key = f"{check_key[:-1]}{i}"  # for_color1, for_color2, for_color3
-                    if data.get(val_key):
-                        avg_values.append(str(data[val_key]))
-
-                if avg_values:
-                    formula_content = " + ".join(avg_values)
+                # R13.4: "Formula:" prints only with its working (no readings -> no empty "Formula:")
+                avg_values = [str(data[f"{check_key[:-1]}{k}"]) for k in range(1, 4) if data.get(f"{check_key[:-1]}{k}")]
+                _t = __import__("QC.rds_pdf_extras", fromlist=["avg_part"]).avg_part(" + ".join(avg_values), data.get(ans_key), data.get(param_key), data.get(div_key) if div_key else None) if avg_values else None
+                if _t is not None:
+                    formula_content, _res, divisor_text = _t
+                    pdf.set_font("Calibri", 'B', 10)
+                    pdf.cell(0, 6, "Formula:", ln=True)
+                    pdf.set_font("Calibri", '', 10)
+                    old_y = pdf.get_y()
                     color_text_width = pdf.get_string_width(formula_content)
-                    color_line_start_x = start_x
-                    color_line_end_x = start_x + color_text_width
-
-                    # Draw formula
                     pdf.set_x(start_x)
-                    pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key)} {data.get(param_key)}", align='L', ln=True)
-
-                    # Draw underline
-                    pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                    # Draw divisor centered below line
-                    divisor_text = data.get(div_key) if div_key else None
-                    divisor_width = pdf.get_string_width(divisor_text)
-                    center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                    pdf.set_x(center_divisor_x)
-                    pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
+                    pdf.cell(color_text_width, 6, f"{formula_content} = {_res}", align='L', ln=True)
+                    pdf.line(start_x, old_y + 5.5, start_x + color_text_width, old_y + 5.5)
+                    if divisor_text:
+                        divisor_width = pdf.get_string_width(divisor_text)
+                        pdf.set_x(start_x + (color_text_width / 2) - (divisor_width / 2))
+                        pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
 
                 # Spacing before next section
                 pdf.ln(3)

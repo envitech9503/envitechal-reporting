@@ -183,3 +183,50 @@ class RdsR133(SimpleTestCase):
             self.assertIn('R13.3: "Formula:" is printed with its working only', s)
             self.assertIn('R13.3: a reading saved without its factor key', s)
             self.assertIn('R13.3: an average without its saved divisor', s)
+
+
+def pdf_text(pdf):
+    import subprocess, tempfile
+    with tempfile.NamedTemporaryFile(suffix='.pdf') as fh:
+        pdf.output(fh.name)
+        return subprocess.run(['pdftotext', '-layout', fh.name, '-'], capture_output=True, text=True).stdout
+
+
+class RdsR134(SimpleTestCase):
+    """R13.4: no "Formula:" line without its working (ww262 / ww271 WS headings, ww263 COD, dw721 hardness average)."""
+
+    def test_no_figure_left(self):
+        from QC.rds_pdf_extras import tidy, avg_part
+        self.assertIsNone(tidy('( X ) + ( X )', 'mg/L', '3'))
+        self.assertEqual(avg_part('135 + 135 + 135', None, 'mg/L', None), ('135 + 135 + 135', 'not calculated', '3'))
+        self.assertEqual(avg_part('98 + 99', '98.5', 'mg/L', ''), ('98 + 99', '98.5 mg/L', '2'))
+        self.assertIsNone(avg_part('', None, None, '3'))
+
+    def test_formula_label_held_until_working(self):
+        from QC.rds_pdf_extras import install_typo, closing
+        pdf = new_pdf(); install_typo(pdf)
+        pdf.set_font('Calibri', 'B', 10)
+        pdf.cell(0, 6, 'WS-NH3-0.5ppm', ln=True); pdf.cell(0, 6, 'Formula:', ln=True)
+        pdf.set_font('Calibri', 'B', 11); pdf.cell(0, 6, 'Ammonia', ln=True)               # next heading: dropped
+        pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, 'Formula:', ln=True)
+        pdf.set_font('Calibri', '', 10); pdf.cell(0, 6, '= not calculated', ln=True)        # no working: dropped
+        pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, 'Formula:', ln=True)
+        pdf.set_font('Calibri', '', 10); pdf.set_x(30); pdf.cell(40, 6, '1 + 2 + 3 = 2 mg/L', ln=True)   # printed
+        pdf.set_font('Calibri', 'B', 10); pdf.cell(20, 6, 'Formula:', border=False, align='L')
+        pdf.set_font('Calibri', '', 10); pdf.cell(0, 6, '(5 - 2) X 1000 = 3 mg/L', ln=True)          # same line
+        pdf.set_font('Calibri', 'B', 10); pdf.cell(0, 6, 'Formula :', ln=True)
+        pdf.__dict__.pop('_etal_df', None)
+        from QC import rds_pdf_extras as ex
+        ex.fdrop(pdf)                                                                        # closing(): END follows
+        t = pdf_text(pdf)
+        self.assertEqual(t.count('Formula'), 2, t)
+        self.assertRegex(t, r'Formula:\s*\n\s*1 \+ 2 \+ 3 = 2 mg/L')
+        self.assertRegex(t, r'Formula:\s+\(5 - 2\) X 1000 = 3 mg/L')
+        self.assertIn('fdrop(pdf)', src('QC', 'rds_pdf_extras.py').split('def closing')[1][:300])
+
+    def test_average_sections_guarded(self):
+        s = src('QC', 'views', 'ww.py')
+        self.assertIn('R13.4: a heading and "Formula:" print only with their working', s)
+        self.assertEqual(s.count('R13.4: "Formula:" prints only with its working'), 2)
+        self.assertEqual(s.count('R13.4: the heading prints only with its working'), 4)
+        self.assertIn('R13.4: "Formula:" prints only with its working', src('QC', 'views', 'dw.py'))

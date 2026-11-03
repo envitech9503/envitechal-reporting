@@ -825,20 +825,18 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.cell(0, 8, section_title, ln=True)
 
             # ================= SIMPLE AVERAGE =================
-            pdf.set_font("Calibri", 'B', 10)
-            pdf.cell(0, 6, data.get(f"{head_key}_1"), ln=True)
-            # pdf.cell(0, 6, "Formula:", ln=True)
-
-            pdf.set_font("Calibri", '', 10)
-            old_y = pdf.get_y()
-
             values = []
             for i in range(1, 4):
                 key = f"for_{param}{i}_{io}"
-                if data.get(key) is not None:
+                if data.get(key) is not None and str(data.get(key)).strip():
                     values.append(str(data[key]))
 
-            if values:
+            if values:   # R13.4: the heading prints only with its working
+                pdf.set_font("Calibri", 'B', 10)
+                if data.get(f"{head_key}_1"):
+                    pdf.cell(0, 6, str(data.get(f"{head_key}_1")), ln=True)
+                pdf.set_font("Calibri", '', 10)
+                old_y = pdf.get_y()
                 formula = " + ".join(values)
                 width = pdf.get_string_width(formula)
 
@@ -857,13 +855,6 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.ln(3)
 
             # ================= WEIGHTED AVERAGE =================
-            pdf.set_font("Calibri", 'B', 10)
-            pdf.cell(0, 6, data.get(f"{head_key}_2"), ln=True)
-            # pdf.cell(0, 6, "Formula:", ln=True)
-
-            pdf.set_font("Calibri", '', 10)
-            old_y = pdf.get_y()
-
             parts = []
             for i in range(1, 4):
                 val_key = f"for_{param}1_{i}_{io}"
@@ -872,7 +863,12 @@ def generate_ww_qc_pdf_response(report, pk):
                 if data.get(val_key) is not None and data.get(df_key) is not None:
                     parts.append(f"({data[val_key]} X {data[df_key]})")
 
-            if parts:
+            if parts:   # R13.4: the heading prints only with its working
+                pdf.set_font("Calibri", 'B', 10)
+                if data.get(f"{head_key}_2"):
+                    pdf.cell(0, 6, str(data.get(f"{head_key}_2")), ln=True)
+                pdf.set_font("Calibri", '', 10)
+                old_y = pdf.get_y()
                 formula = " + ".join(parts)
                 width = pdf.get_string_width(formula)
 
@@ -920,11 +916,6 @@ def generate_ww_qc_pdf_response(report, pk):
             # Try to get the header for simple average
             # Your data shows it's actually "ammonia_head_inlet" (not "_1")
             simple_header = data.get(simple_head_key)
-            if simple_header:
-                pdf.cell(0, 6, simple_header, ln=True)
-            
-            pdf.set_font("Calibri", '', 10)
-            old_y = pdf.get_y()
             
             # Get the 3 values for simple average
             # Your data has keys: for_ammonia1_inlet, for_ammonia2_inlet, for_ammonia3_inlet
@@ -934,7 +925,12 @@ def generate_ww_qc_pdf_response(report, pk):
                 if data.get(key) is not None:
                     values.append(str(data[key]))
             
-            if values:
+            if values:   # R13.4: the heading prints only with its working
+                pdf.set_font("Calibri", 'B', 10)
+                if simple_header:
+                    pdf.cell(0, 6, simple_header, ln=True)
+                pdf.set_font("Calibri", '', 10)
+                old_y = pdf.get_y()
                 formula = " + ".join(values)
                 width = pdf.get_string_width(formula)
                 
@@ -964,11 +960,6 @@ def generate_ww_qc_pdf_response(report, pk):
             pdf.set_font("Calibri", 'B', 10)
             
             weighted_header = data.get(weighted_head_key)
-            if weighted_header:
-                pdf.cell(0, 6, weighted_header, ln=True)
-            
-            pdf.set_font("Calibri", '', 10)
-            old_y = pdf.get_y()
             
             # For weighted average, your data has different keys:
             # for_ammonia1_1_inlet, for_ammonia1_2_inlet, for_ammonia1_3_inlet
@@ -982,7 +973,12 @@ def generate_ww_qc_pdf_response(report, pk):
                 if data.get(val_key) is not None and data.get(df_key) is not None:
                     parts.append(f"({data[val_key]} X {data[df_key]})")
             
-            if parts:
+            if parts:   # R13.4: the heading prints only with its working
+                pdf.set_font("Calibri", 'B', 10)
+                if weighted_header:
+                    pdf.cell(0, 6, weighted_header, ln=True)
+                pdf.set_font("Calibri", '', 10)
+                old_y = pdf.get_y()
                 formula = " + ".join(parts)
                 width = pdf.get_string_width(formula)
                 
@@ -1034,38 +1030,23 @@ def generate_ww_qc_pdf_response(report, pk):
                 
 
                 # ---------- FIRST PART (Simple Average Formula) ----------
-                pdf.cell(0, 6, "Formula:", ln=True)
-                pdf.set_font("Calibri", '', 10)
-
-                # Save current Y
-                old_y = pdf.get_y()
-
-                # Build formula content like: a + b + c
-                avg_values = []
-                for i in range(1, 4):
-                    val_key = f"{check_key[:-1]}{i}"  # for_color1, for_color2, for_color3
-                    if data.get(val_key):
-                        avg_values.append(str(data[val_key]))
-
-                if avg_values:
-                    formula_content = " + ".join(avg_values)
+                # R13.4: "Formula:" prints only with its working (no readings -> no empty "Formula:")
+                avg_values = [str(data[f"{check_key[:-1]}{k}"]) for k in range(1, 4) if data.get(f"{check_key[:-1]}{k}")]
+                _t = __import__("QC.rds_pdf_extras", fromlist=["avg_part"]).avg_part(" + ".join(avg_values), data.get(ans_key), data.get(param_key), data.get(div_key) if div_key else None) if avg_values else None
+                if _t is not None:
+                    formula_content, _res, divisor_text = _t
+                    pdf.set_font("Calibri", 'B', 10)
+                    pdf.cell(0, 6, "Formula:", ln=True)
+                    pdf.set_font("Calibri", '', 10)
+                    old_y = pdf.get_y()
                     color_text_width = pdf.get_string_width(formula_content)
-                    color_line_start_x = start_x
-                    color_line_end_x = start_x + color_text_width
-
-                    # Draw formula
                     pdf.set_x(start_x)
-                    pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key)} {data.get(param_key)}", align='L', ln=True)
-
-                    # Draw underline
-                    pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                    # Draw divisor centered below line
-                    divisor_text = data.get(div_key) if div_key else None
-                    divisor_width = pdf.get_string_width(divisor_text)
-                    center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                    pdf.set_x(center_divisor_x)
-                    pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
+                    pdf.cell(color_text_width, 6, f"{formula_content} = {_res}", align='L', ln=True)
+                    pdf.line(start_x, old_y + 5.5, start_x + color_text_width, old_y + 5.5)
+                    if divisor_text:
+                        divisor_width = pdf.get_string_width(divisor_text)
+                        pdf.set_x(start_x + (color_text_width / 2) - (divisor_width / 2))
+                        pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
 
                 # Spacing before next section
                 pdf.ln(3)
@@ -5560,7 +5541,7 @@ def generate_ww_qc_pdf_response(report, pk):
         def add_average_formula_section_crm(check_key, section_title, head_key, ans_key, param_key, 
                                 div_key=None, start_x=30):
             """Add formula section with average calculation"""
-            if data.get(check_key):
+            if data.get(check_key) and any(data.get(f"{check_key[:-1]}{k}") for k in range(1, 4)):   # R13.4: no heading without readings
                 check_page_break(30)
                 pdf.set_font("Calibri", 'B', 11)
                 pdf.cell(0, 8, f"{section_title}", 0, 1, 'L')
@@ -5571,38 +5552,23 @@ def generate_ww_qc_pdf_response(report, pk):
                 
 
                 # ---------- FIRST PART (Simple Average Formula) ----------
-                pdf.cell(0, 6, "Formula:", ln=True)
-                pdf.set_font("Calibri", '', 10)
-
-                # Save current Y
-                old_y = pdf.get_y()
-
-                # Build formula content like: a + b + c
-                avg_values = []
-                for i in range(1, 4):
-                    val_key = f"{check_key[:-1]}{i}"  # for_color1, for_color2, for_color3
-                    if data.get(val_key):
-                        avg_values.append(str(data[val_key]))
-
-                if avg_values:
-                    formula_content = " + ".join(avg_values)
+                # R13.4: "Formula:" prints only with its working (no readings -> no empty "Formula:")
+                avg_values = [str(data[f"{check_key[:-1]}{k}"]) for k in range(1, 4) if data.get(f"{check_key[:-1]}{k}")]
+                _t = __import__("QC.rds_pdf_extras", fromlist=["avg_part"]).avg_part(" + ".join(avg_values), data.get(ans_key), data.get(param_key), data.get(div_key) if div_key else None) if avg_values else None
+                if _t is not None:
+                    formula_content, _res, divisor_text = _t
+                    pdf.set_font("Calibri", 'B', 10)
+                    pdf.cell(0, 6, "Formula:", ln=True)
+                    pdf.set_font("Calibri", '', 10)
+                    old_y = pdf.get_y()
                     color_text_width = pdf.get_string_width(formula_content)
-                    color_line_start_x = start_x
-                    color_line_end_x = start_x + color_text_width
-
-                    # Draw formula
                     pdf.set_x(start_x)
-                    pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key)} {data.get(param_key)}", align='L', ln=True)
-
-                    # Draw underline
-                    pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                    # Draw divisor centered below line
-                    divisor_text = data.get(div_key) if div_key else None
-                    divisor_width = pdf.get_string_width(divisor_text)
-                    center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                    pdf.set_x(center_divisor_x)
-                    pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
+                    pdf.cell(color_text_width, 6, f"{formula_content} = {_res}", align='L', ln=True)
+                    pdf.line(start_x, old_y + 5.5, start_x + color_text_width, old_y + 5.5)
+                    if divisor_text:
+                        divisor_width = pdf.get_string_width(divisor_text)
+                        pdf.set_x(start_x + (color_text_width / 2) - (divisor_width / 2))
+                        pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
 
                 # Spacing before next section
                 pdf.ln(3)
@@ -5611,99 +5577,37 @@ def generate_ww_qc_pdf_response(report, pk):
         
         def add_average_formula_section(check_key, section_title, head_key, ans_key, param_key, 
                                 div_key=None, start_x=30):
-            """Add formula section with average calculation"""
-            if data.get(check_key) or data.get(ans_key + '_1'):
-                check_page_break(30)
-                pdf.set_font("Calibri", 'B', 11)
-                pdf.cell(0, 8, f"{section_title}", 0, 1, 'L')
+            """Add formula section with average calculation.
+            R13.4: a heading and "Formula:" print only with their working (ww262, ww271: a WS heading and
+            "Formula:" with no readings under them; ww45: "135 + 135 + 135 = mg/L")."""
+            from QC.rds_pdf_extras import avg_part
+            if not (data.get(check_key) or data.get(ans_key + '_1')):
+                return
+            stem = check_key[:-1]
+            vals = [str(data.get(f"{stem}{i}")) for i in range(1, 4) if data.get(f"{stem}{i}")]
+            div1 = str((data.get(div_key + '1') if check_key == 'for_cod1' and data.get(div_key + '1') else data.get(div_key)) or '') if div_key else ''   # COD WS has its own divisor
+            parts = [f"({data.get(f'{stem}1_{i}')} X {data.get(f'{stem}1_{i}_df')})" for i in range(1, 4)
+                     if data.get(f"{stem}1_{i}") and data.get(f"{stem}1_{i}_df")]
+            div2 = str(data.get(div_key)) if div_key and data.get(div_key) else ''
+            one = avg_part(" + ".join(vals), data.get(ans_key), data.get(param_key), div1) if vals else None
+            two = avg_part(" + ".join(parts), data.get(ans_key + '_1'), data.get(param_key + '_1'), div2) if parts else None
+            if one is None and two is None:
+                return
+            check_page_break(30)
+            pdf.set_font("Calibri", 'B', 11)
+            pdf.cell(0, 8, f"{section_title}", 0, 1, 'L')
+            for head, t in ((data.get(head_key), one), (data.get(head_key + "_1"), two)):
+                if t is None:
+                    continue
                 pdf.set_font("Calibri", 'B', 10)
-                
-                if data.get(head_key):
-                    pdf.cell(0, 6, f"{data.get(head_key)}", ln=True)
-                
-
-                # ---------- FIRST PART (Simple Average Formula) ----------
+                if head:
+                    pdf.cell(0, 6, f"{head}", ln=True)
                 pdf.cell(0, 6, "Formula:", ln=True)
                 pdf.set_font("Calibri", '', 10)
-
-                # Save current Y
-                old_y = pdf.get_y()
-
-                # Build formula content like: a + b + c
-                avg_values = []
-                for i in range(1, 4):
-                    val_key = f"{check_key[:-1]}{i}"  # for_color1, for_color2, for_color3
-                    if data.get(val_key):
-                        avg_values.append(str(data[val_key]))
-
-                if avg_values:
-                    formula_content = " + ".join(avg_values)
-                    color_text_width = pdf.get_string_width(formula_content)
-                    color_line_start_x = start_x
-                    color_line_end_x = start_x + color_text_width
-
-                    # Draw formula
-                    pdf.set_x(start_x)
-                    pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key)} {data.get(param_key)}", align='L', ln=True)
-
-                    # Draw underline
-                    pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                    # Draw divisor centered below line
-                    divisor_text = str((data.get(div_key + '1') if check_key == 'for_cod1' and data.get(div_key + '1') else data.get(div_key)) or '') if div_key else ''   # COD WS has its own divisor
-                    divisor_width = pdf.get_string_width(divisor_text)
-                    center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                    pdf.set_x(center_divisor_x)
-                    pdf.cell(divisor_width, 6, divisor_text, align="C", ln=True)
-
-                # Spacing before next section
-                pdf.ln(3)
-
-                # ---------- SECOND PART (Weighted Average Formula) ----------
-                head_key_1 = head_key + "_1"
-                pdf.set_font("Calibri", 'B', 10)
-                if data.get(head_key_1):
-                    pdf.cell(0, 6, f"{data.get(head_key_1)}", ln=True)
-
-                    pdf.cell(0, 6, "Formula:", ln=True)
-                pdf.set_font("Calibri", '', 10)
-
-                # Save current Y
-                old_y = pdf.get_y()
-
-                # Build weighted formula like: (a × a_df) + (b × b_df) + (c × c_df)
-                formula_parts = []
-                for i in range(1, 4):
-                    val_key = f"{check_key[:-1]}1_{i}"     # replicate i (was always replicate 1; fixed 27-10-2026)
-                    df_key = f"{check_key[:-1]}1_{i}_df"
-                    if data.get(val_key) and data.get(df_key):
-                        formula_parts.append(f"({data[val_key]} X {data[df_key]})")
-                    # formula_parts.append(f"()")
-
-                if formula_parts:
-                    formula_content = " + ".join(formula_parts)
-                    color_text_width = pdf.get_string_width(formula_content)
-                    color_line_start_x = start_x
-                    color_line_end_x = start_x + color_text_width
-
-                    # Draw formula
-                    pdf.set_x(start_x)
-                    pdf.cell(color_text_width, 6, f"{formula_content} = {data.get(ans_key + '_1')} {data.get(param_key + '_1')}", align='L', ln=True)
-
-                    # Draw underline
-                    pdf.line(color_line_start_x, old_y + 5.5, color_line_end_x, old_y + 5.5)
-
-                    # Center divisor below line
-                    divisor_text = str(data.get(div_key)) if data.get(div_key) else ""
-                    divisor_width = pdf.get_string_width(divisor_text)
-                    center_divisor_x = color_line_start_x + (color_text_width / 2) - (divisor_width / 2)
-                    pdf.set_x(center_divisor_x)
-                    pdf.cell(divisor_width, 6, divisor_text, align="C")
-
-                pdf.ln(4)
-                if check_key == 'for_cod1':
-                    _rds_note(pdf, data.get('cod_ws_check'))
-                    _rds_note(pdf, data.get('cod_check'))
+                add_formula_with_line(*t, start_x=start_x)
+            if check_key == 'for_cod1':
+                _rds_note(pdf, data.get('cod_ws_check'))
+                _rds_note(pdf, data.get('cod_check'))
 
         # Start calculations section (no page and no heading when nothing is calculated, 30-10-2026)
         __import__('QC.rds_pdf_extras', fromlist=['calc_open']).calc_open(pdf, add_calculation_header)

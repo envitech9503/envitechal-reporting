@@ -49,6 +49,8 @@ def tidy(formula, result, divisor):
     if 1 < n_all and n < n_all:
         f = ' + '.join(kept)
     f = NONE_RX.sub('', f)
+    if not re.search(r'\d', f):
+        return None                                       # R13.4: no figure left after the empty readings were dropped (dw721, dw722)
     r = NONE_RX.sub('', '' if result is None else str(result)).strip()
     if _UNIT_ONLY.match(r):                               # R13: a reading whose "=" was never pressed ("= mg/L")
         r = 'not calculated'
@@ -57,6 +59,16 @@ def tidy(formula, result, divisor):
         d = str(n)                                        # averaged over the readings entered (R1 rule)
     return f, r, d
 
+
+
+def avg_part(formula, ans, unit, divisor):
+    """R13.4: the working of one average (readings, result, divisor) or None when nothing is entered; the divisor
+    defaults to the number of readings averaged."""
+    f = '' if formula is None else str(formula)
+    n = len([t for t in f.split(' + ') if t.strip()])
+    d = str(divisor or '').strip() or (str(n) if n > 1 else None)
+    r = ('%s %s' % ('' if ans is None else ans, '' if unit is None else unit)).strip()
+    return tidy(f, r, d)
 
 _FMTS = ('%d-%m-%Y', '%d-%b-%Y', '%d-%B-%Y', '%Y-%m-%d', '%d/%m/%Y', '%d-%m-%y', '%d %B %Y', '%d %b %Y', '%B %d, %Y')
 
@@ -268,8 +280,73 @@ def install_typo(pdf):
                 t = t[0].upper() + t[1:]
         except Exception:
             pass
+        if pdf.__dict__.get('_etal_hdr'):                  # page header / footer: no bearing on a "Formula:" line
+            return orig_cell(w, h, t, *a, **kw)
+        if _FORMULA_LABEL.match(t):                         # R13.4: held until its working follows
+            fdrop(pdf)
+            x0 = pdf.get_x(); out = orig_cell(w, h, '', *a, **kw)
+            ln = kw.get('ln', a[1] if len(a) > 1 else 0)
+            down = ln in (1, 2, True) or str(kw.get('new_y', '')).endswith('NEXT')
+            pdf._etal_fpend = dict(page=pdf.page, x=x0, y=pdf.get_y() - h if down else pdf.get_y(), w=w, h=h, t=t,
+                                   font=(pdf.font_family, pdf.font_style, pdf.font_size_pt),
+                                   align=kw.get('align', a[2] if len(a) > 2 else 'L'))
+            return out
+        if pdf.__dict__.get('_etal_fpend') and t.strip():
+            if pdf.font_style == 'B' or re.match(r'^\s*=', t) and not re.search(r'\d', t):
+                fdrop(pdf)                                  # a heading, or "= not calculated": no working under "Formula:"
+            else:
+                fflush(pdf, orig_cell)                      # the working (or an observation: "Observed value = Odourless")
         return orig_cell(w, h, t, *a, **kw)
     pdf.cell = cell
+    orig_mc = pdf.multi_cell
+
+    def multi_cell(w, h=None, txt='', *a, **kw):
+        t = str(kw.get('text', txt) or '')
+        if pdf.__dict__.get('_etal_fpend') and t.strip() and not pdf.__dict__.get('_etal_hdr'):
+            if pdf.font_style == 'B':
+                fdrop(pdf)
+            else:
+                fflush(pdf, orig_cell)
+        return orig_mc(w, h, txt, *a, **kw)
+    pdf.multi_cell = multi_cell
+    orig_ap = pdf.add_page
+
+    def add_page(*a, **kw):
+        pdf._etal_hdr = True
+        try:
+            return orig_ap(*a, **kw)
+        finally:
+            pdf._etal_hdr = False
+    pdf.add_page = add_page
+
+
+_FORMULA_LABEL = re.compile(r'^\s*Formula\s*:\s*$')
+
+
+def fdrop(pdf):
+    """R13.4: a "Formula:" line with no working under it is not printed (its line stays blank)."""
+    pdf.__dict__['_etal_fpend'] = None
+
+
+def fflush(pdf, cell):
+    """R13.4: the held "Formula:" line is printed where it was set, now that its working follows."""
+    p = pdf.__dict__.get('_etal_fpend')
+    pdf.__dict__['_etal_fpend'] = None
+    if not p:
+        return
+    page, x, y, font = pdf.page, pdf.get_x(), pdf.get_y(), (pdf.font_family, pdf.font_style, pdf.font_size_pt)
+    auto, bm = pdf.auto_page_break, pdf.b_margin
+    try:
+        pdf.set_auto_page_break(False)
+        pdf.page = p['page']
+        pdf.set_font(p['font'][0], p['font'][1], p['font'][2])
+        pdf.set_xy(p['x'], p['y'])
+        cell(p['w'], p['h'], p['t'], 0, 0, p['align'] or 'L')
+    finally:
+        pdf.page = page
+        pdf.set_font(*font)
+        pdf.set_xy(x, y)
+        pdf.set_auto_page_break(auto, bm)
 
 
 def install_df(pdf, data):
@@ -333,6 +410,7 @@ def _num(v):
 
 def closing(pdf, data, page_break=255, top=35):
     """Analysed by / checked by with their e-signatures, then the end line."""
+    fdrop(pdf)                                            # R13.4: a "Formula:" left with no working (ww263)
     flush_df(pdf)
     pdf._etal_calc_empty = calc_empty(pdf)
     from EnviTechAlApp.models import Signatures

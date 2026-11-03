@@ -61,7 +61,9 @@ class RdsR3Pdf(TestCase):
              'for_cobalt1': '0.20', 'for_cobalt1_df': '1', 'for_cobalt2': '0.22', 'for_cobalt2_df': '1', 'cobalt_divi': '2',
              'cobalt_ans': '0.21', 'cobalt_param': 'mg/L',
              'for_ammonia1_1': '0.5', 'for_ammonia1_1_df': '2', 'for_ammonia1_2': '0.6', 'for_ammonia1_2_df': '2',
-             'ammonia_divi': '2', 'ammonia_ans_1': '1.1', 'ammonia_param_1': 'mg/L'}
+             'ammonia_divi': '2', 'ammonia_ans_1': '1.1', 'ammonia_param_1': 'mg/L',
+             'date_3': '22-Oct-2026', 'parameter_3': 'Cobalt', 'result_3': '0.21',
+             'date_4': '22-Oct-2026', 'parameter_4': 'Ammonia', 'result_4': '1.1'}   # R13.4: table rows (R11 rule)
         t = self.pdf(Dw_rds, 'dw', d)
         if t is None:
             return
@@ -76,7 +78,7 @@ class RdsR3Pdf(TestCase):
         self.assertNotIn('None', t)
 
     def test_ww_pdf_and_custom_limits(self):
-        d = {'sample_id': 'WW-R3', 'report_type': 'in-out', 'date_1': '20-Oct-2026', 'parameter_1': 'Antimony',
+        d = {'sample_id': 'WW-R3', 'report_type': 'in-out', 'date_1': '20-Oct-2026', 'parameter_1': 'Antimony', 'inlet_1': '0.01', 'outlet_1': '0.01',
              'for_antimony1_inlet': '0.01', 'for_antimony1_df_inlet': '1', 'antimony_ans_inlet': '0.01',
              'antimony_param_inlet': 'mg/L', 'antimony_divi_inlet': '1', 'antimony_head_inlet': 'Antimony (Inlet):'}
         t = self.pdf(Ww_rds, 'ww', d)
