@@ -57,8 +57,8 @@ def tidy(formula, result, divisor):
     d = None if divisor in (None, '') else str(divisor)
     if d is not None and n_all == 3 and 0 < n < 3 and d.strip() == '3':
         d = str(n)                                        # averaged over the readings entered (R1 rule)
-    if n == 1 and d is not None:
-        d = None                                          # R14.2 / R14.3: one reading is not averaged (owner 04-11-2026)
+    if n == 1 and d is not None and d.strip() in ('1', '1.0'):
+        d = None                                          # R14.2: one reading is not "averaged over 1"; a volume divisor stays (R14.3.1)
         one = f.strip()
         if one.startswith('(') and one.endswith(')') and one.count('(') == 1:
             f = one[1:-1].strip()

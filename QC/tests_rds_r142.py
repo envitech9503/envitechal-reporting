@@ -75,7 +75,9 @@ class R143(SimpleTestCase):
 
     def test_single_reading_never_averaged(self):
         from QC.rds_pdf_extras import tidy
-        self.assertEqual(tidy('(20.268 X 1)', '20.268 mg/L', '3'), ('20.268 X 1', '20.268 mg/L', None))
+        self.assertEqual(tidy('(20.268 X 1)', '20.268 mg/L', '1'), ('20.268 X 1', '20.268 mg/L', None))
+        self.assertEqual(tidy('(46.4461 - 46.4) X 1000000', '922 mg/L', '50'), ('(46.4461 - 46.4) X 1000000', '922 mg/L', '50'))   # R14.3.1: a volume divisor stays
+        self.assertEqual(tidy('(44.4 - 26.4) X 1 X 1000', '360 mg/L', '50')[2], '50')
 
     def test_bar_match_whole_words(self):
         s = src('static', 'js', 'rds_qc.js')
