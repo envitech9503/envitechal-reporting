@@ -60,3 +60,25 @@ class R142Labels(SimpleTestCase):
         for t in ('rds_dw', 'rds_ww', 'rds_dw_manual', 'rds_ww_manual'):
             s = src('templates', t + '.html')
             self.assertNotIn('value="WS-NH3-0.5ppm"', s); self.assertNotIn('value="WS-AID-1ppm"', s)
+
+
+class R143(SimpleTestCase):
+    """R14.3 (owner 04-11-2026, zero tolerance): old records' WS / CRM readings print with the DF the sample uses; the
+    "+" CRM is matched to its own bar on whole words (pH is not phenolic)."""
+    def test_old_record_readings_take_df(self):
+        from QC.rds_print_filter import prune
+        d = {'date_1': 'x', 'parameter_1': 'Sulphate', 'result_1': '5', 'for_sulphate1': '20.268', 'for_sulphate2': '', 'for_sulphate1_1_df': '50',
+             'for_sulphate1_1': '36.3', 'sulphate_crm_8_1_1': '22.082', 'sulphate_crm_8_1_2': '', 'sulphate_crm_8_1_ans': '22.082'}
+        o = prune(d, 'dw')
+        self.assertEqual(o['for_sulphate1'], '(20.268 X 1)'); self.assertEqual(o['sulphate_crm_8_1_1'], '(22.082 X 1)')
+        self.assertEqual(o['for_sulphate1_1'], '36.3'); self.assertEqual(o['for_sulphate2'], '')
+
+    def test_single_reading_never_averaged(self):
+        from QC.rds_pdf_extras import tidy
+        self.assertEqual(tidy('(20.268 X 1)', '20.268 mg/L', '3'), ('20.268 X 1', '20.268 mg/L', None))
+
+    def test_bar_match_whole_words(self):
+        s = src('static', 'js', 'rds_qc.js')
+        self.assertIn('function pref(long, short)', s); self.assertIn('pref(q, p) || pref(p, q)', s)
+        for t in ('rds_dw', 'rds_ww', 'rds_dw_manual', 'rds_ww_manual'):
+            self.assertIn("rds_qc.js' %}?v=20261104b", src('templates', t + '.html'))

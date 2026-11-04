@@ -663,13 +663,14 @@ window.rdsCrmDp = function (prefix) {
       if (acc2 && m[2] !== 'Outlet') DEFAULT_CHECKS.forEach(function (tp) { addCheck(b, tp, { ident: tp === 'WS' ? 'WS-' + acc2 + '-' : '' }); });
     });
   }
+  function pref(long, short) { return long.indexOf(short) === 0 && (long.length === short.length || /[\s(]/.test(long.charAt(short.length))); }
   function barFor(param) {
     var want = String(param || '').toLowerCase().replace(/\s+crm$/i, '').replace(/\*/g, '').trim();
     var lib = window.RDSLib, pn = lib ? String(lib.pageName(want) || want).toLowerCase().replace(/\*/g, '') : want;
     var bars = Array.prototype.filter.call(document.querySelectorAll('.rq-bar'), function (b) { return vis(b); });
     var key = function (s) { return lib ? lib.bare(s) : s; };
     return bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p === key(want) || p === key(pn); })[0] ||
-           bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()); return p && (key(pn).indexOf(p) === 0 || p.indexOf(key(pn)) === 0); })[0] ||
+           bars.filter(function (b) { var p = key(b.dataset.param.toLowerCase()), q = key(pn); return p && q && (pref(q, p) || pref(p, q)); })[0] ||   // R14.3: whole words only ("ph" is not "phenolic")
            bars.filter(function (b) { return sameParam(b.dataset.param, want); })[0] || null;      // R13: "TDS" -> "Total Dissolved Solids (TDS)"
   }
   /* the table's "+" adds a CRM row; where the page has no CRM block for the parameter the row gets a CRM check */

@@ -206,6 +206,24 @@ def prune(data, kind):
         v = str(out.get(base) if out.get(base) is not None else '').strip()
         if v and v not in ('None', 'undefined') and not v.startswith('('):
             out[base] = '(%s X %s)' % (v, str(df).strip() if str(df or '').strip() not in ('', 'None') else '1')
+    # R14.3 (owner 04-11-2026, zero tolerance): an old record's working-standard or CRM reading saved without a dilution
+    # factor, in a section whose sample readings take one, prints as the sample's do - "(reading X 1)" (a blank D.F
+    # counts as 1 since R0; see rds_avg.js). Applies to the WS readings for_<stem>N[_side] and the page's own CRM
+    # readings <stem>_crm_N_k_i[_side].
+    stems = set()
+    for k in out:
+        m = re.match(r'^for_([a-z_]+?)1_[123]_df(_inlet|_outlet)?$', k)
+        if m:
+            stems.add((m.group(1), m.group(2) or ''))
+    for stem, side in stems:
+        for key in list(out):
+            m = re.match(r'^for_%s([123])%s$' % (re.escape(stem), re.escape(side)), key) or \
+                re.match(r'^%s_crm_\d+_\d+_([123])%s$' % (re.escape(stem), re.escape(side)), key)
+            if not m:
+                continue
+            v = str(out.get(key) if out.get(key) is not None else '').strip()
+            if v and v not in ('None', 'undefined') and not v.startswith('(') and re.match(r'^-?\d', v):
+                out[key] = '(%s X 1)' % v
     rows = row_keys(out)
     kept = []
     for rk in rows:
